@@ -9,6 +9,9 @@
     "build": "tsc -p tsconfig.json",
     "clean": "powershell -NoProfile -Command \"if (Test-Path lib) { Remove-Item lib -Recurse -Force }\"",
     "test": "vitest run",
+    "test:rules": "npm run test:rules:firestore && npm run test:rules:storage",
+    "test:rules:firestore": "firebase emulators:exec --config ../firebase.json --project edunova-aabd1 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/firestore.rules.test.ts\"",
+    "test:rules:storage": "firebase emulators:exec --config ../firebase.json --project edunova-aabd1 --only storage \"vitest run --config vitest.rules.config.ts src/__tests__/rules/storage.rules.test.ts\"",
     "test:watch": "vitest",
     "serve": "npm run build && firebase emulators:start --config ..\\firebase.json --only auth,firestore,functions,storage --project edunova-aabd1",
     "pregenerate": "tsx scripts/pregenerate.ts"
@@ -21,7 +24,9 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@types/node": "^20.19.43",
+    "firebase": "^12.15.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
     "vitest": "^3.1.1"
