@@ -69,6 +69,19 @@ describe("Storage security rules", () => {
     ));
   });
 
+  it("allows supported avatar image MIME types", async () => {
+    await assertSucceeds(uploadBytes(
+      ref(storageFor("student-a"), "avatars/student-a/avatar.webp"),
+      new Uint8Array([1, 2, 3]),
+      { contentType: "image/webp" }
+    ));
+    await assertSucceeds(uploadBytes(
+      ref(storageFor("student-a"), "avatars/student-a/avatar.jpg"),
+      new Uint8Array([1, 2, 3]),
+      { contentType: "image/jpeg" }
+    ));
+  });
+
   it("blocks writing to another user's avatar folder", async () => {
     await assertFails(uploadBytes(
       ref(storageFor("student-b"), "avatars/student-a/avatar.png"),
@@ -85,19 +98,23 @@ describe("Storage security rules", () => {
     ));
   });
 
-  it("documents current risk: avatar rules do not limit file size", async () => {
-    await assertSucceeds(uploadBytes(
+  it("blocks avatar uploads larger than five megabytes", async () => {
+    await assertFails(uploadBytes(
       ref(storageFor("student-a"), "avatars/student-a/large-avatar.bin"),
       new Uint8Array(6 * 1024 * 1024),
-      { contentType: "application/octet-stream" }
+      { contentType: "image/png" }
     ));
   });
 
-  it("documents current risk: avatar rules do not restrict MIME type", async () => {
-    await assertSucceeds(uploadBytes(
+  it("blocks unsupported or missing avatar MIME types", async () => {
+    await assertFails(uploadBytes(
       ref(storageFor("student-a"), "avatars/student-a/avatar.txt"),
       new Uint8Array([1, 2, 3]),
       { contentType: "text/plain" }
+    ));
+    await assertFails(uploadBytes(
+      ref(storageFor("student-a"), "avatars/student-a/avatar.bin"),
+      new Uint8Array([1, 2, 3])
     ));
   });
 });
