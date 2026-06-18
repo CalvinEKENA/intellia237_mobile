@@ -1,0 +1,402 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =============================================
+    // HELPER FUNCTIONS
+    // =============================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isRole(role) {
+      return isAuthenticated() && getUserRole() == role;
+    }
+
+    function isSuperAdmin() {
+      return isRole('superAdmin');
+    }
+
+    function isAdmin() {
+      return isRole('admin') || isSuperAdmin();
+    }
+
+    function isTeacher() {
+      return isRole('teacher');
+    }
+
+    function isStaff() {
+      return isTeacher() || isAdmin() || isSuperAdmin();
+    }
+
+    function isParent() {
+      return isRole('parent');
+    }
+
+    function isStudent() {
+      return isRole('student');
+    }
+
+    function getUserEstablishment() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.establishmentId;
+    }
+
+    function isSameEstablishment(establishmentId) {
+      return getUserEstablishment() == establishmentId;
+    }
+
+    // Vérifie qu'un parent est lié à un enfant
+    function isLinkedParent(studentUid) {
+      return isParent() &&
+        exists(/databases/$(database)/documents/children_links/$(request.auth.uid + '_' + studentUid)) &&
+        get(/databases/$(database)/documents/children_links/$(request.auth.uid + '_' + studentUid)).data.status == 'approved';
+    }
+
+    // =============================================
+    // USERS
+    // =============================================
+    match /users/{uid} {
+      allow read: if isOwner(uid)
+                  || isSuperAdmin()
+                  || (isAdmin() && isSameEstablishment(resource.data.establishmentId))
+                  || (isTeacher() && isSameEstablishment(resource.data.establishmentId))
+                  || isLinkedParent(uid);
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid)
+                    || isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId));
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // ESTABLISHMENTS
+    // =============================================
+    match /establishments/{establishmentId} {
+      allow read: if isAuthenticated() && (
+                    isSuperAdmin()
+                    || isSameEstablishment(establishmentId)
+                  );
+      allow create: if isSuperAdmin();
+      allow update: if isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(establishmentId));
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // STUDENT PROFILES
+    // =============================================
+    match /student_profiles/{uid} {
+      allow read: if isOwner(uid)
+                  || isSuperAdmin()
+                  || isLinkedParent(uid)
+                  || (isTeacher() && isSameEstablishment(
+                       get(/databases/$(database)/documents/users/$(uid)).data.establishmentId))
+                  || (isAdmin() && isSameEstablishment(
+                       get(/databases/$(database)/documents/users/$(uid)).data.establishmentId));
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid)
+                    || isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(
+                         get(/databases/$(database)/documents/users/$(uid)).data.establishmentId));
+      allow delete: if isSuperAdmin();
+
+      match /lessonProgress/{progressId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // =============================================
+    // PARENT PROFILES
+    // =============================================
+    match /parent_profiles/{uid} {
+      allow read: if isOwner(uid) || isSuperAdmin();
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid) || isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // TEACHER PROFILES
+    // =============================================
+    match /teacher_profiles/{uid} {
+      allow read: if isOwner(uid)
+                  || isSuperAdmin()
+                  || (isAdmin() && isSameEstablishment(
+                       get(/databases/$(database)/documents/users/$(uid)).data.establishmentId))
+                  || (isStudent() && isSameEstablishment(
+                       get(/databases/$(database)/documents/users/$(uid)).data.establishmentId));
+      allow create: if isOwner(uid) || isSuperAdmin();
+      allow update: if isOwner(uid)
+                    || isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(
+                         get(/databases/$(database)/documents/users/$(uid)).data.establishmentId));
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // ADMIN PROFILES
+    // =============================================
+    match /admin_profiles/{uid} {
+      allow read: if isOwner(uid) || isSuperAdmin();
+      allow create: if isSuperAdmin();
+      allow update: if isOwner(uid) || isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // CHILDREN LINKS (parent <-> enfant)
+    // =============================================
+    match /children_links/{linkId} {
+      allow read: if isAuthenticated() && (
+                    request.auth.uid == resource.data.parentId
+                    || request.auth.uid == resource.data.studentId
+                    || isSuperAdmin()
+                    || isAdmin()
+                  );
+      allow create: if isAuthenticated() && (
+                      isParent() && request.auth.uid == request.resource.data.parentId
+                    );
+      allow update: if isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(
+                         get(/databases/$(database)/documents/users/$(resource.data.studentId)).data.establishmentId));
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // SUBJECTS
+    // =============================================
+    match /{path=**}/subjects/{subjectId} {
+      allow read: if isAuthenticated();
+      allow create: if isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(request.resource.data.establishmentId));
+      allow update: if isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId))
+                    || (isTeacher() && request.auth.uid in resource.data.teacherIds);
+      allow delete: if isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId));
+    }
+
+    // =============================================
+    // CLASSES
+    // =============================================
+    match /classes/{classId} {
+      allow read: if isAuthenticated();
+      allow create: if isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(request.resource.data.establishmentId));
+      allow update: if isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId))
+                    || (isTeacher() && request.auth.uid == resource.data.mainTeacherId);
+      allow delete: if isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId));
+    }
+
+    // =============================================
+    // CHAPTERS
+    // =============================================
+    match /{path=**}/chapters/{chapterId} {
+      allow read: if isAuthenticated();
+      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow update: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow delete: if isAdmin() || isSuperAdmin();
+    }
+
+    // =============================================
+    // LESSONS
+    // =============================================
+    match /{path=**}/lessons/{lessonId} {
+      allow read: if isAuthenticated();
+      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow update: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow delete: if isAdmin() || isSuperAdmin();
+    }
+
+    // =============================================
+    // COURSES FOR STRUCTURED AI GENERATION
+    // =============================================
+    match /courses/{courseId} {
+      allow read: if isAuthenticated();
+      allow create: if isStaff();
+      allow update: if isStaff();
+      allow delete: if isAdmin() || isSuperAdmin();
+    }
+
+    match /courses/{courseId}/images/{imageId} {
+      allow read: if isAuthenticated();
+      allow create: if isStaff();
+      allow update: if isStaff();
+      allow delete: if isAdmin() || isSuperAdmin();
+    }
+
+    match /courses/{courseId}/generated_quizzes/{quizId} {
+      allow read: if isAuthenticated() && (
+                    request.auth.uid == resource.data.generatedByUid
+                    || isStaff()
+                  );
+      allow create, update, delete: if false; // Ecriture reservee aux Cloud Functions
+    }
+
+    match /courses/{courseId}/generated_summaries/{summaryId} {
+      allow read: if isAuthenticated() && (
+                    request.auth.uid == resource.data.generatedByUid
+                    || isStaff()
+                  );
+      allow create, update, delete: if false; // Ecriture reservee aux Cloud Functions
+    }
+
+    // =============================================
+    // LESSON ASSETS
+    // =============================================
+    match /lesson_assets/{assetId} {
+      allow read: if isAuthenticated();
+      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow update: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow delete: if isAdmin() || isSuperAdmin();
+    }
+
+    // =============================================
+    // QUIZZES
+    // =============================================
+    match /quizzes/{quizId} {
+      allow read: if isAuthenticated();
+      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow update: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow delete: if isAdmin() || isSuperAdmin();
+    }
+
+    // =============================================
+    // QUIZ ATTEMPTS
+    // =============================================
+    match /quiz_attempts/{attemptId} {
+      allow read: if isAuthenticated() && (
+                    request.auth.uid == resource.data.studentId
+                    || isTeacher()
+                    || isAdmin()
+                    || isSuperAdmin()
+                    || isLinkedParent(resource.data.studentId)
+                  );
+      allow create: if isStudent() && request.auth.uid == request.resource.data.studentId;
+      allow update: if isStudent() && request.auth.uid == resource.data.studentId;
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // PROGRESS
+    // =============================================
+    match /progress/{progressId} {
+      allow read: if isAuthenticated() && (
+                    request.auth.uid == resource.data.studentId
+                    || isTeacher()
+                    || isAdmin()
+                    || isSuperAdmin()
+                    || isLinkedParent(resource.data.studentId)
+                  );
+      allow create: if isStudent() && request.auth.uid == request.resource.data.studentId;
+      allow update: if isStudent() && request.auth.uid == resource.data.studentId;
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // BADGES
+    // =============================================
+    match /badges/{badgeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin() || isSuperAdmin();
+      allow update: if isAdmin() || isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // STREAKS
+    // =============================================
+    match /streaks/{uid} {
+      allow read: if isOwner(uid)
+                  || isSuperAdmin()
+                  || isLinkedParent(uid);
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid);
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // ANNOUNCEMENTS
+    // =============================================
+    match /announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow update: if isAdmin() || isSuperAdmin()
+                    || (isTeacher() && request.auth.uid == resource.data.createdBy);
+      allow delete: if isAdmin() || isSuperAdmin();
+    }
+
+    // =============================================
+    // NOTIFICATIONS
+    // =============================================
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if false; // Créées uniquement via Cloud Functions
+      allow update: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    // =============================================
+    // AI PERSONAS
+    // =============================================
+    match /ai_personas/{personaId} {
+      allow read: if isAuthenticated();
+      allow create: if isSuperAdmin();
+      allow update: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // AI CONVERSATIONS
+    // =============================================
+    match /ai_conversations/{conversationId} {
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow update: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    // =============================================
+    // RECOMMENDATIONS
+    // =============================================
+    match /recommendations/{recommendationId} {
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.studentId;
+      allow create: if false; // Créées uniquement via Cloud Functions / AI
+      allow update: if isAuthenticated() && request.auth.uid == resource.data.studentId;
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // REPORTS
+    // =============================================
+    match /reports/{reportId} {
+      allow read: if isSuperAdmin()
+                  || (isAdmin() && isSameEstablishment(resource.data.establishmentId))
+                  || (isTeacher() && request.auth.uid == resource.data.generatedBy);
+      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow update: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // SETTINGS
+    // =============================================
+    match /settings/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid);
+      allow delete: if isSuperAdmin();
+    }
+  }
+}

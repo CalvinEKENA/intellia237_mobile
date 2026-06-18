@@ -1,0 +1,55 @@
+{
+  "classLevel": "Terminale",
+  "subjectId": "anglais",
+  "subject": {
+    "title": "Anglais",
+    "description": "Programme intégral d'anglais pour la classe de Terminale",
+    "colorHex": 1332241,
+    "iconKey": "language",
+    "status": "published",
+    "order": 1
+  },
+  "chapters": [
+    {
+      "chapterId": "chapter_1",
+      "data": {
+        "title": "Chapter 1: Technology & Communication",
+        "description": "Exploring the impact of modern technologies on daily communication.",
+        "order": 1,
+        "lessonsCount": 2,
+        "status": "published"
+      },
+      "lessons": [
+        {
+          "lessonId": "lesson_1",
+          "data": {
+            "title": "Vocabulary: Digital World",
+            "summary": "Mots et expressions liés au monde du digital.",
+            "estimatedMinutes": 15,
+            "order": 1,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "1. Key Vocabulary",
+                "body": "Here are some essential words: \n- Device: Un appareil\n- Network: Un réseau\n- To browse: Naviguer (sur internet)"
+              },
+              {
+                "title": "2. Expressions",
+                "body": "- To keep in touch: Rester en contact\n- To be addicted to: Être accro à"
+              }
+            ],
+            "miniQuiz": [
+              {
+                "id": "q1",
+                "prompt": "Que signifie 'to browse' ?",
+                "options": ["Naviguer", "Télécharger", "Imprimer"],
+                "correctIndex": 0,
+                "explanation": "To browse the web signifie naviguer sur internet."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

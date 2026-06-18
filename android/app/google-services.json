@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "199517096075",
+    "project_id": "edunova-aabd1",
+    "storage_bucket": "edunova-aabd1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:199517096075:android:bcc88158174b9458d8ac8e",
+        "android_client_info": {
+          "package_name": "com.edunova.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDq4HU94VNTjko3xtJkeNIeEYd-26f_yYk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:199517096075:android:1eaa33421da59239d8ac8e",
+        "android_client_info": {
+          "package_name": "com.example.edunova"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDq4HU94VNTjko3xtJkeNIeEYd-26f_yYk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

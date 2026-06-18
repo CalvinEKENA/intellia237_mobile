@@ -1,0 +1,146 @@
+{
+  "classLevel": "Terminale",
+  "subjectId": "svteehb",
+  "subject": {
+    "title": "SVT",
+    "description": "Sciences de la Vie et de la Terre, Éducation à l'Environnement, Hygiène et Biotechnique",
+    "colorHex": 2261053,
+    "iconKey": "biotech",
+    "status": "published",
+    "order": 2
+  },
+  "chapters": [
+    {
+      "chapterId": "module_1",
+      "data": {
+        "title": "Module 1: Le monde vivant",
+        "description": "Mécanismes de la communication cellulaire, reproduction et système nerveux.",
+        "order": 1,
+        "lessonsCount": 10,
+        "status": "published"
+      },
+      "lessons": [
+        {
+          "lessonId": "lesson_1",
+          "data": {
+            "title": "Échanges et particules entre la cellule et le milieu ambiant",
+            "summary": "Limitation des conséquences liées aux échanges d'eau, de substances dissoutes et de particules entre la cellule et le milieu ambiant.",
+            "estimatedMinutes": 30,
+            "order": 1,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "lesson_2",
+          "data": {
+            "title": "Renouvellement de l'ATP lors des exercices musculaires",
+            "summary": "Sensibilisation sur la nécessité du renouvellement de l'ATP lors des exercices musculaires.",
+            "estimatedMinutes": 30,
+            "order": 2,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "lesson_3",
+          "data": {
+            "title": "Méiose, fécondation et pérennité de l'espèce",
+            "summary": "Nécessité de deux phénomènes biologiques complémentaires (méiose et fécondation) pour la pérennité de l'espèce.",
+            "estimatedMinutes": 30,
+            "order": 3,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "lesson_4",
+          "data": {
+            "title": "Diversité génétique et méiose",
+            "summary": "Rôle de la méiose et de la fécondation dans le maintien de la diversité génétique des individus au sein d'une espèce.",
+            "estimatedMinutes": 30,
+            "order": 4,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "lesson_5",
+          "data": {
+            "title": "Apparition des anomalies génétiques",
+            "summary": "Éradication des préjugés autour de l'apparition des anomalies et caractères nouveaux au sein des familles.",
+            "estimatedMinutes": 30,
+            "order": 5,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "lesson_6",
+          "data": {
+            "title": "Maladies génétiques et chromosomiques",
+            "summary": "Limitation de la fréquence de certaines maladies génétiques et/ou chromosomiques au sein des familles.",
+            "estimatedMinutes": 30,
+            "order": 6,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "lesson_7",
+          "data": {
+            "title": "Mouvements réflexes",
+            "summary": "Sensibilisation sur les dysfonctionnements des organes intervenant dans les mouvements réflexes.",
+            "estimatedMinutes": 30,
+            "order": 7,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "lesson_8",
+          "data": {
+            "title": "Préserver le fonctionnement des neurones",
+            "summary": "Sensibilisation sur la nécessité de préserver le fonctionnement des neurones.",
+            "estimatedMinutes": 30,
+            "order": 8,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "lesson_9",
+          "data": {
+            "title": "Conséquences sur la transmission synaptique",
+            "summary": "Sensibilisation sur les effets de certaines substances sur la transmission synaptique.",
+            "estimatedMinutes": 30,
+            "order": 9,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "lesson_10",
+          "data": {
+            "title": "Contrôle de la motricité",
+            "summary": "Limitation des dysfonctionnements des structures responsables du contrôle de la motricité.",
+            "estimatedMinutes": 30,
+            "order": 10,
+            "status": "published",
+            "contentSections": [{"title": "Contenu", "body": "En attente d'extraction PDF"}],
+            "miniQuiz": []
+          }
+        }
+      ]
+    }
+  ]
+}

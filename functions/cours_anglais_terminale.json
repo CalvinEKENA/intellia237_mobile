@@ -1,0 +1,453 @@
+{
+  "classLevel": "Terminale",
+  "subjectId": "anglais",
+  "subject": {
+    "title": "Anglais",
+    "description": "Programme intégral d'anglais pour la classe de Terminale",
+    "colorHex": 1332241,
+    "iconKey": "language",
+    "status": "published",
+    "order": 1
+  },
+  "chapters": [
+    {
+      "chapterId": "module_1",
+      "data": {
+        "title": "Module 1: Family and social life",
+        "description": "Use language to provide personal information.",
+        "order": 1,
+        "lessonsCount": 5,
+        "status": "published"
+      },
+      "lessons": [
+        {
+          "lessonId": "unit_1",
+          "data": {
+            "title": "Unit 1: Applying for a passport",
+            "summary": "Real life situation: Applying for a passport",
+            "estimatedMinutes": 20,
+            "order": 1,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Listening & Speaking",
+                "body": "Listen to a complex text for specific personal information and answer yes/no questions. Ask for, obtain and give personal information in a role play."
+              },
+              {
+                "title": "Reading",
+                "body": "Read a form asking for personal information. Revise the skill of prediction. Answer questions about the text."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_2",
+          "data": {
+            "title": "Unit 2: Discussing recreational activities",
+            "summary": "Real life situation: Discussing hobbies and recreational activities",
+            "estimatedMinutes": 20,
+            "order": 2,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Objectives",
+                "body": "Listen to a personal testimony on the benefits of preferred hobbies. Talk about hobbies and recreational activities and their benefits. Read stories about recreational activities. Skim a text for the main ideas."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_3",
+          "data": {
+            "title": "Unit 3: A job interview",
+            "summary": "Real life situation: Applying for a job",
+            "estimatedMinutes": 20,
+            "order": 3,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Objectives",
+                "body": "Listen to instructions on providing information and documents to furnish at a job interview and fill in missing words. Predict, skim and scan newspaper articles announcing job vacancies."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_4",
+          "data": {
+            "title": "Unit 4: Anticipating one's second language needs at work",
+            "summary": "Anticipating one's second language needs at work",
+            "estimatedMinutes": 20,
+            "order": 4,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Objectives",
+                "body": "Listen to a radio report for specific information about one's second language needs at work and write short answers. Answer questions about the report."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_5",
+          "data": {
+            "title": "Unit 5: Dealing with the second language at work",
+            "summary": "Using the second language at work",
+            "estimatedMinutes": 20,
+            "order": 5,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Objectives",
+                "body": "Listen to personal testimonies in a radio interview. Role play persuading and negotiating working conditions. Discuss tasks related to future jobs."
+              }
+            ],
+            "miniQuiz": []
+          }
+        }
+      ]
+    },
+    {
+      "chapterId": "module_2",
+      "data": {
+        "title": "Module 2: Economic life and occupations",
+        "description": "Using language to talk about consumer economy, community resources and time management.",
+        "order": 2,
+        "lessonsCount": 5,
+        "status": "published"
+      },
+      "lessons": [
+        {
+          "lessonId": "unit_1",
+          "data": {
+            "title": "Unit 1: Consumers and communities",
+            "summary": "Assessing consumer and community resources and services",
+            "estimatedMinutes": 20,
+            "order": 1,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Objectives",
+                "body": "Listen to a conversation involving routine expressions and terms that describe a consumer economy and community services."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_2",
+          "data": {
+            "title": "Unit 2: Read before you buy",
+            "summary": "Compare prices or quality to determine the best buys",
+            "estimatedMinutes": 20,
+            "order": 2,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Objectives",
+                "body": "Listen to a presentation that compares details about the prices or quality of products. Write short answers to questions."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_3",
+          "data": {
+            "title": "Unit 3: Banking services",
+            "summary": "Using banking services",
+            "estimatedMinutes": 20,
+            "order": 3,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Objectives",
+                "body": "Listen to a talk on the appropriate use of banking services. Express your opinions about the safety of banking services."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_4",
+          "data": {
+            "title": "Unit 4: Improving community services",
+            "summary": "Taking part in community activities and helping to improve them",
+            "estimatedMinutes": 20,
+            "order": 4,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Objectives",
+                "body": "Listen to a poem about serving others. Answer questions about the text."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_5",
+          "data": {
+            "title": "Unit 5: Manage your time well",
+            "summary": "Helping with the acquisition of community time management skills",
+            "estimatedMinutes": 20,
+            "order": 5,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Objectives",
+                "body": "Listen to a radio programme about personal time management. Ask questions and exchange information about time management."
+              }
+            ],
+            "miniQuiz": []
+          }
+        }
+      ]
+    },
+    {
+      "chapterId": "module_3",
+      "data": {
+        "title": "Module 3: Environment, well-being and health",
+        "description": "Environment, well-being and health concepts.",
+        "order": 3,
+        "lessonsCount": 5,
+        "status": "published"
+      },
+      "lessons": [
+        {
+          "lessonId": "unit_1",
+          "data": {
+            "title": "Unit 1: Be responsible - take care of your health",
+            "summary": "Health responsibility",
+            "estimatedMinutes": 20,
+            "order": 1,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Overview",
+                "body": "Details to be extracted from PDF."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_2",
+          "data": {
+            "title": "Unit 2: They're bad for your health!",
+            "summary": "Identifying health risks",
+            "estimatedMinutes": 20,
+            "order": 2,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Overview",
+                "body": "Details to be extracted from PDF."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_3",
+          "data": {
+            "title": "Unit 3: In an emergency",
+            "summary": "What to do in an emergency",
+            "estimatedMinutes": 20,
+            "order": 3,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Overview",
+                "body": "Details to be extracted from PDF."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_4",
+          "data": {
+            "title": "Unit 4: Be alert and prevent disease",
+            "summary": "Preventing diseases",
+            "estimatedMinutes": 20,
+            "order": 4,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Overview",
+                "body": "Details to be extracted from PDF."
+              }
+            ],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_5",
+          "data": {
+            "title": "Unit 5: Be aware of your environment",
+            "summary": "Environmental awareness",
+            "estimatedMinutes": 20,
+            "order": 5,
+            "status": "published",
+            "contentSections": [
+              {
+                "title": "Overview",
+                "body": "Details to be extracted from PDF."
+              }
+            ],
+            "miniQuiz": []
+          }
+        }
+      ]
+    },
+    {
+      "chapterId": "module_4",
+      "data": {
+        "title": "Module 4: Citizenship and human rights",
+        "description": "Citizenship and human rights topics",
+        "order": 4,
+        "lessonsCount": 5,
+        "status": "published"
+      },
+      "lessons": [
+        {
+          "lessonId": "unit_1",
+          "data": {
+            "title": "Unit 1: Gender equality",
+            "summary": "Gender equality discussion",
+            "estimatedMinutes": 20,
+            "order": 1,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_2",
+          "data": {
+            "title": "Unit 2: Democracy",
+            "summary": "Principles of Democracy",
+            "estimatedMinutes": 20,
+            "order": 2,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_3",
+          "data": {
+            "title": "Unit 3: Campaigning and voting for leaders",
+            "summary": "Voting and leaders",
+            "estimatedMinutes": 20,
+            "order": 3,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_4",
+          "data": {
+            "title": "Unit 4: Taking part in polls or surveys",
+            "summary": "Polls and surveys participating",
+            "estimatedMinutes": 20,
+            "order": 4,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_5",
+          "data": {
+            "title": "Unit 5: The quest for excellence",
+            "summary": "The quest for excellence",
+            "estimatedMinutes": 20,
+            "order": 5,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        }
+      ]
+    },
+    {
+      "chapterId": "module_5",
+      "data": {
+        "title": "Module 5: The media and communication",
+        "description": "Media and Communication topics",
+        "order": 5,
+        "lessonsCount": 5,
+        "status": "published"
+      },
+      "lessons": [
+        {
+          "lessonId": "unit_1",
+          "data": {
+            "title": "Unit 1: What internet services do you use?",
+            "summary": "Internet services",
+            "estimatedMinutes": 20,
+            "order": 1,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_2",
+          "data": {
+            "title": "Unit 2: Using ICT inventions",
+            "summary": "ICT inventions usage",
+            "estimatedMinutes": 20,
+            "order": 2,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_3",
+          "data": {
+            "title": "Unit 3: Recreation in the past and present",
+            "summary": "Past and present recreation",
+            "estimatedMinutes": 20,
+            "order": 3,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_4",
+          "data": {
+            "title": "Unit 4: ICT and the modern workplace",
+            "summary": "Modern workplace and ICT",
+            "estimatedMinutes": 20,
+            "order": 4,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        },
+        {
+          "lessonId": "unit_5",
+          "data": {
+            "title": "Unit 5: Are you a digital native?",
+            "summary": "Are you a digital native discussion",
+            "estimatedMinutes": 20,
+            "order": 5,
+            "status": "published",
+            "contentSections": [{"title": "Content","body": "Pending content."}],
+            "miniQuiz": []
+          }
+        }
+      ]
+    }
+  ]
+}

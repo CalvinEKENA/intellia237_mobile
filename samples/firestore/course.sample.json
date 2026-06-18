@@ -1,0 +1,71 @@
+{
+  "course": {
+    "id": "course_demo_sciences_001",
+    "title": "La photosynthese",
+    "subject": "SVT",
+    "gradeLevel": "3eme",
+    "language": "fr",
+    "status": "published",
+    "difficultyBand": "college",
+    "learningObjectives": [
+      "Expliquer le role de la chlorophylle",
+      "Identifier les intrants et extrants de la photosynthese",
+      "Relier la photosynthese a la production de matiere organique"
+    ],
+    "tags": [
+      "biologie",
+      "plante",
+      "energie"
+    ],
+    "contentSections": [
+      {
+        "title": "Definition",
+        "body": "La photosynthese est le processus par lequel les plantes vertes fabriquent leur propre matiere organique a partir de l'eau, du dioxyde de carbone et de l'energie lumineuse."
+      },
+      {
+        "title": "Conditions necessaires",
+        "body": "La feuille doit contenir de la chlorophylle. La plante a besoin de lumiere, d'eau absorbee par les racines et de dioxyde de carbone preleve dans l'air."
+      },
+      {
+        "title": "Produits formes",
+        "body": "La photosynthese produit du glucose, qui sert de reserve d'energie et de matiere, ainsi que du dioxygene libere dans l'atmosphere."
+      }
+    ],
+    "imageRefs": [
+      "diagram_leaf_001",
+      "equation_board_001"
+    ],
+    "source": {
+      "type": "teacher-authored",
+      "version": 1
+    },
+    "createdAt": "2026-04-06T10:00:00.000Z",
+    "updatedAt": "2026-04-06T10:00:00.000Z"
+  },
+  "images": [
+    {
+      "id": "diagram_leaf_001",
+      "fileName": "photosynthese-feuille.png",
+      "storagePath": "courses/course_demo_sciences_001/images/photosynthese-feuille.png",
+      "contentType": "image/png",
+      "caption": "Schema d'une feuille avec stomates, chloroplastes et circulation de seve.",
+      "ocrText": "CO2 + H2O + lumiere -> glucose + O2",
+      "source": {
+        "provider": "google-drive",
+        "driveFileId": "drive-file-001"
+      }
+    },
+    {
+      "id": "equation_board_001",
+      "fileName": "equation-photosynthese.jpg",
+      "storagePath": "courses/course_demo_sciences_001/images/equation-photosynthese.jpg",
+      "contentType": "image/jpeg",
+      "caption": "Equation simplifiee de la photosynthese au tableau.",
+      "ocrText": "6 CO2 + 6 H2O -> C6H12O6 + 6 O2",
+      "source": {
+        "provider": "google-drive",
+        "driveFileId": "drive-file-002"
+      }
+    }
+  ]
+}

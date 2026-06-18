@@ -1,0 +1,102 @@
+import 'academic_rules.dart';
+import 'learning_goal.dart';
+import 'school_establishment.dart';
+
+class StudentRegistrationPayload {
+  const StudentRegistrationPayload({
+    required this.firstName,
+    required this.lastName,
+    required this.establishment,
+    required this.schoolClass,
+    required this.schoolSeries,
+    this.selectedTutorId,
+    required this.preferredSubjects,
+    required this.difficultSubjects,
+    required this.learningGoal,
+    required this.dailyStudyMinutes,
+    required this.email,
+    required this.password,
+    required this.acceptedTerms,
+    required this.acceptedPrivacy,
+    required this.acceptedDataPolicy,
+  });
+
+  final String firstName;
+  final String lastName;
+  final SchoolEstablishment establishment;
+  final SchoolClass schoolClass;
+  final SchoolSeries? schoolSeries;
+  final String? selectedTutorId;
+  final List<String> preferredSubjects;
+  final List<String> difficultSubjects;
+  final LearningGoal learningGoal;
+  final int dailyStudyMinutes;
+  final String email;
+  final String password;
+  final bool acceptedTerms;
+  final bool acceptedPrivacy;
+  final bool acceptedDataPolicy;
+
+  Map<String, dynamic> toUserDocument({
+    required String uid,
+    required DateTime now,
+  }) {
+    return <String, dynamic>{
+      'uid': uid,
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'role': 'student',
+      'establishmentId': establishment.id,
+      'classLevel': schoolClass.label,
+      'series': schoolSeries?.label,
+      'tutorId': selectedTutorId,
+      'profileCompleted': true,
+      'tourGuideSeen': false,
+      'createdAt': now.toUtc(),
+      'updatedAt': now.toUtc(),
+    };
+  }
+
+  Map<String, dynamic> toStudentProfileDocument({
+    required String uid,
+    required DateTime now,
+  }) {
+    return <String, dynamic>{
+      'uid': uid,
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'establishmentId': establishment.id,
+      'establishmentName': establishment.name,
+      'classLevel': schoolClass.label,
+      'series': schoolSeries?.label,
+      'xp': 0,
+      'level': 1,
+      'streak': <String, dynamic>{
+        'current': 0,
+        'best': 0,
+        'lastStudyDate': null,
+      },
+      'tutorId': selectedTutorId,
+      'preferences': <String, dynamic>{
+        'preferredSubjects': preferredSubjects,
+        'difficultSubjects': difficultSubjects,
+        'learningGoal': learningGoal.label,
+        'dailyStudyMinutes': dailyStudyMinutes,
+        'studyReminderEnabled': true,
+        'notificationsEnabled': true,
+        'contentLanguage': 'fr',
+      },
+      'consents': <String, dynamic>{
+        'termsAccepted': acceptedTerms,
+        'privacyAccepted': acceptedPrivacy,
+        'dataPolicyAccepted': acceptedDataPolicy,
+        'acceptedAt': now.toUtc(),
+      },
+      'profileCompleted': true,
+      'createdAt': now.toUtc(),
+      'updatedAt': now.toUtc(),
+    };
+  }
+}
