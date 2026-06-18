@@ -5,6 +5,10 @@ import { setGlobalOptions } from "firebase-functions/v2";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
 import { getEnv } from "./config/env";
+import {
+  recordLessonProgressHandler,
+  submitQuizAttemptHandler
+} from "./services/academicCallables";
 import { GenerateQuizUseCase } from "./services/generateQuizUseCase";
 import { GenerateSummaryUseCase } from "./services/generateSummaryUseCase";
 import { toHttpsError } from "./utils/errors";
@@ -131,4 +135,22 @@ export const askTutor = onCall(
       throw toHttpsError(error);
     }
   }
+);
+
+export const submitQuizAttempt = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 30,
+    memory: "512MiB"
+  },
+  submitQuizAttemptHandler
+);
+
+export const recordLessonProgress = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 30,
+    memory: "512MiB"
+  },
+  recordLessonProgressHandler
 );

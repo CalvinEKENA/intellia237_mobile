@@ -33,3 +33,36 @@ export const askTutorCallableInputSchema = z.object({
 });
 
 export type AskTutorCallableInput = z.infer<typeof askTutorCallableInputSchema>;
+
+export const clientIdSchema = z.string()
+  .trim()
+  .min(8)
+  .max(80)
+  .regex(/^[A-Za-z0-9_-]+$/);
+
+export const answersByQuestionSchema = z.record(
+  z.string().trim().min(1).max(128),
+  z.string().max(1000)
+).refine((answers) => Object.keys(answers).length <= 100, {
+  message: "A quiz attempt cannot contain more than 100 answers."
+});
+
+export const submitQuizAttemptCallableInputSchema = z.object({
+  quizId: z.string().trim().min(1).max(128),
+  clientAttemptId: clientIdSchema,
+  answersByQuestion: answersByQuestionSchema,
+  startedAt: z.string().datetime().optional(),
+  durationSeconds: z.coerce.number().int().min(0).max(86400).optional()
+}).strict();
+
+export const recordLessonProgressCallableInputSchema = z.object({
+  classLevel: z.string().trim().min(1).max(64),
+  subjectId: z.string().trim().min(1).max(128),
+  chapterId: z.string().trim().min(1).max(128),
+  lessonId: z.string().trim().min(1).max(128),
+  progress: z.coerce.number().min(0).max(1),
+  clientEventId: clientIdSchema
+}).strict();
+
+export type SubmitQuizAttemptCallableInput = z.infer<typeof submitQuizAttemptCallableInputSchema>;
+export type RecordLessonProgressCallableInput = z.infer<typeof recordLessonProgressCallableInputSchema>;
