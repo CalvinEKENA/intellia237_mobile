@@ -14,22 +14,19 @@
     "pregenerate": "tsx scripts/pregenerate.ts"
   },
   "dependencies": {
-    "@genkit-ai/ai": "^1.32.0",
-    "@genkit-ai/core": "^1.32.0",
-    "@genkit-ai/dotprompt": "^0.9.12",
-    "@genkit-ai/flow": "^0.5.17",
     "axios": "^1.15.0",
     "dotenv": "^17.4.1",
     "firebase-admin": "^13.0.2",
     "firebase-functions": "^6.0.1",
-    "genkit-ai": "^0.0.1",
-    "openai": "^6.34.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10",
+    "@types/node": "^20.19.43",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
     "vitest": "^3.1.1"
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
   }
 }

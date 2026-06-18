@@ -1,22 +1,67 @@
 import axios from "axios";
 import { getEnv } from "../config/env";
 
+type LlmOperation = "generateStructuredContent" | "generateText";
+
+function buildLlmLogMeta(params: {
+  operation: LlmOperation;
+  providerConfigured: boolean;
+  modelConfigured: boolean;
+  startedAt: number;
+  status?: number;
+  errorType?: string;
+}) {
+  return {
+    operation: params.operation,
+    providerConfigured: params.providerConfigured,
+    modelConfigured: params.modelConfigured,
+    durationMs: Date.now() - params.startedAt,
+    status: params.status,
+    errorType: params.errorType
+  };
+}
+
+function buildAuthHeaders(apiKey: string | undefined) {
+  return {
+    "Authorization": `Bearer ${apiKey?.trim() ?? ""}`,
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  };
+}
+
+function handleLlmError(error: unknown, params: {
+  operation: LlmOperation;
+  providerConfigured: boolean;
+  modelConfigured: boolean;
+  startedAt: number;
+}): never {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status;
+    console.error("[LLM] Request failed.", buildLlmLogMeta({
+      ...params,
+      status,
+      errorType: error.code ?? error.name
+    }));
+    throw new Error(`LLM API Error: ${status ?? "unknown"}`);
+  }
+
+  console.error("[LLM] Request failed.", buildLlmLogMeta({
+    ...params,
+    errorType: error instanceof Error ? error.name : typeof error
+  }));
+  throw error;
+}
+
 export async function generateStructuredContent<T>(params: {
   system: string;
   prompt: string;
   schema: any;
 }): Promise<T> {
   const env = getEnv();
-
-  // On utilise l'URL complète pour éviter les surprises des SDK
   const url = `${env.GLM_BASE_URL}/chat/completions`;
-
-  console.log(`[LLM] Appel vers ${url}`);
-  console.log(`[LLM] Modèle : ${env.GLM_MODEL}`);
-  console.log(`[LLM] Clé API chargée (longueur) : ${env.GLM_API_KEY?.length || 0}`);
-  if (env.GLM_API_KEY) {
-      console.log(`[LLM] Debug Clé : ${env.GLM_API_KEY.substring(0, 4)}...${env.GLM_API_KEY.substring(env.GLM_API_KEY.length - 4)}`);
-  }
+  const startedAt = Date.now();
+  const providerConfigured = Boolean(env.GLM_API_KEY?.trim());
+  const modelConfigured = Boolean(env.GLM_MODEL?.trim());
 
   try {
     const response = await axios.post(
@@ -31,14 +76,20 @@ export async function generateStructuredContent<T>(params: {
       },
       {
         headers: {
-          "Authorization": `Bearer ${env.GLM_API_KEY?.trim()}`,
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          ...buildAuthHeaders(env.GLM_API_KEY),
+          "User-Agent": "EdunovaFunctions/1.0"
         },
         timeout: env.LLM_SERVICE_TIMEOUT_MS,
       }
     );
+
+    console.info("[LLM] Request completed.", buildLlmLogMeta({
+      operation: "generateStructuredContent",
+      providerConfigured,
+      modelConfigured,
+      startedAt,
+      status: response.status
+    }));
 
     const content = response.data.choices[0].message.content;
     if (!content) {
@@ -47,12 +98,13 @@ export async function generateStructuredContent<T>(params: {
 
     const parsed = JSON.parse(content);
     return params.schema.parse(parsed);
-  } catch (error: any) {
-    if (axios.isAxiosError(error)) {
-      console.error("[LLM] Axios Error:", error.response?.status, error.response?.data);
-      throw new Error(`LLM API Error: ${error.response?.status} - ${JSON.stringify(error.response?.data)}`);
-    }
-    throw error;
+  } catch (error: unknown) {
+    return handleLlmError(error, {
+      operation: "generateStructuredContent",
+      providerConfigured,
+      modelConfigured,
+      startedAt
+    });
   }
 }
 
@@ -62,6 +114,9 @@ export async function generateText(params: {
 }): Promise<string> {
   const env = getEnv();
   const url = `${env.GLM_BASE_URL}/chat/completions`;
+  const startedAt = Date.now();
+  const providerConfigured = Boolean(env.GLM_API_KEY?.trim());
+  const modelConfigured = Boolean(env.GLM_MODEL?.trim());
 
   try {
     const response = await axios.post(
@@ -74,25 +129,30 @@ export async function generateText(params: {
         ],
       },
       {
-        headers: {
-          "Authorization": `Bearer ${env.GLM_API_KEY?.trim()}`,
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
+        headers: buildAuthHeaders(env.GLM_API_KEY),
         timeout: env.LLM_SERVICE_TIMEOUT_MS,
       }
     );
+
+    console.info("[LLM] Request completed.", buildLlmLogMeta({
+      operation: "generateText",
+      providerConfigured,
+      modelConfigured,
+      startedAt,
+      status: response.status
+    }));
 
     const content = response.data.choices[0]?.message?.content;
     if (!content) {
       throw new Error("Empty response from LLM");
     }
     return content;
-  } catch (error: any) {
-    if (axios.isAxiosError(error)) {
-      console.error("[LLM] Axios Error:", error.response?.status, error.response?.data);
-      throw new Error(`LLM API Error: ${error.response?.status} - ${JSON.stringify(error.response?.data)}`);
-    }
-    throw error;
+  } catch (error: unknown) {
+    return handleLlmError(error, {
+      operation: "generateText",
+      providerConfigured,
+      modelConfigured,
+      startedAt
+    });
   }
 }
