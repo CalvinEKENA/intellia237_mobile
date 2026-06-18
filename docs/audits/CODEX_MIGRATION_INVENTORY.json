@@ -1,0 +1,388 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-18",
+  "repository": {
+    "name": "CalvinEKENA/intellia237_mobile",
+    "localPath": "C:\\projets\\FlutterProjects\\Intellia237",
+    "branch": "main",
+    "remote": "origin"
+  },
+  "scope": {
+    "mode": "audit-only",
+    "sourceChangesAllowed": false,
+    "createdFiles": [
+      "docs/audits/CODEX_TECHNICAL_AUDIT.md",
+      "docs/audits/CODEX_RISK_REGISTER.md",
+      "docs/audits/CODEX_FEATURE_MATRIX.md",
+      "docs/audits/CODEX_MIGRATION_INVENTORY.json"
+    ],
+    "secretsPolicy": "Secrets, API keys, tokens, service-account values, signing files, and credential values are not included. Presence is recorded only as present/redacted."
+  },
+  "currentIdentity": {
+    "productNameObserved": "Edunova",
+    "pubspecName": "edunova",
+    "pubspecVersion": "3.0.0+22",
+    "androidApplicationId": "com.edunova.app",
+    "androidNamespace": "com.edunova.app",
+    "iosBundleIdentifier": "com.edunova.app",
+    "firebaseProjectId": "edunova-aabd1",
+    "firebaseConfigFilesPresent": [
+      "lib/firebase_options.dart",
+      "android/app/google-services.json",
+      "ios/firebase_app_id_file.json"
+    ],
+    "firebaseConfigValues": "present/redacted"
+  },
+  "targetSignals": {
+    "targetProductName": "Intellia237",
+    "targetTutors": [
+      "Kira",
+      "Leo"
+    ],
+    "targetLlmModelMentioned": "gemini-3.5-flash",
+    "status": "not implemented in tracked code"
+  },
+  "qualityCommands": [
+    {
+      "command": "flutter doctor -v",
+      "status": "passed",
+      "summary": "Flutter 3.44.2, Dart 3.12.2, Android SDK 36.0.0, Java 17, Chrome, Windows desktop and network resources available."
+    },
+    {
+      "command": "flutter pub get",
+      "status": "passed_with_local_lockfile_change",
+      "summary": "Dependency resolution succeeded. 58 newer packages are incompatible with constraints. pubspec.lock changed locally and was restored for audit-only scope."
+    },
+    {
+      "command": "dart format --output=none --set-exit-if-changed .",
+      "status": "failed",
+      "summary": "170 Dart files checked; 71 would be reformatted. No source writes were performed."
+    },
+    {
+      "command": "flutter analyze",
+      "status": "failed",
+      "summary": "5 errors in lib/app/theme/app_theme.dart around CupertinoPageTransitionsBuilder."
+    },
+    {
+      "command": "flutter test",
+      "status": "failed",
+      "summary": "Widget test loading failed because lib/app/theme/app_theme.dart does not compile."
+    },
+    {
+      "command": "npm install",
+      "workingDirectory": "functions",
+      "status": "passed_with_warnings",
+      "summary": "Install up to date. Node engine mismatch: package requires Node 20, local Node is 22. npm audit reports 83 vulnerabilities."
+    },
+    {
+      "command": "npm test",
+      "workingDirectory": "functions",
+      "status": "passed",
+      "summary": "Vitest passed: 2 test files, 5 tests."
+    },
+    {
+      "command": "npm run build",
+      "workingDirectory": "functions",
+      "status": "passed",
+      "summary": "TypeScript build succeeded."
+    },
+    {
+      "command": "python microservice checks",
+      "status": "not_executable",
+      "summary": "No tracked llm-service or equivalent Python microservice directory was found."
+    }
+  ],
+  "blockers": [
+    {
+      "id": "B-001",
+      "severity": "critical",
+      "title": "Flutter compile/analyze/test failure",
+      "files": [
+        "lib/app/theme/app_theme.dart"
+      ],
+      "evidence": "CupertinoPageTransitionsBuilder unresolved at lines 97-98."
+    },
+    {
+      "id": "B-002",
+      "severity": "critical",
+      "title": "Client-authored quiz XP and attempts",
+      "files": [
+        "lib/features/quiz/data/firestore_quiz_attempt_service.dart",
+        "firestore.rules"
+      ],
+      "evidence": "Client increments XP from attempt.xpAwarded; rules allow student create/update of own quiz_attempts."
+    },
+    {
+      "id": "B-003",
+      "severity": "critical",
+      "title": "AI provider and tutor target mismatch",
+      "files": [
+        "functions/src/config/env.ts",
+        "functions/src/llm/llmClient.ts",
+        "lib/features/tutor/domain/tutor_persona.dart",
+        "README.md"
+      ],
+      "evidence": "Tracked code uses GLM/Z.ai style environment and chat client; README references Gemini and a missing llm-service; Kira/Leo are absent."
+    },
+    {
+      "id": "B-004",
+      "severity": "critical",
+      "title": "Partial credential material logged",
+      "files": [
+        "functions/src/llm/llmClient.ts"
+      ],
+      "evidence": "Code logs key length and first/last characters when GLM_API_KEY exists."
+    }
+  ],
+  "frontend": {
+    "framework": "Flutter",
+    "stateManagement": "flutter_riverpod",
+    "routing": "go_router",
+    "theme": "Material 3 with custom AppTheme",
+    "largeFiles": [
+      {
+        "path": "lib/features/tutor/presentation/tutor_selection_screen.dart",
+        "approxLines": 1103
+      },
+      {
+        "path": "lib/features/student_home/presentation/student_home_screen.dart",
+        "approxLines": 1012
+      },
+      {
+        "path": "lib/features/student_registration/presentation/student_registration_flow_screen.dart",
+        "approxLines": 844
+      },
+      {
+        "path": "lib/features/learn/presentation/lesson_viewer_screen.dart",
+        "approxLines": 833
+      }
+    ]
+  },
+  "features": [
+    {
+      "name": "auth",
+      "status": "partial",
+      "evidence": "FirebaseAuth repository and auth controller exist.",
+      "backend": "FirebaseAuth and Firestore users collection"
+    },
+    {
+      "name": "student_registration",
+      "status": "partial",
+      "evidence": "Student registration flow writes FirebaseAuth user, users, and student_profiles.",
+      "backend": "FirebaseAuth and Firestore"
+    },
+    {
+      "name": "student_home",
+      "status": "demo",
+      "evidence": "DemoStudentHomeRepository is wired.",
+      "backend": "demo data"
+    },
+    {
+      "name": "learn",
+      "status": "partial",
+      "evidence": "FirestoreLearnRepository reads classes, subjects, chapters, lessons, and lessonProgress.",
+      "backend": "Firestore"
+    },
+    {
+      "name": "quiz",
+      "status": "critical_risk",
+      "evidence": "FirestoreQuizRepository exists; attempt service writes XP from client payload.",
+      "backend": "Firestore"
+    },
+    {
+      "name": "ai_companion",
+      "status": "partial",
+      "evidence": "CloudAIRepository calls callable askTutor.",
+      "backend": "Cloud Functions"
+    },
+    {
+      "name": "generated_quiz_summary",
+      "status": "partial",
+      "evidence": "StructuredAiFunctionsService calls generateQuiz and generateSummary.",
+      "backend": "Cloud Functions and Firestore generated content"
+    },
+    {
+      "name": "admin_content",
+      "status": "partial",
+      "evidence": "Admin content providers perform direct Firestore CRUD.",
+      "backend": "Firestore"
+    },
+    {
+      "name": "admin_dashboard",
+      "status": "demo",
+      "evidence": "MockAdminRepository is wired.",
+      "backend": "mock data"
+    },
+    {
+      "name": "parent_portal",
+      "status": "demo",
+      "evidence": "MockParentRepository is wired.",
+      "backend": "mock data"
+    },
+    {
+      "name": "teacher_portal",
+      "status": "demo",
+      "evidence": "MockTeacherRepository is wired.",
+      "backend": "mock data"
+    },
+    {
+      "name": "payments_subscriptions",
+      "status": "missing",
+      "evidence": "No payment provider, subscription, or credit ledger implementation found.",
+      "backend": "none found"
+    },
+    {
+      "name": "ci_cd",
+      "status": "missing",
+      "evidence": "No .github directory found.",
+      "backend": "none found"
+    }
+  ],
+  "firebase": {
+    "functions": {
+      "runtimePackageEngine": "node 20",
+      "localNodeObserved": "22.15.1",
+      "callables": [
+        "generateQuiz",
+        "generateSummary",
+        "askTutor"
+      ],
+      "regionObserved": "europe-west1",
+      "buildStatus": "passed",
+      "testStatus": "passed"
+    },
+    "firestoreCollectionsObserved": [
+      "users",
+      "establishments",
+      "student_profiles",
+      "student_profiles/{uid}/lessonProgress",
+      "parent_profiles",
+      "teacher_profiles",
+      "admin_profiles",
+      "children_links",
+      "classes",
+      "subjects",
+      "chapters",
+      "lessons",
+      "courses",
+      "courses/{courseId}/images",
+      "courses/{courseId}/generated_quizzes",
+      "courses/{courseId}/generated_summaries",
+      "lesson_assets",
+      "quizzes",
+      "quiz_attempts",
+      "progress",
+      "badges",
+      "streaks",
+      "announcements",
+      "notifications",
+      "ai_personas",
+      "ai_conversations",
+      "recommendations",
+      "reports",
+      "settings"
+    ],
+    "indexesObserved": [
+      "courses/{courseId}/generated_quizzes by generatedByUid and createdAt",
+      "courses/{courseId}/generated_summaries by generatedByUid and createdAt"
+    ],
+    "rulesTestsFound": false,
+    "storage": {
+      "avatarOwnerWrites": true,
+      "courseImageClientWrites": false
+    }
+  },
+  "ai": {
+    "currentProviderFamily": "GLM/Z.ai style chat completions",
+    "currentEnvKeys": [
+      "GLM_API_KEY",
+      "GLM_MODEL",
+      "GLM_BASE_URL"
+    ],
+    "currentDefaultModel": "glm-5.1",
+    "currentEngineMode": "glm",
+    "readmeMentionsGemini": true,
+    "trackedPythonMicroservicePresent": false,
+    "criticalGaps": [
+      "Gemini target not wired",
+      "Kira and Leo personas not present",
+      "No quota or rate limit layer observed",
+      "Partial key material logged",
+      "Retrieval query may use lessons from wrong class"
+    ]
+  },
+  "assets": {
+    "largestObserved": [
+      {
+        "path": "assets/icons/edunova.png",
+        "approxSizeKb": 2068.4
+      },
+      {
+        "path": "assets/onboarding/slide_4.jpg",
+        "approxSizeKb": 1064.5
+      },
+      {
+        "path": "assets/onboarding/slide_2.jpg",
+        "approxSizeKb": 1054.3
+      },
+      {
+        "path": "assets/onboarding/slide_3.jpg",
+        "approxSizeKb": 783.2
+      },
+      {
+        "path": "assets/onboarding/slide_1.jpg",
+        "approxSizeKb": 717.8
+      }
+    ],
+    "branding": "Edunova assets are still present."
+  },
+  "tests": {
+    "flutterTestsFound": [
+      "test/widget_test.dart"
+    ],
+    "functionsTestsFound": [
+      "functions/src/__tests__/llmPayloadFactory.test.ts",
+      "functions/src/__tests__/validation.test.ts"
+    ],
+    "missing": [
+      "Firestore rules tests",
+      "Storage rules tests",
+      "Auth and registration integration tests",
+      "Quiz scoring and XP backend tests",
+      "AI quota and prompt-safety tests",
+      "End-to-end emulator CI"
+    ]
+  },
+  "migrationTasks": [
+    {
+      "priority": 1,
+      "title": "Fix Flutter compile blocker",
+      "category": "quality_gate"
+    },
+    {
+      "priority": 2,
+      "title": "Move quiz scoring, XP, streaks, and authoritative progress to backend",
+      "category": "security_integrity"
+    },
+    {
+      "priority": 3,
+      "title": "Choose and implement final AI provider architecture for Gemini target",
+      "category": "ai_architecture"
+    },
+    {
+      "priority": 4,
+      "title": "Decide identity migration strategy for Intellia237 branding, bundle IDs, Firebase project, and store records",
+      "category": "release_identity"
+    },
+    {
+      "priority": 5,
+      "title": "Replace demo repositories or explicitly gate demo-only surfaces",
+      "category": "product_readiness"
+    },
+    {
+      "priority": 6,
+      "title": "Add CI and emulator-backed Firebase rules tests",
+      "category": "release_governance"
+    }
+  ]
+}
