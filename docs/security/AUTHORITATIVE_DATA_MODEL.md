@@ -9,7 +9,7 @@ Phase 2A moves reward-bearing academic state from client writes to authenticated
 | `quiz_attempts/{attemptId}` | Student owner, linked parent, staff. | None. | `submitQuizAttempt` creates immutable attempts. |
 | `progress/{progressId}` | Student owner, linked parent, staff. | None. | Quiz and lesson functions update summary progress. |
 | `student_profiles/{uid}` | Student owner, linked parent, staff in establishment. | Preferences/consents only after bootstrap. | XP, level, score totals, mastery, badges, streak summaries, rank fields. |
-| `student_profiles/{uid}/lessonProgress/{progressId}` | Student owner, linked parent, staff. | None. | `recordLessonProgress` writes progress and timestamps. |
+| `student_profiles/{uid}/lessonProgress/{progressId}` | Student owner, linked parent, staff. | `isFavorite` only. | `recordLessonProgress` writes progress and timestamps. |
 | `streaks/{uid}` | Student owner and linked parent. | None. | Academic functions update server-day streak state. |
 | `users/{uid}` | Existing role-scoped access. | Safe display/profile fields only. | Roles, XP mirrors, entitlement/subscription, establishment assignment, approval state. |
 | `teacher_profiles/{uid}` | Existing role-scoped access. | No public self-approval fields. | Future staff onboarding workflow. |
@@ -32,6 +32,7 @@ Phase 2A moves reward-bearing academic state from client writes to authenticated
 3. Progress is clamped to `[0, 1]`, never decreased below the existing stored progress, and stamped with server time.
 4. Replays with the same `(studentId, clientEventId)` return the stored result.
 5. Streaks are evaluated from the server date in the documented default timezone, not from phone time.
+6. Lesson favorites remain client-owned, but rules allow only `isFavorite` changes on the progress document.
 
 ## XP Policy
 
