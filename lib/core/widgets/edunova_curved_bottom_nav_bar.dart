@@ -27,10 +27,7 @@ class EduNovaCurvedBottomNavBar extends StatefulWidget {
     this.height = 72,
     this.margin = const EdgeInsets.fromLTRB(16, 0, 16, 10),
     this.showLabels = true,
-  }) : assert(
-          items.length >= 2,
-          'Au moins 2 items de navigation sont requis.',
-        );
+  }) : assert(items.length >= 2, 'Au moins 2 items de navigation sont requis.');
 
   final List<EduNovaCurvedNavItem> items;
   final int currentIndex;
@@ -95,7 +92,9 @@ class _EduNovaCurvedBottomNavBarState extends State<EduNovaCurvedBottomNavBar>
                           height: widget.height,
                           decoration: BoxDecoration(
                             color: isDark
-                                ? const Color(0xFF101828).withValues(alpha: 0.88)
+                                ? const Color(
+                                    0xFF101828,
+                                  ).withValues(alpha: 0.88)
                                 : scheme.surface.withValues(alpha: 0.92),
                             border: Border(
                               top: BorderSide(
@@ -283,9 +282,7 @@ class _AnimatedNavItemState extends State<_AnimatedNavItem>
           final bounceVal = _bounceController.value;
           final scale = bounceVal < 0.5
               ? 1.0 + 0.18 * Curves.easeOut.transform(bounceVal * 2)
-              : 1.0 +
-                  0.18 *
-                      Curves.easeIn.transform(2 - bounceVal * 2);
+              : 1.0 + 0.18 * Curves.easeIn.transform(2 - bounceVal * 2);
 
           // Léger translate Y vers le haut quand actif
           final yShift = widget.isSelected ? -2.0 * t : 0.0;
@@ -312,8 +309,9 @@ class _AnimatedNavItemState extends State<_AnimatedNavItem>
                     curve: Curves.easeOut,
                     style: TextStyle(
                       fontSize: widget.isSelected ? 10.5 : 10,
-                      fontWeight:
-                          widget.isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: widget.isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: labelColor,
                       letterSpacing: widget.isSelected ? 0.1 : 0,
                     ),

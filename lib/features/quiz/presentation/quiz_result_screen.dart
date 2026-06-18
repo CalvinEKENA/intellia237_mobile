@@ -27,9 +27,7 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
   @override
   void initState() {
     super.initState();
-    _confettiCtrl = ConfettiController(
-      duration: const Duration(seconds: 3),
-    );
+    _confettiCtrl = ConfettiController(duration: const Duration(seconds: 3));
 
     final ratio = widget.result.maxScore == 0
         ? 0.0
@@ -152,9 +150,11 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    for (int i = 0;
-                        i < widget.result.corrections.length;
-                        i++) ...[
+                    for (
+                      int i = 0;
+                      i < widget.result.corrections.length;
+                      i++
+                    ) ...[
                       _CorrectionCard(
                         correction: widget.result.corrections[i],
                         index: i,
@@ -251,9 +251,10 @@ class _ScoreRingState extends State<_ScoreRing>
                 children: [
                   ShaderMask(
                     blendMode: BlendMode.srcIn,
-                    shaderCallback: (bounds) => AppGradients.heroGold
-                        .createShader(
-                            Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                    shaderCallback: (bounds) =>
+                        AppGradients.heroGold.createShader(
+                          Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                        ),
                     child: Text(
                       '${widget.score}/${widget.maxScore}',
                       style: GoogleFonts.manrope(
@@ -376,27 +377,27 @@ class _ResultBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.xl,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        gradient: config.gradient,
-        borderRadius: BorderRadius.circular(99),
-        boxShadow: AppShadows.glow(
-          config.gradient.colors.first,
-          intensity: 0.30,
-        ),
-      ),
-      child: Text(
-        '${config.emoji}  ${config.label}',
-        style: GoogleFonts.playfairDisplay(
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-        ),
-      ),
-    )
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            gradient: config.gradient,
+            borderRadius: BorderRadius.circular(99),
+            boxShadow: AppShadows.glow(
+              config.gradient.colors.first,
+              intensity: 0.30,
+            ),
+          ),
+          child: Text(
+            '${config.emoji}  ${config.label}',
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+        )
         .animate()
         .scale(
           begin: const Offset(0.8, 0.8),
@@ -464,8 +465,10 @@ class _QuizInfoCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: AppGradients.heroGold,
                       borderRadius: BorderRadius.circular(99),
-                      boxShadow:
-                          AppShadows.glow(AppColors.gold, intensity: 0.25),
+                      boxShadow: AppShadows.glow(
+                        AppColors.gold,
+                        intensity: 0.25,
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -502,10 +505,7 @@ class _QuizInfoCard extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────
 
 class _CorrectionCard extends StatelessWidget {
-  const _CorrectionCard({
-    required this.correction,
-    required this.index,
-  });
+  const _CorrectionCard({required this.correction, required this.index});
 
   final QuizQuestionCorrection correction;
   final int index;
@@ -515,104 +515,96 @@ class _CorrectionCard extends StatelessWidget {
     final isCorrect = correction.isCorrect;
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isCorrect
-              ? [
-                  const Color(0x1A16A34A),
-                  const Color(0x0D16A34A),
-                ]
-              : [
-                  const Color(0x1ADC2626),
-                  const Color(0x0DDC2626),
-                ],
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(
-          color: isCorrect
-              ? const Color(0x4016A34A)
-              : const Color(0x40DC2626),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isCorrect
+                  ? [const Color(0x1A16A34A), const Color(0x0D16A34A)]
+                  : [const Color(0x1ADC2626), const Color(0x0DDC2626)],
+            ),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            border: Border.all(
+              color: isCorrect
+                  ? const Color(0x4016A34A)
+                  : const Color(0x40DC2626),
+            ),
+          ),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: isCorrect
-                      ? const Color(0x3316A34A)
-                      : const Color(0x33DC2626),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  isCorrect
-                      ? Icons.check_rounded
-                      : Icons.close_rounded,
-                  size: 16,
-                  color: isCorrect
-                      ? const Color(0xFF16A34A)
-                      : const Color(0xFFDC2626),
-                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: isCorrect
+                          ? const Color(0x3316A34A)
+                          : const Color(0x33DC2626),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isCorrect ? Icons.check_rounded : Icons.close_rounded,
+                      size: 16,
+                      color: isCorrect
+                          ? const Color(0xFF16A34A)
+                          : const Color(0xFFDC2626),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      correction.prompt,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    isCorrect ? '+${correction.xpReward} XP' : '0 XP',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isCorrect
+                          ? AppColors.gold
+                          : Colors.white.withValues(alpha: 0.35),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  correction.prompt,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    height: 1.4,
+              const SizedBox(height: AppSpacing.sm),
+              _AnswerRow(
+                label: 'Ta réponse',
+                value: correction.userAnswer,
+                isCorrect: null,
+              ),
+              const SizedBox(height: AppSpacing.xxs),
+              _AnswerRow(
+                label: 'Bonne réponse',
+                value: correction.correctAnswer,
+                isCorrect: true,
+              ),
+              if (correction.explanation.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  correction.explanation,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.55),
+                    height: 1.5,
                   ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                isCorrect ? '+${correction.xpReward} XP' : '0 XP',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: isCorrect
-                      ? AppColors.gold
-                      : Colors.white.withValues(alpha: 0.35),
-                ),
-              ),
+              ],
             ],
           ),
-          const SizedBox(height: AppSpacing.sm),
-          _AnswerRow(
-            label: 'Ta réponse',
-            value: correction.userAnswer,
-            isCorrect: null,
-          ),
-          const SizedBox(height: AppSpacing.xxs),
-          _AnswerRow(
-            label: 'Bonne réponse',
-            value: correction.correctAnswer,
-            isCorrect: true,
-          ),
-          if (correction.explanation.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              correction.explanation,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.white.withValues(alpha: 0.55),
-                height: 1.5,
-              ),
-            ),
-          ],
-        ],
-      ),
-    )
+        )
         .animate(delay: Duration(milliseconds: 60 + index * 40))
         .fadeIn(duration: 300.ms)
         .slideY(begin: 0.04, end: 0);

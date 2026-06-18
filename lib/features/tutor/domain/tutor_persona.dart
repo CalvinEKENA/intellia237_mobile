@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Statistique d'un tuteur (ex: niveau en Maths).
 class TutorStat {
-  TutorStat({
-    required this.label,
-    required this.value,
-    required this.icon,
-  });
+  TutorStat({required this.label, required this.value, required this.icon});
 
   final String label;
   final double value; // 0.0 – 1.0
@@ -67,9 +63,13 @@ class TutorPersona {
           'Passionné par les chiffres et les sciences, Ethan transforme '
           'chaque problème en véritable aventure intellectuelle.',
       stats: [
-        TutorStat(label: 'Maths',    value: 0.95, icon: Icons.calculate_rounded),
+        TutorStat(label: 'Maths', value: 0.95, icon: Icons.calculate_rounded),
         TutorStat(label: 'Sciences', value: 0.80, icon: Icons.science_rounded),
-        TutorStat(label: 'Français', value: 0.65, icon: Icons.menu_book_rounded),
+        TutorStat(
+          label: 'Français',
+          value: 0.65,
+          icon: Icons.menu_book_rounded,
+        ),
         TutorStat(label: 'Histoire', value: 0.70, icon: Icons.public_rounded),
       ],
       accentColor: Color(0xFF1451E1),
@@ -89,10 +89,14 @@ class TutorPersona {
           'Grâce croit que les mots ont le pouvoir de changer le monde. '
           'Elle guide avec douceur, précision et une bienveillance sans limite.',
       stats: [
-        TutorStat(label: 'Français', value: 0.95, icon: Icons.menu_book_rounded),
+        TutorStat(
+          label: 'Français',
+          value: 0.95,
+          icon: Icons.menu_book_rounded,
+        ),
         TutorStat(label: 'Histoire', value: 0.85, icon: Icons.public_rounded),
-        TutorStat(label: 'Anglais',  value: 0.80, icon: Icons.language_rounded),
-        TutorStat(label: 'Maths',    value: 0.60, icon: Icons.calculate_rounded),
+        TutorStat(label: 'Anglais', value: 0.80, icon: Icons.language_rounded),
+        TutorStat(label: 'Maths', value: 0.60, icon: Icons.calculate_rounded),
       ],
       accentColor: Color(0xFF7C3AED),
       gradientColors: [Color(0xFF3B0764), Color(0xFF7C3AED)],
@@ -114,9 +118,13 @@ class TutorPersona {
           'Aucun problème de sciences ne lui résiste plus de cinq minutes.',
       stats: [
         TutorStat(label: 'Physique', value: 0.95, icon: Icons.science_rounded),
-        TutorStat(label: 'Maths',    value: 0.90, icon: Icons.calculate_rounded),
-        TutorStat(label: 'Chimie',   value: 0.88, icon: Icons.biotech_rounded),
-        TutorStat(label: 'Français', value: 0.55, icon: Icons.menu_book_rounded),
+        TutorStat(label: 'Maths', value: 0.90, icon: Icons.calculate_rounded),
+        TutorStat(label: 'Chimie', value: 0.88, icon: Icons.biotech_rounded),
+        TutorStat(
+          label: 'Français',
+          value: 0.55,
+          icon: Icons.menu_book_rounded,
+        ),
       ],
       accentColor: Color(0xFF0F766E),
       gradientColors: [Color(0xFF042F2E), Color(0xFF0F766E)],
@@ -135,10 +143,14 @@ class TutorPersona {
           'Cynthia jongle entre les disciplines avec une aisance naturelle. '
           'Elle inspire confiance en soi à chaque session d\'étude.',
       stats: [
-        TutorStat(label: 'Anglais',  value: 0.95, icon: Icons.language_rounded),
-        TutorStat(label: 'Français', value: 0.90, icon: Icons.menu_book_rounded),
+        TutorStat(label: 'Anglais', value: 0.95, icon: Icons.language_rounded),
+        TutorStat(
+          label: 'Français',
+          value: 0.90,
+          icon: Icons.menu_book_rounded,
+        ),
         TutorStat(label: 'Histoire', value: 0.82, icon: Icons.public_rounded),
-        TutorStat(label: 'Maths',    value: 0.65, icon: Icons.calculate_rounded),
+        TutorStat(label: 'Maths', value: 0.65, icon: Icons.calculate_rounded),
       ],
       accentColor: Color(0xFFF5A623),
       gradientColors: [Color(0xFF78350F), Color(0xFFF5A623)],
@@ -159,10 +171,14 @@ class TutorPersona {
           'Nathan aborde le Bac avec la sérénité d\'un chef. Il transforme '
           'la pression en carburant et inspire ceux qui l\'entourent.',
       stats: [
-        TutorStat(label: 'Maths',    value: 0.92, icon: Icons.calculate_rounded),
-        TutorStat(label: 'Philo',    value: 0.88, icon: Icons.lightbulb_rounded),
+        TutorStat(label: 'Maths', value: 0.92, icon: Icons.calculate_rounded),
+        TutorStat(label: 'Philo', value: 0.88, icon: Icons.lightbulb_rounded),
         TutorStat(label: 'Sciences', value: 0.85, icon: Icons.science_rounded),
-        TutorStat(label: 'Français', value: 0.78, icon: Icons.menu_book_rounded),
+        TutorStat(
+          label: 'Français',
+          value: 0.78,
+          icon: Icons.menu_book_rounded,
+        ),
       ],
       accentColor: Color(0xFF3B82F6),
       gradientColors: [Color(0xFF0B1F4A), Color(0xFF3B82F6)],
@@ -174,17 +190,22 @@ class TutorPersona {
       level: 'bac',
       levelLabel: 'Baccalauréat',
       imagePath: 'assets/tutors/bac_girl.jpg',
-      motto: '"L\'excellence n\'est pas un accident, c\'est un choix quotidien."',
+      motto:
+          '"L\'excellence n\'est pas un accident, c\'est un choix quotidien."',
       personality: 'Brillante & Ambitieuse',
       specialty: 'Sciences & Mathématiques',
       bio:
           'Marianne est la définition de l\'élève accomplie. Avec elle, '
           'la réussite au Bac devient une évidence mathématique.',
       stats: [
-        TutorStat(label: 'Maths',    value: 0.98, icon: Icons.calculate_rounded),
+        TutorStat(label: 'Maths', value: 0.98, icon: Icons.calculate_rounded),
         TutorStat(label: 'Sciences', value: 0.95, icon: Icons.science_rounded),
-        TutorStat(label: 'Français', value: 0.82, icon: Icons.menu_book_rounded),
-        TutorStat(label: 'Anglais',  value: 0.80, icon: Icons.language_rounded),
+        TutorStat(
+          label: 'Français',
+          value: 0.82,
+          icon: Icons.menu_book_rounded,
+        ),
+        TutorStat(label: 'Anglais', value: 0.80, icon: Icons.language_rounded),
       ],
       accentColor: Color(0xFFBE123C),
       gradientColors: [Color(0xFF4C0519), Color(0xFFBE123C)],

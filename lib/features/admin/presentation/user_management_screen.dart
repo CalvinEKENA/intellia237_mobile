@@ -32,9 +32,9 @@ class UserManagementScreen extends ConsumerWidget {
         children: [
           Text(
             'Validation des comptes',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -83,9 +83,9 @@ class _ReviewCard extends ConsumerWidget {
           children: [
             Text(
               review.fullName,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: AppSpacing.xxs),
             Text(review.email),
@@ -97,7 +97,9 @@ class _ReviewCard extends ConsumerWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () async {
-                      await ref.read(adminActionsProvider).validateAccount(
+                      await ref
+                          .read(adminActionsProvider)
+                          .validateAccount(
                             reviewId: review.id,
                             approved: false,
                           );
@@ -115,10 +117,9 @@ class _ReviewCard extends ConsumerWidget {
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: () async {
-                      await ref.read(adminActionsProvider).validateAccount(
-                            reviewId: review.id,
-                            approved: true,
-                          );
+                      await ref
+                          .read(adminActionsProvider)
+                          .validateAccount(reviewId: review.id, approved: true);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Compte validé.')),

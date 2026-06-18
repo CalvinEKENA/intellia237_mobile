@@ -45,9 +45,9 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
           children: [
             Text(
               'Analytics Enseignant',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
@@ -76,8 +76,8 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
                     Text(
                       'Tendance hebdomadaire',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     _TrendBars(values: dashboard.weeklyCompletionTrend),
@@ -95,8 +95,8 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
                     Text(
                       'Progression par classe',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     for (final item in classes) ...[
@@ -157,16 +157,16 @@ class _MetricCard extends StatelessWidget {
           children: [
             Text(
               title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
               value,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: AppSpacing.xxs),
             Text(subtitle, style: Theme.of(context).textTheme.bodySmall),

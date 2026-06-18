@@ -41,7 +41,8 @@ class MockAIRepository implements AIRepository {
           'je suis là pour t\'accompagner vers la réussite de ton ${tutor.levelLabel}. Sur quoi souhaites-tu travailler ?';
     }
 
-    final answer = '$opening$pedagogicBlock\n\n'
+    final answer =
+        '$opening$pedagogicBlock\n\n'
         'Devise : ${tutor.motto}';
 
     return AIMessage(

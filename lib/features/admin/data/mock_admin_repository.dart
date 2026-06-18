@@ -148,7 +148,9 @@ class MockAdminRepository implements AdminRepository {
     required ModerationStatus status,
   }) async {
     await Future<void>.delayed(const Duration(milliseconds: 120));
-    final index = _moderationQueue.indexWhere((item) => item.id == moderationId);
+    final index = _moderationQueue.indexWhere(
+      (item) => item.id == moderationId,
+    );
     if (index < 0) return;
     final current = _moderationQueue[index];
     _moderationQueue[index] = ModerationEntry(

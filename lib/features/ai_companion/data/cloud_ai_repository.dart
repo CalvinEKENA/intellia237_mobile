@@ -6,7 +6,7 @@ import 'ai_repository.dart';
 
 class CloudAIRepository implements AIRepository {
   CloudAIRepository({FirebaseFunctions? functions})
-      : _functions = functions ?? FirebaseFunctions.instance;
+    : _functions = functions ?? FirebaseFunctions.instance;
 
   final FirebaseFunctions _functions;
 
@@ -20,10 +20,14 @@ class CloudAIRepository implements AIRepository {
     try {
       final callable = _functions.httpsCallable('askTutor');
 
-      final mappedHistory = history.map((msg) => {
-        'role': msg.role == AIMessageRole.user ? 'user' : 'assistant',
-        'text': msg.text,
-      }).toList();
+      final mappedHistory = history
+          .map(
+            (msg) => {
+              'role': msg.role == AIMessageRole.user ? 'user' : 'assistant',
+              'text': msg.text,
+            },
+          )
+          .toList();
 
       final result = await callable.call(<String, dynamic>{
         'userMessage': userMessage,

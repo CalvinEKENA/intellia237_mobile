@@ -27,14 +27,15 @@ final teacherClassesProvider = FutureProvider<List<TeacherClassOverview>>((
   return repository.fetchClasses(teacherUid: teacherUid);
 });
 
-final teacherClassDetailProvider = FutureProvider.family<TeacherClassDetail, String>((
-  ref,
-  classId,
-) async {
-  final repository = ref.watch(teacherRepositoryProvider);
-  final teacherUid = ref.watch(_teacherUidProvider);
-  return repository.fetchClassDetail(teacherUid: teacherUid, classId: classId);
-});
+final teacherClassDetailProvider =
+    FutureProvider.family<TeacherClassDetail, String>((ref, classId) async {
+      final repository = ref.watch(teacherRepositoryProvider);
+      final teacherUid = ref.watch(_teacherUidProvider);
+      return repository.fetchClassDetail(
+        teacherUid: teacherUid,
+        classId: classId,
+      );
+    });
 
 final teacherActionsProvider = Provider<TeacherActions>((ref) {
   return TeacherActions(ref);
@@ -53,7 +54,9 @@ class TeacherActions {
     required String summary,
   }) async {
     final uid = _ref.read(_teacherUidProvider);
-    await _ref.read(teacherRepositoryProvider).publishContent(
+    await _ref
+        .read(teacherRepositoryProvider)
+        .publishContent(
           teacherUid: uid,
           classId: classId,
           subject: subject,
@@ -71,7 +74,9 @@ class TeacherActions {
     required List<Map<String, dynamic>> questions,
   }) async {
     final uid = _ref.read(_teacherUidProvider);
-    await _ref.read(teacherRepositoryProvider).createQuiz(
+    await _ref
+        .read(teacherRepositoryProvider)
+        .createQuiz(
           teacherUid: uid,
           classId: classId,
           subject: subject,
@@ -87,7 +92,9 @@ class TeacherActions {
     required String message,
   }) async {
     final uid = _ref.read(_teacherUidProvider);
-    await _ref.read(teacherRepositoryProvider).publishAnnouncement(
+    await _ref
+        .read(teacherRepositoryProvider)
+        .publishAnnouncement(
           teacherUid: uid,
           classId: classId,
           title: title,

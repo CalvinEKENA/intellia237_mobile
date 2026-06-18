@@ -29,9 +29,7 @@ class PremiumStepper extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.12),
-            ),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
           ),
           child: Column(
             children: [
@@ -41,9 +39,7 @@ class PremiumStepper extends StatelessWidget {
                     _StepCircle(index: i, currentStep: currentStep),
                     if (i < labels.length - 1)
                       Expanded(
-                        child: _StepConnector(
-                          isCompleted: i < currentStep,
-                        ),
+                        child: _StepConnector(isCompleted: i < currentStep),
                       ),
                   ],
                 ],
@@ -94,19 +90,19 @@ class _StepCircle extends StatelessWidget {
 
     if (isCompleted) {
       return Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          gradient: AppGradients.heroGold,
-          shape: BoxShape.circle,
-          boxShadow: AppShadows.glow(AppColors.gold, intensity: 0.35),
-        ),
-        child: const Icon(
-          Icons.check_rounded,
-          size: 18,
-          color: Colors.white,
-        ),
-      )
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: AppGradients.heroGold,
+              shape: BoxShape.circle,
+              boxShadow: AppShadows.glow(AppColors.gold, intensity: 0.35),
+            ),
+            child: const Icon(
+              Icons.check_rounded,
+              size: 18,
+              color: Colors.white,
+            ),
+          )
           .animate()
           .scale(
             begin: const Offset(0.7, 0.7),

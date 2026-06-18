@@ -32,9 +32,9 @@ class ContentModerationScreen extends ConsumerWidget {
         children: [
           Text(
             'Modération des contenus',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -93,8 +93,8 @@ class _ModerationCard extends ConsumerWidget {
                   child: Text(
                     item.contentTitle,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 Container(
@@ -109,9 +109,9 @@ class _ModerationCard extends ConsumerWidget {
                   child: Text(
                     item.status.label,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: statusColor,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      color: statusColor,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -124,7 +124,9 @@ class _ModerationCard extends ConsumerWidget {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () async {
-                      await ref.read(adminActionsProvider).updateModeration(
+                      await ref
+                          .read(adminActionsProvider)
+                          .updateModeration(
                             moderationId: item.id,
                             status: ModerationStatus.rejected,
                           );
@@ -142,7 +144,9 @@ class _ModerationCard extends ConsumerWidget {
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: () async {
-                      await ref.read(adminActionsProvider).updateModeration(
+                      await ref
+                          .read(adminActionsProvider)
+                          .updateModeration(
                             moderationId: item.id,
                             status: ModerationStatus.approved,
                           );

@@ -6,10 +6,7 @@ import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
 
 class TeacherClassDetailScreen extends ConsumerWidget {
-  const TeacherClassDetailScreen({
-    required this.classId,
-    super.key,
-  });
+  const TeacherClassDetailScreen({required this.classId, super.key});
 
   final String classId;
 
@@ -23,7 +20,8 @@ class TeacherClassDetailScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => Center(
           child: FilledButton.icon(
-            onPressed: () => ref.invalidate(teacherClassDetailProvider(classId)),
+            onPressed: () =>
+                ref.invalidate(teacherClassDetailProvider(classId)),
             icon: const Icon(Icons.refresh_rounded),
             label: const Text('Recharger'),
           ),
@@ -68,16 +66,16 @@ class _ClassDetailBody extends StatelessWidget {
               Text(
                 detail.classInfo.name,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                    ),
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 detail.classInfo.levelLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.9),
-                    ),
+                  color: Colors.white.withValues(alpha: 0.9),
+                ),
               ),
             ],
           ),
@@ -105,9 +103,9 @@ class _ClassDetailBody extends StatelessWidget {
         const SizedBox(height: AppSpacing.md),
         Text(
           'Progression eleves',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: AppSpacing.sm),
         for (final student in detail.students) ...[
@@ -145,9 +143,9 @@ class _SubjectSummaryCard extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(items.join(', ')),
@@ -176,8 +174,8 @@ class _StudentProgressTile extends StatelessWidget {
                   Text(
                     student.fullName,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text('${student.studyMinutesToday} min aujourd\'hui'),
@@ -241,7 +239,9 @@ Future<void> _showAnnouncementDialog(
           ),
           FilledButton(
             onPressed: () async {
-              await ref.read(teacherActionsProvider).publishAnnouncement(
+              await ref
+                  .read(teacherActionsProvider)
+                  .publishAnnouncement(
                     classId: classId,
                     title: titleController.text.trim(),
                     message: messageController.text.trim(),

@@ -140,9 +140,10 @@ class _AnimatedAvatarRingState extends State<_AnimatedAvatarRing>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 1.0, end: 1.08).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulseAnim = Tween<double>(
+      begin: 1.0,
+      end: 1.08,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -155,10 +156,8 @@ class _AnimatedAvatarRingState extends State<_AnimatedAvatarRing>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _pulseAnim,
-      builder: (context, child) => Transform.scale(
-        scale: _pulseAnim.value,
-        child: child,
-      ),
+      builder: (context, child) =>
+          Transform.scale(scale: _pulseAnim.value, child: child),
       child: Container(
         width: 52,
         height: 52,

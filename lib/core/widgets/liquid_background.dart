@@ -178,12 +178,13 @@ class _LiquidBlobPainter extends CustomPainter {
       final angle = (i / segments) * math.pi * 2;
 
       // Déformation sinusoïdale multi-fréquence = effet "liquide"
-      final deform = r * deformAmp * (
-        0.40 * math.sin(3 * angle + phase * math.pi * 2) +
-        0.30 * math.sin(5 * angle - phase * math.pi * 2 * 1.3) +
-        0.20 * math.sin(7 * angle + phase * math.pi * 2 * 0.7) +
-        0.10 * math.cos(2 * angle - phase * math.pi * 2 * 0.4)
-      );
+      final deform =
+          r *
+          deformAmp *
+          (0.40 * math.sin(3 * angle + phase * math.pi * 2) +
+              0.30 * math.sin(5 * angle - phase * math.pi * 2 * 1.3) +
+              0.20 * math.sin(7 * angle + phase * math.pi * 2 * 0.7) +
+              0.10 * math.cos(2 * angle - phase * math.pi * 2 * 0.4));
 
       final radius = r + deform;
       final x = cx + radius * math.cos(angle);
@@ -207,9 +208,7 @@ class _LiquidBlobPainter extends CustomPainter {
           color.withValues(alpha: 0),
         ],
         stops: const [0.0, 0.5, 1.0],
-      ).createShader(
-        Rect.fromCircle(center: Offset(cx, cy), radius: r * 1.4),
-      )
+      ).createShader(Rect.fromCircle(center: Offset(cx, cy), radius: r * 1.4))
       ..style = PaintingStyle.fill;
 
     canvas.drawPath(path, paint);

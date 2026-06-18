@@ -42,14 +42,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   void initState() {
     super.initState();
 
-    _progressCtrl = AnimationController(
-      vsync: this,
-      duration: AppMotion.onboardingSlide,
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _advanceSlide();
-        }
-      });
+    _progressCtrl =
+        AnimationController(vsync: this, duration: AppMotion.onboardingSlide)
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              _advanceSlide();
+            }
+          });
 
     _transitionCtrl = AnimationController(
       vsync: this,
@@ -157,8 +156,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
             AnimatedBuilder(
               animation: _transitionCtrl,
               builder: (context, _) {
-                final t = Curves.easeInOutCubic
-                    .transform(_transitionCtrl.value);
+                final t = Curves.easeInOutCubic.transform(
+                  _transitionCtrl.value,
+                );
 
                 return Stack(
                   fit: StackFit.expand,
@@ -184,10 +184,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                     // Slide suivante/précédente (slide directionnel + fade in)
                     if (_isTransitioning)
                       Transform.translate(
-                        offset: Offset(
-                          size.width * (1.0 - t) * _direction,
-                          0,
-                        ),
+                        offset: Offset(size.width * (1.0 - t) * _direction, 0),
                         child: Opacity(
                           opacity: (t * 2 - 0.2).clamp(0.0, 1.0),
                           child: OnboardingSlideView(
@@ -411,12 +408,9 @@ class _OnboardingParticlesPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (final p in _particles) {
       final t = (progress * p.speed + p.phase / (math.pi * 2)) % 1.0;
-      final x =
-          p.x * size.width + math.sin(t * math.pi * 2 + p.phase) * 25;
-      final y =
-          (p.y * size.height + t * size.height * 0.15) % size.height;
-      final alpha =
-          0.04 + 0.04 * math.sin(t * math.pi * 2 + p.phase);
+      final x = p.x * size.width + math.sin(t * math.pi * 2 + p.phase) * 25;
+      final y = (p.y * size.height + t * size.height * 0.15) % size.height;
+      final alpha = 0.04 + 0.04 * math.sin(t * math.pi * 2 + p.phase);
 
       canvas.drawCircle(
         Offset(x, y),

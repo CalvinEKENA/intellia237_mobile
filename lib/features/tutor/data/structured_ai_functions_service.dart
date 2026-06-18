@@ -42,10 +42,8 @@ class GeneratedSummaryResult {
 
 class StructuredAiFunctionsService {
   StructuredAiFunctionsService({FirebaseFunctions? functions})
-      : _functions = functions ??
-            FirebaseFunctions.instanceFor(
-              region: 'europe-west1',
-            );
+    : _functions =
+          functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   final FirebaseFunctions _functions;
 

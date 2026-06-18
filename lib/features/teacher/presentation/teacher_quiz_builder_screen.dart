@@ -81,9 +81,9 @@ class _TeacherQuizBuilderScreenState
       children: [
         Text(
           'Quiz Builder',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
@@ -109,7 +109,8 @@ class _TeacherQuizBuilderScreenState
                           child: Text(item.name),
                         ),
                     ],
-                    onChanged: (value) => setState(() => _selectedClassId = value),
+                    onChanged: (value) =>
+                        setState(() => _selectedClassId = value),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   DropdownButtonFormField<String>(
@@ -117,10 +118,7 @@ class _TeacherQuizBuilderScreenState
                     decoration: const InputDecoration(labelText: 'Matière'),
                     items: [
                       for (final subject in _subjects)
-                        DropdownMenuItem(
-                          value: subject,
-                          child: Text(subject),
-                        ),
+                        DropdownMenuItem(value: subject, child: Text(subject)),
                     ],
                     onChanged: (value) {
                       if (value != null) {
@@ -131,18 +129,20 @@ class _TeacherQuizBuilderScreenState
                   const SizedBox(height: AppSpacing.sm),
                   TextFormField(
                     controller: _quizTitleController,
-                    decoration: const InputDecoration(labelText: 'Titre du quiz'),
+                    decoration: const InputDecoration(
+                      labelText: 'Titre du quiz',
+                    ),
                     validator: (value) =>
                         (value == null || value.trim().isEmpty)
-                            ? 'Titre requis'
-                            : null,
+                        ? 'Titre requis'
+                        : null,
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
                     'Questions',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   for (int i = 0; i < _questions.length; i++) ...[
@@ -159,7 +159,8 @@ class _TeacherQuizBuilderScreenState
                     const SizedBox(height: AppSpacing.sm),
                   ],
                   OutlinedButton.icon(
-                    onPressed: () => setState(() => _questions.add(_QuestionDraft())),
+                    onPressed: () =>
+                        setState(() => _questions.add(_QuestionDraft())),
                     icon: const Icon(Icons.add_rounded),
                     label: const Text('Ajouter une question'),
                   ),
@@ -191,9 +192,9 @@ class _TeacherQuizBuilderScreenState
       return;
     }
     if (_selectedClassId == null || _selectedClassId!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sélectionnez une classe.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Sélectionnez une classe.')));
       return;
     }
 
@@ -213,13 +214,17 @@ class _TeacherQuizBuilderScreenState
 
     if (mapped.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ajoutez au moins une question complète.')),
+        const SnackBar(
+          content: Text('Ajoutez au moins une question complète.'),
+        ),
       );
       return;
     }
 
     setState(() => _isPublishing = true);
-    await ref.read(teacherActionsProvider).createQuiz(
+    await ref
+        .read(teacherActionsProvider)
+        .createQuiz(
           classId: _selectedClassId!,
           subject: _selectedSubject,
           quizTitle: _quizTitleController.text.trim(),
@@ -227,9 +232,9 @@ class _TeacherQuizBuilderScreenState
         );
     if (!mounted) return;
     setState(() => _isPublishing = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Quiz publié avec succès.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Quiz publié avec succès.')));
     _quizTitleController.clear();
     for (final draft in _questions) {
       draft.promptController.clear();
@@ -240,8 +245,8 @@ class _TeacherQuizBuilderScreenState
 
 class _QuestionDraft {
   _QuestionDraft()
-      : promptController = TextEditingController(),
-        answerController = TextEditingController();
+    : promptController = TextEditingController(),
+      answerController = TextEditingController();
 
   final TextEditingController promptController;
   final TextEditingController answerController;
@@ -278,9 +283,9 @@ class _QuestionDraftCard extends StatelessWidget {
             children: [
               Text(
                 'Question $index',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
               ),
               const Spacer(),
               if (onRemove != null)

@@ -116,8 +116,7 @@ class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
                   quizSubmitted: _quizSubmitted,
                   quizScore: _quizScore,
                   showFinishButton: _showFinishButton,
-                  onProgressChanged: (v) =>
-                      setState(() => _localProgress = v),
+                  onProgressChanged: (v) => setState(() => _localProgress = v),
                   onProgressSaved: () => ref
                       .read(learnActionsProvider)
                       .saveProgress(
@@ -141,7 +140,9 @@ class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
                         chapterId: widget.chapterId,
                         lessonId: widget.lessonId,
                       ),
-                  tutor: ref.watch(selectedTutorProvider) ?? TutorPersona.all.first,
+                  tutor:
+                      ref.watch(selectedTutorProvider) ??
+                      TutorPersona.all.first,
                 );
               },
             ),
@@ -168,10 +169,13 @@ class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
 
     final ratio = score / lesson.miniQuiz.length;
     if (ratio >= 0.7) {
-      final nextProgress =
-          (_localProgress ?? 0) < 0.9 ? 0.9 : (_localProgress ?? 0);
+      final nextProgress = (_localProgress ?? 0) < 0.9
+          ? 0.9
+          : (_localProgress ?? 0);
       setState(() => _localProgress = nextProgress);
-      ref.read(learnActionsProvider).saveProgress(
+      ref
+          .read(learnActionsProvider)
+          .saveProgress(
             subjectId: widget.subjectId,
             chapterId: widget.chapterId,
             lessonId: widget.lessonId,
@@ -186,7 +190,9 @@ class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
     setState(() => _isMarkingDone = true);
 
     try {
-      await ref.read(learnActionsProvider).saveProgress(
+      await ref
+          .read(learnActionsProvider)
+          .saveProgress(
             subjectId: widget.subjectId,
             chapterId: widget.chapterId,
             lessonId: widget.lessonId,
@@ -331,7 +337,9 @@ class _LessonBody extends StatelessWidget {
                         lesson.isFavorite
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
-                        color: lesson.isFavorite ? Colors.redAccent : Colors.white,
+                        color: lesson.isFavorite
+                            ? Colors.redAccent
+                            : Colors.white,
                       ),
                     ),
                   ],
@@ -383,22 +391,28 @@ class _LessonBody extends StatelessWidget {
             bottom: AppSpacing.xl,
             left: AppSpacing.xl,
             right: AppSpacing.xl,
-            child: GradientButton(
-              onPressed: onMarkDone,
-              isLoading: isMarkingDone,
-              gradient: AppGradients.heroNavy,
-              child: const Text(
-                'Marquer comme terminée',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            )
-                .animate()
-                .slideY(begin: 1.0, end: 0, duration: 400.ms, curve: AppMotion.emphasizedDecelerate)
-                .fadeIn(duration: 300.ms),
+            child:
+                GradientButton(
+                      onPressed: onMarkDone,
+                      isLoading: isMarkingDone,
+                      gradient: AppGradients.heroNavy,
+                      child: const Text(
+                        'Marquer comme terminée',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    )
+                    .animate()
+                    .slideY(
+                      begin: 1.0,
+                      end: 0,
+                      duration: 400.ms,
+                      curve: AppMotion.emphasizedDecelerate,
+                    )
+                    .fadeIn(duration: 300.ms),
           ),
       ],
     );
@@ -501,9 +515,7 @@ class _AskAiBanner extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.accent.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(
-            color: AppColors.accent.withValues(alpha: 0.30),
-          ),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.30)),
         ),
         child: Row(
           children: [
@@ -869,8 +881,11 @@ class _QuizOptionTile extends StatelessWidget {
                 ),
               ),
               child: selected
-                  ? const Icon(Icons.check_rounded,
-                      size: 11, color: Colors.white)
+                  ? const Icon(
+                      Icons.check_rounded,
+                      size: 11,
+                      color: Colors.white,
+                    )
                   : null,
             ),
             const SizedBox(width: AppSpacing.sm),
@@ -882,8 +897,7 @@ class _QuizOptionTile extends StatelessWidget {
                   color: selected
                       ? Colors.white
                       : Colors.white.withValues(alpha: 0.70),
-                  fontWeight:
-                      selected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
             ),

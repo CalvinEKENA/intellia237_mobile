@@ -36,8 +36,9 @@ class SearchableEstablishmentField extends StatelessWidget {
           showDragHandle: true,
           backgroundColor: theme.colorScheme.surface,
           shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(AppRadius.lg),
+            ),
           ),
           builder: (_) => const _EstablishmentPickerSheet(),
         );
@@ -168,15 +169,17 @@ class _EstablishmentPickerSheetState extends State<_EstablishmentPickerSheet> {
                               Icon(
                                 Icons.search_off_rounded,
                                 size: 48,
-                                color: theme.colorScheme.outline
-                                    .withValues(alpha: 0.4),
+                                color: theme.colorScheme.outline.withValues(
+                                  alpha: 0.4,
+                                ),
                               ),
                               const SizedBox(height: AppSpacing.sm),
                               Text(
                                 'Aucun \u00e9tablissement trouv\u00e9.',
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.5),
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                               ),
                             ],
@@ -189,7 +192,8 @@ class _EstablishmentPickerSheetState extends State<_EstablishmentPickerSheet> {
                         itemBuilder: (context, index) {
                           final item = _results[index];
                           // Separateur de ville
-                          final showCityHeader = index == 0 ||
+                          final showCityHeader =
+                              index == 0 ||
                               _results[index - 1].city != item.city;
 
                           return Column(
@@ -200,8 +204,7 @@ class _EstablishmentPickerSheetState extends State<_EstablishmentPickerSheet> {
                                 _CityHeader(city: item.city ?? ''),
                               _EstablishmentTile(
                                 item: item,
-                                onTap: () =>
-                                    Navigator.of(context).pop(item),
+                                onTap: () => Navigator.of(context).pop(item),
                               ),
                             ],
                           );
@@ -281,8 +284,7 @@ class _EstablishmentTile extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color:
-                    theme.colorScheme.primary.withValues(alpha: 0.08),
+                color: theme.colorScheme.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(

@@ -72,5 +72,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'edunova-aabd1.firebasestorage.app',
     iosBundleId: 'com.edunova.app',
   );
-
 }

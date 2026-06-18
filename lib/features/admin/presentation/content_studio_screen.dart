@@ -61,7 +61,8 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md),
+                        horizontal: AppSpacing.md,
+                      ),
                       itemCount: kAllClassLevels.length,
                       separatorBuilder: (_, _) =>
                           const SizedBox(width: AppSpacing.xs),
@@ -71,9 +72,11 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
                         return FilterChip(
                           label: Text(cls),
                           selected: active,
-                          onSelected: (_) => ref
-                              .read(selectedAdminClassProvider.notifier)
-                              .state = cls,
+                          onSelected: (_) =>
+                              ref
+                                      .read(selectedAdminClassProvider.notifier)
+                                      .state =
+                                  cls,
                         );
                       },
                     ),
@@ -118,8 +121,10 @@ class _SubjectsTab extends ConsumerWidget {
 
     return subjectsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => _ErrorView(message: e.toString(),
-          onRetry: () => ref.invalidate(adminSubjectsProvider(classLevel))),
+      error: (e, _) => _ErrorView(
+        message: e.toString(),
+        onRetry: () => ref.invalidate(adminSubjectsProvider(classLevel)),
+      ),
       data: (subjects) => RefreshIndicator(
         onRefresh: () async =>
             ref.invalidate(adminSubjectsProvider(classLevel)),
@@ -127,7 +132,11 @@ class _SubjectsTab extends ConsumerWidget {
           slivers: [
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md, AppSpacing.md, AppSpacing.md, 120),
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.md,
+                120,
+              ),
               sliver: subjects.isEmpty
                   ? SliverFillRemaining(
                       child: _EmptyState(
@@ -140,11 +149,11 @@ class _SubjectsTab extends ConsumerWidget {
                       itemCount: subjects.length,
                       separatorBuilder: (_, _) =>
                           const SizedBox(height: AppSpacing.sm),
-                      itemBuilder: (context, i) => _SubjectCard(
-                        subject: subjects[i],
-                      ).animate(delay: Duration(milliseconds: i * 50))
-                          .fadeIn()
-                          .slideY(begin: 0.1, end: 0),
+                      itemBuilder: (context, i) =>
+                          _SubjectCard(subject: subjects[i])
+                              .animate(delay: Duration(milliseconds: i * 50))
+                              .fadeIn()
+                              .slideY(begin: 0.1, end: 0),
                     ),
             ),
           ],
@@ -162,8 +171,7 @@ class _SubjectCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final color = Color(subject.colorHex);
-    final icon =
-        kSubjectIconOptions[subject.iconKey] ?? Icons.book_rounded;
+    final icon = kSubjectIconOptions[subject.iconKey] ?? Icons.book_rounded;
 
     return Card(
       child: InkWell(
@@ -198,9 +206,7 @@ class _SubjectCard extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             subject.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                         ),
@@ -240,8 +246,9 @@ class _QuizzesTab extends ConsumerWidget {
     return quizzesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => _ErrorView(
-          message: e.toString(),
-          onRetry: () => ref.invalidate(adminQuizzesProvider(classLevel))),
+        message: e.toString(),
+        onRetry: () => ref.invalidate(adminQuizzesProvider(classLevel)),
+      ),
       data: (quizzes) => Stack(
         children: [
           RefreshIndicator(
@@ -256,7 +263,11 @@ class _QuizzesTab extends ConsumerWidget {
                   )
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.md, AppSpacing.md, AppSpacing.md, 120),
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      120,
+                    ),
                     itemCount: quizzes.length,
                     separatorBuilder: (_, _) =>
                         const SizedBox(height: AppSpacing.sm),
@@ -270,20 +281,24 @@ class _QuizzesTab extends ConsumerWidget {
                                 ? AppColors.accent
                                 : AppColors.gold,
                           ),
-                          title: Text(quiz.title,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600)),
+                          title: Text(
+                            quiz.title,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           subtitle: Text(
-                              '${quiz.questions.length} questions • ${quiz.difficultyLabel}'),
+                            '${quiz.questions.length} questions • ${quiz.difficultyLabel}',
+                          ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (quiz.aiGenerated)
                                 const Tooltip(
                                   message: 'Généré par l\'IA',
-                                  child: Icon(Icons.auto_awesome,
-                                      size: 16,
-                                      color: AppColors.gold),
+                                  child: Icon(
+                                    Icons.auto_awesome,
+                                    size: 16,
+                                    color: AppColors.gold,
+                                  ),
                                 ),
                               const SizedBox(width: 4),
                               _StatusChip(status: quiz.status),
@@ -299,8 +314,7 @@ class _QuizzesTab extends ConsumerWidget {
                             ),
                           ),
                         ),
-                      ).animate(delay: Duration(milliseconds: i * 40))
-                          .fadeIn();
+                      ).animate(delay: Duration(milliseconds: i * 40)).fadeIn();
                     },
                   ),
           ),
@@ -311,9 +325,8 @@ class _QuizzesTab extends ConsumerWidget {
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (_) => ContentQuizEditorScreen(
-                    classLevel: classLevel,
-                  ),
+                  builder: (_) =>
+                      ContentQuizEditorScreen(classLevel: classLevel),
                 ),
               ),
               icon: const Icon(Icons.add_rounded),
@@ -373,15 +386,14 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 56,
-              color: Theme.of(context).colorScheme.outline),
+          Icon(icon, size: 56, color: Theme.of(context).colorScheme.outline),
           const SizedBox(height: AppSpacing.md),
           Text(
             message,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
+              color: Theme.of(context).colorScheme.outline,
+            ),
           ),
         ],
       ),
@@ -403,8 +415,11 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded,
-                size: 48, color: Color(0xFFDC2626)),
+            const Icon(
+              Icons.error_outline_rounded,
+              size: 48,
+              color: Color(0xFFDC2626),
+            ),
             const SizedBox(height: AppSpacing.sm),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: AppSpacing.md),

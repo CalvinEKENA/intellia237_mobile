@@ -18,15 +18,15 @@ class ChatBubble extends StatelessWidget {
     final isUser = message.role == AIMessageRole.user;
 
     return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 480),
-        margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-        child: isUser
-            ? _UserBubble(text: message.text)
-            : _AiBubble(text: message.text, tutor: tutor),
-      ),
-    )
+          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 480),
+            margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: isUser
+                ? _UserBubble(text: message.text)
+                : _AiBubble(text: message.text, tutor: tutor),
+          ),
+        )
         .animate()
         .slideY(
           begin: 0.3,
@@ -70,11 +70,7 @@ class _UserBubble extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-          height: 1.5,
-        ),
+        style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
       ),
     );
   }
@@ -115,9 +111,7 @@ class _AiBubble extends StatelessWidget {
               bottomLeft: Radius.circular(24),
               bottomRight: Radius.circular(24),
             ),
-            border: Border.all(
-              color: AppColors.glassBorder,
-            ),
+            border: Border.all(color: AppColors.glassBorder),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +131,10 @@ class _AiBubble extends StatelessWidget {
                     image: AssetImage(tutor.imagePath),
                     fit: BoxFit.cover,
                   ),
-                  boxShadow: AppShadows.glow(tutor.accentColor, intensity: 0.15),
+                  boxShadow: AppShadows.glow(
+                    tutor.accentColor,
+                    intensity: 0.15,
+                  ),
                 ),
               ),
               Expanded(
@@ -188,9 +185,10 @@ class _TypingIndicatorBubbleState extends State<TypingIndicatorBubble>
     );
     _anims = _ctrls
         .map(
-          (c) => Tween<double>(begin: 0, end: -8).animate(
-            CurvedAnimation(parent: c, curve: Curves.easeInOut),
-          ),
+          (c) => Tween<double>(
+            begin: 0,
+            end: -8,
+          ).animate(CurvedAnimation(parent: c, curve: Curves.easeInOut)),
         )
         .toList();
 

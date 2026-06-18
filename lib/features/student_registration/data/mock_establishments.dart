@@ -44,11 +44,13 @@ abstract final class EstablishmentCatalog {
       final key = name.toLowerCase();
       if (!seen.add(key)) continue;
 
-      out.add(SchoolEstablishment(
-        id: '${prefix}_${i.toString().padLeft(3, '0')}',
-        name: name,
-        city: city,
-      ));
+      out.add(
+        SchoolEstablishment(
+          id: '${prefix}_${i.toString().padLeft(3, '0')}',
+          name: name,
+          city: city,
+        ),
+      );
       i++;
     }
     return out;

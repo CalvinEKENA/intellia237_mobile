@@ -375,9 +375,7 @@ class _ProfileTab extends ConsumerWidget {
           _AcademicSection(academicAsync: academicAsync, theme: theme),
           const SizedBox(height: AppSpacing.md),
           // Section Tuteur IA
-          _TutorSection(
-            classLevel: academicAsync.value?.classLevel,
-          ),
+          _TutorSection(classLevel: academicAsync.value?.classLevel),
           const SizedBox(height: AppSpacing.md),
           // Section Statistiques
           _StatsSection(homeAsync: homeAsync, theme: theme),
@@ -418,9 +416,8 @@ class _ProfileIdentityCard extends StatelessWidget {
               radius: 30,
               backgroundColor: theme.colorScheme.primaryContainer,
               child: Text(
-                (auth.firstName?.isNotEmpty == true
-                    ? auth.firstName![0]
-                    : 'E').toUpperCase(),
+                (auth.firstName?.isNotEmpty == true ? auth.firstName![0] : 'E')
+                    .toUpperCase(),
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: theme.colorScheme.onPrimaryContainer,
                   fontWeight: FontWeight.bold,
@@ -506,7 +503,8 @@ class _AcademicSection extends StatelessWidget {
         Card(
           child: academicAsync.when(
             loading: () => const ListTile(title: Text('Chargement...')),
-            error: (_, _) => const ListTile(title: Text('Erreur de chargement')),
+            error: (_, _) =>
+                const ListTile(title: Text('Erreur de chargement')),
             data: (academic) => Column(
               children: [
                 ListTile(
@@ -763,9 +761,10 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
       duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
 
-    _floatAnim = Tween<double>(begin: -3.0, end: 3.0).animate(
-      CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOutSine),
-    );
+    _floatAnim = Tween<double>(
+      begin: -3.0,
+      end: 3.0,
+    ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOutSine));
   }
 
   @override
@@ -806,8 +805,11 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
                     gradient: LinearGradient(colors: tutor.gradientColors),
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
-                  child: Icon(Icons.person_rounded,
-                      color: Colors.white.withValues(alpha: 0.80), size: 28),
+                  child: Icon(
+                    Icons.person_rounded,
+                    color: Colors.white.withValues(alpha: 0.80),
+                    size: 28,
+                  ),
                 ),
               ),
             ),

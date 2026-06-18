@@ -111,8 +111,11 @@ class _StudentRegistrationFlowScreenState
               SnackBar(
                 content: Row(
                   children: [
-                    const Icon(Icons.error_outline,
-                        color: Colors.white, size: 20),
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(child: Text(next.errorMessage!)),
                   ],
@@ -178,9 +181,7 @@ class _StudentRegistrationFlowScreenState
 
               // ── Stepper ───────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xl,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
                 child: PremiumStepper(
                   currentStep: state.currentStep,
                   labels: _stepLabels,
@@ -195,16 +196,12 @@ class _StudentRegistrationFlowScreenState
                   switchInCurve: AppMotion.emphasizedDecelerate,
                   switchOutCurve: AppMotion.swiftOut,
                   transitionBuilder: (child, animation) {
-                    final isForward =
-                        state.currentStep >= _previousStep;
+                    final isForward = state.currentStep >= _previousStep;
                     final slideIn = Tween<Offset>(
                       begin: Offset(isForward ? 1.0 : -1.0, 0),
                       end: Offset.zero,
                     ).animate(animation);
-                    final fadeIn = Tween<double>(
-                      begin: 0.0,
-                      end: 1.0,
-                    ).animate(
+                    final fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
                       CurvedAnimation(
                         parent: animation,
                         curve: const Interval(0.3, 1.0),
@@ -212,10 +209,7 @@ class _StudentRegistrationFlowScreenState
                     );
                     return FadeTransition(
                       opacity: fadeIn,
-                      child: SlideTransition(
-                        position: slideIn,
-                        child: child,
-                      ),
+                      child: SlideTransition(position: slideIn, child: child),
                     );
                   },
                   child: _GlassStepPanel(
@@ -504,9 +498,7 @@ class _StudentRegistrationFlowScreenState
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppRadius.sm),
               color: Colors.white.withValues(alpha: 0.07),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.15),
-              ),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
             ),
             child: Text(
               'Vérifiez vos informations avant de créer votre compte.',
@@ -555,11 +547,7 @@ class _StudentRegistrationFlowScreenState
                         },
                   child: const FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(
-                      'Précédent',
-                      maxLines: 1,
-                      softWrap: false,
-                    ),
+                    child: Text('Précédent', maxLines: 1, softWrap: false),
                   ),
                 ),
               ),
@@ -570,8 +558,9 @@ class _StudentRegistrationFlowScreenState
           Expanded(
             flex: 2,
             child: GradientButton(
-              onPressed:
-                  state.isSubmitting ? null : () => _handlePrimaryAction(state),
+              onPressed: state.isSubmitting
+                  ? null
+                  : () => _handlePrimaryAction(state),
               gradient: AppGradients.heroNavy,
               isLoading: state.isSubmitting,
               child: Text(
@@ -628,8 +617,11 @@ class _StudentRegistrationFlowScreenState
             SnackBar(
               content: const Row(
                 children: [
-                  Icon(Icons.check_circle_outline,
-                      color: Colors.white, size: 20),
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                   SizedBox(width: AppSpacing.sm),
                   Text('Inscription complétée avec succès !'),
                 ],
@@ -815,10 +807,7 @@ class _DarkDropdown<T> extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: const BorderSide(
-                color: AppColors.gold,
-                width: 1.5,
-              ),
+              borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -826,8 +815,7 @@ class _DarkDropdown<T> extends StatelessWidget {
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide:
-                  const BorderSide(color: Colors.redAccent, width: 1.5),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
             ),
             errorStyle: const TextStyle(color: Colors.redAccent),
             contentPadding: const EdgeInsets.symmetric(
@@ -879,8 +867,7 @@ class _DarkCheckboxTile extends StatelessWidget {
               ),
             ),
             child: value
-                ? const Icon(Icons.check_rounded,
-                    size: 14, color: Colors.white)
+                ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
                 : null,
           ),
           const SizedBox(width: AppSpacing.sm),

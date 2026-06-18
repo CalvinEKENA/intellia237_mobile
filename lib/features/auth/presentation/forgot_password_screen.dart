@@ -20,8 +20,7 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
       _ForgotPasswordScreenState();
 }
 
-class _ForgotPasswordScreenState
-    extends ConsumerState<ForgotPasswordScreen> {
+class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   bool _isLoading = false;
@@ -117,12 +116,13 @@ class _ForgotPasswordScreenState
                     child: AnimatedSwitcher(
                       duration: AppMotion.cinematic,
                       switchInCurve: AppMotion.emphasizedDecelerate,
-                      transitionBuilder: (child, animation) =>
-                          FadeTransition(
+                      transitionBuilder: (child, animation) => FadeTransition(
                         opacity: animation,
                         child: ScaleTransition(
-                          scale: Tween(begin: 0.95, end: 1.0)
-                              .animate(animation),
+                          scale: Tween(
+                            begin: 0.95,
+                            end: 1.0,
+                          ).animate(animation),
                           child: child,
                         ),
                       ),

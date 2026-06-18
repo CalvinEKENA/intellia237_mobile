@@ -49,9 +49,9 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
   int _selectedLevelIndex = 0; // 0=BEPC 1=Proba 2=Bac
 
   static const _levels = [
-    ('bepc',  'BEPC'),
+    ('bepc', 'BEPC'),
     ('proba', 'Probatoire'),
-    ('bac',   'Baccalauréat'),
+    ('bac', 'Baccalauréat'),
   ];
 
   List<TutorPersona> get _currentTutors =>
@@ -71,13 +71,17 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
 
     // Déterminer le niveau + index initial si un tuteur est déjà choisi.
     if (widget.initialTutorId != null) {
-      final idx = TutorPersona.all.indexWhere((t) => t.id == widget.initialTutorId);
+      final idx = TutorPersona.all.indexWhere(
+        (t) => t.id == widget.initialTutorId,
+      );
       if (idx != -1) {
         final tutor = TutorPersona.all[idx];
         if (widget.filterLevel == null) {
           _selectedLevelIndex = _levels.indexWhere((l) => l.$1 == tutor.level);
         }
-        _currentIndex = _currentTutors.indexWhere((t) => t.id == widget.initialTutorId);
+        _currentIndex = _currentTutors.indexWhere(
+          (t) => t.id == widget.initialTutorId,
+        );
         if (_currentIndex < 0) _currentIndex = 0;
       }
     }
@@ -166,7 +170,10 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
                 // CTA
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.xl, 0, AppSpacing.xl, AppSpacing.xl,
+                    AppSpacing.xl,
+                    0,
+                    AppSpacing.xl,
+                    AppSpacing.xl,
                   ),
                   child: GradientButton(
                     gradient: LinearGradient(colors: tutor.gradientColors),
@@ -178,8 +185,11 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.check_circle_rounded,
-                            size: 20, color: Colors.white),
+                        const Icon(
+                          Icons.check_circle_rounded,
+                          size: 20,
+                          color: Colors.white,
+                        ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
                           'Choisir ${tutor.name.split(' ').first} comme tuteur',
@@ -225,7 +235,11 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.sm),
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.sm,
+      ),
       child: Column(
         children: [
           Row(
@@ -245,12 +259,15 @@ class _TopBar extends StatelessWidget {
                   onTap: onSkip,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm, vertical: 6),
+                      horizontal: AppSpacing.sm,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(99),
                       border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.20)),
+                        color: Colors.white.withValues(alpha: 0.20),
+                      ),
                     ),
                     child: Text(
                       'Passer',
@@ -440,7 +457,10 @@ class _TutorCardState extends State<_TutorCard>
                   builder: (context, child) {
                     final idleFloat = _isTouching
                         ? 0.0
-                        : math.sin(_floatCtrl.value * math.pi) * 6 * math.pi / 180;
+                        : math.sin(_floatCtrl.value * math.pi) *
+                              6 *
+                              math.pi /
+                              180;
                     return Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.identity()
@@ -577,7 +597,11 @@ class _FallbackPortrait extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.person_rounded, size: 56, color: Colors.white),
+              child: const Icon(
+                Icons.person_rounded,
+                size: 56,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
@@ -679,7 +703,9 @@ class _StatsPanel extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: tutor.gradientColors),
+                          gradient: LinearGradient(
+                            colors: tutor.gradientColors,
+                          ),
                           borderRadius: BorderRadius.circular(99),
                           boxShadow: AppShadows.glow(
                             tutor.accentColor,
@@ -704,7 +730,11 @@ class _StatsPanel extends StatelessWidget {
                   // Specialty chip
                   Row(
                     children: [
-                      Icon(Icons.star_rounded, size: 14, color: tutor.accentColor),
+                      Icon(
+                        Icons.star_rounded,
+                        size: 14,
+                        color: tutor.accentColor,
+                      ),
                       const SizedBox(width: 5),
                       Text(
                         tutor.specialty,
@@ -737,7 +767,10 @@ class _StatsPanel extends StatelessWidget {
                   ...tutor.stats.map(
                     (stat) => Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                      child: _StatBar(stat: stat, accentColor: tutor.accentColor),
+                      child: _StatBar(
+                        stat: stat,
+                        accentColor: tutor.accentColor,
+                      ),
                     ),
                   ),
 
@@ -804,20 +837,29 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
 
   String _textForSegment(int index) {
     int start = 0;
-    for (int i = 0; i < index; i++) { start += _segments[i].length; }
-    final available = (_totalCharsShown - start).clamp(0, _segments[index].length);
+    for (int i = 0; i < index; i++) {
+      start += _segments[i].length;
+    }
+    final available = (_totalCharsShown - start).clamp(
+      0,
+      _segments[index].length,
+    );
     return _segments[index].substring(0, available);
   }
 
   bool _segmentDone(int index) {
     int end = 0;
-    for (int i = 0; i <= index; i++) { end += _segments[i].length; }
+    for (int i = 0; i <= index; i++) {
+      end += _segments[i].length;
+    }
     return _totalCharsShown >= end;
   }
 
   bool _segmentStarted(int index) {
     int start = 0;
-    for (int i = 0; i < index; i++) { start += _segments[i].length; }
+    for (int i = 0; i < index; i++) {
+      start += _segments[i].length;
+    }
     return _totalCharsShown > start;
   }
 
@@ -833,28 +875,28 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
     _cursorTimer = Timer.periodic(const Duration(milliseconds: 530), (_) {
       if (mounted) setState(() => _cursorVisible = !_cursorVisible);
     });
-    _typeTimer = Timer.periodic(
-      const Duration(milliseconds: _msPerChar),
-      (_) {
-        if (!mounted) { _typeTimer?.cancel(); return; }
-        if (_totalCharsShown < _totalChars) {
-          setState(() {
-            _totalCharsShown++;
-            // Show stat bars once bio segment is fully typed (segment index 3)
-            if (!_statsVisible && _segmentDone(3)) {
-              _statsVisible = true;
-            }
-          });
-        } else {
-          _typeTimer?.cancel();
-          // Stop cursor blink shortly after typing ends
-          Future.delayed(const Duration(milliseconds: 1200), () {
-            _cursorTimer?.cancel();
-            if (mounted) setState(() => _cursorVisible = false);
-          });
-        }
-      },
-    );
+    _typeTimer = Timer.periodic(const Duration(milliseconds: _msPerChar), (_) {
+      if (!mounted) {
+        _typeTimer?.cancel();
+        return;
+      }
+      if (_totalCharsShown < _totalChars) {
+        setState(() {
+          _totalCharsShown++;
+          // Show stat bars once bio segment is fully typed (segment index 3)
+          if (!_statsVisible && _segmentDone(3)) {
+            _statsVisible = true;
+          }
+        });
+      } else {
+        _typeTimer?.cancel();
+        // Stop cursor blink shortly after typing ends
+        Future.delayed(const Duration(milliseconds: 1200), () {
+          _cursorTimer?.cancel();
+          if (mounted) setState(() => _cursorVisible = false);
+        });
+      }
+    });
   }
 
   @override
@@ -872,7 +914,10 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
     // Determine which segment is currently being typed (for cursor placement)
     int activeSegment = _segments.length;
     for (int i = 0; i < _segments.length; i++) {
-      if (!_segmentDone(i)) { activeSegment = i; break; }
+      if (!_segmentDone(i)) {
+        activeSegment = i;
+        break;
+      }
     }
 
     final nameText = _textForSegment(0);
@@ -883,7 +928,10 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg,
+        AppSpacing.lg,
+        0,
+        AppSpacing.lg,
+        AppSpacing.lg,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -929,12 +977,16 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
                 opacity: _segmentDone(0) ? 1.0 : 0.0,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm, vertical: 6,
+                    horizontal: AppSpacing.sm,
+                    vertical: 6,
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(colors: tutor.gradientColors),
                     borderRadius: BorderRadius.circular(99),
-                    boxShadow: AppShadows.glow(tutor.accentColor, intensity: 0.40),
+                    boxShadow: AppShadows.glow(
+                      tutor.accentColor,
+                      intensity: 0.40,
+                    ),
                   ),
                   child: Text(
                     tutor.levelLabel,
@@ -998,7 +1050,10 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
                       ...tutor.stats.map(
                         (stat) => Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                          child: _StatBar(stat: stat, accentColor: tutor.accentColor),
+                          child: _StatBar(
+                            stat: stat,
+                            accentColor: tutor.accentColor,
+                          ),
                         ),
                       ),
                     ],
@@ -1091,7 +1146,9 @@ class _StatBarState extends State<_StatBar>
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic);
     Future.delayed(
       Duration(milliseconds: (widget.stat.value * 200).round()),
-      () { if (mounted) _ctrl.forward(); },
+      () {
+        if (mounted) _ctrl.forward();
+      },
     );
   }
 
@@ -1197,7 +1254,9 @@ class _LevelDots extends StatelessWidget {
           width: isActive ? 20 : 7,
           height: 7,
           decoration: BoxDecoration(
-            color: isActive ? accentColor : Colors.white.withValues(alpha: 0.25),
+            color: isActive
+                ? accentColor
+                : Colors.white.withValues(alpha: 0.25),
             borderRadius: BorderRadius.circular(99),
             boxShadow: isActive
                 ? AppShadows.glow(accentColor, intensity: 0.60)

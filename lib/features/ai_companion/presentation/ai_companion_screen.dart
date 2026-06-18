@@ -42,7 +42,10 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(aiCompanionControllerProvider);
-    ref.listen<AICompanionState>(aiCompanionControllerProvider, (previous, next) {
+    ref.listen<AICompanionState>(aiCompanionControllerProvider, (
+      previous,
+      next,
+    ) {
       if (next.messages.length != (previous?.messages.length ?? 0)) {
         // Hide quick prompts once first message is sent
         if (_quickPromptsVisible && next.messages.isNotEmpty) {
@@ -74,10 +77,7 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
               state.errorMessage!,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFFFF6B6B),
-              ),
+              style: const TextStyle(fontSize: 12, color: Color(0xFFFF6B6B)),
             ),
           ),
         ],
@@ -190,7 +190,11 @@ class _GlassTopBar extends StatelessWidget {
               if (onClose != null) ...[
                 IconButton(
                   onPressed: onClose,
-                  icon: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
+                  icon: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
@@ -210,7 +214,10 @@ class _GlassTopBar extends StatelessWidget {
                     image: AssetImage(state.tutor.imagePath),
                     fit: BoxFit.cover,
                   ),
-                  boxShadow: AppShadows.glow(state.tutor.accentColor, intensity: 0.25),
+                  boxShadow: AppShadows.glow(
+                    state.tutor.accentColor,
+                    intensity: 0.25,
+                  ),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -354,43 +361,43 @@ class _QuickPromptChips extends StatelessWidget {
       children: [
         for (int i = 0; i < prompts.length; i++)
           GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              onTap(prompts[i]);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.gold.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(99),
-                border: Border.all(
-                  color: AppColors.gold.withValues(alpha: 0.35),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.auto_awesome_rounded,
-                    size: 12,
-                    color: AppColors.gold,
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  onTap(prompts[i]);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: 6,
                   ),
-                  const SizedBox(width: 5),
-                  Text(
-                    prompts[i],
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.gold,
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(99),
+                    border: Border.all(
+                      color: AppColors.gold.withValues(alpha: 0.35),
                     ),
                   ),
-                ],
-              ),
-            ),
-          )
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.auto_awesome_rounded,
+                        size: 12,
+                        color: AppColors.gold,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        prompts[i],
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.gold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
               .animate(delay: Duration(milliseconds: i * 60))
               .fadeIn(duration: 300.ms)
               .slideX(begin: 0.05, end: 0),
@@ -443,10 +450,7 @@ class _GlassComposer extends StatelessWidget {
                   maxLines: 4,
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => onSubmit(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Écris ta question…',
                     hintStyle: TextStyle(
@@ -481,7 +485,9 @@ class _GlassComposer extends StatelessWidget {
                             colors: [accentColor, AppColors.brand],
                           )
                         : null,
-                    color: enabled ? null : Colors.white.withValues(alpha: 0.10),
+                    color: enabled
+                        ? null
+                        : Colors.white.withValues(alpha: 0.10),
                     shape: BoxShape.circle,
                     boxShadow: enabled
                         ? AppShadows.glow(accentColor, intensity: 0.40)
@@ -490,7 +496,9 @@ class _GlassComposer extends StatelessWidget {
                   child: Icon(
                     Icons.send_rounded,
                     size: 18,
-                    color: enabled ? Colors.white : Colors.white.withValues(alpha: 0.30),
+                    color: enabled
+                        ? Colors.white
+                        : Colors.white.withValues(alpha: 0.30),
                   ),
                 ),
               ),

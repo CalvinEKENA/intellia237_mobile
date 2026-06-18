@@ -44,13 +44,14 @@ class _AccountTypeCardState extends State<AccountTypeCard>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _bounceScale = TweenSequence([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.95), weight: 30),
-      TweenSequenceItem(tween: Tween(begin: 0.95, end: 1.04), weight: 40),
-      TweenSequenceItem(tween: Tween(begin: 1.04, end: 1.0), weight: 30),
-    ]).animate(
-      CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
-    );
+    _bounceScale =
+        TweenSequence([
+          TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.95), weight: 30),
+          TweenSequenceItem(tween: Tween(begin: 0.95, end: 1.04), weight: 40),
+          TweenSequenceItem(tween: Tween(begin: 1.04, end: 1.0), weight: 30),
+        ]).animate(
+          CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
+        );
   }
 
   @override
@@ -74,18 +75,17 @@ class _AccountTypeCardState extends State<AccountTypeCard>
     final selected = widget.isSelected;
     final color = widget.color;
 
-    final borderColor =
-        selected ? color : theme.colorScheme.outline.withValues(alpha: 0.20);
+    final borderColor = selected
+        ? color
+        : theme.colorScheme.outline.withValues(alpha: 0.20);
     final bgColor = selected
         ? color.withValues(alpha: isDark ? 0.14 : 0.06)
         : theme.colorScheme.surfaceContainerLow;
 
     return AnimatedBuilder(
       animation: _bounceController,
-      builder: (context, child) => Transform.scale(
-        scale: _bounceScale.value,
-        child: child,
-      ),
+      builder: (context, child) =>
+          Transform.scale(scale: _bounceScale.value, child: child),
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
@@ -95,10 +95,7 @@ class _AccountTypeCardState extends State<AccountTypeCard>
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(
-              color: borderColor,
-              width: selected ? 2.0 : 1.0,
-            ),
+            border: Border.all(color: borderColor, width: selected ? 2.0 : 1.0),
             boxShadow: selected
                 ? [
                     BoxShadow(
@@ -157,7 +154,9 @@ class _AccountTypeCardState extends State<AccountTypeCard>
                     Text(
                       widget.title,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                         color: selected ? color : null,
                       ),
                     ),
@@ -165,8 +164,9 @@ class _AccountTypeCardState extends State<AccountTypeCard>
                     Text(
                       widget.subtitle,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface
-                            .withValues(alpha: 0.58),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.58,
+                        ),
                       ),
                     ),
                   ],
@@ -177,10 +177,8 @@ class _AccountTypeCardState extends State<AccountTypeCard>
               AnimatedSwitcher(
                 duration: AppMotion.fast,
                 switchInCurve: Curves.easeOut,
-                transitionBuilder: (child, animation) => ScaleTransition(
-                  scale: animation,
-                  child: child,
-                ),
+                transitionBuilder: (child, animation) =>
+                    ScaleTransition(scale: animation, child: child),
                 child: selected
                     ? Container(
                         key: const ValueKey('check'),

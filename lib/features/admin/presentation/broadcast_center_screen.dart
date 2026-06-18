@@ -59,9 +59,9 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
         children: [
           Text(
             'Broadcast Center',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -82,8 +82,8 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                       decoration: const InputDecoration(labelText: 'Titre'),
                       validator: (value) =>
                           (value == null || value.trim().isEmpty)
-                              ? 'Titre requis'
-                              : null,
+                          ? 'Titre requis'
+                          : null,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     DropdownButtonFormField<String>(
@@ -106,8 +106,8 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                       decoration: const InputDecoration(labelText: 'Message'),
                       validator: (value) =>
                           (value == null || value.trim().isEmpty)
-                              ? 'Message requis'
-                              : null,
+                          ? 'Message requis'
+                          : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     FilledButton.icon(
@@ -160,7 +160,9 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
     }
 
     setState(() => _isSending = true);
-    await ref.read(adminActionsProvider).publishAnnouncement(
+    await ref
+        .read(adminActionsProvider)
+        .publishAnnouncement(
           title: _titleController.text.trim(),
           message: _messageController.text.trim(),
           audience: _audience,
@@ -169,9 +171,9 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
     setState(() => _isSending = false);
     _titleController.clear();
     _messageController.clear();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Annonce publiée.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Annonce publiée.')));
   }
 }
 
@@ -190,9 +192,9 @@ class _AnnouncementItem extends StatelessWidget {
           children: [
             Text(
               announcement.title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: AppSpacing.xxs),
             Text(announcement.message),

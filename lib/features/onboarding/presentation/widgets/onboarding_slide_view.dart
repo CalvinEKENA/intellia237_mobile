@@ -89,32 +89,32 @@ class OnboardingSlideView extends StatelessWidget {
             children: [
               // Pill accent colorée
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.22),
-                  borderRadius: BorderRadius.circular(99),
-                  border: Border.all(color: accent.withValues(alpha: 0.45)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(data.icon, size: 12, color: accent),
-                    const SizedBox(width: 5),
-                    Text(
-                      'EduNova',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: accent,
-                        letterSpacing: 0.5,
-                      ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: 4,
                     ),
-                  ],
-                ),
-              )
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.22),
+                      borderRadius: BorderRadius.circular(99),
+                      border: Border.all(color: accent.withValues(alpha: 0.45)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(data.icon, size: 12, color: accent),
+                        const SizedBox(width: 5),
+                        Text(
+                          'EduNova',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: accent,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                   .animate()
                   .fadeIn(delay: 100.ms, duration: 400.ms)
                   .slideY(begin: 0.2, end: 0, delay: 100.ms, duration: 400.ms),
@@ -123,15 +123,15 @@ class OnboardingSlideView extends StatelessWidget {
 
               // Titre Playfair Display
               Text(
-                data.title,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 38,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.8,
-                  height: 1.15,
-                  color: Colors.white,
-                ),
-              )
+                    data.title,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 38,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.8,
+                      height: 1.15,
+                      color: Colors.white,
+                    ),
+                  )
                   .animate()
                   .fadeIn(delay: 200.ms, duration: 500.ms)
                   .slideY(begin: 0.15, end: 0, delay: 200.ms, duration: 500.ms),
@@ -140,14 +140,14 @@ class OnboardingSlideView extends StatelessWidget {
 
               // Sous-titre Manrope
               Text(
-                data.description,
-                style: TextStyle(
-                  fontSize: 15,
-                  height: 1.6,
-                  color: Colors.white.withValues(alpha: 0.78),
-                  fontWeight: FontWeight.w400,
-                ),
-              )
+                    data.description,
+                    style: TextStyle(
+                      fontSize: 15,
+                      height: 1.6,
+                      color: Colors.white.withValues(alpha: 0.78),
+                      fontWeight: FontWeight.w400,
+                    ),
+                  )
                   .animate()
                   .fadeIn(delay: 400.ms, duration: 500.ms)
                   .slideY(begin: 0.10, end: 0, delay: 400.ms, duration: 500.ms),
