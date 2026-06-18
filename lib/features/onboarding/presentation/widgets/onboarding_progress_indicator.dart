@@ -31,8 +31,8 @@ class OnboardingProgressBar extends StatelessWidget {
               state: index < currentSlide
                   ? _SegmentState.completed
                   : index == currentSlide
-                      ? _SegmentState.active
-                      : _SegmentState.upcoming,
+                  ? _SegmentState.active
+                  : _SegmentState.upcoming,
               progress: index == currentSlide ? progress : 1.0,
               accentColor: accentColor,
             ),

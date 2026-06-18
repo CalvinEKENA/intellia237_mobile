@@ -8,10 +8,7 @@ import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
 
 class TeacherClassesScreen extends ConsumerWidget {
-  const TeacherClassesScreen({
-    super.key,
-    this.embedded = false,
-  });
+  const TeacherClassesScreen({super.key, this.embedded = false});
 
   final bool embedded;
 
@@ -38,9 +35,9 @@ class TeacherClassesScreen extends ConsumerWidget {
           if (!embedded) ...[
             Text(
               'Mes classes',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -64,9 +61,7 @@ class TeacherClassesScreen extends ConsumerWidget {
 }
 
 class _ClassCard extends StatelessWidget {
-  const _ClassCard({
-    required this.classItem,
-  });
+  const _ClassCard({required this.classItem});
 
   final TeacherClassOverview classItem;
 
@@ -87,8 +82,8 @@ class _ClassCard extends StatelessWidget {
                     child: Text(
                       classItem.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                   Chip(label: Text('${classItem.studentCount} eleves')),

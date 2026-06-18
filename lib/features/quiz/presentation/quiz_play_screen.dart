@@ -103,7 +103,8 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
         data: (quiz) {
           _startTimerIfNeeded(quiz);
           final question = quiz.questions[_displayedIndex];
-          final displayedProgress = (_displayedIndex + 1) / quiz.questions.length;
+          final displayedProgress =
+              (_displayedIndex + 1) / quiz.questions.length;
 
           return SafeArea(
             child: Column(
@@ -126,9 +127,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
                       controller: _flipCtrl,
                       showNew: _showNewCard,
                       child: _buildQuestionWidget(
-                        _showNewCard
-                            ? quiz.questions[_currentIndex]
-                            : question,
+                        _showNewCard ? quiz.questions[_currentIndex] : question,
                       ),
                     ),
                   ),
@@ -253,7 +252,9 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
     );
 
     final userId = ref.read(currentQuizUserIdProvider);
-    await ref.read(quizAttemptSaverProvider).saveAttempt(
+    await ref
+        .read(quizAttemptSaverProvider)
+        .saveAttempt(
           QuizAttempt(
             userId: userId,
             quizId: quiz.id,
@@ -329,7 +330,9 @@ class _FlipCard extends StatelessWidget {
       builder: (context, childWidget) {
         final t = controller.value;
         final angle = t < 0.5
-            ? t * math.pi        // 0 → π/2 (exiting card rotates away)
+            ? t *
+                  math
+                      .pi // 0 → π/2 (exiting card rotates away)
             : (t - 1) * math.pi; // -π/2 → 0 (entering card rotates in)
 
         return Transform(
@@ -570,8 +573,7 @@ class _QuizBottomNav extends StatelessWidget {
             flex: 2,
             child: GradientButton(
               onPressed: onNext,
-              gradient:
-                  isLast ? AppGradients.heroGold : AppGradients.heroNavy,
+              gradient: isLast ? AppGradients.heroGold : AppGradients.heroNavy,
               isLoading: submitting,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -586,9 +588,7 @@ class _QuizBottomNav extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Icon(
-                    isLast
-                        ? Icons.check_rounded
-                        : Icons.arrow_forward_rounded,
+                    isLast ? Icons.check_rounded : Icons.arrow_forward_rounded,
                     color: Colors.white,
                     size: 18,
                   ),

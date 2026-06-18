@@ -31,9 +31,9 @@ class SchoolAnalyticsScreen extends ConsumerWidget {
         children: [
           Text(
             'Analytics établissement',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -50,8 +50,8 @@ class SchoolAnalyticsScreen extends ConsumerWidget {
                   Text(
                     'Utilisateurs actifs (7 jours)',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   _MiniBars(
@@ -73,8 +73,8 @@ class SchoolAnalyticsScreen extends ConsumerWidget {
                   Text(
                     'Minutes d\'étude cumulées (7 jours)',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   _MiniBars(
@@ -96,8 +96,8 @@ class SchoolAnalyticsScreen extends ConsumerWidget {
                   Text(
                     'Taux de progression moyen',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   ClipRRect(
@@ -111,8 +111,8 @@ class SchoolAnalyticsScreen extends ConsumerWidget {
                   Text(
                     '${(dashboard.kpi.averageCompletion * 100).round()}%',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),

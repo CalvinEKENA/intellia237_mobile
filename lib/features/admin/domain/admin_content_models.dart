@@ -83,33 +83,32 @@ class AdminSubjectModel {
   bool get isPublished => status == 'published';
 
   Map<String, dynamic> toFirestore() => <String, dynamic>{
-        'title': title,
-        'description': description,
-        'colorHex': colorHex,
-        'iconKey': iconKey,
-        'order': order,
-        'status': status,
-        'allowedSeries': allowedSeries,
-      };
+    'title': title,
+    'description': description,
+    'colorHex': colorHex,
+    'iconKey': iconKey,
+    'order': order,
+    'status': status,
+    'allowedSeries': allowedSeries,
+  };
 
   factory AdminSubjectModel.fromFirestore(
     String id,
     String classLevel,
     Map<String, dynamic> data,
     int chapterCount,
-  ) =>
-      AdminSubjectModel(
-        id: id,
-        classLevel: classLevel,
-        title: data['title'] as String? ?? '',
-        description: data['description'] as String? ?? '',
-        colorHex: (data['colorHex'] as int?) ?? 0xFF1451E1,
-        iconKey: data['iconKey'] as String? ?? 'book',
-        order: (data['order'] as int?) ?? 0,
-        status: data['status'] as String? ?? 'draft',
-        chapterCount: chapterCount,
-        allowedSeries: List<String>.from(data['allowedSeries'] as List? ?? []),
-      );
+  ) => AdminSubjectModel(
+    id: id,
+    classLevel: classLevel,
+    title: data['title'] as String? ?? '',
+    description: data['description'] as String? ?? '',
+    colorHex: (data['colorHex'] as int?) ?? 0xFF1451E1,
+    iconKey: data['iconKey'] as String? ?? 'book',
+    order: (data['order'] as int?) ?? 0,
+    status: data['status'] as String? ?? 'draft',
+    chapterCount: chapterCount,
+    allowedSeries: List<String>.from(data['allowedSeries'] as List? ?? []),
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -136,27 +135,26 @@ class AdminChapterModel {
   final int lessonsCount;
 
   Map<String, dynamic> toFirestore() => <String, dynamic>{
-        'title': title,
-        'description': description,
-        'order': order,
-        'lessonsCount': lessonsCount,
-      };
+    'title': title,
+    'description': description,
+    'order': order,
+    'lessonsCount': lessonsCount,
+  };
 
   factory AdminChapterModel.fromFirestore(
     String id,
     String subjectId,
     String classLevel,
     Map<String, dynamic> data,
-  ) =>
-      AdminChapterModel(
-        id: id,
-        subjectId: subjectId,
-        classLevel: classLevel,
-        title: data['title'] as String? ?? '',
-        description: data['description'] as String? ?? '',
-        order: (data['order'] as int?) ?? 0,
-        lessonsCount: (data['lessonsCount'] as int?) ?? 0,
-      );
+  ) => AdminChapterModel(
+    id: id,
+    subjectId: subjectId,
+    classLevel: classLevel,
+    title: data['title'] as String? ?? '',
+    description: data['description'] as String? ?? '',
+    order: (data['order'] as int?) ?? 0,
+    lessonsCount: (data['lessonsCount'] as int?) ?? 0,
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -197,24 +195,27 @@ class AdminLessonModel {
   bool get isAiGenerated => status == 'ai_generated' || aiGenerated;
 
   Map<String, dynamic> toFirestore() => <String, dynamic>{
-        'title': title,
-        'summary': summary,
-        'estimatedMinutes': estimatedMinutes,
-        'order': order,
-        'status': status,
-        'aiGenerated': aiGenerated,
-        'contentSections':
-            contentSections.map((s) => {'title': s.title, 'body': s.body}).toList(),
-        'miniQuiz': miniQuiz
-            .map((q) => {
-                  'id': q.id,
-                  'prompt': q.prompt,
-                  'options': q.options,
-                  'correctIndex': q.correctIndex,
-                  'explanation': q.explanation,
-                })
-            .toList(),
-      };
+    'title': title,
+    'summary': summary,
+    'estimatedMinutes': estimatedMinutes,
+    'order': order,
+    'status': status,
+    'aiGenerated': aiGenerated,
+    'contentSections': contentSections
+        .map((s) => {'title': s.title, 'body': s.body})
+        .toList(),
+    'miniQuiz': miniQuiz
+        .map(
+          (q) => {
+            'id': q.id,
+            'prompt': q.prompt,
+            'options': q.options,
+            'correctIndex': q.correctIndex,
+            'explanation': q.explanation,
+          },
+        )
+        .toList(),
+  };
 
   factory AdminLessonModel.fromFirestore(
     String id,
@@ -223,28 +224,24 @@ class AdminLessonModel {
     String classLevel,
     Map<String, dynamic> data,
   ) {
-    final sections = (data['contentSections'] as List<dynamic>? ?? [])
-        .map((s) {
-          final m = s as Map<String, dynamic>;
-          return LessonContentSection(
-            title: m['title'] as String? ?? '',
-            body: m['body'] as String? ?? '',
-          );
-        })
-        .toList();
+    final sections = (data['contentSections'] as List<dynamic>? ?? []).map((s) {
+      final m = s as Map<String, dynamic>;
+      return LessonContentSection(
+        title: m['title'] as String? ?? '',
+        body: m['body'] as String? ?? '',
+      );
+    }).toList();
 
-    final miniQuiz = (data['miniQuiz'] as List<dynamic>? ?? [])
-        .map((q) {
-          final m = q as Map<String, dynamic>;
-          return LessonMiniQuizQuestion(
-            id: m['id'] as String? ?? '',
-            prompt: m['prompt'] as String? ?? '',
-            options: List<String>.from(m['options'] as List? ?? []),
-            correctIndex: (m['correctIndex'] as int?) ?? 0,
-            explanation: m['explanation'] as String? ?? '',
-          );
-        })
-        .toList();
+    final miniQuiz = (data['miniQuiz'] as List<dynamic>? ?? []).map((q) {
+      final m = q as Map<String, dynamic>;
+      return LessonMiniQuizQuestion(
+        id: m['id'] as String? ?? '',
+        prompt: m['prompt'] as String? ?? '',
+        options: List<String>.from(m['options'] as List? ?? []),
+        correctIndex: (m['correctIndex'] as int?) ?? 0,
+        explanation: m['explanation'] as String? ?? '',
+      );
+    }).toList();
 
     return AdminLessonModel(
       id: id,
@@ -270,21 +267,20 @@ class AdminLessonModel {
     List<LessonContentSection>? contentSections,
     List<LessonMiniQuizQuestion>? miniQuiz,
     bool? aiGenerated,
-  }) =>
-      AdminLessonModel(
-        id: id,
-        subjectId: subjectId,
-        chapterId: chapterId,
-        classLevel: classLevel,
-        title: title ?? this.title,
-        summary: summary ?? this.summary,
-        estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
-        order: order,
-        status: status ?? this.status,
-        contentSections: contentSections ?? this.contentSections,
-        miniQuiz: miniQuiz ?? this.miniQuiz,
-        aiGenerated: aiGenerated ?? this.aiGenerated,
-      );
+  }) => AdminLessonModel(
+    id: id,
+    subjectId: subjectId,
+    chapterId: chapterId,
+    classLevel: classLevel,
+    title: title ?? this.title,
+    summary: summary ?? this.summary,
+    estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
+    order: order,
+    status: status ?? this.status,
+    contentSections: contentSections ?? this.contentSections,
+    miniQuiz: miniQuiz ?? this.miniQuiz,
+    aiGenerated: aiGenerated ?? this.aiGenerated,
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -325,31 +321,33 @@ class AdminQuizModel {
   bool get isPublished => status == 'published';
 
   Map<String, dynamic> toFirestore() => <String, dynamic>{
-        'title': title,
-        'subjectId': subjectId,
-        'subjectLabel': subjectLabel,
-        'description': description,
-        'difficultyLabel': difficultyLabel,
-        'classLevels': classLevels,
-        'series': series,
-        'timerSeconds': timerSeconds,
-        'status': status,
-        'aiGenerated': aiGenerated,
-        'sourceLessonId': sourceLessonId,
-        'questions': questions
-            .map((q) => {
-                  'id': q.id,
-                  'type': q.type.name,
-                  'prompt': q.prompt,
-                  'options': q.options,
-                  'correctOptionIndex': q.correctOptionIndex,
-                  'correctBooleanValue': q.correctBooleanValue,
-                  'acceptedAnswers': q.acceptedAnswers,
-                  'explanation': q.explanation,
-                  'xpReward': q.xpReward,
-                })
-            .toList(),
-      };
+    'title': title,
+    'subjectId': subjectId,
+    'subjectLabel': subjectLabel,
+    'description': description,
+    'difficultyLabel': difficultyLabel,
+    'classLevels': classLevels,
+    'series': series,
+    'timerSeconds': timerSeconds,
+    'status': status,
+    'aiGenerated': aiGenerated,
+    'sourceLessonId': sourceLessonId,
+    'questions': questions
+        .map(
+          (q) => {
+            'id': q.id,
+            'type': q.type.name,
+            'prompt': q.prompt,
+            'options': q.options,
+            'correctOptionIndex': q.correctOptionIndex,
+            'correctBooleanValue': q.correctBooleanValue,
+            'acceptedAnswers': q.acceptedAnswers,
+            'explanation': q.explanation,
+            'xpReward': q.xpReward,
+          },
+        )
+        .toList(),
+  };
 
   factory AdminQuizModel.fromFirestore(String id, Map<String, dynamic> data) {
     final rawQ = data['questions'] as List<dynamic>? ?? [];
@@ -368,8 +366,7 @@ class AdminQuizModel {
         options: List<String>.from(m['options'] as List? ?? []),
         correctOptionIndex: m['correctOptionIndex'] as int?,
         correctBooleanValue: m['correctBooleanValue'] as bool?,
-        acceptedAnswers:
-            List<String>.from(m['acceptedAnswers'] as List? ?? []),
+        acceptedAnswers: List<String>.from(m['acceptedAnswers'] as List? ?? []),
         explanation: m['explanation'] as String? ?? '',
         xpReward: (m['xpReward'] as int?) ?? 10,
       );

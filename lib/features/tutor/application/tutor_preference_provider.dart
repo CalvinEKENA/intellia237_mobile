@@ -15,8 +15,8 @@ const _kTutorKey = 'selected_tutor_id';
 
 final selectedTutorIdProvider =
     StateNotifierProvider<TutorPreferenceNotifier, String?>(
-  (ref) => TutorPreferenceNotifier(),
-);
+      (ref) => TutorPreferenceNotifier(),
+    );
 
 /// Derive directement le [TutorPersona] depuis l'ID.
 final selectedTutorProvider = Provider<TutorPersona?>((ref) {

@@ -191,13 +191,10 @@ class _LearnHubBody extends StatelessWidget {
               crossAxisSpacing: AppSpacing.md,
               mainAxisExtent: 160,
             ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final subject = filtered[index];
-                return _SubjectCard(subject: subject, index: index);
-              },
-              childCount: filtered.length,
-            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final subject = filtered[index];
+              return _SubjectCard(subject: subject, index: index);
+            }, childCount: filtered.length),
           ),
         ),
       ],
@@ -229,9 +226,7 @@ class _ContextBanner extends StatelessWidget {
               colors: [Color(0x221451E1), Color(0x110B1F4A)],
             ),
             borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(
-              color: AppColors.brand.withValues(alpha: 0.30),
-            ),
+            border: Border.all(color: AppColors.brand.withValues(alpha: 0.30)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -396,7 +391,9 @@ class _FilterChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? Colors.white : Colors.white.withValues(alpha: 0.65),
+            color: selected
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.65),
           ),
         ),
       ),
@@ -419,99 +416,99 @@ class _SubjectCard extends StatelessWidget {
     final gradient = AppGradients.forSubject(subject.iconKey);
 
     return GestureDetector(
-      onTap: () => context.push(AppRoutes.subjectDetail(subject.id)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: Stack(
-          children: [
-            // Gradient background
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(gradient: gradient),
-              ),
-            ),
-
-            // Decorative circle
-            Positioned(
-              top: -30,
-              right: -30,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.07),
+          onTap: () => context.push(AppRoutes.subjectDetail(subject.id)),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            child: Stack(
+              children: [
+                // Gradient background
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(gradient: gradient),
+                  ),
                 ),
-              ),
-            ),
 
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                // Decorative circle
+                Positioned(
+                  top: -30,
+                  right: -30,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.07),
+                    ),
+                  ),
+                ),
+
+                // Content
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          AppIcons.forSubject(subject.iconKey),
-                          color: Colors.white,
-                          size: 22,
-                        ),
+                      Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              AppIcons.forSubject(subject.iconKey),
+                              color: Colors.white,
+                              size: 22,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            '${(subject.completion * 100).round()}%',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
                       const Spacer(),
                       Text(
-                        '${(subject.completion * 100).round()}%',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
+                        subject.title,
+                        style: GoogleFonts.manrope(
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xxs),
+                      Text(
+                        '${subject.lessonsCount} leçon${subject.lessonsCount > 1 ? 's' : ''}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white.withValues(alpha: 0.65),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      // Progress bar
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(99),
+                        child: LinearProgressIndicator(
+                          value: subject.completion,
+                          minHeight: 4,
+                          backgroundColor: Colors.white.withValues(alpha: 0.20),
+                          color: Colors.white,
                         ),
                       ),
                     ],
                   ),
-                  const Spacer(),
-                  Text(
-                    subject.title,
-                    style: GoogleFonts.manrope(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text(
-                    '${subject.lessonsCount} leçon${subject.lessonsCount > 1 ? 's' : ''}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white.withValues(alpha: 0.65),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  // Progress bar
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(99),
-                    child: LinearProgressIndicator(
-                      value: subject.completion,
-                      minHeight: 4,
-                      backgroundColor: Colors.white.withValues(alpha: 0.20),
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    )
+          ),
+        )
         .animate(delay: Duration(milliseconds: index * 60))
         .fadeIn(duration: 400.ms)
         .slideY(begin: 0.05, end: 0);

@@ -21,8 +21,8 @@ class FirestoreQuizRepository implements QuizRepository {
   FirestoreQuizRepository({
     FirebaseFirestore? firestore,
     FirestoreQuizAttemptService? attemptService,
-  })  : _db = firestore ?? FirebaseFirestore.instance,
-        _attemptService = attemptService ?? FirestoreQuizAttemptService();
+  }) : _db = firestore ?? FirebaseFirestore.instance,
+       _attemptService = attemptService ?? FirestoreQuizAttemptService();
 
   final FirebaseFirestore _db;
   final FirestoreQuizAttemptService _attemptService;
@@ -45,8 +45,7 @@ class FirestoreQuizRepository implements QuizRepository {
       final data = doc.data();
 
       // Filter by series if specified
-      final allowedSeries =
-          List<String>.from(data['series'] as List? ?? []);
+      final allowedSeries = List<String>.from(data['series'] as List? ?? []);
       if (allowedSeries.isNotEmpty) {
         if (series == null || !allowedSeries.contains(series)) continue;
       }
@@ -99,8 +98,7 @@ class FirestoreQuizRepository implements QuizRepository {
         options: List<String>.from(m['options'] as List? ?? []),
         correctOptionIndex: m['correctOptionIndex'] as int?,
         correctBooleanValue: m['correctBooleanValue'] as bool?,
-        acceptedAnswers:
-            List<String>.from(m['acceptedAnswers'] as List? ?? []),
+        acceptedAnswers: List<String>.from(m['acceptedAnswers'] as List? ?? []),
         explanation: m['explanation'] as String? ?? '',
         xpReward: (m['xpReward'] as int?) ?? 10,
       );

@@ -19,8 +19,9 @@ class AppShimmerBox extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Shimmer.fromColors(
       baseColor: isDark ? const Color(0xFF1A2845) : const Color(0xFFE8ECF5),
-      highlightColor:
-          isDark ? const Color(0xFF243560) : const Color(0xFFF5F7FB),
+      highlightColor: isDark
+          ? const Color(0xFF243560)
+          : const Color(0xFFF5F7FB),
       child: Container(
         width: width,
         height: height,
@@ -58,11 +59,7 @@ class AppShimmerLine extends StatelessWidget {
 
 /// Carte skeleton complète
 class AppShimmerCard extends StatelessWidget {
-  const AppShimmerCard({
-    this.height = 120,
-    this.borderRadius = 18,
-    super.key,
-  });
+  const AppShimmerCard({this.height = 120, this.borderRadius = 18, super.key});
 
   final double height;
   final double borderRadius;

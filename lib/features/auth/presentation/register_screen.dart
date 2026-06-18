@@ -42,9 +42,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final route = switch (role) {
       AppRole.student => AppRoutes.studentRegistration,
-      AppRole.parent  => AppRoutes.parentRegistration,
+      AppRole.parent => AppRoutes.parentRegistration,
       AppRole.teacher => AppRoutes.teacherRegistration,
-      AppRole.admin   => AppRoutes.adminRegistration,
+      AppRole.admin => AppRoutes.adminRegistration,
     };
 
     context.push(route);
@@ -102,18 +102,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                       // Titre
                       Text(
-                        'Quel est\nvotre profil ?',
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 34,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.5,
-                          height: 1.15,
-                          color: Colors.white,
-                        ),
-                      ).animate().fadeIn(duration: 500.ms).slideY(
-                            begin: 0.1,
-                            end: 0,
-                          ),
+                            'Quel est\nvotre profil ?',
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                              height: 1.15,
+                              color: Colors.white,
+                            ),
+                          )
+                          .animate()
+                          .fadeIn(duration: 500.ms)
+                          .slideY(begin: 0.1, end: 0),
 
                       const SizedBox(height: AppSpacing.xs),
                       Text(
@@ -131,14 +131,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ...AppRole.values.indexed.map(
                         (entry) => Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                          child: _RoleCard(
-                            role: entry.$2,
-                            isSelected: _selectedRole == entry.$2,
-                            onTap: () =>
-                                setState(() => _selectedRole = entry.$2),
-                          ).animate(delay: (200 + entry.$1 * 100).ms)
-                            .fadeIn(duration: 400.ms)
-                            .slideX(begin: 0.06, end: 0),
+                          child:
+                              _RoleCard(
+                                    role: entry.$2,
+                                    isSelected: _selectedRole == entry.$2,
+                                    onTap: () => setState(
+                                      () => _selectedRole = entry.$2,
+                                    ),
+                                  )
+                                  .animate(delay: (200 + entry.$1 * 100).ms)
+                                  .fadeIn(duration: 400.ms)
+                                  .slideX(begin: 0.06, end: 0),
                         ),
                       ),
 
@@ -193,24 +196,23 @@ class _RoleCard extends StatelessWidget {
 
   IconData get _icon => switch (role) {
     AppRole.student => Icons.school_rounded,
-    AppRole.parent  => Icons.family_restroom_rounded,
+    AppRole.parent => Icons.family_restroom_rounded,
     AppRole.teacher => Icons.menu_book_rounded,
-    AppRole.admin   => Icons.admin_panel_settings_rounded,
+    AppRole.admin => Icons.admin_panel_settings_rounded,
   };
 
   String get _label => switch (role) {
     AppRole.student => 'Élève',
-    AppRole.parent  => 'Parent',
+    AppRole.parent => 'Parent',
     AppRole.teacher => 'Enseignant',
-    AppRole.admin   => 'Administrateur',
+    AppRole.admin => 'Administrateur',
   };
 
   String get _description => switch (role) {
-    AppRole.student =>
-      'Prépare ton BEPC, Probatoire ou Baccalauréat',
-    AppRole.parent  => 'Suivez les progrès de vos enfants',
+    AppRole.student => 'Prépare ton BEPC, Probatoire ou Baccalauréat',
+    AppRole.parent => 'Suivez les progrès de vos enfants',
     AppRole.teacher => 'Gérez vos classes et contenus',
-    AppRole.admin   => 'Administrez la plateforme',
+    AppRole.admin => 'Administrez la plateforme',
   };
 
   @override
@@ -228,12 +230,8 @@ class _RoleCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppRadius.md),
           gradient: LinearGradient(
             colors: [
-              gradient.colors.first.withValues(
-                alpha: isSelected ? 0.30 : 0.08,
-              ),
-              gradient.colors.last.withValues(
-                alpha: isSelected ? 0.20 : 0.04,
-              ),
+              gradient.colors.first.withValues(alpha: isSelected ? 0.30 : 0.08),
+              gradient.colors.last.withValues(alpha: isSelected ? 0.20 : 0.04),
             ],
           ),
           border: Border.all(
@@ -273,11 +271,7 @@ class _RoleCard extends StatelessWidget {
                             ),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Icon(
-                      _icon,
-                      size: 26,
-                      color: Colors.white,
-                    ),
+                    child: Icon(_icon, size: 26, color: Colors.white),
                   ),
                   const SizedBox(width: AppSpacing.md),
 

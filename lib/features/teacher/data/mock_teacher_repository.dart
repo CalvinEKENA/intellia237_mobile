@@ -8,13 +8,15 @@ class MockTeacherRepository implements TeacherRepository {
   ];
 
   @override
-  Future<TeacherDashboard> fetchDashboard({
-    required String teacherUid,
-  }) async {
+  Future<TeacherDashboard> fetchDashboard({required String teacherUid}) async {
     await Future<void>.delayed(const Duration(milliseconds: 220));
     final classes = _classData;
-    final totalStudents = classes.fold<int>(0, (sum, item) => sum + item.studentCount);
-    final avgCompletion = classes.fold<double>(0, (sum, item) => sum + item.averageProgress) /
+    final totalStudents = classes.fold<int>(
+      0,
+      (sum, item) => sum + item.studentCount,
+    );
+    final avgCompletion =
+        classes.fold<double>(0, (sum, item) => sum + item.averageProgress) /
         (classes.isEmpty ? 1 : classes.length);
 
     return TeacherDashboard(

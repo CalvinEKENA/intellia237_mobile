@@ -4,16 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'tour_guide_repository.dart';
 
-final tourGuideRepositoryProvider = Provider<TourGuideRepository>(
-  (ref) {
-    try {
-      return FirestoreTourGuideRepository(firestore: FirebaseFirestore.instance);
-    } catch (_) {
-      // Fallback local si Firebase n'est pas pret/disponible.
-      return LocalTourGuideRepository();
-    }
-  },
-);
+final tourGuideRepositoryProvider = Provider<TourGuideRepository>((ref) {
+  try {
+    return FirestoreTourGuideRepository(firestore: FirebaseFirestore.instance);
+  } catch (_) {
+    // Fallback local si Firebase n'est pas pret/disponible.
+    return LocalTourGuideRepository();
+  }
+});
 
 class FirestoreTourGuideRepository implements TourGuideRepository {
   FirestoreTourGuideRepository({required FirebaseFirestore firestore})

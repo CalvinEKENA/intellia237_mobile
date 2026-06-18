@@ -111,8 +111,8 @@ class _TeacherDashboardTab extends ConsumerWidget {
                   Text(
                     'Classes actives',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   for (final item in dashboard.classes.take(4)) ...[
@@ -133,8 +133,8 @@ class _TeacherDashboardTab extends ConsumerWidget {
                   Text(
                     'Annonces récentes',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   for (final ann in dashboard.latestAnnouncements.take(5)) ...[
@@ -184,24 +184,24 @@ class _TeacherHeroCard extends StatelessWidget {
           Text(
             'Espace Enseignant',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(
             dashboard.teacherName,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.94),
-                  fontWeight: FontWeight.w600,
-                ),
+              color: Colors.white.withValues(alpha: 0.94),
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Pilotez vos classes, contenus et évaluations depuis un tableau unique.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.9),
-                ),
+              color: Colors.white.withValues(alpha: 0.9),
+            ),
           ),
         ],
       ),
@@ -276,9 +276,9 @@ class _KpiTile extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(label, style: Theme.of(context).textTheme.bodySmall),
@@ -303,9 +303,9 @@ class _ClassProgressRow extends StatelessWidget {
             Expanded(
               child: Text(
                 item.name,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             Text('${(item.averageProgress * 100).round()}%'),

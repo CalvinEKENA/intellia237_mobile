@@ -121,119 +121,120 @@ class _GlassPillOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: AppMotion.fast,
-        curve: AppMotion.emphasizedDecelerate,
-        height: 80,
-        transform: Matrix4.diagonal3Values(
-          selected ? 1.02 : 1.0,
-          selected ? 1.02 : 1.0,
-          1.0,
-        ),
-        transformAlignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          gradient: selected
-              ? const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [Color(0x221451E1), Color(0x141451E1)],
-                )
-              : const LinearGradient(
-                  colors: [Color(0x14FFFFFF), Color(0x0AFFFFFF)],
-                ),
-          border: Border.all(
-            color: selected
-                ? AppColors.brand
-                : Colors.white.withValues(alpha: 0.15),
-            width: selected ? 1.8 : 1.0,
-          ),
-          boxShadow: selected
-              ? AppShadows.glow(AppColors.brand, intensity: 0.20)
-              : null,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          child: Row(
-            children: [
-              // Letter badge
-              AnimatedContainer(
-                duration: AppMotion.fast,
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  gradient: selected ? AppGradients.heroNavy : null,
-                  color: selected
-                      ? null
-                      : Colors.white.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: selected
-                        ? Colors.transparent
-                        : Colors.white.withValues(alpha: 0.20),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    letter,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: AppMotion.fast,
+            curve: AppMotion.emphasizedDecelerate,
+            height: 80,
+            transform: Matrix4.diagonal3Values(
+              selected ? 1.02 : 1.0,
+              selected ? 1.02 : 1.0,
+              1.0,
+            ),
+            transformAlignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              gradient: selected
+                  ? const LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [Color(0x221451E1), Color(0x141451E1)],
+                    )
+                  : const LinearGradient(
+                      colors: [Color(0x14FFFFFF), Color(0x0AFFFFFF)],
+                    ),
+              border: Border.all(
+                color: selected
+                    ? AppColors.brand
+                    : Colors.white.withValues(alpha: 0.15),
+                width: selected ? 1.8 : 1.0,
+              ),
+              boxShadow: selected
+                  ? AppShadows.glow(AppColors.brand, intensity: 0.20)
+                  : null,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: Row(
+                children: [
+                  // Letter badge
+                  AnimatedContainer(
+                    duration: AppMotion.fast,
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      gradient: selected ? AppGradients.heroNavy : null,
                       color: selected
-                          ? Colors.white
-                          : Colors.white.withValues(alpha: 0.55),
+                          ? null
+                          : Colors.white.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: selected
+                            ? Colors.transparent
+                            : Colors.white.withValues(alpha: 0.20),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        letter,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: selected
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.55),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+
+                  const SizedBox(width: AppSpacing.md),
+
+                  // Option text
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: selected
+                            ? Colors.white
+                            : Colors.white.withValues(alpha: 0.80),
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+
+                  // Check indicator
+                  if (selected)
+                    Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
+                            gradient: AppGradients.heroNavy,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.check_rounded,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                        )
+                        .animate()
+                        .scale(
+                          begin: const Offset(0.0, 0.0),
+                          end: const Offset(1.0, 1.0),
+                          duration: 200.ms,
+                          curve: AppMotion.spring,
+                        )
+                        .fadeIn(duration: 150.ms),
+                ],
               ),
-
-              const SizedBox(width: AppSpacing.md),
-
-              // Option text
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight:
-                        selected ? FontWeight.w700 : FontWeight.w500,
-                    color: selected
-                        ? Colors.white
-                        : Colors.white.withValues(alpha: 0.80),
-                    height: 1.4,
-                  ),
-                ),
-              ),
-
-              // Check indicator
-              if (selected)
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: const BoxDecoration(
-                    gradient: AppGradients.heroNavy,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check_rounded,
-                    size: 14,
-                    color: Colors.white,
-                  ),
-                )
-                    .animate()
-                    .scale(
-                      begin: const Offset(0.0, 0.0),
-                      end: const Offset(1.0, 1.0),
-                      duration: 200.ms,
-                      curve: AppMotion.spring,
-                    )
-                    .fadeIn(duration: 150.ms),
-            ],
+            ),
           ),
-        ),
-      ),
-    )
+        )
         .animate(delay: Duration(milliseconds: 100 + index * 60))
         .fadeIn(duration: 300.ms)
         .slideX(begin: 0.04, end: 0);

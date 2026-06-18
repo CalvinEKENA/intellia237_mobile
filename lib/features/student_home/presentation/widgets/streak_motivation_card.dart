@@ -229,8 +229,7 @@ class _ArcPainter extends CustomPainter {
 
     final rect = Rect.fromLTWH(2, 2, size.width - 4, size.height - 4);
     canvas.drawArc(rect, -math.pi / 2, math.pi * 2, false, track);
-    canvas.drawArc(
-        rect, -math.pi / 2, math.pi * 2 * progress, false, fill);
+    canvas.drawArc(rect, -math.pi / 2, math.pi * 2 * progress, false, fill);
   }
 
   @override

@@ -373,7 +373,9 @@ class _ParentRegistrationScreenState
               child: OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, 48),
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                  ),
                 ),
                 onPressed: state.isSubmitting ? null : controller.previousStep,
                 child: const FittedBox(

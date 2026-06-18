@@ -59,8 +59,10 @@ class ProgressOverviewCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: AppGradients.heroGold,
                       borderRadius: BorderRadius.circular(99),
-                      boxShadow:
-                          AppShadows.glow(AppColors.gold, intensity: 0.25),
+                      boxShadow: AppShadows.glow(
+                        AppColors.gold,
+                        intensity: 0.25,
+                      ),
                     ),
                     child: Text(
                       'Niv. $level',
@@ -93,8 +95,7 @@ class ProgressOverviewCard extends StatelessWidget {
                       children: [
                         _MetricRow(
                           label: 'Progression',
-                          value:
-                              '${(globalProgress * 100).round()}%',
+                          value: '${(globalProgress * 100).round()}%',
                           color: AppColors.gold,
                         ),
                         const SizedBox(height: AppSpacing.sm),
@@ -140,10 +141,7 @@ class _MetricRow extends StatelessWidget {
         Container(
           width: 4,
           height: 4,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: AppSpacing.xs),
         Column(
@@ -281,8 +279,9 @@ class _ProgressRingState extends State<_ProgressRing>
             children: [
               ShaderMask(
                 blendMode: BlendMode.srcIn,
-                shaderCallback: (bounds) => AppGradients.heroGold
-                    .createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                shaderCallback: (bounds) => AppGradients.heroGold.createShader(
+                  Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                ),
                 child: Text(
                   '${(widget.progress * 100).round()}%',
                   style: GoogleFonts.manrope(
@@ -308,10 +307,7 @@ class _ProgressRingState extends State<_ProgressRing>
 }
 
 class _RingPainter extends CustomPainter {
-  const _RingPainter({
-    required this.progress,
-    required this.strokeWidth,
-  });
+  const _RingPainter({required this.progress, required this.strokeWidth});
 
   final double progress;
   final double strokeWidth;

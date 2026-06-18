@@ -1,13 +1,9 @@
 import '../domain/teacher_models.dart';
 
 abstract class TeacherRepository {
-  Future<TeacherDashboard> fetchDashboard({
-    required String teacherUid,
-  });
+  Future<TeacherDashboard> fetchDashboard({required String teacherUid});
 
-  Future<List<TeacherClassOverview>> fetchClasses({
-    required String teacherUid,
-  });
+  Future<List<TeacherClassOverview>> fetchClasses({required String teacherUid});
 
   Future<TeacherClassDetail> fetchClassDetail({
     required String teacherUid,

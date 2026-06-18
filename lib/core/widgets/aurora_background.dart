@@ -151,9 +151,7 @@ class _AuroraPainter extends CustomPainter {
             color.withValues(alpha: alpha),
             color.withValues(alpha: 0),
           ],
-        ).createShader(
-          Rect.fromCircle(center: center, radius: radius),
-        ),
+        ).createShader(Rect.fromCircle(center: center, radius: radius)),
     );
   }
 

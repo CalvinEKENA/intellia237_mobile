@@ -336,9 +336,7 @@ class _ContentQuizEditorScreenState
                                 setSheetState(() => correctIdx = v);
                               }
                             },
-                            child: Radio<int>(
-                              value: i,
-                            ),
+                            child: Radio<int>(value: i),
                           ),
                           Expanded(
                             child: TextField(

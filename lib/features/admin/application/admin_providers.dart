@@ -19,15 +19,17 @@ final adminDashboardProvider = FutureProvider<AdminDashboard>((ref) async {
   return repo.fetchDashboard(adminUid: uid);
 });
 
-final adminPendingReviewsProvider =
-    FutureProvider<List<PendingAccountReview>>((ref) async {
+final adminPendingReviewsProvider = FutureProvider<List<PendingAccountReview>>((
+  ref,
+) async {
   final repo = ref.watch(adminRepositoryProvider);
   final uid = ref.watch(_adminUidProvider);
   return repo.fetchPendingReviews(adminUid: uid);
 });
 
-final adminModerationQueueProvider =
-    FutureProvider<List<ModerationEntry>>((ref) async {
+final adminModerationQueueProvider = FutureProvider<List<ModerationEntry>>((
+  ref,
+) async {
   final repo = ref.watch(adminRepositoryProvider);
   final uid = ref.watch(_adminUidProvider);
   return repo.fetchModerationQueue(adminUid: uid);
@@ -47,11 +49,9 @@ class AdminActions {
     required bool approved,
   }) async {
     final uid = _ref.read(_adminUidProvider);
-    await _ref.read(adminRepositoryProvider).validateAccount(
-          adminUid: uid,
-          reviewId: reviewId,
-          approved: approved,
-        );
+    await _ref
+        .read(adminRepositoryProvider)
+        .validateAccount(adminUid: uid, reviewId: reviewId, approved: approved);
     _invalidate();
   }
 
@@ -61,7 +61,9 @@ class AdminActions {
     required String audience,
   }) async {
     final uid = _ref.read(_adminUidProvider);
-    await _ref.read(adminRepositoryProvider).publishAnnouncement(
+    await _ref
+        .read(adminRepositoryProvider)
+        .publishAnnouncement(
           adminUid: uid,
           title: title,
           message: message,
@@ -75,7 +77,9 @@ class AdminActions {
     required ModerationStatus status,
   }) async {
     final uid = _ref.read(_adminUidProvider);
-    await _ref.read(adminRepositoryProvider).updateModeration(
+    await _ref
+        .read(adminRepositoryProvider)
+        .updateModeration(
           adminUid: uid,
           moderationId: moderationId,
           status: status,

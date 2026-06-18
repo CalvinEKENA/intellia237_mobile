@@ -35,10 +35,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref.read(authControllerProvider.notifier).signInWithEmail(
-          email: _emailCtrl.text,
-          password: _passwordCtrl.text,
-        );
+    await ref
+        .read(authControllerProvider.notifier)
+        .signInWithEmail(email: _emailCtrl.text, password: _passwordCtrl.text);
   }
 
   @override
@@ -55,7 +54,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.error_outline, color: Colors.white, size: 20),
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(child: Text(next.error!)),
                 ],
@@ -287,10 +290,7 @@ class _JewelCard extends StatelessWidget {
               colors: [Color(0x1AFFFFFF), Color(0x0AFFFFFF)],
             ),
             borderRadius: BorderRadius.circular(AppRadius.xl),
-            border: Border.all(
-              color: AppColors.glassBorder,
-              width: 1.0,
-            ),
+            border: Border.all(color: AppColors.glassBorder, width: 1.0),
           ),
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: child,

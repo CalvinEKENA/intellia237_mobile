@@ -191,21 +191,18 @@ class _SubjectDetailBody extends StatelessWidget {
               AppSpacing.xxxl,
             ),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final chapter = subject.chapters[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: _ChapterCard(
-                      subjectId: subject.id,
-                      chapter: chapter,
-                      subjectGradient: gradient,
-                      index: index,
-                    ),
-                  );
-                },
-                childCount: subject.chapters.length,
-              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final chapter = subject.chapters[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: _ChapterCard(
+                    subjectId: subject.id,
+                    chapter: chapter,
+                    subjectGradient: gradient,
+                    index: index,
+                  ),
+                );
+              }, childCount: subject.chapters.length),
             ),
           ),
         ],
@@ -230,95 +227,95 @@ class _ChapterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-          context.push(AppRoutes.chapterDetail(subjectId, chapter.id)),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0x18FFFFFF), Color(0x0CFFFFFF)],
-              ),
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(color: AppColors.glassBorder),
-            ),
-            child: Row(
-              children: [
-                // Progress arc
-                _ChapterArc(
-                  progress: chapter.completion,
-                  gradient: subjectGradient,
-                  size: 44,
-                ),
-                const SizedBox(width: AppSpacing.md),
-
-                // Content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        chapter.title,
-                        style: GoogleFonts.manrope(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xxs),
-                      Text(
-                        chapter.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.55),
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        '${chapter.lessons.length} leçon${chapter.lessons.length > 1 ? 's' : ''}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white.withValues(alpha: 0.40),
-                        ),
-                      ),
-                    ],
+          onTap: () =>
+              context.push(AppRoutes.chapterDetail(subjectId, chapter.id)),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0x18FFFFFF), Color(0x0CFFFFFF)],
                   ),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  border: Border.all(color: AppColors.glassBorder),
                 ),
-
-                // Completion badge + chevron
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                child: Row(
                   children: [
-                    Text(
-                      '${(chapter.completion * 100).round()}%',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.gold,
+                    // Progress arc
+                    _ChapterArc(
+                      progress: chapter.completion,
+                      gradient: subjectGradient,
+                      size: 44,
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+
+                    // Content
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            chapter.title,
+                            style: GoogleFonts.manrope(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xxs),
+                          Text(
+                            chapter.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withValues(alpha: 0.55),
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            '${chapter.lessons.length} leçon${chapter.lessons.length > 1 ? 's' : ''}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.white.withValues(alpha: 0.40),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xxs),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: Colors.white.withValues(alpha: 0.35),
-                      size: 20,
+
+                    // Completion badge + chevron
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${(chapter.completion * 100).round()}%',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.gold,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xxs),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: Colors.white.withValues(alpha: 0.35),
+                          size: 20,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    )
+        )
         .animate(delay: Duration(milliseconds: index * 80))
         .fadeIn(duration: 400.ms)
         .slideX(begin: 0.05, end: 0);
@@ -395,10 +392,7 @@ String chapterCompletionLabel(double p) {
 }
 
 class _ChapterArcPainter extends CustomPainter {
-  const _ChapterArcPainter({
-    required this.progress,
-    required this.gradient,
-  });
+  const _ChapterArcPainter({required this.progress, required this.gradient});
 
   final double progress;
   final LinearGradient gradient;

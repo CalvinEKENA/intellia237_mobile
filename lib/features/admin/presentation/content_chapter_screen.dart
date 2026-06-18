@@ -23,16 +23,20 @@ class ContentChapterScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(subject.title,
-            style: GoogleFonts.manrope(fontWeight: FontWeight.w800)),
+        title: Text(
+          subject.title,
+          style: GoogleFonts.manrope(fontWeight: FontWeight.w800),
+        ),
         actions: [
           // Publish / Unpublish toggle
           TextButton.icon(
             onPressed: () async {
-              final newStatus =
-                  subject.isPublished ? 'draft' : 'published';
+              final newStatus = subject.isPublished ? 'draft' : 'published';
               await actions.updateSubjectStatus(
-                  subject.classLevel, subject.id, newStatus);
+                subject.classLevel,
+                subject.id,
+                newStatus,
+              );
               if (context.mounted) Navigator.pop(context);
             },
             icon: Icon(
@@ -57,17 +61,26 @@ class ContentChapterScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.library_books_outlined,
-                        size: 56, color: color.withValues(alpha: 0.3)),
+                    Icon(
+                      Icons.library_books_outlined,
+                      size: 56,
+                      color: color.withValues(alpha: 0.3),
+                    ),
                     const SizedBox(height: AppSpacing.md),
-                    const Text('Aucun chapitre.\nAppuyez sur + pour commencer.',
-                        textAlign: TextAlign.center),
+                    const Text(
+                      'Aucun chapitre.\nAppuyez sur + pour commencer.',
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
               )
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.md, AppSpacing.md, AppSpacing.md, 120),
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  120,
+                ),
                 itemCount: chapters.length,
                 separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.sm),
@@ -81,7 +94,10 @@ class ContentChapterScreen extends ConsumerWidget {
   }
 
   Future<void> _showAddChapterDialog(
-      BuildContext context, WidgetRef ref, AdminContentActions actions) {
+    BuildContext context,
+    WidgetRef ref,
+    AdminContentActions actions,
+  ) {
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
 
@@ -94,22 +110,23 @@ class ContentChapterScreen extends ConsumerWidget {
           children: [
             TextField(
               controller: titleCtrl,
-              decoration:
-                  const InputDecoration(labelText: 'Titre du chapitre'),
+              decoration: const InputDecoration(labelText: 'Titre du chapitre'),
             ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: descCtrl,
-              decoration:
-                  const InputDecoration(labelText: 'Description courte'),
+              decoration: const InputDecoration(
+                labelText: 'Description courte',
+              ),
               maxLines: 2,
             ),
           ],
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Annuler')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
           FilledButton(
             onPressed: () async {
               await actions.createChapter(
@@ -133,10 +150,7 @@ class ContentChapterScreen extends ConsumerWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _ChapterCard extends ConsumerWidget {
-  const _ChapterCard({
-    required this.chapter,
-    required this.subjectColor,
-  });
+  const _ChapterCard({required this.chapter, required this.subjectColor});
 
   final AdminChapterModel chapter;
   final Color subjectColor;
@@ -181,10 +195,9 @@ class _ChapterCard extends ConsumerWidget {
                   children: [
                     Text(
                       chapter.title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w700),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     Text(
                       '${chapter.lessonsCount} leçon(s)',
@@ -223,8 +236,10 @@ class ContentLessonsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(chapter.title,
-            style: GoogleFonts.manrope(fontWeight: FontWeight.w800)),
+        title: Text(
+          chapter.title,
+          style: GoogleFonts.manrope(fontWeight: FontWeight.w800),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddLessonDialog(context, ref, actions),
@@ -243,7 +258,11 @@ class ContentLessonsScreen extends ConsumerWidget {
               )
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.md, AppSpacing.md, AppSpacing.md, 120),
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  120,
+                ),
                 itemCount: lessons.length,
                 separatorBuilder: (_, _) =>
                     const SizedBox(height: AppSpacing.xs),
@@ -260,7 +279,10 @@ class ContentLessonsScreen extends ConsumerWidget {
   }
 
   Future<void> _showAddLessonDialog(
-      BuildContext context, WidgetRef ref, AdminContentActions actions) {
+    BuildContext context,
+    WidgetRef ref,
+    AdminContentActions actions,
+  ) {
     final titleCtrl = TextEditingController();
     final summaryCtrl = TextEditingController();
     final durationCtrl = TextEditingController(text: '20');
@@ -279,23 +301,25 @@ class ContentLessonsScreen extends ConsumerWidget {
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: summaryCtrl,
-              decoration:
-                  const InputDecoration(labelText: 'Objectif / résumé'),
+              decoration: const InputDecoration(labelText: 'Objectif / résumé'),
               maxLines: 2,
             ),
             const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: durationCtrl,
               decoration: const InputDecoration(
-                  labelText: 'Durée estimée (min)', suffixText: 'min'),
+                labelText: 'Durée estimée (min)',
+                suffixText: 'min',
+              ),
               keyboardType: TextInputType.number,
             ),
           ],
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Annuler')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
           FilledButton(
             onPressed: () async {
               await actions.createLesson(
@@ -304,18 +328,19 @@ class ContentLessonsScreen extends ConsumerWidget {
                 chapterId: chapter.id,
                 title: titleCtrl.text.trim(),
                 summary: summaryCtrl.text.trim(),
-                estimatedMinutes:
-                    int.tryParse(durationCtrl.text) ?? 20,
+                estimatedMinutes: int.tryParse(durationCtrl.text) ?? 20,
               );
               if (ctx.mounted) {
                 Navigator.pop(ctx);
                 // We need to fetch the lesson to open the editor
                 // For now, just invalidate
-                ref.invalidate(adminLessonsProvider((
-                  classLevel: chapter.classLevel,
-                  subjectId: chapter.subjectId,
-                  chapterId: chapter.id,
-                )));
+                ref.invalidate(
+                  adminLessonsProvider((
+                    classLevel: chapter.classLevel,
+                    subjectId: chapter.subjectId,
+                    chapterId: chapter.id,
+                  )),
+                );
               }
             },
             child: const Text('Créer'),
@@ -346,13 +371,19 @@ class _LessonTile extends StatelessWidget {
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-      shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
-      tileColor:
-          Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-      title: Text(lesson.title,
-          style: const TextStyle(fontWeight: FontWeight.w600)),
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      tileColor: Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+      title: Text(
+        lesson.title,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
       subtitle: Text('${lesson.estimatedMinutes} min'),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

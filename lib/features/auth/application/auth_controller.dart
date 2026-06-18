@@ -29,9 +29,9 @@ class AuthController extends Notifier<AuthState> {
     if (state.status != AuthStatus.bootstrapping) return;
 
     try {
-      final user = await _repo
-          .getCurrentUser()
-          .timeout(const Duration(seconds: 8));
+      final user = await _repo.getCurrentUser().timeout(
+        const Duration(seconds: 8),
+      );
       if (user != null) {
         await _markOnboardingSeen();
         state = AuthState.authenticated(

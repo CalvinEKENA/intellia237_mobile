@@ -168,16 +168,16 @@ class _AdminDashboardTab extends ConsumerWidget {
                   Text(
                     'Annonces officielles récentes',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   for (final ann in dashboard.recentAnnouncements.take(4)) ...[
                     Text(
                       ann.title,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(ann.message),
@@ -216,24 +216,24 @@ class _AdminHeroCard extends StatelessWidget {
           Text(
             'Direction • ${dashboard.establishmentName}',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.9),
-                  fontWeight: FontWeight.w700,
-                ),
+              color: Colors.white.withValues(alpha: 0.9),
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Bonjour, ${dashboard.adminName}',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             'Supervisez l\'usage de la plateforme et les opérations critiques.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.88),
-                ),
+              color: Colors.white.withValues(alpha: 0.88),
+            ),
           ),
         ],
       ),
@@ -272,9 +272,9 @@ class _AdminKpiTile extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(label, style: Theme.of(context).textTheme.bodySmall),
@@ -309,9 +309,9 @@ class _StatusItem extends StatelessWidget {
           Text(
             value,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w800,
-                ),
+              color: color,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(label, style: Theme.of(context).textTheme.bodySmall),

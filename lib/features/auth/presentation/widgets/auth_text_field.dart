@@ -96,8 +96,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
                           ? Icons.visibility_outlined
                           : Icons.visibility_off_outlined,
                       size: 20,
-                      color:
-                          theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   )
                 : null,
@@ -173,10 +172,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: const BorderSide(
-                color: AppColors.gold,
-                width: 1.5,
-              ),
+              borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.sm),

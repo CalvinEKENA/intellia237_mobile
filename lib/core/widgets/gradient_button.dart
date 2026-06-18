@@ -48,10 +48,7 @@ class GradientButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(borderRadius),
                 boxShadow: isDisabled
                     ? null
-                    : AppShadows.glow(
-                        gradient.colors.first,
-                        intensity: 0.25,
-                      ),
+                    : AppShadows.glow(gradient.colors.first, intensity: 0.25),
               ),
               child: Center(
                 child: isLoading

@@ -159,20 +159,20 @@ class _AvatarPickerWidgetState extends State<AvatarPickerWidget> {
             backgroundImage: _localImage != null
                 ? FileImage(_localImage!)
                 : (widget.currentPhotoUrl != null &&
-                        widget.currentPhotoUrl!.isNotEmpty)
-                    ? NetworkImage(widget.currentPhotoUrl!) as ImageProvider
-                    : null,
+                      widget.currentPhotoUrl!.isNotEmpty)
+                ? NetworkImage(widget.currentPhotoUrl!) as ImageProvider
+                : null,
             child: _isLoading
                 ? const CircularProgressIndicator(strokeWidth: 2)
                 : (_localImage == null &&
-                        (widget.currentPhotoUrl == null ||
-                            widget.currentPhotoUrl!.isEmpty))
-                    ? Icon(
-                        Icons.person,
-                        size: widget.radius,
-                        color: Colors.grey.shade500,
-                      )
-                    : null,
+                      (widget.currentPhotoUrl == null ||
+                          widget.currentPhotoUrl!.isEmpty))
+                ? Icon(
+                    Icons.person,
+                    size: widget.radius,
+                    color: Colors.grey.shade500,
+                  )
+                : null,
           ),
           if (!_isLoading)
             Container(

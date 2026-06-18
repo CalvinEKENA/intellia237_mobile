@@ -183,7 +183,8 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
     return AnimatedBuilder(
       animation: Listenable.merge([_sequenceController, _pulseController]),
       builder: (context, child) {
-        final glowAlpha = _glowOpacity.value *
+        final glowAlpha =
+            _glowOpacity.value *
             (_pulseController.isAnimating ? _pulse.value : 0.5);
 
         return Transform.scale(
@@ -191,10 +192,7 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
           child: Opacity(
             opacity: _logoOpacity.value.clamp(0.0, 1.0),
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
@@ -319,27 +317,21 @@ class _ShimmerBarPainter extends CustomPainter {
 
 /// Particules flottantes en arriere-plan
 class _FloatingParticlesPainter extends CustomPainter {
-  _FloatingParticlesPainter({
-    required this.progress,
-    required this.opacity,
-  });
+  _FloatingParticlesPainter({required this.progress, required this.opacity});
 
   final double progress;
   final double opacity;
 
-  static final List<_Particle> _particles = List.generate(
-    18,
-    (i) {
-      final rng = math.Random(i * 42 + 7);
-      return _Particle(
-        x: rng.nextDouble(),
-        y: rng.nextDouble(),
-        radius: 1.5 + rng.nextDouble() * 3.0,
-        speed: 0.3 + rng.nextDouble() * 0.7,
-        phase: rng.nextDouble() * math.pi * 2,
-      );
-    },
-  );
+  static final List<_Particle> _particles = List.generate(18, (i) {
+    final rng = math.Random(i * 42 + 7);
+    return _Particle(
+      x: rng.nextDouble(),
+      y: rng.nextDouble(),
+      radius: 1.5 + rng.nextDouble() * 3.0,
+      speed: 0.3 + rng.nextDouble() * 0.7,
+      phase: rng.nextDouble() * math.pi * 2,
+    );
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -348,10 +340,8 @@ class _FloatingParticlesPainter extends CustomPainter {
     for (final p in _particles) {
       final t = (progress * p.speed + p.phase / (math.pi * 2)) % 1.0;
 
-      final x =
-          p.x * size.width + math.sin(t * math.pi * 2 + p.phase) * 30;
-      final y =
-          (p.y * size.height - t * size.height * 0.3) % size.height;
+      final x = p.x * size.width + math.sin(t * math.pi * 2 + p.phase) * 30;
+      final y = (p.y * size.height - t * size.height * 0.3) % size.height;
 
       final alpha = (0.15 + 0.15 * math.sin(t * math.pi * 2)) * opacity;
 

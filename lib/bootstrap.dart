@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'features/onboarding/data/onboarding_preferences.dart';
+import 'firebase_options.dart';
 
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,13 +24,7 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
     debugPrintStack(stackTrace: stackTrace);
   }
 
-  try {
-    await Firebase.initializeApp().timeout(const Duration(seconds: 8));
-  } catch (error, stackTrace) {
-    // Evite un blocage permanent sur le splash natif si Firebase echoue.
-    debugPrint('Firebase initialization failed: $error');
-    debugPrintStack(stackTrace: stackTrace);
-  }
+  await initializeFirebase();
 
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
@@ -37,4 +32,19 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
   final app = await builder();
   runApp(app);
+}
+
+Future<void> initializeFirebase() async {
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    ).timeout(const Duration(seconds: 8));
+  } catch (error, stackTrace) {
+    debugPrint(
+      'Firebase initialization failed; startup aborted '
+      '(${error.runtimeType}).',
+    );
+    debugPrintStack(stackTrace: stackTrace);
+    Error.throwWithStackTrace(error, stackTrace);
+  }
 }
