@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../domain/quiz_attempt.dart';
 import '../domain/quiz_model.dart';
 import '../domain/quiz_question.dart';
+import '../domain/quiz_result_payload.dart';
 import '../domain/quiz_type.dart';
 import 'firestore_quiz_attempt_service.dart';
 import 'quiz_repository.dart';
@@ -69,12 +70,8 @@ class FirestoreQuizRepository implements QuizRepository {
   // ───── saveAttempt ──────────────────────────────────────────
 
   @override
-  Future<void> saveAttempt(QuizAttempt attempt) async {
-    try {
-      await _attemptService.saveAttempt(attempt);
-    } catch (_) {
-      // Fallback silencieux — ne bloque pas le flux quiz
-    }
+  Future<QuizResultPayload> saveAttempt(QuizAttempt attempt) {
+    return _attemptService.saveAttempt(attempt);
   }
 
   // ───── Private helpers ───────────────────────────────────────

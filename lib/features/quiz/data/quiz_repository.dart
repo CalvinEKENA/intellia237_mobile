@@ -1,5 +1,6 @@
 import '../domain/quiz_attempt.dart';
 import '../domain/quiz_model.dart';
+import '../domain/quiz_result_payload.dart';
 
 abstract class QuizRepository {
   Future<List<QuizModel>> fetchQuizzes({
@@ -9,5 +10,5 @@ abstract class QuizRepository {
 
   Future<QuizModel> fetchQuizById(String quizId);
 
-  Future<void> saveAttempt(QuizAttempt attempt);
+  Future<QuizResultPayload> saveAttempt(QuizAttempt attempt);
 }

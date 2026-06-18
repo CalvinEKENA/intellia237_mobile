@@ -6,6 +6,7 @@ import '../data/firestore_quiz_repository.dart';
 import '../data/quiz_repository.dart';
 import '../domain/quiz_attempt.dart';
 import '../domain/quiz_model.dart';
+import '../domain/quiz_result_payload.dart';
 
 final quizRepositoryProvider = Provider<QuizRepository>((ref) {
   return FirestoreQuizRepository();
@@ -41,7 +42,7 @@ class QuizAttemptSaver {
 
   final Ref _ref;
 
-  Future<void> saveAttempt(QuizAttempt attempt) async {
-    await _ref.read(quizRepositoryProvider).saveAttempt(attempt);
+  Future<QuizResultPayload> saveAttempt(QuizAttempt attempt) {
+    return _ref.read(quizRepositoryProvider).saveAttempt(attempt);
   }
 }

@@ -17,6 +17,18 @@ class QuizQuestionCorrection {
   final bool isCorrect;
   final int xpReward;
 
+  factory QuizQuestionCorrection.fromMap(Map<String, dynamic> map) {
+    return QuizQuestionCorrection(
+      questionId: map['questionId'] as String? ?? '',
+      prompt: map['prompt'] as String? ?? '',
+      userAnswer: map['userAnswer'] as String? ?? '',
+      correctAnswer: map['correctAnswer'] as String? ?? '',
+      explanation: map['explanation'] as String? ?? '',
+      isCorrect: map['isCorrect'] as bool? ?? false,
+      xpReward: (map['xpReward'] as num?)?.toInt() ?? 0,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'questionId': questionId,
@@ -48,4 +60,23 @@ class QuizResultPayload {
   final int maxScore;
   final int xpAwarded;
   final List<QuizQuestionCorrection> corrections;
+
+  factory QuizResultPayload.fromMap(Map<String, dynamic> map) {
+    final rawCorrections = map['corrections'] as List<dynamic>? ?? const [];
+    return QuizResultPayload(
+      quizId: map['quizId'] as String? ?? '',
+      quizTitle: map['quizTitle'] as String? ?? '',
+      subjectLabel: map['subjectLabel'] as String? ?? '',
+      score: (map['score'] as num?)?.toInt() ?? 0,
+      maxScore: (map['maxScore'] as num?)?.toInt() ?? 0,
+      xpAwarded: (map['xpAwarded'] as num?)?.toInt() ?? 0,
+      corrections: rawCorrections
+          .whereType<Map>()
+          .map(
+            (item) =>
+                QuizQuestionCorrection.fromMap(Map<String, dynamic>.from(item)),
+          )
+          .toList(growable: false),
+    );
+  }
 }

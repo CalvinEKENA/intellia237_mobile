@@ -1,6 +1,7 @@
 import '../domain/quiz_attempt.dart';
 import '../domain/quiz_model.dart';
 import '../domain/quiz_question.dart';
+import '../domain/quiz_result_payload.dart';
 import '../domain/quiz_type.dart';
 import 'firestore_quiz_attempt_service.dart';
 import 'quiz_repository.dart';
@@ -40,11 +41,25 @@ class MockQuizRepository implements QuizRepository {
   }
 
   @override
-  Future<void> saveAttempt(QuizAttempt attempt) async {
+  Future<QuizResultPayload> saveAttempt(QuizAttempt attempt) async {
     try {
-      await _attemptService.saveAttempt(attempt);
+      return await _attemptService.saveAttempt(attempt);
     } catch (_) {
-      // Mode fallback: ne bloque pas le flux quiz si Firestore indisponible.
+      final quiz = _quizSeeds
+          .firstWhere(
+            (item) => item.quiz.id == attempt.quizId,
+            orElse: () => _quizSeeds.first,
+          )
+          .quiz;
+      return QuizResultPayload(
+        quizId: quiz.id,
+        quizTitle: quiz.title,
+        subjectLabel: quiz.subjectLabel,
+        score: 0,
+        maxScore: quiz.questions.length,
+        xpAwarded: 0,
+        corrections: const [],
+      );
     }
   }
 

@@ -42,6 +42,7 @@ abstract class LearnRepository {
 
   Future<void> setLessonProgress({
     required String userId,
+    required String classLevel,
     required String subjectId,
     required String chapterId,
     required String lessonId,
