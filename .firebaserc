@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "edunova-aabd1"
+    "default": "edunova-aabd1",
+    "production": "edunova-aabd1",
+    "staging": "intellia237-staging"
   }
 }
