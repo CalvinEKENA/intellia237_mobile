@@ -9,10 +9,21 @@ service firebase.storage {
       return isAuthenticated() && request.auth.uid == uid;
     }
 
+    function isAllowedAvatarImage() {
+      return request.resource != null
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType in [
+          'image/jpeg',
+          'image/png',
+          'image/webp'
+        ];
+    }
+
     // Les avatars restent gérés directement par le client.
     match /avatars/{uid}/{allPaths=**} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(uid);
+      allow create, update: if isOwner(uid) && isAllowedAvatarImage();
+      allow delete: if isOwner(uid);
     }
 
     // Les images de cours sont ingérées côté serveur uniquement.
