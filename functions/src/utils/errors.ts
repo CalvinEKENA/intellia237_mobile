@@ -2,6 +2,7 @@ import { HttpsError } from "firebase-functions/v2/https";
 import { ZodError } from "zod";
 
 type ErrorCode =
+  | "already-exists"
   | "invalid-argument"
   | "unauthenticated"
   | "permission-denied"
@@ -38,7 +39,7 @@ export function toHttpsError(error: unknown): HttpsError {
   }
 
   if (error instanceof Error) {
-    return new HttpsError("internal", error.message);
+    return new HttpsError("internal", "Internal server error.");
   }
 
   return new HttpsError("internal", "Unexpected server error.");

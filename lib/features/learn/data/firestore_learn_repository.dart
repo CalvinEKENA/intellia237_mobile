@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 import '../domain/learn_chapter.dart';
 import '../domain/learn_lesson.dart';
@@ -13,10 +16,16 @@ import 'learn_repository.dart';
 ///       lessons/{lessonId}
 ///   student_profiles/{userId}/lessonProgress/{subjectId}_{chapterId}_{lessonId}
 class FirestoreLearnRepository implements LearnRepository {
-  FirestoreLearnRepository({FirebaseFirestore? firestore})
-    : _db = firestore ?? FirebaseFirestore.instance;
+  FirestoreLearnRepository({
+    FirebaseFirestore? firestore,
+    FirebaseFunctions? functions,
+  }) : _db = firestore ?? FirebaseFirestore.instance,
+       _functions =
+           functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   final FirebaseFirestore _db;
+  final FirebaseFunctions _functions;
+  final Random _random = Random.secure();
 
   // ───── Helpers ─────────────────────────────────────────────
 
@@ -328,15 +337,57 @@ class FirestoreLearnRepository implements LearnRepository {
   @override
   Future<void> setLessonProgress({
     required String userId,
+    required String classLevel,
     required String subjectId,
     required String chapterId,
     required String lessonId,
     required double progress,
   }) async {
-    final key = '${subjectId}_${chapterId}_$lessonId';
-    await _progress(userId).doc(key).set(<String, dynamic>{
-      'progress': progress.clamp(0.0, 1.0),
-      'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    final callable = _functions.httpsCallable('recordLessonProgress');
+    try {
+      await callable.call(<String, dynamic>{
+        'classLevel': classLevel,
+        'subjectId': subjectId,
+        'chapterId': chapterId,
+        'lessonId': lessonId,
+        'progress': progress.clamp(0.0, 1.0),
+        'clientEventId': _newClientEventId(),
+      });
+    } on FirebaseFunctionsException catch (error) {
+      throw LessonProgressException.fromFunctions(error);
+    }
   }
+
+  String _newClientEventId() {
+    final timestamp = DateTime.now().toUtc().microsecondsSinceEpoch;
+    final entropy = _random.nextInt(1 << 32).toRadixString(36);
+    return 'lesson_${timestamp}_$entropy';
+  }
+}
+
+class LessonProgressException implements Exception {
+  const LessonProgressException(this.message);
+
+  final String message;
+
+  factory LessonProgressException.fromFunctions(
+    FirebaseFunctionsException error,
+  ) {
+    final message = switch (error.code) {
+      'not-found' => 'Lecon introuvable ou indisponible.',
+      'failed-precondition' =>
+        'Cette progression ne peut pas etre enregistree.',
+      'already-exists' => 'Cet evenement de progression existe deja.',
+      'permission-denied' =>
+        'Vous ne pouvez pas enregistrer cette progression.',
+      'invalid-argument' => 'La progression envoyee est invalide.',
+      'unauthenticated' => 'Connectez-vous pour enregistrer la progression.',
+      _ => 'Impossible d\'enregistrer la progression pour le moment.',
+    };
+
+    return LessonProgressException(message);
+  }
+
+  @override
+  String toString() => message;
 }

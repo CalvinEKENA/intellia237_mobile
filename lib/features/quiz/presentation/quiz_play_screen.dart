@@ -36,6 +36,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
   Timer? _timer;
   int? _remainingSeconds;
   bool _submitting = false;
+  late final DateTime _startedAt;
 
   late final AnimationController _flipCtrl;
   bool _flipping = false;
@@ -44,6 +45,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
   @override
   void initState() {
     super.initState();
+    _startedAt = DateTime.now().toUtc();
     _flipCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 450),
@@ -217,94 +219,32 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
     setState(() => _submitting = true);
     _timer?.cancel();
 
-    final corrections = <QuizQuestionCorrection>[];
-    int score = 0;
-    int xp = 0;
+    final elapsed = DateTime.now().toUtc().difference(_startedAt).inSeconds;
 
-    for (final question in quiz.questions) {
-      final userAnswer = (_answersByQuestion[question.id] ?? '').trim();
-      final isCorrect = _isCorrect(question, userAnswer);
-      if (isCorrect) {
-        score += 1;
-        xp += question.xpReward;
-      }
-      corrections.add(
-        QuizQuestionCorrection(
-          questionId: question.id,
-          prompt: question.prompt,
-          userAnswer: userAnswer.isEmpty ? 'Aucune réponse' : userAnswer,
-          correctAnswer: _correctAnswerLabel(question),
-          explanation: question.explanation,
-          isCorrect: isCorrect,
-          xpReward: question.xpReward,
-        ),
-      );
+    late final QuizResultPayload resultPayload;
+    try {
+      resultPayload = await ref
+          .read(quizAttemptSaverProvider)
+          .saveAttempt(
+            QuizAttempt(
+              quizId: quiz.id,
+              answersByQuestion: Map<String, String>.from(_answersByQuestion),
+              startedAt: _startedAt,
+              durationSeconds: elapsed,
+            ),
+          );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
+      setState(() => _submitting = false);
+      return;
     }
-
-    final resultPayload = QuizResultPayload(
-      quizId: quiz.id,
-      quizTitle: quiz.title,
-      subjectLabel: quiz.subjectLabel,
-      score: score,
-      maxScore: quiz.questions.length,
-      xpAwarded: xp,
-      corrections: corrections,
-    );
-
-    final userId = ref.read(currentQuizUserIdProvider);
-    await ref
-        .read(quizAttemptSaverProvider)
-        .saveAttempt(
-          QuizAttempt(
-            userId: userId,
-            quizId: quiz.id,
-            quizTitle: quiz.title,
-            subjectId: quiz.subjectId,
-            score: score,
-            maxScore: quiz.questions.length,
-            xpAwarded: xp,
-            answersByQuestion: Map<String, String>.from(_answersByQuestion),
-            createdAt: DateTime.now(),
-            details: corrections.map((item) => item.toMap()).toList(),
-          ),
-        );
 
     if (!mounted) return;
     await context.push(AppRoutes.quizResult, extra: resultPayload);
     setState(() => _submitting = false);
-  }
-
-  bool _isCorrect(QuizQuestion question, String answer) {
-    switch (question.type) {
-      case QuizQuestionType.qcm:
-        final selectedIndex = int.tryParse(answer);
-        return selectedIndex != null &&
-            selectedIndex == question.correctOptionIndex;
-      case QuizQuestionType.trueFalse:
-        final normalized = answer.toLowerCase();
-        final boolValue = normalized == 'true' || normalized == 'vrai';
-        return question.correctBooleanValue == boolValue;
-      case QuizQuestionType.shortAnswer:
-        final normalized = answer.trim().toLowerCase();
-        return question.acceptedAnswers
-            .map((item) => item.trim().toLowerCase())
-            .contains(normalized);
-    }
-  }
-
-  String _correctAnswerLabel(QuizQuestion question) {
-    switch (question.type) {
-      case QuizQuestionType.qcm:
-        final index = question.correctOptionIndex ?? 0;
-        if (index >= question.options.length) return '';
-        return question.options[index];
-      case QuizQuestionType.trueFalse:
-        return (question.correctBooleanValue ?? false) ? 'Vrai' : 'Faux';
-      case QuizQuestionType.shortAnswer:
-        return question.acceptedAnswers.isEmpty
-            ? ''
-            : question.acceptedAnswers.first;
-    }
   }
 }
 

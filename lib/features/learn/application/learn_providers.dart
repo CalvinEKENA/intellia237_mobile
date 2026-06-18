@@ -159,11 +159,13 @@ class LearnActions {
     required String lessonId,
     required double progress,
   }) async {
+    final context = await _ref.read(studentAcademicContextProvider.future);
     final userId = _ref.read(_learnUserIdProvider);
     final repository = _ref.read(learnRepositoryProvider);
 
     await repository.setLessonProgress(
       userId: userId,
+      classLevel: context.classLevel,
       subjectId: subjectId,
       chapterId: chapterId,
       lessonId: lessonId,

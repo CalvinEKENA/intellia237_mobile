@@ -125,17 +125,79 @@ describe("Firestore security rules", () => {
     }));
   });
 
-  it("documents current weakness: a student can still write own quiz attempt and XP-bearing profile fields", async () => {
+  it("blocks client writes to quiz attempts, progress, streaks, and XP-bearing fields", async () => {
     await seedFirestore();
     const db = dbFor("student-a");
 
-    await assertSucceeds(setDoc(doc(db, "quiz_attempts/student-a_attempt"), {
+    await assertFails(setDoc(doc(db, "quiz_attempts/student-a_attempt"), {
       studentId: "student-a",
       score: 100,
       xpAwarded: 999
     }));
-    await assertSucceeds(updateDoc(doc(db, "student_profiles/student-a"), {
+    await assertFails(updateDoc(doc(db, "student_profiles/student-a"), {
       xp: 999999
+    }));
+    await assertFails(setDoc(doc(db, "progress/student-a_quiz-a"), {
+      studentId: "student-a",
+      score: 100,
+      xpAwarded: 999
+    }));
+    await assertFails(setDoc(doc(db, "streaks/student-a"), {
+      currentStreak: 365,
+      longestStreak: 365
+    }));
+  });
+
+  it("allows student bootstrap documents only with safe initial academic values", async () => {
+    const db = dbFor("new-student");
+
+    await assertSucceeds(setDoc(doc(db, "users/new-student"), {
+      uid: "new-student",
+      role: "student",
+      email: "student@example.com",
+      firstName: "New",
+      lastName: "Student",
+      establishmentId: "school-a",
+      classLevel: "Terminale",
+      series: "D",
+      profileCompleted: true,
+      tourGuideSeen: false
+    }));
+    await assertSucceeds(setDoc(doc(db, "student_profiles/new-student"), {
+      uid: "new-student",
+      firstName: "New",
+      lastName: "Student",
+      email: "student@example.com",
+      establishmentId: "school-a",
+      establishmentName: "School A",
+      classLevel: "Terminale",
+      series: "D",
+      xp: 0,
+      level: 1,
+      streak: {
+        current: 0,
+        best: 0,
+        lastStudyDate: null
+      },
+      profileCompleted: true
+    }));
+    await assertFails(setDoc(doc(dbFor("bad-student"), "student_profiles/bad-student"), {
+      uid: "bad-student",
+      xp: 500,
+      level: 10
+    }));
+  });
+
+  it("blocks public teacher and administrator role creation", async () => {
+    await assertFails(setDoc(doc(dbFor("new-teacher"), "users/new-teacher"), {
+      uid: "new-teacher",
+      role: "teacher",
+      email: "teacher@example.com"
+    }));
+    await assertFails(setDoc(doc(dbFor("new-admin"), "users/new-admin"), {
+      uid: "new-admin",
+      role: "admin",
+      email: "admin@example.com"
     }));
   });
 
@@ -146,17 +208,39 @@ describe("Firestore security rules", () => {
     await assertSucceeds(getDoc(doc(dbFor("parent-a"), "student_profiles/student-a")));
   });
 
-  it.skip("target behavior: a teacher should not be able to promote their own user role to administrator", async () => {
+  it("blocks a teacher from promoting their own user role to administrator", async () => {
     await seedFirestore();
     await assertFails(updateDoc(doc(dbFor("teacher-a"), "users/teacher-a"), {
       role: "admin"
     }));
   });
 
-  it("documents current weakness: a teacher owner can currently update their own role field", async () => {
+  it("allows only safe owner updates on user documents", async () => {
     await seedFirestore();
     await assertSucceeds(updateDoc(doc(dbFor("teacher-a"), "users/teacher-a"), {
-      role: "admin"
+      photoUrl: "https://example.com/avatar.png",
+      tourGuideSeen: true
+    }));
+    await assertFails(updateDoc(doc(dbFor("teacher-a"), "users/teacher-a"), {
+      establishmentId: "school-b"
+    }));
+  });
+
+  it("allows lesson favorites but blocks client-authored lesson progress", async () => {
+    await seedFirestore();
+    const db = dbFor("student-a");
+
+    await assertSucceeds(setDoc(doc(db, "student_profiles/student-a/lessonProgress/math_ch1_l1"), {
+      isFavorite: true
+    }));
+    await assertSucceeds(updateDoc(doc(db, "student_profiles/student-a/lessonProgress/math_ch1_l1"), {
+      isFavorite: false
+    }));
+    await assertFails(updateDoc(doc(db, "student_profiles/student-a/lessonProgress/math_ch1_l1"), {
+      progress: 1
+    }));
+    await assertFails(setDoc(doc(db, "student_profiles/student-a/lessonProgress/math_ch1_l2"), {
+      progress: 1
     }));
   });
 
