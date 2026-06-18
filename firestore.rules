@@ -46,6 +46,114 @@ service cloud.firestore {
       return isRole('student');
     }
 
+    function userCreateKeys() {
+      return [
+        'uid',
+        'email',
+        'firstName',
+        'lastName',
+        'phoneNumber',
+        'role',
+        'avatarId',
+        'photoUrl',
+        'establishmentId',
+        'classLevel',
+        'series',
+        'tutorId',
+        'profileCompleted',
+        'tourGuideSeen',
+        'createdAt',
+        'updatedAt'
+      ];
+    }
+
+    function userOwnerUpdateKeys() {
+      return [
+        'firstName',
+        'lastName',
+        'phoneNumber',
+        'avatarId',
+        'photoUrl',
+        'profileCompleted',
+        'tourGuideSeen',
+        'updatedAt'
+      ];
+    }
+
+    function studentProfileCreateKeys() {
+      return [
+        'uid',
+        'firstName',
+        'lastName',
+        'email',
+        'establishmentId',
+        'establishmentName',
+        'classLevel',
+        'series',
+        'xp',
+        'level',
+        'streak',
+        'tutorId',
+        'preferences',
+        'consents',
+        'profileCompleted',
+        'createdAt',
+        'updatedAt'
+      ];
+    }
+
+    function studentProfileOwnerUpdateKeys() {
+      return [
+        'firstName',
+        'lastName',
+        'tutorId',
+        'preferences',
+        'consents',
+        'profileCompleted',
+        'updatedAt'
+      ];
+    }
+
+    function isPublicUserCreate(uid) {
+      return isOwner(uid)
+        && request.resource.data.keys().hasOnly(userCreateKeys())
+        && request.resource.data.uid == uid
+        && request.resource.data.role in ['student', 'parent'];
+    }
+
+    function isUserOwnerUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(userOwnerUpdateKeys())
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.establishmentId == resource.data.establishmentId;
+    }
+
+    function isStudentProfileCreate(uid) {
+      return isOwner(uid)
+        && request.resource.data.keys().hasOnly(studentProfileCreateKeys())
+        && request.resource.data.uid == uid
+        && request.resource.data.xp == 0
+        && request.resource.data.level == 1;
+    }
+
+    function isStudentProfileOwnerUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(studentProfileOwnerUpdateKeys())
+        && request.resource.data.xp == resource.data.xp
+        && request.resource.data.level == resource.data.level
+        && request.resource.data.establishmentId == resource.data.establishmentId
+        && request.resource.data.classLevel == resource.data.classLevel
+        && request.resource.data.series == resource.data.series;
+    }
+
+    function isLessonFavoriteCreate() {
+      return request.resource.data.keys().hasOnly(['isFavorite', 'updatedAt'])
+        && request.resource.data.isFavorite is bool;
+    }
+
+    function isLessonFavoriteUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isFavorite', 'updatedAt'])
+        && request.resource.data.isFavorite is bool;
+    }
+
     function getUserEstablishment() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.establishmentId;
     }
@@ -70,10 +178,10 @@ service cloud.firestore {
                   || (isAdmin() && isSameEstablishment(resource.data.establishmentId))
                   || (isTeacher() && isSameEstablishment(resource.data.establishmentId))
                   || isLinkedParent(uid);
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid)
+      allow create: if isPublicUserCreate(uid);
+      allow update: if (isOwner(uid) && isUserOwnerUpdate())
                     || isSuperAdmin()
-                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId));
+                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId) && isUserOwnerUpdate());
       allow delete: if isSuperAdmin();
     }
 
@@ -102,15 +210,25 @@ service cloud.firestore {
                        get(/databases/$(database)/documents/users/$(uid)).data.establishmentId))
                   || (isAdmin() && isSameEstablishment(
                        get(/databases/$(database)/documents/users/$(uid)).data.establishmentId));
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid)
+      allow create: if isStudentProfileCreate(uid);
+      allow update: if (isOwner(uid) && isStudentProfileOwnerUpdate())
                     || isSuperAdmin()
                     || (isAdmin() && isSameEstablishment(
-                         get(/databases/$(database)/documents/users/$(uid)).data.establishmentId));
+                         get(/databases/$(database)/documents/users/$(uid)).data.establishmentId)
+                         && isStudentProfileOwnerUpdate());
       allow delete: if isSuperAdmin();
 
       match /lessonProgress/{progressId} {
-        allow read, write: if isOwner(uid);
+        allow read: if isOwner(uid)
+                    || isSuperAdmin()
+                    || isLinkedParent(uid)
+                    || (isTeacher() && isSameEstablishment(
+                         get(/databases/$(database)/documents/users/$(uid)).data.establishmentId))
+                    || (isAdmin() && isSameEstablishment(
+                         get(/databases/$(database)/documents/users/$(uid)).data.establishmentId));
+        allow create: if isOwner(uid) && isLessonFavoriteCreate();
+        allow update: if isOwner(uid) && isLessonFavoriteUpdate();
+        allow delete: if false;
       }
     }
 
@@ -134,9 +252,8 @@ service cloud.firestore {
                        get(/databases/$(database)/documents/users/$(uid)).data.establishmentId))
                   || (isStudent() && isSameEstablishment(
                        get(/databases/$(database)/documents/users/$(uid)).data.establishmentId));
-      allow create: if isOwner(uid) || isSuperAdmin();
-      allow update: if isOwner(uid)
-                    || isSuperAdmin()
+      allow create: if isSuperAdmin();
+      allow update: if isSuperAdmin()
                     || (isAdmin() && isSameEstablishment(
                          get(/databases/$(database)/documents/users/$(uid)).data.establishmentId));
       allow delete: if isSuperAdmin();
@@ -148,7 +265,7 @@ service cloud.firestore {
     match /admin_profiles/{uid} {
       allow read: if isOwner(uid) || isSuperAdmin();
       allow create: if isSuperAdmin();
-      allow update: if isOwner(uid) || isSuperAdmin();
+      allow update: if isSuperAdmin();
       allow delete: if isSuperAdmin();
     }
 
@@ -283,9 +400,7 @@ service cloud.firestore {
                     || isSuperAdmin()
                     || isLinkedParent(resource.data.studentId)
                   );
-      allow create: if isStudent() && request.auth.uid == request.resource.data.studentId;
-      allow update: if isStudent() && request.auth.uid == resource.data.studentId;
-      allow delete: if isSuperAdmin();
+      allow create, update, delete: if false; // Ecriture reservee aux Cloud Functions
     }
 
     // =============================================
@@ -299,9 +414,7 @@ service cloud.firestore {
                     || isSuperAdmin()
                     || isLinkedParent(resource.data.studentId)
                   );
-      allow create: if isStudent() && request.auth.uid == request.resource.data.studentId;
-      allow update: if isStudent() && request.auth.uid == resource.data.studentId;
-      allow delete: if isSuperAdmin();
+      allow create, update, delete: if false; // Ecriture reservee aux Cloud Functions
     }
 
     // =============================================
@@ -321,9 +434,7 @@ service cloud.firestore {
       allow read: if isOwner(uid)
                   || isSuperAdmin()
                   || isLinkedParent(uid);
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid);
-      allow delete: if isSuperAdmin();
+      allow create, update, delete: if false; // Ecriture reservee aux Cloud Functions
     }
 
     // =============================================
