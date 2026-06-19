@@ -13,7 +13,7 @@ Le depot contient l'application Flutter, les Cloud Functions Firebase, les regle
 
 Les identifiants Android/iOS production restent volontairement en `com.edunova.app` pour conserver la continuite stores. Le projet Firebase production reste `edunova-aabd1`.
 
-Le staging est prepare dans le code et dans `.firebaserc`, mais les fichiers client Firebase staging ne sont pas generes dans ce depot. Ne lancez pas `flutterfire configure` et ne creez pas de faux fichiers Firebase.
+Le staging Android utilise le client Firebase `intellia237-staging` installe dans `android/app/src/staging/google-services.json`. Ne remplacez pas `android/app/google-services.json`, qui reste la configuration production.
 
 ## Commandes Flutter
 
@@ -32,9 +32,8 @@ dart format --output=none --set-exit-if-changed .
 flutter analyze
 flutter test
 flutter build apk --debug --flavor production -t lib/main_production.dart
+flutter build apk --debug --flavor staging -t lib/main_staging.dart
 ```
-
-Le build staging Android peut echouer tant que le client Firebase `com.intellia237.app.staging` n'est pas present dans un vrai `google-services.json` staging. C'est intentionnel pour eviter d'utiliser accidentellement la configuration production.
 
 ## Cloud Functions
 
