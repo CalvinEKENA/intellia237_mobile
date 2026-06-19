@@ -33,14 +33,25 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.edunova.app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("production") {
+            dimension = "environment"
+            applicationId = "com.edunova.app"
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationId = "com.intellia237.app.staging"
+            versionNameSuffix = "-staging"
+        }
     }
 
     signingConfigs {
