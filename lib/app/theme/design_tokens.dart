@@ -21,6 +21,13 @@ abstract final class AppRadius {
   static const double xl = 36;
 }
 
+abstract final class IntelliaRadii {
+  static const double control = 10;
+  static const double card = 16;
+  static const double sheet = 22;
+  static const double hero = 28;
+}
+
 abstract final class AppMotion {
   static const Duration instant = Duration(milliseconds: 80);
   static const Duration fast = Duration(milliseconds: 160);
@@ -36,6 +43,13 @@ abstract final class AppMotion {
 }
 
 abstract final class AppColors {
+  // Intellia237 web reference palette.
+  static const Color intelliaIndigo = Color(0xFF5856D6);
+  static const Color intelliaPurple = Color(0xFFAF52DE);
+  static const Color intelliaBlue = Color(0xFF007AFF);
+  static const Color intelliaGold = Color(0xFFE7C148);
+  static const Color intelliaSurface = Color(0xFFF7F7FB);
+
   // Brand
   static const Color brandNavy = Color(0xFF0B1F4A);
   static const Color brand = Color(0xFF1451E1);
@@ -190,7 +204,7 @@ abstract final class AppTypography {
       GoogleFonts.playfairDisplay(
         fontSize: 40,
         fontWeight: FontWeight.w700,
-        letterSpacing: -1.0,
+        letterSpacing: 0,
         height: 1.1,
         color: Theme.of(context).colorScheme.onSurface,
       );
@@ -199,7 +213,7 @@ abstract final class AppTypography {
       GoogleFonts.playfairDisplay(
         fontSize: 28,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.5,
+        letterSpacing: 0,
         height: 1.2,
         color: Theme.of(context).colorScheme.onSurface,
       );
@@ -207,7 +221,7 @@ abstract final class AppTypography {
   static TextStyle numberHero({Color? color}) => GoogleFonts.manrope(
     fontSize: 56,
     fontWeight: FontWeight.w800,
-    letterSpacing: -2.0,
+    letterSpacing: 0,
     color: color,
   );
 }

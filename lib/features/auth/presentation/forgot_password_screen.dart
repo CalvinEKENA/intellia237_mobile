@@ -217,7 +217,7 @@ class _FormCard extends StatelessWidget {
             child: AuthTextField(
               controller: emailCtrl,
               label: 'Adresse email',
-              hint: 'exemple@edunova.cm',
+              hint: 'exemple@intellia237.cm',
               prefixIcon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.done,

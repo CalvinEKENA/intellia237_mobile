@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/edunova_curved_bottom_nav_bar.dart';
+import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
 import 'broadcast_center_screen.dart';
@@ -19,33 +19,33 @@ class AdminHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
-  static const _items = <EduNovaCurvedNavItem>[
-    EduNovaCurvedNavItem(
+  static const _items = <IntelliaBottomNavItem>[
+    IntelliaBottomNavItem(
       label: 'Accueil',
       icon: Icons.space_dashboard_outlined,
       activeIcon: Icons.space_dashboard_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Studio',
       icon: Icons.auto_stories_outlined,
       activeIcon: Icons.auto_stories_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Analytics',
       icon: Icons.analytics_outlined,
       activeIcon: Icons.analytics_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Utilisateurs',
       icon: Icons.groups_outlined,
       activeIcon: Icons.groups_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Annonces',
       icon: Icons.campaign_outlined,
       activeIcon: Icons.campaign_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Modération',
       icon: Icons.shield_outlined,
       activeIcon: Icons.shield_rounded,
@@ -72,7 +72,7 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: EduNovaCurvedBottomNavBar(
+      bottomNavigationBar: IntelliaBottomNavBar(
         items: _items,
         currentIndex: _index,
         onTap: (value) => setState(() => _index = value),

@@ -349,7 +349,7 @@ class _StudentRegistrationFlowScreenState
       children: [
         const _SectionHeader(
           title: 'Préférences d\'apprentissage',
-          subtitle: 'Aidez EduNova à personnaliser votre expérience.',
+          subtitle: 'Aidez INTELLIA237 à personnaliser votre expérience.',
         ),
         const SizedBox(height: AppSpacing.lg),
         SubjectMultiSelector(
@@ -420,7 +420,7 @@ class _StudentRegistrationFlowScreenState
         children: [
           const _SectionHeader(
             title: 'Sécurité et consentements',
-            subtitle: 'Finalisez votre compte EduNova.',
+            subtitle: 'Finalisez votre compte INTELLIA237.',
           ),
           const SizedBox(height: AppSpacing.lg),
           AuthTextField(

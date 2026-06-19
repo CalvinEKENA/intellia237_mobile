@@ -1,23 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'config/app_config.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
-class EduNovaApp extends ConsumerWidget {
-  const EduNovaApp({super.key});
+class Intellia237App extends ConsumerWidget {
+  const Intellia237App({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final config = ref.watch(appConfigProvider);
 
     return MaterialApp.router(
-      title: 'Edunova',
+      title: config.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
       routerConfig: router,
+      builder: (context, child) {
+        final app = child ?? const SizedBox.shrink();
+        if (!config.isStaging) {
+          return app;
+        }
+
+        return Banner(
+          message: 'STAGING',
+          location: BannerLocation.topEnd,
+          color: Colors.deepOrange,
+          child: app,
+        );
+      },
     );
   }
 }

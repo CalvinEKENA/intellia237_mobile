@@ -6,9 +6,9 @@ import 'bootstrap.dart';
 
 void main() {
   bootstrap(
-    config: AppConfig.production,
+    config: AppConfig.staging,
     builder: () => ProviderScope(
-      overrides: [appConfigProvider.overrideWithValue(AppConfig.production)],
+      overrides: [appConfigProvider.overrideWithValue(AppConfig.staging)],
       child: const Intellia237App(),
     ),
   );

@@ -258,7 +258,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               ),
               const SizedBox(width: AppSpacing.xs),
               Text(
-                'EduNova',
+                'INTELLIA237',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 15,

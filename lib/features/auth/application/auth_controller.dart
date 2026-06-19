@@ -139,7 +139,7 @@ class AuthController extends Notifier<AuthState> {
     state = AuthState.authenticated(
       role: role,
       userId: 'demo-${role.name}',
-      email: '${role.name}@edunova.app',
+      email: '${role.name}@intellia237.app',
       firstName: role.label,
     );
   }

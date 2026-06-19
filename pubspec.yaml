@@ -1,5 +1,5 @@
-name: edunova
-description: "Application e-learning EduNova."
+name: intellia237
+description: "Application e-learning INTELLIA237."
 publish_to: "none"
 version: 3.0.0+22
 
@@ -54,6 +54,8 @@ flutter:
     - assets/images/
     - assets/fonts/
     - assets/icons/
+    - assets/branding/
+    - assets/companions/
     - assets/lottie/
     - assets/onboarding/
     - assets/tutors/

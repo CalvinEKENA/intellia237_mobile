@@ -74,7 +74,7 @@ class MockAdminRepository implements AdminRepository {
   Future<AdminDashboard> fetchDashboard({required String adminUid}) async {
     await Future<void>.delayed(const Duration(milliseconds: 180));
     return AdminDashboard(
-      adminName: 'Direction EduNova',
+      adminName: 'Direction INTELLIA237',
       establishmentName: 'Lycée Général Leclerc',
       kpi: const AdminKpi(
         totalStudents: 1864,
