@@ -31,7 +31,7 @@ async function testGLM() {
     let idToken;
     try {
         const authResp = await axios.post(AUTH_URL, {
-            email: "test-" + Date.now() + "@edunova.ai",
+            email: "test-" + Date.now() + "@intellia237.ai",
             password: "password123",
             returnSecureToken: true
         });

@@ -77,7 +77,7 @@ export async function generateStructuredContent<T>(params: {
       {
         headers: {
           ...buildAuthHeaders(env.GLM_API_KEY),
-          "User-Agent": "EdunovaFunctions/1.0"
+          "User-Agent": "Intellia237Functions/1.0"
         },
         timeout: env.LLM_SERVICE_TIMEOUT_MS,
       }

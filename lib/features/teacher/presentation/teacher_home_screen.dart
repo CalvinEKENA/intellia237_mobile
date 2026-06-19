@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/edunova_curved_bottom_nav_bar.dart';
+import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
 import 'teacher_analytics_screen.dart';
@@ -18,28 +18,28 @@ class TeacherHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
-  static const _navItems = <EduNovaCurvedNavItem>[
-    EduNovaCurvedNavItem(
+  static const _navItems = <IntelliaBottomNavItem>[
+    IntelliaBottomNavItem(
       label: 'Accueil',
       icon: Icons.dashboard_outlined,
       activeIcon: Icons.dashboard_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Classes',
       icon: Icons.groups_outlined,
       activeIcon: Icons.groups_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Contenu',
       icon: Icons.library_books_outlined,
       activeIcon: Icons.library_books_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Quiz',
       icon: Icons.quiz_outlined,
       activeIcon: Icons.quiz_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Stats',
       icon: Icons.insights_outlined,
       activeIcon: Icons.insights_rounded,
@@ -65,7 +65,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: EduNovaCurvedBottomNavBar(
+      bottomNavigationBar: IntelliaBottomNavBar(
         items: _navItems,
         currentIndex: _index,
         onTap: (value) => setState(() => _index = value),

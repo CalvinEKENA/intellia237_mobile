@@ -4,11 +4,20 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'app/config/app_config.dart';
 import 'features/onboarding/data/onboarding_preferences.dart';
 import 'firebase_options.dart';
 
-Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
+Future<void> bootstrap({
+  required AppConfig config,
+  required FutureOr<Widget> Function() builder,
+}) async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  debugPrint(
+    'Starting ${config.appName} (${config.environmentName}) '
+    'with Firebase project ${config.firebaseProjectId}.',
+  );
 
   // Pre-load fonts to prevent flash of unstyled text
   await GoogleFonts.pendingFonts([
@@ -24,7 +33,7 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
     debugPrintStack(stackTrace: stackTrace);
   }
 
-  await initializeFirebase();
+  await initializeFirebase(config);
 
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
@@ -34,10 +43,13 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   runApp(app);
 }
 
-Future<void> initializeFirebase() async {
+Future<void> initializeFirebase(AppConfig config) async {
   try {
+    final options = DefaultFirebaseOptions.currentPlatform;
+    config.validateFirebaseOptions(options);
+
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+      options: options,
     ).timeout(const Duration(seconds: 8));
   } catch (error, stackTrace) {
     debugPrint(

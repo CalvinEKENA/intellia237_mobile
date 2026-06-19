@@ -1,4 +1,4 @@
-/// Classes disponibles sur EDUNOVA.
+/// Classes disponibles sur INTELLIA237.
 /// Seules les classes préparant au BEPC, Probatoire et Baccalauréat
 /// sont proposées — conforme au système scolaire camerounais.
 enum SchoolClass { troisieme, premiere, terminale }

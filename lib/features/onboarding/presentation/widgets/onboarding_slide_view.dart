@@ -104,7 +104,7 @@ class OnboardingSlideView extends StatelessWidget {
                         Icon(data.icon, size: 12, color: accent),
                         const SizedBox(width: 5),
                         Text(
-                          'EduNova',
+                          'INTELLIA237',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,

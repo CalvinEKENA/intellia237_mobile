@@ -144,7 +144,7 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
               builder: (context, _) => Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Logo avec glow (contient deja le texte EduNova)
+                  // Logo INTELLIA237 issu de la reference web.
                   _buildLogoWithGlow(),
                   const SizedBox(height: AppSpacing.lg),
 
@@ -213,7 +213,7 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
                 ],
               ),
               child: Image.asset(
-                'assets/icons/edunova.png',
+                'assets/branding/icon-192.png',
                 width: 240,
                 fit: BoxFit.contain,
               ),

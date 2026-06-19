@@ -8,6 +8,7 @@ on:
     branches:
       - "fix/**"
       - "feature/**"
+      - "refactor/**"
 
 permissions:
   contents: read
@@ -39,8 +40,11 @@ jobs:
       - name: Check Dart formatting
         run: dart format --output=none --set-exit-if-changed .
 
+      - name: Check legacy brand references
+        run: dart run tool/check_brand_references.dart
+
       - name: Analyze Flutter sources
-        run: flutter analyze
+        run: flutter analyze --no-pub lib test tool
 
       - name: Run Flutter tests
         run: flutter test

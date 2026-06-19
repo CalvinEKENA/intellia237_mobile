@@ -67,7 +67,7 @@ class FirestoreTourGuideRepository implements TourGuideRepository {
     }
   }
 
-  String _cacheKey(String uid) => 'edunova_tour_seen_$uid';
+  String _cacheKey(String uid) => 'intellia237_tour_seen_$uid';
 }
 
 class LocalTourGuideRepository implements TourGuideRepository {
@@ -83,5 +83,5 @@ class LocalTourGuideRepository implements TourGuideRepository {
     await prefs.setBool(_cacheKey(uid), true);
   }
 
-  String _cacheKey(String uid) => 'edunova_tour_seen_$uid';
+  String _cacheKey(String uid) => 'intellia237_tour_seen_$uid';
 }

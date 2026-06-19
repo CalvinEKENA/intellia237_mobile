@@ -122,7 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       AuthTextField(
                         controller: _emailCtrl,
                         label: 'Adresse email',
-                        hint: 'exemple@edunova.cm',
+                        hint: 'exemple@intellia237.cm',
                         prefixIcon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
@@ -301,7 +301,7 @@ class _JewelCard extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Badge logo EduNova
+// Badge logo INTELLIA237
 // ─────────────────────────────────────────────────────────────
 
 class _LogoBadge extends StatelessWidget {
@@ -333,7 +333,7 @@ class _LogoBadge extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'EduNova',
+          'INTELLIA237',
           style: GoogleFonts.playfairDisplay(
             fontSize: 16,
             fontWeight: FontWeight.w600,

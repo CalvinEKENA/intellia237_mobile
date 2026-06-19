@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import '../../../app/theme/design_tokens.dart';
 import 'onboarding_slide_data.dart';
 
-/// Les 4 slides cinématographiques de l'onboarding EDUNOVA.
+/// Les 4 slides cinématographiques de l'onboarding INTELLIA237.
 /// Chaque slide s'affiche 6 secondes avant d'avancer automatiquement.
 abstract final class OnboardingSlides {
   static const slides = <OnboardingSlideData>[
     OnboardingSlideData(
-      title: 'Bienvenue sur\nEduNova',
+      title: 'Bienvenue sur\nINTELLIA237',
       description:
           'La plateforme d\'excellence scolaire pensée\n'
           'pour les élèves camerounais.',
@@ -26,9 +26,9 @@ abstract final class OnboardingSlides {
       accentColor: AppColors.gold,
     ),
     OnboardingSlideData(
-      title: 'Ton compagnon\nartificiel',
+      title: 'Ton compagnon\npédagogique',
       description:
-          'Un tuteur IA disponible 24h/24 pour répondre\n'
+          'Un compagnon pédagogique disponible 24h/24 pour répondre\n'
           'à toutes tes questions scolaires.',
       asset: 'assets/onboarding/slide_3.jpg',
       icon: Icons.psychology_rounded,

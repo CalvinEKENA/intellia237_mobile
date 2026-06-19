@@ -1,8 +1,8 @@
-import 'package:edunova/app/app.dart';
-import 'package:edunova/features/auth/application/auth_controller.dart';
-import 'package:edunova/features/auth/domain/app_role.dart';
-import 'package:edunova/features/auth/domain/repositories/auth_repository.dart';
-import 'package:edunova/features/onboarding/data/onboarding_preferences.dart';
+import 'package:intellia237/app/app.dart';
+import 'package:intellia237/features/auth/application/auth_controller.dart';
+import 'package:intellia237/features/auth/domain/app_role.dart';
+import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
+import 'package:intellia237/features/onboarding/data/onboarding_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,7 +26,7 @@ void main() {
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
           hasSeenOnboardingProvider.overrideWith((ref) => true),
         ],
-        child: const EduNovaApp(),
+        child: const Intellia237App(),
       ),
     );
 

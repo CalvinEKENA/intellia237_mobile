@@ -7,7 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/edunova_curved_bottom_nav_bar.dart';
+import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../../ai_companion/presentation/ai_companion_screen.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_state.dart';
@@ -43,28 +43,28 @@ class StudentHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
-  static const _navItems = <EduNovaCurvedNavItem>[
-    EduNovaCurvedNavItem(
+  static const _navItems = <IntelliaBottomNavItem>[
+    IntelliaBottomNavItem(
       label: 'Accueil',
       icon: Icons.home_rounded,
       activeIcon: Icons.home_filled,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Apprendre',
       icon: Icons.auto_stories_rounded,
       activeIcon: Icons.menu_book_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Quiz',
       icon: Icons.quiz_outlined,
       activeIcon: Icons.quiz_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Compagnon',
       icon: Icons.school_outlined,
       activeIcon: Icons.school_rounded,
     ),
-    EduNovaCurvedNavItem(
+    IntelliaBottomNavItem(
       label: 'Profil',
       icon: Icons.person_outline_rounded,
       activeIcon: Icons.person_rounded,
@@ -145,7 +145,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
       ),
       bottomNavigationBar: KeyedSubtree(
         key: _tourTargets[TourGuideTargetIds.studentBottomNav],
-        child: EduNovaCurvedBottomNavBar(
+        child: IntelliaBottomNavBar(
           items: _navItems,
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
@@ -374,7 +374,7 @@ class _ProfileTab extends ConsumerWidget {
           // Section Académique
           _AcademicSection(academicAsync: academicAsync, theme: theme),
           const SizedBox(height: AppSpacing.md),
-          // Section Tuteur IA
+          // Section Compagnon pédagogique
           _TutorSection(classLevel: academicAsync.value?.classLevel),
           const SizedBox(height: AppSpacing.md),
           // Section Statistiques
@@ -432,13 +432,13 @@ class _ProfileIdentityCard extends StatelessWidget {
                   Text(
                     auth.firstName?.isNotEmpty == true
                         ? auth.firstName!
-                        : 'Utilisateur EduNova',
+                        : 'Utilisateur INTELLIA237',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
-                    auth.email ?? 'email@edunova.app',
+                    auth.email ?? 'email@intellia237.app',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),

@@ -3,9 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Item de navigation pour la barre courbe EduNova.
-class EduNovaCurvedNavItem {
-  const EduNovaCurvedNavItem({
+/// Item de navigation pour la barre courbe INTELLIA237.
+class IntelliaBottomNavItem {
+  const IntelliaBottomNavItem({
     required this.label,
     required this.icon,
     this.activeIcon,
@@ -18,8 +18,8 @@ class EduNovaCurvedNavItem {
 
 /// Barre de navigation premium avec courbe fluide, glow animé,
 /// bulle flottante sur l'item actif et retour haptique.
-class EduNovaCurvedBottomNavBar extends StatefulWidget {
-  const EduNovaCurvedBottomNavBar({
+class IntelliaBottomNavBar extends StatefulWidget {
+  const IntelliaBottomNavBar({
     required this.items,
     required this.currentIndex,
     required this.onTap,
@@ -29,7 +29,7 @@ class EduNovaCurvedBottomNavBar extends StatefulWidget {
     this.showLabels = true,
   }) : assert(items.length >= 2, 'Au moins 2 items de navigation sont requis.');
 
-  final List<EduNovaCurvedNavItem> items;
+  final List<IntelliaBottomNavItem> items;
   final int currentIndex;
   final ValueChanged<int> onTap;
   final double height;
@@ -37,11 +37,10 @@ class EduNovaCurvedBottomNavBar extends StatefulWidget {
   final bool showLabels;
 
   @override
-  State<EduNovaCurvedBottomNavBar> createState() =>
-      _EduNovaCurvedBottomNavBarState();
+  State<IntelliaBottomNavBar> createState() => _IntelliaBottomNavBarState();
 }
 
-class _EduNovaCurvedBottomNavBarState extends State<EduNovaCurvedBottomNavBar>
+class _IntelliaBottomNavBarState extends State<IntelliaBottomNavBar>
     with SingleTickerProviderStateMixin {
   late final AnimationController _glowController;
 
@@ -219,7 +218,7 @@ class _AnimatedNavItem extends StatefulWidget {
     required this.onTap,
   });
 
-  final EduNovaCurvedNavItem item;
+  final IntelliaBottomNavItem item;
   final bool isSelected;
   final double animProgress;
   final bool showLabel;
