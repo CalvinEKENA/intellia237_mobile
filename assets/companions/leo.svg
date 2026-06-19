@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Avatar Léo (placeholder)">
+  <defs>
+    <linearGradient id="leo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5AC8FA"/>
+      <stop offset="100%" stop-color="#5856D6"/>
+    </linearGradient>
+    <radialGradient id="leo-glow" cx="32%" cy="28%" r="60%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0.0"/>
+    </radialGradient>
+    <filter id="leo-soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.2"/>
+    </filter>
+  </defs>
+
+  <!-- Base disc -->
+  <circle cx="100" cy="100" r="100" fill="url(#leo-grad)"/>
+
+  <!-- Subtle highlight -->
+  <circle cx="100" cy="100" r="100" fill="url(#leo-glow)"/>
+
+  <!-- Decorative accents (géométriques, plus sobres que Kira) -->
+  <g opacity="0.55" filter="url(#leo-soft)">
+    <circle cx="52" cy="56" r="3" fill="#ffffff"/>
+    <circle cx="158" cy="70" r="2.2" fill="#ffffff"/>
+    <rect x="46" y="142" width="5" height="5" rx="1" fill="#ffffff"/>
+    <rect x="150" y="144" width="4" height="4" rx="1" fill="#ffffff"/>
+  </g>
+
+  <!-- Initial -->
+  <text
+    x="50%"
+    y="54%"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    font-family="'Plus Jakarta Sans', 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    font-weight="800"
+    font-size="96"
+    fill="#ffffff"
+    letter-spacing="-2"
+  >L</text>
+
+  <!-- Inner ring accent -->
+  <circle cx="100" cy="100" r="97" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2"/>
+</svg>
