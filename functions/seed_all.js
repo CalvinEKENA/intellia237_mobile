@@ -4,7 +4,7 @@ const path = require('path');
 
 // process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8085";
 
-// Remplacez 'edunova-aabd1' par le nom de votre projet
+// Remplacez l'ID du projet par votre projet Firebase si necessaire.
 if (!admin.apps.length) admin.initializeApp({ projectId: "edunova-aabd1" });
 const db = admin.firestore();
 
