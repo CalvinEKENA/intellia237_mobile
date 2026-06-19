@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "343680388379",
+    "project_id": "intellia237-staging",
+    "storage_bucket": "intellia237-staging.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343680388379:android:29a9a0035289f13078d7be",
+        "android_client_info": {
+          "package_name": "com.intellia237.app.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCeCQAnnfHhgNNch5fTScQFEpESP_D0Xl4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

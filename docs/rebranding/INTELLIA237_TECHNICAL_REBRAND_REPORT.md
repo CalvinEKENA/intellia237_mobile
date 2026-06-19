@@ -34,19 +34,23 @@ Transform the active technical identity from EDUNOVA to INTELLIA237 while preser
 
 ## Staging Status
 
-Prepared:
+Prepared and validated:
 
 - Flutter entrypoint: `lib/main_staging.dart`
 - Android flavor: `staging`
 - Visible name: `INTELLIA237 Staging`
 - App config Firebase target: `intellia237-staging`
 - `.firebaserc` alias: `staging`
+- Android Firebase client registered for `com.intellia237.app.staging`.
+- Real Android staging Firebase client config installed at `android/app/src/staging/google-services.json`.
+- Android staging debug APK build succeeded.
+- Staging debug APK path: `build/app/outputs/flutter-apk/app-staging-debug.apk`.
+- Staging debug APK SHA256: `041933D692753AD837CBDC8F353B07216E7850D8D668A13723ADAFA09214F3C5`.
 
-Blocked:
+Remaining:
 
-- No real staging Firebase client config is present.
-- Android staging builds are expected to fail Google Services processing until the real `com.intellia237.app.staging` Firebase client is added.
 - iOS staging scheme/build configuration was not generated on Windows; complete on macOS/Xcode to avoid signing drift.
+- No Firebase deployment has been performed.
 
 ## Validation Status
 
@@ -66,7 +70,7 @@ Completed locally on 2026-06-19:
 | `npm run test:rules` | Success | Firestore and Storage rules tests passed after adding explicit rules test timeout. |
 | `dart run tool/check_brand_references.dart` | Success | No unallowed legacy brand references. |
 | `flutter build apk --debug --flavor production -t lib/main_production.dart --no-pub --no-android-gradle-daemon` | Success | Produced `build/app/outputs/flutter-apk/app-production-debug.apk`. |
-| `flutter build apk --debug --flavor staging -t lib/main_staging.dart --no-pub --no-android-gradle-daemon` | Expected failure | Fails at `processStagingDebugGoogleServices`: no Firebase client for `com.intellia237.app.staging`. |
+| `flutter build apk --debug --flavor staging -t lib/main_staging.dart` | Success | Produced `build/app/outputs/flutter-apk/app-staging-debug.apk` with Firebase project `intellia237-staging` and package `com.intellia237.app.staging`. |
 
 Static iOS validation:
 
