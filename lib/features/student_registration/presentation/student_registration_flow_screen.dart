@@ -1,16 +1,13 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/gradient_button.dart';
-import '../../../core/widgets/liquid_background.dart';
-import '../../auth/presentation/widgets/auth_text_field.dart';
+import '../../../core/widgets/intellia_scaffold.dart';
+import '../../../core/widgets/intellia_buttons.dart';
+import '../../../core/widgets/intellia_text_field.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../application/student_registration_controller.dart';
 import '../application/student_registration_state.dart';
@@ -116,122 +113,93 @@ class _StudentRegistrationFlowScreenState
                       color: Colors.white,
                       size: 20,
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: IntelliaSpacing.sm),
                     Expanded(child: Text(next.errorMessage!)),
                   ],
                 ),
                 backgroundColor: Colors.red.shade700,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  borderRadius: BorderRadius.circular(IntelliaRadii.small),
                 ),
-                margin: const EdgeInsets.all(AppSpacing.md),
+                margin: const EdgeInsets.all(IntelliaSpacing.md),
               ),
             );
         }
       },
     );
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF060E22),
-      body: LiquidBackground(
-        primaryColor: AppColors.brandDeep,
-        secondaryColor: AppColors.brand,
-        tertiaryColor: AppColors.accent,
-        child: SafeArea(
-          child: Column(
-            children: [
-              // ── Top bar ───────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: state.currentStep == 0
-                          ? () => context.pop()
-                          : () {
-                              setState(() {
-                                _previousStep = state.currentStep;
-                              });
-                              controller.goToPreviousStep();
-                            },
-                      icon: const Icon(
-                        Icons.arrow_back_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        'Inscription Élève',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
-                ),
-              ),
-
-              // ── Stepper ───────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-                child: PremiumStepper(
-                  currentStep: state.currentStep,
-                  labels: _stepLabels,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-
-              // ── Step content ──────────────────────────────────
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: AppMotion.cinematic,
-                  switchInCurve: AppMotion.emphasizedDecelerate,
-                  switchOutCurve: AppMotion.swiftOut,
-                  transitionBuilder: (child, animation) {
-                    final isForward = state.currentStep >= _previousStep;
-                    final slideIn = Tween<Offset>(
-                      begin: Offset(isForward ? 1.0 : -1.0, 0),
-                      end: Offset.zero,
-                    ).animate(animation);
-                    final fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
-                      CurvedAnimation(
-                        parent: animation,
-                        curve: const Interval(0.3, 1.0),
-                      ),
-                    );
-                    return FadeTransition(
-                      opacity: fadeIn,
-                      child: SlideTransition(position: slideIn, child: child),
-                    );
-                  },
-                  child: _GlassStepPanel(
-                    key: ValueKey(state.currentStep),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.xl,
-                        AppSpacing.md,
-                        AppSpacing.xl,
-                        AppSpacing.xs,
-                      ),
-                      child: _buildStepContent(state),
-                    ),
-                  ),
-                ),
-              ),
-
-              // ── Bottom actions ────────────────────────────────
-              _buildBottomActions(state),
-            ],
-          ),
+    return IntelliaScaffold(
+      usePremiumBackground: true,
+      showTopHalo: true,
+      appBar: AppBar(
+        leading: IntelliaIconButton(
+          icon: Icons.arrow_back_rounded,
+          backgroundColor: Colors.transparent,
+          onTap: state.currentStep == 0
+              ? () => context.pop()
+              : () {
+                  setState(() {
+                    _previousStep = state.currentStep;
+                  });
+                  controller.goToPreviousStep();
+                },
         ),
+        title: const Text('Inscription Élève'),
+      ),
+      body: Column(
+        children: [
+          // ── Stepper ───────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: IntelliaSpacing.xl),
+            child: PremiumStepper(
+              currentStep: state.currentStep,
+              labels: _stepLabels,
+            ),
+          ),
+          const SizedBox(height: IntelliaSpacing.md),
+
+          // ── Step content ──────────────────────────────────
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: IntelliaMotion.cinematic,
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, animation) {
+                final isForward = state.currentStep >= _previousStep;
+                final slideIn = Tween<Offset>(
+                  begin: Offset(isForward ? 1.0 : -1.0, 0),
+                  end: Offset.zero,
+                ).animate(animation);
+                final fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: const Interval(0.3, 1.0),
+                  ),
+                );
+                return FadeTransition(
+                  opacity: fadeIn,
+                  child: SlideTransition(position: slideIn, child: child),
+                );
+              },
+              child: _GlassStepPanel(
+                key: ValueKey(state.currentStep),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(
+                    IntelliaSpacing.xl,
+                    IntelliaSpacing.md,
+                    IntelliaSpacing.xl,
+                    IntelliaSpacing.xs,
+                  ),
+                  child: _buildStepContent(state),
+                ),
+              ),
+            ),
+          ),
+
+          // ── Bottom actions ────────────────────────────────
+          _buildBottomActions(state),
+        ],
       ),
     );
   }
@@ -256,13 +224,12 @@ class _StudentRegistrationFlowScreenState
             title: 'Informations personnelles',
             subtitle: 'Commencez par votre identité.',
           ),
-          const SizedBox(height: AppSpacing.lg),
-          AuthTextField(
+          const SizedBox(height: IntelliaSpacing.lg),
+          IntelliaTextField(
             controller: _firstNameController,
             label: 'Prénom',
             hint: 'Ex: Marie',
             prefixIcon: Icons.person_rounded,
-            isDark: true,
             validator: (value) {
               if ((value ?? '').trim().length < 2) {
                 return 'Minimum 2 caractères';
@@ -270,13 +237,12 @@ class _StudentRegistrationFlowScreenState
               return null;
             },
           ),
-          const SizedBox(height: AppSpacing.md),
-          AuthTextField(
+          const SizedBox(height: IntelliaSpacing.md),
+          IntelliaTextField(
             controller: _lastNameController,
             label: 'Nom',
             hint: 'Ex: Ndzi',
             prefixIcon: Icons.badge_rounded,
-            isDark: true,
             validator: (value) {
               if ((value ?? '').trim().length < 2) {
                 return 'Minimum 2 caractères';
@@ -303,13 +269,13 @@ class _StudentRegistrationFlowScreenState
             title: 'Parcours scolaire',
             subtitle: 'Établissement, classe et série.',
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: IntelliaSpacing.lg),
           SearchableEstablishmentField(
             selected: state.establishment,
             onSelected: controller.setEstablishment,
           ),
-          const SizedBox(height: AppSpacing.md),
-          _DarkDropdown<SchoolClass>(
+          const SizedBox(height: IntelliaSpacing.md),
+          _IntelliaDropdown<SchoolClass>(
             label: 'Classe',
             prefixIcon: Icons.menu_book_rounded,
             value: state.schoolClass,
@@ -323,8 +289,8 @@ class _StudentRegistrationFlowScreenState
             validator: (value) =>
                 value == null ? 'Sélectionnez une classe' : null,
           ),
-          const SizedBox(height: AppSpacing.md),
-          _DarkDropdown<SchoolSeries>(
+          const SizedBox(height: IntelliaSpacing.md),
+          _IntelliaDropdown<SchoolSeries>(
             label: state.schoolClass?.seriesFieldLabel ?? 'Série',
             prefixIcon: Icons.category_rounded,
             value: state.schoolSeries,
@@ -351,7 +317,7 @@ class _StudentRegistrationFlowScreenState
           title: 'Préférences d\'apprentissage',
           subtitle: 'Aidez INTELLIA237 à personnaliser votre expérience.',
         ),
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: IntelliaSpacing.lg),
         SubjectMultiSelector(
           title: 'Matières préférées',
           caption: 'Sélectionnez jusqu\'à 6 matières.',
@@ -359,7 +325,7 @@ class _StudentRegistrationFlowScreenState
           selected: state.preferredSubjects,
           onToggle: controller.togglePreferredSubject,
         ),
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: IntelliaSpacing.lg),
         SubjectMultiSelector(
           title: 'Matières difficiles',
           caption: 'Celles qui demandent plus d\'accompagnement.',
@@ -367,8 +333,8 @@ class _StudentRegistrationFlowScreenState
           selected: state.difficultSubjects,
           onToggle: controller.toggleDifficultSubject,
         ),
-        const SizedBox(height: AppSpacing.lg),
-        _DarkDropdown<LearningGoal>(
+        const SizedBox(height: IntelliaSpacing.lg),
+        _IntelliaDropdown<LearningGoal>(
           label: 'Objectif d\'apprentissage',
           prefixIcon: Icons.flag_rounded,
           value: state.learningGoal,
@@ -378,22 +344,22 @@ class _StudentRegistrationFlowScreenState
           ],
           onChanged: controller.setLearningGoal,
         ),
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: IntelliaSpacing.lg),
         Text(
           'Temps d\'étude quotidien: ${state.dailyStudyMinutes} min',
           style: const TextStyle(
-            color: Colors.white,
+            color: IntelliaColors.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
         ),
         SliderTheme(
           data: SliderThemeData(
-            activeTrackColor: AppColors.gold,
-            inactiveTrackColor: Colors.white.withValues(alpha: 0.20),
-            thumbColor: AppColors.gold,
-            overlayColor: AppColors.gold.withValues(alpha: 0.20),
-            valueIndicatorColor: AppColors.gold,
+            activeTrackColor: IntelliaColors.brandIndigo,
+            inactiveTrackColor: IntelliaColors.backgroundSecondary,
+            thumbColor: IntelliaColors.brandIndigo,
+            overlayColor: IntelliaColors.brandIndigo.withValues(alpha: 0.20),
+            valueIndicatorColor: IntelliaColors.brandIndigo,
             valueIndicatorTextStyle: const TextStyle(color: Colors.white),
           ),
           child: Slider(
@@ -412,6 +378,8 @@ class _StudentRegistrationFlowScreenState
 
   Widget _buildSecurityStep(StudentRegistrationState state) {
     final controller = ref.read(studentRegistrationControllerProvider.notifier);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Form(
       key: _step5FormKey,
@@ -422,14 +390,13 @@ class _StudentRegistrationFlowScreenState
             title: 'Sécurité et consentements',
             subtitle: 'Finalisez votre compte INTELLIA237.',
           ),
-          const SizedBox(height: AppSpacing.lg),
-          AuthTextField(
+          const SizedBox(height: IntelliaSpacing.lg),
+          IntelliaTextField(
             controller: _emailController,
             label: 'Email',
             hint: 'prenom.nom@exemple.com',
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_rounded,
-            isDark: true,
             validator: (value) {
               if (!RegExp(
                 r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
@@ -439,14 +406,11 @@ class _StudentRegistrationFlowScreenState
               return null;
             },
           ),
-          const SizedBox(height: AppSpacing.md),
-          AuthTextField(
+          const SizedBox(height: IntelliaSpacing.md),
+          IntelliaPasswordField(
             controller: _passwordController,
             label: 'Mot de passe',
             hint: '8 caractères minimum',
-            obscureText: true,
-            prefixIcon: Icons.lock_rounded,
-            isDark: true,
             validator: (value) {
               final password = value ?? '';
               final hasUppercase = RegExp(r'[A-Z]').hasMatch(password);
@@ -458,14 +422,11 @@ class _StudentRegistrationFlowScreenState
               return null;
             },
           ),
-          const SizedBox(height: AppSpacing.md),
-          AuthTextField(
+          const SizedBox(height: IntelliaSpacing.md),
+          IntelliaPasswordField(
             controller: _confirmPasswordController,
             label: 'Confirmer le mot de passe',
             hint: 'Retapez le mot de passe',
-            obscureText: true,
-            prefixIcon: Icons.verified_user_rounded,
-            isDark: true,
             validator: (value) {
               if ((value ?? '') != _passwordController.text) {
                 return 'La confirmation ne correspond pas';
@@ -473,38 +434,46 @@ class _StudentRegistrationFlowScreenState
               return null;
             },
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: IntelliaSpacing.lg),
           _DarkCheckboxTile(
             value: state.acceptedTerms,
             onChanged: (v) => controller.setAcceptedTerms(v ?? false),
             label: 'J\'accepte les conditions d\'utilisation.',
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           _DarkCheckboxTile(
             value: state.acceptedPrivacy,
             onChanged: (v) => controller.setAcceptedPrivacy(v ?? false),
             label: 'J\'accepte la politique de confidentialité.',
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           _DarkCheckboxTile(
             value: state.acceptedDataPolicy,
             onChanged: (v) => controller.setAcceptedDataPolicy(v ?? false),
             label: 'J\'accepte le traitement pédagogique des données.',
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              color: Colors.white.withValues(alpha: 0.07),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
+              color: isDark
+                  ? IntelliaColors.backgroundSecondaryDark
+                  : IntelliaColors.backgroundSecondary,
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.05),
+              ),
             ),
             child: Text(
               'Vérifiez vos informations avant de créer votre compte.',
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.white.withValues(alpha: 0.65),
+                color: isDark
+                    ? IntelliaColors.textSecondaryDark
+                    : IntelliaColors.textSecondary,
               ),
             ),
           ),
@@ -518,64 +487,44 @@ class _StudentRegistrationFlowScreenState
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xl,
-        AppSpacing.sm,
-        AppSpacing.xl,
-        AppSpacing.xl,
+        IntelliaSpacing.xl,
+        IntelliaSpacing.sm,
+        IntelliaSpacing.xl,
+        IntelliaSpacing.xl,
       ),
       child: Row(
         children: [
           if (!state.isFirstStep)
             Expanded(
-              child: SizedBox(
-                height: 52,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.30),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                    ),
-                  ),
-                  onPressed: state.isSubmitting
-                      ? null
-                      : () {
-                          setState(() => _previousStep = state.currentStep);
-                          controller.goToPreviousStep();
-                        },
-                  child: const FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text('Précédent', maxLines: 1, softWrap: false),
-                  ),
+              child: IntelliaOutlineButton(
+                onTap: state.isSubmitting
+                    ? null
+                    : () {
+                        setState(() => _previousStep = state.currentStep);
+                        controller.goToPreviousStep();
+                      },
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('Précédent', maxLines: 1, softWrap: false),
                 ),
               ),
             )
           else
             const Spacer(),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: IntelliaSpacing.sm),
           Expanded(
             flex: 2,
-            child: GradientButton(
-              onPressed: state.isSubmitting
+            child: IntelliaPrimaryButton(
+              onTap: state.isSubmitting
                   ? null
                   : () => _handlePrimaryAction(state),
-              gradient: AppGradients.heroNavy,
               isLoading: state.isSubmitting,
-              child: Text(
-                state.isLastStep ? 'Créer mon compte' : 'Suivant',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              child: Text(state.isLastStep ? 'Créer mon compte' : 'Suivant'),
             ),
           ),
         ],
       ),
-    ).animate().fadeIn(duration: AppMotion.medium);
+    ).animate().fadeIn(duration: IntelliaMotion.medium);
   }
 
   Future<void> _handlePrimaryAction(StudentRegistrationState state) async {
@@ -600,9 +549,9 @@ class _StudentRegistrationFlowScreenState
             behavior: SnackBarBehavior.floating,
             backgroundColor: Colors.red.shade700,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
             ),
-            margin: const EdgeInsets.all(AppSpacing.md),
+            margin: const EdgeInsets.all(IntelliaSpacing.md),
           ),
         );
       return;
@@ -622,16 +571,16 @@ class _StudentRegistrationFlowScreenState
                     color: Colors.white,
                     size: 20,
                   ),
-                  SizedBox(width: AppSpacing.sm),
+                  SizedBox(width: IntelliaSpacing.sm),
                   Text('Inscription complétée avec succès !'),
                 ],
               ),
-              backgroundColor: AppColors.accent,
+              backgroundColor: IntelliaColors.success,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.sm),
+                borderRadius: BorderRadius.circular(IntelliaRadii.small),
               ),
-              margin: const EdgeInsets.all(AppSpacing.md),
+              margin: const EdgeInsets.all(IntelliaSpacing.md),
             ),
           );
       }
@@ -670,7 +619,7 @@ class _StudentRegistrationFlowScreenState
 }
 
 // ─────────────────────────────────────────────────────────────
-// Glass step panel
+// Surface de contenu lumineuse.
 // ─────────────────────────────────────────────────────────────
 
 class _GlassStepPanel extends StatelessWidget {
@@ -680,37 +629,30 @@ class _GlassStepPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(
-        top: Radius.circular(AppRadius.lg),
-      ),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0x18FFFFFF), Color(0x0CFFFFFF)],
-            ),
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(AppRadius.lg),
-            ),
-            border: const Border(
-              top: BorderSide(color: AppColors.glassBorder),
-              left: BorderSide(color: AppColors.glassBorder),
-              right: BorderSide(color: AppColors.glassBorder),
-            ),
-          ),
-          child: child,
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? IntelliaColors.surfaceSolidDark
+            : IntelliaColors.surfaceSolid,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(IntelliaRadii.large),
+        ),
+        border: Border(
+          top: BorderSide(color: theme.colorScheme.outline, width: 0.8),
+          left: BorderSide(color: theme.colorScheme.outline, width: 0.8),
+          right: BorderSide(color: theme.colorScheme.outline, width: 0.8),
         ),
       ),
+      child: child,
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────
-// Section header (dark variant)
+// Section header
 // ─────────────────────────────────────────────────────────────
 
 class _SectionHeader extends StatelessWidget {
@@ -721,24 +663,26 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: -0.3,
-          ),
+          style: IntelliaTypography.title2(
+            brightness: theme.brightness,
+          ).copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: AppSpacing.xxs),
+        const SizedBox(height: IntelliaSpacing.xxs),
         Text(
           subtitle,
           style: TextStyle(
-            fontSize: 14,
-            color: Colors.white.withValues(alpha: 0.60),
+            fontSize: 13,
+            color: isDark
+                ? IntelliaColors.textSecondaryDark
+                : IntelliaColors.textSecondary,
             height: 1.4,
           ),
         ),
@@ -748,11 +692,11 @@ class _SectionHeader extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Dark-themed dropdown
+// Dropdown lumineux
 // ─────────────────────────────────────────────────────────────
 
-class _DarkDropdown<T> extends StatelessWidget {
-  const _DarkDropdown({
+class _IntelliaDropdown<T> extends StatelessWidget {
+  const _IntelliaDropdown({
     required this.label,
     required this.prefixIcon,
     required this.items,
@@ -770,59 +714,42 @@ class _DarkDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Colors.white.withValues(alpha: 0.70),
+          style: theme.textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: isDark
+                ? IntelliaColors.textSecondaryDark
+                : IntelliaColors.textSecondary,
           ),
         ),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: IntelliaSpacing.xs),
         DropdownButtonFormField<T>(
           initialValue: value,
           items: items,
           onChanged: onChanged,
           validator: validator,
-          dropdownColor: const Color(0xFF0B1F4A),
-          style: const TextStyle(color: Colors.white, fontSize: 15),
-          iconEnabledColor: Colors.white.withValues(alpha: 0.55),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.09),
-            prefixIcon: Icon(
-              prefixIcon,
-              size: 20,
-              color: Colors.white.withValues(alpha: 0.55),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: BorderSide(
-                color: Colors.white.withValues(alpha: 0.20),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: const BorderSide(color: Colors.redAccent),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
-            ),
-            errorStyle: const TextStyle(color: Colors.redAccent),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
-            ),
+          dropdownColor: isDark
+              ? IntelliaColors.surfaceSolidDark
+              : IntelliaColors.surfaceSolid,
+          style: TextStyle(
+            color: isDark
+                ? IntelliaColors.textPrimaryDark
+                : IntelliaColors.textPrimary,
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
           ),
+          iconEnabledColor: isDark
+              ? IntelliaColors.textSecondaryDark
+              : IntelliaColors.textSecondary,
+          decoration: InputDecoration(prefixIcon: Icon(prefixIcon, size: 20)),
         ),
       ],
     );
@@ -830,7 +757,7 @@ class _DarkDropdown<T> extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Dark checkbox tile
+// Checkbox tile
 // ─────────────────────────────────────────────────────────────
 
 class _DarkCheckboxTile extends StatelessWidget {
@@ -846,23 +773,26 @@ class _DarkCheckboxTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AnimatedContainer(
-            duration: AppMotion.fast,
+            duration: IntelliaMotion.fast,
             width: 22,
             height: 22,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(6),
-              gradient: value ? AppGradients.heroNavy : null,
+              gradient: value ? IntelliaGradients.brand : null,
               color: value ? null : Colors.transparent,
               border: Border.all(
                 color: value
-                    ? AppColors.brand
-                    : Colors.white.withValues(alpha: 0.30),
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outline,
                 width: value ? 0 : 1.5,
               ),
             ),
@@ -870,13 +800,15 @@ class _DarkCheckboxTile extends StatelessWidget {
                 ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
                 : null,
           ),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: IntelliaSpacing.md),
           Expanded(
             child: Text(
               label,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.white.withValues(alpha: 0.75),
+                color: isDark
+                    ? IntelliaColors.textSecondaryDark
+                    : IntelliaColors.textSecondary,
                 height: 1.4,
               ),
             ),

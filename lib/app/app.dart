@@ -18,7 +18,10 @@ class Intellia237App extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system,
+      // L'identite INTELLIA237 est volontairement lumineuse sur tous les
+      // parcours d'entree; le theme sombre reste disponible aux ecrans qui
+      // devront le demander explicitement dans une phase ulterieure.
+      themeMode: ThemeMode.light,
       routerConfig: router,
       builder: (context, child) {
         final app = child ?? const SizedBox.shrink();

@@ -5,109 +5,106 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/theme/design_tokens.dart';
 import '../../domain/onboarding_slide_data.dart';
 
-/// Slide cinématographique plein écran.
-/// Photo en fond (BoxFit.cover), double gradient overlay,
-/// titre Playfair Display + sous-titre Manrope en bas.
 class OnboardingSlideView extends StatelessWidget {
   const OnboardingSlideView({required this.data, super.key});
 
   final OnboardingSlideData data;
 
-  bool get _isImage =>
-      data.asset.endsWith('.jpg') ||
-      data.asset.endsWith('.jpeg') ||
-      data.asset.endsWith('.png') ||
-      data.asset.endsWith('.webp');
-
   @override
   Widget build(BuildContext context) {
     final accent = data.accentColor;
+    final isKira = data.asset.contains('kira');
 
     return Stack(
       fit: StackFit.expand,
       children: [
-        // ── Photo plein écran ────────────────────────────────
-        if (_isImage)
-          Image.asset(
-            data.asset,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => _ColorFallback(accent: accent),
-          )
-        else
-          _ColorFallback(accent: accent),
+        // ── Subtle background gradient depending on companion ────
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                IntelliaColors.backgroundPremium,
+                accent.withValues(alpha: 0.08),
+                IntelliaColors.backgroundPrimary,
+              ],
+            ),
+          ),
+        ),
 
-        // ── Gradient overlay top (legibilité barre de progression) ──
+        // ── Radial glow behind companion ──────────────────────────
         Positioned(
-          top: 0,
+          top: MediaQuery.of(context).size.height * 0.15,
           left: 0,
           right: 0,
-          height: 180,
-          child: DecoratedBox(
+          height: 300,
+          child: Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.65),
-                  Colors.transparent,
-                ],
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [accent.withValues(alpha: 0.25), Colors.transparent],
               ),
             ),
           ),
         ),
 
-        // ── Gradient overlay bas (legibilité du texte) ──────
+        // ── Companion Image (BoxFit.contain) ──────────────────────
         Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: MediaQuery.of(context).size.height * 0.55,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.92),
-                  Colors.black.withValues(alpha: 0.60),
-                  Colors.transparent,
-                ],
-                stops: const [0.0, 0.55, 1.0],
-              ),
-            ),
-          ),
+          top: MediaQuery.of(context).size.height * 0.12,
+          left: 40,
+          right: 40,
+          height: 320,
+          child:
+              Image.asset(
+                    data.asset,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, _, _) => Icon(
+                      isKira ? Icons.face_retouching_natural : Icons.face,
+                      size: 120,
+                      color: accent,
+                    ),
+                  )
+                  .animate(key: ValueKey(data.asset))
+                  .fadeIn(duration: 500.ms)
+                  .slideY(
+                    begin: 0.08,
+                    end: 0,
+                    duration: 500.ms,
+                    curve: Curves.easeOutCubic,
+                  ),
         ),
 
-        // ── Texte overlayé en bas ────────────────────────────
+        // ── Text Content ──────────────────────────────────────────
         Positioned(
-          left: AppSpacing.xl,
-          right: AppSpacing.xl,
-          bottom: 0,
+          left: IntelliaSpacing.xl,
+          right: IntelliaSpacing.xl,
+          bottom: MediaQuery.of(context).size.height * 0.18,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Pill accent colorée
+              // Pill brand mark tag
               Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
+                      horizontal: IntelliaSpacing.sm,
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.22),
-                      borderRadius: BorderRadius.circular(99),
-                      border: Border.all(color: accent.withValues(alpha: 0.45)),
+                      color: accent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(IntelliaRadii.full),
+                      border: Border.all(color: accent.withValues(alpha: 0.35)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(data.icon, size: 12, color: accent),
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 6),
                         Text(
                           'INTELLIA237',
                           style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                             color: accent,
                             letterSpacing: 0.5,
                           ),
@@ -116,89 +113,45 @@ class OnboardingSlideView extends StatelessWidget {
                     ),
                   )
                   .animate()
-                  .fadeIn(delay: 100.ms, duration: 400.ms)
-                  .slideY(begin: 0.2, end: 0, delay: 100.ms, duration: 400.ms),
+                  .fadeIn(delay: 150.ms, duration: 400.ms)
+                  .slideY(begin: 0.2, end: 0, delay: 150.ms, duration: 400.ms),
 
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: IntelliaSpacing.md),
 
-              // Titre Playfair Display
+              // Title Playfair Display
               Text(
                     data.title,
                     style: GoogleFonts.playfairDisplay(
-                      fontSize: 38,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.8,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0,
                       height: 1.15,
-                      color: Colors.white,
+                      color: IntelliaColors.textPrimary,
                     ),
                   )
                   .animate()
-                  .fadeIn(delay: 200.ms, duration: 500.ms)
-                  .slideY(begin: 0.15, end: 0, delay: 200.ms, duration: 500.ms),
+                  .fadeIn(delay: 250.ms, duration: 500.ms)
+                  .slideY(begin: 0.15, end: 0, delay: 250.ms, duration: 500.ms),
 
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: IntelliaSpacing.sm),
 
-              // Sous-titre Manrope
+              // Description Montserrat
               Text(
                     data.description,
-                    style: TextStyle(
+                    style: GoogleFonts.montserrat(
                       fontSize: 15,
-                      height: 1.6,
-                      color: Colors.white.withValues(alpha: 0.78),
-                      fontWeight: FontWeight.w400,
+                      height: 1.55,
+                      color: IntelliaColors.textSecondary,
+                      fontWeight: FontWeight.w500,
                     ),
                   )
                   .animate()
                   .fadeIn(delay: 400.ms, duration: 500.ms)
                   .slideY(begin: 0.10, end: 0, delay: 400.ms, duration: 500.ms),
-
-              // Ligne accent colorée sous le texte
-              const SizedBox(height: AppSpacing.lg),
-              Container(
-                width: 40,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: accent,
-                  borderRadius: BorderRadius.circular(1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: accent.withValues(alpha: 0.55),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-              ).animate().fadeIn(delay: 600.ms, duration: 400.ms),
-
-              const SizedBox(height: AppSpacing.xxxl),
             ],
           ),
         ),
       ],
-    );
-  }
-}
-
-// Fallback quand l'image est absente ou en cours de chargement
-class _ColorFallback extends StatelessWidget {
-  const _ColorFallback({required this.accent});
-
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            const Color(0xFF060E22),
-            accent.withValues(alpha: 0.30),
-            const Color(0xFF060E22),
-          ],
-          stops: const [0.0, 0.5, 1.0],
-        ),
-      ),
     );
   }
 }

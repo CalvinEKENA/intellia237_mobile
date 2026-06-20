@@ -23,7 +23,9 @@ final selectedTutorProvider = Provider<TutorPersona?>((ref) {
   final id = ref.watch(selectedTutorIdProvider);
   if (id == null) return null;
   try {
-    return TutorPersona.all.firstWhere((t) => t.id == id);
+    // Les identifiants des anciens compagnons sont resolus via TutorPersona.resolve
+    // pour conserver les preferences deja enregistrees en production.
+    return TutorPersona.resolve(id);
   } catch (_) {
     return null;
   }
