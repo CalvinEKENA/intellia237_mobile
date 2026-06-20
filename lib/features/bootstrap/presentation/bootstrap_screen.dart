@@ -24,10 +24,18 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Precache Kira & Leo companion assets for smooth onboarding transition
-      await Future.wait([
-        precacheImage(const AssetImage('assets/companions/kira.png'), context),
-        precacheImage(const AssetImage('assets/companions/leo.png'), context),
-      ]);
+      try {
+        await Future.wait([
+          precacheImage(
+            const AssetImage('assets/companions/kira.png'),
+            context,
+          ),
+          precacheImage(const AssetImage('assets/companions/leo.png'), context),
+        ]);
+      } catch (error, stackTrace) {
+        debugPrint('Non-critical asset precaching failed: $error');
+        debugPrintStack(stackTrace: stackTrace);
+      }
       if (mounted) {
         await ref.read(authControllerProvider.notifier).completeBootstrap();
       }
