@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -7,8 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/gradient_button.dart';
-import '../../../core/widgets/liquid_background.dart';
+import '../../../core/widgets/intellia_scaffold.dart';
+import '../../../core/widgets/intellia_buttons.dart';
+import '../../../core/widgets/intellia_card.dart';
 import '../domain/app_role.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -30,11 +29,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           SnackBar(
             content: const Text('Sélectionnez un profil pour continuer.'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.red.shade700,
+            backgroundColor: Theme.of(context).colorScheme.error,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
             ),
-            margin: const EdgeInsets.all(AppSpacing.md),
+            margin: const EdgeInsets.all(IntelliaSpacing.md),
           ),
         );
       return;
@@ -52,136 +51,87 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF060E22),
-      body: LiquidBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
-              // ── Barre supérieure ──────────────────────────────
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xs,
-                  vertical: AppSpacing.xs,
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: const Icon(
-                        Icons.arrow_back_rounded,
-                        color: Colors.white,
-                      ),
-                      tooltip: 'Retour',
-                    ),
-                    const Spacer(),
-                    Text(
-                      'Choix du parcours',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const Spacer(),
-                    const SizedBox(width: 48),
-                  ],
-                ),
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return IntelliaScaffold(
+      usePremiumBackground: true,
+      showTopHalo: true,
+      appBar: AppBar(
+        leading: IntelliaIconButton(
+          icon: Icons.arrow_back_rounded,
+          backgroundColor: Colors.transparent,
+          onTap: () => context.pop(),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: IntelliaSpacing.lg,
+          vertical: IntelliaSpacing.md,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: IntelliaSpacing.md),
+
+            Text(
+              'Quel est\nvotre profil ?',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 34,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0,
+                height: 1.15,
+                color: isDark
+                    ? IntelliaColors.textPrimaryDark
+                    : IntelliaColors.textPrimary,
               ),
+            ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0),
 
-              // ── Contenu scrollable ────────────────────────────
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xl,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: AppSpacing.md),
-
-                      // Titre
-                      Text(
-                            'Quel est\nvotre profil ?',
-                            style: GoogleFonts.playfairDisplay(
-                              fontSize: 34,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
-                              height: 1.15,
-                              color: Colors.white,
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(duration: 500.ms)
-                          .slideY(begin: 0.1, end: 0),
-
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        'Choisissez votre profil pour accéder\nà une expérience personnalisée.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          height: 1.5,
-                          color: Colors.white.withValues(alpha: 0.60),
-                        ),
-                      ).animate(delay: 100.ms).fadeIn(duration: 400.ms),
-
-                      const SizedBox(height: AppSpacing.xl),
-
-                      // Cartes de rôle
-                      ...AppRole.values.indexed.map(
-                        (entry) => Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                          child:
-                              _RoleCard(
-                                    role: entry.$2,
-                                    isSelected: _selectedRole == entry.$2,
-                                    onTap: () => setState(
-                                      () => _selectedRole = entry.$2,
-                                    ),
-                                  )
-                                  .animate(delay: (200 + entry.$1 * 100).ms)
-                                  .fadeIn(duration: 400.ms)
-                                  .slideX(begin: 0.06, end: 0),
-                        ),
-                      ),
-
-                      const SizedBox(height: AppSpacing.xl),
-
-                      // Bouton continuer
-                      SizedBox(
-                        width: double.infinity,
-                        child: GradientButton(
-                          onPressed: _selectedRole != null ? _continue : null,
-                          gradient: _selectedRole != null
-                              ? AppGradients.forRole(_selectedRole!)
-                              : AppGradients.heroNavy,
-                          child: const Text(
-                            'Continuer',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ).animate(delay: 600.ms).fadeIn(duration: 400.ms),
-
-                      const SizedBox(height: AppSpacing.xl),
-                    ],
-                  ),
-                ),
+            const SizedBox(height: IntelliaSpacing.xs),
+            Text(
+              'Choisissez votre profil pour accéder à une expérience personnalisée.',
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: isDark
+                    ? IntelliaColors.textSecondaryDark
+                    : IntelliaColors.textSecondary,
               ),
-            ],
-          ),
+            ).animate(delay: 100.ms).fadeIn(duration: 400.ms),
+
+            const SizedBox(height: IntelliaSpacing.xl),
+
+            // Role selection cards
+            ...AppRole.values.indexed.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.only(bottom: IntelliaSpacing.md),
+                child:
+                    _RoleCard(
+                          role: entry.$2,
+                          isSelected: _selectedRole == entry.$2,
+                          onTap: () => setState(() => _selectedRole = entry.$2),
+                        )
+                        .animate(delay: (200 + entry.$1 * 100).ms)
+                        .fadeIn(duration: 400.ms)
+                        .slideX(begin: 0.04, end: 0),
+              ),
+            ),
+
+            const SizedBox(height: IntelliaSpacing.xl),
+
+            // Continue CTA
+            IntelliaPrimaryButton(
+              onTap: _selectedRole != null ? _continue : null,
+              child: const Text('Continuer'),
+            ).animate(delay: 600.ms).fadeIn(duration: 400.ms),
+
+            const SizedBox(height: IntelliaSpacing.xl),
+          ],
         ),
       ),
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────
-// Carte de rôle immersive (largeur full, hauteur 96dp)
-// ─────────────────────────────────────────────────────────────
 
 class _RoleCard extends StatelessWidget {
   const _RoleCard({
@@ -217,114 +167,121 @@ class _RoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final roleColor = AppRoleColors.byRole(role);
-    final gradient = AppGradients.forRole(role);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: AppMotion.fast,
-        curve: AppMotion.emphasizedDecelerate,
-        height: 96,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          gradient: LinearGradient(
-            colors: [
-              gradient.colors.first.withValues(alpha: isSelected ? 0.30 : 0.08),
-              gradient.colors.last.withValues(alpha: isSelected ? 0.20 : 0.04),
+    final roleColor = switch (role) {
+      AppRole.student => IntelliaColors.brandIndigo,
+      AppRole.parent => IntelliaColors.brandPurple,
+      AppRole.teacher => IntelliaColors.success,
+      AppRole.admin => IntelliaColors.error,
+    };
+
+    final roleGradient = switch (role) {
+      AppRole.student => IntelliaGradients.leo,
+      AppRole.parent => IntelliaGradients.kira,
+      AppRole.teacher => const LinearGradient(
+        colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
+      ),
+      AppRole.admin => const LinearGradient(
+        colors: [Color(0xFFBE123C), Color(0xFFF43F5E)],
+      ),
+    };
+
+    return IntelliaCard(
+      variant: isSelected
+          ? IntelliaCardVariant.elevated
+          : IntelliaCardVariant.solid,
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(IntelliaRadii.large),
+        child: Container(
+          height: 96,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(IntelliaRadii.large),
+            border: isSelected
+                ? Border.all(color: roleColor, width: 2.0)
+                : Border.all(color: theme.colorScheme.outline, width: 0.8),
+            gradient: isSelected
+                ? LinearGradient(
+                    colors: [
+                      roleColor.withValues(alpha: 0.15),
+                      roleColor.withValues(alpha: 0.05),
+                    ],
+                  )
+                : null,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: IntelliaSpacing.md,
+            vertical: IntelliaSpacing.sm,
+          ),
+          child: Row(
+            children: [
+              // Icon Badge
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  gradient: roleGradient,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(_icon, size: 26, color: Colors.white),
+              ),
+              const SizedBox(width: IntelliaSpacing.md),
+
+              // Title and Description
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _label,
+                      style: TextStyle(
+                        color: isDark
+                            ? IntelliaColors.textPrimaryDark
+                            : IntelliaColors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _description,
+                      style: TextStyle(
+                        color: isDark
+                            ? IntelliaColors.textSecondaryDark
+                            : IntelliaColors.textSecondary,
+                        fontSize: 12,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Check selector icon
+              AnimatedOpacity(
+                duration: IntelliaMotion.fast,
+                opacity: isSelected ? 1.0 : 0.0,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: roleColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_rounded,
+                    size: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ],
-          ),
-          border: Border.all(
-            color: isSelected
-                ? roleColor.withValues(alpha: 0.80)
-                : Colors.white.withValues(alpha: 0.12),
-            width: isSelected ? 1.8 : 1.0,
-          ),
-          boxShadow: isSelected
-              ? AppShadows.glow(roleColor, intensity: 0.20)
-              : null,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
-              child: Row(
-                children: [
-                  // Icône badge
-                  AnimatedContainer(
-                    duration: AppMotion.fast,
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      gradient: isSelected
-                          ? gradient
-                          : LinearGradient(
-                              colors: [
-                                roleColor.withValues(alpha: 0.20),
-                                roleColor.withValues(alpha: 0.10),
-                              ],
-                            ),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Icon(_icon, size: 26, color: Colors.white),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-
-                  // Texte
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _label,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: isSelected
-                                ? FontWeight.w700
-                                : FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _description,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.60),
-                            fontSize: 12,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Check icon
-                  AnimatedOpacity(
-                    duration: AppMotion.fast,
-                    opacity: isSelected ? 1.0 : 0.0,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: roleColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ),
       ),

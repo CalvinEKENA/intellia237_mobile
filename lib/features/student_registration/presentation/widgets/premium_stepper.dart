@@ -1,7 +1,4 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 
@@ -17,61 +14,48 @@ class PremiumStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-          ),
-          child: Column(
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: IntelliaSpacing.md,
+        vertical: IntelliaSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: isDark
+            ? IntelliaColors.surfaceSolidDark
+            : IntelliaColors.surfaceSolid,
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.15)
+              : IntelliaColors.backgroundSecondary,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  for (int i = 0; i < labels.length; i++) ...[
-                    _StepCircle(index: i, currentStep: currentStep),
-                    if (i < labels.length - 1)
-                      Expanded(
-                        child: _StepConnector(isCompleted: i < currentStep),
-                      ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              AnimatedSwitcher(
-                duration: AppMotion.medium,
-                switchInCurve: AppMotion.emphasizedDecelerate,
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0, 0.3),
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: child,
-                  ),
-                ),
-                child: Text(
-                  labels[currentStep],
-                  key: ValueKey(currentStep),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
+              for (int i = 0; i < labels.length; i++) ...[
+                _StepCircle(index: i, currentStep: currentStep),
+                if (i < labels.length - 1)
+                  Expanded(child: _StepConnector(isCompleted: i < currentStep)),
+              ],
             ],
           ),
-        ),
+          const SizedBox(height: IntelliaSpacing.xs),
+          Text(
+            labels[currentStep],
+            style: TextStyle(
+              color: isDark
+                  ? IntelliaColors.textPrimaryDark
+                  : IntelliaColors.textPrimary,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -85,62 +69,46 @@ class _StepCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final isCompleted = index < currentStep;
     final isCurrent = index == currentStep;
-
-    if (isCompleted) {
-      return Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: AppGradients.heroGold,
-              shape: BoxShape.circle,
-              boxShadow: AppShadows.glow(AppColors.gold, intensity: 0.35),
-            ),
-            child: const Icon(
-              Icons.check_rounded,
-              size: 18,
-              color: Colors.white,
-            ),
-          )
-          .animate()
-          .scale(
-            begin: const Offset(0.7, 0.7),
-            end: const Offset(1.0, 1.0),
-            duration: AppMotion.medium,
-            curve: AppMotion.spring,
-          )
-          .fadeIn(duration: AppMotion.fast);
-    }
-
+    final borderSecondary = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : IntelliaColors.backgroundSecondary;
+    final color = isCompleted || isCurrent
+        ? IntelliaColors.brandIndigo
+        : borderSecondary;
     return AnimatedContainer(
-      duration: AppMotion.medium,
-      curve: AppMotion.emphasizedDecelerate,
-      width: 36,
-      height: 36,
+      duration: IntelliaMotion.medium,
+      width: 32,
+      height: 32,
       decoration: BoxDecoration(
+        color: isCompleted
+            ? IntelliaColors.brandIndigo
+            : isCurrent
+            ? IntelliaColors.brandIndigo.withValues(alpha: 0.1)
+            : (isDark
+                  ? IntelliaColors.surfaceSolidDark
+                  : IntelliaColors.surfaceSolid),
         shape: BoxShape.circle,
-        color: isCurrent
-            ? Colors.white.withValues(alpha: 0.12)
-            : Colors.transparent,
-        border: Border.all(
-          color: isCurrent
-              ? AppColors.gold
-              : Colors.white.withValues(alpha: 0.25),
-          width: isCurrent ? 2.0 : 1.5,
-        ),
+        border: Border.all(color: color, width: 1.5),
       ),
       child: Center(
-        child: Text(
-          '${index + 1}',
-          style: TextStyle(
-            color: isCurrent
-                ? Colors.white
-                : Colors.white.withValues(alpha: 0.45),
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        child: isCompleted
+            ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+            : Text(
+                '${index + 1}',
+                style: TextStyle(
+                  color: isCurrent
+                      ? IntelliaColors.brandIndigo
+                      : (isDark
+                            ? IntelliaColors.textSecondaryDark
+                            : IntelliaColors.textSecondary),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
       ),
     );
   }
@@ -153,28 +121,16 @@ class _StepConnector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final borderSecondary = isDark
+        ? Colors.white.withValues(alpha: 0.15)
+        : IntelliaColors.backgroundSecondary;
+
     return Container(
       height: 2,
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(1),
-        color: Colors.white.withValues(alpha: 0.15),
-      ),
-      child: isCompleted
-          ? LayoutBuilder(
-              builder: (context, constraints) {
-                return AnimatedContainer(
-                  duration: AppMotion.slow,
-                  curve: AppMotion.emphasizedDecelerate,
-                  width: constraints.maxWidth,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(1),
-                    gradient: AppGradients.heroGold,
-                  ),
-                );
-              },
-            )
-          : const SizedBox.shrink(),
+      margin: const EdgeInsets.symmetric(horizontal: IntelliaSpacing.xs),
+      color: isCompleted ? IntelliaColors.brandIndigo : borderSecondary,
     );
   }
 }

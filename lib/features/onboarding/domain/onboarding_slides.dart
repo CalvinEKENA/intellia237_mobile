@@ -3,45 +3,40 @@ import 'package:flutter/material.dart';
 import '../../../app/theme/design_tokens.dart';
 import 'onboarding_slide_data.dart';
 
-/// Les 4 slides cinématographiques de l'onboarding INTELLIA237.
-/// Chaque slide s'affiche 6 secondes avant d'avancer automatiquement.
+/// Les 4 slides de l'onboarding Story d'INTELLIA237.
 abstract final class OnboardingSlides {
   static const slides = <OnboardingSlideData>[
     OnboardingSlideData(
-      title: 'Bienvenue sur\nINTELLIA237',
+      title: 'Tes grandes vacances\ncommencent ici',
       description:
-          'La plateforme d\'excellence scolaire pensée\n'
-          'pour les élèves camerounais.',
-      asset: 'assets/onboarding/slide_1.jpg',
-      icon: Icons.auto_awesome_rounded,
-      accentColor: AppColors.brand,
+          'Révise, découvre et prends de l’avance, sans transformer tes vacances en salle de classe.',
+      asset: 'assets/companions/kira.png',
+      icon: Icons.wb_sunny_rounded,
+      accentColor: IntelliaColors.brandPurple,
     ),
     OnboardingSlideData(
-      title: 'BEPC · Probatoire\nBaccalauréat',
+      title: 'Un parcours\nà ton rythme',
       description:
-          'Prépare avec sérieux les examens officiels\n'
-          'du Cameroun — séries A, C et D.',
-      asset: 'assets/onboarding/slide_2.jpg',
-      icon: Icons.school_rounded,
-      accentColor: AppColors.gold,
+          'Des missions courtes, adaptées à ta classe, pour renforcer l’essentiel et préparer la suite.',
+      asset: 'assets/companions/leo.png',
+      icon: Icons.directions_run_rounded,
+      accentColor: IntelliaColors.brandIndigo,
     ),
     OnboardingSlideData(
-      title: 'Ton compagnon\npédagogique',
+      title: 'Kira explique.\nLéo te challenge.',
       description:
-          'Un compagnon pédagogique disponible 24h/24 pour répondre\n'
-          'à toutes tes questions scolaires.',
-      asset: 'assets/onboarding/slide_3.jpg',
+          'Choisis l’accompagnement dont tu as besoin : comprendre calmement ou te dépasser.',
+      asset: 'assets/companions/kira.png',
       icon: Icons.psychology_rounded,
-      accentColor: AppColors.accent,
+      accentColor: IntelliaColors.brandPurple,
     ),
     OnboardingSlideData(
-      title: 'Rejoins la\ncommunauté',
+      title: 'Prêt pour ta\nprochaine classe ?',
       description:
-          'Des milliers d\'élèves progressent chaque jour.\n'
-          'C\'est ton tour d\'exceller.',
-      asset: 'assets/onboarding/slide_4.jpg',
-      icon: Icons.groups_rounded,
-      accentColor: AppColors.parent,
+          'Avance dans le Flow, relève les défis de l’Arena et regarde tes progrès grandir.',
+      asset: 'assets/companions/leo.png',
+      icon: Icons.rocket_launch_rounded,
+      accentColor: IntelliaColors.brandIndigo,
     ),
   ];
 }

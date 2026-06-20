@@ -19,9 +19,11 @@ Future<void> bootstrap({
     'with Firebase project ${config.firebaseProjectId}.',
   );
 
-  // Pre-load fonts to prevent flash of unstyled text
+  // Keep first launch readable offline; Google Fonts falls back to system fonts.
+  GoogleFonts.config.allowRuntimeFetching = false;
   await GoogleFonts.pendingFonts([
     GoogleFonts.playfairDisplay(),
+    GoogleFonts.montserrat(),
     GoogleFonts.manrope(),
   ]);
 

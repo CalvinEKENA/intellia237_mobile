@@ -1,6 +1,7 @@
 import 'academic_rules.dart';
 import 'learning_goal.dart';
 import 'school_establishment.dart';
+import '../../tutor/domain/tutor_persona.dart';
 
 class StudentRegistrationPayload {
   const StudentRegistrationPayload({
@@ -37,6 +38,9 @@ class StudentRegistrationPayload {
   final bool acceptedPrivacy;
   final bool acceptedDataPolicy;
 
+  String? get _normalizedTutorId =>
+      selectedTutorId == null ? null : TutorPersona.resolveId(selectedTutorId);
+
   Map<String, dynamic> toUserDocument({
     required String uid,
     required DateTime now,
@@ -50,7 +54,7 @@ class StudentRegistrationPayload {
       'establishmentId': establishment.id,
       'classLevel': schoolClass.label,
       'series': schoolSeries?.label,
-      'tutorId': selectedTutorId,
+      'tutorId': _normalizedTutorId,
       'profileCompleted': true,
       'tourGuideSeen': false,
       'createdAt': now.toUtc(),
@@ -78,7 +82,7 @@ class StudentRegistrationPayload {
         'best': 0,
         'lastStudyDate': null,
       },
-      'tutorId': selectedTutorId,
+      'tutorId': _normalizedTutorId,
       'preferences': <String, dynamic>{
         'preferredSubjects': preferredSubjects,
         'difficultSubjects': difficultSubjects,

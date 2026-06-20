@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
-/// Statistique d'un tuteur (ex: niveau en Maths).
+/// Indicateur pedagogique presente dans la fiche d'un compagnon.
 class TutorStat {
   TutorStat({required this.label, required this.value, required this.icon});
 
   final String label;
-  final double value; // 0.0 – 1.0
+  final double value;
   final IconData icon;
 }
 
-/// Personnage tuteur que l'élève choisit comme guide IA.
+/// Les compagnons d'etude officiels INTELLIA237.
+///
+/// Les anciennes personas liees a un examen sont volontairement absentes :
+/// Kira et Leo accompagnent tous les parcours. Le champ [level] est conserve
+/// pour la compatibilite des profils et routes deja en production.
 class TutorPersona {
   TutorPersona({
     required this.id,
@@ -30,11 +34,8 @@ class TutorPersona {
   final String id;
   final String name;
   final int age;
-
-  /// 'bepc' | 'proba' | 'bac'
   final String level;
   final String levelLabel;
-
   final String imagePath;
   final String motto;
   final String personality;
@@ -44,174 +45,121 @@ class TutorPersona {
   final Color accentColor;
   final List<Color> gradientColors;
 
-  // ── Catalogue complet des 6 tuteurs ───────────────────────────
-  // Utilise `final` (pas `const`) car les listes de stats internes
-  // ne sont pas des expressions constantes de compilation.
+  static const Map<String, String> _legacyIdAliases = {
+    'kira': 'kira',
+    'leo': 'leo',
+    'léo': 'leo',
+    'ethan': 'leo',
+    'armel': 'leo',
+    'nathan': 'leo',
+    'grace': 'kira',
+    'grâce': 'kira',
+    'cynthia': 'kira',
+    'marianne': 'kira',
+  };
+
   static final List<TutorPersona> all = [
-    // ── BEPC ──────────────────────────────────────────────────
     TutorPersona(
-      id: 'ethan',
-      name: 'Ethan Mballa',
-      age: 15,
-      level: 'bepc',
-      levelLabel: 'BEPC',
-      imagePath: 'assets/tutors/bepc_boy.jpg',
-      motto: '"La curiosité est la première clé du savoir."',
-      personality: 'Curieux & Enthousiaste',
-      specialty: 'Mathématiques',
+      id: 'kira',
+      name: 'Kira',
+      age: 17,
+      level: 'all',
+      levelLabel: 'Tous niveaux',
+      imagePath: 'assets/companions/kira.png',
+      motto: '"Apprenons avec calme et sérénité."',
+      personality: 'Patiente & Explicative',
+      specialty: 'Méthodologie & Accompagnement',
       bio:
-          'Passionné par les chiffres et les sciences, Ethan transforme '
-          'chaque problème en véritable aventure intellectuelle.',
+          'Kira t\'accompagne pas à pas pour surmonter les difficultés scolaires avec douceur et patience.',
       stats: [
-        TutorStat(label: 'Maths', value: 0.95, icon: Icons.calculate_rounded),
-        TutorStat(label: 'Sciences', value: 0.80, icon: Icons.science_rounded),
-        TutorStat(
-          label: 'Français',
-          value: 0.65,
-          icon: Icons.menu_book_rounded,
-        ),
-        TutorStat(label: 'Histoire', value: 0.70, icon: Icons.public_rounded),
-      ],
-      accentColor: Color(0xFF1451E1),
-      gradientColors: [Color(0xFF0B1F4A), Color(0xFF1451E1)],
-    ),
-    TutorPersona(
-      id: 'grace',
-      name: 'Grâce Nkono',
-      age: 15,
-      level: 'bepc',
-      levelLabel: 'BEPC',
-      imagePath: 'assets/tutors/bepc_girl.jpg',
-      motto: '"Chaque effort planté aujourd\'hui fleurit demain."',
-      personality: 'Déterminée & Empathique',
-      specialty: 'Français & Littérature',
-      bio:
-          'Grâce croit que les mots ont le pouvoir de changer le monde. '
-          'Elle guide avec douceur, précision et une bienveillance sans limite.',
-      stats: [
+        TutorStat(label: 'Maths', value: 0.90, icon: Icons.calculate_rounded),
+        TutorStat(label: 'Sciences', value: 0.88, icon: Icons.science_rounded),
         TutorStat(
           label: 'Français',
           value: 0.95,
           icon: Icons.menu_book_rounded,
         ),
-        TutorStat(label: 'Histoire', value: 0.85, icon: Icons.public_rounded),
-        TutorStat(label: 'Anglais', value: 0.80, icon: Icons.language_rounded),
-        TutorStat(label: 'Maths', value: 0.60, icon: Icons.calculate_rounded),
+        TutorStat(label: 'Anglais', value: 0.92, icon: Icons.language_rounded),
       ],
-      accentColor: Color(0xFF7C3AED),
-      gradientColors: [Color(0xFF3B0764), Color(0xFF7C3AED)],
+      accentColor: const Color(0xFFAF52DE),
+      gradientColors: const [Color(0xFFFF9ECD), Color(0xFFAF52DE)],
     ),
-
-    // ── Probatoire ─────────────────────────────────────────────
     TutorPersona(
-      id: 'armel',
-      name: 'Armel Fogue',
+      id: 'leo',
+      name: 'Léo',
       age: 17,
-      level: 'proba',
-      levelLabel: 'Probatoire',
-      imagePath: 'assets/tutors/proba_boy.jpg',
-      motto: '"La rigueur est la mère de l\'excellence."',
-      personality: 'Analytique & Méthodique',
-      specialty: 'Physique-Chimie',
+      level: 'all',
+      levelLabel: 'Tous niveaux',
+      imagePath: 'assets/companions/leo.png',
+      motto: '"Dépasse tes limites et bats tes records !"',
+      personality: 'Dynamique & Challengeur',
+      specialty: 'Défis & Performance',
       bio:
-          'Armel décortique les phénomènes avec une précision d\'orfèvre. '
-          'Aucun problème de sciences ne lui résiste plus de cinq minutes.',
+          'Léo te propose des challenges stimulants et t\'encourage à te dépasser pour exceller dans toutes les matières.',
       stats: [
-        TutorStat(label: 'Physique', value: 0.95, icon: Icons.science_rounded),
-        TutorStat(label: 'Maths', value: 0.90, icon: Icons.calculate_rounded),
-        TutorStat(label: 'Chimie', value: 0.88, icon: Icons.biotech_rounded),
+        TutorStat(label: 'Maths', value: 0.95, icon: Icons.calculate_rounded),
+        TutorStat(label: 'Sciences', value: 0.92, icon: Icons.science_rounded),
         TutorStat(
           label: 'Français',
-          value: 0.55,
+          value: 0.80,
           icon: Icons.menu_book_rounded,
         ),
+        TutorStat(label: 'Anglais', value: 0.85, icon: Icons.language_rounded),
       ],
-      accentColor: Color(0xFF0F766E),
-      gradientColors: [Color(0xFF042F2E), Color(0xFF0F766E)],
-    ),
-    TutorPersona(
-      id: 'cynthia',
-      name: 'Cynthia Bella',
-      age: 17,
-      level: 'proba',
-      levelLabel: 'Probatoire',
-      imagePath: 'assets/tutors/proba_girl.jpg',
-      motto: '"L\'intelligence sans passion n\'est que mécanique."',
-      personality: 'Créative & Polyvalente',
-      specialty: 'Langues & Culture',
-      bio:
-          'Cynthia jongle entre les disciplines avec une aisance naturelle. '
-          'Elle inspire confiance en soi à chaque session d\'étude.',
-      stats: [
-        TutorStat(label: 'Anglais', value: 0.95, icon: Icons.language_rounded),
-        TutorStat(
-          label: 'Français',
-          value: 0.90,
-          icon: Icons.menu_book_rounded,
-        ),
-        TutorStat(label: 'Histoire', value: 0.82, icon: Icons.public_rounded),
-        TutorStat(label: 'Maths', value: 0.65, icon: Icons.calculate_rounded),
-      ],
-      accentColor: Color(0xFFF5A623),
-      gradientColors: [Color(0xFF78350F), Color(0xFFF5A623)],
-    ),
-
-    // ── Baccalauréat ───────────────────────────────────────────
-    TutorPersona(
-      id: 'nathan',
-      name: 'Nathan Fouda',
-      age: 18,
-      level: 'bac',
-      levelLabel: 'Baccalauréat',
-      imagePath: 'assets/tutors/bac_boy.jpg',
-      motto: '"Viser les étoiles, même si on atterrit sur la lune."',
-      personality: 'Leader & Visionnaire',
-      specialty: 'Sciences & Philosophie',
-      bio:
-          'Nathan aborde le Bac avec la sérénité d\'un chef. Il transforme '
-          'la pression en carburant et inspire ceux qui l\'entourent.',
-      stats: [
-        TutorStat(label: 'Maths', value: 0.92, icon: Icons.calculate_rounded),
-        TutorStat(label: 'Philo', value: 0.88, icon: Icons.lightbulb_rounded),
-        TutorStat(label: 'Sciences', value: 0.85, icon: Icons.science_rounded),
-        TutorStat(
-          label: 'Français',
-          value: 0.78,
-          icon: Icons.menu_book_rounded,
-        ),
-      ],
-      accentColor: Color(0xFF3B82F6),
-      gradientColors: [Color(0xFF0B1F4A), Color(0xFF3B82F6)],
-    ),
-    TutorPersona(
-      id: 'marianne',
-      name: 'Marianne Ndoumbe',
-      age: 18,
-      level: 'bac',
-      levelLabel: 'Baccalauréat',
-      imagePath: 'assets/tutors/bac_girl.jpg',
-      motto:
-          '"L\'excellence n\'est pas un accident, c\'est un choix quotidien."',
-      personality: 'Brillante & Ambitieuse',
-      specialty: 'Sciences & Mathématiques',
-      bio:
-          'Marianne est la définition de l\'élève accomplie. Avec elle, '
-          'la réussite au Bac devient une évidence mathématique.',
-      stats: [
-        TutorStat(label: 'Maths', value: 0.98, icon: Icons.calculate_rounded),
-        TutorStat(label: 'Sciences', value: 0.95, icon: Icons.science_rounded),
-        TutorStat(
-          label: 'Français',
-          value: 0.82,
-          icon: Icons.menu_book_rounded,
-        ),
-        TutorStat(label: 'Anglais', value: 0.80, icon: Icons.language_rounded),
-      ],
-      accentColor: Color(0xFFBE123C),
-      gradientColors: [Color(0xFF4C0519), Color(0xFFBE123C)],
+      accentColor: const Color(0xFF5856D6),
+      gradientColors: const [Color(0xFF5AC8FA), Color(0xFF5856D6)],
     ),
   ];
 
-  static List<TutorPersona> byLevel(String level) =>
-      all.where((t) => t.level == level).toList();
+  /// Les anciens filtres BEPC/Probatoire/Bac restent acceptes par les routes,
+  /// mais chaque parcours presente desormais les deux compagnons.
+  static List<TutorPersona> byLevel(String _) => List.unmodifiable(all);
+
+  /// Convertit toute valeur deja stockee en production vers un compagnon
+  /// officiel. Les anciennes personas ne sont pas migrees en base : elles sont
+  /// seulement resolues en lecture pour eviter une rupture d'affichage.
+  static TutorPersona resolve(Object? value, {TutorPersona? fallback}) {
+    final id = resolveId(value);
+    return all.firstWhere(
+      (persona) => persona.id == id,
+      orElse: () => fallback ?? all.first,
+    );
+  }
+
+  static TutorPersona fromJson(Object? json) => resolve(json);
+
+  static String resolveId(Object? value, {String fallbackId = 'kira'}) {
+    final rawId = _readId(value);
+    if (rawId == null) return fallbackId;
+    return _legacyIdAliases[_normalizeId(rawId)] ?? fallbackId;
+  }
+
+  static String? _readId(Object? value) {
+    if (value is String) return value;
+    if (value is Map) {
+      for (final key in const ['id', 'tutorId', 'personaId', 'companion']) {
+        final candidate = value[key];
+        if (candidate is String && candidate.trim().isNotEmpty) {
+          return candidate;
+        }
+      }
+    }
+    return null;
+  }
+
+  static String _normalizeId(String value) => value
+      .trim()
+      .toLowerCase()
+      .replaceAll('é', 'e')
+      .replaceAll('è', 'e')
+      .replaceAll('ê', 'e')
+      .replaceAll('ë', 'e')
+      .replaceAll('à', 'a')
+      .replaceAll('â', 'a')
+      .replaceAll('î', 'i')
+      .replaceAll('ï', 'i')
+      .replaceAll('ô', 'o')
+      .replaceAll('ù', 'u')
+      .replaceAll('û', 'u')
+      .replaceAll('ç', 'c');
 }

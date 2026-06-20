@@ -32,8 +32,8 @@ class TutorSelectionScreen extends StatefulWidget {
   /// ID du tuteur déjà sélectionné (depuis le profil).
   final String? initialTutorId;
 
-  /// Si défini, masque les onglets de niveau et filtre sur ce niveau uniquement.
-  /// Valeurs possibles : 'bepc', 'proba', 'bac'.
+  /// Conserve les anciens liens de parcours sans modifier la liste de
+  /// compagnons, qui est identique pour tous les niveaux.
   final String? filterLevel;
 
   /// Optionnel — affiche un bouton "Passer" (inscription).
@@ -71,17 +71,15 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
 
     // Déterminer le niveau + index initial si un tuteur est déjà choisi.
     if (widget.initialTutorId != null) {
-      final idx = TutorPersona.all.indexWhere(
-        (t) => t.id == widget.initialTutorId,
-      );
+      final resolvedId = TutorPersona.resolveId(widget.initialTutorId);
+      final idx = TutorPersona.all.indexWhere((t) => t.id == resolvedId);
       if (idx != -1) {
         final tutor = TutorPersona.all[idx];
         if (widget.filterLevel == null) {
-          _selectedLevelIndex = _levels.indexWhere((l) => l.$1 == tutor.level);
+          final levelIndex = _levels.indexWhere((l) => l.$1 == tutor.level);
+          if (levelIndex != -1) _selectedLevelIndex = levelIndex;
         }
-        _currentIndex = _currentTutors.indexWhere(
-          (t) => t.id == widget.initialTutorId,
-        );
+        _currentIndex = _currentTutors.indexWhere((t) => t.id == resolvedId);
         if (_currentIndex < 0) _currentIndex = 0;
       }
     }
@@ -139,7 +137,7 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
                   selectedLevelIndex: _selectedLevelIndex,
                   levels: _levels,
                   onLevelSelected: _switchLevel,
-                  showTabs: widget.filterLevel == null,
+                  showTabs: false,
                   onSkip: widget.onSkip,
                 ),
 
@@ -688,7 +686,7 @@ class _StatsPanel extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '${tutor.age} ans  •  ${tutor.personality}',
+                              tutor.personality,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.white.withValues(alpha: 0.60),
@@ -824,13 +822,7 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
   // Segments typed in order
   List<String> get _segments {
     final t = widget.tutor;
-    return [
-      t.name,
-      '${t.age} ans  •  ${t.personality}',
-      t.specialty,
-      t.bio,
-      t.motto,
-    ];
+    return [t.name, t.personality, t.specialty, t.bio, t.motto];
   }
 
   int get _totalChars => _segments.fold(0, (s, e) => s + e.length);
