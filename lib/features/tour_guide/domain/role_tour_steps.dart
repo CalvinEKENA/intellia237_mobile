@@ -73,13 +73,6 @@ List<TourGuideStepData> roleTourSteps(AppRole role) {
         icon: Icons.family_restroom_rounded,
       ),
       TourGuideStepData(
-        targetId: TourGuideTargetIds.roleSwitcher,
-        title: 'Switch de role',
-        description:
-            'Zone de test du routing role-based pendant le developpement.',
-        icon: Icons.swap_horiz_rounded,
-      ),
-      TourGuideStepData(
         targetId: TourGuideTargetIds.roleSignOut,
         title: 'Deconnexion',
         description: 'Quitte la session en toute securite.',
@@ -94,12 +87,6 @@ List<TourGuideStepData> roleTourSteps(AppRole role) {
         icon: Icons.school_rounded,
       ),
       TourGuideStepData(
-        targetId: TourGuideTargetIds.roleSwitcher,
-        title: 'Switch de role',
-        description: 'Permet de valider rapidement les flux de navigation.',
-        icon: Icons.swap_horiz_rounded,
-      ),
-      TourGuideStepData(
         targetId: TourGuideTargetIds.roleSignOut,
         title: 'Deconnexion',
         description: 'Termine proprement la session active.',
@@ -112,12 +99,6 @@ List<TourGuideStepData> roleTourSteps(AppRole role) {
         title: 'Espace Administration',
         description: 'Acces principal pour pilotage et supervision globale.',
         icon: Icons.admin_panel_settings_rounded,
-      ),
-      TourGuideStepData(
-        targetId: TourGuideTargetIds.roleSwitcher,
-        title: 'Switch de role',
-        description: 'Utile pour verifier rapidement les parcours role-based.',
-        icon: Icons.swap_horiz_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.roleSignOut,

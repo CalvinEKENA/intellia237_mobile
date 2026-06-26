@@ -55,6 +55,29 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
           ),
         ),
         data: (dashboard) {
+          if (dashboard.children.isEmpty) {
+            _scheduleTourGuide();
+            return SafeArea(
+              bottom: false,
+              child: IndexedStack(
+                index: _tabIndex,
+                children: [
+                  _EmptyParentHomeTab(
+                    announcements: dashboard.announcements,
+                    heroKey: _tourTargets[TourGuideTargetIds.roleHero],
+                  ),
+                  const _ChildrenTab(children: []),
+                  _AnnouncementsTab(announcements: dashboard.announcements),
+                  _ProfileTab(
+                    onSignOut: () =>
+                        ref.read(authControllerProvider.notifier).signOut(),
+                    signOutKey: _tourTargets[TourGuideTargetIds.roleSignOut],
+                  ),
+                ],
+              ),
+            );
+          }
+
           _selectedChildId ??= dashboard.children.isNotEmpty
               ? dashboard.children.first.id
               : null;
@@ -291,6 +314,93 @@ class _ParentHomeTab extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         for (final ann in dashboard.announcements.take(3)) ...[
+          _AnnouncementCard(announcement: ann),
+          const SizedBox(height: AppSpacing.xs),
+        ],
+      ],
+    );
+  }
+}
+
+class _EmptyParentHomeTab extends StatelessWidget {
+  const _EmptyParentHomeTab({required this.announcements, this.heroKey});
+
+  final List<ParentAnnouncement> announcements;
+  final Key? heroKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        132,
+      ),
+      children: [
+        KeyedSubtree(
+          key: heroKey,
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF0F766E), Color(0xFF16A34A)],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Espace Parent',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Votre compte est actif. Les enfants lies apparaitront ici apres validation du lien.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.9),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Aucun enfant lie',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                const Text(
+                  'Ajoutez un code enfant depuis le profil ou demandez le lien a l\'etablissement.',
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          'Annonces etablissement',
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        for (final ann in announcements.take(3)) ...[
           _AnnouncementCard(announcement: ann),
           const SizedBox(height: AppSpacing.xs),
         ],

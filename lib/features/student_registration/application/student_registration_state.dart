@@ -114,20 +114,17 @@ class StudentRegistrationState {
   }
 
   StudentRegistrationPayload toPayload() {
-    final selectedEstablishment = establishment;
     final selectedClass = schoolClass;
-    final selectedGoal = learningGoal;
+    final selectedGoal = learningGoal ?? LearningGoal.examMastery;
 
-    if (selectedEstablishment == null ||
-        selectedClass == null ||
-        selectedGoal == null) {
+    if (selectedClass == null) {
       throw StateError('Etat incomplet pour construire le payload.');
     }
 
     return StudentRegistrationPayload(
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      establishment: selectedEstablishment,
+      establishment: establishment,
       schoolClass: selectedClass,
       schoolSeries: schoolSeries,
       selectedTutorId: selectedTutorId,

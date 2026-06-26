@@ -41,18 +41,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    _progressCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 10000), // 10s per slide = 40s total
-    )..addStatusListener((status) {
-        if (status == AnimationStatus.completed && !_hasInteracted) {
-          _advanceSlide();
-        }
-      });
+    _progressCtrl =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(
+            milliseconds: 10000,
+          ), // 10s per slide = 40s total
+        )..addStatusListener((status) {
+          if (status == AnimationStatus.completed && !_hasInteracted) {
+            _advanceSlide();
+          }
+        });
 
     _transitionCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 450), // Smooth duration for Shared Axis
+      duration: const Duration(
+        milliseconds: 450,
+      ), // Smooth duration for Shared Axis
     );
 
     // Start auto-play
@@ -82,7 +87,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   // Handles manual advancement with haptic feedback and stops auto-play
   void _handleManualAdvance() {
     if (_isTransitioning) return;
-    
+
     if (!_hasInteracted) {
       setState(() {
         _hasInteracted = true;
@@ -163,7 +168,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   Future<void> _completeOnboarding() async {
     // Trigger medium haptic feedback on completion
     HapticFeedback.mediumImpact();
-    
+
     _progressCtrl.stop();
     await markOnboardingSeen(ref);
     if (!mounted) return;
@@ -205,7 +210,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
             // ── Double Background Glow (Web App Mirror) ──────────
             Positioned.fill(
               child: Container(
-                color: isDark ? IntelliaColors.backgroundPremiumDark : IntelliaColors.backgroundPremium,
+                color: isDark
+                    ? IntelliaColors.backgroundPremiumDark
+                    : IntelliaColors.backgroundPremium,
               ),
             ),
             Positioned(
@@ -218,7 +225,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      IntelliaColors.brandIndigo.withValues(alpha: isDark ? 0.04 : 0.06),
+                      IntelliaColors.brandIndigo.withValues(
+                        alpha: isDark ? 0.04 : 0.06,
+                      ),
                       Colors.transparent,
                     ],
                   ),
@@ -235,7 +244,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      IntelliaColors.brandPurple.withValues(alpha: isDark ? 0.03 : 0.05),
+                      IntelliaColors.brandPurple.withValues(
+                        alpha: isDark ? 0.03 : 0.05,
+                      ),
                       Colors.transparent,
                     ],
                   ),
@@ -248,9 +259,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               animation: _transitionCtrl,
               builder: (context, _) {
                 // Cupertino ease-in-out cubic transform
-                final t = const Cubic(0.25, 0.1, 0.25, 1.0).transform(
-                  _transitionCtrl.value,
-                );
+                final t = const Cubic(
+                  0.25,
+                  0.1,
+                  0.25,
+                  1.0,
+                ).transform(_transitionCtrl.value);
 
                 return Stack(
                   fit: StackFit.expand,
@@ -308,7 +322,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                           return OnboardingProgressBar(
                             totalSlides: _slides.length,
                             currentSlide: _currentSlide,
-                            progress: _hasInteracted ? 1.0 : _progressCtrl.value,
+                            progress: _hasInteracted
+                                ? 1.0
+                                : _progressCtrl.value,
                             accentColor: _currentAccent,
                           );
                         },
@@ -354,19 +370,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(14),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                filter: ImageFilter.blur(
+                                  sigmaX: 10,
+                                  sigmaY: 10,
+                                ),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 14,
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: (isDark ? Colors.white : Colors.black)
-                                        .withValues(alpha: isDark ? 0.06 : 0.05),
+                                    color:
+                                        (isDark ? Colors.white : Colors.black)
+                                            .withValues(
+                                              alpha: isDark ? 0.06 : 0.05,
+                                            ),
                                     borderRadius: BorderRadius.circular(14),
                                     border: Border.all(
-                                      color: (isDark ? Colors.white : Colors.black)
-                                          .withValues(alpha: 0.08),
+                                      color:
+                                          (isDark ? Colors.white : Colors.black)
+                                              .withValues(alpha: 0.08),
                                     ),
                                   ),
                                   child: Text(
@@ -404,13 +427,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                               final isCurrent = index == _currentSlide;
                               return AnimatedContainer(
                                 duration: const Duration(milliseconds: 300),
-                                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4.0,
+                                ),
                                 width: isCurrent ? 24 : 6,
                                 height: 6,
                                 decoration: BoxDecoration(
                                   color: isCurrent
                                       ? IntelliaColors.brandIndigo
-                                      : (isDark ? Colors.white24 : Colors.black12),
+                                      : (isDark
+                                            ? Colors.white24
+                                            : Colors.black12),
                                   borderRadius: BorderRadius.circular(3),
                                 ),
                               );

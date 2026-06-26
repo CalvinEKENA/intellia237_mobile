@@ -8,8 +8,7 @@ abstract final class OnboardingSlides {
   static const slides = <OnboardingSlideData>[
     OnboardingSlideData(
       title: 'Quelques minutes par jour',
-      description:
-          'Des défis courts pour préparer la rentrée sans pression.',
+      description: 'Des défis courts pour préparer la rentrée sans pression.',
       asset: '',
       icon: Icons.timer_outlined,
       accentColor: IntelliaColors.brandIndigo,
@@ -24,8 +23,7 @@ abstract final class OnboardingSlides {
     ),
     OnboardingSlideData(
       title: 'Teste-toi sans stress',
-      description:
-          'Quiz et QCM t\'aident à voir ce que tu maîtrises déjà.',
+      description: 'Quiz et QCM t\'aident à voir ce que tu maîtrises déjà.',
       asset: '',
       icon: Icons.check_circle_outline_rounded,
       accentColor: IntelliaColors.brandBlue,

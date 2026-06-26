@@ -19,7 +19,7 @@ class OnboardingSlideView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     // Find the slide index to load the corresponding interactive visual
     final index = OnboardingSlides.slides.indexOf(data);
 
@@ -41,7 +41,9 @@ class OnboardingSlideView extends StatelessWidget {
         // ── Double Background Glow (Subtle & Elegant) ───────────
         Positioned.fill(
           child: Container(
-            color: isDark ? IntelliaColors.backgroundPremiumDark : IntelliaColors.backgroundPremium,
+            color: isDark
+                ? IntelliaColors.backgroundPremiumDark
+                : IntelliaColors.backgroundPremium,
           ),
         ),
 
@@ -71,7 +73,9 @@ class OnboardingSlideView extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: goldColor.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(IntelliaRadii.full),
-                      border: Border.all(color: goldColor.withValues(alpha: 0.35)),
+                      border: Border.all(
+                        color: goldColor.withValues(alpha: 0.35),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: goldColor.withValues(alpha: 0.04),
@@ -105,16 +109,23 @@ class OnboardingSlideView extends StatelessWidget {
               // Title in elegant Didot font (Playfair Display fallback)
               Text(
                     data.title,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
-                      height: 1.15,
-                      color: isDark ? IntelliaColors.textPrimaryDark : IntelliaColors.textPrimary,
-                    ).copyWith(
-                      fontFamily: 'Didot',
-                      fontFamilyFallback: const ['Playfair Display', 'Georgia', 'serif'],
-                    ),
+                    style:
+                        GoogleFonts.playfairDisplay(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.5,
+                          height: 1.15,
+                          color: isDark
+                              ? IntelliaColors.textPrimaryDark
+                              : IntelliaColors.textPrimary,
+                        ).copyWith(
+                          fontFamily: 'Didot',
+                          fontFamilyFallback: const [
+                            'Playfair Display',
+                            'Georgia',
+                            'serif',
+                          ],
+                        ),
                   )
                   .animate()
                   .fadeIn(delay: 250.ms, duration: 500.ms)
@@ -128,7 +139,9 @@ class OnboardingSlideView extends StatelessWidget {
                     style: GoogleFonts.montserrat(
                       fontSize: 14.5,
                       height: 1.55,
-                      color: isDark ? IntelliaColors.textSecondaryDark : IntelliaColors.textSecondary,
+                      color: isDark
+                          ? IntelliaColors.textSecondaryDark
+                          : IntelliaColors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   )

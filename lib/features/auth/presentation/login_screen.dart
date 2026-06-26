@@ -12,6 +12,7 @@ import '../../../core/widgets/intellia_text_field.dart';
 import '../../../core/widgets/intellia_buttons.dart';
 import '../application/auth_controller.dart';
 import '../application/auth_state.dart';
+import '../domain/auth_input_validators.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -125,17 +126,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         prefixIcon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
                         enabled: !isLoading,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) {
-                            return 'L\'email est requis';
-                          }
-                          if (!RegExp(
-                            r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
-                          ).hasMatch(v.trim())) {
-                            return 'Entrez un email valide';
-                          }
-                          return null;
-                        },
+                        validator: (v) => AuthInputValidators.email(v ?? ''),
                       ),
                       const SizedBox(height: IntelliaSpacing.md),
 
@@ -145,12 +136,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         label: 'Mot de passe',
                         hint: 'Saisissez votre mot de passe',
                         enabled: !isLoading,
-                        validator: (v) {
-                          if (v == null || v.isEmpty) {
-                            return 'Le mot de passe est requis';
-                          }
-                          return null;
-                        },
+                        validator: (v) => AuthInputValidators.password(v ?? ''),
                       ),
 
                       // Forgot password button

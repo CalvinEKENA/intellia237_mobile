@@ -135,14 +135,16 @@ class _OnboardingSlide1VisualState extends State<OnboardingSlide1Visual>
                 // Combine values
                 final double opacity = entranceVal;
                 final double scale = 0.85 + (entranceVal * 0.15);
-                
+
                 // Swaying floating offsets
                 final double floatingY = math.sin(floatVal * math.pi * 2) * 5.0;
-                final double floatingRotation = math.cos(floatVal * math.pi * 2) * (1.5 * math.pi / 180);
+                final double floatingRotation =
+                    math.cos(floatVal * math.pi * 2) * (1.5 * math.pi / 180);
 
                 final double targetX = card.xOffset * entranceVal;
                 final double targetY = (card.yOffset * entranceVal) + floatingY;
-                final double targetRotation = (card.rotation * entranceVal) + floatingRotation;
+                final double targetRotation =
+                    (card.rotation * entranceVal) + floatingRotation;
 
                 return Opacity(
                   opacity: opacity,
@@ -150,18 +152,12 @@ class _OnboardingSlide1VisualState extends State<OnboardingSlide1Visual>
                     offset: Offset(targetX, targetY),
                     child: Transform.rotate(
                       angle: targetRotation,
-                      child: Transform.scale(
-                        scale: scale,
-                        child: child,
-                      ),
+                      child: Transform.scale(scale: scale, child: child),
                     ),
                   ),
                 );
               },
-              child: _MockPremiumCard(
-                gradient: card.gradient,
-                isDark: isDark,
-              ),
+              child: _MockPremiumCard(gradient: card.gradient, isDark: isDark),
             );
           }),
         ],
@@ -187,10 +183,7 @@ class _CardData {
 }
 
 class _MockPremiumCard extends StatelessWidget {
-  const _MockPremiumCard({
-    required this.gradient,
-    required this.isDark,
-  });
+  const _MockPremiumCard({required this.gradient, required this.isDark});
 
   final Gradient gradient;
   final bool isDark;

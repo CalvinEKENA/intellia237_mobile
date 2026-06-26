@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,16 +19,18 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
   FirebaseRoleRegistrationRepository({
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
+    FirebaseFunctions? functions,
   }) : _auth = auth ?? FirebaseAuth.instance,
-       _firestore = firestore ?? FirebaseFirestore.instance;
+       _firestore = firestore ?? FirebaseFirestore.instance,
+       _functions = functions ?? FirebaseFunctions.instance;
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
 
   static const _usersCollection = 'users';
   static const _parentProfilesCollection = 'parent_profiles';
-  static const _teacherProfilesCollection = 'teacher_profiles';
-  static const _adminProfilesCollection = 'admin_profiles';
+  static const _staffRegistrationCallable = 'submitStaffRegistration';
 
   @override
   Future<List<SchoolEstablishment>> searchEstablishments(String query) async {
@@ -55,15 +58,12 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
   Future<RoleRegistrationResult> registerTeacher(
     TeacherRegistrationPayload payload,
   ) {
-    return _register(
+    return _registerPrivilegedStaff(
       email: payload.email,
       password: payload.password,
-      userBuilder: (uid, now) => payload.toUserDocument(uid: uid, now: now),
-      profileCollection: _teacherProfilesCollection,
-      profileBuilder: (uid, now) =>
-          payload.toTeacherProfileDocument(uid: uid, now: now),
       firstName: payload.firstName,
       lastName: payload.lastName,
+      callableData: payload.toStaffRegistrationData(),
     );
   }
 
@@ -71,15 +71,12 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
   Future<RoleRegistrationResult> registerAdmin(
     AdminRegistrationPayload payload,
   ) {
-    return _register(
+    return _registerPrivilegedStaff(
       email: payload.email,
       password: payload.password,
-      userBuilder: (uid, now) => payload.toUserDocument(uid: uid, now: now),
-      profileCollection: _adminProfilesCollection,
-      profileBuilder: (uid, now) =>
-          payload.toAdminProfileDocument(uid: uid, now: now),
       firstName: payload.firstName,
       lastName: payload.lastName,
+      callableData: payload.toStaffRegistrationData(),
     );
   }
 
@@ -153,6 +150,66 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
     }
   }
 
+  Future<RoleRegistrationResult> _registerPrivilegedStaff({
+    required String email,
+    required String password,
+    required String firstName,
+    required String lastName,
+    required Map<String, dynamic> callableData,
+  }) async {
+    UserCredential? credential;
+
+    try {
+      credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      final user = credential.user;
+      if (user == null) {
+        throw const RoleRegistrationException(
+          message: 'Impossible de creer le compte utilisateur.',
+          code: 'missing-user',
+        );
+      }
+
+      final displayName = '${firstName.trim()} ${lastName.trim()}'.trim();
+      await user.updateDisplayName(displayName);
+      await user.getIdToken(true);
+
+      final callable = _functions.httpsCallable(_staffRegistrationCallable);
+      final result = await callable.call<Map<String, dynamic>>(callableData);
+      final data = result.data;
+
+      return RoleRegistrationResult(
+        uid: (data['uid'] as String?) ?? user.uid,
+        email: (data['email'] as String?) ?? email.trim(),
+        firstName: (data['firstName'] as String?) ?? firstName.trim(),
+        lastName: (data['lastName'] as String?) ?? lastName.trim(),
+      );
+    } on FirebaseAuthException catch (error) {
+      throw RoleRegistrationException(
+        message: _mapAuthError(error),
+        code: error.code,
+      );
+    } on FirebaseFunctionsException catch (error) {
+      await _rollbackAuthUser(credential);
+      throw RoleRegistrationException(
+        message: _mapFunctionsError(error),
+        code: error.code,
+      );
+    } on RoleRegistrationException {
+      await _rollbackAuthUser(credential);
+      rethrow;
+    } catch (_) {
+      await _rollbackAuthUser(credential);
+      throw const RoleRegistrationException(
+        message: 'Une erreur inattendue est survenue.',
+        code: 'unknown-error',
+      );
+    }
+  }
+
   Future<void> _rollbackAuthUser(UserCredential? credential) async {
     final user = credential?.user;
     if (user == null) {
@@ -173,6 +230,21 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
       'weak-password' => 'Mot de passe trop faible (8 caracteres minimum).',
       'network-request-failed' => 'Aucune connexion internet disponible.',
       _ => error.message ?? 'Erreur lors de la creation du compte.',
+    };
+  }
+
+  String _mapFunctionsError(FirebaseFunctionsException error) {
+    return switch (error.code) {
+      'already-exists' => 'Un profil existe deja pour ce compte.',
+      'invalid-argument' =>
+        'Verifiez les informations du formulaire puis reessayez.',
+      'unauthenticated' =>
+        'Session Firebase invalide. Reconnectez-vous puis reessayez.',
+      'permission-denied' =>
+        'Ce profil doit etre valide par une equipe autorisee.',
+      'unavailable' =>
+        'Service temporairement indisponible. Reessayez dans un instant.',
+      _ => error.message ?? 'Impossible de finaliser ce profil.',
     };
   }
 }

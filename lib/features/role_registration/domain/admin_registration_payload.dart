@@ -75,4 +75,21 @@ class AdminRegistrationPayload {
       },
     };
   }
+
+  Map<String, dynamic> toStaffRegistrationData() {
+    return <String, dynamic>{
+      'role': 'admin',
+      'firstName': firstName.trim(),
+      'lastName': lastName.trim(),
+      'email': email.trim(),
+      'jobTitle': jobTitle.trim(),
+      'establishment': <String, dynamic>{
+        'id': establishment.id,
+        'name': establishment.name,
+        if (establishment.city != null) 'city': establishment.city,
+      },
+      'acceptedTerms': acceptedTerms,
+      'acceptedPrivacy': acceptedPrivacy,
+    };
+  }
 }

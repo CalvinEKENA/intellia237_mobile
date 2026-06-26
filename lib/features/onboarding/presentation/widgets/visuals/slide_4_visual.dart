@@ -51,13 +51,13 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
 
     // Start animations with staggered delays
     _pulseKiraCtrl.repeat(reverse: true);
-    
+
     Future.delayed(const Duration(milliseconds: 1300), () {
       if (mounted) _pulseLeoCtrl.repeat(reverse: true);
     });
 
     _floatKiraCtrl.repeat(reverse: true);
-    
+
     Future.delayed(const Duration(milliseconds: 1200), () {
       if (mounted) _floatLeoCtrl.repeat(reverse: true);
     });
@@ -87,11 +87,7 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
         alignment: Alignment.center,
         children: [
           // ── Double Background Glow (Kira left, Leo right) ───────
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _DoubleGlowPainter(),
-            ),
-          ),
+          Positioned.fill(child: CustomPaint(painter: _DoubleGlowPainter())),
 
           // ── Companions Row ────────────────────────────────────────
           Row(
@@ -109,7 +105,8 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
                   final double auraOpacity = 0.70 + (pulseVal * 0.30);
 
                   // Floating offset
-                  final double floatingY = math.sin(floatVal * math.pi * 2) * -5.0;
+                  final double floatingY =
+                      math.sin(floatVal * math.pi * 2) * -5.0;
 
                   return Transform.translate(
                     offset: Offset(0, floatingY),
@@ -128,8 +125,12 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
                                 shape: BoxShape.circle,
                                 gradient: RadialGradient(
                                   colors: [
-                                    const Color(0xFFFF9ECD).withValues(alpha: 0.6),
-                                    const Color(0xFFAF52DE).withValues(alpha: 0.25),
+                                    const Color(
+                                      0xFFFF9ECD,
+                                    ).withValues(alpha: 0.6),
+                                    const Color(
+                                      0xFFAF52DE,
+                                    ).withValues(alpha: 0.25),
                                     Colors.transparent,
                                   ],
                                   stops: const [0.0, 0.55, 0.75],
@@ -157,15 +158,20 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
               AnimatedBuilder(
                 animation: Listenable.merge([_pulseLeoCtrl, _floatLeoCtrl]),
                 builder: (context, child) {
-                  final pulseVal = _pulseLeoCtrl.isAnimating ? _pulseLeoCtrl.value : 0.0;
-                  final floatVal = _floatLeoCtrl.isAnimating ? _floatLeoCtrl.value : 0.0;
+                  final pulseVal = _pulseLeoCtrl.isAnimating
+                      ? _pulseLeoCtrl.value
+                      : 0.0;
+                  final floatVal = _floatLeoCtrl.isAnimating
+                      ? _floatLeoCtrl.value
+                      : 0.0;
 
                   // Aura values
                   final double auraScale = 1.0 + (pulseVal * 0.12);
                   final double auraOpacity = 0.70 + (pulseVal * 0.30);
 
                   // Floating offset
-                  final double floatingY = math.sin(floatVal * math.pi * 2) * -5.0;
+                  final double floatingY =
+                      math.sin(floatVal * math.pi * 2) * -5.0;
 
                   return Transform.translate(
                     offset: Offset(0, floatingY),
@@ -184,8 +190,12 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
                                 shape: BoxShape.circle,
                                 gradient: RadialGradient(
                                   colors: [
-                                    const Color(0xFF5AC8FA).withValues(alpha: 0.55),
-                                    const Color(0xFF5856D6).withValues(alpha: 0.25),
+                                    const Color(
+                                      0xFF5AC8FA,
+                                    ).withValues(alpha: 0.55),
+                                    const Color(
+                                      0xFF5856D6,
+                                    ).withValues(alpha: 0.25),
                                     Colors.transparent,
                                   ],
                                   stops: const [0.0, 0.55, 0.75],
@@ -214,7 +224,7 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
             animation: _sparkleCtrl,
             builder: (context, _) {
               final val = _sparkleCtrl.value;
-              
+
               // Pulsating scale & opacity
               final double scale = 0.6 + (math.sin(val * math.pi * 2) * 0.4);
               final double opacity = 0.6 + (math.sin(val * math.pi * 2) * 0.4);
@@ -236,11 +246,15 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
                           spreadRadius: 2 * scale,
                         ),
                         BoxShadow(
-                          color: const Color(0xFFAF52DE).withValues(alpha: 0.45),
+                          color: const Color(
+                            0xFFAF52DE,
+                          ).withValues(alpha: 0.45),
                           blurRadius: 16 * scale,
                         ),
                         BoxShadow(
-                          color: const Color(0xFF007AFF).withValues(alpha: 0.35),
+                          color: const Color(
+                            0xFF007AFF,
+                          ).withValues(alpha: 0.35),
                           blurRadius: 24 * scale,
                         ),
                       ],
@@ -259,16 +273,25 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.70),
+                    color: (isDark ? Colors.black : Colors.white).withValues(
+                      alpha: 0.70,
+                    ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
+                      color: (isDark ? Colors.white : Colors.black).withValues(
+                        alpha: 0.08,
+                      ),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.2 : 0.05,
+                        ),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -279,7 +302,9 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: isDark ? IntelliaColors.textPrimaryDark : IntelliaColors.textPrimary,
+                      color: isDark
+                          ? IntelliaColors.textPrimaryDark
+                          : IntelliaColors.textPrimary,
                     ),
                   ),
                 ),
@@ -337,11 +362,7 @@ class _CompanionAvatarFrame extends StatelessWidget {
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) {
                 return Center(
-                  child: Icon(
-                    fallbackIcon,
-                    size: 50,
-                    color: borderColor,
-                  ),
+                  child: Icon(fallbackIcon, size: 50, color: borderColor),
                 );
               },
             ),
@@ -357,33 +378,35 @@ class _DoubleGlowPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // Left glow (Purple)
     final purplePaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          const Color(0xFFAF52DE).withValues(alpha: 0.22),
-          Colors.transparent,
-        ],
-        stops: const [0.0, 0.7],
-      ).createShader(
-        Rect.fromCircle(
-          center: Offset(size.width * 0.28, size.height * 0.55),
-          radius: size.width * 0.4,
-        ),
-      );
+      ..shader =
+          RadialGradient(
+            colors: [
+              const Color(0xFFAF52DE).withValues(alpha: 0.22),
+              Colors.transparent,
+            ],
+            stops: const [0.0, 0.7],
+          ).createShader(
+            Rect.fromCircle(
+              center: Offset(size.width * 0.28, size.height * 0.55),
+              radius: size.width * 0.4,
+            ),
+          );
 
     // Right glow (Blue)
     final bluePaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          const Color(0xFF007AFF).withValues(alpha: 0.22),
-          Colors.transparent,
-        ],
-        stops: const [0.0, 0.7],
-      ).createShader(
-        Rect.fromCircle(
-          center: Offset(size.width * 0.72, size.height * 0.55),
-          radius: size.width * 0.4,
-        ),
-      );
+      ..shader =
+          RadialGradient(
+            colors: [
+              const Color(0xFF007AFF).withValues(alpha: 0.22),
+              Colors.transparent,
+            ],
+            stops: const [0.0, 0.7],
+          ).createShader(
+            Rect.fromCircle(
+              center: Offset(size.width * 0.72, size.height * 0.55),
+              radius: size.width * 0.4,
+            ),
+          );
 
     canvas.drawCircle(
       Offset(size.width * 0.28, size.height * 0.55),

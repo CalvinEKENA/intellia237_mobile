@@ -8,6 +8,7 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/intellia_scaffold.dart';
 import '../../../core/widgets/intellia_buttons.dart';
 import '../../../core/widgets/intellia_text_field.dart';
+import '../../auth/domain/auth_input_validators.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../application/student_registration_controller.dart';
 import '../application/student_registration_state.dart';
@@ -230,12 +231,10 @@ class _StudentRegistrationFlowScreenState
             label: 'Prénom',
             hint: 'Ex: Marie',
             prefixIcon: Icons.person_rounded,
-            validator: (value) {
-              if ((value ?? '').trim().length < 2) {
-                return 'Minimum 2 caractères';
-              }
-              return null;
-            },
+            validator: (value) => AuthInputValidators.displayName(
+              value ?? '',
+              label: 'Le prenom',
+            ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
@@ -243,12 +242,8 @@ class _StudentRegistrationFlowScreenState
             label: 'Nom',
             hint: 'Ex: Ndzi',
             prefixIcon: Icons.badge_rounded,
-            validator: (value) {
-              if ((value ?? '').trim().length < 2) {
-                return 'Minimum 2 caractères';
-              }
-              return null;
-            },
+            validator: (value) =>
+                AuthInputValidators.displayName(value ?? '', label: 'Le nom'),
           ),
         ],
       ),
@@ -267,7 +262,8 @@ class _StudentRegistrationFlowScreenState
         children: [
           const _SectionHeader(
             title: 'Parcours scolaire',
-            subtitle: 'Établissement, classe et série.',
+            subtitle:
+                'Classe obligatoire. Établissement et série selon le niveau.',
           ),
           const SizedBox(height: IntelliaSpacing.lg),
           SearchableEstablishmentField(
@@ -289,19 +285,21 @@ class _StudentRegistrationFlowScreenState
             validator: (value) =>
                 value == null ? 'Sélectionnez une classe' : null,
           ),
-          const SizedBox(height: IntelliaSpacing.md),
-          _IntelliaDropdown<SchoolSeries>(
-            label: state.schoolClass?.seriesFieldLabel ?? 'Série',
-            prefixIcon: Icons.category_rounded,
-            value: state.schoolSeries,
-            items: [
-              for (final item in allowedSeries)
-                DropdownMenuItem(value: item, child: Text(item.label)),
-            ],
-            onChanged: controller.setSchoolSeries,
-            validator: (value) =>
-                value == null ? 'Sélectionnez une option' : null,
-          ),
+          if (selectedClass?.requiresSeries ?? false) ...[
+            const SizedBox(height: IntelliaSpacing.md),
+            _IntelliaDropdown<SchoolSeries>(
+              label: state.schoolClass?.seriesFieldLabel ?? 'Série',
+              prefixIcon: Icons.category_rounded,
+              value: state.schoolSeries,
+              items: [
+                for (final item in allowedSeries)
+                  DropdownMenuItem(value: item, child: Text(item.label)),
+              ],
+              onChanged: controller.setSchoolSeries,
+              validator: (value) =>
+                  value == null ? 'Sélectionnez une option' : null,
+            ),
+          ],
         ],
       ),
     );
@@ -315,7 +313,7 @@ class _StudentRegistrationFlowScreenState
       children: [
         const _SectionHeader(
           title: 'Préférences d\'apprentissage',
-          subtitle: 'Aidez INTELLIA237 à personnaliser votre expérience.',
+          subtitle: 'Étape optionnelle pour personnaliser votre expérience.',
         ),
         const SizedBox(height: IntelliaSpacing.lg),
         SubjectMultiSelector(
@@ -397,42 +395,24 @@ class _StudentRegistrationFlowScreenState
             hint: 'prenom.nom@exemple.com',
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_rounded,
-            validator: (value) {
-              if (!RegExp(
-                r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
-              ).hasMatch((value ?? '').trim())) {
-                return 'Email invalide';
-              }
-              return null;
-            },
+            validator: (value) => AuthInputValidators.email(value ?? ''),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaPasswordField(
             controller: _passwordController,
             label: 'Mot de passe',
             hint: '8 caractères minimum',
-            validator: (value) {
-              final password = value ?? '';
-              final hasUppercase = RegExp(r'[A-Z]').hasMatch(password);
-              final hasDigit = RegExp(r'[0-9]').hasMatch(password);
-
-              if (password.length < 8 || !hasUppercase || !hasDigit) {
-                return '8 caractères, 1 majuscule, 1 chiffre minimum';
-              }
-              return null;
-            },
+            validator: (value) => AuthInputValidators.password(value ?? ''),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaPasswordField(
             controller: _confirmPasswordController,
             label: 'Confirmer le mot de passe',
             hint: 'Retapez le mot de passe',
-            validator: (value) {
-              if ((value ?? '') != _passwordController.text) {
-                return 'La confirmation ne correspond pas';
-              }
-              return null;
-            },
+            validator: (value) => AuthInputValidators.confirmPassword(
+              password: _passwordController.text,
+              confirmation: value ?? '',
+            ),
           ),
           const SizedBox(height: IntelliaSpacing.lg),
           _DarkCheckboxTile(

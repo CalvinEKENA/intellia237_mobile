@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_state.dart';
+import '../../auth/application/auth_user_id.dart';
 import '../../auth/domain/app_role.dart';
 import '../data/firestore_learn_repository.dart';
 import '../data/learn_repository.dart';
@@ -57,7 +58,7 @@ final studentAcademicContextProvider = FutureProvider<LearnAcademicContext>((
 
 final _learnUserIdProvider = Provider<String>((ref) {
   final auth = ref.watch(authControllerProvider);
-  return auth.userId ?? 'demo-student';
+  return requireAuthenticatedUserId(auth);
 });
 
 final learnHubProvider = FutureProvider<LearnHubSnapshot>((ref) async {

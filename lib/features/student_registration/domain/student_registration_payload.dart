@@ -24,7 +24,7 @@ class StudentRegistrationPayload {
 
   final String firstName;
   final String lastName;
-  final SchoolEstablishment establishment;
+  final SchoolEstablishment? establishment;
   final SchoolClass schoolClass;
   final SchoolSeries? schoolSeries;
   final String? selectedTutorId;
@@ -51,7 +51,6 @@ class StudentRegistrationPayload {
       'lastName': lastName,
       'email': email,
       'role': 'student',
-      'establishmentId': establishment.id,
       'classLevel': schoolClass.label,
       'series': schoolSeries?.label,
       'tutorId': _normalizedTutorId,
@@ -59,6 +58,7 @@ class StudentRegistrationPayload {
       'tourGuideSeen': false,
       'createdAt': now.toUtc(),
       'updatedAt': now.toUtc(),
+      if (establishment != null) 'establishmentId': establishment!.id,
     };
   }
 
@@ -71,8 +71,6 @@ class StudentRegistrationPayload {
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
-      'establishmentId': establishment.id,
-      'establishmentName': establishment.name,
       'classLevel': schoolClass.label,
       'series': schoolSeries?.label,
       'xp': 0,
@@ -101,6 +99,10 @@ class StudentRegistrationPayload {
       'profileCompleted': true,
       'createdAt': now.toUtc(),
       'updatedAt': now.toUtc(),
+      if (establishment != null) ...<String, dynamic>{
+        'establishmentId': establishment!.id,
+        'establishmentName': establishment!.name,
+      },
     };
   }
 }

@@ -1,16 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
+import '../../auth/application/auth_user_id.dart';
 import '../data/admin_repository.dart';
-import '../data/mock_admin_repository.dart';
+import '../data/firestore_admin_repository.dart';
 import '../domain/admin_models.dart';
 
 final adminRepositoryProvider = Provider<AdminRepository>((ref) {
-  return MockAdminRepository();
+  return FirestoreAdminRepository();
 });
 
 final _adminUidProvider = Provider<String>((ref) {
-  return ref.watch(authControllerProvider).userId ?? 'demo-admin';
+  return requireAuthenticatedUserId(ref.watch(authControllerProvider));
 });
 
 final adminDashboardProvider = FutureProvider<AdminDashboard>((ref) async {

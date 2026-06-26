@@ -7,22 +7,23 @@ import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { getEnv } from "./config/env";
 import {
   recordLessonProgressHandler,
-  submitQuizAttemptHandler
+  submitQuizAttemptHandler,
 } from "./services/academicCallables";
+import { submitStaffRegistrationHandler } from "./services/staffRegistrationCallable";
 import { GenerateQuizUseCase } from "./services/generateQuizUseCase";
 import { GenerateSummaryUseCase } from "./services/generateSummaryUseCase";
 import { toHttpsError } from "./utils/errors";
 import {
   generateQuizCallableInputSchema,
   generateSummaryCallableInputSchema,
-  askTutorCallableInputSchema
+  askTutorCallableInputSchema,
 } from "./utils/validation";
 import { AskTutorUseCase } from "./services/askTutorUseCase";
 
 const env = getEnv();
 setGlobalOptions({
   region: env.FUNCTIONS_REGION,
-  maxInstances: 20
+  maxInstances: 20,
 });
 
 const generateQuizUseCase = new GenerateQuizUseCase();
@@ -33,7 +34,7 @@ export const generateQuiz = onCall(
   {
     region: env.FUNCTIONS_REGION,
     timeoutSeconds: 120,
-    memory: "1GiB"
+    memory: "1GiB",
   },
   async (request) => {
     if (!request.auth?.uid) {
@@ -49,28 +50,28 @@ export const generateQuiz = onCall(
         traceId,
         courseId: input.courseId,
         count: input.count,
-        difficulty: input.difficulty
+        difficulty: input.difficulty,
       });
 
       return {
         traceId,
-        ...result
+        ...result,
       };
     } catch (error) {
       logger.error("generateQuiz failed.", {
         traceId,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw toHttpsError(error);
     }
-  }
+  },
 );
 
 export const generateSummary = onCall(
   {
     region: env.FUNCTIONS_REGION,
     timeoutSeconds: 120,
-    memory: "1GiB"
+    memory: "1GiB",
   },
   async (request) => {
     if (!request.auth?.uid) {
@@ -85,28 +86,28 @@ export const generateSummary = onCall(
         userId: request.auth.uid,
         traceId,
         courseId: input.courseId,
-        level: input.level
+        level: input.level,
       });
 
       return {
         traceId,
-        ...result
+        ...result,
       };
     } catch (error) {
       logger.error("generateSummary failed.", {
         traceId,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw toHttpsError(error);
     }
-  }
+  },
 );
 
 export const askTutor = onCall(
   {
     region: env.FUNCTIONS_REGION,
     timeoutSeconds: 30, // 30s is more than enough for Gemini chat completion
-    memory: "512MiB"
+    memory: "512MiB",
   },
   async (request) => {
     if (!request.auth?.uid) {
@@ -120,37 +121,46 @@ export const askTutor = onCall(
       const result = await askTutorUseCase.execute({
         userId: request.auth.uid,
         traceId,
-        input
+        input,
       });
 
       return {
         traceId,
-        ...result
+        ...result,
       };
     } catch (error) {
       logger.error("askTutor failed.", {
         traceId,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
       throw toHttpsError(error);
     }
-  }
+  },
 );
 
 export const submitQuizAttempt = onCall(
   {
     region: env.FUNCTIONS_REGION,
     timeoutSeconds: 30,
-    memory: "512MiB"
+    memory: "512MiB",
   },
-  submitQuizAttemptHandler
+  submitQuizAttemptHandler,
 );
 
 export const recordLessonProgress = onCall(
   {
     region: env.FUNCTIONS_REGION,
     timeoutSeconds: 30,
-    memory: "512MiB"
+    memory: "512MiB",
   },
-  recordLessonProgressHandler
+  recordLessonProgressHandler,
+);
+
+export const submitStaffRegistration = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 30,
+    memory: "256MiB",
+  },
+  submitStaffRegistrationHandler,
 );

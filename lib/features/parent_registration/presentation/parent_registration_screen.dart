@@ -7,6 +7,7 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/intellia_scaffold.dart';
 import '../../../core/widgets/intellia_buttons.dart';
 import '../../../core/widgets/intellia_text_field.dart';
+import '../../auth/domain/auth_input_validators.dart';
 import '../../student_registration/presentation/widgets/premium_stepper.dart';
 import '../application/parent_registration_controller.dart';
 import '../application/parent_registration_state.dart';
@@ -224,8 +225,10 @@ class _ParentRegistrationScreenState
             label: 'Prénom',
             hint: 'Ex: Clarisse',
             prefixIcon: Icons.person_rounded,
-            validator: (value) =>
-                (value ?? '').trim().length < 2 ? 'Minimum 2 caractères' : null,
+            validator: (value) => AuthInputValidators.displayName(
+              value ?? '',
+              label: 'Le prenom',
+            ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
@@ -234,7 +237,7 @@ class _ParentRegistrationScreenState
             hint: 'Ex: Ndzi',
             prefixIcon: Icons.badge_rounded,
             validator: (value) =>
-                (value ?? '').trim().length < 2 ? 'Minimum 2 caractères' : null,
+                AuthInputValidators.displayName(value ?? '', label: 'Le nom'),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
@@ -243,14 +246,7 @@ class _ParentRegistrationScreenState
             hint: 'parent@exemple.com',
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_rounded,
-            validator: (value) {
-              if (!RegExp(
-                r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
-              ).hasMatch((value ?? '').trim())) {
-                return 'Email invalide';
-              }
-              return null;
-            },
+            validator: (value) => AuthInputValidators.email(value ?? ''),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
@@ -265,25 +261,17 @@ class _ParentRegistrationScreenState
             controller: _passwordController,
             label: 'Mot de passe',
             hint: '8 caractères minimum',
-            validator: (value) {
-              final password = value ?? '';
-              final valid =
-                  password.length >= 8 &&
-                  RegExp(r'[A-Z]').hasMatch(password) &&
-                  RegExp(r'[0-9]').hasMatch(password);
-              return valid
-                  ? null
-                  : '8 caractères, 1 majuscule, 1 chiffre minimum';
-            },
+            validator: (value) => AuthInputValidators.password(value ?? ''),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaPasswordField(
             controller: _confirmPasswordController,
             label: 'Confirmer le mot de passe',
             hint: 'Retapez le mot de passe',
-            validator: (value) => value == _passwordController.text
-                ? null
-                : 'Confirmation invalide',
+            validator: (value) => AuthInputValidators.confirmPassword(
+              password: _passwordController.text,
+              confirmation: value ?? '',
+            ),
           ),
         ],
       ),
@@ -300,8 +288,7 @@ class _ParentRegistrationScreenState
       children: [
         const _SectionHeader(
           title: 'Lier vos enfants',
-          subtitle:
-              'Ajoutez un ou plusieurs identifiants élève (code de liaison).',
+          subtitle: 'Ajoutez un identifiant élève maintenant, ou plus tard.',
         ),
         const SizedBox(height: IntelliaSpacing.lg),
         Row(

@@ -70,4 +70,22 @@ class TeacherRegistrationPayload {
       },
     };
   }
+
+  Map<String, dynamic> toStaffRegistrationData() {
+    return <String, dynamic>{
+      'role': 'teacher',
+      'firstName': firstName.trim(),
+      'lastName': lastName.trim(),
+      'email': email.trim(),
+      'establishment': <String, dynamic>{
+        'id': establishment.id,
+        'name': establishment.name,
+        if (establishment.city != null) 'city': establishment.city,
+      },
+      'subjects': subjects,
+      'levels': levels,
+      'acceptedTerms': acceptedTerms,
+      'acceptedPrivacy': acceptedPrivacy,
+    };
+  }
 }

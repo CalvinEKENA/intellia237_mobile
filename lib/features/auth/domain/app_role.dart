@@ -5,10 +5,10 @@ enum AppRole { student, parent, teacher, admin }
 extension AppRoleX on AppRole {
   String get label {
     return switch (this) {
-      AppRole.student => 'Student',
+      AppRole.student => 'Élève',
       AppRole.parent => 'Parent',
-      AppRole.teacher => 'Teacher',
-      AppRole.admin => 'Admin',
+      AppRole.teacher => 'Enseignant',
+      AppRole.admin => 'Administrateur',
     };
   }
 

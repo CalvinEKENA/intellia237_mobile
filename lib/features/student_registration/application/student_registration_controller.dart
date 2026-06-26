@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
+import '../../auth/domain/auth_input_validators.dart';
 import '../data/firebase_student_registration_repository.dart';
 import '../data/student_registration_repository.dart';
 import '../domain/academic_rules.dart';
@@ -180,20 +181,11 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
     final firstName = state.firstName.trim();
     final lastName = state.lastName.trim();
 
-    if (firstName.length < 2) {
-      return 'Le prenom doit contenir au moins 2 caracteres.';
-    }
-    if (lastName.length < 2) {
-      return 'Le nom doit contenir au moins 2 caracteres.';
-    }
-    return null;
+    return AuthInputValidators.displayName(firstName, label: 'Le prenom') ??
+        AuthInputValidators.displayName(lastName, label: 'Le nom');
   }
 
   String? _validateAcademicInfo() {
-    if (state.establishment == null) {
-      return 'Selectionnez un etablissement.';
-    }
-
     final schoolClass = state.schoolClass;
     if (schoolClass == null) {
       return 'Selectionnez votre classe.';
@@ -207,22 +199,9 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
   }
 
   String? _validatePreferences() {
-    if (state.preferredSubjects.isEmpty) {
-      return 'Choisissez au moins une matiere preferee.';
+    if (state.selectedTutorId == null) {
+      return 'Choisissez Kira ou Leo pour personnaliser votre accompagnement.';
     }
-
-    if (state.difficultSubjects.isEmpty) {
-      return 'Choisissez au moins une matiere difficile.';
-    }
-
-    if (state.learningGoal == null) {
-      return 'Selectionnez un objectif d\'apprentissage.';
-    }
-
-    if (state.dailyStudyMinutes < 10) {
-      return 'Le temps d\'etude quotidien est trop faible.';
-    }
-
     return null;
   }
 
@@ -231,17 +210,14 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
     final password = state.password;
     final confirmPassword = state.confirmPassword;
 
-    if (!_isValidEmail(email)) {
-      return 'Entrez un email valide.';
-    }
-
-    if (password.length < 8 || !_isStrongEnoughPassword(password)) {
-      return 'Mot de passe: 8 caracteres, 1 majuscule, 1 chiffre minimum.';
-    }
-
-    if (confirmPassword != password) {
-      return 'La confirmation du mot de passe est invalide.';
-    }
+    final credentialsError =
+        AuthInputValidators.email(email) ??
+        AuthInputValidators.password(password) ??
+        AuthInputValidators.confirmPassword(
+          password: password,
+          confirmation: confirmPassword,
+        );
+    if (credentialsError != null) return credentialsError;
 
     if (!state.acceptedTerms ||
         !state.acceptedPrivacy ||
@@ -266,15 +242,5 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
     }
 
     return <String>[...current, subject];
-  }
-
-  bool _isValidEmail(String email) {
-    return RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$').hasMatch(email);
-  }
-
-  bool _isStrongEnoughPassword(String password) {
-    final hasUppercase = RegExp(r'[A-Z]').hasMatch(password);
-    final hasDigit = RegExp(r'[0-9]').hasMatch(password);
-    return hasUppercase && hasDigit;
   }
 }

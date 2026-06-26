@@ -51,7 +51,10 @@ class _OnboardingSlide2VisualState extends State<OnboardingSlide2Visual> {
         children: [
           // ── White Card with iOS Grid ─────────────────────────────
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ),
             child: Container(
               width: double.infinity,
               height: double.infinity,
@@ -81,7 +84,9 @@ class _OnboardingSlide2VisualState extends State<OnboardingSlide2Visual> {
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: IntelliaColors.brandIndigo.withValues(alpha: 0.16),
+                            color: IntelliaColors.brandIndigo.withValues(
+                              alpha: 0.16,
+                            ),
                           ),
                         ),
                       ),
@@ -93,7 +98,9 @@ class _OnboardingSlide2VisualState extends State<OnboardingSlide2Visual> {
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: IntelliaColors.brandPurple.withValues(alpha: 0.16),
+                            color: IntelliaColors.brandPurple.withValues(
+                              alpha: 0.16,
+                            ),
                           ),
                         ),
                       ),
@@ -116,27 +123,28 @@ class _OnboardingSlide2VisualState extends State<OnboardingSlide2Visual> {
                   duration: const Duration(milliseconds: 450),
                   switchInCurve: const Cubic(0.25, 0.1, 0.25, 1.0),
                   switchOutCurve: const Cubic(0.25, 0.1, 0.25, 1.0),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    final inAnimation = Tween<Offset>(
-                      begin: const Offset(0.0, 0.4),
-                      end: Offset.zero,
-                    ).animate(animation);
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                        final inAnimation = Tween<Offset>(
+                          begin: const Offset(0.0, 0.4),
+                          end: Offset.zero,
+                        ).animate(animation);
 
-                    final outAnimation = Tween<Offset>(
-                      begin: const Offset(0.0, -0.4),
-                      end: Offset.zero,
-                    ).animate(animation);
+                        final outAnimation = Tween<Offset>(
+                          begin: const Offset(0.0, -0.4),
+                          end: Offset.zero,
+                        ).animate(animation);
 
-                    final isIncoming = child.key == ValueKey<int>(_step);
+                        final isIncoming = child.key == ValueKey<int>(_step);
 
-                    return SlideTransition(
-                      position: isIncoming ? inAnimation : outAnimation,
-                      child: FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      ),
-                    );
-                  },
+                        return SlideTransition(
+                          position: isIncoming ? inAnimation : outAnimation,
+                          child: FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          ),
+                        );
+                      },
                   child: Text(
                     _equations[_step],
                     key: ValueKey<int>(_step),
@@ -179,7 +187,10 @@ class _OnboardingSlide2VisualState extends State<OnboardingSlide2Visual> {
                   opacity: _step == _equations.length - 1 ? 1.0 : 0.0,
                   duration: const Duration(milliseconds: 300),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: IntelliaColors.success.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
@@ -224,11 +235,11 @@ class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = isDark 
-          ? Colors.white.withValues(alpha: 0.04) 
+      ..color = isDark
+          ? Colors.white.withValues(alpha: 0.04)
           : IntelliaColors.brandIndigo.withValues(alpha: 0.07)
       ..strokeWidth = 1.0;
-    
+
     const double step = 24.0;
     for (double x = 0; x < size.width; x += step) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);

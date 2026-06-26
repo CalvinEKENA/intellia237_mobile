@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
+import '../../auth/application/auth_user_id.dart';
 import '../../learn/application/learn_providers.dart';
 import '../data/firestore_quiz_repository.dart';
 import '../data/quiz_repository.dart';
@@ -30,7 +31,7 @@ final quizByIdProvider = FutureProvider.family<QuizModel, String>((
 });
 
 final currentQuizUserIdProvider = Provider<String>((ref) {
-  return ref.watch(authControllerProvider).userId ?? 'demo-student';
+  return requireAuthenticatedUserId(ref.watch(authControllerProvider));
 });
 
 final quizAttemptSaverProvider = Provider<QuizAttemptSaver>((ref) {

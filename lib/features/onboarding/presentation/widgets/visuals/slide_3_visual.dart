@@ -152,7 +152,10 @@ class _OnboardingSlide3VisualState extends State<OnboardingSlide3Visual>
                   child: FractionallySizedBox(
                     widthFactor: 0.82,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: IntelliaColors.brandBlue,
                         borderRadius: const BorderRadius.only(
@@ -163,7 +166,9 @@ class _OnboardingSlide3VisualState extends State<OnboardingSlide3Visual>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: IntelliaColors.brandBlue.withValues(alpha: 0.24),
+                            color: IntelliaColors.brandBlue.withValues(
+                              alpha: 0.24,
+                            ),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -204,17 +209,16 @@ class _OnboardingSlide3VisualState extends State<OnboardingSlide3Visual>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        '🇬🇧',
-                        style: TextStyle(fontSize: 14),
-                      ),
+                      const Text('🇬🇧', style: TextStyle(fontSize: 14)),
                       const SizedBox(width: 6),
                       Text(
                         'English',
                         style: GoogleFonts.montserrat(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? IntelliaColors.textTertiary : IntelliaColors.textTertiary,
+                          color: isDark
+                              ? IntelliaColors.textTertiary
+                              : IntelliaColors.textTertiary,
                         ),
                       ),
                     ],
@@ -244,11 +248,15 @@ class _ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final bgColor = isMe
         ? IntelliaColors.brandBlue
-        : (isDark ? IntelliaColors.backgroundSecondaryDark : IntelliaColors.backgroundSecondary);
+        : (isDark
+              ? IntelliaColors.backgroundSecondaryDark
+              : IntelliaColors.backgroundSecondary);
 
     final textColor = isMe
         ? Colors.white
-        : (isDark ? IntelliaColors.textPrimaryDark : IntelliaColors.textPrimary);
+        : (isDark
+              ? IntelliaColors.textPrimaryDark
+              : IntelliaColors.textPrimary);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
