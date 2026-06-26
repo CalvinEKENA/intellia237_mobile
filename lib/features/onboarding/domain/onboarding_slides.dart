@@ -7,35 +7,35 @@ import 'onboarding_slide_data.dart';
 abstract final class OnboardingSlides {
   static const slides = <OnboardingSlideData>[
     OnboardingSlideData(
-      title: 'Tes grandes vacances\ncommencent ici',
+      title: 'Quelques minutes par jour',
       description:
-          'Révise, découvre et prends de l’avance, sans transformer tes vacances en salle de classe.',
-      asset: 'assets/companions/kira.png',
-      icon: Icons.wb_sunny_rounded,
-      accentColor: IntelliaColors.brandPurple,
-    ),
-    OnboardingSlideData(
-      title: 'Un parcours\nà ton rythme',
-      description:
-          'Des missions courtes, adaptées à ta classe, pour renforcer l’essentiel et préparer la suite.',
-      asset: 'assets/companions/leo.png',
-      icon: Icons.directions_run_rounded,
+          'Des défis courts pour préparer la rentrée sans pression.',
+      asset: '',
+      icon: Icons.timer_outlined,
       accentColor: IntelliaColors.brandIndigo,
     ),
     OnboardingSlideData(
-      title: 'Kira explique.\nLéo te challenge.',
+      title: 'Chaque matière devient plus claire',
       description:
-          'Choisis l’accompagnement dont tu as besoin : comprendre calmement ou te dépasser.',
-      asset: 'assets/companions/kira.png',
-      icon: Icons.psychology_rounded,
+          'Maths, français, anglais, sciences : Kira et Léo avancent avec toi.',
+      asset: '',
+      icon: Icons.menu_book_rounded,
       accentColor: IntelliaColors.brandPurple,
     ),
     OnboardingSlideData(
-      title: 'Prêt pour ta\nprochaine classe ?',
+      title: 'Teste-toi sans stress',
       description:
-          'Avance dans le Flow, relève les défis de l’Arena et regarde tes progrès grandir.',
-      asset: 'assets/companions/leo.png',
-      icon: Icons.rocket_launch_rounded,
+          'Quiz et QCM t\'aident à voir ce que tu maîtrises déjà.',
+      asset: '',
+      icon: Icons.check_circle_outline_rounded,
+      accentColor: IntelliaColors.brandBlue,
+    ),
+    OnboardingSlideData(
+      title: 'Deviens champion matière par matière',
+      description:
+          'Choisis Kira ou Léo et commence ton parcours Objectif rentrée.',
+      asset: '',
+      icon: Icons.emoji_events_outlined,
       accentColor: IntelliaColors.brandIndigo,
     ),
   ];

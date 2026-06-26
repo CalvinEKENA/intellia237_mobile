@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
@@ -30,6 +32,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   int _nextSlide = 0;
   bool _isTransitioning = false;
   int _direction = 1; // 1 for next, -1 for previous
+  bool _hasInteracted = false; // Tracks if the user has manually interacted
 
   bool get _isLastSlide => _currentSlide >= _slides.length - 1;
 
@@ -38,19 +41,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    _progressCtrl =
-        AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 5500), // 5.5s per slide
-        )..addStatusListener((status) {
-          if (status == AnimationStatus.completed) {
-            _advanceSlide();
-          }
-        });
+    _progressCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 10000), // 10s per slide = 40s total
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed && !_hasInteracted) {
+          _advanceSlide();
+        }
+      });
 
     _transitionCtrl = AnimationController(
       vsync: this,
-      duration: IntelliaMotion.medium,
+      duration: const Duration(milliseconds: 450), // Smooth duration for Shared Axis
     );
 
     // Start auto-play
@@ -59,11 +61,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Pause timer when app goes to background, resume when active
+    // Pause timer when app goes to background, resume when active (if not interacted)
     if (state == AppLifecycleState.paused) {
       _progressCtrl.stop();
     } else if (state == AppLifecycleState.resumed) {
-      if (!_isTransitioning && !_isLastSlide) {
+      if (!_isTransitioning && !_isLastSlide && !_hasInteracted) {
         _progressCtrl.forward();
       }
     }
@@ -77,6 +79,32 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     super.dispose();
   }
 
+  // Handles manual advancement with haptic feedback and stops auto-play
+  void _handleManualAdvance() {
+    if (_isTransitioning) return;
+    
+    if (!_hasInteracted) {
+      setState(() {
+        _hasInteracted = true;
+      });
+      _progressCtrl.stop();
+    }
+    _advanceSlide();
+  }
+
+  // Handles manual previous navigation with haptic feedback and stops auto-play
+  void _handleManualPrevious() {
+    if (_isTransitioning || _currentSlide == 0) return;
+
+    if (!_hasInteracted) {
+      setState(() {
+        _hasInteracted = true;
+      });
+      _progressCtrl.stop();
+    }
+    _previousSlide();
+  }
+
   Future<void> _advanceSlide() async {
     if (_isTransitioning) return;
 
@@ -84,6 +112,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       await _completeOnboarding();
       return;
     }
+
+    // Trigger subtle haptic feedback for transition
+    HapticFeedback.lightImpact();
 
     _isTransitioning = true;
     _direction = 1;
@@ -99,13 +130,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     });
 
     _transitionCtrl.reset();
-    if (!_isLastSlide) {
+    if (!_isLastSlide && !_hasInteracted) {
       _progressCtrl.forward(from: 0.0);
     }
   }
 
   Future<void> _previousSlide() async {
     if (_isTransitioning || _currentSlide == 0) return;
+
+    // Trigger subtle haptic feedback for transition
+    HapticFeedback.lightImpact();
 
     _isTransitioning = true;
     _direction = -1;
@@ -121,10 +155,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     });
 
     _transitionCtrl.reset();
-    _progressCtrl.forward(from: 0.0);
+    if (!_hasInteracted) {
+      _progressCtrl.forward(from: 0.0);
+    }
   }
 
   Future<void> _completeOnboarding() async {
+    // Trigger medium haptic feedback on completion
+    HapticFeedback.mediumImpact();
+    
     _progressCtrl.stop();
     await markOnboardingSeen(ref);
     if (!mounted) return;
@@ -145,41 +184,83 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         onHorizontalDragEnd: (details) {
           if (details.primaryVelocity == null) return;
           if (details.primaryVelocity! < -300) {
-            _advanceSlide();
+            _handleManualAdvance();
           } else if (details.primaryVelocity! > 300) {
-            _previousSlide();
+            _handleManualPrevious();
           }
         },
         onTapUp: (details) {
-          // Story tap logic: tap left to go back, tap right to advance
+          // Story tap logic: tap left 30% of screen to go back, right to advance
           final x = details.localPosition.dx;
           if (x < size.width * 0.3) {
-            _previousSlide();
+            _handleManualPrevious();
           } else {
-            _advanceSlide();
+            _handleManualAdvance();
           }
         },
         behavior: HitTestBehavior.opaque,
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // ── Slides layout with animated transition ──────────
+            // ── Double Background Glow (Web App Mirror) ──────────
+            Positioned.fill(
+              child: Container(
+                color: isDark ? IntelliaColors.backgroundPremiumDark : IntelliaColors.backgroundPremium,
+              ),
+            ),
+            Positioned(
+              top: -size.height * 0.3,
+              left: -size.width * 0.5,
+              right: -size.width * 0.5,
+              height: size.height * 0.8,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      IntelliaColors.brandIndigo.withValues(alpha: isDark ? 0.04 : 0.06),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -size.height * 0.3,
+              left: -size.width * 0.5,
+              right: -size.width * 0.5,
+              height: size.height * 0.8,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      IntelliaColors.brandPurple.withValues(alpha: isDark ? 0.03 : 0.05),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Slides layout with animated transition (Shared Axis) ──
             AnimatedBuilder(
               animation: _transitionCtrl,
               builder: (context, _) {
-                final t = Curves.easeInOutCubic.transform(
+                // Cupertino ease-in-out cubic transform
+                final t = const Cubic(0.25, 0.1, 0.25, 1.0).transform(
                   _transitionCtrl.value,
                 );
 
                 return Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Outgoing slide
+                    // Outgoing slide: slide out to direction * -40px and fade out
                     if (_isTransitioning)
                       Opacity(
-                        opacity: (1 - t * 2).clamp(0.0, 1.0),
-                        child: Transform.scale(
-                          scale: 1.0 - (t * 0.04),
+                        opacity: (1.0 - t).clamp(0.0, 1.0),
+                        child: Transform.translate(
+                          offset: Offset(-_direction * 40.0 * t, 0.0),
                           child: OnboardingSlideView(
                             key: ValueKey('slide_exit_$_currentSlide'),
                             data: _slides[_currentSlide],
@@ -192,12 +273,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                         data: _slides[_currentSlide],
                       ),
 
-                    // Incoming slide
+                    // Incoming slide: slide in from direction * 40px and fade in
                     if (_isTransitioning)
-                      Transform.translate(
-                        offset: Offset(size.width * (1.0 - t) * _direction, 0),
-                        child: Opacity(
-                          opacity: (t * 2 - 0.2).clamp(0.0, 1.0),
+                      Opacity(
+                        opacity: t.clamp(0.0, 1.0),
+                        child: Transform.translate(
+                          offset: Offset(_direction * 40.0 * (1.0 - t), 0.0),
                           child: OnboardingSlideView(
                             key: ValueKey('slide_enter_$_nextSlide'),
                             data: _slides[_nextSlide],
@@ -227,7 +308,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                           return OnboardingProgressBar(
                             totalSlides: _slides.length,
                             currentSlide: _currentSlide,
-                            progress: _progressCtrl.value,
+                            progress: _hasInteracted ? 1.0 : _progressCtrl.value,
                             accentColor: _currentAccent,
                           );
                         },
@@ -235,7 +316,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                     ),
                     const SizedBox(height: IntelliaSpacing.md),
 
-                    // Brand Mark Header (small version)
+                    // Brand Mark Header (small version) + Glassmorphic Skip
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: IntelliaSpacing.lg,
@@ -267,56 +348,129 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                             ),
                           ),
                           const Spacer(),
-                          // Skip button
-                          if (!_isLastSlide)
-                            GestureDetector(
-                              onTap: _completeOnboarding,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Colors.white.withValues(alpha: 0.08)
-                                      : Colors.black.withValues(alpha: 0.05),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  'Passer',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark
-                                        ? IntelliaColors.textPrimaryDark
-                                        : IntelliaColors.textPrimary,
+                          // Skip button - Always available in header, glassmorphic
+                          GestureDetector(
+                            onTap: _completeOnboarding,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: (isDark ? Colors.white : Colors.black)
+                                        .withValues(alpha: isDark ? 0.06 : 0.05),
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: (isDark ? Colors.white : Colors.black)
+                                          .withValues(alpha: 0.08),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Passer',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark
+                                          ? IntelliaColors.textPrimaryDark
+                                          : IntelliaColors.textPrimary,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
+                          ),
                         ],
                       ),
                     ),
 
                     const Spacer(),
 
-                    // CTA button on the last slide
-                    if (_isLastSlide) ...[
-                      Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: IntelliaSpacing.xl,
-                            ),
-                            child: IntelliaPrimaryButton(
-                              onTap: _completeOnboarding,
-                              gradient: IntelliaGradients.brand,
-                              child: const Text('Entrer dans INTELLIA237'),
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(duration: 400.ms)
-                          .slideY(begin: 0.2, end: 0),
-                      const SizedBox(height: IntelliaSpacing.xl),
-                    ],
+                    // ── Footer Layout (Web App Mirror) ──────────────────
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: IntelliaSpacing.lg,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Dots Indicator
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(_slides.length, (index) {
+                              final isCurrent = index == _currentSlide;
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                                width: isCurrent ? 24 : 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: isCurrent
+                                      ? IntelliaColors.brandIndigo
+                                      : (isDark ? Colors.white24 : Colors.black12),
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              );
+                            }),
+                          ),
+                          const SizedBox(height: IntelliaSpacing.md),
+
+                          // Action Buttons
+                          Row(
+                            children: [
+                              // Previous Button (fades out on slide 0)
+                              Opacity(
+                                opacity: _currentSlide == 0 ? 0.0 : 1.0,
+                                child: IgnorePointer(
+                                  ignoring: _currentSlide == 0,
+                                  child: TextButton(
+                                    onPressed: _handleManualPrevious,
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: isDark
+                                          ? IntelliaColors.textSecondaryDark
+                                          : IntelliaColors.textSecondary,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Précédent',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+
+                              // Next / Get Started Primary Button
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                width: _isLastSlide ? 168 : 132,
+                                child: IntelliaPrimaryButton(
+                                  onTap: _handleManualAdvance,
+                                  gradient: IntelliaGradients.brand,
+                                  child: Text(
+                                    _isLastSlide ? 'Commencer' : 'Suivant',
+                                    style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: IntelliaSpacing.xl),
                   ],
                 ),
               ),

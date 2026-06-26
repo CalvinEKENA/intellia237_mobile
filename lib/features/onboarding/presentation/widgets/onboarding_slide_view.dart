@@ -4,6 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 import '../../domain/onboarding_slide_data.dart';
+import '../../domain/onboarding_slides.dart';
+import 'visuals/slide_1_visual.dart';
+import 'visuals/slide_2_visual.dart';
+import 'visuals/slide_3_visual.dart';
+import 'visuals/slide_4_visual.dart';
 
 class OnboardingSlideView extends StatelessWidget {
   const OnboardingSlideView({required this.data, super.key});
@@ -12,101 +17,80 @@ class OnboardingSlideView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = data.accentColor;
-    final isKira = data.asset.contains('kira');
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    // Find the slide index to load the corresponding interactive visual
+    final index = OnboardingSlides.slides.indexOf(data);
+
+    // Render the correct premium interactive visual widget
+    final Widget visualWidget = switch (index) {
+      0 => const OnboardingSlide1Visual(),
+      1 => const OnboardingSlide2Visual(),
+      2 => const OnboardingSlide3Visual(),
+      3 => const OnboardingSlide4Visual(),
+      _ => const SizedBox(height: 280),
+    };
+
+    // Gold metallic accent color (#D4AF37)
+    const goldColor = Color(0xFFD4AF37);
 
     return Stack(
       fit: StackFit.expand,
       children: [
-        // ── Subtle background gradient depending on companion ────
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                IntelliaColors.backgroundPremium,
-                accent.withValues(alpha: 0.08),
-                IntelliaColors.backgroundPrimary,
-              ],
-            ),
+        // ── Double Background Glow (Subtle & Elegant) ───────────
+        Positioned.fill(
+          child: Container(
+            color: isDark ? IntelliaColors.backgroundPremiumDark : IntelliaColors.backgroundPremium,
           ),
         ),
 
-        // ── Radial glow behind companion ──────────────────────────
+        // ── Visual Component Container ───────────────────────────
         Positioned(
-          top: MediaQuery.of(context).size.height * 0.15,
+          top: MediaQuery.of(context).size.height * 0.08,
           left: 0,
           right: 0,
-          height: 300,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [accent.withValues(alpha: 0.25), Colors.transparent],
-              ),
-            ),
-          ),
+          child: visualWidget,
         ),
 
-        // ── Companion Image (BoxFit.contain) ──────────────────────
-        Positioned(
-          top: MediaQuery.of(context).size.height * 0.12,
-          left: 40,
-          right: 40,
-          height: 320,
-          child:
-              Image.asset(
-                    data.asset,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, _, _) => Icon(
-                      isKira ? Icons.face_retouching_natural : Icons.face,
-                      size: 120,
-                      color: accent,
-                    ),
-                  )
-                  .animate(key: ValueKey(data.asset))
-                  .fadeIn(duration: 500.ms)
-                  .slideY(
-                    begin: 0.08,
-                    end: 0,
-                    duration: 500.ms,
-                    curve: Curves.easeOutCubic,
-                  ),
-        ),
-
-        // ── Text Content ──────────────────────────────────────────
+        // ── Text Content Area ─────────────────────────────────────
         Positioned(
           left: IntelliaSpacing.xl,
           right: IntelliaSpacing.xl,
-          bottom: MediaQuery.of(context).size.height * 0.18,
+          bottom: MediaQuery.of(context).size.height * 0.16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Pill brand mark tag
+              // Pill brand mark tag with gold metallic accents (#D4AF37)
               Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: IntelliaSpacing.sm,
-                      vertical: 4,
+                      vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.12),
+                      color: goldColor.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(IntelliaRadii.full),
-                      border: Border.all(color: accent.withValues(alpha: 0.35)),
+                      border: Border.all(color: goldColor.withValues(alpha: 0.35)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: goldColor.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(data.icon, size: 12, color: accent),
+                        Icon(data.icon, size: 12, color: goldColor),
                         const SizedBox(width: 6),
                         Text(
                           'INTELLIA237',
-                          style: TextStyle(
+                          style: GoogleFonts.montserrat(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: accent,
-                            letterSpacing: 0.5,
+                            color: goldColor,
+                            letterSpacing: 0.8,
                           ),
                         ),
                       ],
@@ -118,15 +102,18 @@ class OnboardingSlideView extends StatelessWidget {
 
               const SizedBox(height: IntelliaSpacing.md),
 
-              // Title Playfair Display
+              // Title in elegant Didot font (Playfair Display fallback)
               Text(
                     data.title,
                     style: GoogleFonts.playfairDisplay(
-                      fontSize: 32,
+                      fontSize: 30,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 0,
+                      letterSpacing: -0.5,
                       height: 1.15,
-                      color: IntelliaColors.textPrimary,
+                      color: isDark ? IntelliaColors.textPrimaryDark : IntelliaColors.textPrimary,
+                    ).copyWith(
+                      fontFamily: 'Didot',
+                      fontFamilyFallback: const ['Playfair Display', 'Georgia', 'serif'],
                     ),
                   )
                   .animate()
@@ -135,13 +122,13 @@ class OnboardingSlideView extends StatelessWidget {
 
               const SizedBox(height: IntelliaSpacing.sm),
 
-              // Description Montserrat
+              // Description in modern Montserrat font
               Text(
                     data.description,
                     style: GoogleFonts.montserrat(
-                      fontSize: 15,
+                      fontSize: 14.5,
                       height: 1.55,
-                      color: IntelliaColors.textSecondary,
+                      color: isDark ? IntelliaColors.textSecondaryDark : IntelliaColors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   )

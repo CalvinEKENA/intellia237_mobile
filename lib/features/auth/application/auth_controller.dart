@@ -134,30 +134,6 @@ class AuthController extends Notifier<AuthState> {
     state = const AuthState.unauthenticated();
   }
 
-  /// Connexion rapide role-based (placeholder temporaire pour valider le routing).
-  void signInAs(AppRole role) {
-    state = AuthState.authenticated(
-      role: role,
-      userId: 'demo-${role.name}',
-      email: '${role.name}@intellia237.app',
-      firstName: role.label,
-    );
-  }
-
-  /// Changement de rôle en session (placeholder routing).
-  void switchRole(AppRole role) {
-    if (!state.isAuthenticated) {
-      return;
-    }
-
-    state = AuthState.authenticated(
-      role: role,
-      userId: state.userId ?? 'demo-${role.name}',
-      email: state.email,
-      firstName: state.firstName,
-    );
-  }
-
   /// Utilise les donnees reelles retournees apres un onboarding/inscription.
   void setAuthenticatedUser({
     required AppRole role,
