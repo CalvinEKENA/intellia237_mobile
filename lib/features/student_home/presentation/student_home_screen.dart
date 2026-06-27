@@ -12,6 +12,7 @@ import '../../ai_companion/presentation/ai_companion_screen.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_state.dart';
 import '../../auth/domain/app_role.dart';
+import '../../flow/presentation/widgets/flow_entry_card.dart';
 import '../../learn/application/learn_providers.dart';
 import '../../learn/domain/learn_academic_context.dart';
 import '../../learn/presentation/learn_hub_screen.dart';
@@ -251,6 +252,13 @@ class _StudentHomeTab extends StatelessWidget {
                     streakDays: snapshot.streakDays,
                     message: snapshot.motivationText,
                   ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              FadeSlideEntrance(
+                delay: const Duration(milliseconds: 100),
+                child: FlowEntryCard(
+                  onTap: () => context.push(AppRoutes.flow),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),

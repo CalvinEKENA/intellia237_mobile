@@ -10,6 +10,7 @@ abstract final class AppRoutes {
   static const forgotPassword = '/forgot-password';
 
   static const studentHome = '/student';
+  static const flow = '/flow';
   static const learnHub = '/learn';
   static const learnSubjectRoute = '/learn/subject/:subjectId';
   static const learnChapterRoute =
@@ -69,6 +70,7 @@ abstract final class AppRoutes {
 
   static bool isStudentPath(String location) {
     return location == studentHome ||
+        location.startsWith(flow) ||
         location.startsWith(learnHub) ||
         location.startsWith(quizHub) ||
         location.startsWith(aiCompanion);
