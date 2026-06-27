@@ -114,12 +114,19 @@ class AuthController extends Notifier<AuthState> {
 
   /// Envoi de l'email de réinitialisation
   Future<bool> sendPasswordReset(String email) async {
+    state = state.copyWith(isLoading: true, error: null);
     try {
       await _repo.sendPasswordResetEmail(email);
+      state = state.copyWith(isLoading: false, error: null);
       return true;
-    } on AuthError {
+    } on AuthError catch (error) {
+      state = state.copyWith(isLoading: false, error: error.message);
       return false;
     } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Le service est momentanément indisponible. Réessaie.',
+      );
       return false;
     }
   }
