@@ -62,19 +62,19 @@ flutter_launcher_icons:
   ios: true
   web:
     generate: true
-    image_path: assets/branding/intellia237_app_icon.png
+    image_path: assets/icons/icone_final.png
     background_color: "#FBFAF7"
     theme_color: "#5856D6"
   windows:
     generate: true
-    image_path: assets/branding/intellia237_app_icon.png
+    image_path: assets/icons/icone_final.png
   macos:
     generate: true
-    image_path: assets/branding/intellia237_app_icon.png
-  image_path: assets/branding/intellia237_app_icon.png
+    image_path: assets/icons/icone_final.png
+  image_path: assets/icons/icone_final.png
   min_sdk_android: 21
   adaptive_icon_background: "#FBFAF7"
-  adaptive_icon_foreground: assets/branding/intellia237_app_icon.png
+  adaptive_icon_foreground: assets/icons/icone_final.png
 
 flutter_native_splash:
   color: "#FBFAF7"
