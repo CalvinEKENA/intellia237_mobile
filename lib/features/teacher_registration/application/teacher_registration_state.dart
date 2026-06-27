@@ -1,5 +1,3 @@
-import '../../student_registration/domain/school_establishment.dart';
-
 class TeacherRegistrationState {
   const TeacherRegistrationState({
     this.currentStep = 0,
@@ -10,7 +8,6 @@ class TeacherRegistrationState {
     this.email = '',
     this.password = '',
     this.confirmPassword = '',
-    this.establishment,
     this.subjects = const <String>[],
     this.levels = const <String>[],
     this.acceptedTerms = false,
@@ -26,7 +23,6 @@ class TeacherRegistrationState {
   final String email;
   final String password;
   final String confirmPassword;
-  final SchoolEstablishment? establishment;
   final List<String> subjects;
   final List<String> levels;
   final bool acceptedTerms;
@@ -45,8 +41,6 @@ class TeacherRegistrationState {
     String? email,
     String? password,
     String? confirmPassword,
-    SchoolEstablishment? establishment,
-    bool clearEstablishment = false,
     List<String>? subjects,
     List<String>? levels,
     bool? acceptedTerms,
@@ -61,9 +55,6 @@ class TeacherRegistrationState {
       email: email ?? this.email,
       password: password ?? this.password,
       confirmPassword: confirmPassword ?? this.confirmPassword,
-      establishment: clearEstablishment
-          ? null
-          : (establishment ?? this.establishment),
       subjects: subjects ?? this.subjects,
       levels: levels ?? this.levels,
       acceptedTerms: acceptedTerms ?? this.acceptedTerms,

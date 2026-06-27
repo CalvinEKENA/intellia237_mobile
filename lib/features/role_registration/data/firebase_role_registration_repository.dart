@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../student_registration/data/mock_establishments.dart';
-import '../../student_registration/domain/school_establishment.dart';
+import '../../auth/domain/firebase_error_mapper.dart';
 import '../domain/admin_registration_payload.dart';
 import '../domain/parent_registration_payload.dart';
 import '../domain/registration_result.dart';
@@ -22,7 +22,8 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
     FirebaseFunctions? functions,
   }) : _auth = auth ?? FirebaseAuth.instance,
        _firestore = firestore ?? FirebaseFirestore.instance,
-       _functions = functions ?? FirebaseFunctions.instance;
+       _functions =
+           functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
@@ -31,12 +32,6 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
   static const _usersCollection = 'users';
   static const _parentProfilesCollection = 'parent_profiles';
   static const _staffRegistrationCallable = 'submitStaffRegistration';
-
-  @override
-  Future<List<SchoolEstablishment>> searchEstablishments(String query) async {
-    // Recherche 100% locale — Yaounde et Douala uniquement.
-    return EstablishmentCatalog.search(query);
-  }
 
   @override
   Future<RoleRegistrationResult> registerParent(
@@ -127,16 +122,24 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
       );
-    } on FirebaseAuthException catch (error) {
+    } on FirebaseAuthException catch (error, stackTrace) {
+      _debugLog('register-role', error.code, error.message, stackTrace);
       throw RoleRegistrationException(
-        message: _mapAuthError(error),
-        code: error.code,
+        message: FirebaseErrorMapper.authMessage(
+          code: error.code,
+          technicalMessage: error.message,
+        ),
+        code: FirebaseErrorMapper.normalizeCode(error.code, error.message),
       );
-    } on FirebaseException catch (error) {
+    } on FirebaseException catch (error, stackTrace) {
+      _debugLog('register-role-profile', error.code, error.message, stackTrace);
       await _rollbackAuthUser(credential);
       throw RoleRegistrationException(
-        message: 'Impossible d\'enregistrer le compte pour le moment.',
-        code: error.code,
+        message: FirebaseErrorMapper.serviceMessage(
+          code: error.code,
+          technicalMessage: error.message,
+        ),
+        code: FirebaseErrorMapper.normalizeCode(error.code, error.message),
       );
     } on RoleRegistrationException {
       await _rollbackAuthUser(credential);
@@ -187,16 +190,29 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
         firstName: (data['firstName'] as String?) ?? firstName.trim(),
         lastName: (data['lastName'] as String?) ?? lastName.trim(),
       );
-    } on FirebaseAuthException catch (error) {
+    } on FirebaseAuthException catch (error, stackTrace) {
+      _debugLog('register-staff-auth', error.code, error.message, stackTrace);
       throw RoleRegistrationException(
-        message: _mapAuthError(error),
-        code: error.code,
+        message: FirebaseErrorMapper.authMessage(
+          code: error.code,
+          technicalMessage: error.message,
+        ),
+        code: FirebaseErrorMapper.normalizeCode(error.code, error.message),
       );
-    } on FirebaseFunctionsException catch (error) {
+    } on FirebaseFunctionsException catch (error, stackTrace) {
+      _debugLog(
+        'register-staff-callable',
+        error.code,
+        error.message,
+        stackTrace,
+      );
       await _rollbackAuthUser(credential);
       throw RoleRegistrationException(
-        message: _mapFunctionsError(error),
-        code: error.code,
+        message: FirebaseErrorMapper.serviceMessage(
+          code: error.code,
+          technicalMessage: error.message,
+        ),
+        code: FirebaseErrorMapper.normalizeCode(error.code, error.message),
       );
     } on RoleRegistrationException {
       await _rollbackAuthUser(credential);
@@ -223,28 +239,16 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
     }
   }
 
-  String _mapAuthError(FirebaseAuthException error) {
-    return switch (error.code) {
-      'email-already-in-use' => 'Cet email est deja utilise.',
-      'invalid-email' => 'Adresse email invalide.',
-      'weak-password' => 'Mot de passe trop faible (8 caracteres minimum).',
-      'network-request-failed' => 'Aucune connexion internet disponible.',
-      _ => error.message ?? 'Erreur lors de la creation du compte.',
-    };
-  }
-
-  String _mapFunctionsError(FirebaseFunctionsException error) {
-    return switch (error.code) {
-      'already-exists' => 'Un profil existe deja pour ce compte.',
-      'invalid-argument' =>
-        'Verifiez les informations du formulaire puis reessayez.',
-      'unauthenticated' =>
-        'Session Firebase invalide. Reconnectez-vous puis reessayez.',
-      'permission-denied' =>
-        'Ce profil doit etre valide par une equipe autorisee.',
-      'unavailable' =>
-        'Service temporairement indisponible. Reessayez dans un instant.',
-      _ => error.message ?? 'Impossible de finaliser ce profil.',
-    };
+  void _debugLog(
+    String operation,
+    String? code,
+    String? message,
+    StackTrace stackTrace,
+  ) {
+    if (!kDebugMode) return;
+    debugPrint(
+      'Role registration $operation failed: code=$code message=$message',
+    );
+    debugPrintStack(stackTrace: stackTrace);
   }
 }

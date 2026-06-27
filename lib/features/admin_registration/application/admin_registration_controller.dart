@@ -6,7 +6,6 @@ import '../../auth/domain/auth_input_validators.dart';
 import '../../role_registration/data/firebase_role_registration_repository.dart';
 import '../../role_registration/data/role_registration_repository.dart';
 import '../../role_registration/domain/admin_registration_payload.dart';
-import '../../student_registration/domain/school_establishment.dart';
 import 'admin_registration_state.dart';
 
 final adminRegistrationControllerProvider =
@@ -20,10 +19,6 @@ class AdminRegistrationController extends Notifier<AdminRegistrationState> {
 
   @override
   AdminRegistrationState build() => const AdminRegistrationState();
-
-  Future<List<SchoolEstablishment>> searchEstablishments(String query) {
-    return _repo.searchEstablishments(query);
-  }
 
   void setFirstName(String value) {
     state = state.copyWith(firstName: value, clearError: true);
@@ -49,16 +44,16 @@ class AdminRegistrationController extends Notifier<AdminRegistrationState> {
     state = state.copyWith(jobTitle: value, clearError: true);
   }
 
-  void setEstablishment(SchoolEstablishment value) {
-    state = state.copyWith(establishment: value, clearError: true);
-  }
-
   void setAcceptedTerms(bool value) {
     state = state.copyWith(acceptedTerms: value, clearError: true);
   }
 
   void setAcceptedPrivacy(bool value) {
     state = state.copyWith(acceptedPrivacy: value, clearError: true);
+  }
+
+  void clearError() {
+    if (state.errorMessage != null) state = state.copyWith(clearError: true);
   }
 
   void nextStep() {
@@ -90,12 +85,6 @@ class AdminRegistrationController extends Notifier<AdminRegistrationState> {
       return false;
     }
 
-    final establishment = state.establishment;
-    if (establishment == null) {
-      state = state.copyWith(errorMessage: 'Selectionnez un etablissement.');
-      return false;
-    }
-
     state = state.copyWith(isSubmitting: true, clearError: true);
 
     try {
@@ -106,7 +95,6 @@ class AdminRegistrationController extends Notifier<AdminRegistrationState> {
           email: state.email.trim(),
           password: state.password,
           jobTitle: state.jobTitle.trim(),
-          establishment: establishment,
           acceptedTerms: state.acceptedTerms,
           acceptedPrivacy: state.acceptedPrivacy,
         ),
@@ -152,9 +140,6 @@ class AdminRegistrationController extends Notifier<AdminRegistrationState> {
   String? _validateOrganization() {
     if (state.jobTitle.trim().length < 3) {
       return 'La fonction doit contenir au moins 3 caracteres.';
-    }
-    if (state.establishment == null) {
-      return 'Selectionnez un etablissement.';
     }
     return null;
   }

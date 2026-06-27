@@ -72,6 +72,10 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
     state = state.copyWith(acceptedPrivacy: value, clearError: true);
   }
 
+  void clearError() {
+    if (state.errorMessage != null) state = state.copyWith(clearError: true);
+  }
+
   void nextStep() {
     if (state.currentStep < 2) {
       state = state.copyWith(currentStep: state.currentStep + 1);

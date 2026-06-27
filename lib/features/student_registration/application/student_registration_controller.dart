@@ -7,7 +7,7 @@ import '../data/firebase_student_registration_repository.dart';
 import '../data/student_registration_repository.dart';
 import '../domain/academic_rules.dart';
 import '../domain/learning_goal.dart';
-import '../domain/school_establishment.dart';
+import '../domain/student_registration_result.dart';
 import '../domain/subject_catalog.dart';
 import 'student_registration_state.dart';
 
@@ -17,15 +17,13 @@ final studentRegistrationControllerProvider =
     );
 
 class StudentRegistrationController extends Notifier<StudentRegistrationState> {
+  StudentRegistrationResult? _registeredUser;
+
   StudentRegistrationRepository get _repo =>
       ref.read(studentRegistrationRepositoryProvider);
 
   @override
   StudentRegistrationState build() => const StudentRegistrationState();
-
-  Future<List<SchoolEstablishment>> searchEstablishments(String query) {
-    return _repo.searchEstablishments(query);
-  }
 
   void setFirstName(String value) {
     state = state.copyWith(firstName: value, clearError: true);
@@ -33,10 +31,6 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
 
   void setLastName(String value) {
     state = state.copyWith(lastName: value, clearError: true);
-  }
-
-  void setEstablishment(SchoolEstablishment establishment) {
-    state = state.copyWith(establishment: establishment, clearError: true);
   }
 
   void setSchoolClass(SchoolClass schoolClass) {
@@ -105,6 +99,12 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
     state = state.copyWith(acceptedDataPolicy: value, clearError: true);
   }
 
+  void clearError() {
+    if (state.errorMessage != null) {
+      state = state.copyWith(clearError: true);
+    }
+  }
+
   void goToNextStep() {
     if (state.currentStep >= 3) {
       return;
@@ -147,16 +147,12 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
     try {
       final result = await _repo.registerStudent(state.toPayload());
 
-      ref
-          .read(authControllerProvider.notifier)
-          .setAuthenticatedUser(
-            role: AppRole.student,
-            userId: result.uid,
-            email: result.email,
-            firstName: result.firstName,
-          );
-
-      state = state.copyWith(isSubmitting: false, clearError: true);
+      _registeredUser = result;
+      state = state.copyWith(
+        isSubmitting: false,
+        isCompleted: true,
+        clearError: true,
+      );
       return true;
     } on StudentRegistrationException catch (error) {
       state = state.copyWith(isSubmitting: false, errorMessage: error.message);
@@ -168,6 +164,19 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
       );
       return false;
     }
+  }
+
+  void completeRegistration() {
+    final result = _registeredUser;
+    if (result == null || !state.isCompleted) return;
+    ref
+        .read(authControllerProvider.notifier)
+        .setAuthenticatedUser(
+          role: AppRole.student,
+          userId: result.uid,
+          email: result.email,
+          firstName: result.firstName,
+        );
   }
 
   String? _validateAllSteps() {

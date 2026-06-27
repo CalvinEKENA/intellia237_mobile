@@ -84,20 +84,21 @@ export type RecordLessonProgressCallableInput = z.infer<
 >;
 
 const staffNameSchema = z.string().trim().min(2).max(60);
-const staffEstablishmentSchema = z
+const legacyStaffEstablishmentSchema = z
   .object({
     id: z.string().trim().min(2).max(128),
     name: z.string().trim().min(2).max(160),
     city: z.string().trim().min(1).max(80).optional(),
   })
-  .strict();
+  .strict()
+  .optional();
 
 const staffRegistrationBaseSchema = z
   .object({
     firstName: staffNameSchema,
     lastName: staffNameSchema,
     email: z.string().trim().email().max(256),
-    establishment: staffEstablishmentSchema,
+    establishment: legacyStaffEstablishmentSchema,
     acceptedTerms: z.literal(true),
     acceptedPrivacy: z.literal(true),
   })

@@ -69,8 +69,8 @@ describe("submitStaffRegistration", () => {
       role: "teacher",
       accountStatus: "pending_validation",
       requiresValidation: true,
-      establishmentId: "school-a",
     });
+    expect(documents.userDocument).not.toHaveProperty("establishmentId");
     expect(documents.profileDocument).toMatchObject({
       subjects: ["Mathematiques"],
       levels: ["Terminale"],
@@ -79,6 +79,8 @@ describe("submitStaffRegistration", () => {
         required: true,
       },
     });
+    expect(documents.profileDocument).not.toHaveProperty("establishmentId");
+    expect(documents.profileDocument).not.toHaveProperty("establishmentName");
   });
 
   it("creates a pending admin profile document without elevated permissions", () => {
@@ -103,6 +105,9 @@ describe("submitStaffRegistration", () => {
         canViewFinance: false,
       },
     });
+    expect(documents.userDocument).not.toHaveProperty("establishmentId");
+    expect(documents.profileDocument).not.toHaveProperty("establishmentId");
+    expect(documents.profileDocument).not.toHaveProperty("establishmentName");
   });
 });
 
@@ -112,11 +117,6 @@ function validTeacherPayload(): StaffRegistrationCallableInput {
     firstName: "Serge",
     lastName: "Mbarga",
     email: "teacher@example.com",
-    establishment: {
-      id: "school-a",
-      name: "Lycee A",
-      city: "Yaounde",
-    },
     subjects: ["Mathematiques"],
     levels: ["Terminale"],
     acceptedTerms: true,
@@ -131,11 +131,6 @@ function validAdminPayload(): StaffRegistrationCallableInput {
     lastName: "Meka",
     email: "admin@example.com",
     jobTitle: "Proviseur",
-    establishment: {
-      id: "school-a",
-      name: "Lycee A",
-      city: "Yaounde",
-    },
     acceptedTerms: true,
     acceptedPrivacy: true,
   };

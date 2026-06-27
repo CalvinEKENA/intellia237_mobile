@@ -7,7 +7,6 @@ import '../../role_registration/data/firebase_role_registration_repository.dart'
 import '../../role_registration/data/role_registration_repository.dart';
 import '../../role_registration/domain/teacher_catalogs.dart';
 import '../../role_registration/domain/teacher_registration_payload.dart';
-import '../../student_registration/domain/school_establishment.dart';
 import 'teacher_registration_state.dart';
 
 final teacherRegistrationControllerProvider =
@@ -21,10 +20,6 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
 
   @override
   TeacherRegistrationState build() => const TeacherRegistrationState();
-
-  Future<List<SchoolEstablishment>> searchEstablishments(String query) {
-    return _repo.searchEstablishments(query);
-  }
 
   void setFirstName(String value) {
     state = state.copyWith(firstName: value, clearError: true);
@@ -44,10 +39,6 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
 
   void setConfirmPassword(String value) {
     state = state.copyWith(confirmPassword: value, clearError: true);
-  }
-
-  void setEstablishment(SchoolEstablishment value) {
-    state = state.copyWith(establishment: value, clearError: true);
   }
 
   void toggleSubject(String value) {
@@ -97,6 +88,10 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
     state = state.copyWith(acceptedPrivacy: value, clearError: true);
   }
 
+  void clearError() {
+    if (state.errorMessage != null) state = state.copyWith(clearError: true);
+  }
+
   void nextStep() {
     if (state.currentStep < 2) {
       state = state.copyWith(currentStep: state.currentStep + 1);
@@ -126,12 +121,6 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
       return false;
     }
 
-    final establishment = state.establishment;
-    if (establishment == null) {
-      state = state.copyWith(errorMessage: 'Selectionnez un etablissement.');
-      return false;
-    }
-
     state = state.copyWith(isSubmitting: true, clearError: true);
 
     try {
@@ -141,7 +130,6 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
           lastName: state.lastName.trim(),
           email: state.email.trim(),
           password: state.password,
-          establishment: establishment,
           subjects: state.subjects,
           levels: state.levels,
           acceptedTerms: state.acceptedTerms,
@@ -187,9 +175,6 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
   }
 
   String? _validateTeachingData() {
-    if (state.establishment == null) {
-      return 'Selectionnez un etablissement.';
-    }
     if (state.subjects.isEmpty) {
       return 'Selectionnez au moins une matiere enseignee.';
     }

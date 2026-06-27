@@ -1,6 +1,5 @@
 import '../domain/academic_rules.dart';
 import '../domain/learning_goal.dart';
-import '../domain/school_establishment.dart';
 import '../domain/student_registration_payload.dart';
 
 class StudentRegistrationState {
@@ -10,7 +9,6 @@ class StudentRegistrationState {
     this.errorMessage,
     this.firstName = '',
     this.lastName = '',
-    this.establishment,
     this.schoolClass,
     this.schoolSeries,
     this.selectedTutorId,
@@ -24,6 +22,7 @@ class StudentRegistrationState {
     this.acceptedTerms = false,
     this.acceptedPrivacy = false,
     this.acceptedDataPolicy = false,
+    this.isCompleted = false,
   });
 
   final int currentStep;
@@ -33,7 +32,6 @@ class StudentRegistrationState {
   final String firstName;
   final String lastName;
 
-  final SchoolEstablishment? establishment;
   final SchoolClass? schoolClass;
   final SchoolSeries? schoolSeries;
 
@@ -51,6 +49,7 @@ class StudentRegistrationState {
   final bool acceptedTerms;
   final bool acceptedPrivacy;
   final bool acceptedDataPolicy;
+  final bool isCompleted;
 
   bool get isFirstStep => currentStep == 0;
   bool get isLastStep => currentStep == 3;
@@ -62,8 +61,6 @@ class StudentRegistrationState {
     bool clearError = false,
     String? firstName,
     String? lastName,
-    SchoolEstablishment? establishment,
-    bool clearEstablishment = false,
     SchoolClass? schoolClass,
     bool clearSchoolClass = false,
     SchoolSeries? schoolSeries,
@@ -81,6 +78,7 @@ class StudentRegistrationState {
     bool? acceptedTerms,
     bool? acceptedPrivacy,
     bool? acceptedDataPolicy,
+    bool? isCompleted,
   }) {
     return StudentRegistrationState(
       currentStep: currentStep ?? this.currentStep,
@@ -88,9 +86,6 @@ class StudentRegistrationState {
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
-      establishment: clearEstablishment
-          ? null
-          : (establishment ?? this.establishment),
       schoolClass: clearSchoolClass ? null : (schoolClass ?? this.schoolClass),
       schoolSeries: clearSchoolSeries
           ? null
@@ -110,6 +105,7 @@ class StudentRegistrationState {
       acceptedTerms: acceptedTerms ?? this.acceptedTerms,
       acceptedPrivacy: acceptedPrivacy ?? this.acceptedPrivacy,
       acceptedDataPolicy: acceptedDataPolicy ?? this.acceptedDataPolicy,
+      isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 
@@ -124,7 +120,6 @@ class StudentRegistrationState {
     return StudentRegistrationPayload(
       firstName: firstName.trim(),
       lastName: lastName.trim(),
-      establishment: establishment,
       schoolClass: selectedClass,
       schoolSeries: schoolSeries,
       selectedTutorId: selectedTutorId,

@@ -89,7 +89,6 @@ export function buildStaffRegistrationDocuments({
     lastName: input.lastName,
     email,
     role: input.role,
-    establishmentId: input.establishment.id,
     profileCompleted: true,
     accountStatus: "pending_validation",
     requiresValidation: true,
@@ -110,8 +109,6 @@ export function buildStaffRegistrationDocuments({
         firstName: input.firstName,
         lastName: input.lastName,
         email,
-        establishmentId: input.establishment.id,
-        establishmentName: input.establishment.name,
         subjects: input.subjects,
         levels: input.levels,
         workload: {
@@ -153,8 +150,6 @@ export function buildStaffRegistrationDocuments({
       lastName: input.lastName,
       email,
       jobTitle: input.jobTitle,
-      establishmentId: input.establishment.id,
-      establishmentName: input.establishment.name,
       validation: {
         status: "pending",
         required: true,

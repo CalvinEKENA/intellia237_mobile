@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../domain/school_establishment.dart';
+import '../../auth/domain/firebase_error_mapper.dart';
 import '../domain/student_registration_payload.dart';
 import '../domain/student_registration_result.dart';
-import 'mock_establishments.dart';
 import 'student_registration_repository.dart';
 
 final studentRegistrationRepositoryProvider =
@@ -28,24 +28,29 @@ class FirebaseStudentRegistrationRepository
   static const _profilesCollection = 'student_profiles';
 
   @override
-  Future<List<SchoolEstablishment>> searchEstablishments(String query) async {
-    // Recherche 100% locale — Yaounde et Douala uniquement.
-    return EstablishmentCatalog.search(query);
-  }
-
-  @override
   Future<StudentRegistrationResult> registerStudent(
     StudentRegistrationPayload payload,
   ) async {
-    UserCredential? credential;
+    User? user;
+    var createdHere = false;
 
     try {
-      credential = await _auth.createUserWithEmailAndPassword(
-        email: payload.email.trim(),
-        password: payload.password,
-      );
+      final normalizedEmail = payload.email.trim().toLowerCase();
+      final currentUser = _auth.currentUser;
+      if (currentUser != null &&
+          currentUser.email?.trim().toLowerCase() == normalizedEmail) {
+        user = currentUser;
+      } else {
+        final credential = await _auth
+            .createUserWithEmailAndPassword(
+              email: payload.email.trim(),
+              password: payload.password,
+            )
+            .timeout(const Duration(seconds: 20));
+        user = credential.user;
+        createdHere = true;
+      }
 
-      final user = credential.user;
       if (user == null) {
         throw const StudentRegistrationException(
           message: 'Impossible de creer le compte utilisateur.',
@@ -74,7 +79,7 @@ class FirebaseStudentRegistrationRepository
         SetOptions(merge: true),
       );
 
-      await batch.commit();
+      await batch.commit().timeout(const Duration(seconds: 20));
       await user.updateDisplayName(displayName);
 
       return StudentRegistrationResult(
@@ -83,49 +88,67 @@ class FirebaseStudentRegistrationRepository
         firstName: payload.firstName.trim(),
         lastName: payload.lastName.trim(),
       );
-    } on FirebaseAuthException catch (error) {
+    } on FirebaseAuthException catch (error, stackTrace) {
+      _debugLog('create-user', error.code, error.message, stackTrace);
+      final code = FirebaseErrorMapper.normalizeCode(error.code, error.message);
       throw StudentRegistrationException(
-        message: _mapAuthError(error),
-        code: error.code,
+        message: FirebaseErrorMapper.authMessage(
+          code: error.code,
+          technicalMessage: error.message,
+        ),
+        code: code,
       );
-    } on FirebaseException catch (error) {
-      await _rollbackAuthUser(credential);
+    } on FirebaseException catch (error, stackTrace) {
+      _debugLog('create-profile', error.code, error.message, stackTrace);
+      await _rollbackAuthUser(user, createdHere: createdHere);
       throw StudentRegistrationException(
-        message: 'Impossible d\'enregistrer le compte pour le moment.',
-        code: error.code,
+        message: FirebaseErrorMapper.serviceMessage(
+          code: error.code,
+          technicalMessage: error.message,
+        ),
+        code: FirebaseErrorMapper.normalizeCode(error.code, error.message),
       );
     } on StudentRegistrationException {
-      await _rollbackAuthUser(credential);
+      await _rollbackAuthUser(user, createdHere: createdHere);
       rethrow;
-    } catch (_) {
-      await _rollbackAuthUser(credential);
-      throw const StudentRegistrationException(
-        message: 'Une erreur inattendue est survenue.',
+    } catch (error, stackTrace) {
+      _debugLog('registration', 'unknown-error', error.toString(), stackTrace);
+      await _rollbackAuthUser(user, createdHere: createdHere);
+      throw StudentRegistrationException(
+        message: FirebaseErrorMapper.serviceMessage(code: 'unknown-error'),
         code: 'unknown-error',
       );
     }
   }
 
-  Future<void> _rollbackAuthUser(UserCredential? credential) async {
-    final user = credential?.user;
-    if (user == null) {
-      return;
-    }
+  Future<void> _rollbackAuthUser(
+    User? user, {
+    required bool createdHere,
+  }) async {
+    if (user == null || !createdHere) return;
 
     try {
       await user.delete();
-    } catch (_) {
-      // Evite de masquer l'erreur principale.
+    } catch (error, stackTrace) {
+      _debugLog(
+        'rollback-user',
+        'rollback-failed',
+        error.toString(),
+        stackTrace,
+      );
     }
   }
 
-  String _mapAuthError(FirebaseAuthException error) {
-    return switch (error.code) {
-      'email-already-in-use' => 'Cet email est deja utilise.',
-      'invalid-email' => 'Adresse email invalide.',
-      'weak-password' => 'Mot de passe trop faible (8 caracteres minimum).',
-      'network-request-failed' => 'Aucune connexion internet disponible.',
-      _ => error.message ?? 'Erreur lors de la creation du compte.',
-    };
+  void _debugLog(
+    String operation,
+    String? code,
+    String? message,
+    StackTrace stackTrace,
+  ) {
+    if (!kDebugMode) return;
+    debugPrint(
+      'Student registration $operation failed: code=$code message=$message',
+    );
+    debugPrintStack(stackTrace: stackTrace);
   }
 }

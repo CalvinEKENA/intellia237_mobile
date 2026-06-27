@@ -1,10 +1,7 @@
-import '../domain/school_establishment.dart';
 import '../domain/student_registration_payload.dart';
 import '../domain/student_registration_result.dart';
 
 abstract class StudentRegistrationRepository {
-  Future<List<SchoolEstablishment>> searchEstablishments(String query);
-
   Future<StudentRegistrationResult> registerStudent(
     StudentRegistrationPayload payload,
   );

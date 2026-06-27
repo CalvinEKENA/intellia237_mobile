@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/intellia_scaffold.dart';
-import '../../../core/widgets/intellia_brand_mark.dart';
-import '../../../core/widgets/intellia_card.dart';
-import '../../../core/widgets/intellia_text_field.dart';
-import '../../../core/widgets/intellia_buttons.dart';
 import '../application/auth_controller.dart';
+import '../domain/auth_input_validators.dart';
+import 'widgets/auth_controls.dart';
+import 'widgets/auth_experience_scaffold.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -21,198 +17,115 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
-  bool _isLoading = false;
+  final _emailController = TextEditingController();
   bool _emailSent = false;
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     final success = await ref
         .read(authControllerProvider.notifier)
-        .sendPasswordReset(_emailCtrl.text);
-
-    if (!mounted) return;
-
-    setState(() {
-      _isLoading = false;
-      _emailSent = success;
-    });
-
-    if (!success) {
-      ScaffoldMessenger.of(context)
-        ..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.error_outline, color: Colors.white, size: 20),
-                SizedBox(width: IntelliaSpacing.sm),
-                Expanded(
-                  child: Text(
-                    'Impossible d\'envoyer l\'email. Vérifiez l\'adresse.',
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(IntelliaRadii.small),
-            ),
-            margin: const EdgeInsets.all(IntelliaSpacing.md),
-          ),
-        );
-    }
+        .sendPasswordReset(_emailController.text);
+    if (mounted && success) setState(() => _emailSent = true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return IntelliaScaffold(
-      usePremiumBackground: true,
-      showTopHalo: true,
-      appBar: AppBar(
-        leading: IntelliaIconButton(
-          icon: Icons.arrow_back_rounded,
-          backgroundColor: Colors.transparent,
-          onTap: () => context.pop(),
-        ),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: IntelliaSpacing.lg,
-            vertical: IntelliaSpacing.md,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const IntelliaBrandMark(size: 80, showText: true, textSize: 24),
-              const SizedBox(height: IntelliaSpacing.lg),
-
-              AnimatedSwitcher(
-                duration: IntelliaMotion.medium,
-                switchInCurve: Curves.easeOutCubic,
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(
-                    scale: Tween(begin: 0.96, end: 1.0).animate(animation),
-                    child: child,
-                  ),
-                ),
+    final auth = ref.watch(authControllerProvider);
+    final controller = ref.read(authControllerProvider.notifier);
+    return AuthExperienceScaffold(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const AuthHeader(
+              eyebrow: 'Accès au compte',
+              title: 'Retrouvez votre\nmot de passe.',
+              subtitle:
+                  'Nous enverrons un lien sécurisé à l’adresse de votre compte.',
+            ),
+            const SizedBox(height: 28),
+            AuthGlassPanel(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 280),
                 child: _emailSent
-                    ? IntelliaCard(
-                        key: const ValueKey('success'),
-                        variant: IntelliaCardVariant.elevated,
-                        padding: const EdgeInsets.all(IntelliaSpacing.lg),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.check_circle_outline_rounded,
-                              color: IntelliaColors.success,
-                              size: 64,
+                    ? Column(
+                        key: const ValueKey('sent'),
+                        children: [
+                          const Icon(
+                            Icons.mark_email_read_rounded,
+                            color: AuthExperienceColors.success,
+                            size: 54,
+                          ),
+                          const SizedBox(height: 18),
+                          const Text(
+                            'E-mail envoyé',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
                             ),
-                            const SizedBox(height: IntelliaSpacing.md),
-                            Text(
-                              'Email envoyé !',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Consulte ${_emailController.text.trim()} et ouvre le lien reçu.',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: AuthExperienceColors.textSecondary,
+                              height: 1.45,
                             ),
-                            const SizedBox(height: IntelliaSpacing.sm),
-                            Text(
-                              'Un lien de réinitialisation de mot de passe a été envoyé à :\n${_emailCtrl.text}',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: isDark
-                                    ? IntelliaColors.textSecondaryDark
-                                    : IntelliaColors.textSecondary,
-                                fontSize: 13,
-                                height: 1.5,
-                              ),
-                            ),
-                            const SizedBox(height: IntelliaSpacing.lg),
-                            IntelliaPrimaryButton(
-                              onTap: () => context.pop(),
-                              child: const Text('Retour à la connexion'),
+                          ),
+                          const SizedBox(height: 22),
+                          AuthPrimaryButton(
+                            label: 'Retour à la connexion',
+                            onTap: context.pop,
+                            icon: Icons.login_rounded,
+                          ),
+                        ],
+                      )
+                    : Column(
+                        key: const ValueKey('form'),
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          AuthAnimatedField(
+                            controller: _emailController,
+                            label: 'Adresse e-mail',
+                            hint: 'prenom.nom@exemple.com',
+                            icon: Icons.alternate_email_rounded,
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.done,
+                            autofillHints: const [AutofillHints.email],
+                            validator: (value) =>
+                                AuthInputValidators.email(value ?? ''),
+                            onFieldSubmitted: (_) => _submit(),
+                          ),
+                          if (auth.error != null) ...[
+                            const SizedBox(height: 14),
+                            AuthErrorBanner(
+                              message: auth.error!,
+                              onRetry: _submit,
+                              onDismiss: controller.clearError,
                             ),
                           ],
-                        ),
-                      )
-                    : IntelliaCard(
-                        key: const ValueKey('form'),
-                        variant: IntelliaCardVariant.elevated,
-                        padding: const EdgeInsets.all(IntelliaSpacing.lg),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Récupérer le mot de passe',
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: IntelliaSpacing.xxs),
-                              Text(
-                                'Entrez votre adresse email pour recevoir un lien de réinitialisation.',
-                                style: TextStyle(
-                                  color: isDark
-                                      ? IntelliaColors.textSecondaryDark
-                                      : IntelliaColors.textSecondary,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              const SizedBox(height: IntelliaSpacing.xl),
-
-                              IntelliaTextField(
-                                controller: _emailCtrl,
-                                label: 'Adresse email',
-                                hint: 'exemple@intellia237.cm',
-                                prefixIcon: Icons.email_outlined,
-                                keyboardType: TextInputType.emailAddress,
-                                enabled: !_isLoading,
-                                validator: (v) {
-                                  if (v == null || v.trim().isEmpty) {
-                                    return 'L\'email est requis';
-                                  }
-                                  if (!RegExp(
-                                    r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
-                                  ).hasMatch(v.trim())) {
-                                    return 'Entrez un email valide';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: IntelliaSpacing.xl),
-
-                              IntelliaPrimaryButton(
-                                onTap: _isLoading ? null : _submit,
-                                isLoading: _isLoading,
-                                child: const Text('Envoyer le lien'),
-                              ),
-                            ],
+                          const SizedBox(height: 18),
+                          AuthPrimaryButton(
+                            label: 'Envoyer le lien',
+                            onTap: auth.isLoading ? null : _submit,
+                            isLoading: auth.isLoading,
+                            icon: Icons.send_rounded,
                           ),
-                        ),
+                        ],
                       ),
-              ).animate().fadeIn(duration: 500.ms),
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );

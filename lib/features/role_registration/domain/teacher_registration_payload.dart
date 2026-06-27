@@ -1,12 +1,9 @@
-import '../../student_registration/domain/school_establishment.dart';
-
 class TeacherRegistrationPayload {
   const TeacherRegistrationPayload({
     required this.firstName,
     required this.lastName,
     required this.email,
     required this.password,
-    required this.establishment,
     required this.subjects,
     required this.levels,
     required this.acceptedTerms,
@@ -17,7 +14,6 @@ class TeacherRegistrationPayload {
   final String lastName;
   final String email;
   final String password;
-  final SchoolEstablishment establishment;
   final List<String> subjects;
   final List<String> levels;
   final bool acceptedTerms;
@@ -33,7 +29,6 @@ class TeacherRegistrationPayload {
       'lastName': lastName,
       'email': email,
       'role': 'teacher',
-      'establishmentId': establishment.id,
       'avatarId': 'mentor',
       'profileCompleted': true,
       'tourGuideSeen': false,
@@ -51,8 +46,6 @@ class TeacherRegistrationPayload {
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
-      'establishmentId': establishment.id,
-      'establishmentName': establishment.name,
       'subjects': subjects,
       'levels': levels,
       'workload': <String, dynamic>{'activeClasses': 0, 'activeStudents': 0},
@@ -77,11 +70,6 @@ class TeacherRegistrationPayload {
       'firstName': firstName.trim(),
       'lastName': lastName.trim(),
       'email': email.trim(),
-      'establishment': <String, dynamic>{
-        'id': establishment.id,
-        'name': establishment.name,
-        if (establishment.city != null) 'city': establishment.city,
-      },
       'subjects': subjects,
       'levels': levels,
       'acceptedTerms': acceptedTerms,

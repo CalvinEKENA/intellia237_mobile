@@ -1,5 +1,3 @@
-import '../../student_registration/domain/school_establishment.dart';
-
 class AdminRegistrationState {
   const AdminRegistrationState({
     this.currentStep = 0,
@@ -11,7 +9,6 @@ class AdminRegistrationState {
     this.password = '',
     this.confirmPassword = '',
     this.jobTitle = '',
-    this.establishment,
     this.acceptedTerms = false,
     this.acceptedPrivacy = false,
   });
@@ -26,7 +23,6 @@ class AdminRegistrationState {
   final String password;
   final String confirmPassword;
   final String jobTitle;
-  final SchoolEstablishment? establishment;
   final bool acceptedTerms;
   final bool acceptedPrivacy;
 
@@ -44,8 +40,6 @@ class AdminRegistrationState {
     String? password,
     String? confirmPassword,
     String? jobTitle,
-    SchoolEstablishment? establishment,
-    bool clearEstablishment = false,
     bool? acceptedTerms,
     bool? acceptedPrivacy,
   }) {
@@ -59,9 +53,6 @@ class AdminRegistrationState {
       password: password ?? this.password,
       confirmPassword: confirmPassword ?? this.confirmPassword,
       jobTitle: jobTitle ?? this.jobTitle,
-      establishment: clearEstablishment
-          ? null
-          : (establishment ?? this.establishment),
       acceptedTerms: acceptedTerms ?? this.acceptedTerms,
       acceptedPrivacy: acceptedPrivacy ?? this.acceptedPrivacy,
     );

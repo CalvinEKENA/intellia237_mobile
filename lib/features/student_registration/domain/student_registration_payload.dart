@@ -1,13 +1,11 @@
 import 'academic_rules.dart';
 import 'learning_goal.dart';
-import 'school_establishment.dart';
 import '../../tutor/domain/tutor_persona.dart';
 
 class StudentRegistrationPayload {
   const StudentRegistrationPayload({
     required this.firstName,
     required this.lastName,
-    required this.establishment,
     required this.schoolClass,
     required this.schoolSeries,
     this.selectedTutorId,
@@ -24,7 +22,6 @@ class StudentRegistrationPayload {
 
   final String firstName;
   final String lastName;
-  final SchoolEstablishment? establishment;
   final SchoolClass schoolClass;
   final SchoolSeries? schoolSeries;
   final String? selectedTutorId;
@@ -58,7 +55,6 @@ class StudentRegistrationPayload {
       'tourGuideSeen': false,
       'createdAt': now.toUtc(),
       'updatedAt': now.toUtc(),
-      if (establishment != null) 'establishmentId': establishment!.id,
     };
   }
 
@@ -99,10 +95,6 @@ class StudentRegistrationPayload {
       'profileCompleted': true,
       'createdAt': now.toUtc(),
       'updatedAt': now.toUtc(),
-      if (establishment != null) ...<String, dynamic>{
-        'establishmentId': establishment!.id,
-        'establishmentName': establishment!.name,
-      },
     };
   }
 }

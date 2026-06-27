@@ -4,11 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/intellia_scaffold.dart';
 import '../../../core/widgets/intellia_buttons.dart';
 import '../../../core/widgets/intellia_text_field.dart';
+import '../../auth/presentation/widgets/auth_registration_frame.dart';
 import '../../auth/domain/auth_input_validators.dart';
-import '../../student_registration/presentation/widgets/premium_stepper.dart';
 import '../application/parent_registration_controller.dart';
 import '../application/parent_registration_state.dart';
 
@@ -92,110 +91,51 @@ class _ParentRegistrationScreenState
     final state = ref.watch(parentRegistrationControllerProvider);
     final controller = ref.read(parentRegistrationControllerProvider.notifier);
 
-    ref.listen<ParentRegistrationState>(parentRegistrationControllerProvider, (
-      previous,
-      next,
-    ) {
-      if (next.errorMessage != null &&
-          next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context)
-          ..clearSnackBars()
-          ..showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  const SizedBox(width: IntelliaSpacing.sm),
-                  Expanded(child: Text(next.errorMessage!)),
-                ],
-              ),
-              backgroundColor: Colors.red.shade700,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(IntelliaRadii.small),
-              ),
-              margin: const EdgeInsets.all(IntelliaSpacing.md),
+    return AuthRegistrationFrame(
+      title: 'Créer un compte Parent',
+      currentStep: state.currentStep,
+      labels: _stepLabels,
+      onBack: state.currentStep == 0
+          ? () => context.pop()
+          : () {
+              setState(() => _previousStep = state.currentStep);
+              controller.previousStep();
+            },
+      errorMessage: state.errorMessage,
+      onDismissError: controller.clearError,
+      onRetry: state.isLastStep ? () => controller.submit() : null,
+      content: AnimatedSwitcher(
+        duration: IntelliaMotion.cinematic,
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeIn,
+        transitionBuilder: (child, animation) {
+          final isForward = state.currentStep >= _previousStep;
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: Offset(isForward ? 0.12 : -0.12, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
             ),
           );
-      }
-    });
-
-    return IntelliaScaffold(
-      usePremiumBackground: true,
-      showTopHalo: true,
-      appBar: AppBar(
-        leading: IntelliaIconButton(
-          icon: Icons.arrow_back_rounded,
-          backgroundColor: Colors.transparent,
-          onTap: state.currentStep == 0
-              ? () => context.pop()
-              : () {
-                  setState(() {
-                    _previousStep = state.currentStep;
-                  });
-                  controller.previousStep();
-                },
+        },
+        child: _GlassStepPanel(
+          key: ValueKey(state.currentStep),
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.fromLTRB(
+              IntelliaSpacing.xl,
+              IntelliaSpacing.md,
+              IntelliaSpacing.xl,
+              IntelliaSpacing.xs,
+            ),
+            child: _buildStepContent(state),
+          ),
         ),
-        title: const Text('Inscription Parent'),
       ),
-      body: Column(
-        children: [
-          // ── Stepper ───────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: IntelliaSpacing.xl),
-            child: PremiumStepper(
-              currentStep: state.currentStep,
-              labels: _stepLabels,
-            ),
-          ),
-          const SizedBox(height: IntelliaSpacing.md),
-
-          // ── Step content ──────────────────────────────────
-          Expanded(
-            child: AnimatedSwitcher(
-              duration: IntelliaMotion.cinematic,
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeIn,
-              transitionBuilder: (child, animation) {
-                final isForward = state.currentStep >= _previousStep;
-                final slideIn = Tween<Offset>(
-                  begin: Offset(isForward ? 1.0 : -1.0, 0),
-                  end: Offset.zero,
-                ).animate(animation);
-                final fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
-                  CurvedAnimation(
-                    parent: animation,
-                    curve: const Interval(0.3, 1.0),
-                  ),
-                );
-                return FadeTransition(
-                  opacity: fadeIn,
-                  child: SlideTransition(position: slideIn, child: child),
-                );
-              },
-              child: _GlassStepPanel(
-                key: ValueKey(state.currentStep),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(
-                    IntelliaSpacing.xl,
-                    IntelliaSpacing.md,
-                    IntelliaSpacing.xl,
-                    IntelliaSpacing.xs,
-                  ),
-                  child: _buildStepContent(state),
-                ),
-              ),
-            ),
-          ),
-
-          // ── Bottom actions ────────────────────────────────
-          _buildBottomActions(state),
-        ],
-      ),
+      actions: _buildBottomActions(state),
     );
   }
 
