@@ -359,7 +359,7 @@ abstract final class AppMotion {
   static const Duration slow = IntelliaMotion.slow;
   static const Duration cinematic = IntelliaMotion.cinematic;
   static const Duration epic = Duration(milliseconds: 1100);
-  static const Duration onboardingSlide = Duration(seconds: 6);
+  static const Duration onboardingSlide = Duration(seconds: 5);
 
   static const Curve emphasizedDecelerate = Cubic(0.05, 0.7, 0.1, 1.0);
   static const Curve spring = Cubic(0.175, 0.885, 0.32, 1.275);

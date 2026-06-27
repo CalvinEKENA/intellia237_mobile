@@ -27,6 +27,6 @@ final hasSeenOnboardingProvider = StateProvider<bool>(
 
 Future<void> markOnboardingSeen(WidgetRef ref) async {
   final prefs = OnboardingPreferences();
-  await prefs.setSeenOnboarding(true);
   ref.read(hasSeenOnboardingProvider.notifier).state = true;
+  await prefs.setSeenOnboarding(true);
 }

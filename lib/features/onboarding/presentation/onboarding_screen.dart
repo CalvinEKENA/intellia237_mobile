@@ -19,9 +19,11 @@ import 'widgets/onboarding_slide_view.dart';
 
 /// Onboarding premium d'INTELLIA237 — reconstruction fidèle de la Web App.
 ///
-/// Quatre scènes narratives s'enchaînent en Shared Axis, ~10 s chacune
-/// (≈ 40 s sans interaction). « Passer » reste disponible ; « Commencer »
+/// Quatre scènes narratives s'enchaînent en Shared Axis, 5 s chacune
+/// (environ 20 s sans interaction). « Passer » reste disponible ; « Commencer »
 /// n'apparaît qu'au dernier écran.
+const onboardingSlideDuration = Duration(seconds: 5);
+
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -31,8 +33,6 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
-  static const _slideDuration = Duration(seconds: 10);
-
   late final AnimationController _progress;
 
   final _slides = OnboardingSlides.slides;
@@ -46,21 +46,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _progress = AnimationController(vsync: this, duration: _slideDuration)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed && !_isLast) {
-          _goTo(_index + 1);
-        }
-      });
+    _progress =
+        AnimationController(vsync: this, duration: onboardingSlideDuration)
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed && !_isLast) {
+              _goTo(_index + 1);
+            }
+          });
     _progress.forward();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _progress.stop();
-    } else if (state == AppLifecycleState.resumed && !_isLast) {
-      _progress.forward();
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (!_progress.isCompleted) _progress.forward();
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        _progress.stop();
     }
   }
 
@@ -94,13 +99,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   Future<void> _complete() async {
     HapticFeedback.mediumImpact();
     _progress.stop();
-    await markOnboardingSeen(ref);
+    final persistence = markOnboardingSeen(ref);
     if (!mounted) return;
     context.go(AppRoutes.login);
+    await persistence;
   }
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     return IntelliaScaffold(
       showTopHalo: false,
       body: GestureDetector(
@@ -121,7 +129,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
             // ── Scènes en Shared Axis ────────────────────────────
             PageTransitionSwitcher(
-              duration: const Duration(milliseconds: 520),
+              duration: reduceMotion
+                  ? Duration.zero
+                  : const Duration(milliseconds: 420),
               reverse: _reverse,
               transitionBuilder: (child, primary, secondary) {
                 return SharedAxisTransition(
@@ -261,6 +271,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 IntelliaPrimaryButton(
+                      key: const ValueKey('onboarding-start'),
                       onTap: _complete,
                       gradient: IntelliaGradients.brand,
                       child: const Text('Commencer'),
@@ -313,7 +324,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                   ),
                 ),
                 const Spacer(),
-                _NextButton(accent: _accent, onTap: _next),
+                _NextButton(
+                  key: const ValueKey('onboarding-next'),
+                  accent: _accent,
+                  onTap: _next,
+                ),
               ],
             ),
     );
@@ -322,7 +337,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
 /// Bouton circulaire « suivant » en verre dépoli (slides intermédiaires).
 class _NextButton extends StatelessWidget {
-  const _NextButton({required this.accent, required this.onTap});
+  const _NextButton({required this.accent, required this.onTap, super.key});
 
   final Color accent;
   final VoidCallback onTap;
