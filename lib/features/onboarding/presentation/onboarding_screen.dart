@@ -1,18 +1,27 @@
-import 'dart:async';
+import 'dart:ui' show ImageFilter;
+
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/intellia_scaffold.dart';
 import '../../../core/widgets/intellia_buttons.dart';
+import '../../../core/widgets/intellia_pressable.dart';
+import '../../../core/widgets/intellia_scaffold.dart';
 import '../data/onboarding_preferences.dart';
 import '../domain/onboarding_slides.dart';
 import 'widgets/onboarding_progress_indicator.dart';
 import 'widgets/onboarding_slide_view.dart';
 
+/// Onboarding premium d'INTELLIA237 — reconstruction fidèle de la Web App.
+///
+/// Quatre scènes narratives s'enchaînent en Shared Axis, ~10 s chacune
+/// (≈ 40 s sans interaction). « Passer » reste disponible ; « Commencer »
+/// n'apparaît qu'au dernier écran.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -22,306 +31,432 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
-  late final AnimationController _progressCtrl;
-  late final AnimationController _transitionCtrl;
+  static const _slideDuration = Duration(seconds: 10);
+
+  late final AnimationController _progress;
 
   final _slides = OnboardingSlides.slides;
-  int _currentSlide = 0;
-  int _nextSlide = 0;
-  bool _isTransitioning = false;
-  int _direction = 1; // 1 for next, -1 for previous
+  int _index = 0;
+  bool _reverse = false;
 
-  bool get _isLastSlide => _currentSlide >= _slides.length - 1;
+  bool get _isLast => _index >= _slides.length - 1;
+  Color get _accent => _slides[_index].accentColor;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    _progressCtrl =
-        AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 5500), // 5.5s per slide
-        )..addStatusListener((status) {
-          if (status == AnimationStatus.completed) {
-            _advanceSlide();
-          }
-        });
-
-    _transitionCtrl = AnimationController(
-      vsync: this,
-      duration: IntelliaMotion.medium,
-    );
-
-    // Start auto-play
-    _progressCtrl.forward();
+    _progress = AnimationController(vsync: this, duration: _slideDuration)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed && !_isLast) {
+          _goTo(_index + 1);
+        }
+      });
+    _progress.forward();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Pause timer when app goes to background, resume when active
     if (state == AppLifecycleState.paused) {
-      _progressCtrl.stop();
-    } else if (state == AppLifecycleState.resumed) {
-      if (!_isTransitioning && !_isLastSlide) {
-        _progressCtrl.forward();
-      }
+      _progress.stop();
+    } else if (state == AppLifecycleState.resumed && !_isLast) {
+      _progress.forward();
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _progressCtrl.dispose();
-    _transitionCtrl.dispose();
+    _progress.dispose();
     super.dispose();
   }
 
-  Future<void> _advanceSlide() async {
-    if (_isTransitioning) return;
-
-    if (_isLastSlide) {
-      await _completeOnboarding();
-      return;
-    }
-
-    _isTransitioning = true;
-    _direction = 1;
-    _nextSlide = _currentSlide + 1;
-
-    _progressCtrl.stop();
-    await _transitionCtrl.forward(from: 0.0);
-
-    if (!mounted) return;
+  void _goTo(int target) {
+    if (target < 0 || target >= _slides.length || target == _index) return;
+    HapticFeedback.selectionClick();
     setState(() {
-      _currentSlide = _nextSlide;
-      _isTransitioning = false;
+      _reverse = target < _index;
+      _index = target;
     });
-
-    _transitionCtrl.reset();
-    if (!_isLastSlide) {
-      _progressCtrl.forward(from: 0.0);
+    if (_isLast) {
+      HapticFeedback.lightImpact();
+      _progress
+        ..stop()
+        ..forward(from: 0); // remplit la barre une dernière fois, sans avancer
+    } else {
+      _progress.forward(from: 0);
     }
   }
 
-  Future<void> _previousSlide() async {
-    if (_isTransitioning || _currentSlide == 0) return;
+  void _next() => _goTo(_index + 1);
+  void _previous() => _goTo(_index - 1);
 
-    _isTransitioning = true;
-    _direction = -1;
-    _nextSlide = _currentSlide - 1;
-
-    _progressCtrl.stop();
-    await _transitionCtrl.forward(from: 0.0);
-
-    if (!mounted) return;
-    setState(() {
-      _currentSlide = _nextSlide;
-      _isTransitioning = false;
-    });
-
-    _transitionCtrl.reset();
-    _progressCtrl.forward(from: 0.0);
-  }
-
-  Future<void> _completeOnboarding() async {
-    _progressCtrl.stop();
+  Future<void> _complete() async {
+    HapticFeedback.mediumImpact();
+    _progress.stop();
     await markOnboardingSeen(ref);
     if (!mounted) return;
     context.go(AppRoutes.login);
   }
 
-  Color get _currentAccent => _slides[_currentSlide].accentColor;
-
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return IntelliaScaffold(
       showTopHalo: false,
       body: GestureDetector(
-        onHorizontalDragEnd: (details) {
-          if (details.primaryVelocity == null) return;
-          if (details.primaryVelocity! < -300) {
-            _advanceSlide();
-          } else if (details.primaryVelocity! > 300) {
-            _previousSlide();
-          }
-        },
-        onTapUp: (details) {
-          // Story tap logic: tap left to go back, tap right to advance
-          final x = details.localPosition.dx;
-          if (x < size.width * 0.3) {
-            _previousSlide();
-          } else {
-            _advanceSlide();
-          }
-        },
         behavior: HitTestBehavior.opaque,
+        onHorizontalDragEnd: (details) {
+          final v = details.primaryVelocity ?? 0;
+          if (v < -280) {
+            _next();
+          } else if (v > 280) {
+            _previous();
+          }
+        },
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // ── Slides layout with animated transition ──────────
-            AnimatedBuilder(
-              animation: _transitionCtrl,
-              builder: (context, _) {
-                final t = Curves.easeInOutCubic.transform(
-                  _transitionCtrl.value,
-                );
+            // ── Fond ambiant animé (profondeur) ──────────────────
+            _AmbientBackground(accent: _accent),
 
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Outgoing slide
-                    if (_isTransitioning)
-                      Opacity(
-                        opacity: (1 - t * 2).clamp(0.0, 1.0),
-                        child: Transform.scale(
-                          scale: 1.0 - (t * 0.04),
-                          child: OnboardingSlideView(
-                            key: ValueKey('slide_exit_$_currentSlide'),
-                            data: _slides[_currentSlide],
-                          ),
-                        ),
-                      )
-                    else
-                      OnboardingSlideView(
-                        key: ValueKey('slide_$_currentSlide'),
-                        data: _slides[_currentSlide],
-                      ),
-
-                    // Incoming slide
-                    if (_isTransitioning)
-                      Transform.translate(
-                        offset: Offset(size.width * (1.0 - t) * _direction, 0),
-                        child: Opacity(
-                          opacity: (t * 2 - 0.2).clamp(0.0, 1.0),
-                          child: OnboardingSlideView(
-                            key: ValueKey('slide_enter_$_nextSlide'),
-                            data: _slides[_nextSlide],
-                          ),
-                        ),
-                      ),
-                  ],
+            // ── Scènes en Shared Axis ────────────────────────────
+            PageTransitionSwitcher(
+              duration: const Duration(milliseconds: 520),
+              reverse: _reverse,
+              transitionBuilder: (child, primary, secondary) {
+                return SharedAxisTransition(
+                  animation: primary,
+                  secondaryAnimation: secondary,
+                  transitionType: SharedAxisTransitionType.horizontal,
+                  fillColor: Colors.transparent,
+                  child: child,
                 );
               },
+              child: SizedBox.expand(
+                key: ValueKey(_index),
+                child: OnboardingSlideView(data: _slides[_index]),
+              ),
             ),
 
-            // ── Story indicators & controls overlay ─────────────
-            Positioned.fill(
-              child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Segmented progress bar at the top
-                    const SizedBox(height: IntelliaSpacing.sm),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: IntelliaSpacing.lg,
-                      ),
-                      child: AnimatedBuilder(
-                        animation: _progressCtrl,
-                        builder: (context, _) {
-                          return OnboardingProgressBar(
-                            totalSlides: _slides.length,
-                            currentSlide: _currentSlide,
-                            progress: _progressCtrl.value,
-                            accentColor: _currentAccent,
-                          );
-                        },
+            // ── Overlays (progression, en-tête, contrôles) ───────
+            SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: IntelliaSpacing.sm),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: IntelliaSpacing.lg,
+                    ),
+                    child: AnimatedBuilder(
+                      animation: _progress,
+                      builder: (context, _) => OnboardingProgressBar(
+                        totalSlides: _slides.length,
+                        currentSlide: _index,
+                        progress: _progress.value,
+                        accentColor: _accent,
                       ),
                     ),
-                    const SizedBox(height: IntelliaSpacing.md),
-
-                    // Brand Mark Header (small version)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: IntelliaSpacing.lg,
-                      ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: Container(
-                              width: 24,
-                              height: 24,
-                              color: isDark
-                                  ? Colors.white.withValues(alpha: 0.1)
-                                  : Colors.black.withValues(alpha: 0.05),
-                              padding: const EdgeInsets.all(4),
-                              child: Image.asset(
-                                'assets/branding/icon-192.png',
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: IntelliaSpacing.xs),
-                          const Text(
-                            'INTELLIA237',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.4,
-                              color: IntelliaColors.textPrimary,
-                            ),
-                          ),
-                          const Spacer(),
-                          // Skip button
-                          if (!_isLastSlide)
-                            GestureDetector(
-                              onTap: _completeOnboarding,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Colors.white.withValues(alpha: 0.08)
-                                      : Colors.black.withValues(alpha: 0.05),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  'Passer',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: isDark
-                                        ? IntelliaColors.textPrimaryDark
-                                        : IntelliaColors.textPrimary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
+                  ),
+                  const SizedBox(height: IntelliaSpacing.md),
+                  _header(),
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      IntelliaSpacing.xl,
+                      0,
+                      IntelliaSpacing.xl,
+                      IntelliaSpacing.lg,
                     ),
-
-                    const Spacer(),
-
-                    // CTA button on the last slide
-                    if (_isLastSlide) ...[
-                      Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: IntelliaSpacing.xl,
-                            ),
-                            child: IntelliaPrimaryButton(
-                              onTap: _completeOnboarding,
-                              gradient: IntelliaGradients.brand,
-                              child: const Text('Entrer dans INTELLIA237'),
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(duration: 400.ms)
-                          .slideY(begin: 0.2, end: 0),
-                      const SizedBox(height: IntelliaSpacing.xl),
-                    ],
-                  ],
-                ),
+                    child: _controls(),
+                  ),
+                ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _header() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: IntelliaSpacing.lg),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(7),
+            child: Container(
+              width: 26,
+              height: 26,
+              color: Colors.black.withValues(alpha: 0.04),
+              padding: const EdgeInsets.all(4),
+              child: Image.asset(
+                'assets/branding/icon-192.png',
+                errorBuilder: (_, _, _) => const Icon(
+                  Icons.school_rounded,
+                  size: 16,
+                  color: IntelliaColors.brandIndigo,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: IntelliaSpacing.xs),
+          Text(
+            'INTELLIA237',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.4,
+              color: IntelliaColors.textPrimary,
+            ),
+          ),
+          const Spacer(),
+          // « Passer » reste disponible tant que l'écran final n'est pas atteint.
+          AnimatedSwitcher(
+            duration: IntelliaMotion.medium,
+            transitionBuilder: (child, anim) =>
+                FadeTransition(opacity: anim, child: child),
+            child: _isLast
+                ? const SizedBox.shrink()
+                : IntelliaPressable(
+                    key: const ValueKey('skip'),
+                    onTap: _complete,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(IntelliaRadii.full),
+                      ),
+                      child: const Text(
+                        'Passer',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.bold,
+                          color: IntelliaColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _controls() {
+    return PageTransitionSwitcher(
+      duration: IntelliaMotion.slow,
+      transitionBuilder: (child, primary, secondary) => FadeThroughTransition(
+        animation: primary,
+        secondaryAnimation: secondary,
+        fillColor: Colors.transparent,
+        child: child,
+      ),
+      child: _isLast
+          ? Column(
+              key: const ValueKey('controls-last'),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IntelliaPrimaryButton(
+                      onTap: _complete,
+                      gradient: IntelliaGradients.brand,
+                      child: const Text('Commencer'),
+                    )
+                    .animate()
+                    .fadeIn(duration: 420.ms)
+                    .slideY(begin: 0.25, end: 0, curve: Curves.easeOutCubic),
+                const SizedBox(height: IntelliaSpacing.sm),
+                IntelliaPressable(
+                  onTap: _previous,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                    child: Text(
+                      'Précédent',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: IntelliaColors.textTertiary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              key: const ValueKey('controls-nav'),
+              children: [
+                AnimatedOpacity(
+                  duration: IntelliaMotion.medium,
+                  opacity: _index > 0 ? 1 : 0,
+                  child: IgnorePointer(
+                    ignoring: _index == 0,
+                    child: IntelliaPressable(
+                      onTap: _previous,
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 8,
+                        ),
+                        child: Text(
+                          'Précédent',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: IntelliaColors.textTertiary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                _NextButton(accent: _accent, onTap: _next),
+              ],
+            ),
+    );
+  }
+}
+
+/// Bouton circulaire « suivant » en verre dépoli (slides intermédiaires).
+class _NextButton extends StatelessWidget {
+  const _NextButton({required this.accent, required this.onTap});
+
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return IntelliaPressable(
+      onTap: onTap,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: IntelliaGradients.brand,
+          boxShadow: IntelliaShadows.glow(accent, intensity: 0.32),
+        ),
+        child: const Icon(
+          Icons.arrow_forward_rounded,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
+    );
+  }
+}
+
+/// Fond ambiant : dégradé teinté par la slide courante + halos flous mobiles.
+class _AmbientBackground extends StatefulWidget {
+  const _AmbientBackground({required this.accent});
+
+  final Color accent;
+
+  @override
+  State<_AmbientBackground> createState() => _AmbientBackgroundState();
+}
+
+class _AmbientBackgroundState extends State<_AmbientBackground>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _drift;
+
+  @override
+  void initState() {
+    super.initState();
+    _drift = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 22),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!(MediaQuery.maybeOf(context)?.disableAnimations ?? false) &&
+        !_drift.isAnimating) {
+      _drift.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _drift.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeInOut,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  IntelliaColors.backgroundPremium,
+                  widget.accent.withValues(alpha: 0.07),
+                  IntelliaColors.backgroundPrimary,
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ),
+            ),
+          ),
+          AnimatedBuilder(
+            animation: _drift,
+            builder: (context, _) {
+              final t = _drift.value;
+              return Stack(
+                children: [
+                  _orb(
+                    color: widget.accent,
+                    alignment: Alignment(
+                      -0.7 + 0.2 * _wave(t),
+                      -0.6 + 0.1 * _wave(t + 0.3),
+                    ),
+                  ),
+                  _orb(
+                    color: IntelliaColors.brandPurple,
+                    alignment: Alignment(
+                      0.8 - 0.2 * _wave(t + 0.5),
+                      0.5 + 0.1 * _wave(t),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  double _wave(double t) {
+    final x = (t % 1.0) * 2 - 1;
+    return 1 - 2 * (x * x); // oscillation douce dans [-1, 1]
+  }
+
+  Widget _orb({required Color color, required Alignment alignment}) {
+    return Align(
+      alignment: alignment,
+      child: IgnorePointer(
+        child: ImageFiltered(
+          imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+          child: Container(
+            width: 220,
+            height: 220,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withValues(alpha: 0.10),
+            ),
+          ),
         ),
       ),
     );
