@@ -1,42 +1,44 @@
-import 'package:flutter/material.dart';
-
 import '../../../app/theme/design_tokens.dart';
 import 'onboarding_slide_data.dart';
 
-/// Les 4 slides de l'onboarding Story d'INTELLIA237.
+/// Les 4 slides de l'onboarding INTELLIA237.
+///
+/// Narration, ordre, messages et ambiance sont repris **verbatim** de la
+/// Web App (la référence). Seules les animations sont portées à un niveau
+/// premium côté mobile.
 abstract final class OnboardingSlides {
   static const slides = <OnboardingSlideData>[
     OnboardingSlideData(
-      title: 'Tes grandes vacances\ncommencent ici',
+      id: 'learn',
+      title: 'Quelques minutes par jour',
       description:
-          'Révise, découvre et prends de l’avance, sans transformer tes vacances en salle de classe.',
-      asset: 'assets/companions/kira.png',
-      icon: Icons.wb_sunny_rounded,
-      accentColor: IntelliaColors.brandPurple,
-    ),
-    OnboardingSlideData(
-      title: 'Un parcours\nà ton rythme',
-      description:
-          'Des missions courtes, adaptées à ta classe, pour renforcer l’essentiel et préparer la suite.',
-      asset: 'assets/companions/leo.png',
-      icon: Icons.directions_run_rounded,
+          'Des défis courts pour préparer la rentrée sans pression.',
+      visual: OnboardingVisual.cards,
       accentColor: IntelliaColors.brandIndigo,
     ),
     OnboardingSlideData(
-      title: 'Kira explique.\nLéo te challenge.',
+      id: 'math',
+      title: 'Chaque matière devient plus claire',
       description:
-          'Choisis l’accompagnement dont tu as besoin : comprendre calmement ou te dépasser.',
-      asset: 'assets/companions/kira.png',
-      icon: Icons.psychology_rounded,
-      accentColor: IntelliaColors.brandPurple,
+          'Maths, français, anglais, sciences : Kira et Léo avancent avec toi.',
+      visual: OnboardingVisual.math,
+      accentColor: IntelliaColors.brandBlue,
     ),
     OnboardingSlideData(
-      title: 'Prêt pour ta\nprochaine classe ?',
+      id: 'english',
+      title: 'Teste-toi sans stress',
       description:
-          'Avance dans le Flow, relève les défis de l’Arena et regarde tes progrès grandir.',
-      asset: 'assets/companions/leo.png',
-      icon: Icons.rocket_launch_rounded,
-      accentColor: IntelliaColors.brandIndigo,
+          'Quiz et QCM t’aident à voir ce que tu maîtrises déjà.',
+      visual: OnboardingVisual.chat,
+      accentColor: IntelliaColors.warning,
+    ),
+    OnboardingSlideData(
+      id: 'companion',
+      title: 'Deviens champion matière par matière',
+      description:
+          'Choisis Kira ou Léo et commence ton parcours Objectif rentrée.',
+      visual: OnboardingVisual.companions,
+      accentColor: IntelliaColors.brandPurple,
     ),
   ];
 }

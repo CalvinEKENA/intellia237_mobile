@@ -4,7 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 import '../../domain/onboarding_slide_data.dart';
+import 'visuals/onboarding_visual_view.dart';
 
+/// Compose le visuel animé (haut) et la narration (bas) d'une slide.
 class OnboardingSlideView extends StatelessWidget {
   const OnboardingSlideView({required this.data, super.key});
 
@@ -13,145 +15,100 @@ class OnboardingSlideView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = data.accentColor;
-    final isKira = data.asset.contains('kira');
+    final media = MediaQuery.of(context);
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // ── Subtle background gradient depending on companion ────
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                IntelliaColors.backgroundPremium,
-                accent.withValues(alpha: 0.08),
-                IntelliaColors.backgroundPrimary,
+    // Zones réservées aux overlays (barre de progression + en-tête en haut,
+    // contrôles en bas), pour que la scène ne les chevauche jamais.
+    final topInset = media.padding.top + 80;
+    final bottomInset = media.padding.bottom + 132;
+
+    return Padding(
+      padding: EdgeInsets.only(top: topInset, bottom: bottomInset),
+      child: Column(
+        children: [
+          // ── Visuel animé ────────────────────────────────────────
+          Expanded(
+            flex: 6,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: IntelliaSpacing.lg,
+              ),
+              child: OnboardingVisualView(visual: data.visual),
+            ),
+          ),
+
+          // ── Narration ───────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: IntelliaSpacing.xl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _brandPill(accent)
+                    .animate()
+                    .fadeIn(delay: 150.ms, duration: 420.ms)
+                    .slideY(begin: 0.25, end: 0, delay: 150.ms, duration: 420.ms),
+                const SizedBox(height: IntelliaSpacing.md),
+                Text(
+                      data.title,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w700,
+                        height: 1.12,
+                        letterSpacing: -0.3,
+                        color: IntelliaColors.textPrimary,
+                      ),
+                    )
+                    .animate()
+                    .fadeIn(delay: 250.ms, duration: 500.ms)
+                    .slideY(begin: 0.16, end: 0, delay: 250.ms, duration: 500.ms),
+                const SizedBox(height: IntelliaSpacing.sm),
+                Text(
+                      data.description,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        height: 1.55,
+                        fontWeight: FontWeight.w500,
+                        color: IntelliaColors.textSecondary,
+                      ),
+                    )
+                    .animate()
+                    .fadeIn(delay: 400.ms, duration: 500.ms)
+                    .slideY(begin: 0.12, end: 0, delay: 400.ms, duration: 500.ms),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _brandPill(Color accent) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: IntelliaSpacing.sm, vertical: 5),
+    decoration: BoxDecoration(
+      color: accent.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(IntelliaRadii.full),
+      border: Border.all(color: accent.withValues(alpha: 0.32)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
         ),
-
-        // ── Radial glow behind companion ──────────────────────────
-        Positioned(
-          top: MediaQuery.of(context).size.height * 0.15,
-          left: 0,
-          right: 0,
-          height: 300,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [accent.withValues(alpha: 0.25), Colors.transparent],
-              ),
-            ),
-          ),
-        ),
-
-        // ── Companion Image (BoxFit.contain) ──────────────────────
-        Positioned(
-          top: MediaQuery.of(context).size.height * 0.12,
-          left: 40,
-          right: 40,
-          height: 320,
-          child:
-              Image.asset(
-                    data.asset,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, _, _) => Icon(
-                      isKira ? Icons.face_retouching_natural : Icons.face,
-                      size: 120,
-                      color: accent,
-                    ),
-                  )
-                  .animate(key: ValueKey(data.asset))
-                  .fadeIn(duration: 500.ms)
-                  .slideY(
-                    begin: 0.08,
-                    end: 0,
-                    duration: 500.ms,
-                    curve: Curves.easeOutCubic,
-                  ),
-        ),
-
-        // ── Text Content ──────────────────────────────────────────
-        Positioned(
-          left: IntelliaSpacing.xl,
-          right: IntelliaSpacing.xl,
-          bottom: MediaQuery.of(context).size.height * 0.18,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Pill brand mark tag
-              Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: IntelliaSpacing.sm,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(IntelliaRadii.full),
-                      border: Border.all(color: accent.withValues(alpha: 0.35)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(data.icon, size: 12, color: accent),
-                        const SizedBox(width: 6),
-                        Text(
-                          'INTELLIA237',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: accent,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                  .animate()
-                  .fadeIn(delay: 150.ms, duration: 400.ms)
-                  .slideY(begin: 0.2, end: 0, delay: 150.ms, duration: 400.ms),
-
-              const SizedBox(height: IntelliaSpacing.md),
-
-              // Title Playfair Display
-              Text(
-                    data.title,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0,
-                      height: 1.15,
-                      color: IntelliaColors.textPrimary,
-                    ),
-                  )
-                  .animate()
-                  .fadeIn(delay: 250.ms, duration: 500.ms)
-                  .slideY(begin: 0.15, end: 0, delay: 250.ms, duration: 500.ms),
-
-              const SizedBox(height: IntelliaSpacing.sm),
-
-              // Description Montserrat
-              Text(
-                    data.description,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 15,
-                      height: 1.55,
-                      color: IntelliaColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  )
-                  .animate()
-                  .fadeIn(delay: 400.ms, duration: 500.ms)
-                  .slideY(begin: 0.10, end: 0, delay: 400.ms, duration: 500.ms),
-            ],
+        const SizedBox(width: 7),
+        Text(
+          'INTELLIA237',
+          style: GoogleFonts.montserrat(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: accent,
+            letterSpacing: 0.6,
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
 }

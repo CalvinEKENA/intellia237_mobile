@@ -1,24 +1,33 @@
 import 'package:flutter/material.dart';
 
-/// Données d'une slide d'onboarding.
+/// Identifie le visuel animé associé à chaque slide.
+///
+/// Chaque valeur correspond fidèlement à une scène de l'onboarding de la
+/// Web App INTELLIA237 (cartes en éventail, factorisation, chat, compagnons).
+enum OnboardingVisual { cards, math, chat, companions }
+
+/// Données d'une slide d'onboarding (reconstruction fidèle de la Web App).
 class OnboardingSlideData {
   const OnboardingSlideData({
+    required this.id,
     required this.title,
     required this.description,
-    required this.asset,
-    this.icon = Icons.auto_awesome_rounded,
-    this.accentColor = const Color(0xFF1451E1),
+    required this.visual,
+    required this.accentColor,
   });
 
+  /// Identifiant stable (aligné sur la Web App : learn / math / english / companion).
+  final String id;
+
+  /// Titre de la slide (narration — verbatim Web).
   final String title;
+
+  /// Sous-titre / description (narration — verbatim Web).
   final String description;
 
-  /// Chemin vers une image ou un fichier Lottie (placeholder supporté).
-  final String asset;
+  /// Le visuel animé à afficher.
+  final OnboardingVisual visual;
 
-  /// Icône affichée dans le cercle héroïque.
-  final IconData icon;
-
-  /// Couleur d'accent de la slide.
+  /// Couleur d'accent qui pilote le halo ambiant et la barre de progression.
   final Color accentColor;
 }
