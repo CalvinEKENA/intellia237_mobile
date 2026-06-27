@@ -15,6 +15,7 @@ import '../../features/tutor/presentation/tutor_selection_screen.dart';
 import '../../features/admin_registration/presentation/admin_registration_screen.dart';
 import '../../features/ai_companion/presentation/ai_companion_screen.dart';
 import '../../features/bootstrap/presentation/bootstrap_screen.dart';
+import '../../features/flow/presentation/flow_screen.dart';
 import '../../features/learn/presentation/chapter_detail_screen.dart';
 import '../../features/learn/presentation/learn_hub_screen.dart';
 import '../../features/learn/presentation/lesson_viewer_screen.dart';
@@ -109,6 +110,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           state: state,
           child: const StudentHomeScreen(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.flow,
+        pageBuilder: (context, state) =>
+            buildAppTransitionPage(state: state, child: const FlowScreen()),
       ),
       GoRoute(
         path: AppRoutes.learnHub,
