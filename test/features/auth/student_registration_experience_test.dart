@@ -146,10 +146,7 @@ void main() {
 
       // Kira est présentée SEULE au départ — Léo n'apparaît pas encore.
       expect(companionAssets(), contains('assets/companions/kira.png'));
-      expect(
-        companionAssets(),
-        isNot(contains('assets/companions/leo.png')),
-      );
+      expect(companionAssets(), isNot(contains('assets/companions/leo.png')));
       expect(onlyOfficial(), isTrue);
 
       // La flèche « Découvrir Léo » révèle ensuite Léo, seul.
