@@ -75,9 +75,7 @@ class _MathFactorizationVisualState extends State<MathFactorizationVisual> {
               child: Stack(
                 children: [
                   // Grille mathématique discrète.
-                  Positioned.fill(
-                    child: CustomPaint(painter: _GridPainter()),
-                  ),
+                  Positioned.fill(child: CustomPaint(painter: _GridPainter())),
                   // Symboles décoratifs.
                   Positioned(
                     top: 12,
@@ -87,7 +85,9 @@ class _MathFactorizationVisualState extends State<MathFactorizationVisual> {
                       style: GoogleFonts.montserrat(
                         fontSize: 38,
                         fontWeight: FontWeight.w700,
-                        color: IntelliaColors.brandIndigo.withValues(alpha: 0.30),
+                        color: IntelliaColors.brandIndigo.withValues(
+                          alpha: 0.30,
+                        ),
                       ),
                     ),
                   ),
@@ -99,7 +99,9 @@ class _MathFactorizationVisualState extends State<MathFactorizationVisual> {
                       style: GoogleFonts.montserrat(
                         fontSize: 40,
                         fontWeight: FontWeight.w700,
-                        color: IntelliaColors.brandPurple.withValues(alpha: 0.30),
+                        color: IntelliaColors.brandPurple.withValues(
+                          alpha: 0.30,
+                        ),
                       ),
                     ),
                   ),
@@ -174,8 +176,9 @@ class _MathFactorizationVisualState extends State<MathFactorizationVisual> {
                               decoration: BoxDecoration(
                                 color: active
                                     ? IntelliaColors.brandIndigo
-                                    : IntelliaColors.brandIndigo
-                                          .withValues(alpha: 0.20),
+                                    : IntelliaColors.brandIndigo.withValues(
+                                        alpha: 0.20,
+                                      ),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             );

@@ -76,7 +76,11 @@ class _FlowCelebrationOverlayState extends State<FlowCelebrationOverlay> {
         )
         .animate()
         .fadeIn(duration: 220.ms)
-        .scale(begin: const Offset(0.6, 0.6), end: const Offset(1, 1), curve: Curves.easeOutBack)
+        .scale(
+          begin: const Offset(0.6, 0.6),
+          end: const Offset(1, 1),
+          curve: Curves.easeOutBack,
+        )
         .then(delay: 500.ms)
         .moveY(begin: 0, end: -40, duration: 600.ms, curve: Curves.easeOut)
         .fadeOut(duration: 600.ms);
@@ -133,7 +137,11 @@ class _FlowCelebrationOverlayState extends State<FlowCelebrationOverlay> {
         )
         .animate()
         .fadeIn(duration: 260.ms)
-        .scale(begin: const Offset(0.7, 0.7), end: const Offset(1, 1), curve: Curves.easeOutBack)
+        .scale(
+          begin: const Offset(0.7, 0.7),
+          end: const Offset(1, 1),
+          curve: Curves.easeOutBack,
+        )
         .then(delay: 1600.ms)
         .fadeOut(duration: 400.ms);
   }

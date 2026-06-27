@@ -46,7 +46,8 @@ abstract final class FlowDemoContent {
       id: 'reward-1',
       subject: FlowSubjects.maths,
       title: 'Bien lancé !',
-      message: 'Tu viens de valider ta première notion. On continue sur ta lancée.',
+      message:
+          'Tu viens de valider ta première notion. On continue sur ta lancée.',
     ),
     FlowAnecdoteCard(
       id: 'pc-volta',
@@ -95,7 +96,12 @@ abstract final class FlowDemoContent {
       id: 'svt-quiz-photo',
       subject: FlowSubjects.svt,
       question: 'Quel gaz la photosynthèse libère-t-elle ?',
-      options: ['Le dioxygène (O₂)', 'Le dioxyde de carbone', 'L’azote', 'L’hydrogène'],
+      options: [
+        'Le dioxygène (O₂)',
+        'Le dioxyde de carbone',
+        'L’azote',
+        'L’hydrogène',
+      ],
       correctIndex: 0,
       explanation:
           'La plante absorbe le CO₂ et rejette du dioxygène (O₂), indispensable '
@@ -105,7 +111,8 @@ abstract final class FlowDemoContent {
       id: 'reward-2',
       subject: FlowSubjects.svt,
       title: 'Tu explores large',
-      message: 'Maths, physique, SVT… Ta curiosité couvre déjà plusieurs matières.',
+      message:
+          'Maths, physique, SVT… Ta curiosité couvre déjà plusieurs matières.',
     ),
     FlowAnecdoteCard(
       id: 'fr-mongo-beti',

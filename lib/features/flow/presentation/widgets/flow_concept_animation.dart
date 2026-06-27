@@ -59,12 +59,18 @@ class _FlowConceptAnimationState extends State<FlowConceptAnimation>
           return CustomPaint(
             size: Size.infinite,
             painter: switch (widget.kind) {
-              FlowAnimationKind.pendulum =>
-                _PendulumPainter(_controller.value, widget.accent),
-              FlowAnimationKind.cellDivision =>
-                _CellPainter(_controller.value, widget.accent),
-              FlowAnimationKind.parabola =>
-                _ParabolaPainter(_controller.value, widget.accent),
+              FlowAnimationKind.pendulum => _PendulumPainter(
+                _controller.value,
+                widget.accent,
+              ),
+              FlowAnimationKind.cellDivision => _CellPainter(
+                _controller.value,
+                widget.accent,
+              ),
+              FlowAnimationKind.parabola => _ParabolaPainter(
+                _controller.value,
+                widget.accent,
+              ),
             },
           );
         },
@@ -84,7 +90,8 @@ class _PendulumPainter extends CustomPainter {
     final length = size.height * 0.6;
     final maxAngle = 0.62; // rad
     final angle = maxAngle * math.sin(t * 2 * math.pi);
-    final bob = pivot + Offset(math.sin(angle) * length, math.cos(angle) * length);
+    final bob =
+        pivot + Offset(math.sin(angle) * length, math.cos(angle) * length);
 
     // Arc de trajectoire
     final arcPaint = Paint()
@@ -213,7 +220,11 @@ class _ParabolaPainter extends CustomPainter {
     final tt = math.sin(t * 2 * math.pi) * 0.5 + 0.5; // 0→1→0
     final x = -1 + tt * 2;
     final ball = toCanvas(x);
-    canvas.drawCircle(ball, 18, Paint()..color = accent.withValues(alpha: 0.18));
+    canvas.drawCircle(
+      ball,
+      18,
+      Paint()..color = accent.withValues(alpha: 0.18),
+    );
     canvas.drawCircle(ball, 11, Paint()..color = accent);
   }
 

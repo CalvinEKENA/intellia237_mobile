@@ -11,8 +11,7 @@ abstract final class OnboardingSlides {
     OnboardingSlideData(
       id: 'learn',
       title: 'Quelques minutes par jour',
-      description:
-          'Des défis courts pour préparer la rentrée sans pression.',
+      description: 'Des défis courts pour préparer la rentrée sans pression.',
       visual: OnboardingVisual.cards,
       accentColor: IntelliaColors.brandIndigo,
     ),
@@ -27,8 +26,7 @@ abstract final class OnboardingSlides {
     OnboardingSlideData(
       id: 'english',
       title: 'Teste-toi sans stress',
-      description:
-          'Quiz et QCM t’aident à voir ce que tu maîtrises déjà.',
+      description: 'Quiz et QCM t’aident à voir ce que tu maîtrises déjà.',
       visual: OnboardingVisual.chat,
       accentColor: IntelliaColors.warning,
     ),

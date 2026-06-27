@@ -28,18 +28,17 @@ class FlowRewardCardView extends ConsumerWidget {
           _medal(accent),
           const SizedBox(height: IntelliaSpacing.xl),
           Text(
-            card.title,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 30,
-              fontWeight: FontWeight.w700,
-              color: IntelliaColors.textPrimary,
-            ),
-          ).animate().fadeIn(delay: 200.ms, duration: 460.ms).slideY(
-            begin: 0.12,
-            end: 0,
-            delay: 200.ms,
-          ),
+                card.title,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w700,
+                  color: IntelliaColors.textPrimary,
+                ),
+              )
+              .animate()
+              .fadeIn(delay: 200.ms, duration: 460.ms)
+              .slideY(begin: 0.12, end: 0, delay: 200.ms),
           const SizedBox(height: IntelliaSpacing.sm),
           Text(
             card.message,
@@ -76,20 +75,22 @@ class FlowRewardCardView extends ConsumerWidget {
       alignment: Alignment.center,
       children: [
         Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [accent.withValues(alpha: 0.28), Colors.transparent],
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [accent.withValues(alpha: 0.28), Colors.transparent],
+                ),
+              ),
+            )
+            .animate(onPlay: (c) => c.repeat(reverse: true))
+            .scaleXY(
+              begin: 0.9,
+              end: 1.1,
+              duration: 1800.ms,
+              curve: Curves.easeInOut,
             ),
-          ),
-        ).animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(
-          begin: 0.9,
-          end: 1.1,
-          duration: 1800.ms,
-          curve: Curves.easeInOut,
-        ),
         Container(
           width: 84,
           height: 84,

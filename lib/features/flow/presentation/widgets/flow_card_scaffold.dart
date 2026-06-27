@@ -74,12 +74,15 @@ class FlowCardScaffold extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  children: [
-                    _subjectChip(accent),
-                    const Spacer(),
-                    _kickerChip(accent),
-                  ],
-                ).animate().fadeIn(duration: 360.ms).slideY(begin: -0.2, end: 0),
+                      children: [
+                        _subjectChip(accent),
+                        const Spacer(),
+                        _kickerChip(accent),
+                      ],
+                    )
+                    .animate()
+                    .fadeIn(duration: 360.ms)
+                    .slideY(begin: -0.2, end: 0),
                 const SizedBox(height: IntelliaSpacing.xl),
                 Expanded(child: child),
                 if (footer != null) ...[

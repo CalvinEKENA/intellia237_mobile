@@ -257,9 +257,7 @@ class _StudentHomeTab extends StatelessWidget {
               const SizedBox(height: AppSpacing.md),
               FadeSlideEntrance(
                 delay: const Duration(milliseconds: 100),
-                child: FlowEntryCard(
-                  onTap: () => context.push(AppRoutes.flow),
-                ),
+                child: FlowEntryCard(onTap: () => context.push(AppRoutes.flow)),
               ),
               const SizedBox(height: AppSpacing.md),
               FadeSlideEntrance(

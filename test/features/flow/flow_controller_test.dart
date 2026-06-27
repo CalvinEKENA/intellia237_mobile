@@ -40,17 +40,20 @@ void main() {
     expect(state.streakDays, 5);
   });
 
-  test('compléter une carte de contenu attribue son XP + badge premiers pas', () {
-    final award = controller.completeContentCard(notion);
+  test(
+    'compléter une carte de contenu attribue son XP + badge premiers pas',
+    () {
+      final award = controller.completeContentCard(notion);
 
-    expect(award.xpGained, notion.xpReward);
-    expect(
-      award.newBadges.map((b) => b.id),
-      contains(FlowBadges.firstSteps.id),
-    );
-    expect(container.read(flowControllerProvider).xp, 1200 + notion.xpReward);
-    expect(container.read(flowControllerProvider).completedCount, 1);
-  });
+      expect(award.xpGained, notion.xpReward);
+      expect(
+        award.newBadges.map((b) => b.id),
+        contains(FlowBadges.firstSteps.id),
+      );
+      expect(container.read(flowControllerProvider).xp, 1200 + notion.xpReward);
+      expect(container.read(flowControllerProvider).completedCount, 1);
+    },
+  );
 
   test('compléter deux fois la même carte ne double pas l’XP', () {
     controller.completeContentCard(notion);

@@ -11,9 +11,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: Center(
-            child: FlowEntryCard(onTap: () => tapped = true),
-          ),
+          body: Center(child: FlowEntryCard(onTap: () => tapped = true)),
         ),
       ),
     );

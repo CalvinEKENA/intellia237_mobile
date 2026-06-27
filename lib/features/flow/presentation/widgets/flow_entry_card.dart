@@ -98,33 +98,30 @@ class FlowEntryCard extends StatelessWidget {
     );
 
     return SizedBox(
-      width: 76,
-      height: 84,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          mini(-0.18, 6, Colors.white.withValues(alpha: 0.22)),
-          mini(0.18, 6, Colors.white.withValues(alpha: 0.22)),
-          Container(
-            width: 50,
-            height: 66,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(
-              Icons.play_arrow_rounded,
-              color: IntelliaColors.brandIndigo,
-              size: 28,
-            ),
+          width: 76,
+          height: 84,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              mini(-0.18, 6, Colors.white.withValues(alpha: 0.22)),
+              mini(0.18, 6, Colors.white.withValues(alpha: 0.22)),
+              Container(
+                width: 50,
+                height: 66,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.95),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(
+                  Icons.play_arrow_rounded,
+                  color: IntelliaColors.brandIndigo,
+                  size: 28,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ).animate(onPlay: (c) => c.repeat(reverse: true)).moveY(
-      begin: -2,
-      end: 2,
-      duration: 1800.ms,
-      curve: Curves.easeInOut,
-    );
+        )
+        .animate(onPlay: (c) => c.repeat(reverse: true))
+        .moveY(begin: -2, end: 2, duration: 1800.ms, curve: Curves.easeInOut);
   }
 }
