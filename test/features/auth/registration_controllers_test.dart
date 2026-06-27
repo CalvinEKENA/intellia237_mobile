@@ -16,7 +16,6 @@ import 'package:intellia237/features/student_registration/application/student_re
 import 'package:intellia237/features/student_registration/data/firebase_student_registration_repository.dart';
 import 'package:intellia237/features/student_registration/data/student_registration_repository.dart';
 import 'package:intellia237/features/student_registration/domain/academic_rules.dart';
-import 'package:intellia237/features/student_registration/domain/school_establishment.dart';
 import 'package:intellia237/features/student_registration/domain/student_registration_payload.dart';
 import 'package:intellia237/features/student_registration/domain/student_registration_result.dart';
 
@@ -52,11 +51,74 @@ void main() {
       expect(repository.payload!.schoolClass, SchoolClass.terminale);
       expect(repository.payload!.schoolSeries, SchoolSeries.d);
       expect(repository.payload!.selectedTutorId, 'kira');
+      final now = DateTime.utc(2026, 6, 27);
+      final userDocument = repository.payload!.toUserDocument(
+        uid: 'student-uid',
+        now: now,
+      );
+      final profileDocument = repository.payload!.toStudentProfileDocument(
+        uid: 'student-uid',
+        now: now,
+      );
+      expect(userDocument.containsKey('establishmentId'), isFalse);
+      expect(profileDocument.containsKey('establishmentId'), isFalse);
+      expect(profileDocument.containsKey('establishmentName'), isFalse);
+      expect(
+        container.read(studentRegistrationControllerProvider).isCompleted,
+        isTrue,
+      );
+      expect(
+        container.read(authControllerProvider).status,
+        AuthStatus.bootstrapping,
+      );
+
+      controller.completeRegistration();
       expect(
         container.read(authControllerProvider).status,
         AuthStatus.authenticated,
       );
       expect(container.read(authControllerProvider).role, AppRole.student);
+    },
+  );
+
+  test(
+    'student success remains hidden when profile persistence fails',
+    () async {
+      final repository = _StudentRegistrationRepository(
+        error: const StudentRegistrationException(
+          message: 'Le profil n’a pas pu être finalisé.',
+          code: 'permission-denied',
+        ),
+      );
+      final container = _container(
+        studentRepository: repository,
+        roleRepository: _RoleRegistrationRepository(),
+      );
+      addTearDown(container.dispose);
+      final controller = container.read(
+        studentRegistrationControllerProvider.notifier,
+      );
+      controller
+        ..setFirstName('Amina')
+        ..setLastName('Ndi')
+        ..setSchoolClass(SchoolClass.sixieme)
+        ..setSelectedTutorId('kira')
+        ..setEmail('amina@example.com')
+        ..setPassword('password8')
+        ..setConfirmPassword('password8')
+        ..setAcceptedTerms(true)
+        ..setAcceptedPrivacy(true)
+        ..setAcceptedDataPolicy(true);
+
+      expect(await controller.submit(), isFalse);
+      expect(
+        container.read(studentRegistrationControllerProvider).isCompleted,
+        isFalse,
+      );
+      expect(
+        container.read(authControllerProvider).status,
+        AuthStatus.bootstrapping,
+      );
     },
   );
 
@@ -111,12 +173,16 @@ ProviderContainer _container({
 }
 
 class _StudentRegistrationRepository implements StudentRegistrationRepository {
+  _StudentRegistrationRepository({this.error});
+
+  final StudentRegistrationException? error;
   StudentRegistrationPayload? payload;
 
   @override
   Future<StudentRegistrationResult> registerStudent(
     StudentRegistrationPayload payload,
   ) async {
+    if (error != null) throw error!;
     this.payload = payload;
     return StudentRegistrationResult(
       uid: 'student-uid',
@@ -125,10 +191,6 @@ class _StudentRegistrationRepository implements StudentRegistrationRepository {
       lastName: payload.lastName,
     );
   }
-
-  @override
-  Future<List<SchoolEstablishment>> searchEstablishments(String query) async =>
-      const [];
 }
 
 class _RoleRegistrationRepository implements RoleRegistrationRepository {
@@ -156,10 +218,6 @@ class _RoleRegistrationRepository implements RoleRegistrationRepository {
   Future<RoleRegistrationResult> registerTeacher(
     TeacherRegistrationPayload payload,
   ) => throw UnimplementedError();
-
-  @override
-  Future<List<SchoolEstablishment>> searchEstablishments(String query) async =>
-      const [];
 }
 
 class _AuthRepository implements AuthRepository {
