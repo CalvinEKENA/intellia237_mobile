@@ -54,6 +54,29 @@ abstract final class FirebaseErrorMapper {
     };
   }
 
+  /// Identifiant diagnostic stable, affiché discrètement en staging et
+  /// copiable par le testeur (ex. « AUTH-CONFIG-001 » quand Firebase
+  /// Authentication ou Email/Mot de passe n'est pas activé côté console).
+  ///
+  /// N'expose jamais d'information sensible : c'est un code de catégorie.
+  static String diagnosticId(String? code, [String? technicalMessage]) {
+    return switch (normalizeCode(code, technicalMessage)) {
+      'configuration-not-found' || 'operation-not-allowed' => 'AUTH-CONFIG-001',
+      'network-request-failed' || 'network-error' => 'AUTH-NET-002',
+      'too-many-requests' || 'quota-exceeded' => 'AUTH-RATE-003',
+      'email-already-in-use' => 'AUTH-EMAIL-004',
+      'weak-password' => 'AUTH-PWD-005',
+      'invalid-email' => 'AUTH-EMAIL-006',
+      'user-disabled' => 'AUTH-USER-007',
+      'permission-denied' => 'DATA-PERM-101',
+      'unavailable' || 'deadline-exceeded' || 'timeout' => 'SVC-UNAVAIL-102',
+      'invalid-argument' => 'DATA-ARG-103',
+      'unauthenticated' => 'DATA-AUTH-104',
+      'missing-user' => 'AUTH-USER-105',
+      _ => 'APP-UNKNOWN-000',
+    };
+  }
+
   static bool canRetry(String? code, [String? technicalMessage]) {
     return switch (normalizeCode(code, technicalMessage)) {
       'network-request-failed' ||
