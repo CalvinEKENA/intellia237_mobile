@@ -200,3 +200,39 @@ la checklist et creation verifiee d'un compte Eleve depuis l'APK staging.
 - Aucun appel Gemini ou paiement modifie.
 - Aucun push direct sur `main`.
 - La PR #6 reste ouverte et non fusionnee.
+
+---
+
+## Mise à jour — correctifs téléphone (PR #6)
+
+### A. Lisibilité Classe / Série
+Le `ChoiceChip` (`_SelectionPill`), dont le fond/texte pouvaient être écrasés
+par le `ChipTheme` global (blocs blancs illisibles), est remplacé par
+`AuthSelectionPill` — composant contrôlé, couleurs littérales, indépendant du
+thème. Non sélectionné : fond blanc 6 %, bordure 14 %, texte blanc 90 %, h≥52,
+rayon 16. Sélectionné : gradient indigo→violet, texte blanc, coche, halo,
+haptique, transition ~210 ms. Couvert par `auth_selection_pill_test.dart`.
+
+### B. Découverte cinématique Kira / Léo
+L'étape Compagnon ne montre plus jamais les deux personnages ensemble.
+`CompanionDiscovery` : `PageView` une scène à la fois, révélation (fondu +
+flou→net + tracking resserré), phrases une à une, flèche animée « Découvrir
+Léo », transition halo violet→bleu-indigo, retour possible, sélection après
+découverte, CTA « Continuer » actif seulement après choix. Un contrôleur par
+scène libéré, pause en arrière-plan, reduced-motion, images précachées,
+`RepaintBoundary`. Couvert par `student_registration_experience_test.dart`.
+
+### C. Diagnostics d'inscription (staging)
+`FirebaseErrorMapper.diagnosticId()` ajoute des identifiants stables
+(`AUTH-CONFIG-001` quand Firebase Auth / Email-Mot de passe n'est pas activé).
+En staging, le message inclut l'ID copiable et un log non sensible est émis
+(env, projectId, appId tronqué, étape, code). Aucun secret journalisé. Le
+correctif réel reste l'activation console + test device — voir
+`FINAL_DEVICE_VALIDATION.md`.
+
+### D. Splash fidèle au Web
+Splash natif (#FAFAFD + logo officiel) + splash Flutter rejouant le splash Web,
+sans frame blanche — voir `docs/design/WEB_SPLASH_TO_FLUTTER_REPORT.md`.
+
+> Onboarding conservé à 5 s/écran. Intellia Flow, correctifs bootstrap et
+> assets officiels Kira/Léo préservés.

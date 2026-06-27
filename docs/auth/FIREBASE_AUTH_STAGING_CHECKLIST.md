@@ -100,3 +100,32 @@ une erreur de validation telle que `MISSING_EMAIL`, et non
   compte de service.
 - Aucune action ne doit etre appliquee au projet Firebase de production dans
   le cadre de cette checklist.
+
+---
+
+## Mise à jour — diagnostics d'inscription (AUTH-CONFIG-001)
+
+### Action console requise (propriétaire)
+1. Console Firebase → projet **intellia237-staging**.
+2. Authentication → **Get started** (si Authentication n'est pas initialisé).
+3. Sign-in method → **Email/Password** → **Enable** → Save.
+
+### Diagnostic côté app (déjà en place)
+- Quand Firebase Auth / Email-Mot de passe n'est pas activé, l'erreur Firebase
+  `configuration-not-found` (ou `operation-not-allowed`) est mappée vers
+  l'identifiant diagnostic **`AUTH-CONFIG-001`**.
+- En **staging**, le message d'erreur affiché inclut `[AUTH-CONFIG-001]`
+  (copiable par le testeur) et un log non sensible est émis :
+  `env`, `projectId`, `appId` (tronqué), `step`, `code`, `diagnostic`.
+- En **production**, seul le message utilisateur est affiché.
+- Jamais journalisés : mot de passe, clé API, token, contenu privé du profil.
+
+### Après activation — vérifications runtime
+Voir la checklist détaillée dans `FINAL_DEVICE_VALIDATION.md` (projectId,
+package staging, compte créé dans Authentication, `users/{uid}`, profil Élève,
+rôle/classe/série/compagnon, aucune exigence d'établissement).
+
+### Rappel
+Un build APK, un test mock, `flutter analyze` ou une CI verte **ne valident
+pas** la mission Firebase : seule une création de compte réelle sur téléphone
+la valide.
