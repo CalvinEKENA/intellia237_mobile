@@ -101,49 +101,70 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
-  testWidgets('companion step uses only the official Kira and Léo assets', (
-    tester,
-  ) async {
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-    final controller = container.read(
-      studentRegistrationControllerProvider.notifier,
-    );
-    controller
-      ..setFirstName('Amina')
-      ..setLastName('Ndi')
-      ..setSchoolClass(SchoolClass.terminale)
-      ..setSchoolSeries(SchoolSeries.d)
-      ..goToNextStep()
-      ..goToNextStep();
+  testWidgets(
+    'companion step reveals Kira then Léo one at a time, official assets only',
+    (tester) async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final controller = container.read(
+        studentRegistrationControllerProvider.notifier,
+      );
+      controller
+        ..setFirstName('Amina')
+        ..setLastName('Ndi')
+        ..setSchoolClass(SchoolClass.terminale)
+        ..setSchoolSeries(SchoolSeries.d)
+        ..goToNextStep()
+        ..goToNextStep();
 
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const MaterialApp(
-          home: MediaQuery(
-            data: MediaQueryData(disableAnimations: true),
-            child: StudentRegistrationFlowScreen(),
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: MediaQuery(
+              data: MediaQueryData(disableAnimations: true),
+              child: StudentRegistrationFlowScreen(),
+            ),
           ),
         ),
-      ),
-    );
-    await tester.pump();
+      );
+      await tester.pump();
 
-    final assetNames = tester
-        .widgetList<Image>(find.byType(Image))
-        .map((image) => image.image)
-        .whereType<AssetImage>()
-        .map((asset) => asset.assetName)
-        .toSet();
-    expect(assetNames, contains('assets/companions/kira.png'));
-    expect(assetNames, contains('assets/companions/leo.png'));
-    expect(
-      assetNames.where((path) => path.startsWith('assets/companions/')),
-      hasLength(2),
-    );
-    expect(tester.takeException(), isNull);
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(seconds: 1));
-  });
+      Set<String> companionAssets() => tester
+          .widgetList<Image>(find.byType(Image))
+          .map((image) => image.image)
+          .whereType<AssetImage>()
+          .map((asset) => asset.assetName)
+          .where((path) => path.startsWith('assets/companions/'))
+          .toSet();
+
+      bool onlyOfficial() => companionAssets().every(
+        (p) =>
+            p == 'assets/companions/kira.png' ||
+            p == 'assets/companions/leo.png',
+      );
+
+      // Kira est présentée SEULE au départ — Léo n'apparaît pas encore.
+      expect(companionAssets(), contains('assets/companions/kira.png'));
+      expect(
+        companionAssets(),
+        isNot(contains('assets/companions/leo.png')),
+      );
+      expect(onlyOfficial(), isTrue);
+
+      // La flèche « Découvrir Léo » révèle ensuite Léo, seul.
+      await tester.ensureVisible(find.text('Découvrir Léo'));
+      await tester.pump();
+      await tester.tap(find.text('Découvrir Léo'), warnIfMissed: false);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 700));
+
+      expect(companionAssets(), contains('assets/companions/leo.png'));
+      expect(onlyOfficial(), isTrue);
+
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 1));
+    },
+  );
 }

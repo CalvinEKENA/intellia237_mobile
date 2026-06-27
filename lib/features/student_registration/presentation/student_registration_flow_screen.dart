@@ -8,11 +8,13 @@ import '../../auth/domain/auth_input_validators.dart';
 import '../../auth/presentation/widgets/auth_choices.dart';
 import '../../auth/presentation/widgets/auth_controls.dart';
 import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
+import '../../auth/presentation/widgets/auth_selection_pill.dart';
 import '../../auth/presentation/widgets/auth_success_screen.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../application/student_registration_controller.dart';
 import '../application/student_registration_state.dart';
 import '../domain/academic_rules.dart';
+import 'widgets/companion_discovery.dart';
 
 class StudentRegistrationFlowScreen extends ConsumerStatefulWidget {
   const StudentRegistrationFlowScreen({super.key});
@@ -167,7 +169,7 @@ class _StudentRegistrationFlowScreenState
     return switch (state.currentStep) {
       0 => _identityStep(),
       1 => _classStep(state),
-      2 => _companionStep(state),
+      2 => _companionStep(),
       3 => _securityStep(state),
       _ => const SizedBox.shrink(),
     };
@@ -230,7 +232,7 @@ class _StudentRegistrationFlowScreenState
           runSpacing: 8,
           children: [
             for (final schoolClass in SchoolClassX.ordered)
-              _SelectionPill(
+              AuthSelectionPill(
                 label: schoolClass.label,
                 selected: selectedClass == schoolClass,
                 onTap: () => controller.setSchoolClass(schoolClass),
@@ -252,7 +254,7 @@ class _StudentRegistrationFlowScreenState
             spacing: 8,
             children: [
               for (final series in selectedClass!.allowedSeries)
-                _SelectionPill(
+                AuthSelectionPill(
                   label: series.label,
                   selected: state.schoolSeries == series,
                   onTap: () => controller.setSchoolSeries(series),
@@ -264,52 +266,17 @@ class _StudentRegistrationFlowScreenState
     );
   }
 
-  Widget _companionStep(StudentRegistrationState state) {
-    final controller = ref.read(studentRegistrationControllerProvider.notifier);
+  Widget _companionStep() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const _StepHeading(
-          title: 'Choisis ton compagnon',
+      children: const [
+        _StepHeading(
+          title: 'Rencontre ton compagnon',
           subtitle:
-              'Kira et Léo t’accompagnent avec deux énergies différentes.',
+              'Découvre Kira, puis Léo. Tu choisiras une fois que tu les auras vus.',
         ),
-        const SizedBox(height: 18),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final cards = [
-              CompanionSelectionCard(
-                name: 'Kira',
-                description: 'Calme, rassurante et méthodique.',
-                assetPath: 'assets/companions/kira.png',
-                accent: AuthExperienceColors.purple,
-                isSelected: state.selectedTutorId == 'kira',
-                onTap: () => controller.setSelectedTutorId('kira'),
-              ),
-              CompanionSelectionCard(
-                name: 'Léo',
-                description: 'Énergique, stimulant et orienté défi.',
-                assetPath: 'assets/companions/leo.png',
-                accent: AuthExperienceColors.indigo,
-                isSelected: state.selectedTutorId == 'leo',
-                onTap: () => controller.setSelectedTutorId('leo'),
-              ),
-            ];
-            if (constraints.maxWidth < 360) {
-              return Column(
-                children: [cards[0], const SizedBox(height: 12), cards[1]],
-              );
-            }
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: cards[0]),
-                const SizedBox(width: 12),
-                Expanded(child: cards[1]),
-              ],
-            );
-          },
-        ),
+        SizedBox(height: 12),
+        CompanionDiscovery(),
       ],
     );
   }
@@ -396,6 +363,9 @@ class _StudentRegistrationFlowScreenState
   }
 
   Widget _actions(StudentRegistrationState state) {
+    // CTA « Continuer » actif uniquement après un vrai choix de compagnon.
+    final blockCompanion =
+        state.currentStep == 2 && state.selectedTutorId == null;
     return Row(
       children: [
         if (!state.isFirstStep) ...[
@@ -419,7 +389,7 @@ class _StudentRegistrationFlowScreenState
         Expanded(
           child: AuthPrimaryButton(
             label: state.isLastStep ? 'Créer mon compte' : 'Continuer',
-            onTap: state.isSubmitting
+            onTap: (state.isSubmitting || blockCompanion)
                 ? null
                 : () => _handlePrimaryAction(state),
             isLoading: state.isSubmitting,
@@ -500,42 +470,6 @@ class _StepHeading extends StatelessWidget {
         ),
       ],
     ).animate().fadeIn(duration: 280.ms).slideY(begin: 0.04, end: 0);
-  }
-}
-
-class _SelectionPill extends StatelessWidget {
-  const _SelectionPill({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => onTap(),
-      showCheckmark: true,
-      checkmarkColor: Colors.white,
-      selectedColor: AuthExperienceColors.indigo,
-      backgroundColor: Colors.white.withValues(alpha: 0.06),
-      side: BorderSide(
-        color: selected
-            ? AuthExperienceColors.indigo
-            : Colors.white.withValues(alpha: 0.14),
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      labelStyle: TextStyle(
-        color: Colors.white,
-        fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-    );
   }
 }
 
