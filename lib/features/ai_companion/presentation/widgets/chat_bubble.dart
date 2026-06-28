@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/widgets/tab_presentation.dart';
 import '../../../tutor/domain/tutor_persona.dart';
 import '../../domain/ai_message.dart';
 
@@ -88,67 +89,74 @@ class _AiBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
+    const radius = BorderRadius.only(
+      topLeft: Radius.circular(4),
+      topRight: Radius.circular(24),
+      bottomLeft: Radius.circular(24),
+      bottomRight: Radius.circular(24),
+    );
+
+    final row = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Tutor Avatar
+        Container(
+          width: 32,
+          height: 32,
+          margin: const EdgeInsets.only(right: AppSpacing.sm, top: 2),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: tutor.accentColor.withValues(alpha: 0.5),
+              width: 1.2,
+            ),
+            image: DecorationImage(
+              image: AssetImage(tutor.imagePath),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(color: s.textPrimary, fontSize: 14, height: 1.6),
+          ),
+        ),
+      ],
+    );
+
+    // Embedded clair : surface opaque + texte sombre. Autonome sombre : glass.
+    if (!s.useGlass) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: s.surface,
+          borderRadius: radius,
+          border: Border.all(color: s.surfaceBorder),
+          boxShadow: IntelliaShadows.card(Colors.black),
+        ),
+        child: row,
+      );
+    }
     return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(4),
-        topRight: Radius.circular(24),
-        bottomLeft: Radius.circular(24),
-        bottomRight: Radius.circular(24),
-      ),
+      borderRadius: radius,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [Color(0x1EFFFFFF), Color(0x0CFFFFFF)],
             ),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(4),
-              topRight: Radius.circular(24),
-              bottomLeft: Radius.circular(24),
-              bottomRight: Radius.circular(24),
+            borderRadius: radius,
+            border: Border.fromBorderSide(
+              BorderSide(color: AppColors.glassBorder),
             ),
-            border: Border.all(color: AppColors.glassBorder),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Tutor Avatar
-              Container(
-                width: 32,
-                height: 32,
-                margin: const EdgeInsets.only(right: AppSpacing.sm, top: 2),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: tutor.accentColor.withValues(alpha: 0.5),
-                    width: 1.2,
-                  ),
-                  image: DecorationImage(
-                    image: AssetImage(tutor.imagePath),
-                    fit: BoxFit.cover,
-                  ),
-                  boxShadow: AppShadows.glow(
-                    tutor.accentColor,
-                    intensity: 0.15,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  text,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    height: 1.6,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: row,
         ),
       ),
     );
@@ -216,6 +224,7 @@ class _TypingIndicatorBubbleState extends State<TypingIndicatorBubble>
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
@@ -225,14 +234,14 @@ class _TypingIndicatorBubbleState extends State<TypingIndicatorBubble>
           vertical: AppSpacing.sm,
         ),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: s.useGlass ? Colors.white.withValues(alpha: 0.08) : s.surface,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(4),
             topRight: Radius.circular(20),
             bottomLeft: Radius.circular(20),
             bottomRight: Radius.circular(20),
           ),
-          border: Border.all(color: AppColors.glassBorder),
+          border: Border.all(color: s.surfaceBorder),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/liquid_background.dart';
+import '../../../core/widgets/tab_presentation.dart';
 import '../application/ai_companion_controller.dart';
 import 'widgets/chat_bubble.dart';
 
@@ -101,7 +102,13 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
           AppSpacing.lg,
           112,
         ),
-        child: content,
+        child: Column(
+          children: [
+            _CompanionHeader(state: state),
+            const SizedBox(height: AppSpacing.md),
+            Expanded(child: content),
+          ],
+        ),
       );
     }
 
@@ -266,6 +273,102 @@ class _GlassTopBar extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Companion header — light embedded (avatar + name + level + status)
+// ─────────────────────────────────────────────────────────────
+
+class _CompanionHeader extends StatelessWidget {
+  const _CompanionHeader({required this.state});
+
+  final AICompanionState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
+    final tutor = state.tutor;
+    final statusLabel = state.isSending ? 'réfléchit…' : 'Disponible';
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: s.surface,
+        borderRadius: BorderRadius.circular(IntelliaRadii.large),
+        border: Border.all(color: s.surfaceBorder),
+        boxShadow: IntelliaShadows.card(Colors.black),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: tutor.accentColor.withValues(alpha: 0.45),
+                width: 1.5,
+              ),
+              image: DecorationImage(
+                image: AssetImage(tutor.imagePath),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  tutor.name,
+                  style: GoogleFonts.manrope(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: s.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: const BoxDecoration(
+                        color: IntelliaColors.success,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Tuteur • $statusLabel',
+                      style: TextStyle(fontSize: 12, color: s.textTertiary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: tutor.gradientColors),
+              borderRadius: BorderRadius.circular(99),
+            ),
+            child: Text(
+              tutor.levelLabel,
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
 // Glass chat container with messages + quick prompts
 // ─────────────────────────────────────────────────────────────
 
@@ -286,6 +389,62 @@ class _GlassChatContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
+    final inner = Column(
+      children: [
+        // Quick prompts — hidden after first message
+        AnimatedSize(
+          duration: AppMotion.medium,
+          curve: AppMotion.emphasizedDecelerate,
+          child: quickPromptsVisible
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.md,
+                    AppSpacing.md,
+                    0,
+                  ),
+                  child: _QuickPromptChips(
+                    prompts: quickPrompts,
+                    onTap: onQuickPrompt,
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+        // Messages
+        Expanded(
+          child: ListView.builder(
+            controller: scrollController,
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            itemCount: state.messages.length + (state.isSending ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index >= state.messages.length) {
+                return TypingIndicatorBubble(tutor: state.tutor);
+              }
+              return ChatBubble(
+                message: state.messages[index],
+                tutor: state.tutor,
+              );
+            },
+          ),
+        ),
+      ],
+    );
+
+    // Embedded clair : surface opaque + ombre douce (pas de BackdropFilter dans
+    // une conversation scrollable). Autonome sombre : glass conservé.
+    if (!s.useGlass) {
+      return Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: s.surface,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: s.surfaceBorder),
+          boxShadow: IntelliaShadows.card(Colors.black),
+        ),
+        child: inner,
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: BackdropFilter(
@@ -296,47 +455,7 @@ class _GlassChatContainer extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.lg),
             border: Border.all(color: AppColors.glassBorder),
           ),
-          child: Column(
-            children: [
-              // Quick prompts — hidden after first message
-              AnimatedSize(
-                duration: AppMotion.medium,
-                curve: AppMotion.emphasizedDecelerate,
-                child: quickPromptsVisible
-                    ? Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.md,
-                          AppSpacing.md,
-                          AppSpacing.md,
-                          0,
-                        ),
-                        child: _QuickPromptChips(
-                          prompts: quickPrompts,
-                          onTap: onQuickPrompt,
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-
-              // Messages
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(AppSpacing.sm),
-                  itemCount: state.messages.length + (state.isSending ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index >= state.messages.length) {
-                      return TypingIndicatorBubble(tutor: state.tutor);
-                    }
-                    return ChatBubble(
-                      message: state.messages[index],
-                      tutor: state.tutor,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+          child: inner,
         ),
       ),
     );
@@ -371,27 +490,27 @@ class _QuickPromptChips extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.gold.withValues(alpha: 0.12),
+                    color: IntelliaColors.brandIndigo.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(99),
                     border: Border.all(
-                      color: AppColors.gold.withValues(alpha: 0.35),
+                      color: IntelliaColors.brandIndigo.withValues(alpha: 0.30),
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.auto_awesome_rounded,
                         size: 12,
-                        color: AppColors.gold,
+                        color: IntelliaColors.brandIndigo,
                       ),
                       const SizedBox(width: 5),
                       Text(
                         prompts[i],
                         style: const TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.gold,
+                          fontWeight: FontWeight.w700,
+                          color: IntelliaColors.brandIndigo,
                         ),
                       ),
                     ],
@@ -425,86 +544,83 @@ class _GlassComposer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
+
+    final field = Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: s.useGlass ? Colors.white.withValues(alpha: 0.08) : s.fieldFill,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: s.surfaceBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: TextField(
+              controller: controller,
+              enabled: enabled,
+              minLines: 1,
+              maxLines: 4,
+              textInputAction: TextInputAction.send,
+              onSubmitted: (_) => onSubmit(),
+              style: TextStyle(color: s.textPrimary, fontSize: 14),
+              decoration: InputDecoration(
+                hintText: 'Écris ta question…',
+                hintStyle: TextStyle(color: s.textTertiary, fontSize: 14),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          // Send button — gradient circle
+          GestureDetector(
+            onTap: enabled
+                ? () {
+                    HapticFeedback.lightImpact();
+                    onSubmit();
+                  }
+                : null,
+            child: AnimatedContainer(
+              duration: AppMotion.fast,
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: enabled
+                    ? LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [accentColor, AppColors.brand],
+                      )
+                    : null,
+                color: enabled ? null : s.surfaceMuted,
+                shape: BoxShape.circle,
+                boxShadow: enabled
+                    ? AppShadows.glow(accentColor, intensity: 0.40)
+                    : null,
+              ),
+              child: Icon(
+                Icons.send_rounded,
+                size: 18,
+                color: enabled ? Colors.white : s.textTertiary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!s.useGlass) return field;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.xs,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: AppColors.glassBorder),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  enabled: enabled,
-                  minLines: 1,
-                  maxLines: 4,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => onSubmit(),
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                  decoration: InputDecoration(
-                    hintText: 'Écris ta question…',
-                    hintStyle: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.40),
-                      fontSize: 14,
-                    ),
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-
-              // Send button — gradient circle
-              GestureDetector(
-                onTap: enabled
-                    ? () {
-                        HapticFeedback.lightImpact();
-                        onSubmit();
-                      }
-                    : null,
-                child: AnimatedContainer(
-                  duration: AppMotion.fast,
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    gradient: enabled
-                        ? LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [accentColor, AppColors.brand],
-                          )
-                        : null,
-                    color: enabled
-                        ? null
-                        : Colors.white.withValues(alpha: 0.10),
-                    shape: BoxShape.circle,
-                    boxShadow: enabled
-                        ? AppShadows.glow(accentColor, intensity: 0.40)
-                        : null,
-                  ),
-                  child: Icon(
-                    Icons.send_rounded,
-                    size: 18,
-                    color: enabled
-                        ? Colors.white
-                        : Colors.white.withValues(alpha: 0.30),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        child: field,
       ),
     );
   }

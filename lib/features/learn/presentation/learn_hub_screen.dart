@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -8,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/intellia_pressable.dart';
+import '../../../core/widgets/tab_presentation.dart';
+import '../../../core/widgets/tab_section_header.dart';
 import '../application/learn_providers.dart';
 import '../domain/learn_subject.dart';
 import 'subject_detail_screen.dart';
@@ -123,12 +123,28 @@ class _LearnHubBody extends StatelessWidget {
 
     return CustomScrollView(
       slivers: [
+        // ── En-tête commun clair ───────────────────────────
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.lg,
+              AppSpacing.md,
+            ),
+            child: TabSectionHeader(
+              eyebrow: 'Espace élève',
+              title: 'Apprendre',
+              subtitle: 'Tes matières, adaptées à ton niveau.',
+            ),
+          ),
+        ),
         // ── Context banner ─────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.lg,
-              AppSpacing.lg,
+              0,
               AppSpacing.lg,
               0,
             ),
@@ -214,80 +230,69 @@ class _ContextBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0x221451E1), Color(0x110B1F4A)],
+    // Vrai gradient indigo→violet affirmé : texte blanc à contraste garanti,
+    // sans BackdropFilter (perf + lisibilité sur fond clair).
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        gradient: IntelliaGradients.brand,
+        borderRadius: BorderRadius.circular(IntelliaRadii.large),
+        boxShadow: IntelliaShadows.glow(
+          IntelliaColors.brandIndigo,
+          intensity: 0.22,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Parcours personnalisé',
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
             ),
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: AppColors.brand.withValues(alpha: 0.30)),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Parcours personnalisé',
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                'Contenus adaptés à ton niveau actuel.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.white.withValues(alpha: 0.65),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xxs + 2,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.brand.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(99),
-                  border: Border.all(
-                    color: AppColors.brand.withValues(alpha: 0.40),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.school_rounded,
-                      size: 14,
+          const SizedBox(height: AppSpacing.xxs),
+          Text(
+            'Contenus adaptés à ton niveau actuel.',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.white.withValues(alpha: 0.85),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.xxs + 2,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.20),
+              borderRadius: BorderRadius.circular(99),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.school_rounded, size: 14, color: Colors.white),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    classLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
-                    const SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        classLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -304,49 +309,39 @@ class _GlassSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: TextField(
-          controller: controller,
-          style: const TextStyle(color: Colors.white, fontSize: 15),
-          decoration: InputDecoration(
-            hintText: 'Rechercher une matière…',
-            hintStyle: TextStyle(
-              color: Colors.white.withValues(alpha: 0.35),
-              fontSize: 15,
-            ),
-            filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.08),
-            prefixIcon: Icon(
-              Icons.search_rounded,
-              color: Colors.white.withValues(alpha: 0.50),
-            ),
-            suffixIcon: controller.text.isNotEmpty
-                ? IconButton(
-                    icon: Icon(
-                      Icons.close_rounded,
-                      color: Colors.white.withValues(alpha: 0.45),
-                    ),
-                    onPressed: controller.clear,
-                  )
-                : null,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: BorderSide(
-                color: Colors.white.withValues(alpha: 0.18),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
-            ),
+    final s = TabSurface.of(context);
+    return TextField(
+      controller: controller,
+      style: TextStyle(color: s.textPrimary, fontSize: 15),
+      decoration: InputDecoration(
+        hintText: 'Rechercher une matière…',
+        hintStyle: TextStyle(color: s.textTertiary, fontSize: 15),
+        filled: true,
+        fillColor: s.fieldFill,
+        prefixIcon: const Icon(
+          Icons.search_rounded,
+          color: IntelliaColors.brandIndigo,
+        ),
+        suffixIcon: controller.text.isNotEmpty
+            ? IconButton(
+                icon: Icon(Icons.close_rounded, color: s.textTertiary),
+                onPressed: controller.clear,
+              )
+            : null,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+          borderSide: BorderSide(color: s.surfaceBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+          borderSide: const BorderSide(
+            color: IntelliaColors.brandIndigo,
+            width: 1.5,
           ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
         ),
       ),
     );
@@ -370,35 +365,36 @@ class _FilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: AppMotion.fast,
+        curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.xs,
         ),
         decoration: BoxDecoration(
-          gradient: selected ? AppGradients.heroGold : null,
-          color: selected ? null : Colors.white.withValues(alpha: 0.08),
+          gradient: selected ? IntelliaGradients.brand : null,
+          color: selected ? null : s.surfaceMuted,
           borderRadius: BorderRadius.circular(99),
           border: Border.all(
-            color: selected
-                ? Colors.transparent
-                : Colors.white.withValues(alpha: 0.18),
+            color: selected ? Colors.transparent : s.surfaceBorder,
           ),
           boxShadow: selected
-              ? AppShadows.glow(AppColors.gold, intensity: 0.20)
+              ? IntelliaShadows.glow(
+                  IntelliaColors.brandIndigo,
+                  intensity: 0.18,
+                )
               : null,
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 13,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected
-                ? Colors.white
-                : Colors.white.withValues(alpha: 0.65),
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+            color: selected ? Colors.white : s.textSecondary,
           ),
         ),
       ),
@@ -450,8 +446,10 @@ class _SubjectCard extends StatelessWidget {
             closedShape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
-            transitionType: ContainerTransitionType.fadeThrough,
-            transitionDuration: const Duration(milliseconds: 400),
+            // `fade` (et non fadeThrough) garde la source visible plus longtemps
+            // → l'expansion spatiale du conteneur est nettement plus perceptible.
+            transitionType: ContainerTransitionType.fade,
+            transitionDuration: const Duration(milliseconds: 450),
             closedBuilder: (context, openContainer) =>
                 IntelliaPressable(onTap: openContainer, child: tile),
             openBuilder: (context, _) =>
@@ -597,8 +595,9 @@ class _SkeletonBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
     return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.25, end: 0.55),
+      tween: Tween(begin: 0.55, end: 1.0),
       duration: const Duration(milliseconds: 900),
       curve: Curves.easeInOut,
       builder: (context, value, child) {
@@ -607,7 +606,7 @@ class _SkeletonBox extends StatelessWidget {
           child: Container(
             height: height,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
+              color: s.surfaceMuted,
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
           ),
@@ -624,6 +623,7 @@ class _LearnHubError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
@@ -633,15 +633,12 @@ class _LearnHubError extends StatelessWidget {
             Icon(
               Icons.error_outline_rounded,
               size: 48,
-              color: Colors.white.withValues(alpha: 0.40),
+              color: IntelliaColors.brandIndigo.withValues(alpha: 0.7),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               'Impossible de charger les matières.',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.70),
-                fontSize: 14,
-              ),
+              style: TextStyle(color: s.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: AppSpacing.md),
             FilledButton.icon(
