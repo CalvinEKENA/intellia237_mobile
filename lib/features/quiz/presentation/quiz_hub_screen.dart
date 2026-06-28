@@ -81,10 +81,12 @@ class _QuizHubBody extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(IntelliaRadii.large),
+            // Assombri (#0369A1) pour garantir un contraste ≥ 4.5:1 du texte
+            // blanc sur toute la surface du banner.
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFF0EA5E9), Color(0xFF1D4ED8)],
+              colors: [Color(0xFF0369A1), Color(0xFF1D4ED8)],
             ),
             boxShadow: IntelliaShadows.glow(
               const Color(0xFF1D4ED8),
