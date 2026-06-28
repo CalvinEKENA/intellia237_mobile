@@ -8,9 +8,14 @@ import '../../../../app/theme/design_tokens.dart';
 import '../../domain/student_home_snapshot.dart';
 
 class DailyChallengesSection extends StatefulWidget {
-  const DailyChallengesSection({required this.items, super.key});
+  const DailyChallengesSection({
+    required this.items,
+    required this.onItemTap,
+    super.key,
+  });
 
   final List<DailyChallengeItem> items;
+  final ValueChanged<DailyChallengeItem> onItemTap;
 
   @override
   State<DailyChallengesSection> createState() => _DailyChallengeSectionState();
@@ -106,7 +111,11 @@ class _DailyChallengeSectionState extends State<DailyChallengesSection> {
 
         // Challenge cards
         for (int i = 0; i < widget.items.length; i++) ...[
-          _ChallengeCard(item: widget.items[i], index: i),
+          _ChallengeCard(
+            item: widget.items[i],
+            index: i,
+            onTap: () => widget.onItemTap(widget.items[i]),
+          ),
           if (i < widget.items.length - 1)
             const SizedBox(height: AppSpacing.xs),
         ],
@@ -116,119 +125,128 @@ class _DailyChallengeSectionState extends State<DailyChallengesSection> {
 }
 
 class _ChallengeCard extends StatelessWidget {
-  const _ChallengeCard({required this.item, required this.index});
+  const _ChallengeCard({
+    required this.item,
+    required this.index,
+    required this.onTap,
+  });
 
   final DailyChallengeItem item;
   final int index;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            gradient: item.completed
-                ? const LinearGradient(
-                    colors: [Color(0x1A11AFA5), Color(0x0D11AFA5)],
-                  )
-                : const LinearGradient(
-                    colors: [Color(0x18FFFFFF), Color(0x0CFFFFFF)],
-                  ),
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            border: Border.all(
-              color: item.completed
-                  ? AppColors.accent.withValues(alpha: 0.30)
-                  : Colors.white.withValues(alpha: 0.12),
+    return InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
             ),
-          ),
-          child: Row(
-            children: [
-              // Completion icon
-              item.completed
-                  ? Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: AppColors.accent.withValues(alpha: 0.20),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.check_rounded,
-                            color: AppColors.accent,
-                            size: 20,
-                          ),
-                        )
-                        .animate()
-                        .scale(
-                          begin: const Offset(0.5, 0.5),
-                          end: const Offset(1.0, 1.0),
-                          duration: AppMotion.medium,
-                          curve: AppMotion.spring,
-                        )
-                        .fadeIn(duration: AppMotion.fast)
-                  : Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: AppColors.brand.withValues(alpha: 0.20),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.bolt_rounded,
-                        color: AppColors.brand,
-                        size: 20,
-                      ),
+            decoration: BoxDecoration(
+              gradient: item.completed
+                  ? const LinearGradient(
+                      colors: [Color(0x1A11AFA5), Color(0x0D11AFA5)],
+                    )
+                  : const LinearGradient(
+                      colors: [Color(0x18FFFFFF), Color(0x0CFFFFFF)],
                     ),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              border: Border.all(
+                color: item.completed
+                    ? AppColors.accent.withValues(alpha: 0.30)
+                    : Colors.white.withValues(alpha: 0.12),
+              ),
+            ),
+            child: Row(
+              children: [
+                // Completion icon
+                item.completed
+                    ? Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: AppColors.accent.withValues(alpha: 0.20),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check_rounded,
+                              color: AppColors.accent,
+                              size: 20,
+                            ),
+                          )
+                          .animate()
+                          .scale(
+                            begin: const Offset(0.5, 0.5),
+                            end: const Offset(1.0, 1.0),
+                            duration: AppMotion.medium,
+                            curve: AppMotion.spring,
+                          )
+                          .fadeIn(duration: AppMotion.fast)
+                    : Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.brand.withValues(alpha: 0.20),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.bolt_rounded,
+                          color: AppColors.brand,
+                          size: 20,
+                        ),
+                      ),
 
-              const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: AppSpacing.sm),
 
-              // Title
-              Expanded(
-                child: Text(
-                  item.title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                // Title
+                Expanded(
+                  child: Text(
+                    item.title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: item.completed
+                          ? Colors.white.withValues(alpha: 0.55)
+                          : Colors.white,
+                      decoration: item.completed
+                          ? TextDecoration.lineThrough
+                          : null,
+                      decorationColor: Colors.white.withValues(alpha: 0.30),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: AppSpacing.sm),
+
+                // XP badge
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: item.completed ? null : AppGradients.heroGold,
                     color: item.completed
-                        ? Colors.white.withValues(alpha: 0.55)
-                        : Colors.white,
-                    decoration: item.completed
-                        ? TextDecoration.lineThrough
+                        ? Colors.white.withValues(alpha: 0.10)
                         : null,
-                    decorationColor: Colors.white.withValues(alpha: 0.30),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    '+${item.rewardXp} XP',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: item.completed
+                          ? Colors.white.withValues(alpha: 0.40)
+                          : Colors.white,
+                    ),
                   ),
                 ),
-              ),
-
-              const SizedBox(width: AppSpacing.sm),
-
-              // XP badge
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xs,
-                  vertical: 3,
-                ),
-                decoration: BoxDecoration(
-                  gradient: item.completed ? null : AppGradients.heroGold,
-                  color: item.completed
-                      ? Colors.white.withValues(alpha: 0.10)
-                      : null,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Text(
-                  '+${item.rewardXp} XP',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: item.completed
-                        ? Colors.white.withValues(alpha: 0.40)
-                        : Colors.white,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         )
         .animate(delay: Duration(milliseconds: 80 + index * 60))

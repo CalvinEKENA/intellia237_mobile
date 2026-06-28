@@ -83,24 +83,26 @@ class _IntelliaBottomNavBarState extends State<IntelliaBottomNavBar>
                   clipBehavior: Clip.none,
                   children: [
                     // Barre principale avec fond glassmorphism
-                    ClipPath(
-                      clipper: _SmoothCurveClipper(centerX: centerX),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                        child: Container(
-                          height: widget.height,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? const Color(
-                                    0xFF101828,
-                                  ).withValues(alpha: 0.88)
-                                : scheme.surface.withValues(alpha: 0.92),
-                            border: Border(
-                              top: BorderSide(
-                                color: isDark
-                                    ? Colors.white.withValues(alpha: 0.06)
-                                    : Colors.white.withValues(alpha: 0.7),
-                                width: 0.5,
+                    IgnorePointer(
+                      child: ClipPath(
+                        clipper: _SmoothCurveClipper(centerX: centerX),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                          child: Container(
+                            height: widget.height,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(
+                                      0xFF101828,
+                                    ).withValues(alpha: 0.88)
+                                  : scheme.surface.withValues(alpha: 0.92),
+                              border: Border(
+                                top: BorderSide(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.06)
+                                      : Colors.white.withValues(alpha: 0.7),
+                                  width: 0.5,
+                                ),
                               ),
                             ),
                           ),
@@ -147,6 +149,7 @@ class _IntelliaBottomNavBarState extends State<IntelliaBottomNavBar>
                           for (int i = 0; i < widget.items.length; i++)
                             Expanded(
                               child: _AnimatedNavItem(
+                                key: ValueKey('bottom-nav-item-$i'),
                                 item: widget.items[i],
                                 isSelected: widget.currentIndex == i,
                                 animProgress: (1 - (animatedIndex - i).abs())
@@ -170,28 +173,30 @@ class _IntelliaBottomNavBarState extends State<IntelliaBottomNavBar>
                     Positioned(
                       bottom: widget.showLabels ? 6 : 10,
                       left: centerX - 16,
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 280),
-                        curve: Curves.easeOutCubic,
-                        width: 32,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(99),
-                          color: scheme.primary,
-                          boxShadow: [
-                            BoxShadow(
-                              color: scheme.primary.withValues(alpha: 0.6),
-                              blurRadius: 12,
-                              spreadRadius: 1,
-                              offset: const Offset(0, 1),
-                            ),
-                            BoxShadow(
-                              color: scheme.primary.withValues(alpha: 0.25),
-                              blurRadius: 20,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                      child: IgnorePointer(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 280),
+                          curve: Curves.easeOutCubic,
+                          width: 32,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(99),
+                            color: scheme.primary,
+                            boxShadow: [
+                              BoxShadow(
+                                color: scheme.primary.withValues(alpha: 0.6),
+                                blurRadius: 12,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 1),
+                              ),
+                              BoxShadow(
+                                color: scheme.primary.withValues(alpha: 0.25),
+                                blurRadius: 20,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -216,6 +221,7 @@ class _AnimatedNavItem extends StatefulWidget {
     required this.primaryColor,
     required this.onSurfaceColor,
     required this.onTap,
+    super.key,
   });
 
   final IntelliaBottomNavItem item;
@@ -271,60 +277,67 @@ class _AnimatedNavItemState extends State<_AnimatedNavItem>
       t,
     )!;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: widget.onTap,
-      child: AnimatedBuilder(
-        animation: _bounceController,
-        builder: (context, _) {
-          // Bounce : scale up → overshoot → settle
-          final bounceVal = _bounceController.value;
-          final scale = bounceVal < 0.5
-              ? 1.0 + 0.18 * Curves.easeOut.transform(bounceVal * 2)
-              : 1.0 + 0.18 * Curves.easeIn.transform(2 - bounceVal * 2);
+    return Semantics(
+      button: true,
+      selected: widget.isSelected,
+      label: widget.item.label,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: widget.onTap,
+          child: AnimatedBuilder(
+            animation: _bounceController,
+            builder: (context, _) {
+              // Bounce : scale up → overshoot → settle
+              final bounceVal = _bounceController.value;
+              final scale = bounceVal < 0.5
+                  ? 1.0 + 0.18 * Curves.easeOut.transform(bounceVal * 2)
+                  : 1.0 + 0.18 * Curves.easeIn.transform(2 - bounceVal * 2);
 
-          // Léger translate Y vers le haut quand actif
-          final yShift = widget.isSelected ? -2.0 * t : 0.0;
+              // Léger translate Y vers le haut quand actif
+              final yShift = widget.isSelected ? -2.0 * t : 0.0;
 
-          return Transform.translate(
-            offset: Offset(0, yShift),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Transform.scale(
-                  scale: widget.isSelected ? scale : 1.0,
-                  child: Icon(
-                    widget.isSelected
-                        ? (widget.item.activeIcon ?? widget.item.icon)
-                        : widget.item.icon,
-                    color: iconColor,
-                    size: 24,
-                  ),
+              return Transform.translate(
+                offset: Offset(0, yShift),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Transform.scale(
+                      scale: widget.isSelected ? scale : 1.0,
+                      child: Icon(
+                        widget.isSelected
+                            ? (widget.item.activeIcon ?? widget.item.icon)
+                            : widget.item.icon,
+                        color: iconColor,
+                        size: 24,
+                      ),
+                    ),
+                    if (widget.showLabel) ...[
+                      const SizedBox(height: 4),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeOut,
+                        style: TextStyle(
+                          fontSize: widget.isSelected ? 10.5 : 10,
+                          fontWeight: widget.isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: labelColor,
+                          letterSpacing: widget.isSelected ? 0.1 : 0,
+                        ),
+                        child: Text(
+                          widget.item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                if (widget.showLabel) ...[
-                  const SizedBox(height: 4),
-                  AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeOut,
-                    style: TextStyle(
-                      fontSize: widget.isSelected ? 10.5 : 10,
-                      fontWeight: widget.isSelected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: labelColor,
-                      letterSpacing: widget.isSelected ? 0.1 : 0,
-                    ),
-                    child: Text(
-                      widget.item.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
     );
   }

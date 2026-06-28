@@ -11,111 +11,117 @@ class ProgressOverviewCard extends StatelessWidget {
     required this.globalProgress,
     required this.level,
     required this.currentXp,
+    required this.onTap,
     super.key,
   });
 
   final double globalProgress;
   final int level;
   final int currentXp;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
+    return InkWell(
+      onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.md),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0x1AFFFFFF), Color(0x0CFFFFFF)],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0x1AFFFFFF), Color(0x0CFFFFFF)],
+              ),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(color: AppColors.glassBorder),
             ),
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: AppColors.glassBorder),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  Text(
-                    'Ma progression',
-                    style: GoogleFonts.manrope(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Spacer(),
-                  // Level badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.xxs + 2,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: AppGradients.heroGold,
-                      borderRadius: BorderRadius.circular(99),
-                      boxShadow: AppShadows.glow(
-                        AppColors.gold,
-                        intensity: 0.25,
-                      ),
-                    ),
-                    child: Text(
-                      'Niv. $level',
-                      style: const TextStyle(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  children: [
+                    Text(
+                      'Ma progression',
+                      style: GoogleFonts.manrope(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-
-              // Ring + metrics row
-              Row(
-                children: [
-                  // Animated sweep ring
-                  _ProgressRing(
-                    progress: globalProgress,
-                    size: 120,
-                    strokeWidth: 8,
-                  ),
-                  const SizedBox(width: AppSpacing.lg),
-
-                  // Metrics column
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _MetricRow(
-                          label: 'Progression',
-                          value: '${(globalProgress * 100).round()}%',
-                          color: AppColors.gold,
+                    const Spacer(),
+                    // Level badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.xxs + 2,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.heroGold,
+                        borderRadius: BorderRadius.circular(99),
+                        boxShadow: AppShadows.glow(
+                          AppColors.gold,
+                          intensity: 0.25,
                         ),
-                        const SizedBox(height: AppSpacing.sm),
-                        _MetricRow(
-                          label: 'Points XP',
-                          value: '$currentXp XP',
-                          color: AppColors.accent,
+                      ),
+                      child: Text(
+                        'Niv. $level',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
                         ),
-                        const SizedBox(height: AppSpacing.sm),
-                        _MetricRow(
-                          label: 'Niveau actuel',
-                          value: 'Niveau $level',
-                          color: AppColors.brand,
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // Ring + metrics row
+                Row(
+                  children: [
+                    // Animated sweep ring
+                    _ProgressRing(
+                      progress: globalProgress,
+                      size: 120,
+                      strokeWidth: 8,
+                    ),
+                    const SizedBox(width: AppSpacing.lg),
+
+                    // Metrics column
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _MetricRow(
+                            label: 'Progression',
+                            value: '${(globalProgress * 100).round()}%',
+                            color: AppColors.gold,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          _MetricRow(
+                            label: 'Points XP',
+                            value: '$currentXp XP',
+                            color: AppColors.accent,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          _MetricRow(
+                            label: 'Niveau actuel',
+                            value: 'Niveau $level',
+                            color: AppColors.brand,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

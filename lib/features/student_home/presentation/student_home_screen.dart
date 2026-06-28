@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -6,6 +7,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
+import '../../../app/config/app_config.dart';
+import '../../../app/config/build_identity.dart';
+import '../../../app/config/feature_flags.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../../ai_companion/presentation/ai_companion_screen.dart';
@@ -72,93 +76,190 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
     ),
   ];
 
-  late final Map<String, GlobalKey> _tourTargets = {
-    TourGuideTargetIds.studentHeader: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentHeader,
-    ),
-    TourGuideTargetIds.studentStreak: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentStreak,
-    ),
-    TourGuideTargetIds.studentResume: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentResume,
-    ),
-    TourGuideTargetIds.studentSubjects: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentSubjects,
-    ),
-    TourGuideTargetIds.studentRecommendations: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentRecommendations,
-    ),
-    TourGuideTargetIds.studentChallenges: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentChallenges,
-    ),
-    TourGuideTargetIds.studentProgress: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentProgress,
-    ),
-    TourGuideTargetIds.studentQuickQuiz: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentQuickQuiz,
-    ),
-    TourGuideTargetIds.studentQuickAi: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentQuickAi,
-    ),
-    TourGuideTargetIds.studentBottomNav: GlobalKey(
-      debugLabel: TourGuideTargetIds.studentBottomNav,
-    ),
-  };
+  late final Map<String, GlobalKey> _tourTargets =
+      FeatureFlags.studentTourGuideEnabled
+      ? {
+          TourGuideTargetIds.studentHeader: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentHeader,
+          ),
+          TourGuideTargetIds.studentStreak: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentStreak,
+          ),
+          TourGuideTargetIds.studentResume: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentResume,
+          ),
+          TourGuideTargetIds.studentSubjects: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentSubjects,
+          ),
+          TourGuideTargetIds.studentRecommendations: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentRecommendations,
+          ),
+          TourGuideTargetIds.studentChallenges: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentChallenges,
+          ),
+          TourGuideTargetIds.studentProgress: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentProgress,
+          ),
+          TourGuideTargetIds.studentQuickQuiz: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentQuickQuiz,
+          ),
+          TourGuideTargetIds.studentQuickAi: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentQuickAi,
+          ),
+          TourGuideTargetIds.studentBottomNav: GlobalKey(
+            debugLabel: TourGuideTargetIds.studentBottomNav,
+          ),
+        }
+      : <String, GlobalKey>{};
 
   int _currentIndex = 0;
+  int _stagingTapCount = 0;
   bool _tourLaunchRequested = false;
 
   @override
   Widget build(BuildContext context) {
     final snapshotAsync = ref.watch(studentHomeControllerProvider);
+    final config = ref.watch(appConfigProvider);
+    final showTapDiagnostics = config.isStaging || kDebugMode;
     _scheduleTourGuideIfNeeded(snapshotAsync);
 
-    return Scaffold(
-      extendBody: true,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          const _PremiumBackdrop(),
-          SafeArea(
-            bottom: false,
-            child: IndexedStack(
-              index: _currentIndex,
-              children: [
-                _StudentHomeTab(
-                  snapshotAsync: snapshotAsync,
-                  tourTargets: _tourTargets,
-                  onRefresh: () => ref
-                      .read(studentHomeControllerProvider.notifier)
-                      .refresh(),
-                  onOpenLearn: () => setState(() => _currentIndex = 1),
-                  onOpenQuiz: () => setState(() => _currentIndex = 2),
-                  onOpenAi: () => setState(() => _currentIndex = 3),
-                  onOpenProfile: () => setState(() => _currentIndex = 4),
-                ),
-                const _EmbeddedTab(child: LearnHubScreen(embedded: true)),
-                const _EmbeddedTab(child: QuizHubScreen(embedded: true)),
-                const _EmbeddedTab(child: AICompanionScreen(embedded: true)),
-                const _ProfileTab(),
-              ],
+    return PopScope(
+      canPop: _currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _currentIndex != 0) _selectTab(0);
+      },
+      child: Scaffold(
+        extendBody: true,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            const _PremiumBackdrop(),
+            SafeArea(
+              bottom: false,
+              child: IndexedStack(
+                index: _currentIndex,
+                children: [
+                  KeyedSubtree(
+                    key: const ValueKey('student-tab-home'),
+                    child: _StudentHomeTab(
+                      snapshotAsync: snapshotAsync,
+                      tourTargets: _tourTargets,
+                      onRefresh: () => ref
+                          .read(studentHomeControllerProvider.notifier)
+                          .refresh(),
+                      onOpenLearn: () => _selectTab(1),
+                      onOpenQuiz: () => _selectTab(2),
+                      onOpenAi: () => _selectTab(3),
+                      onOpenProfile: () => _selectTab(4),
+                      onOpenSubject: (subject) =>
+                          context.push(AppRoutes.subjectDetail(subject.id)),
+                    ),
+                  ),
+                  const KeyedSubtree(
+                    key: ValueKey('student-tab-learn'),
+                    child: _EmbeddedTab(child: LearnHubScreen(embedded: true)),
+                  ),
+                  const KeyedSubtree(
+                    key: ValueKey('student-tab-quiz'),
+                    child: _EmbeddedTab(child: QuizHubScreen(embedded: true)),
+                  ),
+                  const KeyedSubtree(
+                    key: ValueKey('student-tab-companion'),
+                    child: _EmbeddedTab(
+                      child: AICompanionScreen(embedded: true),
+                    ),
+                  ),
+                  const KeyedSubtree(
+                    key: ValueKey('student-tab-profile'),
+                    child: _ProfileTab(),
+                  ),
+                ],
+              ),
             ),
+            if (showTapDiagnostics)
+              Positioned(
+                right: 8,
+                bottom: 96,
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.64),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 4,
+                      ),
+                      child: Text(
+                        'TAPS $_stagingTapCount',
+                        key: const ValueKey('student-nav-tap-counter'),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        bottomNavigationBar: KeyedSubtree(
+          key: _tourTargets[TourGuideTargetIds.studentBottomNav],
+          child: IntelliaBottomNavBar(
+            items: _navItems,
+            currentIndex: _currentIndex,
+            onTap: _handleNavTap,
           ),
-        ],
-      ),
-      bottomNavigationBar: KeyedSubtree(
-        key: _tourTargets[TourGuideTargetIds.studentBottomNav],
-        child: IntelliaBottomNavBar(
-          items: _navItems,
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
         ),
       ),
     );
+  }
+
+  void _selectTab(int index) {
+    if (!mounted || index == _currentIndex) return;
+    setState(() => _currentIndex = index);
+  }
+
+  void _handleNavTap(int index) {
+    final previous = _currentIndex;
+    final config = ref.read(appConfigProvider);
+    final diagnosticsEnabled = config.isStaging || kDebugMode;
+    if (diagnosticsEnabled) {
+      final route = _currentRoute();
+      final overlayActive = !(ModalRoute.of(context)?.isCurrent ?? true);
+      debugPrint(
+        '[INTELLIA][NAV] tap index=$index previous=$previous route=$route '
+        'overlay=$overlayActive timestamp=${DateTime.now().toIso8601String()}',
+      );
+    }
+    setState(() {
+      _currentIndex = index;
+      if (diagnosticsEnabled) _stagingTapCount += 1;
+    });
+    if (diagnosticsEnabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        debugPrint('[INTELLIA][NAV] state updated current=$_currentIndex');
+      });
+    }
+  }
+
+  String _currentRoute() {
+    try {
+      return GoRouterState.of(context).uri.path;
+    } catch (_) {
+      return 'student-home';
+    }
   }
 
   // Le tour se lance uniquement une fois, apres rendu complet de l'accueil.
   void _scheduleTourGuideIfNeeded(
     AsyncValue<StudentHomeSnapshot> snapshotAsync,
   ) {
+    if (!FeatureFlags.studentTourGuideEnabled) return;
     if (_tourLaunchRequested || _currentIndex != 0 || !snapshotAsync.hasValue) {
       return;
     }
@@ -186,6 +287,7 @@ class _StudentHomeTab extends StatelessWidget {
     required this.onOpenQuiz,
     required this.onOpenAi,
     required this.onOpenProfile,
+    required this.onOpenSubject,
   });
 
   final AsyncValue<StudentHomeSnapshot> snapshotAsync;
@@ -195,6 +297,7 @@ class _StudentHomeTab extends StatelessWidget {
   final VoidCallback onOpenQuiz;
   final VoidCallback onOpenAi;
   final VoidCallback onOpenProfile;
+  final ValueChanged<SubjectOverview> onOpenSubject;
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +380,10 @@ class _StudentHomeTab extends StatelessWidget {
                 delay: const Duration(milliseconds: 170),
                 child: KeyedSubtree(
                   key: tourTargets[TourGuideTargetIds.studentSubjects],
-                  child: SubjectsCarousel(subjects: snapshot.subjects),
+                  child: SubjectsCarousel(
+                    subjects: snapshot.subjects,
+                    onSubjectTap: onOpenSubject,
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -297,6 +403,7 @@ class _StudentHomeTab extends StatelessWidget {
                   key: tourTargets[TourGuideTargetIds.studentRecommendations],
                   child: RecommendationsSection(
                     items: snapshot.recommendations,
+                    onItemTap: (_) => onOpenLearn(),
                   ),
                 ),
               ),
@@ -305,7 +412,10 @@ class _StudentHomeTab extends StatelessWidget {
                 delay: const Duration(milliseconds: 300),
                 child: KeyedSubtree(
                   key: tourTargets[TourGuideTargetIds.studentChallenges],
-                  child: DailyChallengesSection(items: snapshot.challenges),
+                  child: DailyChallengesSection(
+                    items: snapshot.challenges,
+                    onItemTap: (_) => onOpenQuiz(),
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -317,6 +427,7 @@ class _StudentHomeTab extends StatelessWidget {
                     globalProgress: snapshot.globalProgress,
                     level: snapshot.level,
                     currentXp: snapshot.currentXp,
+                    onTap: onOpenProfile,
                   ),
                 ),
               ),
@@ -348,6 +459,8 @@ class _ProfileTab extends ConsumerWidget {
     final academicAsync = ref.watch(studentAcademicContextProvider);
     final homeAsync = ref.watch(studentHomeControllerProvider);
     final theme = Theme.of(context);
+    final config = ref.watch(appConfigProvider);
+    final showBuildIdentity = config.isStaging || kDebugMode;
 
     return _ResponsiveBody(
       child: ListView(
@@ -358,20 +471,11 @@ class _ProfileTab extends ConsumerWidget {
           132,
         ),
         children: [
-          Row(
-            children: [
-              Text(
-                'Mon Profil',
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const Spacer(),
-              IconButton.filledTonal(
-                onPressed: () {},
-                icon: const Icon(Icons.settings_rounded),
-              ),
-            ],
+          Text(
+            'Mon Profil',
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           // Carte d'identité principale
@@ -399,7 +503,38 @@ class _ProfileTab extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
             ),
           ),
+          if (showBuildIdentity) ...[
+            const SizedBox(height: AppSpacing.md),
+            _BuildIdentityLabel(identity: ref.watch(buildIdentityProvider)),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+class _BuildIdentityLabel extends StatelessWidget {
+  const _BuildIdentityLabel({required this.identity});
+
+  final AsyncValue<BuildIdentity> identity;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Version de l’application de test',
+      child: Center(
+        child: Text(
+          identity.when(
+            data: (value) => value.label,
+            loading: () => 'Version en cours de lecture',
+            error: (_, _) => 'Version indisponible',
+          ),
+          key: const ValueKey('student-profile-build-identity'),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: Colors.white.withValues(alpha: 0.5),
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
@@ -438,7 +573,7 @@ class _ProfileIdentityCard extends StatelessWidget {
                   Text(
                     auth.firstName?.isNotEmpty == true
                         ? auth.firstName!
-                        : 'Utilisateur INTELLIA237',
+                        : 'Utilisateur Intellia 237',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -460,7 +595,6 @@ class _ProfileIdentityCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.workspace_premium_rounded,
@@ -468,11 +602,15 @@ class _ProfileIdentityCard extends StatelessWidget {
                           color: theme.colorScheme.primary,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          'Compte Eleve',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(
+                            'Compte Eleve',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -547,6 +685,7 @@ class _StatsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -566,7 +705,7 @@ class _StatsSection extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: AppSpacing.sm,
             crossAxisSpacing: AppSpacing.sm,
-            childAspectRatio: 2.5,
+            mainAxisExtent: 92 + (textScale - 1).clamp(0, 0.5) * 60,
             children: [
               _StatTile(
                 icon: Icons.bolt_rounded,
@@ -634,6 +773,8 @@ class _StatTile extends StatelessWidget {
               children: [
                 Text(
                   value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: color,
@@ -641,6 +782,8 @@ class _StatTile extends StatelessWidget {
                 ),
                 Text(
                   label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),

@@ -1,5 +1,5 @@
 name: intellia237
-description: "Application e-learning INTELLIA237."
+description: "Application e-learning Intellia 237."
 publish_to: "none"
 version: 3.0.0+22
 
@@ -36,6 +36,7 @@ dependencies:
   shimmer: ^3.0.0
   confetti: ^0.8.0
   flutter_native_splash: ^2.4.6
+  package_info_plus: ^10.2.0
 
 dev_dependencies:
   flutter_test:

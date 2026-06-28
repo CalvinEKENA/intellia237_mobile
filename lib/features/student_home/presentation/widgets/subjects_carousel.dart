@@ -8,9 +8,14 @@ import '../../../../app/theme/design_tokens.dart';
 import '../../domain/student_home_snapshot.dart';
 
 class SubjectsCarousel extends StatelessWidget {
-  const SubjectsCarousel({required this.subjects, super.key});
+  const SubjectsCarousel({
+    required this.subjects,
+    required this.onSubjectTap,
+    super.key,
+  });
 
   final List<SubjectOverview> subjects;
+  final ValueChanged<SubjectOverview> onSubjectTap;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +46,7 @@ class SubjectsCarousel extends StatelessWidget {
                 subject: subject,
                 gradient: gradient,
                 index: index,
+                onTap: () => onSubjectTap(subject),
               );
             },
           ),
@@ -55,95 +61,104 @@ class _SubjectCard extends StatelessWidget {
     required this.subject,
     required this.gradient,
     required this.index,
+    required this.onTap,
   });
 
   final SubjectOverview subject;
   final LinearGradient gradient;
   final int index;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
           width: 160,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              children: [
-                // Gradient background
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(gradient: gradient),
-                  ),
-                ),
-
-                // Subtle overlay circle for depth
-                Positioned(
-                  top: -20,
-                  right: -20,
-                  child: Container(
-                    width: 90,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.08),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Stack(
+                  children: [
+                    // Gradient background
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(gradient: gradient),
+                      ),
                     ),
-                  ),
-                ),
 
-                // Content
-                Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Subject icon
-                      Icon(
-                        AppIcons.forSubject(subject.id),
-                        color: Colors.white.withValues(alpha: 0.90),
-                        size: 22,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      // Title
-                      Text(
-                        subject.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.manrope(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                          height: 1.2,
+                    // Subtle overlay circle for depth
+                    Positioned(
+                      top: -20,
+                      right: -20,
+                      child: Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.08),
                         ),
                       ),
-                      const Spacer(),
-                      // Progress percentage
-                      Text(
-                        '${(subject.progress * 100).round()}%',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white.withValues(alpha: 0.80),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
 
-                // Progress arc bottom-right
-                Positioned(
-                  bottom: AppSpacing.xs,
-                  right: AppSpacing.xs,
-                  child: _SmallProgressArc(
-                    progress: subject.progress,
-                    size: 36,
-                  ),
+                    // Content
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Subject icon
+                          Icon(
+                            AppIcons.forSubject(subject.id),
+                            color: Colors.white.withValues(alpha: 0.90),
+                            size: 22,
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          // Title
+                          Text(
+                            subject.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.manrope(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              height: 1.2,
+                            ),
+                          ),
+                          const Spacer(),
+                          // Progress percentage
+                          Text(
+                            '${(subject.progress * 100).round()}%',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withValues(alpha: 0.80),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Progress arc bottom-right
+                    Positioned(
+                      bottom: AppSpacing.xs,
+                      right: AppSpacing.xs,
+                      child: _SmallProgressArc(
+                        progress: subject.progress,
+                        size: 36,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         )
         .animate(delay: Duration(milliseconds: index * 60))
-        .slideX(begin: 30, end: 0, duration: 400.ms)
+        .slideX(begin: 0.08, end: 0, duration: 400.ms)
         .fadeIn(duration: 400.ms);
   }
 }
