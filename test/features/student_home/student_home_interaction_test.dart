@@ -31,7 +31,7 @@ void main() {
     final headerRect = tester.getRect(find.byType(StudentHomeHeader));
     await tester.tapAt(Offset(headerRect.right - 26, headerRect.center.dy));
     await tester.pumpAndSettle();
-    expect(find.text('Mon Profil'), findsOneWidget);
+    expect(find.text('Mon profil'), findsOneWidget);
     await _tapNav(tester, 'Accueil');
 
     expect(find.text('Reprendre le dernier cours'), findsOneWidget);
@@ -52,14 +52,14 @@ void main() {
     await _tapNav(tester, 'Apprendre');
     expect(find.text('Parcours personnalisé'), findsOneWidget);
     await _tapNav(tester, 'Quiz');
-    expect(find.text('Espace Quiz'), findsOneWidget);
+    expect(find.text('Prêt à relever un défi ?'), findsOneWidget);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.text('Reprendre le dernier cours'), findsOneWidget);
     await _tapNav(tester, 'Compagnon');
     expect(find.text('Explique ce concept'), findsOneWidget);
     await _tapNav(tester, 'Profil');
-    expect(find.text('Mon Profil'), findsOneWidget);
+    expect(find.text('Mon profil'), findsOneWidget);
     await _tapNav(tester, 'Accueil');
     expect(find.text('Reprendre le dernier cours'), findsOneWidget);
 
@@ -76,7 +76,7 @@ void main() {
         await _tapNav(tester, 'Apprendre');
         expect(find.text('Parcours personnalisé'), findsOneWidget);
         await _tapNav(tester, 'Profil');
-        expect(find.text('Mon Profil'), findsOneWidget);
+        expect(find.text('Mon profil'), findsOneWidget);
         expect(find.bySemanticsLabel('TourGuide'), findsNothing);
         expect(tester.takeException(), isNull);
       },
@@ -115,7 +115,7 @@ void main() {
     await _scrollHomeTo(tester, find.text('Quiz rapide'));
     await tester.tap(find.text('Quiz rapide'));
     await tester.pumpAndSettle();
-    expect(find.text('Espace Quiz'), findsOneWidget);
+    expect(find.text('Prêt à relever un défi ?'), findsOneWidget);
     await _tapNav(tester, 'Accueil');
 
     await _scrollHomeTo(tester, find.text('Quiz rapide'));
@@ -137,13 +137,13 @@ void main() {
     await _scrollHomeTo(tester, find.text('Terminer un quiz'));
     await tester.tap(find.text('Terminer un quiz'));
     await tester.pumpAndSettle();
-    expect(find.text('Espace Quiz'), findsOneWidget);
+    expect(find.text('Prêt à relever un défi ?'), findsOneWidget);
     await _tapNav(tester, 'Accueil');
 
     await _scrollHomeTo(tester, find.text('Ma progression'));
     await tester.tap(find.text('Ma progression'));
     await tester.pumpAndSettle();
-    expect(find.text('Mon Profil'), findsOneWidget);
+    expect(find.text('Mon profil'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

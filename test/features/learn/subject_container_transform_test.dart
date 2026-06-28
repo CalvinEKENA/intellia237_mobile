@@ -119,6 +119,9 @@ void main() {
   for (final scale in const [1.3, 1.5]) {
     testWidgets('9-10. facteur de texte $scale sans exception', (tester) async {
       await _pumpHub(tester, textScale: scale);
+      // À grand texte, la tuile peut passer sous l'en-tête : on la révèle.
+      await tester.ensureVisible(find.text('Mathématiques'));
+      await tester.pumpAndSettle();
       expect(find.text('Mathématiques'), findsOneWidget);
 
       await tester.tap(find.text('Mathématiques'));
@@ -138,6 +141,9 @@ void main() {
       '11-14. ${size.width.toInt()}x${size.height.toInt()} : aller-retour ok',
       (tester) async {
         await _pumpHub(tester, size: size);
+        // Sur petit écran, la tuile peut passer sous l'en-tête : on la révèle.
+        await tester.ensureVisible(find.text('Mathématiques'));
+        await tester.pumpAndSettle();
         expect(find.text('Mathématiques'), findsOneWidget);
 
         await tester.tap(find.text('Mathématiques'));
