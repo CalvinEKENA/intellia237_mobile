@@ -1,11 +1,11 @@
 {
-    "name": "INTELLIA237",
-    "short_name": "INTELLIA237",
+    "name": "Intellia 237",
+    "short_name": "Intellia 237",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FBFAF7",
     "theme_color": "#5856D6",
-    "description": "A new Flutter project.",
+    "description": "Application éducative Intellia 237.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

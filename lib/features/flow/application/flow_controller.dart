@@ -32,8 +32,7 @@ final flowControllerProvider =
 /// branché plus tard sur une persistance réelle.
 class FlowController extends Notifier<FlowProgressState> {
   @override
-  FlowProgressState build() =>
-      const FlowProgressState(xp: 1200, streakDays: 5);
+  FlowProgressState build() => const FlowProgressState(xp: 1200, streakDays: 5);
 
   /// Marque une carte comme vue (curiosité, matières explorées).
   void markSeen(FlowCard card) {
@@ -73,8 +72,9 @@ class FlowController extends Notifier<FlowProgressState> {
       completedCardIds: {...state.completedCardIds, card.id},
       seenCardIds: {...state.seenCardIds, card.id},
       subjectsSeen: {...state.subjectsSeen, card.subject.id},
-      correctQuizCount:
-          correct ? state.correctQuizCount + 1 : state.correctQuizCount,
+      correctQuizCount: correct
+          ? state.correctQuizCount + 1
+          : state.correctQuizCount,
     );
     final (next, newBadges) = _grantBadges(updated);
     state = next;

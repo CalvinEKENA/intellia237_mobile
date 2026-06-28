@@ -43,45 +43,49 @@ class FlowNotionCardView extends StatelessWidget {
               .fadeIn(delay: 120.ms, duration: 460.ms)
               .slideY(begin: 0.14, end: 0, delay: 120.ms),
           const SizedBox(height: IntelliaSpacing.md),
-          Text(card.insight, style: _body())
-              .animate()
-              .fadeIn(delay: 240.ms, duration: 460.ms),
+          Text(
+            card.insight,
+            style: _body(),
+          ).animate().fadeIn(delay: 240.ms, duration: 460.ms),
           const SizedBox(height: IntelliaSpacing.xl),
           ...card.points.asMap().entries.map((e) {
             return Padding(
-              padding: const EdgeInsets.only(bottom: IntelliaSpacing.md),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 3),
-                    width: 22,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.14),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.check_rounded, size: 14, color: accent),
-                  ),
-                  const SizedBox(width: IntelliaSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      e.value,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 15.5,
-                        height: 1.4,
-                        fontWeight: FontWeight.w600,
-                        color: IntelliaColors.textPrimary,
+                  padding: const EdgeInsets.only(bottom: IntelliaSpacing.md),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(top: 3),
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: accent.withValues(alpha: 0.14),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.check_rounded,
+                          size: 14,
+                          color: accent,
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: IntelliaSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          e.value,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 15.5,
+                            height: 1.4,
+                            fontWeight: FontWeight.w600,
+                            color: IntelliaColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ).animate().fadeIn(delay: (360 + e.key * 110).ms, duration: 420.ms).slideX(
-              begin: 0.08,
-              end: 0,
-              delay: (360 + e.key * 110).ms,
-            );
+                )
+                .animate()
+                .fadeIn(delay: (360 + e.key * 110).ms, duration: 420.ms)
+                .slideX(begin: 0.08, end: 0, delay: (360 + e.key * 110).ms);
           }),
         ],
       ),
@@ -233,26 +237,31 @@ class _FlowVideoCardViewState extends State<FlowVideoCardView>
                     decoration: BoxDecoration(gradient: card.subject.gradient),
                   ),
                   Center(
-                    child: Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.92),
-                        shape: BoxShape.circle,
-                        boxShadow: IntelliaShadows.glow(Colors.black, intensity: 0.18),
+                        child: Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.92),
+                            shape: BoxShape.circle,
+                            boxShadow: IntelliaShadows.glow(
+                              Colors.black,
+                              intensity: 0.18,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.play_arrow_rounded,
+                            size: 40,
+                            color: card.subject.accent,
+                          ),
+                        ),
+                      )
+                      .animate(onPlay: (c) => c.repeat())
+                      .scaleXY(
+                        begin: 1,
+                        end: 1.06,
+                        duration: 1100.ms,
+                        curve: Curves.easeInOut,
                       ),
-                      child: Icon(
-                        Icons.play_arrow_rounded,
-                        size: 40,
-                        color: card.subject.accent,
-                      ),
-                    ),
-                  ).animate(onPlay: (c) => c.repeat()).scaleXY(
-                    begin: 1,
-                    end: 1.06,
-                    duration: 1100.ms,
-                    curve: Curves.easeInOut,
-                  ),
                   Positioned(
                     left: 16,
                     right: 16,
@@ -267,8 +276,9 @@ class _FlowVideoCardViewState extends State<FlowVideoCardView>
                               child: LinearProgressIndicator(
                                 value: _progress.value,
                                 minHeight: 4,
-                                backgroundColor:
-                                    Colors.white.withValues(alpha: 0.3),
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: 0.3,
+                                ),
                                 valueColor: const AlwaysStoppedAnimation(
                                   Colors.white,
                                 ),

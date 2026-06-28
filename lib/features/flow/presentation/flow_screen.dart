@@ -148,27 +148,33 @@ class _ScrollHint extends StatelessWidget {
       right: 0,
       bottom: MediaQuery.of(context).padding.bottom + IntelliaSpacing.lg,
       child: IgnorePointer(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.keyboard_arrow_up_rounded,
-              color: IntelliaColors.textTertiary,
-              size: 26,
-            ),
-            Text(
-              'Glisse vers le haut',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: IntelliaColors.textTertiary,
-              ),
-            ),
-          ],
-        )
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .moveY(begin: 6, end: -6, duration: 1100.ms, curve: Curves.easeInOut)
-            .fadeIn(duration: 500.ms),
+        child:
+            Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.keyboard_arrow_up_rounded,
+                      color: IntelliaColors.textTertiary,
+                      size: 26,
+                    ),
+                    Text(
+                      'Glisse vers le haut',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: IntelliaColors.textTertiary,
+                      ),
+                    ),
+                  ],
+                )
+                .animate(onPlay: (c) => c.repeat(reverse: true))
+                .moveY(
+                  begin: 6,
+                  end: -6,
+                  duration: 1100.ms,
+                  curve: Curves.easeInOut,
+                )
+                .fadeIn(duration: 500.ms),
       ),
     );
   }

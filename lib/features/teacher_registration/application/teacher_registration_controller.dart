@@ -2,11 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
+import '../../auth/domain/auth_input_validators.dart';
 import '../../role_registration/data/firebase_role_registration_repository.dart';
 import '../../role_registration/data/role_registration_repository.dart';
 import '../../role_registration/domain/teacher_catalogs.dart';
 import '../../role_registration/domain/teacher_registration_payload.dart';
-import '../../student_registration/domain/school_establishment.dart';
 import 'teacher_registration_state.dart';
 
 final teacherRegistrationControllerProvider =
@@ -20,10 +20,6 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
 
   @override
   TeacherRegistrationState build() => const TeacherRegistrationState();
-
-  Future<List<SchoolEstablishment>> searchEstablishments(String query) {
-    return _repo.searchEstablishments(query);
-  }
 
   void setFirstName(String value) {
     state = state.copyWith(firstName: value, clearError: true);
@@ -43,10 +39,6 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
 
   void setConfirmPassword(String value) {
     state = state.copyWith(confirmPassword: value, clearError: true);
-  }
-
-  void setEstablishment(SchoolEstablishment value) {
-    state = state.copyWith(establishment: value, clearError: true);
   }
 
   void toggleSubject(String value) {
@@ -96,6 +88,10 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
     state = state.copyWith(acceptedPrivacy: value, clearError: true);
   }
 
+  void clearError() {
+    if (state.errorMessage != null) state = state.copyWith(clearError: true);
+  }
+
   void nextStep() {
     if (state.currentStep < 2) {
       state = state.copyWith(currentStep: state.currentStep + 1);
@@ -125,12 +121,6 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
       return false;
     }
 
-    final establishment = state.establishment;
-    if (establishment == null) {
-      state = state.copyWith(errorMessage: 'Selectionnez un etablissement.');
-      return false;
-    }
-
     state = state.copyWith(isSubmitting: true, clearError: true);
 
     try {
@@ -140,7 +130,6 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
           lastName: state.lastName.trim(),
           email: state.email.trim(),
           password: state.password,
-          establishment: establishment,
           subjects: state.subjects,
           levels: state.levels,
           acceptedTerms: state.acceptedTerms,
@@ -172,28 +161,20 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
   }
 
   String? _validateIdentity() {
-    if (state.firstName.trim().length < 2) {
-      return 'Le prenom doit contenir au moins 2 caracteres.';
-    }
-    if (state.lastName.trim().length < 2) {
-      return 'Le nom doit contenir au moins 2 caracteres.';
-    }
-    if (!_isEmailValid(state.email.trim())) {
-      return 'Entrez une adresse email valide.';
-    }
-    if (!_isPasswordStrong(state.password)) {
-      return 'Mot de passe: 8 caracteres, 1 majuscule, 1 chiffre minimum.';
-    }
-    if (state.confirmPassword != state.password) {
-      return 'La confirmation du mot de passe est invalide.';
-    }
-    return null;
+    return AuthInputValidators.displayName(
+          state.firstName,
+          label: 'Le prenom',
+        ) ??
+        AuthInputValidators.displayName(state.lastName, label: 'Le nom') ??
+        AuthInputValidators.email(state.email) ??
+        AuthInputValidators.password(state.password) ??
+        AuthInputValidators.confirmPassword(
+          password: state.password,
+          confirmation: state.confirmPassword,
+        );
   }
 
   String? _validateTeachingData() {
-    if (state.establishment == null) {
-      return 'Selectionnez un etablissement.';
-    }
     if (state.subjects.isEmpty) {
       return 'Selectionnez au moins une matiere enseignee.';
     }
@@ -208,16 +189,5 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
       return 'Veuillez accepter les consentements requis.';
     }
     return null;
-  }
-
-  bool _isEmailValid(String email) {
-    return RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$').hasMatch(email);
-  }
-
-  bool _isPasswordStrong(String value) {
-    if (value.length < 8) return false;
-    if (!RegExp(r'[A-Z]').hasMatch(value)) return false;
-    if (!RegExp(r'[0-9]').hasMatch(value)) return false;
-    return true;
   }
 }

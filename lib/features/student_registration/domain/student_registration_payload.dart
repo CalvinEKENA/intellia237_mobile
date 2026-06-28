@@ -1,13 +1,11 @@
 import 'academic_rules.dart';
 import 'learning_goal.dart';
-import 'school_establishment.dart';
 import '../../tutor/domain/tutor_persona.dart';
 
 class StudentRegistrationPayload {
   const StudentRegistrationPayload({
     required this.firstName,
     required this.lastName,
-    required this.establishment,
     required this.schoolClass,
     required this.schoolSeries,
     this.selectedTutorId,
@@ -24,7 +22,6 @@ class StudentRegistrationPayload {
 
   final String firstName;
   final String lastName;
-  final SchoolEstablishment establishment;
   final SchoolClass schoolClass;
   final SchoolSeries? schoolSeries;
   final String? selectedTutorId;
@@ -51,7 +48,6 @@ class StudentRegistrationPayload {
       'lastName': lastName,
       'email': email,
       'role': 'student',
-      'establishmentId': establishment.id,
       'classLevel': schoolClass.label,
       'series': schoolSeries?.label,
       'tutorId': _normalizedTutorId,
@@ -71,8 +67,6 @@ class StudentRegistrationPayload {
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
-      'establishmentId': establishment.id,
-      'establishmentName': establishment.name,
       'classLevel': schoolClass.label,
       'series': schoolSeries?.label,
       'xp': 0,

@@ -128,7 +128,8 @@ class _FlowMiniQuizCardViewState extends ConsumerState<FlowMiniQuizCardView> {
                 ),
               ),
             ),
-            if (trailing != null) Icon(trailing, size: 20, color: trailingColor),
+            if (trailing != null)
+              Icon(trailing, size: 20, color: trailingColor),
           ],
         ),
       ),

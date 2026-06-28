@@ -1,17 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
-import '../data/mock_parent_repository.dart';
+import '../../auth/application/auth_user_id.dart';
+import '../data/firestore_parent_repository.dart';
 import '../data/parent_repository.dart';
 import '../domain/parent_child_profile.dart';
 import '../domain/parent_dashboard.dart';
 
 final parentRepositoryProvider = Provider<ParentRepository>((ref) {
-  return MockParentRepository();
+  return FirestoreParentRepository();
 });
 
 final parentDashboardProvider = FutureProvider<ParentDashboard>((ref) async {
-  final uid = ref.watch(authControllerProvider).userId ?? 'demo-parent';
+  final uid = requireAuthenticatedUserId(ref.watch(authControllerProvider));
   return ref.read(parentRepositoryProvider).fetchDashboard(parentUid: uid);
 });
 

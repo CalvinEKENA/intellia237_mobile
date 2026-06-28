@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
-import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/intellia_scaffold.dart';
-import '../../../core/widgets/intellia_brand_mark.dart';
-import '../../../core/widgets/intellia_card.dart';
-import '../../../core/widgets/intellia_text_field.dart';
-import '../../../core/widgets/intellia_buttons.dart';
 import '../application/auth_controller.dart';
-import '../application/auth_state.dart';
+import '../domain/auth_input_validators.dart';
+import 'widgets/auth_controls.dart';
+import 'widgets/auth_experience_scaffold.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -22,212 +17,146 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _passwordFocus = FocusNode();
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
-    _passwordCtrl.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     await ref
         .read(authControllerProvider.notifier)
-        .signInWithEmail(email: _emailCtrl.text, password: _passwordCtrl.text);
+        .signInWithEmail(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authControllerProvider);
-    final isLoading = authState.isLoading;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final auth = ref.watch(authControllerProvider);
+    final controller = ref.read(authControllerProvider.notifier);
 
-    // Error listener
-    ref.listen<AuthState>(authControllerProvider, (prev, next) {
-      if (next.error != null && next.error != prev?.error) {
-        ScaffoldMessenger.of(context)
-          ..clearSnackBars()
-          ..showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                  const SizedBox(width: IntelliaSpacing.sm),
-                  Expanded(child: Text(next.error!)),
-                ],
-              ),
-              backgroundColor: theme.colorScheme.error,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(IntelliaRadii.small),
-              ),
-              margin: const EdgeInsets.all(IntelliaSpacing.md),
-            ),
-          );
-        ref.read(authControllerProvider.notifier).clearError();
-      }
-    });
-
-    return IntelliaScaffold(
-      usePremiumBackground: true,
-      showTopHalo: true,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: IntelliaSpacing.lg,
-            vertical: IntelliaSpacing.md,
-          ),
+    return AuthExperienceScaffold(
+      showBackButton: false,
+      child: AutofillGroup(
+        child: Form(
+          key: _formKey,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const IntelliaBrandMark(size: 80, showText: true, textSize: 24),
-              const SizedBox(height: IntelliaSpacing.lg),
-
-              IntelliaCard(
-                variant: IntelliaCardVariant.elevated,
-                padding: const EdgeInsets.all(IntelliaSpacing.lg),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Bon retour !',
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+              const SizedBox(height: 18),
+              const AuthHeader(
+                eyebrow: 'Votre espace personnel',
+                title: 'Heureux de vous\nretrouver.',
+                subtitle:
+                    'Reprenez votre progression et retrouvez votre compagnon.',
+              ),
+              const SizedBox(height: 30),
+              AuthGlassPanel(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AuthAnimatedField(
+                      controller: _emailController,
+                      label: 'Adresse e-mail',
+                      hint: 'prenom.nom@exemple.com',
+                      icon: Icons.alternate_email_rounded,
+                      enabled: !auth.isLoading,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      autofillHints: const [AutofillHints.email],
+                      validator: (value) =>
+                          AuthInputValidators.email(value ?? ''),
+                      onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
+                    ),
+                    const SizedBox(height: 14),
+                    AuthAnimatedField(
+                      controller: _passwordController,
+                      focusNode: _passwordFocus,
+                      label: 'Mot de passe',
+                      hint: 'Votre mot de passe',
+                      icon: Icons.lock_outline_rounded,
+                      enabled: !auth.isLoading,
+                      isPassword: true,
+                      textInputAction: TextInputAction.done,
+                      autofillHints: const [AutofillHints.password],
+                      validator: (value) =>
+                          AuthInputValidators.password(value ?? ''),
+                      onFieldSubmitted: (_) => _submit(),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: auth.isLoading
+                            ? null
+                            : () => context.push(AppRoutes.forgotPassword),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AuthExperienceColors.gold,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                         ),
+                        child: const Text('Mot de passe oublié ?'),
                       ),
-                      const SizedBox(height: IntelliaSpacing.xxs),
-                      Text(
-                        'Connectez-vous pour continuer votre apprentissage',
-                        style: TextStyle(
-                          color: isDark
-                              ? IntelliaColors.textSecondaryDark
-                              : IntelliaColors.textSecondary,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: IntelliaSpacing.xl),
-
-                      // Email input
-                      IntelliaTextField(
-                        controller: _emailCtrl,
-                        label: 'Adresse email',
-                        hint: 'exemple@intellia237.cm',
-                        prefixIcon: Icons.email_outlined,
-                        keyboardType: TextInputType.emailAddress,
-                        enabled: !isLoading,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) {
-                            return 'L\'email est requis';
-                          }
-                          if (!RegExp(
-                            r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$',
-                          ).hasMatch(v.trim())) {
-                            return 'Entrez un email valide';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: IntelliaSpacing.md),
-
-                      // Password input
-                      IntelliaPasswordField(
-                        controller: _passwordCtrl,
-                        label: 'Mot de passe',
-                        hint: 'Saisissez votre mot de passe',
-                        enabled: !isLoading,
-                        validator: (v) {
-                          if (v == null || v.isEmpty) {
-                            return 'Le mot de passe est requis';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      // Forgot password button
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: isLoading
-                              ? null
-                              : () => context.push(AppRoutes.forgotPassword),
-                          style: TextButton.styleFrom(
-                            foregroundColor: theme.colorScheme.primary,
-                            padding: EdgeInsets.zero,
-                          ),
-                          child: const Text(
-                            'Mot de passe oublié ?',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: IntelliaSpacing.md),
-
-                      // Sign in button
-                      IntelliaPrimaryButton(
-                        onTap: isLoading ? null : _submit,
-                        isLoading: isLoading,
-                        child: const Text('Se connecter'),
-                      ),
-                      const SizedBox(height: IntelliaSpacing.lg),
-
-                      // Separator
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              color: theme.colorScheme.outline,
-                              height: 1,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: IntelliaSpacing.md,
-                            ),
-                            child: Text(
-                              'Nouveau sur INTELLIA237 ?',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: isDark
-                                    ? IntelliaColors.textSecondaryDark
-                                    : IntelliaColors.textSecondary,
-                                fontWeight: FontWeight.w500,
+                    ),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 220),
+                      child: auth.error == null
+                          ? const SizedBox.shrink()
+                          : Padding(
+                              key: ValueKey(auth.error),
+                              padding: const EdgeInsets.only(bottom: 14),
+                              child: AuthErrorBanner(
+                                message: auth.error!,
+                                onRetry: _submit,
+                                onDismiss: controller.clearError,
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              color: theme.colorScheme.outline,
-                              height: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: IntelliaSpacing.lg),
-
-                      // Register button
-                      IntelliaOutlineButton(
-                        onTap: isLoading
-                            ? null
-                            : () => context.push(AppRoutes.register),
-                        child: const Text('Créer un compte'),
-                      ),
-                    ],
-                  ),
+                    ),
+                    AuthPrimaryButton(
+                      label: 'Se connecter',
+                      onTap: auth.isLoading ? null : _submit,
+                      isLoading: auth.isLoading,
+                      icon: Icons.login_rounded,
+                    ),
+                  ],
                 ),
-              ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.04, end: 0),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Flexible(
+                    child: Text(
+                      'Pas encore de compte ?',
+                      style: TextStyle(
+                        color: AuthExperienceColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: auth.isLoading
+                        ? null
+                        : () => context.push(AppRoutes.register),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AuthExperienceColors.gold,
+                    ),
+                    child: const Text(
+                      'Créer un compte',
+                      style: TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
             ],
           ),
         ),

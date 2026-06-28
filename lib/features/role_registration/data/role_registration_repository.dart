@@ -1,12 +1,9 @@
-import '../../student_registration/domain/school_establishment.dart';
 import '../domain/admin_registration_payload.dart';
 import '../domain/parent_registration_payload.dart';
 import '../domain/registration_result.dart';
 import '../domain/teacher_registration_payload.dart';
 
 abstract class RoleRegistrationRepository {
-  Future<List<SchoolEstablishment>> searchEstablishments(String query);
-
   Future<RoleRegistrationResult> registerParent(
     ParentRegistrationPayload payload,
   );

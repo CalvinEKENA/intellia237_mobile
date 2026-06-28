@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../onboarding/data/onboarding_preferences.dart';
+import '../data/auth_entry_preferences.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../domain/app_role.dart';
 import '../domain/repositories/auth_repository.dart';
@@ -34,6 +35,7 @@ class AuthController extends Notifier<AuthState> {
       );
       if (user != null) {
         await _markOnboardingSeen();
+        await _markAuthenticatedBefore();
         state = AuthState.authenticated(
           role: user.role,
           userId: user.uid,
@@ -62,6 +64,7 @@ class AuthController extends Notifier<AuthState> {
       );
 
       await _markOnboardingSeen();
+      await _markAuthenticatedBefore();
       state = AuthState.authenticated(
         role: user.role,
         userId: user.uid,
@@ -97,6 +100,7 @@ class AuthController extends Notifier<AuthState> {
       );
 
       await _markOnboardingSeen();
+      await _markAuthenticatedBefore();
       state = AuthState.authenticated(
         role: user.role,
         userId: user.uid,
@@ -114,48 +118,34 @@ class AuthController extends Notifier<AuthState> {
 
   /// Envoi de l'email de réinitialisation
   Future<bool> sendPasswordReset(String email) async {
+    state = state.copyWith(isLoading: true, error: null);
     try {
       await _repo.sendPasswordResetEmail(email);
+      state = state.copyWith(isLoading: false, error: null);
       return true;
-    } on AuthError {
+    } on AuthError catch (error) {
+      state = state.copyWith(isLoading: false, error: error.message);
       return false;
     } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Le service est momentanément indisponible. Réessaie.',
+      );
       return false;
     }
   }
 
   /// Déconnexion propre
   Future<void> signOut() async {
+    if (state.status == AuthStatus.authenticated) {
+      await _markAuthenticatedBefore();
+    }
     try {
       await _repo.signOut();
     } catch (_) {
       // On déconnecte localement même si Firebase échoue
     }
     state = const AuthState.unauthenticated();
-  }
-
-  /// Connexion rapide role-based (placeholder temporaire pour valider le routing).
-  void signInAs(AppRole role) {
-    state = AuthState.authenticated(
-      role: role,
-      userId: 'demo-${role.name}',
-      email: '${role.name}@intellia237.app',
-      firstName: role.label,
-    );
-  }
-
-  /// Changement de rôle en session (placeholder routing).
-  void switchRole(AppRole role) {
-    if (!state.isAuthenticated) {
-      return;
-    }
-
-    state = AuthState.authenticated(
-      role: role,
-      userId: state.userId ?? 'demo-${role.name}',
-      email: state.email,
-      firstName: state.firstName,
-    );
   }
 
   /// Utilise les donnees reelles retournees apres un onboarding/inscription.
@@ -166,6 +156,7 @@ class AuthController extends Notifier<AuthState> {
     required String firstName,
   }) {
     unawaited(_markOnboardingSeen());
+    unawaited(_markAuthenticatedBefore());
     state = AuthState.authenticated(
       role: role,
       userId: userId,
@@ -188,5 +179,16 @@ class AuthController extends Notifier<AuthState> {
 
     ref.read(hasSeenOnboardingProvider.notifier).state = true;
     await OnboardingPreferences().setSeenOnboarding(true);
+  }
+
+  Future<void> _markAuthenticatedBefore() async {
+    if (!ref.read(hasAuthenticatedBeforeProvider)) {
+      ref.read(hasAuthenticatedBeforeProvider.notifier).state = true;
+    }
+    try {
+      await AuthEntryPreferences().markAuthenticated();
+    } catch (_) {
+      // L'etat courant reste correct meme si le stockage local est indisponible.
+    }
   }
 }

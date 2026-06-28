@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/app_role.dart';
+import '../../domain/firebase_error_mapper.dart';
 import '../../domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -35,6 +37,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return _fetchUserData(uid);
     } on FirebaseAuthException catch (error) {
+      _debugLog('signInWithEmail', error.code, error.message, error.stackTrace);
       throw _mapFirebaseAuthError(error);
     }
   }
@@ -84,11 +87,16 @@ class AuthRepositoryImpl implements AuthRepository {
         profileCompleted: false,
       );
     } on FirebaseAuthException catch (error) {
+      _debugLog('register', error.code, error.message, error.stackTrace);
       throw _mapFirebaseAuthError(error);
-    } on FirebaseException catch (_) {
-      throw const AuthError(
-        message: 'Impossible de finaliser l\'inscription.',
-        code: 'firestore-write-failed',
+    } on FirebaseException catch (error, stackTrace) {
+      _debugLog('register-profile', error.code, error.message, stackTrace);
+      throw AuthError(
+        message: FirebaseErrorMapper.serviceMessage(
+          code: error.code,
+          technicalMessage: error.message,
+        ),
+        code: FirebaseErrorMapper.normalizeCode(error.code, error.message),
       );
     }
   }
@@ -98,6 +106,12 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (error) {
+      _debugLog(
+        'sendPasswordResetEmail',
+        error.code,
+        error.message,
+        error.stackTrace,
+      );
       throw _mapFirebaseAuthError(error);
     }
   }
@@ -153,34 +167,25 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   AuthError _mapFirebaseAuthError(FirebaseAuthException error) {
-    return switch (error.code) {
-      'user-not-found' ||
-      'wrong-password' ||
-      'invalid-credential' => const AuthError(
-        message: 'Email ou mot de passe incorrect.',
-        code: 'invalid-credentials',
-      ),
-      'email-already-in-use' => const AuthError(
-        message: 'Un compte existe deja avec cet email.',
-        code: 'email-already-in-use',
-      ),
-      'weak-password' => const AuthError(
-        message: 'Le mot de passe est trop faible.',
-        code: 'weak-password',
-      ),
-      'invalid-email' => const AuthError(
-        message: 'Adresse email invalide.',
-        code: 'invalid-email',
-      ),
-      'network-request-failed' => const AuthError(
-        message: 'Aucune connexion internet disponible.',
-        code: 'network-error',
-      ),
-      _ => AuthError(
-        message: error.message ?? 'Erreur d\'authentification.',
+    final code = FirebaseErrorMapper.normalizeCode(error.code, error.message);
+    return AuthError(
+      message: FirebaseErrorMapper.authMessage(
         code: error.code,
+        technicalMessage: error.message,
       ),
-    };
+      code: code,
+    );
+  }
+
+  void _debugLog(
+    String operation,
+    String? code,
+    String? message,
+    StackTrace? stackTrace,
+  ) {
+    if (!kDebugMode) return;
+    debugPrint('Firebase Auth $operation failed: code=$code message=$message');
+    if (stackTrace != null) debugPrintStack(stackTrace: stackTrace);
   }
 }
 

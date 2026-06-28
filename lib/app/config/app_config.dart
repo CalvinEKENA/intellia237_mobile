@@ -18,7 +18,7 @@ class AppConfig {
 
   static const production = AppConfig(
     environment: AppEnvironment.production,
-    appName: 'INTELLIA237',
+    appName: 'Intellia 237',
     firebaseProjectId: 'edunova-aabd1',
     firebaseStorageBucket: 'edunova-aabd1.firebasestorage.app',
     androidApplicationId: 'com.edunova.app',
@@ -28,7 +28,7 @@ class AppConfig {
 
   static const staging = AppConfig(
     environment: AppEnvironment.staging,
-    appName: 'INTELLIA237 Staging',
+    appName: 'Intellia 237 Staging',
     firebaseProjectId: 'intellia237-staging',
     firebaseStorageBucket: 'intellia237-staging.firebasestorage.app',
     androidApplicationId: 'com.intellia237.app.staging',

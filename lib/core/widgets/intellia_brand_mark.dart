@@ -50,7 +50,7 @@ class IntelliaBrandMark extends StatelessWidget {
         if (showText) ...[
           const SizedBox(height: IntelliaSpacing.xs),
           Text(
-            'INTELLIA237',
+            'Intellia 237',
             style: GoogleFonts.playfairDisplay(
               fontSize: textSize,
               fontWeight: FontWeight.bold,

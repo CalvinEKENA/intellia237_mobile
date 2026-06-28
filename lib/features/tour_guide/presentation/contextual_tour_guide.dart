@@ -61,7 +61,9 @@ Future<void> maybeShowContextualTourGuide({
     },
   );
 
-  if (completed == true) {
+  // « Passer » comme « Terminer » marquent le tour comme vu : il ne se relance
+  // pas à chaque ouverture (completed == false pour un skip, true si terminé).
+  if (completed != null) {
     await repository.markTourSeen(uid);
   }
 }
@@ -97,12 +99,18 @@ class _TourGuideOverlayState extends State<_TourGuideOverlay> {
       color: Colors.transparent,
       child: Stack(
         children: [
+          // Un tap sur la zone assombrie ferme le tour : l'utilisateur n'est
+          // jamais piégé et retrouve immédiatement une navbar cliquable.
           Positioned.fill(
-            child: AnimatedSwitcher(
-              duration: AppMotion.medium,
-              child: CustomPaint(
-                key: ValueKey(_index),
-                painter: _SpotlightPainter(targetRect: targetRect),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Navigator.of(context).pop(false),
+              child: AnimatedSwitcher(
+                duration: AppMotion.medium,
+                child: CustomPaint(
+                  key: ValueKey(_index),
+                  painter: _SpotlightPainter(targetRect: targetRect),
+                ),
               ),
             ),
           ),

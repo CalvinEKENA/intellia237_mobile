@@ -1,5 +1,3 @@
-import '../../student_registration/domain/school_establishment.dart';
-
 class AdminRegistrationPayload {
   const AdminRegistrationPayload({
     required this.firstName,
@@ -7,7 +5,6 @@ class AdminRegistrationPayload {
     required this.email,
     required this.password,
     required this.jobTitle,
-    required this.establishment,
     required this.acceptedTerms,
     required this.acceptedPrivacy,
   });
@@ -17,7 +14,6 @@ class AdminRegistrationPayload {
   final String email;
   final String password;
   final String jobTitle;
-  final SchoolEstablishment establishment;
   final bool acceptedTerms;
   final bool acceptedPrivacy;
 
@@ -31,7 +27,6 @@ class AdminRegistrationPayload {
       'lastName': lastName,
       'email': email,
       'role': 'admin',
-      'establishmentId': establishment.id,
       'jobTitle': jobTitle,
       'profileCompleted': true,
       'accountStatus': 'pending_validation',
@@ -52,8 +47,6 @@ class AdminRegistrationPayload {
       'lastName': lastName,
       'email': email,
       'jobTitle': jobTitle,
-      'establishmentId': establishment.id,
-      'establishmentName': establishment.name,
       'validation': <String, dynamic>{
         'status': 'pending',
         'required': true,
@@ -73,6 +66,18 @@ class AdminRegistrationPayload {
         'privacyAccepted': acceptedPrivacy,
         'acceptedAt': now.toUtc(),
       },
+    };
+  }
+
+  Map<String, dynamic> toStaffRegistrationData() {
+    return <String, dynamic>{
+      'role': 'admin',
+      'firstName': firstName.trim(),
+      'lastName': lastName.trim(),
+      'email': email.trim(),
+      'jobTitle': jobTitle.trim(),
+      'acceptedTerms': acceptedTerms,
+      'acceptedPrivacy': acceptedPrivacy,
     };
   }
 }

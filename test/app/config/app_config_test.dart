@@ -5,14 +5,14 @@ import 'package:intellia237/app/config/app_config.dart';
 void main() {
   group('AppConfig', () {
     test('keeps production store and Firebase identifiers stable', () {
-      expect(AppConfig.production.appName, 'INTELLIA237');
+      expect(AppConfig.production.appName, 'Intellia 237');
       expect(AppConfig.production.firebaseProjectId, 'edunova-aabd1');
       expect(AppConfig.production.androidApplicationId, 'com.edunova.app');
       expect(AppConfig.production.iosBundleId, 'com.edunova.app');
     });
 
     test('defines a separate staging identity', () {
-      expect(AppConfig.staging.appName, 'INTELLIA237 Staging');
+      expect(AppConfig.staging.appName, 'Intellia 237 Staging');
       expect(AppConfig.staging.firebaseProjectId, 'intellia237-staging');
       expect(
         AppConfig.staging.androidApplicationId,

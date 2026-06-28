@@ -6,6 +6,7 @@ import '../../core/animations/app_page_transitions.dart';
 import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/application/auth_state.dart';
 import '../../features/auth/domain/app_role.dart';
+import '../../features/auth/data/auth_entry_preferences.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
@@ -347,81 +348,84 @@ class AppRouterNotifier extends ChangeNotifier {
       (previous, next) => notifyListeners(),
       fireImmediately: true,
     );
+    _authEntrySub = ref.listen<bool>(
+      hasAuthenticatedBeforeProvider,
+      (previous, next) => notifyListeners(),
+      fireImmediately: true,
+    );
   }
 
   final Ref ref;
   late final ProviderSubscription<AuthState> _authSub;
   late final ProviderSubscription<bool> _onboardingSub;
+  late final ProviderSubscription<bool> _authEntrySub;
 
   String? redirect(BuildContext context, GoRouterState state) {
-    final auth = ref.read(authControllerProvider);
-    final hasSeenOnboarding = ref.read(hasSeenOnboardingProvider);
-    final location = state.uri.path;
-
-    switch (auth.status) {
-      case AuthStatus.bootstrapping:
-        return location == AppRoutes.bootstrap ? null : AppRoutes.bootstrap;
-
-      case AuthStatus.unauthenticated:
-        // Le screen bootstrap ne doit etre visible qu'en phase bootstrapping.
-        if (location == AppRoutes.bootstrap) {
-          return hasSeenOnboarding ? AppRoutes.login : AppRoutes.onboarding;
-        }
-        if (!hasSeenOnboarding) {
-          // Premiere visite: passage obligatoire par l'onboarding.
-          return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
-        }
-
-        // L'onboarding n'est plus la route d'entree par defaut.
-        if (location == AppRoutes.onboarding) {
-          return AppRoutes.login;
-        }
-        // Autoriser les routes pré-auth (login, register, forgot-password)
-        if (AppRoutes.preAuthRoutes.contains(location)) {
-          return null;
-        }
-        return AppRoutes.login;
-
-      case AuthStatus.authenticated:
-        final role = auth.role;
-        if (role == null) return AppRoutes.login;
-
-        final expectedHome = role.homePath;
-
-        // tutorSelection is accessible to authenticated students (profile change)
-        // AND to unauthenticated users (registration flow). Skip the pre-auth
-        // redirect guard for students so they can change their tutor from the profile.
-        if (location.startsWith(AppRoutes.tutorSelection)) {
-          if (role == AppRole.student) return null;
-          return expectedHome;
-        }
-
-        final isPreAuthFlow = AppRoutes.preAuthRoutes.contains(location);
-        final isInvalidRolePath =
-            AppRoutes.roleHomes.contains(location) && location != expectedHome;
-        final isStudentOnlyPath = AppRoutes.isStudentPath(location);
-        final isParentOnlyPath = AppRoutes.isParentPath(location);
-
-        if (isPreAuthFlow || isInvalidRolePath) {
-          return expectedHome;
-        }
-
-        if (role != AppRole.student && isStudentOnlyPath) {
-          return expectedHome;
-        }
-
-        if (role != AppRole.parent && isParentOnlyPath) {
-          return expectedHome;
-        }
-
-        return null;
-    }
+    return resolveAppRedirect(
+      auth: ref.read(authControllerProvider),
+      hasSeenOnboarding: ref.read(hasSeenOnboardingProvider),
+      hasAuthenticatedBefore: ref.read(hasAuthenticatedBeforeProvider),
+      location: state.uri.path,
+    );
   }
 
   @override
   void dispose() {
     _authSub.close();
     _onboardingSub.close();
+    _authEntrySub.close();
     super.dispose();
+  }
+}
+
+String? resolveAppRedirect({
+  required AuthState auth,
+  required bool hasSeenOnboarding,
+  required bool hasAuthenticatedBefore,
+  required String location,
+}) {
+  switch (auth.status) {
+    case AuthStatus.bootstrapping:
+      return location == AppRoutes.bootstrap ? null : AppRoutes.bootstrap;
+
+    case AuthStatus.unauthenticated:
+      if (location == AppRoutes.bootstrap) {
+        if (!hasSeenOnboarding) return AppRoutes.onboarding;
+        return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
+      }
+      if (!hasSeenOnboarding) {
+        return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+      }
+      if (location == AppRoutes.onboarding) {
+        return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
+      }
+      if (AppRoutes.preAuthRoutes.contains(location)) {
+        return null;
+      }
+      return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
+
+    case AuthStatus.authenticated:
+      final role = auth.role;
+      if (role == null) return AppRoutes.login;
+
+      final expectedHome = role.homePath;
+      if (location.startsWith(AppRoutes.tutorSelection)) {
+        return role == AppRole.student ? null : expectedHome;
+      }
+
+      final isPreAuthFlow = AppRoutes.preAuthRoutes.contains(location);
+      final isInvalidRolePath =
+          AppRoutes.roleHomes.contains(location) && location != expectedHome;
+
+      if (isPreAuthFlow || isInvalidRolePath) {
+        return expectedHome;
+      }
+      if (role != AppRole.student && AppRoutes.isStudentPath(location)) {
+        return expectedHome;
+      }
+      if (role != AppRole.parent && AppRoutes.isParentPath(location)) {
+        return expectedHome;
+      }
+      return null;
   }
 }

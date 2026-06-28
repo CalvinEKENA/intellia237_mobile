@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
+import '../../auth/domain/auth_input_validators.dart';
 import '../../role_registration/data/firebase_role_registration_repository.dart';
 import '../../role_registration/data/role_registration_repository.dart';
 import '../../role_registration/domain/parent_registration_payload.dart';
@@ -69,6 +70,10 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
 
   void setAcceptedPrivacy(bool value) {
     state = state.copyWith(acceptedPrivacy: value, clearError: true);
+  }
+
+  void clearError() {
+    if (state.errorMessage != null) state = state.copyWith(clearError: true);
   }
 
   void nextStep() {
@@ -142,32 +147,25 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
   }
 
   String? _validateIdentity() {
-    if (state.firstName.trim().length < 2) {
-      return 'Le prenom doit contenir au moins 2 caracteres.';
-    }
-    if (state.lastName.trim().length < 2) {
-      return 'Le nom doit contenir au moins 2 caracteres.';
-    }
-    if (!_isEmailValid(state.email.trim())) {
-      return 'Entrez une adresse email valide.';
-    }
+    final identityError =
+        AuthInputValidators.displayName(state.firstName, label: 'Le prenom') ??
+        AuthInputValidators.displayName(state.lastName, label: 'Le nom') ??
+        AuthInputValidators.email(state.email);
+    if (identityError != null) return identityError;
+
     if (state.phoneNumber.trim().isNotEmpty &&
         !_isPhoneValid(state.phoneNumber.trim())) {
       return 'Numero de telephone invalide.';
     }
-    if (!_isPasswordStrong(state.password)) {
-      return 'Mot de passe: 8 caracteres, 1 majuscule, 1 chiffre minimum.';
-    }
-    if (state.confirmPassword != state.password) {
-      return 'La confirmation du mot de passe est invalide.';
-    }
-    return null;
+
+    return AuthInputValidators.password(state.password) ??
+        AuthInputValidators.confirmPassword(
+          password: state.password,
+          confirmation: state.confirmPassword,
+        );
   }
 
   String? _validateChildLinks() {
-    if (state.childIdentifiers.isEmpty) {
-      return 'Ajoutez au moins un code ou identifiant enfant.';
-    }
     return null;
   }
 
@@ -178,18 +176,7 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
     return null;
   }
 
-  bool _isEmailValid(String email) {
-    return RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$').hasMatch(email);
-  }
-
   bool _isPhoneValid(String phone) {
     return RegExp(r'^\+?[0-9]{8,15}$').hasMatch(phone);
-  }
-
-  bool _isPasswordStrong(String value) {
-    if (value.length < 8) return false;
-    if (!RegExp(r'[A-Z]').hasMatch(value)) return false;
-    if (!RegExp(r'[0-9]').hasMatch(value)) return false;
-    return true;
   }
 }

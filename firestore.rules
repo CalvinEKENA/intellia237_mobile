@@ -18,6 +18,11 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
 
+    function isActiveOrLegacyStaffAccount() {
+      return !('accountStatus' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data)
+        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountStatus == 'active';
+    }
+
     function isRole(role) {
       return isAuthenticated() && getUserRole() == role;
     }
@@ -27,11 +32,11 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isRole('admin') || isSuperAdmin();
+      return (isRole('admin') && isActiveOrLegacyStaffAccount()) || isSuperAdmin();
     }
 
     function isTeacher() {
-      return isRole('teacher');
+      return isRole('teacher') && isActiveOrLegacyStaffAccount();
     }
 
     function isStaff() {

@@ -47,7 +47,12 @@ class OnboardingSlideView extends StatelessWidget {
                 _brandPill(accent)
                     .animate()
                     .fadeIn(delay: 150.ms, duration: 420.ms)
-                    .slideY(begin: 0.25, end: 0, delay: 150.ms, duration: 420.ms),
+                    .slideY(
+                      begin: 0.25,
+                      end: 0,
+                      delay: 150.ms,
+                      duration: 420.ms,
+                    ),
                 const SizedBox(height: IntelliaSpacing.md),
                 Text(
                       data.title,
@@ -61,7 +66,12 @@ class OnboardingSlideView extends StatelessWidget {
                     )
                     .animate()
                     .fadeIn(delay: 250.ms, duration: 500.ms)
-                    .slideY(begin: 0.16, end: 0, delay: 250.ms, duration: 500.ms),
+                    .slideY(
+                      begin: 0.16,
+                      end: 0,
+                      delay: 250.ms,
+                      duration: 500.ms,
+                    ),
                 const SizedBox(height: IntelliaSpacing.sm),
                 Text(
                       data.description,
@@ -74,7 +84,12 @@ class OnboardingSlideView extends StatelessWidget {
                     )
                     .animate()
                     .fadeIn(delay: 400.ms, duration: 500.ms)
-                    .slideY(begin: 0.12, end: 0, delay: 400.ms, duration: 500.ms),
+                    .slideY(
+                      begin: 0.12,
+                      end: 0,
+                      delay: 400.ms,
+                      duration: 500.ms,
+                    ),
               ],
             ),
           ),
@@ -84,7 +99,10 @@ class OnboardingSlideView extends StatelessWidget {
   }
 
   Widget _brandPill(Color accent) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: IntelliaSpacing.sm, vertical: 5),
+    padding: const EdgeInsets.symmetric(
+      horizontal: IntelliaSpacing.sm,
+      vertical: 5,
+    ),
     decoration: BoxDecoration(
       color: accent.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(IntelliaRadii.full),
@@ -100,7 +118,7 @@ class OnboardingSlideView extends StatelessWidget {
         ),
         const SizedBox(width: 7),
         Text(
-          'INTELLIA237',
+          'Intellia 237',
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,

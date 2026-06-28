@@ -110,26 +110,26 @@ class _ChatTypingVisualState extends State<ChatTypingVisual>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: _languageBadge(),
-                ),
+                Align(alignment: Alignment.center, child: _languageBadge()),
                 const SizedBox(height: 18),
                 // Bulle reçue (gauche).
                 Align(
                   alignment: Alignment.centerLeft,
                   child:
                       _Bubble(
-                        text: 'Can you help me?',
-                        background: const Color(0xFFE5E5EA),
-                        textColor: const Color(0xFF3C3C43),
-                        radius: const BorderRadius.only(
-                          topLeft: Radius.circular(18),
-                          topRight: Radius.circular(18),
-                          bottomRight: Radius.circular(18),
-                          bottomLeft: Radius.circular(6),
-                        ),
-                      ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.12, end: 0),
+                            text: 'Can you help me?',
+                            background: const Color(0xFFE5E5EA),
+                            textColor: const Color(0xFF3C3C43),
+                            radius: const BorderRadius.only(
+                              topLeft: Radius.circular(18),
+                              topRight: Radius.circular(18),
+                              bottomRight: Radius.circular(18),
+                              bottomLeft: Radius.circular(6),
+                            ),
+                          )
+                          .animate()
+                          .fadeIn(duration: 400.ms)
+                          .slideX(begin: -0.12, end: 0),
                 ),
                 const SizedBox(height: 10),
                 // Bulle envoyée (droite) qui s'écrit.
@@ -157,9 +157,7 @@ class _ChatTypingVisualState extends State<ChatTypingVisual>
                           WidgetSpan(
                             alignment: PlaceholderAlignment.middle,
                             child: FadeTransition(
-                              opacity: _cursor.drive(
-                                _BlinkTween(),
-                              ),
+                              opacity: _cursor.drive(_BlinkTween()),
                               child: Container(
                                 width: 2,
                                 height: 16,

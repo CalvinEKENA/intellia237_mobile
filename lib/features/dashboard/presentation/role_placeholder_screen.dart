@@ -23,9 +23,6 @@ class _RolePlaceholderScreenState extends ConsumerState<RolePlaceholderScreen> {
     TourGuideTargetIds.roleHero: GlobalKey(
       debugLabel: TourGuideTargetIds.roleHero,
     ),
-    TourGuideTargetIds.roleSwitcher: GlobalKey(
-      debugLabel: TourGuideTargetIds.roleSwitcher,
-    ),
     TourGuideTargetIds.roleSignOut: GlobalKey(
       debugLabel: TourGuideTargetIds.roleSignOut,
     ),
@@ -85,36 +82,6 @@ class _RolePlaceholderScreenState extends ConsumerState<RolePlaceholderScreen> {
                   ),
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          KeyedSubtree(
-            key: _tourTargets[TourGuideTargetIds.roleSwitcher],
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Changer de profil',
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
-                  children: [
-                    for (final candidate in AppRole.values)
-                      ChoiceChip(
-                        label: Text(candidate.label),
-                        selected: candidate == widget.role,
-                        onSelected: (_) => ref
-                            .read(authControllerProvider.notifier)
-                            .switchRole(candidate),
-                      ),
-                  ],
-                ),
-              ],
             ),
           ),
         ],

@@ -4,9 +4,14 @@ import '../../../../app/theme/design_tokens.dart';
 import '../../domain/student_home_snapshot.dart';
 
 class RecommendationsSection extends StatelessWidget {
-  const RecommendationsSection({required this.items, super.key});
+  const RecommendationsSection({
+    required this.items,
+    required this.onItemTap,
+    super.key,
+  });
 
   final List<RecommendationItem> items;
+  final ValueChanged<RecommendationItem> onItemTap;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +30,18 @@ class RecommendationsSection extends StatelessWidget {
         for (final item in items) ...[
           Card(
             child: ListTile(
+              onTap: () => onItemTap(item),
               leading: const Icon(Icons.auto_awesome_rounded),
               title: Text(item.title),
               subtitle: Text(item.subtitle),
-              trailing: Text('${item.estimatedMinutes} min'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('${item.estimatedMinutes} min'),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.chevron_right_rounded),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.xs),

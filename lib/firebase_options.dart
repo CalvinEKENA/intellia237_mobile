@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
+import 'app/config/app_config.dart';
+
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
 /// Example:
@@ -11,19 +13,20 @@ import 'package:flutter/foundation.dart'
 /// import 'firebase_options.dart';
 /// // ...
 /// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
+///   options: DefaultFirebaseOptions.currentPlatform(config),
 /// );
 /// ```
 class DefaultFirebaseOptions {
-  static FirebaseOptions get currentPlatform {
+  static FirebaseOptions currentPlatform(AppConfig config) {
+    final isStaging = config.isStaging;
     if (kIsWeb) {
-      return web;
+      return isStaging ? webStaging : webProduction;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        return isStaging ? androidStaging : androidProduction;
       case TargetPlatform.iOS:
-        return ios;
+        return isStaging ? iosStaging : iosProduction;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -46,7 +49,11 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
+  // ─────────────────────────────────────────────────────────────
+  // Production Configurations (Project ID: edunova-aabd1)
+  // ─────────────────────────────────────────────────────────────
+
+  static const FirebaseOptions webProduction = FirebaseOptions(
     apiKey: 'AIzaSyBJwoCiblcaVRCbo66QMi7om02PPniP0SU',
     appId: '1:199517096075:web:52c9a30fd512ac98d8ac8e',
     messagingSenderId: '199517096075',
@@ -56,7 +63,7 @@ class DefaultFirebaseOptions {
     measurementId: 'G-7RPFGSX9NF',
   );
 
-  static const FirebaseOptions android = FirebaseOptions(
+  static const FirebaseOptions androidProduction = FirebaseOptions(
     apiKey: 'AIzaSyDq4HU94VNTjko3xtJkeNIeEYd-26f_yYk',
     appId: '1:199517096075:android:bcc88158174b9458d8ac8e',
     messagingSenderId: '199517096075',
@@ -64,12 +71,42 @@ class DefaultFirebaseOptions {
     storageBucket: 'edunova-aabd1.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
+  static const FirebaseOptions iosProduction = FirebaseOptions(
     apiKey: 'AIzaSyBMQgesmz1l6VMypilyItWfCIQ5QZe3S-Y',
     appId: '1:199517096075:ios:f9060b679be5a639d8ac8e',
     messagingSenderId: '199517096075',
     projectId: 'edunova-aabd1',
     storageBucket: 'edunova-aabd1.firebasestorage.app',
     iosBundleId: 'com.edunova.app',
+  );
+
+  // ─────────────────────────────────────────────────────────────
+  // Staging Configurations (Project ID: intellia237-staging)
+  // ─────────────────────────────────────────────────────────────
+
+  static const FirebaseOptions webStaging = FirebaseOptions(
+    apiKey: 'AIzaSyCeCQAnnfHhgNNch5fTScQFEpESP_D0Xl4',
+    appId: '1:343680388379:web:32f9a30fd512ac98d8ac8e',
+    messagingSenderId: '343680388379',
+    projectId: 'intellia237-staging',
+    authDomain: 'intellia237-staging.firebaseapp.com',
+    storageBucket: 'intellia237-staging.firebasestorage.app',
+  );
+
+  static const FirebaseOptions androidStaging = FirebaseOptions(
+    apiKey: 'AIzaSyCeCQAnnfHhgNNch5fTScQFEpESP_D0Xl4',
+    appId: '1:343680388379:android:29a9a0035289f13078d7be',
+    messagingSenderId: '343680388379',
+    projectId: 'intellia237-staging',
+    storageBucket: 'intellia237-staging.firebasestorage.app',
+  );
+
+  static const FirebaseOptions iosStaging = FirebaseOptions(
+    apiKey: 'AIzaSyCeCQAnnfHhgNNch5fTScQFEpESP_D0Xl4',
+    appId: '1:343680388379:ios:18fa90035289f13078d7be',
+    messagingSenderId: '343680388379',
+    projectId: 'intellia237-staging',
+    storageBucket: 'intellia237-staging.firebasestorage.app',
+    iosBundleId: 'com.intellia237.app.staging',
   );
 }

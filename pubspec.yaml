@@ -1,5 +1,5 @@
 name: intellia237
-description: "Application e-learning INTELLIA237."
+description: "Application e-learning Intellia 237."
 publish_to: "none"
 version: 3.0.0+22
 
@@ -36,6 +36,7 @@ dependencies:
   shimmer: ^3.0.0
   confetti: ^0.8.0
   flutter_native_splash: ^2.4.6
+  package_info_plus: ^10.2.0
 
 dev_dependencies:
   flutter_test:
@@ -62,26 +63,29 @@ flutter_launcher_icons:
   ios: true
   web:
     generate: true
-    image_path: assets/branding/intellia237_app_icon.png
+    image_path: assets/icons/icone_final.png
     background_color: "#FBFAF7"
     theme_color: "#5856D6"
   windows:
     generate: true
-    image_path: assets/branding/intellia237_app_icon.png
+    image_path: assets/icons/icone_final.png
   macos:
     generate: true
-    image_path: assets/branding/intellia237_app_icon.png
-  image_path: assets/branding/intellia237_app_icon.png
+    image_path: assets/icons/icone_final.png
+  image_path: assets/icons/icone_final.png
   min_sdk_android: 21
   adaptive_icon_background: "#FBFAF7"
-  adaptive_icon_foreground: assets/branding/intellia237_app_icon.png
+  adaptive_icon_foreground: assets/icons/icone_final.png
 
+# Splash natif — couche A. Couleur de fond identique au premier frame du
+# splash Flutter (web : #FAFAFD) pour éliminer toute frame blanche au cold start.
+# Logo officiel INTELLIA237 (jamais un ancien logo hérité).
 flutter_native_splash:
-  color: "#FBFAF7"
-  image: assets/branding/intellia237_app_icon.png
+  color: "#FAFAFD"
+  image: assets/icons/icone_final.png
   android: true
   ios: true
   web: true
   android_12:
-    color: "#FBFAF7"
-    image: assets/branding/intellia237_app_icon.png
+    color: "#FAFAFD"
+    image: assets/icons/icone_final.png

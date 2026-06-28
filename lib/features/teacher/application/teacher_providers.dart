@@ -1,16 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
-import '../data/mock_teacher_repository.dart';
+import '../../auth/application/auth_user_id.dart';
+import '../data/firestore_teacher_repository.dart';
 import '../data/teacher_repository.dart';
 import '../domain/teacher_models.dart';
 
 final teacherRepositoryProvider = Provider<TeacherRepository>((ref) {
-  return MockTeacherRepository();
+  return FirestoreTeacherRepository();
 });
 
 final _teacherUidProvider = Provider<String>((ref) {
-  return ref.watch(authControllerProvider).userId ?? 'demo-teacher';
+  return requireAuthenticatedUserId(ref.watch(authControllerProvider));
 });
 
 final teacherDashboardProvider = FutureProvider<TeacherDashboard>((ref) async {
