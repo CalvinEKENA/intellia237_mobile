@@ -57,16 +57,16 @@ void main() {
     },
   );
 
-  testWidgets('le splash n’utilise aucun ancien logo (EduNova)', (
-    tester,
-  ) async {
+  testWidgets('le splash n’utilise que le logo officiel', (tester) async {
     await pumpSplash(tester);
 
-    final assets = imageAssets(tester);
-    for (final asset in assets) {
-      expect(asset.toLowerCase(), isNot(contains('edunova')));
-      expect(asset.toLowerCase(), isNot(contains('logo.png')));
-    }
+    // Parmi les logos sous assets/icons/, seul le logo officiel est utilisé —
+    // aucun logo hérité (assets/icons/logo.png, etc.).
+    final iconAssets = imageAssets(
+      tester,
+    ).where((a) => a.startsWith('assets/icons/')).toSet();
+    expect(iconAssets, everyElement('assets/icons/icone_final.png'));
+    expect(iconAssets, isNot(contains('assets/icons/logo.png')));
   });
 }
 

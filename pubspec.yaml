@@ -78,7 +78,7 @@ flutter_launcher_icons:
 
 # Splash natif — couche A. Couleur de fond identique au premier frame du
 # splash Flutter (web : #FAFAFD) pour éliminer toute frame blanche au cold start.
-# Logo officiel INTELLIA237 (jamais l'ancien EduNova).
+# Logo officiel INTELLIA237 (jamais un ancien logo hérité).
 flutter_native_splash:
   color: "#FAFAFD"
   image: assets/icons/icone_final.png

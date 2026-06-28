@@ -26,7 +26,7 @@ Branche : `feature/auth-complete-mobile-flow` · PR #6
 - `pubspec.yaml` : `color: "#FAFAFD"`, `image: assets/icons/icone_final.png`, idem `android_12`.
 - Régénéré via `dart run flutter_native_splash:create` → Android (std + `values-v31`), iOS (`LaunchScreen.storyboard`, `LaunchImage`), Web.
 - **But** : premier frame statique cohérent, couleur identique au splash Flutter → aucune frame blanche au cold start.
-- Logo officiel `icone_final.png` (jamais l'ancien EduNova).
+- Logo officiel `icone_final.png` (jamais un ancien logo hérité).
 
 ### Couche B — Splash Flutter (`BootstrapScreen`)
 Fichier : `lib/features/bootstrap/presentation/bootstrap_screen.dart`
@@ -49,7 +49,7 @@ Fichier : `lib/features/bootstrap/presentation/bootstrap_screen.dart`
 `test/features/bootstrap/bootstrap_splash_test.dart` :
 - fond non blanc (== `kSplashBackground`, ≠ `#FFFFFF`) → aucune frame blanche ;
 - logo officiel + tagline + signature présents ;
-- aucun ancien logo (EduNova / `logo.png`).
+- aucun ancien logo hérité (`logo.png`).
 
 ## 5. À valider sur téléphone (non automatisable)
 - Cold start après désinstallation complète : aucune frame blanche, pas de saut de couleur ni de taille de logo.
