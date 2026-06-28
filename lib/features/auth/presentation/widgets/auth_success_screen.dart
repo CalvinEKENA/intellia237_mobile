@@ -84,7 +84,7 @@ class AuthSuccessScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 32),
                             AuthPrimaryButton(
-                              label: 'Découvrir INTELLIA237',
+                              label: 'Découvrir Intellia 237',
                               onTap: onContinue,
                               icon: Icons.explore_rounded,
                             ),

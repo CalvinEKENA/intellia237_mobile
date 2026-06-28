@@ -26,7 +26,7 @@ abstract final class FirebaseErrorMapper {
       'operation-not-allowed' =>
         'Ce mode de connexion n’est pas encore disponible.',
       'user-disabled' =>
-        'Ce compte est désactivé. Contacte l’assistance INTELLIA237.',
+        'Ce compte est désactivé. Contacte l’assistance Intellia 237.',
       'user-not-found' ||
       'wrong-password' ||
       'invalid-credential' => 'Adresse e-mail ou mot de passe incorrect.',

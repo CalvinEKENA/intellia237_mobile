@@ -188,7 +188,7 @@ class AuthHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   const Text(
-                    'INTELLIA237',
+                    'Intellia 237',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,

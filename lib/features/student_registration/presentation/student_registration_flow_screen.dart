@@ -114,7 +114,7 @@ class _StudentRegistrationFlowScreenState
         children: [
           const AuthHeader(
             eyebrow: 'Espace élève',
-            title: 'Crée ton parcours\nINTELLIA237.',
+            title: 'Crée ton parcours\nIntellia 237.',
             subtitle:
                 'Quatre étapes rapides pour préparer ton espace personnel.',
           ),

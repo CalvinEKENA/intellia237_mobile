@@ -118,7 +118,7 @@ class OnboardingSlideView extends StatelessWidget {
         ),
         const SizedBox(width: 7),
         Text(
-          'INTELLIA237',
+          'Intellia 237',
           style: GoogleFonts.montserrat(
             fontSize: 10,
             fontWeight: FontWeight.w700,

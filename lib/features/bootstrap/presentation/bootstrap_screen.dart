@@ -171,11 +171,11 @@ class _WordmarkAndTagline extends StatelessWidget {
 
   final bool reduce;
 
-  static const _word = 'INTELLIA237';
+  static const _word = 'Intellia 237';
 
   Color _colorFor(int index) {
     // « INTELLIA » indigo ; « 237 » aux couleurs du drapeau camerounais.
-    const suffixStart = 8; // index de '2'
+    const suffixStart = 9; // index de '2'
     if (index < suffixStart) return IntelliaColors.brandIndigo;
     return switch (index - suffixStart) {
       0 => IntelliaColors.cmVert,
