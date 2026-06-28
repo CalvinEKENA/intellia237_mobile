@@ -101,7 +101,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     _progress.stop();
     final persistence = markOnboardingSeen(ref);
     if (!mounted) return;
-    context.go(AppRoutes.login);
+    context.go(AppRoutes.register);
     await persistence;
   }
 
@@ -212,7 +212,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           ),
           const SizedBox(width: IntelliaSpacing.xs),
           Text(
-            'INTELLIA237',
+            'Intellia 237',
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,

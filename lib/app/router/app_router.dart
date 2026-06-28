@@ -6,6 +6,7 @@ import '../../core/animations/app_page_transitions.dart';
 import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/application/auth_state.dart';
 import '../../features/auth/domain/app_role.dart';
+import '../../features/auth/data/auth_entry_preferences.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
@@ -347,16 +348,23 @@ class AppRouterNotifier extends ChangeNotifier {
       (previous, next) => notifyListeners(),
       fireImmediately: true,
     );
+    _authEntrySub = ref.listen<bool>(
+      hasAuthenticatedBeforeProvider,
+      (previous, next) => notifyListeners(),
+      fireImmediately: true,
+    );
   }
 
   final Ref ref;
   late final ProviderSubscription<AuthState> _authSub;
   late final ProviderSubscription<bool> _onboardingSub;
+  late final ProviderSubscription<bool> _authEntrySub;
 
   String? redirect(BuildContext context, GoRouterState state) {
     return resolveAppRedirect(
       auth: ref.read(authControllerProvider),
       hasSeenOnboarding: ref.read(hasSeenOnboardingProvider),
+      hasAuthenticatedBefore: ref.read(hasAuthenticatedBeforeProvider),
       location: state.uri.path,
     );
   }
@@ -365,6 +373,7 @@ class AppRouterNotifier extends ChangeNotifier {
   void dispose() {
     _authSub.close();
     _onboardingSub.close();
+    _authEntrySub.close();
     super.dispose();
   }
 }
@@ -372,6 +381,7 @@ class AppRouterNotifier extends ChangeNotifier {
 String? resolveAppRedirect({
   required AuthState auth,
   required bool hasSeenOnboarding,
+  required bool hasAuthenticatedBefore,
   required String location,
 }) {
   switch (auth.status) {
@@ -380,18 +390,19 @@ String? resolveAppRedirect({
 
     case AuthStatus.unauthenticated:
       if (location == AppRoutes.bootstrap) {
-        return hasSeenOnboarding ? AppRoutes.login : AppRoutes.onboarding;
+        if (!hasSeenOnboarding) return AppRoutes.onboarding;
+        return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
       }
       if (!hasSeenOnboarding) {
         return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
       }
       if (location == AppRoutes.onboarding) {
-        return AppRoutes.login;
+        return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
       }
       if (AppRoutes.preAuthRoutes.contains(location)) {
         return null;
       }
-      return AppRoutes.login;
+      return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
 
     case AuthStatus.authenticated:
       final role = auth.role;

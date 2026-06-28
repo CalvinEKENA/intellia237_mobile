@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../onboarding/data/onboarding_preferences.dart';
+import '../data/auth_entry_preferences.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../domain/app_role.dart';
 import '../domain/repositories/auth_repository.dart';
@@ -34,6 +35,7 @@ class AuthController extends Notifier<AuthState> {
       );
       if (user != null) {
         await _markOnboardingSeen();
+        await _markAuthenticatedBefore();
         state = AuthState.authenticated(
           role: user.role,
           userId: user.uid,
@@ -62,6 +64,7 @@ class AuthController extends Notifier<AuthState> {
       );
 
       await _markOnboardingSeen();
+      await _markAuthenticatedBefore();
       state = AuthState.authenticated(
         role: user.role,
         userId: user.uid,
@@ -97,6 +100,7 @@ class AuthController extends Notifier<AuthState> {
       );
 
       await _markOnboardingSeen();
+      await _markAuthenticatedBefore();
       state = AuthState.authenticated(
         role: user.role,
         userId: user.uid,
@@ -133,6 +137,9 @@ class AuthController extends Notifier<AuthState> {
 
   /// Déconnexion propre
   Future<void> signOut() async {
+    if (state.status == AuthStatus.authenticated) {
+      await _markAuthenticatedBefore();
+    }
     try {
       await _repo.signOut();
     } catch (_) {
@@ -149,6 +156,7 @@ class AuthController extends Notifier<AuthState> {
     required String firstName,
   }) {
     unawaited(_markOnboardingSeen());
+    unawaited(_markAuthenticatedBefore());
     state = AuthState.authenticated(
       role: role,
       userId: userId,
@@ -171,5 +179,16 @@ class AuthController extends Notifier<AuthState> {
 
     ref.read(hasSeenOnboardingProvider.notifier).state = true;
     await OnboardingPreferences().setSeenOnboarding(true);
+  }
+
+  Future<void> _markAuthenticatedBefore() async {
+    if (!ref.read(hasAuthenticatedBeforeProvider)) {
+      ref.read(hasAuthenticatedBeforeProvider.notifier).state = true;
+    }
+    try {
+      await AuthEntryPreferences().markAuthenticated();
+    } catch (_) {
+      // L'etat courant reste correct meme si le stockage local est indisponible.
+    }
   }
 }

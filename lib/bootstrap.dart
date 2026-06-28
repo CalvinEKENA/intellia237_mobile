@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app/config/app_config.dart';
+import 'features/auth/data/auth_entry_preferences.dart';
 import 'features/onboarding/data/onboarding_preferences.dart';
 import 'firebase_options.dart';
 
@@ -45,7 +46,10 @@ Future<void> bootstrap({
 
   // 3. Hydratation SharedPreferences
   try {
-    await OnboardingPreferences.hydrate().timeout(const Duration(seconds: 4));
+    await Future.wait([
+      OnboardingPreferences.hydrate(),
+      AuthEntryPreferences.hydrate(),
+    ]).timeout(const Duration(seconds: 4));
   } catch (error, stackTrace) {
     debugPrint('Preferences hydration failed: $error');
     debugPrintStack(stackTrace: stackTrace);
