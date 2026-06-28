@@ -3,6 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 
+/// Halo de lisibilité : permet de garder un texte blanc lisible même sur un
+/// fond clair (ombre sombre douce pour le contraste + lueur indigo premium).
+const List<Shadow> _legibilityShadows = [
+  Shadow(color: Color(0x59000000), blurRadius: 10, offset: Offset(0, 2)),
+  Shadow(color: Color(0x665856D6), blurRadius: 18),
+];
+
 class StudentHomeHeader extends StatefulWidget {
   const StudentHomeHeader({
     required this.firstName,
@@ -45,7 +52,8 @@ class _StudentHomeHeaderState extends State<StudentHomeHeader>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Salut + prénom
+              // Salut + prénom — police blanche conservée, rendue lisible sur
+              // fond clair grâce à un halo (ombre douce + lueur indigo).
               RichText(
                 text: TextSpan(
                   children: [
@@ -53,8 +61,9 @@ class _StudentHomeHeaderState extends State<StudentHomeHeader>
                       text: 'Salut, ',
                       style: GoogleFonts.manrope(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.60),
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withValues(alpha: 0.85),
+                        shadows: _legibilityShadows,
                       ),
                     ),
                     TextSpan(
@@ -64,6 +73,7 @@ class _StudentHomeHeaderState extends State<StudentHomeHeader>
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         height: 1.1,
+                        shadows: _legibilityShadows,
                       ),
                     ),
                   ],
