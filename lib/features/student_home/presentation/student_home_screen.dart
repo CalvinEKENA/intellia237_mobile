@@ -138,8 +138,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
             const _PremiumBackdrop(),
             SafeArea(
               bottom: false,
-              // Fade Through entre onglets, état conservé (tous montés).
-              child: _AnimatedTabStack(
+              child: _ExclusiveTabStack(
                 index: _currentIndex,
                 children: [
                   KeyedSubtree(
@@ -224,6 +223,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
 
   void _selectTab(int index) {
     if (!mounted || index == _currentIndex) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _currentIndex = index);
   }
 
@@ -239,6 +239,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
         'overlay=$overlayActive timestamp=${DateTime.now().toIso8601String()}',
       );
     }
+    if (index != previous) FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _currentIndex = index;
       if (diagnosticsEnabled) _stagingTapCount += 1;
@@ -473,64 +474,54 @@ class _LightTab extends StatelessWidget {
   }
 }
 
-/// Remplace l'IndexedStack : tous les onglets restent montés (état conservé,
-/// scroll/recherche/chat préservés), mais le changement se fait en Fade Through
-/// (atténuation + léger scale). La navbar reste hors de cette pile.
-class _AnimatedTabStack extends StatelessWidget {
-  const _AnimatedTabStack({required this.index, required this.children});
+/// Conserve l'etat des cinq onglets tout en n'en peignant qu'un par frame.
+class _ExclusiveTabStack extends StatelessWidget {
+  const _ExclusiveTabStack({required this.index, required this.children});
 
   final int index;
   final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    return Stack(
-      fit: StackFit.expand,
+    return IndexedStack(
+      index: index,
+      sizing: StackFit.expand,
       children: [
         for (var i = 0; i < children.length; i++)
-          Positioned.fill(
-            child: _FadeTab(
-              visible: i == index,
-              reduceMotion: reduceMotion,
-              child: children[i],
-            ),
-          ),
+          _ExclusiveTab(index: i, active: i == index, child: children[i]),
       ],
     );
   }
 }
 
-class _FadeTab extends StatelessWidget {
-  const _FadeTab({
-    required this.visible,
-    required this.reduceMotion,
+class _ExclusiveTab extends StatelessWidget {
+  const _ExclusiveTab({
+    required this.index,
+    required this.active,
     required this.child,
   });
 
-  final bool visible;
-  final bool reduceMotion;
+  final int index;
+  final bool active;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final duration = reduceMotion
-        ? Duration.zero
-        : const Duration(milliseconds: 240);
-    return IgnorePointer(
-      ignoring: !visible,
-      // Met en pause les animations des onglets cachés (perf + correction).
-      child: TickerMode(
-        enabled: visible,
-        child: AnimatedScale(
-          scale: visible ? 1.0 : 0.985,
-          duration: duration,
-          curve: Curves.easeOutCubic,
-          child: AnimatedOpacity(
-            opacity: visible ? 1.0 : 0.0,
-            duration: duration,
-            curve: Curves.easeInOut,
+    return TickerMode(
+      key: ValueKey('student-tab-ticker-$index'),
+      enabled: active,
+      child: ExcludeSemantics(
+        key: ValueKey('student-tab-semantics-$index'),
+        excluding: !active,
+        child: FocusScope(
+          key: ValueKey('student-tab-focus-$index'),
+          canRequestFocus: active,
+          skipTraversal: !active,
+          descendantsAreFocusable: active,
+          descendantsAreTraversable: active,
+          child: IgnorePointer(
+            key: ValueKey('student-tab-pointer-$index'),
+            ignoring: !active,
             child: child,
           ),
         ),
