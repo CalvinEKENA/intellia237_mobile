@@ -48,7 +48,7 @@ void main() {
   void expectCoreContent() {
     expect(find.text('Bienvenue, Amina !'), findsOneWidget);
     expect(find.textContaining('Ton compte est prêt'), findsOneWidget);
-    expect(find.text('Découvrir INTELLIA237'), findsOneWidget);
+    expect(find.text('Découvrir Intellia 237'), findsOneWidget);
   }
 
   testWidgets('1. rendu normal sans exception', (tester) async {
@@ -128,13 +128,13 @@ void main() {
 
   testWidgets('9. bouton CTA visible', (tester) async {
     await pumpSuccess(tester);
-    expect(find.text('Découvrir INTELLIA237'), findsOneWidget);
+    expect(find.text('Découvrir Intellia 237'), findsOneWidget);
   });
 
-  testWidgets('10. tap sur « Découvrir INTELLIA237 »', (tester) async {
+  testWidgets('10. tap sur « Découvrir Intellia 237 »', (tester) async {
     var tapped = false;
     await pumpSuccess(tester, onContinue: () => tapped = true);
-    await tester.tap(find.text('Découvrir INTELLIA237'));
+    await tester.tap(find.text('Découvrir Intellia 237'));
     await tester.pump(const Duration(milliseconds: 400));
     expect(tapped, isTrue);
   });
@@ -213,7 +213,7 @@ void main() {
       expect(tester.takeException(), isNull);
 
       // Tap CTA → completeRegistration → auth authenticated/student.
-      await tester.tap(find.text('Découvrir INTELLIA237'));
+      await tester.tap(find.text('Découvrir Intellia 237'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
 

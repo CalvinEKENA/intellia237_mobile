@@ -26,7 +26,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('skip')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('Connexion prête'), findsOneWidget);
+    expect(find.text('Inscription prête'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
@@ -66,7 +66,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('onboarding-start')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('Connexion prête'), findsOneWidget);
+    expect(find.text('Inscription prête'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }
@@ -81,8 +81,8 @@ Future<GoRouter> _pumpOnboarding(WidgetTester tester) async {
         builder: (_, _) => const OnboardingScreen(),
       ),
       GoRoute(
-        path: AppRoutes.login,
-        builder: (_, _) => const Scaffold(body: Text('Connexion prête')),
+        path: AppRoutes.register,
+        builder: (_, _) => const Scaffold(body: Text('Inscription prête')),
       ),
     ],
   );
