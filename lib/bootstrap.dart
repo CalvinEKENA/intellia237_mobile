@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -63,37 +64,57 @@ Future<void> bootstrap({
     FlutterError.onError = (details) {
       FlutterError.presentError(details);
     };
+    // En staging/debug : message + code diagnostic + détail technique.
+    // En production : message + code uniquement (jamais de stack trace).
+    final showDiagnosticDetails = config.isStaging || kDebugMode;
     ErrorWidget.builder = (FlutterErrorDetails details) {
+      debugPrint(
+        '[INTELLIA237][ErrorWidget] UI-RENDER-500 '
+        '${details.exceptionAsString()}',
+      );
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
+          backgroundColor: const Color(0xFF080722),
+          body: SafeArea(
+            child: Center(
               child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.error_outline_rounded,
-                      color: Colors.red,
-                      size: 64,
+                      color: Colors.white70,
+                      size: 56,
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Une erreur de rendu est survenue.',
+                      'Un affichage n’a pas pu se charger.',
                       style: TextStyle(
+                        color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      details.exceptionAsString(),
-                      style: const TextStyle(color: Colors.grey),
+                    const Text(
+                      'Code diagnostic : UI-RENDER-500',
+                      style: TextStyle(color: Color(0xADFFFFFF)),
                       textAlign: TextAlign.center,
                     ),
+                    if (showDiagnosticDetails) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        details.exceptionAsString(),
+                        style: const TextStyle(
+                          color: Color(0x99FFFFFF),
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ],
                 ),
               ),
