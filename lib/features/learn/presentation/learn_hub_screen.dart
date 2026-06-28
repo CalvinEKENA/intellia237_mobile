@@ -120,6 +120,10 @@ class _LearnHubBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final filtered = _filtered;
     final filters = _currentFilters;
+    // Hauteur de tuile adaptative : évite tout débordement à grand facteur
+    // de texte (1.3 / 1.5).
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    final tileExtent = 160 + (textScale - 1).clamp(0.0, 0.6) * 96;
 
     return CustomScrollView(
       slivers: [
@@ -202,11 +206,11 @@ class _LearnHubBody extends StatelessWidget {
             132,
           ),
           sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: 360,
               mainAxisSpacing: AppSpacing.md,
               crossAxisSpacing: AppSpacing.md,
-              mainAxisExtent: 160,
+              mainAxisExtent: tileExtent,
             ),
             delegate: SliverChildBuilderDelegate((context, index) {
               final subject = filtered[index];

@@ -320,6 +320,8 @@ class _CompanionHeader extends StatelessWidget {
               children: [
                 Text(
                   tutor.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.manrope(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -338,9 +340,13 @@ class _CompanionHeader extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      'Tuteur • $statusLabel',
-                      style: TextStyle(fontSize: 12, color: s.textTertiary),
+                    Flexible(
+                      child: Text(
+                        'Tuteur • $statusLabel',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: s.textTertiary),
+                      ),
                     ),
                   ],
                 ),
