@@ -1,15 +1,16 @@
 import 'dart:ui';
 
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/widgets/intellia_pressable.dart';
 import '../application/learn_providers.dart';
 import '../domain/learn_subject.dart';
+import 'subject_detail_screen.dart';
 
 class LearnHubScreen extends ConsumerStatefulWidget {
   const LearnHubScreen({super.key, this.embedded = false});
@@ -415,107 +416,156 @@ class _SubjectCard extends StatelessWidget {
   final LearnSubject subject;
   final int index;
 
+  // Détail ouvert en route fondue (200 ms) lorsque les animations sont réduites.
+  void _openFaded(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        transitionDuration: const Duration(milliseconds: 200),
+        reverseTransitionDuration: const Duration(milliseconds: 200),
+        pageBuilder: (_, _, _) =>
+            SubjectDetailScreen(subjectId: subject.id, summary: subject),
+        transitionsBuilder: (_, animation, _, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final gradient = AppGradients.forSubject(subject.iconKey);
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final tile = _SubjectTileVisual(subject: subject, gradient: gradient);
 
-    return GestureDetector(
-          onTap: () => context.push(AppRoutes.subjectDetail(subject.id)),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            child: Stack(
+    // Container Transform : la tuile se transforme en écran Détail Matière.
+    // Reduced motion : pas de morph, simple cross-fade 200 ms (même destination).
+    final Widget interactive = reduceMotion
+        ? IntelliaPressable(onTap: () => _openFaded(context), child: tile)
+        : OpenContainer<void>(
+            tappable: false,
+            closedElevation: 0,
+            closedColor: Colors.transparent,
+            openColor: const Color(0xFF060E22),
+            middleColor: const Color(0xFF060E22),
+            closedShape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            transitionType: ContainerTransitionType.fadeThrough,
+            transitionDuration: const Duration(milliseconds: 400),
+            closedBuilder: (context, openContainer) =>
+                IntelliaPressable(onTap: openContainer, child: tile),
+            openBuilder: (context, _) =>
+                SubjectDetailScreen(subjectId: subject.id, summary: subject),
+          );
+
+    final lessons =
+        '${subject.lessonsCount} leçon${subject.lessonsCount > 1 ? 's' : ''}';
+    return Semantics(
+          button: true,
+          label:
+              '${subject.title}, '
+              '${(subject.completion * 100).round()} % complété, $lessons',
+          child: interactive,
+        )
+        .animate(delay: Duration(milliseconds: index * 60))
+        .fadeIn(duration: 400.ms)
+        .slideY(begin: 0.05, end: 0);
+  }
+}
+
+/// Visuel de la tuile matière (sans logique de navigation) — sert de
+/// `closedBuilder` au Container Transform et de fallback reduced-motion.
+class _SubjectTileVisual extends StatelessWidget {
+  const _SubjectTileVisual({required this.subject, required this.gradient});
+
+  final LearnSubject subject;
+  final LinearGradient gradient;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: DecoratedBox(decoration: BoxDecoration(gradient: gradient)),
+          ),
+          Positioned(
+            top: -30,
+            right: -30,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.07),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Gradient background
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(gradient: gradient),
-                  ),
-                ),
-
-                // Decorative circle
-                Positioned(
-                  top: -30,
-                  right: -30,
-                  child: Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.07),
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        AppIcons.forSubject(subject.iconKey),
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
+                    const Spacer(),
+                    Text(
+                      '${(subject.completion * 100).round()}%',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Text(
+                  subject.title,
+                  style: GoogleFonts.manrope(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
                 ),
-
-                // Content
-                Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.18),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              AppIcons.forSubject(subject.iconKey),
-                              color: Colors.white,
-                              size: 22,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            '${(subject.completion * 100).round()}%',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Text(
-                        subject.title,
-                        style: GoogleFonts.manrope(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xxs),
-                      Text(
-                        '${subject.lessonsCount} leçon${subject.lessonsCount > 1 ? 's' : ''}',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white.withValues(alpha: 0.65),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      // Progress bar
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(99),
-                        child: LinearProgressIndicator(
-                          value: subject.completion,
-                          minHeight: 4,
-                          backgroundColor: Colors.white.withValues(alpha: 0.20),
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  '${subject.lessonsCount} leçon${subject.lessonsCount > 1 ? 's' : ''}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.white.withValues(alpha: 0.65),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(99),
+                  child: LinearProgressIndicator(
+                    value: subject.completion,
+                    minHeight: 4,
+                    backgroundColor: Colors.white.withValues(alpha: 0.20),
+                    color: Colors.white,
                   ),
                 ),
               ],
             ),
           ),
-        )
-        .animate(delay: Duration(milliseconds: index * 60))
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: 0.05, end: 0);
+        ],
+      ),
+    );
   }
 }
 

@@ -14,25 +14,34 @@ import '../domain/learn_chapter.dart';
 import '../domain/learn_subject.dart';
 
 class SubjectDetailScreen extends ConsumerWidget {
-  const SubjectDetailScreen({required this.subjectId, super.key});
+  const SubjectDetailScreen({required this.subjectId, this.summary, super.key});
 
   final String subjectId;
+
+  /// Résumé déjà connu (passé par la tuile du hub) : permet d'afficher l'en-tête
+  /// immersif (gradient + icône + titre) **immédiatement** pendant le Container
+  /// Transform, sans spinner, le temps que les chapitres se chargent. Null pour
+  /// l'accès direct par route (deep link) → spinner historique conservé.
+  final LearnSubject? summary;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final subjectAsync = ref.watch(subjectDetailProvider(subjectId));
+    final knownSummary = summary;
 
     return subjectAsync.when(
-      loading: () => Scaffold(
-        backgroundColor: const Color(0xFF060E22),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          iconTheme: const IconThemeData(color: Colors.white),
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(color: AppColors.gold),
-        ),
-      ),
+      loading: () => knownSummary != null
+          ? _SubjectLoadingWithHeader(summary: knownSummary)
+          : Scaffold(
+              backgroundColor: const Color(0xFF060E22),
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                iconTheme: const IconThemeData(color: Colors.white),
+              ),
+              body: const Center(
+                child: CircularProgressIndicator(color: AppColors.gold),
+              ),
+            ),
       error: (error, stackTrace) => Scaffold(
         appBar: AppBar(title: const Text('Matière')),
         body: Center(
@@ -61,105 +70,11 @@ class _SubjectDetailBody extends StatelessWidget {
       backgroundColor: const Color(0xFF060E22),
       body: CustomScrollView(
         slivers: [
-          // ── Immersive SliverAppBar ──────────────────────────
-          SliverAppBar(
-            expandedHeight: 220,
-            pinned: true,
-            backgroundColor: gradient.colors.first,
-            iconTheme: const IconThemeData(color: Colors.white),
-            flexibleSpace: FlexibleSpaceBar(
-              collapseMode: CollapseMode.parallax,
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Gradient background
-                  DecoratedBox(decoration: BoxDecoration(gradient: gradient)),
-
-                  // Decorative circle
-                  Positioned(
-                    top: -40,
-                    right: -40,
-                    child: Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.07),
-                      ),
-                    ),
-                  ),
-
-                  // Content (icon + title + description)
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.xl,
-                        AppSpacing.xxxl,
-                        AppSpacing.xl,
-                        AppSpacing.lg,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withValues(alpha: 0.45),
-                          ],
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Subject icon
-                          Container(
-                            width: 64,
-                            height: 64,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.18),
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.30),
-                              ),
-                            ),
-                            child: Icon(
-                              AppIcons.forSubject(subject.iconKey),
-                              color: Colors.white,
-                              size: 32,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          // Title
-                          Text(
-                            subject.title,
-                            style: GoogleFonts.playfairDisplay(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.xxs),
-                          Text(
-                            subject.description,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white.withValues(alpha: 0.75),
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          // En-tête immersif (identique à celui montré pendant le morph).
+          _SubjectImmersiveSliverAppBar(
+            title: subject.title,
+            iconKey: subject.iconKey,
+            description: subject.description,
           ),
 
           // ── Chapters header ─────────────────────────────────
@@ -211,6 +126,200 @@ class _SubjectDetailBody extends StatelessWidget {
   }
 }
 
+/// En-tête immersif de la matière, réutilisé par l'écran chargé **et** par
+/// l'état de chargement (depuis le résumé) → continuité visuelle du morph.
+class _SubjectImmersiveSliverAppBar extends StatelessWidget {
+  const _SubjectImmersiveSliverAppBar({
+    required this.title,
+    required this.iconKey,
+    required this.description,
+  });
+
+  final String title;
+  final String iconKey;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    final gradient = AppGradients.forSubject(iconKey);
+
+    return SliverAppBar(
+      expandedHeight: 220,
+      pinned: true,
+      backgroundColor: gradient.colors.first,
+      iconTheme: const IconThemeData(color: Colors.white),
+      flexibleSpace: FlexibleSpaceBar(
+        collapseMode: CollapseMode.parallax,
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            DecoratedBox(decoration: BoxDecoration(gradient: gradient)),
+            Positioned(
+              top: -40,
+              right: -40,
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.07),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.xl,
+                  AppSpacing.xxxl,
+                  AppSpacing.xl,
+                  AppSpacing.lg,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.45),
+                    ],
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.30),
+                        ),
+                      ),
+                      child: Icon(
+                        AppIcons.forSubject(iconKey),
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      title,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xxs),
+                    Text(
+                      description,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white.withValues(alpha: 0.75),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// État de chargement du détail montré pendant/après le morph : l'en-tête est
+/// déjà visible (depuis le résumé), seuls les chapitres se chargent (squelette).
+class _SubjectLoadingWithHeader extends StatelessWidget {
+  const _SubjectLoadingWithHeader({required this.summary});
+
+  final LearnSubject summary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF060E22),
+      body: CustomScrollView(
+        slivers: [
+          _SubjectImmersiveSliverAppBar(
+            title: summary.title,
+            iconKey: summary.iconKey,
+            description: summary.description,
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.xl,
+                AppSpacing.lg,
+                AppSpacing.xl,
+                AppSpacing.sm,
+              ),
+              child: Text(
+                'Chapitres',
+                style: GoogleFonts.manrope(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              0,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => const Padding(
+                  padding: EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: _ChapterSkeleton(),
+                ),
+                childCount: 3,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChapterSkeleton extends StatelessWidget {
+  const _ChapterSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.25, end: 0.5),
+      duration: const Duration(milliseconds: 900),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) => Opacity(
+        opacity: value,
+        child: Container(
+          height: 84,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ChapterCard extends StatelessWidget {
   const _ChapterCard({
     required this.subjectId,
@@ -246,15 +355,12 @@ class _ChapterCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    // Progress arc
                     _ChapterArc(
                       progress: chapter.completion,
                       gradient: subjectGradient,
                       size: 44,
                     ),
                     const SizedBox(width: AppSpacing.md),
-
-                    // Content
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,8 +395,6 @@ class _ChapterCard extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                    // Completion badge + chevron
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -407,7 +511,6 @@ class _ChapterArcPainter extends CustomPainter {
       size.height - strokeWidth,
     );
 
-    // Track
     canvas.drawArc(
       rect,
       -math.pi / 2,
@@ -421,7 +524,6 @@ class _ChapterArcPainter extends CustomPainter {
     );
 
     if (progress > 0) {
-      // Fill with gradient
       canvas.drawArc(
         rect,
         -math.pi / 2,
