@@ -12,6 +12,8 @@ import '../../../app/config/build_identity.dart';
 import '../../../app/config/feature_flags.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
+import '../../../core/widgets/tab_presentation.dart';
+import '../../../core/widgets/tab_section_header.dart';
 import '../../ai_companion/presentation/ai_companion_screen.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_state.dart';
@@ -136,7 +138,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
             const _PremiumBackdrop(),
             SafeArea(
               bottom: false,
-              child: IndexedStack(
+              child: _ExclusiveTabStack(
                 index: _currentIndex,
                 children: [
                   KeyedSubtree(
@@ -155,22 +157,23 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
                           context.push(AppRoutes.subjectDetail(subject.id)),
                     ),
                   ),
-                  const KeyedSubtree(
-                    key: ValueKey('student-tab-learn'),
+                  // Onglets quotidiens : univers clair explicite (TabSurface).
+                  const _LightTab(
+                    valueKey: 'student-tab-learn',
                     child: _EmbeddedTab(child: LearnHubScreen(embedded: true)),
                   ),
-                  const KeyedSubtree(
-                    key: ValueKey('student-tab-quiz'),
+                  const _LightTab(
+                    valueKey: 'student-tab-quiz',
                     child: _EmbeddedTab(child: QuizHubScreen(embedded: true)),
                   ),
-                  const KeyedSubtree(
-                    key: ValueKey('student-tab-companion'),
+                  const _LightTab(
+                    valueKey: 'student-tab-companion',
                     child: _EmbeddedTab(
                       child: AICompanionScreen(embedded: true),
                     ),
                   ),
-                  const KeyedSubtree(
-                    key: ValueKey('student-tab-profile'),
+                  const _LightTab(
+                    valueKey: 'student-tab-profile',
                     child: _ProfileTab(),
                   ),
                 ],
@@ -220,6 +223,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
 
   void _selectTab(int index) {
     if (!mounted || index == _currentIndex) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _currentIndex = index);
   }
 
@@ -235,6 +239,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
         'overlay=$overlayActive timestamp=${DateTime.now().toIso8601String()}',
       );
     }
+    if (index != previous) FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _currentIndex = index;
       if (diagnosticsEnabled) _stagingTapCount += 1;
@@ -450,6 +455,81 @@ class _EmbeddedTab extends StatelessWidget {
   }
 }
 
+/// Onglet quotidien posé dans l'univers clair (contrat [TabSurface]).
+class _LightTab extends StatelessWidget {
+  const _LightTab({required this.valueKey, required this.child});
+
+  final String valueKey;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return KeyedSubtree(
+      key: ValueKey(valueKey),
+      child: TabSurface(
+        palette: const TabPalette(TabPresentationMode.embeddedLight),
+        child: child,
+      ),
+    );
+  }
+}
+
+/// Conserve l'etat des cinq onglets tout en n'en peignant qu'un par frame.
+class _ExclusiveTabStack extends StatelessWidget {
+  const _ExclusiveTabStack({required this.index, required this.children});
+
+  final int index;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return IndexedStack(
+      index: index,
+      sizing: StackFit.expand,
+      children: [
+        for (var i = 0; i < children.length; i++)
+          _ExclusiveTab(index: i, active: i == index, child: children[i]),
+      ],
+    );
+  }
+}
+
+class _ExclusiveTab extends StatelessWidget {
+  const _ExclusiveTab({
+    required this.index,
+    required this.active,
+    required this.child,
+  });
+
+  final int index;
+  final bool active;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return TickerMode(
+      key: ValueKey('student-tab-ticker-$index'),
+      enabled: active,
+      child: ExcludeSemantics(
+        key: ValueKey('student-tab-semantics-$index'),
+        excluding: !active,
+        child: FocusScope(
+          key: ValueKey('student-tab-focus-$index'),
+          canRequestFocus: active,
+          skipTraversal: !active,
+          descendantsAreFocusable: active,
+          descendantsAreTraversable: active,
+          child: IgnorePointer(
+            key: ValueKey('student-tab-pointer-$index'),
+            ignoring: !active,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ProfileTab extends ConsumerWidget {
   const _ProfileTab();
 
@@ -471,12 +551,7 @@ class _ProfileTab extends ConsumerWidget {
           132,
         ),
         children: [
-          Text(
-            'Mon Profil',
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+          const TabSectionHeader(eyebrow: 'Espace élève', title: 'Mon profil'),
           const SizedBox(height: AppSpacing.lg),
           // Carte d'identité principale
           _ProfileIdentityCard(auth: auth, theme: theme),
@@ -530,9 +605,9 @@ class _BuildIdentityLabel extends StatelessWidget {
             error: (_, _) => 'Version indisponible',
           ),
           key: const ValueKey('student-profile-build-identity'),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Colors.white.withValues(alpha: 0.5),
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelSmall?.copyWith(color: IntelliaColors.textTertiary),
           textAlign: TextAlign.center,
         ),
       ),
@@ -811,6 +886,7 @@ class _TutorSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tutor = ref.watch(selectedTutorProvider);
+    final s = TabSurface.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -820,7 +896,7 @@ class _TutorSection extends ConsumerWidget {
           style: GoogleFonts.manrope(
             fontSize: 15,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: s.textPrimary,
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -831,28 +907,15 @@ class _TutorSection extends ConsumerWidget {
             curve: AppMotion.emphasizedDecelerate,
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              gradient: tutor != null
-                  ? LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        tutor.accentColor.withValues(alpha: 0.18),
-                        tutor.accentColor.withValues(alpha: 0.06),
-                      ],
-                    )
-                  : const LinearGradient(
-                      colors: [Color(0x14FFFFFF), Color(0x08FFFFFF)],
-                    ),
+              color: s.surface,
               borderRadius: BorderRadius.circular(AppRadius.md),
               border: Border.all(
                 color: tutor != null
-                    ? tutor.accentColor.withValues(alpha: 0.40)
-                    : AppColors.glassBorder,
-                width: tutor != null ? 1.5 : 1.0,
+                    ? tutor.accentColor.withValues(alpha: 0.35)
+                    : s.surfaceBorder,
+                width: tutor != null ? 1.4 : 1.0,
               ),
-              boxShadow: tutor != null
-                  ? AppShadows.glow(tutor.accentColor, intensity: 0.15)
-                  : null,
+              boxShadow: IntelliaShadows.card(Colors.black),
             ),
             child: tutor != null
                 ? _ActiveTutorCard(tutor: tutor)
@@ -925,6 +988,7 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
   @override
   Widget build(BuildContext context) {
     final tutor = widget.tutor;
+    final s = TabSurface.of(context);
 
     return Row(
       children: [
@@ -976,7 +1040,7 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
                 style: GoogleFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: s.textPrimary,
                 ),
               ),
               const SizedBox(height: 3),
@@ -985,16 +1049,13 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
                 style: TextStyle(
                   fontSize: 12,
                   color: tutor.accentColor,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 tutor.personality,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.white.withValues(alpha: 0.50),
-                ),
+                style: TextStyle(fontSize: 11, color: s.textTertiary),
               ),
             ],
           ),
@@ -1020,11 +1081,7 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
-            Icon(
-              Icons.edit_rounded,
-              size: 16,
-              color: Colors.white.withValues(alpha: 0.40),
-            ),
+            Icon(Icons.edit_rounded, size: 16, color: s.textTertiary),
           ],
         ),
       ],
@@ -1037,22 +1094,20 @@ class _NoTutorPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
     return Row(
       children: [
         Container(
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.08),
+            color: s.surfaceMuted,
             borderRadius: BorderRadius.circular(AppRadius.sm),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.15),
-              style: BorderStyle.solid,
-            ),
+            border: Border.all(color: s.surfaceBorder),
           ),
           child: Icon(
             Icons.person_add_rounded,
-            color: Colors.white.withValues(alpha: 0.40),
+            color: IntelliaColors.brandIndigo,
             size: 28,
           ),
         ),
@@ -1066,25 +1121,18 @@ class _NoTutorPlaceholder extends StatelessWidget {
                 style: GoogleFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white.withValues(alpha: 0.70),
+                  color: s.textPrimary,
                 ),
               ),
               const SizedBox(height: 3),
               Text(
                 'Choisis un tuteur pour personnaliser ton IA',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white.withValues(alpha: 0.40),
-                ),
+                style: TextStyle(fontSize: 12, color: s.textTertiary),
               ),
             ],
           ),
         ),
-        Icon(
-          Icons.arrow_forward_ios_rounded,
-          size: 14,
-          color: Colors.white.withValues(alpha: 0.30),
-        ),
+        Icon(Icons.arrow_forward_ios_rounded, size: 14, color: s.textTertiary),
       ],
     );
   }
