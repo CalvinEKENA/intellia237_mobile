@@ -88,16 +88,13 @@ rg -n -i "edunova|edu_nova|edu-nova|com\.edunova|edunova-aabd1" -g "!node_module
 | `functions/src/llm/prompts.ts` | 41, 83, 107 | active prompt brand `EDUNOVA` | Replace with `INTELLIA237`; keep prompt logic. |
 | `functions/src/llm/prompts.ts` | 107 | `tuteur d'intelligence artificielle` | Replace wording with `compagnon pedagogique` where brand copy can surface. |
 | `functions/src/llm/llmClient.ts` | 80 | User-Agent `EdunovaFunctions/1.0` | Rename to `Intellia237Functions/1.0`. |
-| `functions/src/config/env.ts` | 5 | default storage bucket `edunova-aabd1...` | Keep production default bucket. |
-| `functions/src/__tests__/rules/firestore.rules.test.ts` | 18 | project ID `edunova-aabd1` | Keep emulator test project ID. |
-| `functions/src/__tests__/rules/storage.rules.test.ts` | 12 | project ID `edunova-aabd1` | Keep emulator test project ID. |
-| `functions/check.js` | 3 | project ID `edunova-aabd1` | Keep prod/emulator helper default. |
-| `functions/test-glm.js` | 6, 10, 34 | project ID, emulator URL, test email | Keep project ID/URL; rename test email domain. |
-| `functions/seed_all.js` | 7-8 | comment/project ID | Keep project ID; update comment wording. |
-| `functions/seed_courses.js` | 9-10 | comment/project ID | Keep project ID; update comment wording. |
-| `scripts/smoke_test.py` | 66 | default project ID | Keep production default. |
-| `scripts/seed_sample_course.py` | 28 | default project ID | Keep production default. |
-| `scripts/ingest_drive_to_storage.py` | 167-168 | default project/bucket | Keep production defaults. |
+| `functions/src/config/env.ts` | historical | default storage bucket | Derive from runtime; fail closed locally. |
+| Rules emulator tests | historical | production-shaped project ID | Use `demo-intellia237`. |
+| Functions check/seed helpers | historical | production project default | Restrict to local emulator. |
+| `functions/test-glm.js` | historical | legacy GLM smoke test | Removed after Vertex migration. |
+| `scripts/smoke_test.py` | historical | production project default | Restrict to local emulators. |
+| `scripts/seed_sample_course.py` | historical | production project default | Restrict to local emulator. |
+| `scripts/ingest_drive_to_storage.py` | historical | production defaults | Require explicit target and production acknowledgement. |
 
 ## Active Asset References
 
@@ -122,6 +119,8 @@ These files document prior audits, risks, or stabilization state and should keep
 | `docs/audits/WEB_TO_FLUTTER_COMPONENT_MAP.md` | Migration map from EduNova mobile to Intellia237 web patterns. |
 | `docs/architecture/FIREBASE_ENVIRONMENTS.md` | Production continuity document for `edunova-aabd1` and store IDs. |
 | `docs/stabilization/FOUNDATION_STABILIZATION_REPORT.md` | Historical Phase 1 report. |
+| `docs/release/GEMINI_VERTEX_ROLLBACK.md` | Operational rollback guardrail that explicitly forbids cross-environment use of the production project. |
+| `docs/security/APP_CHECK_ROLLOUT.md` | App Check registration runbook that must name the retained production project and application ID exactly. |
 
 ## README References
 

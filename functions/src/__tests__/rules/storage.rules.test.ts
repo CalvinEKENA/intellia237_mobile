@@ -9,7 +9,7 @@ import {
 import { getBytes, ref, uploadBytes } from "firebase/storage";
 import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
 
-const projectId = "edunova-aabd1";
+const projectId = "demo-intellia237";
 
 let testEnv: RulesTestEnvironment;
 

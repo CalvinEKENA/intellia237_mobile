@@ -2,7 +2,7 @@ import type { DocumentData, Firestore } from "firebase-admin/firestore";
 
 import { db } from "../config/firebase";
 import { getEnv } from "../config/env";
-import { generateText } from "../llm/llmClient";
+import { generateText, logAiQuotaRejection } from "../llm/llmClient";
 import { ASK_TUTOR_SYSTEM_PROMPT, buildAskTutorUserPrompt } from "../llm/prompts";
 import { AppError } from "../utils/errors";
 import type { AskTutorCallableInput } from "../utils/validation";
@@ -33,6 +33,8 @@ export interface TutorContextStore {
 }
 
 type TutorTextGenerator = (params: {
+  operation: "askTutor";
+  correlationId: string;
   system: string;
   prompt: string;
 }) => Promise<string>;
@@ -147,13 +149,25 @@ export class AskTutorUseCase {
       historyText,
       userMessage,
     );
-    await this.quotaStore.reserve({
-      userId: params.userId,
-      traceId: params.traceId,
-      limit: this.dailyQuestionLimit,
-    });
+    try {
+      await this.quotaStore.reserve({
+        userId: params.userId,
+        traceId: params.traceId,
+        limit: this.dailyQuestionLimit,
+      });
+    } catch (error) {
+      if (error instanceof AppError && error.code === "resource-exhausted") {
+        logAiQuotaRejection({
+          operation: "askTutor",
+          correlationId: params.traceId,
+        });
+      }
+      throw error;
+    }
     try {
       const responseText = await this.textGenerator({
+        operation: "askTutor",
+        correlationId: params.traceId,
         system: systemPrompt,
         prompt: userPrompt,
       });

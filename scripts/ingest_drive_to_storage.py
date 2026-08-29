@@ -17,6 +17,10 @@ from googleapiclient.http import MediaIoBaseDownload
 
 logger = logging.getLogger("drive-ingestion")
 DEFAULT_STATE_PATH = Path(".drive_ingestion_state.json")
+PRODUCTION_PROJECT_ID = "edunova-aabd1"
+PRODUCTION_BUCKET = "edunova-aabd1.firebasestorage.app"
+STAGING_PROJECT_ID = "intellia237-staging"
+STAGING_BUCKET = "intellia237-staging.firebasestorage.app"
 
 
 def initialize_firebase(project_id: str, bucket_name: str) -> tuple[firestore.Client, Any]:
@@ -112,6 +116,7 @@ def write_image_metadata(
 
 
 def ingest(args: argparse.Namespace) -> None:
+    validate_target(args)
     state_path = Path(args.state_file)
     state = load_state(state_path)
     drive_service = build_drive_service()
@@ -162,15 +167,39 @@ def ingest(args: argparse.Namespace) -> None:
             break
 
 
+def validate_target(args: argparse.Namespace) -> None:
+    known_targets = {
+        PRODUCTION_PROJECT_ID: PRODUCTION_BUCKET,
+        STAGING_PROJECT_ID: STAGING_BUCKET,
+    }
+    expected_bucket = known_targets.get(args.project_id)
+    if expected_bucket and args.bucket != expected_bucket:
+        raise RuntimeError(
+            f"Firebase project {args.project_id} does not match the selected bucket."
+        )
+    if (
+        args.project_id == PRODUCTION_PROJECT_ID
+        or args.bucket == PRODUCTION_BUCKET
+    ) and not args.allow_production:
+        raise RuntimeError(
+            "Production ingestion requires the explicit --allow-production flag."
+        )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Ingest course images from Google Drive into Firebase Storage.")
-    parser.add_argument("--project-id", default=os.getenv("FIREBASE_PROJECT_ID", "edunova-aabd1"))
-    parser.add_argument("--bucket", default=os.getenv("FIREBASE_STORAGE_BUCKET", "edunova-aabd1.firebasestorage.app"))
+    parser.add_argument("--project-id", default=os.getenv("FIREBASE_PROJECT_ID"), required=os.getenv("FIREBASE_PROJECT_ID") is None)
+    parser.add_argument("--bucket", default=os.getenv("FIREBASE_STORAGE_BUCKET"), required=os.getenv("FIREBASE_STORAGE_BUCKET") is None)
     parser.add_argument("--course-id", required=True)
     parser.add_argument("--drive-folder-id", required=True)
     parser.add_argument("--page-size", type=int, default=50)
     parser.add_argument("--state-file", default=str(DEFAULT_STATE_PATH))
     parser.add_argument("--continue-on-error", action="store_true")
+    parser.add_argument(
+        "--allow-production",
+        action="store_true",
+        help="Required safety acknowledgement for the production project/bucket.",
+    )
     return parser.parse_args()
 
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import firebase_admin
 import requests
-from firebase_admin import auth, credentials
+from firebase_admin import auth
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,11 +16,11 @@ def initialize_firebase(project_id: str) -> None:
     if firebase_admin._apps:
         return
 
-    use_emulator = bool(os.getenv("FIRESTORE_EMULATOR_HOST") or os.getenv("FIREBASE_AUTH_EMULATOR_HOST"))
-    if use_emulator:
-        firebase_admin.initialize_app(options={"projectId": project_id})
-    else:
-        firebase_admin.initialize_app(credentials.ApplicationDefault(), {"projectId": project_id})
+    # This smoke test is intentionally emulator-only. Defaulting both hosts
+    # prevents ADC from turning a local validation into a production write.
+    os.environ.setdefault("FIRESTORE_EMULATOR_HOST", "127.0.0.1:8085")
+    os.environ.setdefault("FIREBASE_AUTH_EMULATOR_HOST", "127.0.0.1:9100")
+    firebase_admin.initialize_app(options={"projectId": project_id})
 
 
 def ensure_test_user(email: str, password: str, uid: str) -> None:
@@ -63,9 +63,11 @@ def call_callable(function_url: str, id_token: str, data: dict) -> dict:
 
 
 def main() -> None:
-    project_id = os.getenv("FIREBASE_PROJECT_ID", "edunova-aabd1")
+    project_id = os.getenv("FIREBASE_PROJECT_ID", "demo-intellia237")
     region = os.getenv("FUNCTIONS_REGION", "europe-west1")
     functions_base_url = os.getenv("FUNCTIONS_BASE_URL", "http://127.0.0.1:5005")
+    if not functions_base_url.startswith(("http://127.0.0.1:", "http://localhost:")):
+        raise RuntimeError("Smoke tests are restricted to a local Functions emulator.")
     course_id = os.getenv("SMOKE_TEST_COURSE_ID", "course_demo_sciences_001")
     email = os.getenv("SMOKE_TEST_EMAIL", "teacher@example.com")
     password = os.getenv("SMOKE_TEST_PASSWORD", "Passw0rd!")

@@ -191,6 +191,12 @@ bool _isAllowed(String path, int lineNumber, String line) {
     return true;
   }
 
+  if ((path == 'docs/release/GEMINI_VERTEX_ROLLBACK.md' ||
+          path == 'docs/security/APP_CHECK_ROLLOUT.md') &&
+      _containsProductionIdentifier(line)) {
+    return true;
+  }
+
   if (path == 'android/app/build.gradle.kts' &&
       line.contains('com.edunova.app')) {
     return true;

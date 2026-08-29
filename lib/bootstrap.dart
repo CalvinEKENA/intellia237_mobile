@@ -7,7 +7,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart'
     show LicenseEntryWithLineBreaks, LicenseRegistry, kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show appFlavor, rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +15,7 @@ import 'app/config/app_config.dart';
 import 'features/auth/data/auth_entry_preferences.dart';
 import 'features/onboarding/data/onboarding_preferences.dart';
 import 'core/notifications/learning_reminder_service.dart';
+import 'core/security/app_check_service.dart';
 import 'firebase_options.dart';
 
 Future<void> bootstrap({
@@ -242,12 +243,14 @@ Future<void> bootstrap({
 
 Future<void> initializeFirebase(AppConfig config) async {
   try {
+    config.validateBuildFlavor(appFlavor);
     final options = DefaultFirebaseOptions.currentPlatform(config);
     config.validateFirebaseOptions(options);
 
     await Firebase.initializeApp(
       options: options,
     ).timeout(const Duration(seconds: 8));
+    await activateFirebaseAppCheck(config);
   } catch (error, stackTrace) {
     debugPrint(
       'Firebase initialization failed; startup aborted '

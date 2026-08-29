@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import firestore
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,16 +16,15 @@ def initialize_firebase(project_id: str) -> firestore.Client:
     if firebase_admin._apps:
         return firestore.client()
 
-    use_emulator = bool(os.getenv("FIRESTORE_EMULATOR_HOST"))
-    if use_emulator:
-        firebase_admin.initialize_app(options={"projectId": project_id})
-    else:
-        firebase_admin.initialize_app(credentials.ApplicationDefault(), {"projectId": project_id})
+    # This sample seed is intentionally emulator-only. A missing emulator must
+    # fail with connection refused instead of falling back to ADC.
+    os.environ.setdefault("FIRESTORE_EMULATOR_HOST", "127.0.0.1:8085")
+    firebase_admin.initialize_app(options={"projectId": project_id})
     return firestore.client()
 
 
 def main() -> None:
-    project_id = os.getenv("FIREBASE_PROJECT_ID", "edunova-aabd1")
+    project_id = os.getenv("FIREBASE_PROJECT_ID", "demo-intellia237")
     db = initialize_firebase(project_id)
 
     payload = json.loads(SAMPLE_PATH.read_text(encoding="utf-8"))

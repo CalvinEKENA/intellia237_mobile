@@ -93,7 +93,7 @@ export const SummaryPayloadSchema = z.object({
 export const GenerationMetaSchema = z.object({
   traceId: z.string(),
   model: z.string(),
-  engineMode: z.enum(["mock", "gemini", "glm", "openai"]),
+  engineMode: z.enum(["mock", "vertex-ai"]),
 });
 
 export type CourseContext = z.infer<typeof CourseContextSchema>;

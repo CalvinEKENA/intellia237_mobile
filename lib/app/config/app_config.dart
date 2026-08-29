@@ -49,14 +49,29 @@ class AppConfig {
 
   String get environmentName => environment.name;
 
-  void validateFirebaseOptions(FirebaseOptions options) {
-    if (options.projectId == firebaseProjectId) {
+  void validateBuildFlavor(String? buildFlavor) {
+    // Web and flavorless development entrypoints have no platform flavor. On
+    // flavored Android/iOS builds, a mismatch means the wrong Dart entrypoint
+    // was selected and Firebase initialization must fail closed.
+    if (buildFlavor == null || buildFlavor == environmentName) {
       return;
     }
 
     throw StateError(
-      'Firebase options project "${options.projectId}" do not match '
-      '$environmentName project "$firebaseProjectId". '
+      'Build flavor "$buildFlavor" does not match the selected '
+      'environment "$environmentName".',
+    );
+  }
+
+  void validateFirebaseOptions(FirebaseOptions options) {
+    if (options.projectId == firebaseProjectId &&
+        options.storageBucket == firebaseStorageBucket) {
+      return;
+    }
+
+    throw StateError(
+      'Firebase options do not match the $environmentName environment '
+      '(project: "${options.projectId}", bucket: "${options.storageBucket}"). '
       'Create real Firebase client options for this environment before launch.',
     );
   }

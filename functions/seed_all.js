@@ -2,10 +2,10 @@ const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-// process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8085";
-
-// Remplacez l'ID du projet par votre projet Firebase si necessaire.
-if (!admin.apps.length) admin.initializeApp({ projectId: "edunova-aabd1" });
+// Safety invariant: this development seed script can only reach the local
+// emulator. Never make the host or project point at a real Firebase project.
+process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8085";
+if (!admin.apps.length) admin.initializeApp({ projectId: "demo-intellia237" });
 const db = admin.firestore();
 
 async function seedData() {

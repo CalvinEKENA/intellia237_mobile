@@ -121,7 +121,9 @@ export const generateSummary = onCall(
 export const askTutor = onCall(
   {
     region: env.FUNCTIONS_REGION,
-    timeoutSeconds: 30, // 30s is more than enough for Gemini chat completion
+    // Must exceed the default 45s provider timeout so quota reservations can
+    // always be released by the catch path before the platform terminates us.
+    timeoutSeconds: 60,
     memory: "512MiB",
   },
   async (request) => {
