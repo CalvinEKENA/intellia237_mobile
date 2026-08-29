@@ -33,7 +33,7 @@ export class GenerateSummaryUseCase {
       level: params.level
     });
 
-    logger.info("Generating summary using Genkit flow.", {
+    logger.info("Generating summary using Vertex AI Gemini.", {
       traceId: params.traceId,
       courseId: params.courseId,
       level: params.level,
@@ -52,8 +52,8 @@ export class GenerateSummaryUseCase {
         summary,
         meta: {
           traceId: params.traceId,
-          model: env.GLM_MODEL,
-          engineMode: "glm"
+          model: env.GEMINI_MODEL,
+          engineMode: "vertex-ai"
         }
       }
     });

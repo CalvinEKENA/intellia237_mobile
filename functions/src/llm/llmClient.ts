@@ -1,7 +1,9 @@
 import axios from "axios";
-import { getEnv } from "../config/env";
+import { getEnv, type AppEnv } from "../config/env";
+import { getVertexAccessToken } from "./vertexAuth";
 
 type LlmOperation = "generateStructuredContent" | "generateText";
+type ThinkingLevel = AppEnv["GEMINI_TUTOR_THINKING_LEVEL"];
 
 function buildLlmLogMeta(params: {
   operation: LlmOperation;
@@ -13,6 +15,7 @@ function buildLlmLogMeta(params: {
 }) {
   return {
     operation: params.operation,
+    provider: "vertex-ai",
     providerConfigured: params.providerConfigured,
     modelConfigured: params.modelConfigured,
     durationMs: Date.now() - params.startedAt,
@@ -21,12 +24,81 @@ function buildLlmLogMeta(params: {
   };
 }
 
-function buildAuthHeaders(apiKey: string | undefined) {
-  return {
-    "Authorization": `Bearer ${apiKey?.trim() ?? ""}`,
-    "Content-Type": "application/json",
-    "Accept": "application/json"
+function buildVertexUrl(params: {
+  projectId: string;
+  location: string;
+  model: string;
+}): string {
+  const projectId = encodeURIComponent(params.projectId);
+  const location = encodeURIComponent(params.location);
+  const model = encodeURIComponent(params.model);
+  const host = params.location === "global"
+    ? "https://aiplatform.googleapis.com"
+    : `https://${params.location}-aiplatform.googleapis.com`;
+
+  return `${host}/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:generateContent`;
+}
+
+function buildGeminiPayload(params: {
+  system: string;
+  prompt: string;
+  thinkingLevel: ThinkingLevel;
+  jsonOutput: boolean;
+}) {
+  const generationConfig: Record<string, unknown> = {
+    thinkingConfig: {
+      thinkingLevel: params.thinkingLevel
+    }
   };
+
+  if (params.jsonOutput) {
+    generationConfig.responseMimeType = "application/json";
+  }
+
+  return {
+    systemInstruction: {
+      parts: [{ text: params.system }]
+    },
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: params.prompt }]
+      }
+    ],
+    generationConfig
+  };
+}
+
+function extractGeminiText(data: unknown): string {
+  if (!data || typeof data !== "object") {
+    return "";
+  }
+
+  const candidates = (data as { candidates?: unknown }).candidates;
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    return "";
+  }
+
+  const content = (candidates[0] as { content?: unknown } | undefined)?.content;
+  if (!content || typeof content !== "object") {
+    return "";
+  }
+
+  const parts = (content as { parts?: unknown }).parts;
+  if (!Array.isArray(parts)) {
+    return "";
+  }
+
+  return parts
+    .map((part) => {
+      if (!part || typeof part !== "object") {
+        return "";
+      }
+      const text = (part as { text?: unknown }).text;
+      return typeof text === "string" ? text : "";
+    })
+    .join("")
+    .trim();
 }
 
 function handleLlmError(error: unknown, params: {
@@ -52,55 +124,63 @@ function handleLlmError(error: unknown, params: {
   throw error;
 }
 
-export async function generateStructuredContent<T>(params: {
+async function requestGemini(params: {
+  operation: LlmOperation;
   system: string;
   prompt: string;
-  schema: any;
-}): Promise<T> {
+  thinkingLevel: ThinkingLevel;
+  jsonOutput: boolean;
+}): Promise<string> {
   const env = getEnv();
-  const url = `${env.GLM_BASE_URL}/chat/completions`;
+  const projectId = env.VERTEX_AI_PROJECT_ID?.trim() ?? "";
+  const model = env.GEMINI_MODEL.trim();
+  const location = env.VERTEX_AI_LOCATION.trim();
   const startedAt = Date.now();
-  const providerConfigured = Boolean(env.GLM_API_KEY?.trim());
-  const modelConfigured = Boolean(env.GLM_MODEL?.trim());
+  const providerConfigured = Boolean(projectId);
+  const modelConfigured = Boolean(model);
 
   try {
+    if (!projectId) {
+      throw new Error("Vertex AI project is not configured.");
+    }
+
+    const accessToken = await getVertexAccessToken();
     const response = await axios.post(
-      url,
-      {
-        model: env.GLM_MODEL,
-        messages: [
-          { role: "system", content: params.system },
-          { role: "user", content: params.prompt },
-        ],
-        response_format: { type: "json_object" },
-      },
+      buildVertexUrl({ projectId, location, model }),
+      buildGeminiPayload({
+        system: params.system,
+        prompt: params.prompt,
+        thinkingLevel: params.thinkingLevel,
+        jsonOutput: params.jsonOutput
+      }),
       {
         headers: {
-          ...buildAuthHeaders(env.GLM_API_KEY),
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          "Accept": "application/json",
           "User-Agent": "Intellia237Functions/1.0"
         },
-        timeout: env.LLM_SERVICE_TIMEOUT_MS,
+        timeout: env.LLM_SERVICE_TIMEOUT_MS
       }
     );
 
     console.info("[LLM] Request completed.", buildLlmLogMeta({
-      operation: "generateStructuredContent",
+      operation: params.operation,
       providerConfigured,
       modelConfigured,
       startedAt,
       status: response.status
     }));
 
-    const content = response.data.choices[0].message.content;
+    const content = extractGeminiText(response.data);
     if (!content) {
-      throw new Error("Empty response from LLM");
+      throw new Error("Empty response from Gemini");
     }
 
-    const parsed = JSON.parse(content);
-    return params.schema.parse(parsed);
+    return content;
   } catch (error: unknown) {
     return handleLlmError(error, {
-      operation: "generateStructuredContent",
+      operation: params.operation,
       providerConfigured,
       modelConfigured,
       startedAt
@@ -108,51 +188,34 @@ export async function generateStructuredContent<T>(params: {
   }
 }
 
+export async function generateStructuredContent<T>(params: {
+  system: string;
+  prompt: string;
+  schema: any;
+}): Promise<T> {
+  const env = getEnv();
+  const content = await requestGemini({
+    operation: "generateStructuredContent",
+    system: params.system,
+    prompt: params.prompt,
+    thinkingLevel: env.GEMINI_STRUCTURED_THINKING_LEVEL,
+    jsonOutput: true
+  });
+
+  const parsed = JSON.parse(content);
+  return params.schema.parse(parsed);
+}
+
 export async function generateText(params: {
   system: string;
   prompt: string;
 }): Promise<string> {
   const env = getEnv();
-  const url = `${env.GLM_BASE_URL}/chat/completions`;
-  const startedAt = Date.now();
-  const providerConfigured = Boolean(env.GLM_API_KEY?.trim());
-  const modelConfigured = Boolean(env.GLM_MODEL?.trim());
-
-  try {
-    const response = await axios.post(
-      url,
-      {
-        model: env.GLM_MODEL,
-        messages: [
-          { role: "system", content: params.system },
-          { role: "user", content: params.prompt },
-        ],
-      },
-      {
-        headers: buildAuthHeaders(env.GLM_API_KEY),
-        timeout: env.LLM_SERVICE_TIMEOUT_MS,
-      }
-    );
-
-    console.info("[LLM] Request completed.", buildLlmLogMeta({
-      operation: "generateText",
-      providerConfigured,
-      modelConfigured,
-      startedAt,
-      status: response.status
-    }));
-
-    const content = response.data.choices[0]?.message?.content;
-    if (!content) {
-      throw new Error("Empty response from LLM");
-    }
-    return content;
-  } catch (error: unknown) {
-    return handleLlmError(error, {
-      operation: "generateText",
-      providerConfigured,
-      modelConfigured,
-      startedAt
-    });
-  }
+  return requestGemini({
+    operation: "generateText",
+    system: params.system,
+    prompt: params.prompt,
+    thinkingLevel: env.GEMINI_TUTOR_THINKING_LEVEL,
+    jsonOutput: false
+  });
 }

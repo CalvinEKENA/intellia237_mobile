@@ -7,22 +7,31 @@ const axiosMock = vi.hoisted(() => ({
   })
 }));
 
+const vertexAuthMock = vi.hoisted(() => ({
+  getVertexAccessToken: vi.fn()
+}));
+
 vi.mock("axios", () => ({
   default: axiosMock
 }));
 
+vi.mock("../llm/vertexAuth", () => vertexAuthMock);
+
 describe("LLM client logging", () => {
-  const secret = "glm-secret-value-never-log";
+  const secret = "opaque-access-token-never-log";
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    vertexAuthMock.getVertexAccessToken.mockResolvedValue(secret);
     process.env = {
       ...originalEnv,
-      GLM_API_KEY: secret,
-      GLM_MODEL: "glm-test",
-      GLM_BASE_URL: "https://llm.example.test",
+      VERTEX_AI_PROJECT_ID: "project-test",
+      VERTEX_AI_LOCATION: "global",
+      GEMINI_MODEL: "gemini-3.7-flash",
+      GEMINI_TUTOR_THINKING_LEVEL: "LOW",
+      GEMINI_STRUCTURED_THINKING_LEVEL: "MEDIUM",
       LLM_SERVICE_TIMEOUT_MS: "1000"
     };
   });
@@ -32,7 +41,7 @@ describe("LLM client logging", () => {
     vi.restoreAllMocks();
   });
 
-  it("does not include API key fragments in failure logs or thrown errors", async () => {
+  it("does not include access token fragments in failure logs or thrown errors", async () => {
     const logged: string[] = [];
     vi.spyOn(console, "error").mockImplementation((...args: unknown[]) => {
       logged.push(JSON.stringify(args));
@@ -66,8 +75,9 @@ describe("LLM client logging", () => {
     const serializedLogs = logged.join("\n");
     expect(serializedLogs).toContain("providerConfigured");
     expect(serializedLogs).toContain("modelConfigured");
+    expect(serializedLogs).toContain("vertex-ai");
     expect(serializedLogs).not.toContain(secret);
-    expect(serializedLogs).not.toContain(secret.slice(0, 4));
-    expect(serializedLogs).not.toContain(secret.slice(-4));
+    expect(serializedLogs).not.toContain(secret.slice(0, 6));
+    expect(serializedLogs).not.toContain(secret.slice(-6));
   });
 });

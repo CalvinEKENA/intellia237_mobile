@@ -2,7 +2,7 @@
 
 Application mobile Flutter/Firebase pour INTELLIA237.
 
-Le depot contient l'application Flutter, les Cloud Functions Firebase, les regles Firestore/Storage, les tests de securite et la documentation technique de rebranding. Le backend actif est Firebase Functions avec un client LLM compatible GLM/Z.ai. Aucun microservice `llm-service/` n'est actuellement suivi dans ce depot.
+Le depot contient l'application Flutter, les Cloud Functions Firebase, les regles Firestore/Storage, les tests de securite et la documentation technique de rebranding. Le backend actif est Firebase Functions et les usages IA (quiz, resumes, tuteur) passent cote serveur par Vertex AI avec `gemini-3.7-flash`. Aucune cle Gemini n'est embarquee dans Flutter.
 
 ## Environnements
 
@@ -48,6 +48,20 @@ npm run test:rules
 
 La CI bloque uniquement les vulnerabilites npm hautes ou critiques via `npm audit --audit-level=high`.
 
+## IA - Gemini 3.7 Flash sur Vertex AI
+
+Le client LLM appelle l'API Vertex AI `generateContent` avec le modele stable `gemini-3.7-flash`.
+
+- authentification : Application Default Credentials (ADC) du runtime Cloud Functions ;
+- projet : `VERTEX_AI_PROJECT_ID`, avec repli automatique sur `GOOGLE_CLOUD_PROJECT` puis `GCLOUD_PROJECT` ;
+- emplacement : `VERTEX_AI_LOCATION=global` par defaut ;
+- tuteur interactif : `GEMINI_TUTOR_THINKING_LEVEL=LOW` pour limiter latence et cout ;
+- quiz/resumes structures : `GEMINI_STRUCTURED_THINKING_LEVEL=MEDIUM` pour privilegier la qualite ;
+- aucune cle API Gemini ne doit etre ajoutee au client Flutter ou au depot ;
+- en local hors Google Cloud, utiliser ADC (`gcloud auth application-default login`) plutot qu une cle JSON versionnee.
+
+Prerequis de deploiement : activer l'API Vertex AI dans chaque projet Firebase cible et verifier que le compte de service d'execution des Functions peut appeler Vertex AI. En production, le projet cible est `edunova-aabd1`; en staging, conserver l'auto-detection du projet afin d'eviter tout appel croise vers la production. A terme, remplacer les roles IAM trop larges par des roles minimaux tels que `roles/aiplatform.user`.
+
 ## Regles Firebase
 
 - `firestore.rules` protège les rôles sensibles, les tentatives de quiz, les points et la progression.
@@ -65,8 +79,7 @@ Les assets legacy pre-rebranding non references par l'UI active restent document
 
 ## Exclusions
 
-- Aucun deploiement Firebase.
+- Aucun deploiement Firebase automatique depuis ce changement.
 - Aucun changement des identifiants stores production.
-- Aucun appel Gemini ou changement de fournisseur LLM.
-- Aucun paiement.
+- Aucun secret IA dans le client mobile ou le depot.
 - Aucune modification de donnees de production.

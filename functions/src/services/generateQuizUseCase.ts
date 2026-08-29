@@ -35,7 +35,7 @@ export class GenerateQuizUseCase {
       difficulty: params.difficulty
     });
 
-    logger.info("Generating quiz using Genkit flow.", {
+    logger.info("Generating quiz using Vertex AI Gemini.", {
       traceId: params.traceId,
       courseId: params.courseId,
       count: params.count,
@@ -56,8 +56,8 @@ export class GenerateQuizUseCase {
         quiz,
         meta: {
           traceId: params.traceId,
-          model: env.GLM_MODEL,
-          engineMode: "glm"
+          model: env.GEMINI_MODEL,
+          engineMode: "vertex-ai"
         }
       }
     });
