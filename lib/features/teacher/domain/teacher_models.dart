@@ -22,12 +22,14 @@ class TeacherStudentProgress {
     required this.fullName,
     required this.progress,
     required this.studyMinutesToday,
+    this.subjectProgress = const {},
   });
 
   final String id;
   final String fullName;
   final double progress;
   final int studyMinutesToday;
+  final Map<String, double> subjectProgress;
 }
 
 class TeacherClassDetail {
@@ -49,13 +51,16 @@ class TeacherKpi {
     required this.activeClasses,
     required this.activeStudents,
     required this.averageCompletion,
-    required this.dailyEngagementMinutes,
+    this.dailyEngagementMinutes,
   });
 
   final int activeClasses;
   final int activeStudents;
   final double averageCompletion;
-  final int dailyEngagementMinutes;
+
+  /// Null tant que la mesure n'existe pas cote serveur : l'UI affiche alors
+  /// un tiret (registre de decisions : jamais de zero factice).
+  final int? dailyEngagementMinutes;
 }
 
 class TeacherDashboard {

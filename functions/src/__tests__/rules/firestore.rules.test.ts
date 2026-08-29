@@ -60,6 +60,10 @@ async function seedFirestore() {
       role: "admin",
       establishmentId: "school-a",
     });
+    await setDoc(doc(db, "users/admin-b"), {
+      role: "admin",
+      establishmentId: "school-b",
+    });
     await setDoc(doc(db, "users/pending-teacher"), {
       role: "teacher",
       establishmentId: "school-a",
@@ -68,11 +72,11 @@ async function seedFirestore() {
 
     await setDoc(doc(db, "student_profiles/student-a"), {
       firstName: "Student A",
-      xp: 10,
+      points: 10,
     });
     await setDoc(doc(db, "student_profiles/student-b"), {
       firstName: "Student B",
-      xp: 20,
+      points: 20,
     });
     await setDoc(doc(db, "children_links/parent-a_student-a"), {
       parentId: "parent-a",
@@ -82,6 +86,39 @@ async function seedFirestore() {
     await setDoc(doc(db, "ai_conversations/private-conv"), {
       userId: "student-a",
       messages: [],
+    });
+    await setDoc(doc(db, "quizzes/quiz-a"), {
+      title: "Legacy quiz",
+      status: "published",
+      classLevels: ["Terminale"],
+      questions: [{
+        id: "q1",
+        prompt: "2 + 2",
+        correctOptionIndex: 0,
+      }],
+    });
+    await setDoc(doc(db, "quiz_answer_keys/quiz-a"), {
+      answers: [{ id: "q1", correctOptionIndex: 0 }],
+    });
+    await setDoc(doc(db, "mobile_money_offers/school-a"), {
+      status: "active",
+      establishmentId: "school-a",
+      amountXaf: 5000,
+      recipientPhone: "+237600000000",
+    });
+    await setDoc(doc(db, "mobile_money_payment_requests/payment-a"), {
+      parentId: "parent-a",
+      establishmentId: "school-a",
+      status: "pending",
+      transactionReference: "PRIVATE-REF-A",
+    });
+    await setDoc(doc(db, "mobile_money_reference_keys/hash-a"), {
+      requestId: "payment-a",
+    });
+    await setDoc(doc(db, "entitlements/parent-a_school-a"), {
+      userId: "parent-a",
+      establishmentId: "school-a",
+      status: "active",
     });
   });
 }
@@ -101,7 +138,7 @@ describe("Firestore security rules", () => {
     await assertFails(
       setDoc(doc(db, "quiz_attempts/attempt-a"), {
         studentId: "student-a",
-        xpAwarded: 999,
+        pointsAwarded: 999,
       }),
     );
     await assertFails(getDoc(doc(db, "ai_conversations/private-conv")));
@@ -128,7 +165,28 @@ describe("Firestore security rules", () => {
     );
   });
 
-  it("blocks client writes to quiz attempts, progress, streaks, and XP-bearing fields", async () => {
+  it("prevents students from bypassing the sanitized quiz callables", async () => {
+    await seedFirestore();
+    const studentDb = dbFor("student-a");
+    const teacherDb = dbFor("teacher-a");
+
+    await assertFails(getDoc(doc(studentDb, "quizzes/quiz-a")));
+    await assertFails(getDoc(doc(studentDb, "quiz_answer_keys/quiz-a")));
+    await assertSucceeds(getDoc(doc(teacherDb, "quizzes/quiz-a")));
+    await assertSucceeds(getDoc(doc(teacherDb, "quiz_answer_keys/quiz-a")));
+    await assertFails(
+      setDoc(doc(studentDb, "quiz_answer_keys/student-forged"), {
+        answers: [{ id: "q1", correctOptionIndex: 0 }],
+      }),
+    );
+    await assertSucceeds(
+      setDoc(doc(teacherDb, "quiz_answer_keys/teacher-authored"), {
+        answers: [{ id: "q1", correctOptionIndex: 0 }],
+      }),
+    );
+  });
+
+  it("blocks client writes to quiz attempts, progress, streaks, and point-bearing fields", async () => {
     await seedFirestore();
     const db = dbFor("student-a");
 
@@ -136,7 +194,12 @@ describe("Firestore security rules", () => {
       setDoc(doc(db, "quiz_attempts/student-a_attempt"), {
         studentId: "student-a",
         score: 100,
-        xpAwarded: 999,
+        pointsAwarded: 999,
+      }),
+    );
+    await assertFails(
+      updateDoc(doc(db, "student_profiles/student-a"), {
+        points: 999999,
       }),
     );
     await assertFails(
@@ -148,7 +211,7 @@ describe("Firestore security rules", () => {
       setDoc(doc(db, "progress/student-a_quiz-a"), {
         studentId: "student-a",
         score: 100,
-        xpAwarded: 999,
+        pointsAwarded: 999,
       }),
     );
     await assertFails(
@@ -186,7 +249,7 @@ describe("Firestore security rules", () => {
         establishmentName: "School A",
         classLevel: "Terminale",
         series: "D",
-        xp: 0,
+        points: 0,
         level: 1,
         streak: {
           current: 0,
@@ -196,10 +259,18 @@ describe("Firestore security rules", () => {
         profileCompleted: true,
       }),
     );
+    // Compatibilité non destructive avec les anciennes versions de l'app.
+    await assertSucceeds(
+      setDoc(doc(dbFor("legacy-student"), "student_profiles/legacy-student"), {
+        uid: "legacy-student",
+        xp: 0,
+        level: 1,
+      }),
+    );
     await assertFails(
       setDoc(doc(dbFor("bad-student"), "student_profiles/bad-student"), {
         uid: "bad-student",
-        xp: 500,
+        points: 500,
         level: 10,
       }),
     );
@@ -349,6 +420,70 @@ describe("Firestore security rules", () => {
     await assertFails(
       setDoc(doc(db, "recommendations/recommendation-a"), {
         studentId: "student-a",
+      }),
+    );
+  });
+
+  it("keeps Mobile Money configuration and anti-replay keys server-only", async () => {
+    await seedFirestore();
+
+    for (const uid of ["parent-a", "admin-a"]) {
+      const scopedDb = dbFor(uid);
+      await assertFails(
+        getDoc(doc(scopedDb, "mobile_money_offers/school-a")),
+      );
+      await assertFails(
+        getDoc(doc(scopedDb, "mobile_money_reference_keys/hash-a")),
+      );
+    }
+  });
+
+  it("scopes payment requests and entitlements to the owner or same-school admin", async () => {
+    await seedFirestore();
+
+    await assertSucceeds(
+      getDoc(doc(dbFor("parent-a"), "mobile_money_payment_requests/payment-a")),
+    );
+    await assertFails(
+      getDoc(doc(dbFor("parent-b"), "mobile_money_payment_requests/payment-a")),
+    );
+    await assertSucceeds(
+      getDoc(doc(dbFor("admin-a"), "mobile_money_payment_requests/payment-a")),
+    );
+    await assertFails(
+      getDoc(doc(dbFor("admin-b"), "mobile_money_payment_requests/payment-a")),
+    );
+    await assertSucceeds(
+      getDoc(doc(dbFor("parent-a"), "entitlements/parent-a_school-a")),
+    );
+    await assertFails(
+      getDoc(doc(dbFor("parent-b"), "entitlements/parent-a_school-a")),
+    );
+  });
+
+  it("blocks every direct client write to payment requests and entitlements", async () => {
+    await seedFirestore();
+    const parentDb = dbFor("parent-a");
+    const adminDb = dbFor("admin-a");
+
+    await assertFails(
+      setDoc(doc(parentDb, "mobile_money_payment_requests/forged"), {
+        parentId: "parent-a",
+        establishmentId: "school-a",
+        amountXaf: 1,
+        status: "approved",
+      }),
+    );
+    await assertFails(
+      updateDoc(doc(adminDb, "mobile_money_payment_requests/payment-a"), {
+        status: "approved",
+      }),
+    );
+    await assertFails(
+      setDoc(doc(adminDb, "entitlements/forged"), {
+        userId: "parent-a",
+        establishmentId: "school-a",
+        status: "active",
       }),
     );
   });

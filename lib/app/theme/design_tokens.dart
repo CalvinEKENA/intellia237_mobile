@@ -31,6 +31,7 @@ abstract final class IntelliaColors {
   static const Color backgroundSecondaryDark = Color(0xFF1C1B2E);
   static const Color surfaceSolidDark = Color(0xFF181728);
   static const Color surfaceGlassDark = Color(0x8C181728);
+  static const Color glassBorder = Color(0x33FFFFFF);
 
   // Text
   static const Color textPrimary = Color(0xFF171529);
@@ -43,7 +44,7 @@ abstract final class IntelliaColors {
   static const Color success = Color(0xFF34C759);
   static const Color warning = Color(0xFFFF9500);
   static const Color error = Color(0xFFFF3B30);
-  static const Color xpGold = Color(0xFFFFD60A);
+  static const Color pointsGold = Color(0xFFFFD60A);
 
   // Companions Gradients Ends
   static const Color kiraLight = Color(0xFFFF9ECD);
@@ -103,7 +104,7 @@ abstract final class IntelliaGradients {
   static const LinearGradient german = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF1D1D1F), IntelliaColors.xpGold],
+    colors: [Color(0xFF1D1D1F), IntelliaColors.pointsGold],
   );
 
   static const LinearGradient kira = LinearGradient(
@@ -318,6 +319,10 @@ abstract final class IntelliaMotion {
   static const Duration medium = Duration(milliseconds: 280);
   static const Duration slow = Duration(milliseconds: 420);
   static const Duration cinematic = Duration(milliseconds: 700);
+
+  static const Curve emphasizedDecelerate = Cubic(0.05, 0.7, 0.1, 1.0);
+  static const Curve spring = Cubic(0.175, 0.885, 0.32, 1.275);
+  static const Curve swiftOut = Cubic(0.55, 0.0, 0.1, 1.0);
 }
 
 abstract final class IntelliaBreakpoints {
@@ -361,9 +366,9 @@ abstract final class AppMotion {
   static const Duration epic = Duration(milliseconds: 1100);
   static const Duration onboardingSlide = Duration(seconds: 5);
 
-  static const Curve emphasizedDecelerate = Cubic(0.05, 0.7, 0.1, 1.0);
-  static const Curve spring = Cubic(0.175, 0.885, 0.32, 1.275);
-  static const Curve swiftOut = Cubic(0.55, 0.0, 0.1, 1.0);
+  static const Curve emphasizedDecelerate = IntelliaMotion.emphasizedDecelerate;
+  static const Curve spring = IntelliaMotion.spring;
+  static const Curve swiftOut = IntelliaMotion.swiftOut;
 }
 
 @Deprecated('Use IntelliaColors instead')
@@ -371,7 +376,7 @@ abstract final class AppColors {
   static const Color intelliaIndigo = IntelliaColors.brandIndigo;
   static const Color intelliaPurple = IntelliaColors.brandPurple;
   static const Color intelliaBlue = IntelliaColors.brandBlue;
-  static const Color intelliaGold = IntelliaColors.xpGold;
+  static const Color intelliaGold = IntelliaColors.pointsGold;
   static const Color intelliaSurface = IntelliaColors.backgroundSecondary;
 
   static const Color brandNavy = Color(0xFF0B1F4A);
@@ -400,24 +405,24 @@ abstract final class AppColors {
   static const Color adminGlow = Color(0xFFF43F5E);
 
   static const Color glassDark = Color(0x1AFFFFFF);
-  static const Color glassBorder = Color(0x33FFFFFF);
+  static const Color glassBorder = IntelliaColors.glassBorder;
   static const Color glassLight = Color(0xCCFFFFFF);
 }
 
 @Deprecated('Use IntelliaGradients instead')
 abstract final class AppRoleColors {
   static Color byRole(AppRole role) => switch (role) {
-    AppRole.student => AppColors.student,
-    AppRole.parent => AppColors.parent,
-    AppRole.teacher => AppColors.teacher,
-    AppRole.admin => AppColors.admin,
+    AppRole.student => IntelliaColors.brandIndigo,
+    AppRole.parent => IntelliaColors.brandPurple,
+    AppRole.teacher => const Color(0xFF0F766E),
+    AppRole.admin => const Color(0xFFBE123C),
   };
 
   static Color glowByRole(AppRole role) => switch (role) {
-    AppRole.student => AppColors.studentGlow,
-    AppRole.parent => AppColors.parentGlow,
-    AppRole.teacher => AppColors.teacherGlow,
-    AppRole.admin => AppColors.adminGlow,
+    AppRole.student => IntelliaColors.brandBlue,
+    AppRole.parent => const Color(0xFFA78BFA),
+    AppRole.teacher => const Color(0xFF14B8A6),
+    AppRole.admin => const Color(0xFFF43F5E),
   };
 }
 

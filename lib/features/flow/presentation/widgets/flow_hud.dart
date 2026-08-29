@@ -6,7 +6,7 @@ import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import '../../application/flow_controller.dart';
 
-/// Barre supérieure du Flow : niveau, XP, série, et fermeture.
+/// Barre supérieure du Flow : niveau, points, série, et fermeture.
 ///
 /// Discrète et toujours présente — l'élève garde le fil de sa progression
 /// sans jamais revenir à une liste.
@@ -33,17 +33,57 @@ class FlowHud extends ConsumerWidget {
             Row(
               children: [
                 _circleButton(Icons.close_rounded, onClose),
-                const Spacer(),
-                _pill(
-                  icon: Icons.bolt_rounded,
-                  label: '${p.xp}',
-                  color: IntelliaColors.xpGold,
-                ),
                 const SizedBox(width: IntelliaSpacing.xs),
-                _pill(
-                  icon: Icons.local_fire_department_rounded,
-                  label: '${p.streakDays}',
-                  color: IntelliaColors.warning,
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    reverse: true,
+                    child: Row(
+                      children: [
+                        _pill(
+                          icon: Icons.bolt_rounded,
+                          label: '+${p.sessionPoints} session',
+                          color: IntelliaColors.pointsGold,
+                          semanticLabel:
+                              '${p.sessionPoints} points vérifiés dans cette session',
+                        ),
+                        const SizedBox(width: IntelliaSpacing.xs),
+                        _pill(
+                          icon: Icons.verified_rounded,
+                          label: p.verifiedTotalPoints == null
+                              ? 'Total —'
+                              : '${p.verifiedTotalPoints} total',
+                          color: IntelliaColors.brandIndigo,
+                          semanticLabel: p.verifiedTotalPoints == null
+                              ? 'Total en attente de validation serveur'
+                              : '${p.verifiedTotalPoints} points vérifiés au total',
+                        ),
+                        const SizedBox(width: IntelliaSpacing.xs),
+                        if (p.pendingValidationCount > 0)
+                          _pill(
+                            icon: p.isSyncing
+                                ? Icons.sync_rounded
+                                : Icons.cloud_upload_outlined,
+                            label: '${p.pendingValidationCount} à valider',
+                            color: IntelliaColors.warning,
+                            semanticLabel:
+                                '${p.pendingValidationCount} activités hors ligne à synchroniser',
+                            onTap: p.isSyncing
+                                ? null
+                                : () => ref
+                                      .read(flowControllerProvider.notifier)
+                                      .retryPending(),
+                          )
+                        else
+                          _pill(
+                            icon: Icons.local_fire_department_rounded,
+                            label: '${p.streakDays}',
+                            color: IntelliaColors.warning,
+                            semanticLabel: 'Série de ${p.streakDays} jours',
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -103,27 +143,38 @@ class FlowHud extends ConsumerWidget {
     required IconData icon,
     required String label,
     required Color color,
-  }) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-    decoration: BoxDecoration(
-      color: IntelliaColors.surfaceSolid.withValues(alpha: 0.8),
-      borderRadius: BorderRadius.circular(IntelliaRadii.full),
-      border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 15, color: color),
-        const SizedBox(width: 5),
-        Text(
-          label,
-          style: GoogleFonts.montserrat(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: IntelliaColors.textPrimary,
+    required String semanticLabel,
+    VoidCallback? onTap,
+  }) {
+    final content = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+      decoration: BoxDecoration(
+        color: IntelliaColors.surfaceSolid.withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(IntelliaRadii.full),
+        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 15, color: color),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: IntelliaColors.textPrimary,
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+    return Semantics(
+      label: semanticLabel,
+      button: onTap != null,
+      child: onTap == null
+          ? content
+          : IntelliaPressable(onTap: onTap, child: content),
+    );
+  }
 }

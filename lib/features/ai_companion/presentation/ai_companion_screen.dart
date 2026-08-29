@@ -13,9 +13,10 @@ import '../application/ai_companion_controller.dart';
 import 'widgets/chat_bubble.dart';
 
 class AICompanionScreen extends ConsumerStatefulWidget {
-  const AICompanionScreen({super.key, this.embedded = false});
+  const AICompanionScreen({super.key, this.embedded = false, this.topic});
 
   final bool embedded;
+  final String? topic;
 
   @override
   ConsumerState<AICompanionScreen> createState() => _AICompanionScreenState();
@@ -32,6 +33,18 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     'Donne un exemple concret',
     'Pose-moi 3 questions',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref
+            .read(aiCompanionControllerProvider.notifier)
+            .setLessonContext(widget.topic);
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -73,16 +86,46 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
 
         // ── Error ─────────────────────────────────────────────
         if (state.errorMessage != null) ...[
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  state.errorMessage!,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFFFF6B6B),
+                  ),
+                ),
+              ),
+              if (state.lastFailedMessage != null)
+                TextButton.icon(
+                  onPressed: state.isSending
+                      ? null
+                      : () => ref
+                            .read(aiCompanionControllerProvider.notifier)
+                            .retryLastMessage(),
+                  icon: const Icon(Icons.refresh_rounded, size: 16),
+                  label: const Text('Réessayer'),
+                ),
+            ],
+          ),
+        ],
+        if (state.lessonContext != null) ...[
+          const SizedBox(height: IntelliaSpacing.xs),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-              state.errorMessage!,
-              style: const TextStyle(fontSize: 12, color: Color(0xFFFF6B6B)),
+            child: Chip(
+              avatar: const Icon(Icons.menu_book_rounded, size: 16),
+              label: Text(
+                'Contexte : ${state.lessonContext}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ],
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
 
         // ── Composer ─────────────────────────────────────────
         _GlassComposer(
@@ -97,15 +140,15 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     if (widget.embedded) {
       return Padding(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
           112,
         ),
         child: Column(
           children: [
             _CompanionHeader(state: state),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: IntelliaSpacing.md),
             Expanded(child: content),
           ],
         ),
@@ -115,9 +158,9 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF060E22),
       body: LiquidBackground(
-        primaryColor: AppColors.accent,
-        secondaryColor: AppColors.brand,
-        tertiaryColor: AppColors.gold,
+        primaryColor: IntelliaColors.success,
+        secondaryColor: IntelliaColors.brandIndigo,
+        tertiaryColor: IntelliaColors.warning,
         child: SafeArea(
           child: Column(
             children: [
@@ -132,10 +175,10 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
+                    IntelliaSpacing.lg,
                     0,
-                    AppSpacing.lg,
-                    AppSpacing.lg,
+                    IntelliaSpacing.lg,
+                    IntelliaSpacing.lg,
                   ),
                   child: content,
                 ),
@@ -158,7 +201,7 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     if (!_scrollController.hasClients) return;
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent + 120,
-      duration: AppMotion.medium,
+      duration: IntelliaMotion.medium,
       curve: Curves.easeOut,
     );
   }
@@ -181,15 +224,15 @@ class _GlassTopBar extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: Container(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.sm,
-            AppSpacing.lg,
-            AppSpacing.sm,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.sm,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.sm,
           ),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.06),
             border: Border(
-              bottom: BorderSide(color: AppColors.glassBorder, width: 0.8),
+              bottom: BorderSide(color: IntelliaColors.glassBorder, width: 0.8),
             ),
           ),
           child: Row(
@@ -205,7 +248,7 @@ class _GlassTopBar extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
-                const SizedBox(width: AppSpacing.md),
+                const SizedBox(width: IntelliaSpacing.md),
               ],
               // Tutor Photo badge
               Container(
@@ -227,7 +270,7 @@ class _GlassTopBar extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: IntelliaSpacing.sm),
 
               // Title info
               Expanded(
@@ -254,15 +297,15 @@ class _GlassTopBar extends StatelessWidget {
                 ),
               ),
 
-              // Online indicator
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: AppColors.accent,
-                  shape: BoxShape.circle,
-                  boxShadow: AppShadows.glow(AppColors.accent, intensity: 0.6),
-                ),
+              // État honnête : aucune fausse pastille « en ligne ».
+              Icon(
+                state.errorMessage == null
+                    ? Icons.chat_bubble_outline_rounded
+                    : Icons.cloud_off_rounded,
+                size: 18,
+                color: state.errorMessage == null
+                    ? Colors.white.withValues(alpha: 0.65)
+                    : const Color(0xFFFFB4AB),
               ),
             ],
           ),
@@ -285,10 +328,14 @@ class _CompanionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = TabSurface.of(context);
     final tutor = state.tutor;
-    final statusLabel = state.isSending ? 'réfléchit…' : 'Disponible';
+    final statusLabel = state.isSending
+        ? 'réfléchit…'
+        : state.errorMessage != null
+        ? 'temporairement indisponible'
+        : 'Prêt à t’aider';
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.all(IntelliaSpacing.sm),
       decoration: BoxDecoration(
         color: s.surface,
         borderRadius: BorderRadius.circular(IntelliaRadii.large),
@@ -312,7 +359,7 @@ class _CompanionHeader extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: IntelliaSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,14 +447,14 @@ class _GlassChatContainer extends StatelessWidget {
       children: [
         // Quick prompts — hidden after first message
         AnimatedSize(
-          duration: AppMotion.medium,
-          curve: AppMotion.emphasizedDecelerate,
+          duration: IntelliaMotion.medium,
+          curve: IntelliaMotion.emphasizedDecelerate,
           child: quickPromptsVisible
               ? Padding(
                   padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.md,
-                    AppSpacing.md,
-                    AppSpacing.md,
+                    IntelliaSpacing.md,
+                    IntelliaSpacing.md,
+                    IntelliaSpacing.md,
                     0,
                   ),
                   child: _QuickPromptChips(
@@ -421,7 +468,7 @@ class _GlassChatContainer extends StatelessWidget {
         Expanded(
           child: ListView.builder(
             controller: scrollController,
-            padding: const EdgeInsets.all(AppSpacing.sm),
+            padding: const EdgeInsets.all(IntelliaSpacing.sm),
             itemCount: state.messages.length + (state.isSending ? 1 : 0),
             itemBuilder: (context, index) {
               if (index >= state.messages.length) {
@@ -444,7 +491,7 @@ class _GlassChatContainer extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: s.surface,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(IntelliaRadii.large),
           border: Border.all(color: s.surfaceBorder),
           boxShadow: IntelliaShadows.card(Colors.black),
         ),
@@ -452,14 +499,14 @@ class _GlassChatContainer extends StatelessWidget {
       );
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      borderRadius: BorderRadius.circular(IntelliaRadii.large),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: AppColors.glassBorder),
+            borderRadius: BorderRadius.circular(IntelliaRadii.large),
+            border: Border.all(color: IntelliaColors.glassBorder),
           ),
           child: inner,
         ),
@@ -481,8 +528,8 @@ class _QuickPromptChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: AppSpacing.xs,
-      runSpacing: AppSpacing.xs,
+      spacing: IntelliaSpacing.xs,
+      runSpacing: IntelliaSpacing.xs,
       children: [
         for (int i = 0; i < prompts.length; i++)
           GestureDetector(
@@ -492,7 +539,7 @@ class _QuickPromptChips extends StatelessWidget {
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
+                    horizontal: IntelliaSpacing.sm,
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
@@ -554,12 +601,12 @@ class _GlassComposer extends StatelessWidget {
 
     final field = Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs,
+        horizontal: IntelliaSpacing.md,
+        vertical: IntelliaSpacing.xs,
       ),
       decoration: BoxDecoration(
         color: s.useGlass ? Colors.white.withValues(alpha: 0.08) : s.fieldFill,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        borderRadius: BorderRadius.circular(IntelliaRadii.large),
         border: Border.all(color: s.surfaceBorder),
       ),
       child: Row(
@@ -583,7 +630,7 @@ class _GlassComposer extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: IntelliaSpacing.sm),
           // Send button — gradient circle
           GestureDetector(
             onTap: enabled
@@ -593,7 +640,7 @@ class _GlassComposer extends StatelessWidget {
                   }
                 : null,
             child: AnimatedContainer(
-              duration: AppMotion.fast,
+              duration: IntelliaMotion.fast,
               width: 40,
               height: 40,
               decoration: BoxDecoration(
@@ -601,7 +648,7 @@ class _GlassComposer extends StatelessWidget {
                     ? LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [accentColor, AppColors.brand],
+                        colors: [accentColor, IntelliaColors.brandIndigo],
                       )
                     : null,
                 color: enabled ? null : s.surfaceMuted,
@@ -623,7 +670,7 @@ class _GlassComposer extends StatelessWidget {
 
     if (!s.useGlass) return field;
     return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      borderRadius: BorderRadius.circular(IntelliaRadii.large),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: field,

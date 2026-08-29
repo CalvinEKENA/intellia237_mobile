@@ -4,7 +4,7 @@ import type {
   QuizRecord,
   QuizSubmissionResult
 } from "./quizTypes";
-import { xpForQuestion } from "./xpPolicy";
+import { pointsForQuestion } from "./pointsPolicy";
 
 export function scoreQuizAttempt(params: {
   quiz: QuizRecord;
@@ -14,7 +14,7 @@ export function scoreQuizAttempt(params: {
 }): QuizSubmissionResult {
   const corrections: QuizCorrection[] = [];
   let score = 0;
-  let xpAwarded = 0;
+  let pointsAwarded = 0;
 
   const seenQuestionIds = new Set(params.quiz.questions.map((question) => question.id));
   for (const questionId of Object.keys(params.answersByQuestion)) {
@@ -26,11 +26,11 @@ export function scoreQuizAttempt(params: {
   for (const question of params.quiz.questions) {
     const rawAnswer = (params.answersByQuestion[question.id] ?? "").trim();
     const isCorrect = isAnswerCorrect(question, rawAnswer);
-    const xpReward = xpForQuestion(question);
+    const pointsReward = pointsForQuestion(question);
 
     if (isCorrect) {
       score += 1;
-      xpAwarded += xpReward;
+      pointsAwarded += pointsReward;
     }
 
     corrections.push({
@@ -40,7 +40,7 @@ export function scoreQuizAttempt(params: {
       correctAnswer: correctAnswerLabel(question),
       explanation: question.explanation,
       isCorrect,
-      xpReward
+      pointsReward
     });
   }
 
@@ -52,7 +52,7 @@ export function scoreQuizAttempt(params: {
     subjectLabel: params.quiz.subjectLabel,
     score,
     maxScore: params.quiz.questions.length,
-    xpAwarded,
+    pointsAwarded,
     corrections,
     submittedAt: params.submittedAt,
     idempotentReplay: false
@@ -67,8 +67,13 @@ function isAnswerCorrect(question: QuizQuestionRecord, answer: string): boolean 
     }
     case "trueFalse": {
       const normalized = answer.toLowerCase();
-      const value = normalized === "true" || normalized === "vrai";
-      return question.correctBooleanValue === value;
+      if (normalized === "true" || normalized === "vrai") {
+        return question.correctBooleanValue === true;
+      }
+      if (normalized === "false" || normalized === "faux") {
+        return question.correctBooleanValue === false;
+      }
+      return false;
     }
     case "shortAnswer": {
       const normalized = normalizeText(answer);

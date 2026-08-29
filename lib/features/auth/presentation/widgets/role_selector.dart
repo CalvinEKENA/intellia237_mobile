@@ -28,13 +28,13 @@ class RoleSelector extends StatelessWidget {
             ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: AppSpacing.sm,
-          crossAxisSpacing: AppSpacing.sm,
+          mainAxisSpacing: IntelliaSpacing.sm,
+          crossAxisSpacing: IntelliaSpacing.sm,
           childAspectRatio: 1.6,
           children: [
             for (final role in AppRole.values)
@@ -72,7 +72,7 @@ class _RoleTile extends StatelessWidget {
     AppRole.student => 'Élève',
     AppRole.parent => 'Parent',
     AppRole.teacher => 'Enseignant',
-    AppRole.admin => 'Admin',
+    AppRole.admin => 'Administration',
   };
 
   @override
@@ -81,13 +81,13 @@ class _RoleTile extends StatelessWidget {
     final theme = Theme.of(context);
 
     return AnimatedContainer(
-      duration: AppMotion.fast,
-      curve: AppMotion.emphasizedDecelerate,
+      duration: IntelliaMotion.fast,
+      curve: IntelliaMotion.emphasizedDecelerate,
       decoration: BoxDecoration(
         color: isSelected
             ? color.withValues(alpha: 0.12)
             : theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(IntelliaRadii.small),
         border: Border.all(
           color: isSelected ? color : Colors.transparent,
           width: isSelected ? 1.8 : 1,
@@ -96,10 +96,10 @@ class _RoleTile extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
+          borderRadius: BorderRadius.circular(IntelliaRadii.small),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -110,7 +110,7 @@ class _RoleTile extends StatelessWidget {
                       ? color
                       : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: IntelliaSpacing.xs),
                 Text(
                   _label,
                   style: theme.textTheme.labelLarge?.copyWith(

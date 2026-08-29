@@ -26,10 +26,24 @@ class _OnboardingSlide1VisualState extends State<OnboardingSlide1Visual>
       vsync: this,
       duration: const Duration(seconds: 5),
     );
+  }
 
-    // Start animations
-    _entranceCtrl.forward();
-    _floatingCtrl.repeat(reverse: true);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final disabled = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (disabled) {
+      _entranceCtrl.value = 1;
+      _floatingCtrl.stop();
+      _floatingCtrl.value = 0.5;
+    } else {
+      if (!_entranceCtrl.isAnimating && !_entranceCtrl.isCompleted) {
+        _entranceCtrl.forward();
+      }
+      if (!_floatingCtrl.isAnimating) {
+        _floatingCtrl.repeat(reverse: true);
+      }
+    }
   }
 
   @override

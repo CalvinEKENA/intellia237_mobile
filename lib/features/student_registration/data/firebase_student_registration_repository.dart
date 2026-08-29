@@ -111,6 +111,7 @@ class FirebaseStudentRegistrationRepository
 
       await batch.commit().timeout(const Duration(seconds: 20));
       await user.updateDisplayName(displayName);
+      await _sendVerificationBestEffort(user);
 
       return StudentRegistrationResult(
         uid: uid,
@@ -163,6 +164,16 @@ class FirebaseStudentRegistrationRepository
         ),
         code: 'unknown-error',
       );
+    }
+  }
+
+  Future<void> _sendVerificationBestEffort(User user) async {
+    if (user.emailVerified) return;
+    try {
+      await user.sendEmailVerification();
+    } on FirebaseAuthException {
+      // L’inscription reste valide ; l’élève pourra renvoyer le lien depuis
+      // Paramètres sans perdre son profil pédagogique.
     }
   }
 

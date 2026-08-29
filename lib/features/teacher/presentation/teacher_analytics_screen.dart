@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 import '../application/teacher_providers.dart';
 
 class TeacherAnalyticsScreen extends ConsumerWidget {
@@ -15,61 +17,65 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
     final classesAsync = ref.watch(teacherClassesProvider);
 
     final body = dashboardAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: FilledButton.icon(
-          onPressed: () {
-            ref.invalidate(teacherDashboardProvider);
-            ref.invalidate(teacherClassesProvider);
-          },
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Recharger'),
-        ),
+      loading: () => const IntelliaStateView(kind: IntelliaStateKind.loading),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        title: 'Statistiques indisponibles',
+        message: stateMessageForKind(stateKindForError(error)),
+        primaryLabel: 'Réessayer',
+        onPrimary: () {
+          ref.invalidate(teacherDashboardProvider);
+          ref.invalidate(teacherClassesProvider);
+        },
       ),
       data: (dashboard) => classesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: FilledButton.icon(
-            onPressed: () => ref.invalidate(teacherClassesProvider),
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Recharger'),
-          ),
+        loading: () => const IntelliaStateView(kind: IntelliaStateKind.loading),
+        error: (error, stackTrace) => IntelliaStateView(
+          kind: stateKindForError(error),
+          title: 'Classes indisponibles',
+          message: stateMessageForKind(stateKindForError(error)),
+          primaryLabel: 'Réessayer',
+          onPrimary: () => ref.invalidate(teacherClassesProvider),
         ),
         data: (classes) => ListView(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.xl,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.xl,
           ),
           children: [
             Text(
-              'Analytics Enseignant',
+              'Analyses enseignant',
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: IntelliaSpacing.xs),
             Text(
               'Vue d\'ensemble des performances de vos classes.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: IntelliaSpacing.md),
             _MetricCard(
-              title: 'Taux moyen de completion',
+              title: 'Taux moyen de complétion',
               value: '${(dashboard.kpi.averageCompletion * 100).round()}%',
               subtitle: '${dashboard.kpi.activeClasses} classes actives',
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             _MetricCard(
               title: 'Engagement journalier',
-              value: '${dashboard.kpi.dailyEngagementMinutes} min',
-              subtitle: '${dashboard.kpi.activeStudents} élèves suivis',
+              value: dashboard.kpi.dailyEngagementMinutes == null
+                  ? '\u2014'
+                  : '${dashboard.kpi.dailyEngagementMinutes} min',
+              subtitle: dashboard.kpi.dailyEngagementMinutes == null
+                  ? 'Mesure disponible prochainement'
+                  : '${dashboard.kpi.activeStudents} élèves suivis',
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: IntelliaSpacing.md),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: const EdgeInsets.all(IntelliaSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -79,16 +85,23 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    _TrendBars(values: dashboard.weeklyCompletionTrend),
+                    const SizedBox(height: IntelliaSpacing.sm),
+                    if (dashboard.weeklyCompletionTrend.isEmpty)
+                      Text(
+                        'La tendance apparaîtra après la première semaine '
+                        'd\'activité de vos élèves.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      )
+                    else
+                      _TrendBars(values: dashboard.weeklyCompletionTrend),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: IntelliaSpacing.md),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: const EdgeInsets.all(IntelliaSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -98,7 +111,7 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: IntelliaSpacing.sm),
                     for (final item in classes) ...[
                       Row(
                         children: [
@@ -106,7 +119,7 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
                           Text('${(item.averageProgress * 100).round()}%'),
                         ],
                       ),
-                      const SizedBox(height: AppSpacing.xxs),
+                      const SizedBox(height: IntelliaSpacing.xxs),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(999),
                         child: LinearProgressIndicator(
@@ -114,7 +127,7 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
                           minHeight: 8,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: IntelliaSpacing.sm),
                     ],
                   ],
                 ),
@@ -130,7 +143,7 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Analytics Enseignant')),
+      appBar: AppBar(title: const Text('Analyses enseignant')),
       body: body,
     );
   }
@@ -151,7 +164,7 @@ class _MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -161,14 +174,14 @@ class _MetricCard extends StatelessWidget {
                 context,
               ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: IntelliaSpacing.xs),
             Text(
               value,
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
-            const SizedBox(height: AppSpacing.xxs),
+            const SizedBox(height: IntelliaSpacing.xxs),
             Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
@@ -200,7 +213,7 @@ class _TrendBars extends StatelessWidget {
                 child: Container(
                   height: (values[i].clamp(0, 1) * 100).toDouble(),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(IntelliaRadii.small),
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),

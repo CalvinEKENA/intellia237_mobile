@@ -21,12 +21,12 @@ class RecommendationsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Recommandations personnalisees',
+          'Recommandations personnalisées',
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
         for (final item in items) ...[
           Card(
             child: ListTile(
@@ -44,7 +44,7 @@ class RecommendationsSection extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
         ],
       ],
     );

@@ -8,6 +8,7 @@ const envSchema = z.object({
   GLM_MODEL: z.string().default("glm-5.1"),
   GLM_BASE_URL: z.string().url().default("https://api.z.ai/api/paas/v4"),
   MAX_COURSE_IMAGES: z.coerce.number().int().min(0).max(20).default(8),
+  TUTOR_DAILY_QUESTION_LIMIT: z.coerce.number().int().min(1).max(200).default(20),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info")
 });
 

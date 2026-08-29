@@ -71,7 +71,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
         ],
         TextFormField(
           controller: widget.controller,
@@ -121,7 +121,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
               color: Colors.white.withValues(alpha: 0.70),
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
         ],
         TextFormField(
           controller: widget.controller,
@@ -165,33 +165,36 @@ class _AuthTextFieldState extends State<AuthTextField> {
                   )
                 : null,
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
               borderSide: BorderSide(
                 color: Colors.white.withValues(alpha: 0.20),
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: const BorderSide(color: AppColors.gold, width: 1.5),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
+              borderSide: const BorderSide(
+                color: IntelliaColors.warning,
+                width: 1.5,
+              ),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
               borderSide: const BorderSide(color: Colors.redAccent),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
               borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
             ),
             disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
               borderSide: BorderSide(
                 color: Colors.white.withValues(alpha: 0.10),
               ),
             ),
             errorStyle: const TextStyle(color: Colors.redAccent),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
+              horizontal: IntelliaSpacing.md,
+              vertical: IntelliaSpacing.sm,
             ),
             errorMaxLines: 2,
           ),

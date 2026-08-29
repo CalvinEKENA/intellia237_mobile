@@ -31,7 +31,7 @@ class TrueFalseQuestionCard extends StatelessWidget {
               color: const Color(0xFF16A34A),
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: IntelliaSpacing.sm),
           Expanded(
             child: _ChoiceButton(
               label: 'Faux',

@@ -10,6 +10,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/gradient_button.dart';
+import '../../../core/widgets/intellia_count_up.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../application/quiz_providers.dart';
+import '../domain/quiz_attempt_summary.dart';
 import '../domain/quiz_result_payload.dart';
 
 class QuizResultScreen extends StatefulWidget {
@@ -64,24 +68,25 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                 constraints: const BoxConstraints(maxWidth: 560),
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.xl,
-                    AppSpacing.lg,
-                    AppSpacing.xl,
-                    AppSpacing.xxxl,
+                    IntelliaSpacing.xl,
+                    IntelliaSpacing.lg,
+                    IntelliaSpacing.xl,
+                    IntelliaSpacing.xxxl,
                   ),
                   children: [
                     // Back button
                     Align(
                       alignment: Alignment.centerLeft,
                       child: IconButton(
-                        onPressed: () => context.go(AppRoutes.studentHome),
+                        tooltip: 'Retour aux quiz',
+                        onPressed: () => context.go(AppRoutes.quizHub),
                         icon: const Icon(
                           Icons.arrow_back_rounded,
                           color: Colors.white,
                         ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: IntelliaSpacing.sm),
 
                     // ── Score ring + badge ─────────────────────
                     Center(
@@ -93,24 +98,50 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                             score: widget.result.score,
                             maxScore: widget.result.maxScore,
                           ),
-                          const SizedBox(height: AppSpacing.lg),
+                          const SizedBox(height: IntelliaSpacing.lg),
 
                           // Badge
                           _ResultBadge(config: badge),
+                          _ImprovementBadge(result: widget.result),
                         ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: IntelliaSpacing.lg),
 
-                    // ── Quiz info + XP ─────────────────────────
+                    // ── Quiz info + points ─────────────────────
                     _QuizInfoCard(result: widget.result),
-                    const SizedBox(height: AppSpacing.xl),
+                    const SizedBox(height: IntelliaSpacing.xl),
 
                     // ── CTAs ───────────────────────────────────
-                    GradientButton(
-                      onPressed: () => context.push(
-                        AppRoutes.quizPlay(widget.result.quizId),
+                    if (widget.result.corrections.any(
+                      (correction) => !correction.isCorrect,
+                    )) ...[
+                      GradientButton(
+                        onPressed: () => showModalBottomSheet<void>(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: const Color(0xFF111B32),
+                          builder: (_) => _MistakeReviewSheet(
+                            corrections: widget.result.corrections
+                                .where((correction) => !correction.isCorrect)
+                                .toList(growable: false),
+                          ),
+                        ),
+                        gradient: AppGradients.heroTeal,
+                        child: const Text(
+                          'Rejouer mes erreurs',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
+                      const SizedBox(height: IntelliaSpacing.sm),
+                    ],
+                    GradientButton(
+                      onPressed: () =>
+                          context.go(AppRoutes.quizPlay(widget.result.quizId)),
                       gradient: badge.gradient,
                       child: const Text(
                         'Recommencer',
@@ -121,24 +152,26 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: IntelliaSpacing.sm),
                     SizedBox(
                       height: 52,
                       child: OutlinedButton(
-                        onPressed: () => context.go(AppRoutes.studentHome),
+                        onPressed: () => context.go(AppRoutes.quizHub),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
                           side: BorderSide(
                             color: Colors.white.withValues(alpha: 0.25),
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppRadius.sm),
+                            borderRadius: BorderRadius.circular(
+                              IntelliaRadii.small,
+                            ),
                           ),
                         ),
                         child: const Text('Retour aux quiz'),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xxl),
+                    const SizedBox(height: IntelliaSpacing.xxl),
 
                     // ── Detailed corrections ───────────────────
                     Text(
@@ -149,7 +182,7 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: IntelliaSpacing.md),
                     for (
                       int i = 0;
                       i < widget.result.corrections.length;
@@ -159,7 +192,7 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                         correction: widget.result.corrections[i],
                         index: i,
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: IntelliaSpacing.sm),
                     ],
                   ],
                 ),
@@ -178,15 +211,141 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
               minBlastForce: 8,
               gravity: 0.3,
               colors: const [
-                AppColors.gold,
-                AppColors.brand,
-                AppColors.accent,
+                IntelliaColors.warning,
+                IntelliaColors.brandIndigo,
+                IntelliaColors.success,
                 Colors.white,
                 Color(0xFFFDD898),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MistakeReviewSheet extends StatefulWidget {
+  const _MistakeReviewSheet({required this.corrections});
+
+  final List<QuizQuestionCorrection> corrections;
+
+  @override
+  State<_MistakeReviewSheet> createState() => _MistakeReviewSheetState();
+}
+
+class _MistakeReviewSheetState extends State<_MistakeReviewSheet> {
+  int _index = 0;
+  bool _revealed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final correction = widget.corrections[_index];
+    final last = _index == widget.corrections.length - 1;
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          IntelliaSpacing.xl,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.xl,
+          MediaQuery.viewInsetsOf(context).bottom + IntelliaSpacing.xl,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Erreur ${_index + 1}/${widget.corrections.length}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close_rounded, color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: IntelliaSpacing.md),
+            Text(
+              correction.prompt,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                height: 1.35,
+              ),
+            ),
+            const SizedBox(height: IntelliaSpacing.sm),
+            Text(
+              'Réponds mentalement, puis révèle la correction.',
+              style: TextStyle(color: Colors.white.withValues(alpha: 0.65)),
+            ),
+            const SizedBox(height: IntelliaSpacing.lg),
+            AnimatedCrossFade(
+              duration: const Duration(milliseconds: 220),
+              crossFadeState: _revealed
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              firstChild: FilledButton.icon(
+                onPressed: () => setState(() => _revealed = true),
+                icon: const Icon(Icons.visibility_rounded),
+                label: const Text('Révéler la réponse'),
+              ),
+              secondChild: Container(
+                padding: const EdgeInsets.all(IntelliaSpacing.md),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF123C33),
+                  borderRadius: BorderRadius.circular(IntelliaRadii.small),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      correction.correctAnswer,
+                      style: const TextStyle(
+                        color: Color(0xFF7DE2B8),
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    if (correction.explanation.isNotEmpty) ...[
+                      const SizedBox(height: IntelliaSpacing.xs),
+                      Text(
+                        correction.explanation,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.78),
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            if (_revealed) ...[
+              const SizedBox(height: IntelliaSpacing.md),
+              FilledButton(
+                onPressed: () {
+                  if (last) {
+                    Navigator.pop(context);
+                  } else {
+                    setState(() {
+                      _index += 1;
+                      _revealed = false;
+                    });
+                  }
+                },
+                child: Text(last ? 'Terminer la révision' : 'Erreur suivante'),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -221,7 +380,8 @@ class _ScoreRingState extends State<_ScoreRing>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      // Plafond AD §11.2 : count-up et sweep synchronisés, ≤ 900 ms.
+      duration: const Duration(milliseconds: 900),
     );
     _sweepAnim = CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic);
     _ctrl.forward();
@@ -255,12 +415,14 @@ class _ScoreRingState extends State<_ScoreRing>
                         AppGradients.heroGold.createShader(
                           Rect.fromLTWH(0, 0, bounds.width, bounds.height),
                         ),
-                    child: Text(
-                      '${widget.score}/${widget.maxScore}',
+                    child: IntelliaCountUp(
+                      value: widget.score,
+                      suffix: '/${widget.maxScore}',
+                      duration: const Duration(milliseconds: 900),
                       style: GoogleFonts.manrope(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.gold,
+                        color: IntelliaColors.warning,
                         letterSpacing: -1,
                       ),
                     ),
@@ -318,7 +480,11 @@ class _SweepRingPainter extends CustomPainter {
           ..shader = SweepGradient(
             startAngle: 0,
             endAngle: math.pi * 2,
-            colors: const [AppColors.gold, Color(0xFFFDD898), AppColors.gold],
+            colors: const [
+              IntelliaColors.warning,
+              Color(0xFFFDD898),
+              IntelliaColors.warning,
+            ],
           ).createShader(rect)
           ..strokeWidth = strokeWidth
           ..style = PaintingStyle.stroke
@@ -378,8 +544,8 @@ class _ResultBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xl,
-            vertical: AppSpacing.sm,
+            horizontal: IntelliaSpacing.xl,
+            vertical: IntelliaSpacing.sm,
           ),
           decoration: BoxDecoration(
             gradient: config.gradient,
@@ -403,14 +569,14 @@ class _ResultBadge extends StatelessWidget {
           begin: const Offset(0.8, 0.8),
           end: const Offset(1.0, 1.0),
           duration: 500.ms,
-          curve: AppMotion.spring,
+          curve: IntelliaMotion.spring,
         )
         .fadeIn(duration: 400.ms);
   }
 }
 
 // ─────────────────────────────────────────────────────────────
-// Quiz info + XP
+// Quiz info + points
 // ─────────────────────────────────────────────────────────────
 
 class _QuizInfoCard extends StatelessWidget {
@@ -421,19 +587,19 @@ class _QuizInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderRadius: BorderRadius.circular(IntelliaRadii.medium),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
         child: Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(IntelliaSpacing.lg),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [Color(0x1AFFFFFF), Color(0x0CFFFFFF)],
             ),
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(color: AppColors.glassBorder),
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+            border: Border.all(color: IntelliaColors.glassBorder),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,7 +612,7 @@ class _QuizInfoCard extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xxs),
+              const SizedBox(height: IntelliaSpacing.xxs),
               Text(
                 result.subjectLabel,
                 style: TextStyle(
@@ -454,19 +620,19 @@ class _QuizInfoCard extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.55),
                 ),
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: IntelliaSpacing.md),
               Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.xs,
+                      horizontal: IntelliaSpacing.md,
+                      vertical: IntelliaSpacing.xs,
                     ),
                     decoration: BoxDecoration(
                       gradient: AppGradients.heroGold,
                       borderRadius: BorderRadius.circular(99),
                       boxShadow: AppShadows.glow(
-                        AppColors.gold,
+                        IntelliaColors.warning,
                         intensity: 0.25,
                       ),
                     ),
@@ -479,8 +645,11 @@ class _QuizInfoCard extends StatelessWidget {
                           color: Colors.white,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          '+${result.xpAwarded} XP',
+                        IntelliaCountUp(
+                          value: result.pointsAwarded,
+                          prefix: '+',
+                          suffix: ' points',
+                          duration: const Duration(milliseconds: 700),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
@@ -515,7 +684,7 @@ class _CorrectionCard extends StatelessWidget {
     final isCorrect = correction.isCorrect;
 
     return Container(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(IntelliaSpacing.md),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -524,7 +693,7 @@ class _CorrectionCard extends StatelessWidget {
                   ? [const Color(0x1A16A34A), const Color(0x0D16A34A)]
                   : [const Color(0x1ADC2626), const Color(0x0DDC2626)],
             ),
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+            borderRadius: BorderRadius.circular(IntelliaRadii.small),
             border: Border.all(
               color: isCorrect
                   ? const Color(0x4016A34A)
@@ -554,7 +723,7 @@ class _CorrectionCard extends StatelessWidget {
                           : const Color(0xFFDC2626),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: IntelliaSpacing.sm),
                   Expanded(
                     child: Text(
                       correction.prompt,
@@ -566,33 +735,35 @@ class _CorrectionCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: IntelliaSpacing.sm),
                   Text(
-                    isCorrect ? '+${correction.xpReward} XP' : '0 XP',
+                    isCorrect
+                        ? '+${correction.pointsReward} points'
+                        : '0 point',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: isCorrect
-                          ? AppColors.gold
+                          ? IntelliaColors.warning
                           : Colors.white.withValues(alpha: 0.35),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: IntelliaSpacing.sm),
               _AnswerRow(
                 label: 'Ta réponse',
                 value: correction.userAnswer,
                 isCorrect: null,
               ),
-              const SizedBox(height: AppSpacing.xxs),
+              const SizedBox(height: IntelliaSpacing.xxs),
               _AnswerRow(
                 label: 'Bonne réponse',
                 value: correction.correctAnswer,
                 isCorrect: true,
               ),
               if (correction.explanation.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: IntelliaSpacing.xs),
                 Text(
                   correction.explanation,
                   style: TextStyle(
@@ -647,5 +818,103 @@ class _AnswerRow extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Célébration sobre d'une amélioration : comparaison honnête avec la
+/// tentative précédente du même quiz (jamais un « record » inventé).
+class _ImprovementBadge extends ConsumerWidget {
+  const _ImprovementBadge({required this.result});
+
+  final QuizResultPayload result;
+
+  QuizAttemptSummary? _previousAttempt(List<QuizAttemptSummary> history) {
+    final sameQuiz = [
+      for (final attempt in history)
+        if (attempt.quizId == result.quizId && attempt.maxScore > 0) attempt,
+    ];
+    if (sameQuiz.isEmpty) return null;
+
+    // L'historique vient d'être rafraîchi : la tentative courante y figure
+    // normalement en tête. Si c'est le cas, la précédente est la suivante ;
+    // sinon (écriture serveur en retard), la tête EST la précédente.
+    final head = sameQuiz.first;
+    final headIsCurrent =
+        head.score == result.score && head.maxScore == result.maxScore;
+    if (headIsCurrent) {
+      return sameQuiz.length >= 2 ? sameQuiz[1] : null;
+    }
+    return head;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (result.maxScore == 0) return const SizedBox.shrink();
+
+    final history = ref.watch(quizAttemptHistoryProvider).valueOrNull;
+    if (history == null) return const SizedBox.shrink();
+
+    final previous = _previousAttempt(history);
+    if (previous == null) return const SizedBox.shrink();
+
+    final delta =
+        ((result.score / result.maxScore - previous.score / previous.maxScore) *
+                100)
+            .round();
+    if (delta <= 0) return const SizedBox.shrink();
+
+    final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final label = '+$delta % par rapport à ta dernière tentative';
+
+    final chip = Semantics(
+      label: 'Score en progrès : $label',
+      child: Container(
+        margin: const EdgeInsets.only(top: IntelliaSpacing.sm),
+        padding: const EdgeInsets.symmetric(
+          horizontal: IntelliaSpacing.md,
+          vertical: IntelliaSpacing.xs,
+        ),
+        decoration: BoxDecoration(
+          color: IntelliaColors.success.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(IntelliaRadii.full),
+          border: Border.all(
+            color: IntelliaColors.success.withValues(alpha: 0.45),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.trending_up_rounded,
+              size: 16,
+              color: IntelliaColors.success,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  color: IntelliaColors.success,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (reduce) return chip;
+    return chip
+        .animate()
+        .fadeIn(delay: 500.ms, duration: 300.ms)
+        .scale(
+          begin: const Offset(0.9, 0.9),
+          end: const Offset(1, 1),
+          delay: 500.ms,
+          duration: 300.ms,
+          curve: Curves.easeOutBack,
+        );
   }
 }

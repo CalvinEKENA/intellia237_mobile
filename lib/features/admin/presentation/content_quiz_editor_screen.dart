@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../quiz/domain/quiz_question.dart';
+import '../../quiz/domain/quiz_mode.dart';
 import '../../quiz/domain/quiz_type.dart';
 import '../application/admin_content_providers.dart';
 import '../domain/admin_content_models.dart';
@@ -34,6 +35,7 @@ class _ContentQuizEditorScreenState
   late List<String> _classLevels;
   late List<QuizQuestion> _questions;
   late String _status;
+  late QuizMode _mode;
   int? _timerSeconds;
   bool _isSaving = false;
 
@@ -56,6 +58,7 @@ class _ContentQuizEditorScreenState
     _classLevels = List.of(q?.classLevels ?? [widget.classLevel]);
     _questions = List.of(q?.questions ?? []);
     _status = q?.status ?? 'draft';
+    _mode = q?.mode ?? QuizMode.exam;
     _timerSeconds = q?.timerSeconds;
   }
 
@@ -76,6 +79,7 @@ class _ContentQuizEditorScreenState
     classLevels: _classLevels,
     status: _status,
     questions: _questions,
+    mode: _mode,
     timerSeconds: _timerSeconds,
     aiGenerated: widget.quiz?.aiGenerated ?? false,
   );
@@ -93,11 +97,15 @@ class _ContentQuizEditorScreenState
         );
         if (publish) Navigator.pop(context);
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erreur : $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Le quiz n’a pas pu être enregistré. Vérifie la connexion et réessaie.',
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -115,21 +123,21 @@ class _ContentQuizEditorScreenState
         actions: [
           TextButton(
             onPressed: _isSaving ? null : () => _save(),
-            child: const Text('Sauver'),
+            child: const Text('Enregistrer'),
           ),
           FilledButton.icon(
             onPressed: _isSaving ? null : () => _save(publish: true),
             icon: const Icon(Icons.publish_rounded, size: 18),
             label: const Text('Publier'),
           ),
-          const SizedBox(width: AppSpacing.xs),
+          const SizedBox(width: IntelliaSpacing.xs),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          AppSpacing.md,
-          AppSpacing.md,
+          IntelliaSpacing.md,
+          IntelliaSpacing.md,
+          IntelliaSpacing.md,
           120,
         ),
         children: [
@@ -139,11 +147,11 @@ class _ContentQuizEditorScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _label('Informations du quiz'),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 _f(_titleCtrl, 'Titre du quiz'),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 _f(_descCtrl, 'Description', maxLines: 2),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 Row(
                   children: [
                     Expanded(
@@ -162,7 +170,7 @@ class _ContentQuizEditorScreenState
                             setState(() => _difficulty = v ?? _difficulty),
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: IntelliaSpacing.sm),
                     Expanded(
                       child: TextFormField(
                         initialValue: _timerSeconds?.toString() ?? '',
@@ -177,10 +185,35 @@ class _ContentQuizEditorScreenState
                     ),
                   ],
                 ),
+                const SizedBox(height: IntelliaSpacing.sm),
+                SegmentedButton<QuizMode>(
+                  segments: const [
+                    ButtonSegment(
+                      value: QuizMode.training,
+                      icon: Icon(Icons.school_rounded),
+                      label: Text('Entraînement'),
+                    ),
+                    ButtonSegment(
+                      value: QuizMode.exam,
+                      icon: Icon(Icons.assignment_rounded),
+                      label: Text('Examen'),
+                    ),
+                  ],
+                  selected: {_mode},
+                  onSelectionChanged: (selection) =>
+                      setState(() => _mode = selection.first),
+                ),
+                const SizedBox(height: IntelliaSpacing.xs),
+                Text(
+                  _mode == QuizMode.training
+                      ? 'La correction est affichée après chaque réponse validée.'
+                      : 'La correction complète est révélée uniquement après la soumission.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
 
           // ── Class levels ─────────────────────────────────────
           _InfoCard(
@@ -188,14 +221,14 @@ class _ContentQuizEditorScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _label('Niveaux cibles'),
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: IntelliaSpacing.xs),
                 Wrap(
-                  spacing: AppSpacing.xs,
-                  runSpacing: AppSpacing.xs,
+                  spacing: IntelliaSpacing.xs,
+                  runSpacing: IntelliaSpacing.xs,
                   children: kAllClassLevels.map((cls) {
                     final selected = _classLevels.contains(cls);
                     return FilterChip(
-                      label: Text(cls),
+                      label: Text(adminClassLevelLabel(cls)),
                       selected: selected,
                       onSelected: (_) {
                         setState(() {
@@ -212,7 +245,7 @@ class _ContentQuizEditorScreenState
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
 
           // ── Questions ────────────────────────────────────────
           _InfoCard(
@@ -231,7 +264,7 @@ class _ContentQuizEditorScreenState
                 ),
                 if (_questions.isEmpty)
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                    padding: EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
                     child: Center(
                       child: Text(
                         'Aucune question.\nAjoutez-en manuellement.',
@@ -274,10 +307,10 @@ class _ContentQuizEditorScreenState
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Padding(
           padding: EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.md,
-            MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.md,
+            IntelliaSpacing.md,
+            IntelliaSpacing.md,
+            IntelliaSpacing.md,
+            MediaQuery.of(ctx).viewInsets.bottom + IntelliaSpacing.md,
           ),
           child: SingleChildScrollView(
             child: Column(
@@ -291,7 +324,7 @@ class _ContentQuizEditorScreenState
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 // Type selector
                 SegmentedButton<QuizQuestionType>(
                   segments: const [
@@ -312,7 +345,7 @@ class _ContentQuizEditorScreenState
                   onSelectionChanged: (s) =>
                       setSheetState(() => type = s.first),
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 TextField(
                   controller: promptCtrl,
                   decoration: const InputDecoration(
@@ -321,12 +354,14 @@ class _ContentQuizEditorScreenState
                   ),
                   maxLines: 2,
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 // Type-specific fields
                 if (type == QuizQuestionType.qcm) ...[
                   for (int i = 0; i < 3; i++)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                      padding: const EdgeInsets.only(
+                        bottom: IntelliaSpacing.xs,
+                      ),
                       child: Row(
                         children: [
                           RadioGroup<int>(
@@ -358,14 +393,14 @@ class _ContentQuizEditorScreenState
                   Row(
                     children: [
                       const Text('Réponse correcte :'),
-                      const SizedBox(width: AppSpacing.sm),
+                      const SizedBox(width: IntelliaSpacing.sm),
                       ChoiceChip(
                         label: const Text('Vrai'),
                         selected: boolAnswer == true,
                         onSelected: (_) =>
                             setSheetState(() => boolAnswer = true),
                       ),
-                      const SizedBox(width: AppSpacing.xs),
+                      const SizedBox(width: IntelliaSpacing.xs),
                       ChoiceChip(
                         label: const Text('Faux'),
                         selected: boolAnswer == false,
@@ -383,7 +418,7 @@ class _ContentQuizEditorScreenState
                     ),
                   ),
                 ],
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 TextField(
                   controller: explanationCtrl,
                   decoration: const InputDecoration(
@@ -392,7 +427,7 @@ class _ContentQuizEditorScreenState
                   ),
                   maxLines: 2,
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: IntelliaSpacing.md),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
@@ -417,7 +452,7 @@ class _ContentQuizEditorScreenState
                                   .toList()
                             : [],
                         explanation: explanationCtrl.text.trim(),
-                        xpReward: type == QuizQuestionType.qcm
+                        pointsReward: type == QuizQuestionType.qcm
                             ? 10
                             : type == QuizQuestionType.shortAnswer
                             ? 12
@@ -471,6 +506,7 @@ extension on AdminQuizModel {
     series: series,
     status: status ?? this.status,
     questions: questions,
+    mode: mode,
     timerSeconds: timerSeconds,
     sourceLessonId: sourceLessonId,
     aiGenerated: aiGenerated,
@@ -490,7 +526,7 @@ class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         child: child,
       ),
     );
@@ -517,16 +553,16 @@ class _QuestionTile extends StatelessWidget {
     };
 
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+      margin: const EdgeInsets.only(bottom: IntelliaSpacing.xs),
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
+        horizontal: IntelliaSpacing.sm,
+        vertical: IntelliaSpacing.xs,
       ),
       decoration: BoxDecoration(
         color: Theme.of(
           context,
         ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(IntelliaRadii.small),
       ),
       child: Row(
         children: [
@@ -534,7 +570,7 @@ class _QuestionTile extends StatelessWidget {
             radius: 14,
             child: Text('${index + 1}', style: const TextStyle(fontSize: 11)),
           ),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: IntelliaSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

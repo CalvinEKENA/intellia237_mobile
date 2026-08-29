@@ -6,7 +6,7 @@ class QuizQuestion {
     required this.type,
     required this.prompt,
     required this.explanation,
-    required this.xpReward,
+    required this.pointsReward,
     this.options = const [],
     this.correctOptionIndex,
     this.correctBooleanValue,
@@ -21,5 +21,5 @@ class QuizQuestion {
   final bool? correctBooleanValue;
   final List<String> acceptedAnswers;
   final String explanation;
-  final int xpReward;
+  final int pointsReward;
 }

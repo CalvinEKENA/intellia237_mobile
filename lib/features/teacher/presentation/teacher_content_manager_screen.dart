@@ -36,10 +36,10 @@ class _TeacherContentManagerScreenState
   Widget build(BuildContext context) {
     final body = ListView(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.xl,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.xl,
       ),
       children: [
         if (!widget.embedded) ...[
@@ -49,11 +49,11 @@ class _TeacherContentManagerScreenState
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
         ],
         Card(
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
             child: Form(
               key: _formKey,
               child: Column(
@@ -65,7 +65,7 @@ class _TeacherContentManagerScreenState
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   DropdownButtonFormField<String>(
                     initialValue: _selectedClass,
                     decoration: const InputDecoration(labelText: 'Classe'),
@@ -80,20 +80,20 @@ class _TeacherContentManagerScreenState
                       ),
                       DropdownMenuItem(
                         value: 'prem_d',
-                        child: Text('Premiere D'),
+                        child: Text('Première D'),
                       ),
                     ],
                     onChanged: (value) =>
                         setState(() => _selectedClass = value!),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   DropdownButtonFormField<String>(
                     initialValue: _selectedSubject,
-                    decoration: const InputDecoration(labelText: 'Matiere'),
+                    decoration: const InputDecoration(labelText: 'Matière'),
                     items: const [
                       DropdownMenuItem(
                         value: 'Mathematiques',
-                        child: Text('Mathematiques'),
+                        child: Text('Mathématiques'),
                       ),
                       DropdownMenuItem(
                         value: 'Physique',
@@ -101,22 +101,24 @@ class _TeacherContentManagerScreenState
                       ),
                       DropdownMenuItem(
                         value: 'Francais',
-                        child: Text('Francais'),
+                        child: Text('Français'),
                       ),
                     ],
                     onChanged: (value) =>
                         setState(() => _selectedSubject = value!),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(labelText: 'Titre lecon'),
+                    decoration: const InputDecoration(
+                      labelText: 'Titre de la leçon',
+                    ),
                     validator: (value) =>
                         (value == null || value.trim().isEmpty)
                         ? 'Titre requis'
                         : null,
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   TextFormField(
                     controller: _chapterController,
                     decoration: const InputDecoration(labelText: 'Chapitre'),
@@ -125,17 +127,17 @@ class _TeacherContentManagerScreenState
                         ? 'Chapitre requis'
                         : null,
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   TextFormField(
                     controller: _summaryController,
                     maxLines: 5,
-                    decoration: const InputDecoration(labelText: 'Resume'),
+                    decoration: const InputDecoration(labelText: 'Résumé'),
                     validator: (value) =>
                         (value == null || value.trim().isEmpty)
-                        ? 'Resume requis'
+                        ? 'Résumé requis'
                         : null,
                   ),
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: IntelliaSpacing.md),
                   FilledButton.icon(
                     onPressed: _isPublishing ? null : _publish,
                     icon: _isPublishing
@@ -145,7 +147,7 @@ class _TeacherContentManagerScreenState
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.publish_rounded),
-                    label: Text(_isPublishing ? 'Publication...' : 'Publier'),
+                    label: Text(_isPublishing ? 'Publication…' : 'Publier'),
                   ),
                 ],
               ),
@@ -181,9 +183,9 @@ class _TeacherContentManagerScreenState
         );
     if (!mounted) return;
     setState(() => _isPublishing = false);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Contenu publie avec succes')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Contenu publié avec succès.')),
+    );
     _titleController.clear();
     _chapterController.clear();
     _summaryController.clear();

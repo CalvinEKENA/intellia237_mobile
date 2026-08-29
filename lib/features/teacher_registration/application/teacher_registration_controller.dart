@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/domain/auth_input_validators.dart';
+import '../../../core/telemetry/intellia_telemetry.dart';
 import '../../role_registration/data/firebase_role_registration_repository.dart';
 import '../../role_registration/data/role_registration_repository.dart';
 import '../../role_registration/domain/teacher_catalogs.dart';
@@ -147,6 +148,7 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
           );
 
       state = state.copyWith(isSubmitting: false, clearError: true);
+      await IntelliaTelemetry.registrationCompleted(role: 'teacher');
       return true;
     } on RoleRegistrationException catch (error) {
       state = state.copyWith(isSubmitting: false, errorMessage: error.message);
@@ -163,7 +165,7 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
   String? _validateIdentity() {
     return AuthInputValidators.displayName(
           state.firstName,
-          label: 'Le prenom',
+          label: 'Le prénom',
         ) ??
         AuthInputValidators.displayName(state.lastName, label: 'Le nom') ??
         AuthInputValidators.email(state.email) ??
@@ -176,10 +178,10 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
 
   String? _validateTeachingData() {
     if (state.subjects.isEmpty) {
-      return 'Selectionnez au moins une matiere enseignee.';
+      return 'Sélectionnez au moins une matière enseignée.';
     }
     if (state.levels.isEmpty) {
-      return 'Selectionnez au moins un niveau enseigne.';
+      return 'Sélectionnez au moins un niveau enseigné.';
     }
     return null;
   }

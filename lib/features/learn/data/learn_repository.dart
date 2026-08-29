@@ -47,5 +47,6 @@ abstract class LearnRepository {
     required String chapterId,
     required String lessonId,
     required double progress,
+    String? clientEventId,
   });
 }

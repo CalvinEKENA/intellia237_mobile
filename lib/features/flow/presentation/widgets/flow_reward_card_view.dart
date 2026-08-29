@@ -8,7 +8,7 @@ import '../../application/flow_controller.dart';
 import '../../domain/flow_card.dart';
 import 'flow_card_scaffold.dart';
 
-/// Carte de palier : célèbre la progression (XP, niveau, série) avec sobriété.
+/// Carte de palier : célèbre la progression (points, niveau, série) avec sobriété.
 class FlowRewardCardView extends ConsumerWidget {
   const FlowRewardCardView({required this.card, super.key});
   final FlowRewardCard card;
@@ -54,13 +54,21 @@ class FlowRewardCardView extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _stat('${progress.xp}', 'XP', IntelliaColors.xpGold),
-              _divider(),
-              _stat('Niv. ${progress.level}', 'Niveau', accent),
+              _stat(
+                '+${progress.sessionPoints}',
+                'Session vérifiée',
+                IntelliaColors.pointsGold,
+              ),
               _divider(),
               _stat(
-                '${progress.streakDays} j',
-                'Série',
+                progress.verifiedTotalPoints?.toString() ?? '—',
+                'Total vérifié',
+                accent,
+              ),
+              _divider(),
+              _stat(
+                progress.pendingValidationCount.toString(),
+                'À valider',
                 IntelliaColors.warning,
               ),
             ],

@@ -33,7 +33,7 @@ export function createSubmitQuizAttemptHandler(
         traceId,
         quizId: input.quizId,
         score: result.score,
-        xpAwarded: result.xpAwarded,
+        pointsAwarded: result.pointsAwarded,
         idempotentReplay: result.idempotentReplay,
         durationMs: Date.now() - startedAt
       });

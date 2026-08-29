@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +13,10 @@ import '../../../app/config/app_config.dart';
 import '../../../app/config/build_identity.dart';
 import '../../../app/config/feature_flags.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../../core/widgets/tab_section_header.dart';
 import '../../ai_companion/presentation/ai_companion_screen.dart';
@@ -32,6 +37,7 @@ import '../../tutor/domain/tutor_persona.dart';
 import '../application/student_home_controller.dart';
 import '../domain/student_home_snapshot.dart';
 import 'widgets/daily_challenges_section.dart';
+import 'widgets/weekly_goal_card.dart';
 import 'widgets/fade_slide_entrance.dart';
 import 'widgets/progress_overview_card.dart';
 import 'widgets/quick_access_panel.dart';
@@ -138,45 +144,64 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
             const _PremiumBackdrop(),
             SafeArea(
               bottom: false,
-              child: _ExclusiveTabStack(
-                index: _currentIndex,
-                children: [
-                  KeyedSubtree(
-                    key: const ValueKey('student-tab-home'),
-                    child: _StudentHomeTab(
-                      snapshotAsync: snapshotAsync,
-                      tourTargets: _tourTargets,
-                      onRefresh: () => ref
-                          .read(studentHomeControllerProvider.notifier)
-                          .refresh(),
-                      onOpenLearn: () => _selectTab(1),
-                      onOpenQuiz: () => _selectTab(2),
-                      onOpenAi: () => _selectTab(3),
-                      onOpenProfile: () => _selectTab(4),
-                      onOpenSubject: (subject) =>
-                          context.push(AppRoutes.subjectDetail(subject.id)),
+              // Tous les onglets (Accueil compris) vivent sur le backdrop
+              // clair : le contrat de surface est fourni une seule fois ici.
+              // Sans lui, tout widget lisant TabSurface.of() retomberait sur
+              // le défaut sombre → texte blanc invisible sur fond clair.
+              child: TabSurface(
+                palette: const TabPalette(TabPresentationMode.embeddedLight),
+                child: _ExclusiveTabStack(
+                  index: _currentIndex,
+                  children: [
+                    KeyedSubtree(
+                      key: const ValueKey('student-tab-home'),
+                      child: _StudentHomeTab(
+                        snapshotAsync: snapshotAsync,
+                        tourTargets: _tourTargets,
+                        onRefresh: () => ref
+                            .read(studentHomeControllerProvider.notifier)
+                            .refresh(),
+                        onOpenLearn: () => _selectTab(1),
+                        onOpenQuiz: () => _selectTab(2),
+                        onOpenAi: () => _selectTab(3),
+                        onOpenProfile: () => _selectTab(4),
+                        onOpenFlow: () => context.push(AppRoutes.flow),
+                        onOpenSubject: (subject) =>
+                            context.push(AppRoutes.subjectDetail(subject.id)),
+                        onResumeLesson: (resume) {
+                          unawaited(IntelliaTelemetry.resumedLearning());
+                          context.push(
+                            AppRoutes.lessonViewer(
+                              resume.subjectId,
+                              resume.chapterId,
+                              resume.lessonId,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  // Onglets quotidiens : univers clair explicite (TabSurface).
-                  const _LightTab(
-                    valueKey: 'student-tab-learn',
-                    child: _EmbeddedTab(child: LearnHubScreen(embedded: true)),
-                  ),
-                  const _LightTab(
-                    valueKey: 'student-tab-quiz',
-                    child: _EmbeddedTab(child: QuizHubScreen(embedded: true)),
-                  ),
-                  const _LightTab(
-                    valueKey: 'student-tab-companion',
-                    child: _EmbeddedTab(
-                      child: AICompanionScreen(embedded: true),
+                    const KeyedSubtree(
+                      key: ValueKey('student-tab-learn'),
+                      child: _EmbeddedTab(
+                        child: LearnHubScreen(embedded: true),
+                      ),
                     ),
-                  ),
-                  const _LightTab(
-                    valueKey: 'student-tab-profile',
-                    child: _ProfileTab(),
-                  ),
-                ],
+                    const KeyedSubtree(
+                      key: ValueKey('student-tab-quiz'),
+                      child: _EmbeddedTab(child: QuizHubScreen(embedded: true)),
+                    ),
+                    const KeyedSubtree(
+                      key: ValueKey('student-tab-companion'),
+                      child: _EmbeddedTab(
+                        child: AICompanionScreen(embedded: true),
+                      ),
+                    ),
+                    const KeyedSubtree(
+                      key: ValueKey('student-tab-profile'),
+                      child: _ProfileTab(),
+                    ),
+                  ],
+                ),
               ),
             ),
             if (showTapDiagnostics)
@@ -292,7 +317,9 @@ class _StudentHomeTab extends StatelessWidget {
     required this.onOpenQuiz,
     required this.onOpenAi,
     required this.onOpenProfile,
+    required this.onOpenFlow,
     required this.onOpenSubject,
+    required this.onResumeLesson,
   });
 
   final AsyncValue<StudentHomeSnapshot> snapshotAsync;
@@ -302,7 +329,22 @@ class _StudentHomeTab extends StatelessWidget {
   final VoidCallback onOpenQuiz;
   final VoidCallback onOpenAi;
   final VoidCallback onOpenProfile;
+  final VoidCallback onOpenFlow;
   final ValueChanged<SubjectOverview> onOpenSubject;
+  final ValueChanged<ResumeTarget> onResumeLesson;
+
+  void _openDestination(HomeDestination destination) {
+    switch (destination) {
+      case HomeDestination.learnTab:
+        onOpenLearn();
+      case HomeDestination.quizTab:
+        onOpenQuiz();
+      case HomeDestination.companionTab:
+        onOpenAi();
+      case HomeDestination.flow:
+        onOpenFlow();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -310,9 +352,9 @@ class _StudentHomeTab extends StatelessWidget {
       loading: () => const _ResponsiveBody(
         child: Padding(
           padding: EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.lg,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.lg,
             124,
           ),
           child: StudentHomeSkeleton(),
@@ -321,123 +363,180 @@ class _StudentHomeTab extends StatelessWidget {
       error: (error, stackTrace) => _ResponsiveBody(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.lg,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.lg,
             124,
           ),
-          child: _ErrorState(onRetry: onRefresh),
+          child: IntelliaStateView(
+            kind: stateKindForError(error),
+            title: 'Impossible de charger l\'accueil',
+            message: stateMessageForKind(stateKindForError(error)),
+            primaryLabel: 'Réessayer',
+            onPrimary: onRefresh,
+          ),
         ),
       ),
-      data: (snapshot) => _ResponsiveBody(
-        child: RefreshIndicator(
-          onRefresh: onRefresh,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.lg,
-              AppSpacing.lg,
-              132,
+      data: (snapshot) {
+        final gamification = snapshot.gamification;
+        final entranceDelays = _EntranceDelays();
+
+        // Registre de décisions : chaque section n'apparaît que si sa donnée
+        // est réelle (ou explicitement marquée démo). Aucune carte sans
+        // destination réelle, aucun chiffre inventé.
+        final sections = <Widget>[
+          KeyedSubtree(
+            key: tourTargets[TourGuideTargetIds.studentHeader],
+            child: StudentHomeHeader(
+              firstName: snapshot.firstName,
+              onProfileTap: onOpenProfile,
             ),
-            children: [
-              FadeSlideEntrance(
-                delay: const Duration(milliseconds: 20),
-                child: KeyedSubtree(
-                  key: tourTargets[TourGuideTargetIds.studentHeader],
-                  child: StudentHomeHeader(
-                    firstName: snapshot.firstName,
-                    onProfileTap: onOpenProfile,
-                  ),
-                ),
+          ),
+          if (snapshot.isDemoData) const _DemoDataBanner(),
+          if (gamification?.streakDays != null)
+            KeyedSubtree(
+              key: tourTargets[TourGuideTargetIds.studentStreak],
+              child: StreakMotivationCard(
+                streakDays: gamification!.streakDays!,
+                message:
+                    gamification.motivationText ?? 'Continue sur ta lancée.',
               ),
-              const SizedBox(height: AppSpacing.md),
-              FadeSlideEntrance(
-                delay: const Duration(milliseconds: 70),
-                child: KeyedSubtree(
-                  key: tourTargets[TourGuideTargetIds.studentStreak],
-                  child: StreakMotivationCard(
-                    streakDays: snapshot.streakDays,
-                    message: snapshot.motivationText,
-                  ),
-                ),
+            ),
+          WeeklyGoalCard(
+            subjects: snapshot.subjects,
+            onOpenSubject: onOpenSubject,
+          ),
+          FlowEntryCard(onTap: onOpenFlow),
+          if (snapshot.resume != null)
+            KeyedSubtree(
+              key: tourTargets[TourGuideTargetIds.studentResume],
+              child: ResumeCourseCard(
+                resume: snapshot.resume!,
+                onResume: () => onResumeLesson(snapshot.resume!),
               ),
-              const SizedBox(height: AppSpacing.md),
-              FadeSlideEntrance(
-                delay: const Duration(milliseconds: 100),
-                child: FlowEntryCard(onTap: () => context.push(AppRoutes.flow)),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FadeSlideEntrance(
-                delay: const Duration(milliseconds: 120),
-                child: KeyedSubtree(
-                  key: tourTargets[TourGuideTargetIds.studentResume],
-                  child: ResumeCourseCard(
-                    title: snapshot.lastCourseTitle,
-                    chapter: snapshot.lastCourseChapter,
-                    progress: snapshot.lastCourseProgress,
-                    onResume: onOpenLearn,
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FadeSlideEntrance(
-                delay: const Duration(milliseconds: 170),
-                child: KeyedSubtree(
-                  key: tourTargets[TourGuideTargetIds.studentSubjects],
-                  child: SubjectsCarousel(
+            ),
+          KeyedSubtree(
+            key: tourTargets[TourGuideTargetIds.studentSubjects],
+            child: snapshot.subjects.isEmpty
+                ? IntelliaStateView(
+                    kind: IntelliaStateKind.comingSoon,
+                    compact: true,
+                    title: 'Tes cours arrivent',
+                    message:
+                        'Les leçons de ta classe sont en cours de '
+                        'préparation. En attendant, découvre le Flow ou '
+                        'révise avec ton compagnon.',
+                    primaryLabel: 'Découvrir le Flow',
+                    onPrimary: onOpenFlow,
+                    secondaryLabel: 'Parler à mon compagnon',
+                    onSecondary: onOpenAi,
+                  )
+                : SubjectsCarousel(
                     subjects: snapshot.subjects,
                     onSubjectTap: onOpenSubject,
                   ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FadeSlideEntrance(
-                delay: const Duration(milliseconds: 210),
-                child: QuickAccessPanel(
-                  onQuizTap: onOpenQuiz,
-                  onAiTap: onOpenAi,
-                  quizKey: tourTargets[TourGuideTargetIds.studentQuickQuiz],
-                  aiKey: tourTargets[TourGuideTargetIds.studentQuickAi],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FadeSlideEntrance(
-                delay: const Duration(milliseconds: 250),
-                child: KeyedSubtree(
-                  key: tourTargets[TourGuideTargetIds.studentRecommendations],
-                  child: RecommendationsSection(
-                    items: snapshot.recommendations,
-                    onItemTap: (_) => onOpenLearn(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FadeSlideEntrance(
-                delay: const Duration(milliseconds: 300),
-                child: KeyedSubtree(
-                  key: tourTargets[TourGuideTargetIds.studentChallenges],
-                  child: DailyChallengesSection(
-                    items: snapshot.challenges,
-                    onItemTap: (_) => onOpenQuiz(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              FadeSlideEntrance(
-                delay: const Duration(milliseconds: 350),
-                child: KeyedSubtree(
-                  key: tourTargets[TourGuideTargetIds.studentProgress],
-                  child: ProgressOverviewCard(
-                    globalProgress: snapshot.globalProgress,
-                    level: snapshot.level,
-                    currentXp: snapshot.currentXp,
-                    onTap: onOpenProfile,
-                  ),
-                ),
-              ),
-            ],
           ),
+          QuickAccessPanel(
+            onQuizTap: onOpenQuiz,
+            onAiTap: onOpenAi,
+            quizKey: tourTargets[TourGuideTargetIds.studentQuickQuiz],
+            aiKey: tourTargets[TourGuideTargetIds.studentQuickAi],
+          ),
+          if (snapshot.recommendations.isNotEmpty)
+            KeyedSubtree(
+              key: tourTargets[TourGuideTargetIds.studentRecommendations],
+              child: RecommendationsSection(
+                items: snapshot.recommendations,
+                onItemTap: (item) => _openDestination(item.destination),
+              ),
+            ),
+          if (snapshot.challenges.isNotEmpty)
+            KeyedSubtree(
+              key: tourTargets[TourGuideTargetIds.studentChallenges],
+              child: DailyChallengesSection(
+                items: snapshot.challenges,
+                onItemTap: (item) => _openDestination(item.destination),
+              ),
+            ),
+          if (gamification != null && snapshot.globalProgress != null)
+            KeyedSubtree(
+              key: tourTargets[TourGuideTargetIds.studentProgress],
+              child: ProgressOverviewCard(
+                globalProgress: snapshot.globalProgress!,
+                level: gamification.level,
+                currentPoints: gamification.currentPoints,
+                onTap: onOpenProfile,
+              ),
+            ),
+        ];
+
+        return _ResponsiveBody(
+          child: RefreshIndicator(
+            onRefresh: onRefresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                IntelliaSpacing.lg,
+                IntelliaSpacing.lg,
+                IntelliaSpacing.lg,
+                132,
+              ),
+              children: [
+                for (final section in sections) ...[
+                  FadeSlideEntrance(
+                    delay: entranceDelays.next(),
+                    child: section,
+                  ),
+                  const SizedBox(height: IntelliaSpacing.md),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Délais d'entrée en cascade, indépendants du nombre de sections visibles.
+class _EntranceDelays {
+  int _index = 0;
+
+  Duration next() => Duration(milliseconds: 20 + 45 * _index++);
+}
+
+/// Bandeau affiché uniquement quand les données proviennent du mode démo.
+class _DemoDataBanner extends StatelessWidget {
+  const _DemoDataBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
+    return Semantics(
+      label: 'Données de démonstration',
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: IntelliaSpacing.sm,
+          vertical: IntelliaSpacing.xs,
+        ),
+        decoration: BoxDecoration(
+          color: s.numberAccentSoft,
+          borderRadius: BorderRadius.circular(IntelliaRadii.small),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.science_rounded, size: 14, color: s.numberAccent),
+            const SizedBox(width: 6),
+            Text(
+              'Données de démonstration',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: s.numberAccent,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -452,25 +551,6 @@ class _EmbeddedTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _ResponsiveBody(child: child);
-  }
-}
-
-/// Onglet quotidien posé dans l'univers clair (contrat [TabSurface]).
-class _LightTab extends StatelessWidget {
-  const _LightTab({required this.valueKey, required this.child});
-
-  final String valueKey;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return KeyedSubtree(
-      key: ValueKey(valueKey),
-      child: TabSurface(
-        palette: const TabPalette(TabPresentationMode.embeddedLight),
-        child: child,
-      ),
-    );
   }
 }
 
@@ -545,41 +625,73 @@ class _ProfileTab extends ConsumerWidget {
     return _ResponsiveBody(
       child: ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
           132,
         ),
         children: [
           const TabSectionHeader(eyebrow: 'Espace élève', title: 'Mon profil'),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: IntelliaSpacing.lg),
           // Carte d'identité principale
           _ProfileIdentityCard(auth: auth, theme: theme),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           // Section Académique
           _AcademicSection(academicAsync: academicAsync, theme: theme),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           // Section Compagnon pédagogique
           _TutorSection(classLevel: academicAsync.value?.classLevel),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           // Section Statistiques
           _StatsSection(homeAsync: homeAsync, theme: theme),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: IntelliaSpacing.md),
+          ListTile(
+            onTap: () => context.push(AppRoutes.settings),
+            leading: const Icon(Icons.settings_outlined),
+            title: const Text('Paramètres'),
+            subtitle: const Text(
+              'Lecture, animations, données et confidentialité',
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+          ),
+          const SizedBox(height: IntelliaSpacing.xl),
           OutlinedButton.icon(
-            onPressed: () =>
-                ref.read(authControllerProvider.notifier).signOut(),
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: const Text('Se déconnecter ?'),
+                  content: const Text(
+                    'Tes données synchronisées resteront disponibles à ta prochaine connexion.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext, false),
+                      child: const Text('Annuler'),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.pop(dialogContext, true),
+                      child: const Text('Se déconnecter'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                await ref.read(authControllerProvider.notifier).signOut();
+              }
+            },
             icon: const Icon(Icons.logout_rounded, color: Colors.red),
             label: const Text(
-              'Se deconnecter',
+              'Se déconnecter',
               style: TextStyle(color: Colors.red),
             ),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: Colors.red),
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              padding: const EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
             ),
           ),
           if (showBuildIdentity) ...[
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: IntelliaSpacing.md),
             _BuildIdentityLabel(identity: ref.watch(buildIdentityProvider)),
           ],
         ],
@@ -625,7 +737,7 @@ class _ProfileIdentityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         child: Row(
           children: [
             CircleAvatar(
@@ -640,7 +752,7 @@ class _ProfileIdentityCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: IntelliaSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -659,7 +771,7 @@ class _ProfileIdentityCard extends StatelessWidget {
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: IntelliaSpacing.xs),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -679,7 +791,7 @@ class _ProfileIdentityCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            'Compte Eleve',
+                            'Compte Élève',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.labelSmall?.copyWith(
@@ -713,15 +825,15 @@ class _AcademicSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Parcours Academique',
+          'Parcours académique',
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
         Card(
           child: academicAsync.when(
-            loading: () => const ListTile(title: Text('Chargement...')),
+            loading: () => const ListTile(title: Text('Chargement…')),
             error: (_, _) =>
                 const ListTile(title: Text('Erreur de chargement')),
             data: (academic) => Column(
@@ -737,7 +849,7 @@ class _AcademicSection extends StatelessWidget {
                 if (academic.series != null)
                   ListTile(
                     leading: const Icon(Icons.category_rounded),
-                    title: const Text('Serie'),
+                    title: const Text('Série'),
                     trailing: Text(
                       academic.series!,
                       style: const TextStyle(fontWeight: FontWeight.bold),
@@ -770,44 +882,74 @@ class _StatsSection extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
         homeAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => const Text('Erreur stats'),
-          data: (snapshot) => GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: AppSpacing.sm,
-            crossAxisSpacing: AppSpacing.sm,
-            mainAxisExtent: 92 + (textScale - 1).clamp(0, 0.5) * 60,
-            children: [
-              _StatTile(
-                icon: Icons.bolt_rounded,
-                label: 'Points XP',
-                value: snapshot.currentXp.toString(),
-                color: Colors.orange,
-              ),
-              _StatTile(
-                icon: Icons.workspace_premium_rounded,
-                label: 'Niveau',
-                value: snapshot.level.toString(),
-                color: Colors.blue,
-              ),
-              _StatTile(
-                icon: Icons.local_fire_department_rounded,
-                label: 'Serie actuelle',
-                value: '${snapshot.streakDays} jours',
-                color: Colors.red,
-              ),
-              _StatTile(
-                icon: Icons.auto_graph_rounded,
-                label: 'Progression',
-                value: '${(snapshot.globalProgress * 100).round()}%',
-                color: Colors.green,
-              ),
-            ],
+          loading: () => const IntelliaStateView(
+            kind: IntelliaStateKind.loading,
+            compact: true,
           ),
+          error: (error, _) => IntelliaStateView(
+            kind: stateKindForError(error),
+            compact: true,
+            title: 'Statistiques indisponibles',
+            message: stateMessageForKind(stateKindForError(error)),
+          ),
+          data: (snapshot) {
+            final gamification = snapshot.gamification;
+            final tiles = <_StatTile>[
+              if (gamification != null) ...[
+                _StatTile(
+                  icon: Icons.bolt_rounded,
+                  label: 'Points',
+                  value: gamification.currentPoints.toString(),
+                  color: Colors.orange,
+                ),
+                _StatTile(
+                  icon: Icons.workspace_premium_rounded,
+                  label: 'Niveau',
+                  value: gamification.level.toString(),
+                  color: Colors.blue,
+                ),
+                if (gamification.streakDays != null)
+                  _StatTile(
+                    icon: Icons.local_fire_department_rounded,
+                    label: 'Série actuelle',
+                    value: '${gamification.streakDays} jours',
+                    color: Colors.red,
+                  ),
+              ],
+              if (snapshot.globalProgress != null)
+                _StatTile(
+                  icon: Icons.auto_graph_rounded,
+                  label: 'Progression',
+                  value: '${(snapshot.globalProgress! * 100).round()}%',
+                  color: Colors.green,
+                ),
+            ];
+
+            if (tiles.isEmpty) {
+              // Aucun agrégat réel : on l'explique — jamais de chiffres
+              // inventés pour meubler le tableau de bord.
+              return const IntelliaStateView(
+                kind: IntelliaStateKind.empty,
+                compact: true,
+                title: 'Tes statistiques arrivent',
+                message:
+                    'Termine ta première leçon ou ton premier quiz pour '
+                    'voir tes points et ta progression ici.',
+              );
+            }
+
+            return GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: IntelliaSpacing.sm,
+              crossAxisSpacing: IntelliaSpacing.sm,
+              mainAxisExtent: 92 + (textScale - 1).clamp(0, 0.5) * 60,
+              children: tiles,
+            );
+          },
         ),
       ],
     );
@@ -831,16 +973,16 @@ class _StatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.all(IntelliaSpacing.sm),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(IntelliaRadii.small),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Icon(icon, color: color, size: 24),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: IntelliaSpacing.sm),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -899,16 +1041,16 @@ class _TutorSection extends ConsumerWidget {
             color: s.textPrimary,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
         GestureDetector(
           onTap: () => _openTutorSelection(context, ref, tutor, classLevel),
           child: AnimatedContainer(
-            duration: AppMotion.medium,
-            curve: AppMotion.emphasizedDecelerate,
-            padding: const EdgeInsets.all(AppSpacing.md),
+            duration: IntelliaMotion.medium,
+            curve: IntelliaMotion.emphasizedDecelerate,
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
             decoration: BoxDecoration(
               color: s.surface,
-              borderRadius: BorderRadius.circular(AppRadius.md),
+              borderRadius: BorderRadius.circular(IntelliaRadii.medium),
               border: Border.all(
                 color: tutor != null
                     ? tutor.accentColor.withValues(alpha: 0.35)
@@ -971,12 +1113,24 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
     _floatCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
+    );
 
     _floatAnim = Tween<double>(
       begin: -3.0,
       end: 3.0,
     ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOutSine));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final disabled = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (disabled) {
+      _floatCtrl.stop();
+      _floatCtrl.value = 0.5;
+    } else if (!_floatCtrl.isAnimating) {
+      _floatCtrl.repeat(reverse: true);
+    }
   }
 
   @override
@@ -1005,18 +1159,18 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
               boxShadow: AppShadows.glow(tutor.accentColor, intensity: 0.30),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
               child: Image.asset(
                 tutor.imagePath,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(colors: tutor.gradientColors),
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    borderRadius: BorderRadius.circular(IntelliaRadii.small),
                   ),
                   child: Icon(
                     Icons.person_rounded,
@@ -1028,7 +1182,7 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
             ),
           ),
         ),
-        const SizedBox(width: AppSpacing.md),
+        const SizedBox(width: IntelliaSpacing.md),
 
         // Info
         Expanded(
@@ -1080,7 +1234,7 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
                 ),
               ),
             ),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: IntelliaSpacing.xs),
             Icon(Icons.edit_rounded, size: 16, color: s.textTertiary),
           ],
         ),
@@ -1102,7 +1256,7 @@ class _NoTutorPlaceholder extends StatelessWidget {
           height: 56,
           decoration: BoxDecoration(
             color: s.surfaceMuted,
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+            borderRadius: BorderRadius.circular(IntelliaRadii.small),
             border: Border.all(color: s.surfaceBorder),
           ),
           child: Icon(
@@ -1111,7 +1265,7 @@ class _NoTutorPlaceholder extends StatelessWidget {
             size: 28,
           ),
         ),
-        const SizedBox(width: AppSpacing.md),
+        const SizedBox(width: IntelliaSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1126,7 +1280,7 @@ class _NoTutorPlaceholder extends StatelessWidget {
               ),
               const SizedBox(height: 3),
               Text(
-                'Choisis un tuteur pour personnaliser ton IA',
+                'Choisis un tuteur pour personnaliser ton compagnon',
                 style: TextStyle(fontSize: 12, color: s.textTertiary),
               ),
             ],
@@ -1134,45 +1288,6 @@ class _NoTutorPlaceholder extends StatelessWidget {
         ),
         Icon(Icons.arrow_forward_ios_rounded, size: 14, color: s.textTertiary),
       ],
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  const _ErrorState({required this.onRetry});
-
-  final Future<void> Function() onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Impossible de charger l\'accueil',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              'Verifie la connexion puis relance le chargement.',
-              style: theme.textTheme.bodyMedium,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            FilledButton.icon(
-              onPressed: () => onRetry(),
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Reessayer'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -1243,7 +1358,7 @@ class _PremiumBackdrop extends StatelessWidget {
             child: Center(
               child: _GlowOrb(
                 size: 120,
-                color: AppColors.gold.withValues(alpha: 0.12),
+                color: IntelliaColors.warning.withValues(alpha: 0.12),
               ),
             ),
           ),

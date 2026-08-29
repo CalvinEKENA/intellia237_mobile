@@ -69,7 +69,7 @@ class StudentRegistrationPayload {
       'email': email,
       'classLevel': schoolClass.label,
       'series': schoolSeries?.label,
-      'xp': 0,
+      'points': 0,
       'level': 1,
       'streak': <String, dynamic>{
         'current': 0,

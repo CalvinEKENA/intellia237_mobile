@@ -48,21 +48,29 @@ class _OnboardingSlide4VisualState extends State<OnboardingSlide4Visual>
       vsync: this,
       duration: const Duration(milliseconds: 3000),
     );
+  }
 
-    // Start animations with staggered delays
-    _pulseKiraCtrl.repeat(reverse: true);
-
-    Future.delayed(const Duration(milliseconds: 1300), () {
-      if (mounted) _pulseLeoCtrl.repeat(reverse: true);
-    });
-
-    _floatKiraCtrl.repeat(reverse: true);
-
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) _floatLeoCtrl.repeat(reverse: true);
-    });
-
-    _sparkleCtrl.repeat();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final disabled = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final controllers = [
+      _pulseKiraCtrl,
+      _pulseLeoCtrl,
+      _floatKiraCtrl,
+      _floatLeoCtrl,
+      _sparkleCtrl,
+    ];
+    if (disabled) {
+      for (final controller in controllers) {
+        controller.stop();
+        controller.value = 0.5;
+      }
+      return;
+    }
+    for (final controller in controllers) {
+      if (!controller.isAnimating) controller.repeat(reverse: true);
+    }
   }
 
   @override

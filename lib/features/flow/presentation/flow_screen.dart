@@ -18,7 +18,7 @@ import 'widgets/flow_hud.dart';
 /// L'expérience Flow : un feed vertical plein écran de cartes-leçons.
 ///
 /// Scroll vertical uniquement. On ne revient jamais à une liste : la carte
-/// suivante se découvre naturellement. XP, séries et badges récompensent la
+/// suivante se découvre naturellement. Points, séries et badges récompensent la
 /// progression au fil des cartes.
 class FlowScreen extends ConsumerStatefulWidget {
   const FlowScreen({super.key});
@@ -38,7 +38,15 @@ class _FlowScreenState extends ConsumerState<FlowScreen> {
   @override
   void initState() {
     super.initState();
-    _cards = ref.read(flowCardsProvider);
+    final catalog = ref.read(flowCardsProvider);
+    final completed = ref.read(flowControllerProvider).completedCardIds;
+    // Les cartes non terminées passent devant : une reprise ne rejoue donc pas
+    // immédiatement les mêmes exercices. L'ordre éditorial reste stable dans
+    // chaque groupe et la session possède une fin naturelle.
+    _cards = [
+      ...catalog.where((card) => !completed.contains(card.id)),
+      ...catalog.where((card) => completed.contains(card.id)),
+    ];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _handleSettled(0);
     });
@@ -59,22 +67,31 @@ class _FlowScreenState extends ConsumerState<FlowScreen> {
     _dwell?.cancel();
 
     // Le mini-quiz attend une réponse explicite.
-    if (card is FlowMiniQuizCard) return;
+    if (card is FlowExerciseCard) return;
 
     // Une carte palier célèbre dès qu'elle est atteinte.
     if (card is FlowRewardCard) {
       HapticFeedback.lightImpact();
-      final award = notifier.completeContentCard(card);
-      if (award.hasCelebration) _showCelebration(award);
+      unawaited(notifier.completeContentCard(card).then(_handleAward));
       return;
     }
 
     // Carte de contenu : récompensée après une lecture réelle (dwell).
-    _dwell = Timer(const Duration(milliseconds: 1200), () {
+    _dwell = Timer(const Duration(milliseconds: 1200), () async {
       if (!mounted || _index != i) return;
-      final award = notifier.completeContentCard(card);
-      if (award.hasCelebration) _showCelebration(award);
+      final award = await notifier.completeContentCard(card);
+      _handleAward(award);
     });
+  }
+
+  void _handleAward(FlowAward award) {
+    if (!mounted) return;
+    if (award.hasCelebration) _showCelebration(award);
+    if (award.message != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(award.message!)));
+    }
   }
 
   void _showCelebration(FlowAward award) {
@@ -107,12 +124,12 @@ class _FlowScreenState extends ConsumerState<FlowScreen> {
             itemBuilder: (context, i) => FlowCardView(
               card: _cards[i],
               onAward: (award) {
-                if (award.hasCelebration) _showCelebration(award);
+                _handleAward(award);
               },
             ),
           ),
 
-          // HUD supérieur (niveau, XP, série, fermeture).
+          // HUD supérieur (niveau, points, série, fermeture).
           Align(
             alignment: Alignment.topCenter,
             child: FlowHud(onClose: _close),

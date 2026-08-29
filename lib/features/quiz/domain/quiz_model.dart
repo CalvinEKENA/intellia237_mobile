@@ -1,4 +1,5 @@
 import 'quiz_question.dart';
+import 'quiz_mode.dart';
 
 class QuizModel {
   const QuizModel({
@@ -10,7 +11,9 @@ class QuizModel {
     required this.difficultyLabel,
     required this.questions,
     this.timerSeconds,
-  });
+    this.mode = QuizMode.exam,
+    int? questionCount,
+  }) : questionCount = questionCount ?? questions.length;
 
   final String id;
   final String title;
@@ -20,4 +23,6 @@ class QuizModel {
   final String difficultyLabel;
   final List<QuizQuestion> questions;
   final int? timerSeconds;
+  final QuizMode mode;
+  final int questionCount;
 }

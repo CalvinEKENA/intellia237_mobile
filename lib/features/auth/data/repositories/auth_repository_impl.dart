@@ -30,7 +30,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final uid = credential.user?.uid;
       if (uid == null) {
         throw const AuthError(
-          message: 'Utilisateur introuvable apres connexion.',
+          message: 'Utilisateur introuvable après connexion.',
           code: 'missing-user',
         );
       }
@@ -59,7 +59,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final uid = credential.user?.uid;
       if (uid == null) {
         throw const AuthError(
-          message: 'Impossible de creer le compte utilisateur.',
+          message: 'Impossible de créer le compte utilisateur.',
           code: 'missing-user',
         );
       }
@@ -77,6 +77,7 @@ class AuthRepositoryImpl implements AuthRepository {
         'createdAt': now,
         'updatedAt': now,
       }, SetOptions(merge: true));
+      await _sendVerificationBestEffort(credential.user);
 
       return AuthUserData(
         uid: uid,
@@ -186,6 +187,16 @@ class AuthRepositoryImpl implements AuthRepository {
     if (!kDebugMode) return;
     debugPrint('Firebase Auth $operation failed: code=$code message=$message');
     if (stackTrace != null) debugPrintStack(stackTrace: stackTrace);
+  }
+
+  Future<void> _sendVerificationBestEffort(User? user) async {
+    if (user == null || user.emailVerified) return;
+    try {
+      await user.sendEmailVerification();
+    } on FirebaseAuthException {
+      // Le compte est déjà créé : un problème d’envoi ne doit pas annuler
+      // l’inscription. Paramètres permet de renvoyer le message plus tard.
+    }
   }
 }
 

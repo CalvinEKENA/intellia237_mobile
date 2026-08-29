@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class ContentModerationScreen extends ConsumerWidget {
   const ContentModerationScreen({super.key, this.embedded = false});
@@ -15,19 +17,18 @@ class ContentModerationScreen extends ConsumerWidget {
     final moderationAsync = ref.watch(adminModerationQueueProvider);
     final body = moderationAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: FilledButton.icon(
-          onPressed: () => ref.invalidate(adminModerationQueueProvider),
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Recharger'),
-        ),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        message: stateMessageForKind(stateKindForError(error)),
+        primaryLabel: 'Réessayer',
+        onPrimary: () => ref.invalidate(adminModerationQueueProvider),
       ),
       data: (items) => ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.xl,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.xl,
         ),
         children: [
           Text(
@@ -36,22 +37,22 @@ class ContentModerationScreen extends ConsumerWidget {
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             'Validez ou masquez les contenus signalés.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           if (items.isEmpty)
             const Card(
               child: Padding(
-                padding: EdgeInsets.all(AppSpacing.md),
+                padding: EdgeInsets.all(IntelliaSpacing.md),
                 child: Text('Aucun ticket de modération.'),
               ),
             ),
           for (final item in items) ...[
             _ModerationCard(item: item),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
           ],
         ],
       ),
@@ -62,7 +63,7 @@ class ContentModerationScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Content Moderation')),
+      appBar: AppBar(title: const Text('Modération des contenus')),
       body: body,
     );
   }
@@ -83,7 +84,7 @@ class _ModerationCard extends ConsumerWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -99,7 +100,7 @@ class _ModerationCard extends ConsumerWidget {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xs,
+                    horizontal: IntelliaSpacing.xs,
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
@@ -116,9 +117,9 @@ class _ModerationCard extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.xxs),
+            const SizedBox(height: IntelliaSpacing.xxs),
             Text('${item.contentType} • ${item.reportCount} signalement(s)'),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             Row(
               children: [
                 Expanded(
@@ -140,7 +141,7 @@ class _ModerationCard extends ConsumerWidget {
                     label: const Text('Masquer'),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: IntelliaSpacing.sm),
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: () async {

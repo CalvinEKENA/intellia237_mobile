@@ -49,40 +49,41 @@ class ProfileImageService {
 
   /// Upload vers Firebase Storage + mise à jour Firestore
   Future<String?> uploadProfileImage(File imageFile) async {
-    try {
-      final uid = _auth.currentUser?.uid;
-      if (uid == null) throw Exception('Utilisateur non connecté');
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) throw StateError('Utilisateur non connecté');
 
-      // Référence Storage : avatars/{uid}/profile.jpg
-      final ref = _storage.ref().child('avatars/$uid/profile.jpg');
+    // Référence Storage : avatars/{uid}/profile.jpg
+    final ref = _storage.ref().child('avatars/$uid/profile.jpg');
 
-      final uploadTask = await ref.putFile(
-        imageFile,
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
+    final uploadTask = await ref.putFile(
+      imageFile,
+      SettableMetadata(contentType: 'image/jpeg'),
+    );
 
-      final downloadUrl = await uploadTask.ref.getDownloadURL();
+    final downloadUrl = await uploadTask.ref.getDownloadURL();
 
-      // Mise à jour Firestore
-      await _firestore.collection('users').doc(uid).update({
-        'photoUrl': downloadUrl,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+    // Mise à jour Firestore
+    await _firestore.collection('users').doc(uid).update({
+      'photoUrl': downloadUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
 
-      return downloadUrl;
-    } catch (e) {
-      rethrow;
-    }
+    return downloadUrl;
   }
 
   /// Supprime l'ancienne photo du Storage
   Future<void> deleteOldProfileImage() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return;
     try {
-      final uid = _auth.currentUser?.uid;
-      if (uid == null) return;
       await _storage.ref().child('avatars/$uid/profile.jpg').delete();
     } catch (_) {
-      // Pas d'image existante, on ignore
+      // Le fichier peut déjà avoir été supprimé ; le profil Firestore doit
+      // tout de même être nettoyé pour ne pas garder une URL cassée.
     }
+    await _firestore.collection('users').doc(uid).update({
+      'photoUrl': FieldValue.delete(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 }

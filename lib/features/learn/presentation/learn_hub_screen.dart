@@ -11,6 +11,8 @@ import '../../../core/widgets/tab_section_header.dart';
 import '../application/learn_providers.dart';
 import '../domain/learn_subject.dart';
 import 'subject_detail_screen.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class LearnHubScreen extends ConsumerStatefulWidget {
   const LearnHubScreen({super.key, this.embedded = false});
@@ -22,7 +24,6 @@ class LearnHubScreen extends ConsumerStatefulWidget {
 }
 
 class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
-  int _selectedFilter = 0;
   final TextEditingController _searchCtrl = TextEditingController();
   String _searchQuery = '';
 
@@ -46,14 +47,17 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
 
     final content = hubAsync.when(
       loading: _LearnHubLoading.new,
-      error: (error, stackTrace) =>
-          _LearnHubError(onRetry: () => ref.invalidate(learnHubProvider)),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        title: 'Impossible de charger les matières',
+        message: stateMessageForKind(stateKindForError(error)),
+        primaryLabel: 'Réessayer',
+        onPrimary: () => ref.invalidate(learnHubProvider),
+      ),
       data: (snapshot) => _LearnHubBody(
         classLabel: snapshot.context.label,
         subjects: snapshot.subjects,
-        selectedFilter: _selectedFilter,
         searchQuery: _searchQuery,
-        onFilterChanged: (i) => setState(() => _selectedFilter = i),
         searchCtrl: _searchCtrl,
       ),
     );
@@ -62,6 +66,8 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF060E22),
+      // Univers sombre explicite : le contrat de surface suit l'écran.
+      // (embedded : la palette claire vient du shell de l'accueil.)
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text(
@@ -74,7 +80,10 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: content,
+      body: TabSurface(
+        palette: const TabPalette(TabPresentationMode.standaloneDark),
+        child: content,
+      ),
     );
   }
 }
@@ -83,17 +92,13 @@ class _LearnHubBody extends StatelessWidget {
   const _LearnHubBody({
     required this.classLabel,
     required this.subjects,
-    required this.selectedFilter,
     required this.searchQuery,
-    required this.onFilterChanged,
     required this.searchCtrl,
   });
 
   final String classLabel;
   final List<LearnSubject> subjects;
-  final int selectedFilter;
   final String searchQuery;
-  final ValueChanged<int> onFilterChanged;
   final TextEditingController searchCtrl;
 
   List<LearnSubject> get _filtered {
@@ -106,20 +111,9 @@ class _LearnHubBody extends StatelessWidget {
     return result;
   }
 
-  List<String> get _currentFilters {
-    final Map<String, String> examMapping = {
-      'Terminale': 'Baccalauréat',
-      'Première': 'Probatoire',
-      'Troisième': 'BEPC',
-    };
-    final exam = examMapping[classLabel.split(' ').first] ?? classLabel;
-    return ['Tout', exam];
-  }
-
   @override
   Widget build(BuildContext context) {
     final filtered = _filtered;
-    final filters = _currentFilters;
     // Hauteur de tuile adaptative : évite tout débordement à grand facteur
     // de texte (1.3 / 1.5).
     final textScale = MediaQuery.textScalerOf(context).scale(1);
@@ -131,10 +125,10 @@ class _LearnHubBody extends StatelessWidget {
         const SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.lg,
-              AppSpacing.lg,
-              AppSpacing.md,
+              IntelliaSpacing.lg,
+              IntelliaSpacing.lg,
+              IntelliaSpacing.lg,
+              IntelliaSpacing.md,
             ),
             child: TabSectionHeader(
               eyebrow: 'Espace élève',
@@ -147,9 +141,9 @@ class _LearnHubBody extends StatelessWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
+              IntelliaSpacing.lg,
               0,
-              AppSpacing.lg,
+              IntelliaSpacing.lg,
               0,
             ),
             child: _ContextBanner(classLabel: classLabel),
@@ -160,64 +154,79 @@ class _LearnHubBody extends StatelessWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
+              IntelliaSpacing.lg,
+              IntelliaSpacing.md,
+              IntelliaSpacing.lg,
               0,
             ),
             child: _GlassSearchBar(controller: searchCtrl),
           ),
         ),
 
-        // ── Filter chips ───────────────────────────────────
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.md,
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (int i = 0; i < filters.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.only(right: AppSpacing.xs),
-                      child: _FilterChip(
-                        label: filters[i],
-                        selected: i == selectedFilter,
-                        onTap: () => onFilterChanged(i),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        // (Chips de filtre sans effet retirées : fausse affordance. Le
+        // contexte de classe est déjà affiché dans le banner.)
+        const SliverToBoxAdapter(child: SizedBox(height: IntelliaSpacing.md)),
 
         // ── Subject grid ───────────────────────────────────
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            0,
-            AppSpacing.lg,
-            132,
-          ),
-          sliver: SliverGrid(
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 360,
-              mainAxisSpacing: AppSpacing.md,
-              crossAxisSpacing: AppSpacing.md,
-              mainAxisExtent: tileExtent,
+        if (subjects.isEmpty)
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                IntelliaSpacing.lg,
+                IntelliaSpacing.md,
+                IntelliaSpacing.lg,
+                132,
+              ),
+              child: IntelliaStateView(
+                kind: IntelliaStateKind.comingSoon,
+                compact: true,
+                title: 'Tes matières arrivent',
+                message:
+                    'Les cours de ta classe sont en cours de préparation. '
+                    'Tu seras parmi les premiers à en profiter.',
+              ),
             ),
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final subject = filtered[index];
-              return _SubjectCard(subject: subject, index: index);
-            }, childCount: filtered.length),
+          )
+        else if (filtered.isEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                IntelliaSpacing.lg,
+                IntelliaSpacing.md,
+                IntelliaSpacing.lg,
+                132,
+              ),
+              child: IntelliaStateView(
+                kind: IntelliaStateKind.noResults,
+                compact: true,
+                title: 'Aucune matière trouvée',
+                message: 'Essaie un autre mot-clé.',
+                primaryLabel: 'Effacer la recherche',
+                onPrimary: searchCtrl.clear,
+              ),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              IntelliaSpacing.lg,
+              0,
+              IntelliaSpacing.lg,
+              132,
+            ),
+            sliver: SliverGrid(
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 360,
+                mainAxisSpacing: IntelliaSpacing.md,
+                crossAxisSpacing: IntelliaSpacing.md,
+                mainAxisExtent: tileExtent,
+              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final subject = filtered[index];
+                return _SubjectCard(subject: subject, index: index);
+              }, childCount: filtered.length),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -237,7 +246,7 @@ class _ContextBanner extends StatelessWidget {
     // Vrai gradient indigo→violet affirmé : texte blanc à contraste garanti,
     // sans BackdropFilter (perf + lisibilité sur fond clair).
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(IntelliaSpacing.lg),
       decoration: BoxDecoration(
         gradient: IntelliaGradients.brand,
         borderRadius: BorderRadius.circular(IntelliaRadii.large),
@@ -257,7 +266,7 @@ class _ContextBanner extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: AppSpacing.xxs),
+          const SizedBox(height: IntelliaSpacing.xxs),
           Text(
             'Contenus adaptés à ton niveau actuel.',
             style: TextStyle(
@@ -265,11 +274,11 @@ class _ContextBanner extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.85),
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: IntelliaSpacing.sm),
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xxs + 2,
+              horizontal: IntelliaSpacing.sm,
+              vertical: IntelliaSpacing.xxs + 2,
             ),
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.20),
@@ -344,8 +353,8 @@ class _GlassSearchBar extends StatelessWidget {
           ),
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+          horizontal: IntelliaSpacing.md,
+          vertical: IntelliaSpacing.sm,
         ),
       ),
     );
@@ -355,56 +364,6 @@ class _GlassSearchBar extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────
 // Filter chip
 // ─────────────────────────────────────────────────────────────
-
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: AppMotion.fast,
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs,
-        ),
-        decoration: BoxDecoration(
-          gradient: selected ? IntelliaGradients.brand : null,
-          color: selected ? null : s.surfaceMuted,
-          borderRadius: BorderRadius.circular(99),
-          border: Border.all(
-            color: selected ? Colors.transparent : s.surfaceBorder,
-          ),
-          boxShadow: selected
-              ? IntelliaShadows.glow(
-                  IntelliaColors.brandIndigo,
-                  intensity: 0.18,
-                )
-              : null,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-            color: selected ? Colors.white : s.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────
 // Subject card
@@ -445,10 +404,10 @@ class _SubjectCard extends StatelessWidget {
             tappable: false,
             closedElevation: 0,
             closedColor: Colors.transparent,
-            openColor: const Color(0xFF060E22),
-            middleColor: const Color(0xFF060E22),
+            openColor: IntelliaColors.backgroundPrimary,
+            middleColor: IntelliaColors.backgroundPrimary,
             closedShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
+              borderRadius: BorderRadius.circular(IntelliaRadii.medium),
             ),
             // `fade` (et non fadeThrough) garde la source visible plus longtemps
             // → l'expansion spatiale du conteneur est nettement plus perceptible.
@@ -486,7 +445,7 @@ class _SubjectTileVisual extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderRadius: BorderRadius.circular(IntelliaRadii.medium),
       child: Stack(
         children: [
           Positioned.fill(
@@ -505,7 +464,7 @@ class _SubjectTileVisual extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -544,7 +503,7 @@ class _SubjectTileVisual extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xxs),
+                const SizedBox(height: IntelliaSpacing.xxs),
                 Text(
                   '${subject.lessonsCount} leçon${subject.lessonsCount > 1 ? 's' : ''}',
                   style: TextStyle(
@@ -552,7 +511,7 @@ class _SubjectTileVisual extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.65),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
+                const SizedBox(height: IntelliaSpacing.xs),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(99),
                   child: LinearProgressIndicator(
@@ -579,13 +538,13 @@ class _LearnHubLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(IntelliaSpacing.lg),
       children: [
         _SkeletonBox(height: 140),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         for (int i = 0; i < 4; i++) ...[
           _SkeletonBox(height: 160),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
         ],
       ],
     );
@@ -611,48 +570,11 @@ class _SkeletonBox extends StatelessWidget {
             height: height,
             decoration: BoxDecoration(
               color: s.surfaceMuted,
-              borderRadius: BorderRadius.circular(AppRadius.md),
+              borderRadius: BorderRadius.circular(IntelliaRadii.medium),
             ),
           ),
         );
       },
-    );
-  }
-}
-
-class _LearnHubError extends StatelessWidget {
-  const _LearnHubError({required this.onRetry});
-
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 48,
-              color: IntelliaColors.brandIndigo.withValues(alpha: 0.7),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Impossible de charger les matières.',
-              style: TextStyle(color: s.textSecondary, fontSize: 14),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Réessayer'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

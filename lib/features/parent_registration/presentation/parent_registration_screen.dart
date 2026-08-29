@@ -9,6 +9,7 @@ import '../../../core/widgets/intellia_text_field.dart';
 import '../../auth/presentation/widgets/auth_registration_frame.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../application/parent_registration_controller.dart';
+import '../../legal/presentation/legal_links.dart';
 import '../application/parent_registration_state.dart';
 
 class ParentRegistrationScreen extends ConsumerStatefulWidget {
@@ -157,7 +158,7 @@ class _ParentRegistrationScreenState
           const _SectionHeader(
             title: 'Coordonnées du parent',
             subtitle:
-                'Renseignez votre identité, email et téléphone (optionnel).',
+                'Renseignez votre identité, votre e-mail et votre téléphone (optionnel).',
           ),
           const SizedBox(height: IntelliaSpacing.lg),
           IntelliaTextField(
@@ -167,7 +168,7 @@ class _ParentRegistrationScreenState
             prefixIcon: Icons.person_rounded,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
-              label: 'Le prenom',
+              label: 'Le prénom',
             ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
@@ -182,7 +183,7 @@ class _ParentRegistrationScreenState
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _emailController,
-            label: 'Email',
+            label: 'Adresse e-mail',
             hint: 'parent@exemple.com',
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_rounded,
@@ -319,6 +320,7 @@ class _ParentRegistrationScreenState
           onChanged: (value) => controller.setAcceptedPrivacy(value ?? false),
           label: 'J\'accepte la politique de confidentialité.',
         ),
+        const LegalLinks(),
         const SizedBox(height: IntelliaSpacing.lg),
         const _InfoBanner(
           message:

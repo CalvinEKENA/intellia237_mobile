@@ -20,7 +20,8 @@ The following roles are not public self-assignment roles:
 Students may create:
 
 - `users/{uid}` with role `student`.
-- `student_profiles/{uid}` with `xp = 0` and `level = 1`.
+- `student_profiles/{uid}` with `points = 0` and `level = 1`. The legacy
+  bootstrap field `xp = 0` remains temporarily accepted for old clients.
 
 Parents may create:
 
@@ -33,7 +34,7 @@ These client-side flows are intentionally blocked by rules until a server review
 
 - Direct teacher role creation from the teacher registration screen.
 - Direct admin role creation from the admin registration screen.
-- Owner updates that change `role`, `establishmentId`, XP, entitlement, subscription, approval, or academic fields.
+- Owner updates that change `role`, `establishmentId`, points, entitlement, subscription, approval, or academic fields.
 
 ## Staff Provisioning Target
 

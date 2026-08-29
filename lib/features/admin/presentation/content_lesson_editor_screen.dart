@@ -75,11 +75,15 @@ class _ContentLessonEditorScreenState
           context,
         ).showSnackBar(const SnackBar(content: Text('✅ Leçon sauvegardée')));
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erreur : $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'La leçon n’a pas pu être enregistrée. Vérifie la connexion et réessaie.',
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -96,11 +100,15 @@ class _ContentLessonEditorScreenState
         ).showSnackBar(const SnackBar(content: Text('🚀 Leçon publiée !')));
         Navigator.pop(context);
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erreur : $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'La publication n’a pas abouti. Vérifie la connexion et réessaie.',
+            ),
+          ),
+        );
       }
     }
   }
@@ -133,7 +141,7 @@ class _ContentLessonEditorScreenState
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             TextField(
               controller: bodyCtrl,
               decoration: const InputDecoration(
@@ -192,21 +200,21 @@ class _ContentLessonEditorScreenState
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Sauver'),
+                  : const Text('Enregistrer'),
             ),
           FilledButton.icon(
             onPressed: _isSaving ? null : _publish,
             icon: const Icon(Icons.publish_rounded, size: 18),
             label: const Text('Publier'),
           ),
-          const SizedBox(width: AppSpacing.xs),
+          const SizedBox(width: IntelliaSpacing.xs),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.md,
-          AppSpacing.md,
-          AppSpacing.md,
+          IntelliaSpacing.md,
+          IntelliaSpacing.md,
+          IntelliaSpacing.md,
           120,
         ),
         children: [
@@ -214,28 +222,35 @@ class _ContentLessonEditorScreenState
           if (_lesson.isAiGenerated)
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.xs,
+                horizontal: IntelliaSpacing.md,
+                vertical: IntelliaSpacing.xs,
               ),
               decoration: BoxDecoration(
-                color: AppColors.gold.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
+                color: IntelliaColors.warning.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(IntelliaRadii.small),
                 border: Border.all(
-                  color: AppColors.gold.withValues(alpha: 0.3),
+                  color: IntelliaColors.warning.withValues(alpha: 0.3),
                 ),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.auto_awesome, color: AppColors.gold, size: 16),
-                  SizedBox(width: AppSpacing.xs),
+                  Icon(
+                    Icons.auto_awesome,
+                    color: IntelliaColors.warning,
+                    size: 16,
+                  ),
+                  SizedBox(width: IntelliaSpacing.xs),
                   Text(
                     'Contenu généré par l\'IA — Relisez avant publication',
-                    style: TextStyle(fontSize: 12, color: AppColors.gold),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: IntelliaColors.warning,
+                    ),
                   ),
                 ],
               ),
             ).animate().fadeIn(),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
 
           // Metadata
           _Card(
@@ -243,9 +258,9 @@ class _ContentLessonEditorScreenState
             child: Column(
               children: [
                 _field(_titleCtrl, 'Titre de la leçon'),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 _field(_summaryCtrl, 'Objectif pédagogique', maxLines: 3),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 _field(
                   _durationCtrl,
                   'Durée estimée',
@@ -255,7 +270,7 @@ class _ContentLessonEditorScreenState
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
 
           // Backend-only AI notice
           _Card(
@@ -270,7 +285,7 @@ class _ContentLessonEditorScreenState
                       Icons.shield_outlined,
                       color: Theme.of(context).colorScheme.primary,
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: IntelliaSpacing.sm),
                     Expanded(
                       child: Text(
                         'La génération IA n\'est plus disponible côté client. '
@@ -281,7 +296,7 @@ class _ContentLessonEditorScreenState
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: IntelliaSpacing.sm),
                 Text(
                   'Rédigez la leçon manuellement ici, puis utilisez le parcours '
                   'backend sécurisé pour produire résumés et quiz.',
@@ -292,7 +307,7 @@ class _ContentLessonEditorScreenState
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
 
           // Content sections
           _Card(
@@ -304,7 +319,7 @@ class _ContentLessonEditorScreenState
             ),
             child: _lesson.contentSections.isEmpty
                 ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                    padding: EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
                     child: Center(
                       child: Text(
                         'Aucune section.\nAjoutez-en manuellement.',
@@ -324,14 +339,14 @@ class _ContentLessonEditorScreenState
                     ],
                   ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
 
           // Mini quiz
           _Card(
             title: 'Mini-quiz (${_lesson.miniQuiz.length} questions)',
             child: _lesson.miniQuiz.isEmpty
                 ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                    padding: EdgeInsets.symmetric(vertical: IntelliaSpacing.sm),
                     child: Center(
                       child: Text(
                         'Aucune question générée pour cette leçon.',
@@ -406,7 +421,7 @@ class _Card extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -423,7 +438,7 @@ class _Card extends StatelessWidget {
                 if (trailing case final Widget action) action,
               ],
             ),
-            const Divider(height: AppSpacing.md),
+            const Divider(height: IntelliaSpacing.md),
             child,
           ],
         ),
@@ -446,13 +461,13 @@ class _SectionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.xs),
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      margin: const EdgeInsets.only(bottom: IntelliaSpacing.xs),
+      padding: const EdgeInsets.all(IntelliaSpacing.sm),
       decoration: BoxDecoration(
         color: Theme.of(
           context,
         ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(IntelliaRadii.small),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

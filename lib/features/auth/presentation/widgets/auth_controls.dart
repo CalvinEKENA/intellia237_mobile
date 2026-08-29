@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import 'auth_experience_scaffold.dart';
 
@@ -100,7 +101,7 @@ class _AuthAnimatedFieldState extends State<AuthAnimatedField> {
 
   OutlineInputBorder _border(Color color, {double width = 1}) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(IntelliaRadii.small),
       borderSide: BorderSide(color: color, width: width),
     );
   }
@@ -133,7 +134,7 @@ class AuthPrimaryButton extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           constraints: const BoxConstraints(minHeight: 54),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(IntelliaRadii.small),
             gradient: onTap == null
                 ? LinearGradient(
                     colors: [
@@ -285,7 +286,7 @@ class AuthErrorBanner extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AuthExperienceColors.error.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(IntelliaRadii.small),
           border: Border.all(
             color: AuthExperienceColors.error.withValues(alpha: 0.45),
           ),

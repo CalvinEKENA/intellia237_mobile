@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class UserManagementScreen extends ConsumerWidget {
   const UserManagementScreen({super.key, this.embedded = false});
@@ -15,19 +17,18 @@ class UserManagementScreen extends ConsumerWidget {
     final reviewsAsync = ref.watch(adminPendingReviewsProvider);
     final body = reviewsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: FilledButton.icon(
-          onPressed: () => ref.invalidate(adminPendingReviewsProvider),
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Recharger'),
-        ),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        message: stateMessageForKind(stateKindForError(error)),
+        primaryLabel: 'Réessayer',
+        onPrimary: () => ref.invalidate(adminPendingReviewsProvider),
       ),
       data: (reviews) => ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.xl,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.xl,
         ),
         children: [
           Text(
@@ -36,22 +37,22 @@ class UserManagementScreen extends ConsumerWidget {
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             '${reviews.length} demande(s) en attente',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           if (reviews.isEmpty)
             const Card(
               child: Padding(
-                padding: EdgeInsets.all(AppSpacing.md),
+                padding: EdgeInsets.all(IntelliaSpacing.md),
                 child: Text('Aucune demande en attente.'),
               ),
             ),
           for (final review in reviews) ...[
             _ReviewCard(review: review),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
           ],
         ],
       ),
@@ -62,7 +63,7 @@ class UserManagementScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('User Management')),
+      appBar: AppBar(title: const Text('Gestion des utilisateurs')),
       body: body,
     );
   }
@@ -77,7 +78,7 @@ class _ReviewCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -87,11 +88,11 @@ class _ReviewCard extends ConsumerWidget {
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: AppSpacing.xxs),
+            const SizedBox(height: IntelliaSpacing.xxs),
             Text(review.email),
-            const SizedBox(height: AppSpacing.xxs),
+            const SizedBox(height: IntelliaSpacing.xxs),
             Text('${review.role.label} • ${review.establishmentName}'),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             Row(
               children: [
                 Expanded(
@@ -113,7 +114,7 @@ class _ReviewCard extends ConsumerWidget {
                     label: const Text('Refuser'),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: IntelliaSpacing.sm),
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: () async {

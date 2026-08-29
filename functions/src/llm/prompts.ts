@@ -66,7 +66,7 @@ STRUCTURE JSON ATTENDUE:
       "correctBooleanValue": true, (pour trueFalse)
       "acceptedAnswers": ["réponse"], (pour shortAnswer)
       "explanation": "Explication pédagogique",
-      "xpReward": 20
+      "pointsReward": 20
     }
   ]
 }`;

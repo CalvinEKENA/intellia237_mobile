@@ -10,14 +10,14 @@ class StudentHomeSkeleton extends StatelessWidget {
     final color = Theme.of(context).colorScheme.surfaceContainerHighest;
 
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.xl),
+      padding: const EdgeInsets.all(IntelliaSpacing.xl),
       children: [
         _SkeletonBox(height: 56, borderRadius: 18, color: color),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         _SkeletonBox(height: 124, borderRadius: 20, color: color),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         _SkeletonBox(height: 168, borderRadius: 20, color: color),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         SizedBox(
           height: 140,
           child: ListView.separated(
@@ -29,13 +29,13 @@ class StudentHomeSkeleton extends StatelessWidget {
               color: color,
             ),
             separatorBuilder: (context, index) =>
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: IntelliaSpacing.sm),
             itemCount: 3,
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         _SkeletonBox(height: 120, borderRadius: 20, color: color),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         _SkeletonBox(height: 120, borderRadius: 20, color: color),
       ],
     );

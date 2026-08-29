@@ -22,7 +22,7 @@ class ChatBubble extends StatelessWidget {
           alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
             constraints: const BoxConstraints(maxWidth: 480),
-            margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            margin: const EdgeInsets.symmetric(vertical: IntelliaSpacing.xs),
             child: isUser
                 ? _UserBubble(text: message.text)
                 : _AiBubble(text: message.text, tutor: tutor),
@@ -32,10 +32,10 @@ class ChatBubble extends StatelessWidget {
         .slideY(
           begin: 0.3,
           end: 0,
-          duration: AppMotion.medium,
-          curve: AppMotion.emphasizedDecelerate,
+          duration: IntelliaMotion.medium,
+          curve: IntelliaMotion.emphasizedDecelerate,
         )
-        .fadeIn(duration: AppMotion.medium);
+        .fadeIn(duration: IntelliaMotion.medium);
   }
 }
 
@@ -52,14 +52,14 @@ class _UserBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+        horizontal: IntelliaSpacing.md,
+        vertical: IntelliaSpacing.sm,
       ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.brand, AppColors.accent],
+          colors: [IntelliaColors.brandIndigo, IntelliaColors.success],
         ),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
@@ -67,7 +67,7 @@ class _UserBubble extends StatelessWidget {
           bottomLeft: Radius.circular(20),
           bottomRight: Radius.circular(4),
         ),
-        boxShadow: AppShadows.glow(AppColors.brand, intensity: 0.20),
+        boxShadow: AppShadows.glow(IntelliaColors.brandIndigo, intensity: 0.20),
       ),
       child: Text(
         text,
@@ -104,7 +104,7 @@ class _AiBubble extends StatelessWidget {
         Container(
           width: 32,
           height: 32,
-          margin: const EdgeInsets.only(right: AppSpacing.sm, top: 2),
+          margin: const EdgeInsets.only(right: IntelliaSpacing.sm, top: 2),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
@@ -129,7 +129,7 @@ class _AiBubble extends StatelessWidget {
     // Embedded clair : surface opaque + texte sombre. Autonome sombre : glass.
     if (!s.useGlass) {
       return Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         decoration: BoxDecoration(
           color: s.surface,
           borderRadius: radius,
@@ -144,7 +144,7 @@ class _AiBubble extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(IntelliaSpacing.md),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -153,7 +153,7 @@ class _AiBubble extends StatelessWidget {
             ),
             borderRadius: radius,
             border: Border.fromBorderSide(
-              BorderSide(color: AppColors.glassBorder),
+              BorderSide(color: IntelliaColors.glassBorder),
             ),
           ),
           child: row,
@@ -228,10 +228,10 @@ class _TypingIndicatorBubbleState extends State<TypingIndicatorBubble>
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+        margin: const EdgeInsets.symmetric(vertical: IntelliaSpacing.xs),
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+          horizontal: IntelliaSpacing.md,
+          vertical: IntelliaSpacing.sm,
         ),
         decoration: BoxDecoration(
           color: s.useGlass ? Colors.white.withValues(alpha: 0.08) : s.surface,
@@ -267,6 +267,6 @@ class _TypingIndicatorBubbleState extends State<TypingIndicatorBubble>
           ],
         ),
       ),
-    ).animate().fadeIn(duration: AppMotion.fast);
+    ).animate().fadeIn(duration: IntelliaMotion.fast);
   }
 }

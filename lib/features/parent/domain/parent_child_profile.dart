@@ -10,6 +10,8 @@ class ParentChildProfile {
     required this.strongSubjects,
     required this.weakSubjects,
     required this.weeklyProgress,
+    this.hasProgressData = false,
+    this.hasStudyTimeData = false,
   });
 
   final String id;
@@ -22,11 +24,13 @@ class ParentChildProfile {
   final List<String> strongSubjects;
   final List<String> weakSubjects;
   final List<double> weeklyProgress;
+  final bool hasProgressData;
+  final bool hasStudyTimeData;
 
   String get classLabel {
     if (series == null || series!.isEmpty) {
       return classLevel;
     }
-    return '$classLevel - Serie $series';
+    return '$classLevel - Série $series';
   }
 }

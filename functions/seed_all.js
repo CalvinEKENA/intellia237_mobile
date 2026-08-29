@@ -25,15 +25,47 @@ async function seedData() {
       for (const classLvl of classesTarget) {
         console.log(`\n[SEED] Insertion de ${courseData.subject.title} pour la classe de ${classLvl}...`);
         const subjectRef = db.collection('classes').doc(classLvl).collection('subjects').doc(subjectId);
-        await subjectRef.set(courseData.subject);
+        const chapterSummaries = courseData.chapters.map((chapter) => {
+          const publishedLessons = chapter.lessons.filter((lesson) => lesson.data.status === 'published');
+          return {
+            id: chapter.chapterId,
+            title: chapter.data.title || '',
+            description: chapter.data.description || '',
+            lessonsCount: publishedLessons.length,
+            order: Number(chapter.data.order || 0),
+          };
+        });
+        await subjectRef.set({ ...courseData.subject, chapterSummaries });
 
         for (const chapter of courseData.chapters) {
           const chapterRef = subjectRef.collection('chapters').doc(chapter.chapterId);
-          await chapterRef.set(chapter.data);
+          const publishedLessons = chapter.lessons.filter((lesson) => lesson.data.status === 'published');
+          const lessonPreviews = publishedLessons.map((lesson) => ({
+            id: lesson.lessonId,
+            classLevel: classLvl,
+            subjectId,
+            chapterId: chapter.chapterId,
+            title: lesson.data.title || '',
+            summary: lesson.data.summary || '',
+            estimatedMinutes: Number(lesson.data.estimatedMinutes || 0),
+            order: Number(lesson.data.order || 0),
+          }));
+          await chapterRef.set({
+            ...chapter.data,
+            classLevel: classLvl,
+            subjectId,
+            lessonsCount: lessonPreviews.length,
+            lessonPreviews,
+          });
 
           for (const lesson of chapter.lessons) {
             const lessonRef = chapterRef.collection('lessons').doc(lesson.lessonId);
-            await lessonRef.set(lesson.data);
+            await lessonRef.set({
+              ...lesson.data,
+              classLevel: classLvl,
+              subjectId,
+              chapterId: chapter.chapterId,
+            });
           }
         }
       }
@@ -45,7 +77,8 @@ async function seedData() {
   // Insertion d'un QUIZ de base pour tester l'onglet Quiz
   try {
     const quizRef = db.collection('quizzes').doc('english_quiz_1');
-    await quizRef.set({
+    const batch = db.batch();
+    batch.set(quizRef, {
       title: "Test d'Anglais : Les bases",
       subjectId: "anglais",
       subjectLabel: "Anglais",
@@ -54,17 +87,26 @@ async function seedData() {
       timerSeconds: 300,
       classLevels: ['Seconde', 'Première', 'Terminale'],
       status: 'published',
+      mode: 'training',
       questions: [
         {
           id: "q1",
           type: "qcm",
           prompt: "Comment dit-on 'Naviguer sur internet' ?",
           options: ["To browse", "To print", "To download"],
-          correctOptionIndex: 0,
-          explanation: "To browse signifie naviguer ou parcourir."
+          pointsReward: 10
         }
       ]
     });
+    batch.set(db.collection('quiz_answer_keys').doc(quizRef.id), {
+      answers: [{
+        id: 'q1',
+        correctOptionIndex: 0,
+        explanation: "To browse signifie naviguer ou parcourir.",
+        pointsReward: 10
+      }]
+    });
+    await batch.commit();
     console.log(`\n[SEED] ✅ Quiz d'exemple inséré.`);
   } catch(e) {
     console.error("Erreur Quiz", e);

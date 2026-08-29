@@ -6,7 +6,7 @@ class QuizQuestionCorrection {
     required this.correctAnswer,
     required this.explanation,
     required this.isCorrect,
-    required this.xpReward,
+    required this.pointsReward,
   });
 
   final String questionId;
@@ -15,7 +15,7 @@ class QuizQuestionCorrection {
   final String correctAnswer;
   final String explanation;
   final bool isCorrect;
-  final int xpReward;
+  final int pointsReward;
 
   factory QuizQuestionCorrection.fromMap(Map<String, dynamic> map) {
     return QuizQuestionCorrection(
@@ -25,7 +25,8 @@ class QuizQuestionCorrection {
       correctAnswer: map['correctAnswer'] as String? ?? '',
       explanation: map['explanation'] as String? ?? '',
       isCorrect: map['isCorrect'] as bool? ?? false,
-      xpReward: (map['xpReward'] as num?)?.toInt() ?? 0,
+      pointsReward:
+          ((map['pointsReward'] ?? map['xpReward']) as num?)?.toInt() ?? 0,
     );
   }
 
@@ -37,7 +38,7 @@ class QuizQuestionCorrection {
       'correctAnswer': correctAnswer,
       'explanation': explanation,
       'isCorrect': isCorrect,
-      'xpReward': xpReward,
+      'pointsReward': pointsReward,
     };
   }
 }
@@ -49,7 +50,7 @@ class QuizResultPayload {
     required this.subjectLabel,
     required this.score,
     required this.maxScore,
-    required this.xpAwarded,
+    required this.pointsAwarded,
     required this.corrections,
   });
 
@@ -58,7 +59,7 @@ class QuizResultPayload {
   final String subjectLabel;
   final int score;
   final int maxScore;
-  final int xpAwarded;
+  final int pointsAwarded;
   final List<QuizQuestionCorrection> corrections;
 
   factory QuizResultPayload.fromMap(Map<String, dynamic> map) {
@@ -69,7 +70,8 @@ class QuizResultPayload {
       subjectLabel: map['subjectLabel'] as String? ?? '',
       score: (map['score'] as num?)?.toInt() ?? 0,
       maxScore: (map['maxScore'] as num?)?.toInt() ?? 0,
-      xpAwarded: (map['xpAwarded'] as num?)?.toInt() ?? 0,
+      pointsAwarded:
+          ((map['pointsAwarded'] ?? map['xpAwarded']) as num?)?.toInt() ?? 0,
       corrections: rawCorrections
           .whereType<Map>()
           .map(

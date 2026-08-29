@@ -9,10 +9,10 @@ import {
 
 import { db } from "../config/firebase";
 import { AppError } from "../utils/errors";
+import { buildScoringQuizRecord } from "./quizAnswerKeys";
 import { scoreQuizAttempt } from "./quizScoring";
+import { accumulatedPoints } from "./pointsPolicy";
 import {
-  quizDocumentSchema,
-  type QuizRecord,
   type QuizSubmissionResult,
   type StoredQuizAttempt
 } from "./quizTypes";
@@ -49,6 +49,30 @@ export interface LessonProgressResult {
   idempotentReplay: boolean;
 }
 
+export interface LessonProgressAggregateRecord {
+  subjectId: string;
+  progress: number;
+  isCompleted?: boolean;
+}
+
+export interface LessonProgressEventAggregateRecord {
+  progress: number;
+  previousProgress: number;
+  updatedAt: Date;
+}
+
+export interface StudentProgressAggregate {
+  globalProgress: number;
+  trackedLessons: number;
+  completedLessons: number;
+  subjectProgress: Record<string, number>;
+  strongSubjects: string[];
+  weakSubjects: string[];
+  weeklyProgress: number[];
+  weeklyProgressByDate: Record<string, number>;
+  lastProgressActivityAt: Date | null;
+}
+
 export interface AcademicStateStore {
   submitQuizAttempt(command: SubmitQuizAttemptCommand): Promise<QuizSubmissionResult>;
   recordLessonProgress(command: LessonProgressCommand): Promise<LessonProgressResult>;
@@ -74,15 +98,18 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
       }
 
       const quizRef = this.firestore.collection("quizzes").doc(command.quizId);
+      const answerKeyRef = this.firestore.collection("quiz_answer_keys").doc(command.quizId);
       const quizSnapshot = await transaction.get(quizRef);
       if (!quizSnapshot.exists) {
         throw new AppError("not-found", "Quiz not found.");
       }
+      const answerKeySnapshot = await transaction.get(answerKeyRef);
 
-      const quiz: QuizRecord = {
+      const quiz = buildScoringQuizRecord({
         id: quizSnapshot.id,
-        ...quizDocumentSchema.parse(quizSnapshot.data())
-      };
+        quizData: quizSnapshot.data(),
+        answerKeyData: answerKeySnapshot.exists ? answerKeySnapshot.data() : undefined
+      });
       if (quiz.status !== "published") {
         throw new AppError("failed-precondition", "Only published quizzes can be submitted.");
       }
@@ -102,6 +129,16 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
         );
       }
 
+      // Lire les deux agrégats avant toute écriture transactionnelle. `points`
+      // est désormais canonique ; `xp` reste un fallback pour conserver le
+      // cumul des profils existants lors de leur première nouvelle récompense.
+      const userRef = this.firestore.collection("users").doc(command.studentId);
+      const profileRef = this.firestore.collection("student_profiles").doc(command.studentId);
+      const streakRef = this.firestore.collection("streaks").doc(command.studentId);
+      const userSnapshot = await transaction.get(userRef);
+      const profileSnapshot = await transaction.get(profileRef);
+      const streakSnapshot = await transaction.get(streakRef);
+
       transaction.set(attemptRef, {
         attemptId,
         studentId: command.studentId,
@@ -114,7 +151,7 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
         answersByQuestion: command.answersByQuestion,
         score: result.score,
         maxScore: result.maxScore,
-        xpAwarded: result.xpAwarded,
+        pointsAwarded: result.pointsAwarded,
         corrections: result.corrections,
         startedAtClient: command.startedAt ?? null,
         durationSeconds: command.durationSeconds ?? null,
@@ -122,8 +159,15 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
         updatedAt: FieldValue.serverTimestamp()
       });
 
-      this.writeQuizRewards(transaction, command.studentId, result, now);
-      await this.writeStreak(transaction, command.studentId, now);
+      this.writeQuizRewards(
+        transaction,
+        command.studentId,
+        result,
+        now,
+        userSnapshot.data(),
+        profileSnapshot.data()
+      );
+      this.writeStreak(transaction, command.studentId, now, streakSnapshot.data());
 
       return result;
     });
@@ -135,7 +179,7 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
     const now = new Date();
     const updatedAt = now.toISOString();
 
-    return this.firestore.runTransaction(async (transaction) => {
+    const result = await this.firestore.runTransaction(async (transaction) => {
       const eventRef = this.firestore
         .collection("student_profiles")
         .doc(command.studentId)
@@ -163,7 +207,29 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
         .doc(command.studentId)
         .collection("lessonProgress")
         .doc(progressId);
-      const progressSnapshot = await transaction.get(progressRef);
+      const userRef = this.firestore.collection("users").doc(command.studentId);
+      const lessonRef = this.firestore
+        .collection("classes")
+        .doc(command.classLevel)
+        .collection("subjects")
+        .doc(command.subjectId)
+        .collection("chapters")
+        .doc(command.chapterId)
+        .collection("lessons")
+        .doc(command.lessonId);
+      const streakRef = this.firestore.collection("streaks").doc(command.studentId);
+      const [progressSnapshot, userSnapshot, lessonSnapshot, streakSnapshot] =
+        await Promise.all([
+          transaction.get(progressRef),
+          transaction.get(userRef),
+          transaction.get(lessonRef),
+          transaction.get(streakRef)
+        ]);
+      assertLessonProgressAuthorized({
+        command,
+        userData: userSnapshot.exists ? userSnapshot.data() : undefined,
+        lessonData: lessonSnapshot.exists ? lessonSnapshot.data() : undefined
+      });
       const previousProgress = clampProgress(Number(progressSnapshot.data()?.progress ?? 0));
       const nextProgress = Math.max(previousProgress, clampProgress(command.progress));
       const result: LessonProgressResult = {
@@ -175,28 +241,41 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
         idempotentReplay: false
       };
 
-      transaction.set(progressRef, {
-        classLevel: command.classLevel,
-        subjectId: command.subjectId,
-        chapterId: command.chapterId,
-        lessonId: command.lessonId,
-        progress: nextProgress,
-        isCompleted: result.isCompleted,
-        completedAt: result.isCompleted ? FieldValue.serverTimestamp() : null,
-        updatedAt: FieldValue.serverTimestamp()
-      }, { merge: true });
+      if (nextProgress > previousProgress) {
+        const wasCompleted = Boolean(progressSnapshot.data()?.isCompleted) || previousProgress >= 1;
+        const progressDocument: Record<string, unknown> = {
+          classLevel: command.classLevel,
+          subjectId: command.subjectId,
+          chapterId: command.chapterId,
+          lessonId: command.lessonId,
+          authorizationVersion: 1,
+          contentScope: normalizedString(lessonSnapshot.data()?.establishmentId)
+            ? "establishment"
+            : "global",
+          establishmentId: normalizedString(lessonSnapshot.data()?.establishmentId) || null,
+          progress: nextProgress,
+          isCompleted: result.isCompleted,
+          updatedAt: FieldValue.serverTimestamp()
+        };
+        if (result.isCompleted && !wasCompleted) {
+          progressDocument.completedAt = FieldValue.serverTimestamp();
+        } else if (!progressSnapshot.exists) {
+          progressDocument.completedAt = null;
+        }
+        transaction.set(progressRef, progressDocument, { merge: true });
 
-      const summaryRef = this.firestore.collection("progress").doc(`${command.studentId}_${progressId}`);
-      transaction.set(summaryRef, {
-        studentId: command.studentId,
-        type: "lesson",
-        classLevel: command.classLevel,
-        subjectId: command.subjectId,
-        chapterId: command.chapterId,
-        lessonId: command.lessonId,
-        progress: nextProgress,
-        updatedAt: FieldValue.serverTimestamp()
-      }, { merge: true });
+        const summaryRef = this.firestore.collection("progress").doc(`${command.studentId}_${progressId}`);
+        transaction.set(summaryRef, {
+          studentId: command.studentId,
+          type: "lesson",
+          classLevel: command.classLevel,
+          subjectId: command.subjectId,
+          chapterId: command.chapterId,
+          lessonId: command.lessonId,
+          progress: nextProgress,
+          updatedAt: FieldValue.serverTimestamp()
+        }, { merge: true });
+      }
 
       transaction.set(eventRef, {
         studentId: command.studentId,
@@ -207,28 +286,125 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
       });
 
       if (nextProgress > previousProgress) {
-        await this.writeStreak(transaction, command.studentId, now);
+        this.writeStreak(transaction, command.studentId, now, streakSnapshot.data());
       }
 
       return result;
     });
+    // Rebuild on a replay too: if the first invocation committed the event but
+    // failed during the derived-state write, retrying repairs the aggregate.
+    // The rebuild uses the original event timestamps, so this remains
+    // idempotent and never fabricates a new learning activity.
+    if (result.progress > result.previousProgress) {
+      await this.rebuildStudentProgressAggregates(command.studentId);
+    }
+    return result;
+  }
+
+  private async rebuildStudentProgressAggregates(studentId: string): Promise<void> {
+    const now = new Date();
+    const profileRef = this.firestore.collection("student_profiles").doc(studentId);
+    const userRef = this.firestore.collection("users").doc(studentId);
+    const weekStart = addDays(now, -7);
+    const [progressSnapshot, eventSnapshot, profileSnapshot, userSnapshot] = await Promise.all([
+      profileRef.collection("lessonProgress").get(),
+      profileRef
+        .collection("lessonProgressEvents")
+        .where("createdAt", ">=", weekStart)
+        .get(),
+      profileRef.get(),
+      userRef.get()
+    ]);
+    if (progressSnapshot.empty) {
+      return;
+    }
+
+    const aggregate = buildStudentProgressAggregate({
+      lessons: progressSnapshot.docs.map((document) => {
+        const data = document.data();
+        return {
+          subjectId: normalizedString(data.subjectId),
+          progress: Number(data.progress ?? 0),
+          isCompleted: Boolean(data.isCompleted)
+        };
+      }),
+      events: eventSnapshot.docs.flatMap((document) => {
+        const result = document.data().result;
+        if (!result || typeof result !== "object") {
+          return [];
+        }
+        const resultData = result as Record<string, unknown>;
+        const eventDate = timestampDate(resultData.updatedAt) ?? timestampDate(document.data().createdAt);
+        if (!eventDate) {
+          return [];
+        }
+        return [{
+          progress: Number(resultData.progress ?? 0),
+          previousProgress: Number(resultData.previousProgress ?? 0),
+          updatedAt: eventDate
+        }];
+      }),
+      now
+    });
+    const existingProfileActivity = timestampDate(profileSnapshot.data()?.lastAcademicActivityAt);
+    const existingUserActivity = timestampDate(userSnapshot.data()?.lastActivityAt);
+    const lastAcademicActivityAt = latestDate(
+      existingProfileActivity,
+      aggregate.lastProgressActivityAt
+    );
+    const lastUserActivityAt = latestDate(existingUserActivity, lastAcademicActivityAt);
+
+    const profileUpdate: Record<string, unknown> = {
+        progress: {
+          globalProgress: aggregate.globalProgress,
+          trackedLessons: aggregate.trackedLessons,
+          completedLessons: aggregate.completedLessons
+        },
+        subjectProgress: aggregate.subjectProgress,
+        strongSubjects: aggregate.strongSubjects,
+        weakSubjects: aggregate.weakSubjects,
+        weeklyProgress: aggregate.weeklyProgress,
+        weeklyProgressByDate: aggregate.weeklyProgressByDate,
+        updatedAt: FieldValue.serverTimestamp()
+    };
+    if (lastAcademicActivityAt) {
+      profileUpdate.lastAcademicActivityAt = lastAcademicActivityAt;
+      profileUpdate.lastAcademicActivityDate = localDateKey(
+        lastAcademicActivityAt,
+        STREAK_TIMEZONE
+      );
+    }
+    const userUpdate: Record<string, unknown> = {
+        updatedAt: FieldValue.serverTimestamp()
+    };
+    if (lastUserActivityAt) {
+      userUpdate.lastActivityAt = lastUserActivityAt;
+    }
+
+    await Promise.all([
+      profileRef.set(profileUpdate, { merge: true }),
+      userRef.set(userUpdate, { merge: true })
+    ]);
   }
 
   private writeQuizRewards(
     transaction: Transaction,
     studentId: string,
     result: QuizSubmissionResult,
-    now: Date
+    now: Date,
+    userData: DocumentData | undefined,
+    profileData: DocumentData | undefined
   ): void {
     const userRef = this.firestore.collection("users").doc(studentId);
     transaction.set(userRef, {
-      xp: FieldValue.increment(result.xpAwarded),
+      points: accumulatedPoints(userData) + result.pointsAwarded,
+      lastActivityAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
 
     const profileRef = this.firestore.collection("student_profiles").doc(studentId);
     transaction.set(profileRef, {
-      xp: FieldValue.increment(result.xpAwarded),
+      points: accumulatedPoints(profileData) + result.pointsAwarded,
       totalScore: FieldValue.increment(result.score),
       totalQuizAttempts: FieldValue.increment(1),
       lastAcademicActivityAt: FieldValue.serverTimestamp(),
@@ -244,15 +420,19 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
       subjectId: result.subjectId,
       score: result.score,
       maxScore: result.maxScore,
-      xpAwarded: result.xpAwarded,
+      pointsAwarded: result.pointsAwarded,
       updatedAt: FieldValue.serverTimestamp()
     }, { merge: true });
   }
 
-  private async writeStreak(transaction: Transaction, studentId: string, now: Date): Promise<void> {
+  private writeStreak(
+    transaction: Transaction,
+    studentId: string,
+    now: Date,
+    streakData: DocumentData | undefined
+  ): void {
     const streakRef = this.firestore.collection("streaks").doc(studentId);
-    const streakSnapshot = await transaction.get(streakRef);
-    const data = streakSnapshot.data() ?? {};
+    const data = streakData ?? {};
     const today = localDateKey(now, STREAK_TIMEZONE);
     const yesterday = localDateKey(addDays(now, -1), STREAK_TIMEZONE);
     const lastActivityDate = typeof data.lastActivityDate === "string" ? data.lastActivityDate : null;
@@ -296,6 +476,63 @@ export function buildRequestHash(value: unknown): string {
     .digest("hex");
 }
 
+export function assertLessonProgressAuthorized({
+  command,
+  userData,
+  lessonData
+}: {
+  command: Pick<
+    LessonProgressCommand,
+    "classLevel" | "subjectId" | "chapterId" | "lessonId"
+  >;
+  userData: DocumentData | undefined;
+  lessonData: DocumentData | undefined;
+}): void {
+  if (!userData || normalizedString(userData.role) !== "student") {
+    throw new AppError("permission-denied", "A student account is required.");
+  }
+  const accountStatus = normalizedString(userData.accountStatus);
+  if (accountStatus && accountStatus !== "active") {
+    throw new AppError("permission-denied", "The student account is not active.");
+  }
+  const authoritativeClass = normalizedString(userData.classLevel);
+  if (
+    !authoritativeClass ||
+    !sameAcademicValue(authoritativeClass, command.classLevel)
+  ) {
+    throw new AppError(
+      "permission-denied",
+      "Lesson progress must match the student's registered class.",
+    );
+  }
+  if (!lessonData || normalizedString(lessonData.status) !== "published") {
+    throw new AppError("not-found", "Published lesson was not found.");
+  }
+  const lessonClass = normalizedString(lessonData.classLevel);
+  if (lessonClass && !sameAcademicValue(lessonClass, authoritativeClass)) {
+    throw new AppError("permission-denied", "Lesson class does not match the student profile.");
+  }
+  for (const [field, expected] of [
+    ["subjectId", command.subjectId],
+    ["chapterId", command.chapterId],
+    ["lessonId", command.lessonId]
+  ] as const) {
+    const stored = normalizedString(lessonData[field]);
+    if (stored && stored !== expected) {
+      throw new AppError("failed-precondition", "Lesson catalog metadata is inconsistent.");
+    }
+  }
+
+  const lessonEstablishment = normalizedString(lessonData.establishmentId);
+  const studentEstablishment = normalizedString(userData.establishmentId);
+  if (
+    (lessonEstablishment && lessonEstablishment !== studentEstablishment) ||
+    (!lessonEstablishment && normalizedString(lessonData.visibilityScope) === "establishment")
+  ) {
+    throw new AppError("permission-denied", "Lesson belongs to another establishment.");
+  }
+}
+
 function parseStoredQuizAttempt(
   data: DocumentData | undefined,
   requestHash: string
@@ -314,12 +551,122 @@ function parseStoredQuizAttempt(
       subjectLabel: String(data.subjectLabel ?? ""),
       score: Number(data.score ?? 0),
       maxScore: Number(data.maxScore ?? 0),
-      xpAwarded: Number(data.xpAwarded ?? 0),
-      corrections: Array.isArray(data.corrections) ? data.corrections : [],
+      pointsAwarded: Number(data.pointsAwarded ?? data.xpAwarded ?? 0),
+      corrections: normalizeStoredCorrections(data.corrections),
       submittedAt: firestoreTimestampToIso(data.createdAt),
       idempotentReplay: true
     }
   };
+}
+
+export function buildStudentProgressAggregate({
+  lessons,
+  events,
+  now,
+  timeZone = STREAK_TIMEZONE
+}: {
+  lessons: LessonProgressAggregateRecord[];
+  events: LessonProgressEventAggregateRecord[];
+  now: Date;
+  timeZone?: string;
+}): StudentProgressAggregate {
+  const subjects = new Map<string, { total: number; count: number }>();
+  let totalProgress = 0;
+  let completedLessons = 0;
+
+  for (const lesson of lessons) {
+    const progress = clampProgress(lesson.progress);
+    totalProgress += progress;
+    if (lesson.isCompleted || progress >= 1) {
+      completedLessons += 1;
+    }
+    const subjectId = lesson.subjectId.trim();
+    if (!subjectId) {
+      continue;
+    }
+    const current = subjects.get(subjectId) ?? { total: 0, count: 0 };
+    subjects.set(subjectId, {
+      total: current.total + progress,
+      count: current.count + 1
+    });
+  }
+
+  const trackedLessons = lessons.length;
+  const subjectProgress: Record<string, number> = Object.fromEntries(
+    [...subjects.entries()].map(([subjectId, value]) => [
+      subjectId,
+      value.count === 0 ? 0 : value.total / value.count
+    ])
+  );
+  const rankedSubjects = Object.entries(subjectProgress)
+    .sort((left, right) => right[1] - left[1]);
+  const dailyProgressDeltas = Array<number>(7).fill(0);
+  const weeklyProgressByDate: Record<string, number> = {};
+  const today = localDateKey(now, timeZone);
+  let lastProgressActivityAt: Date | null = null;
+
+  for (const event of events) {
+    const delta = Math.max(
+      0,
+      clampProgress(event.progress) - clampProgress(event.previousProgress)
+    );
+    if (delta <= 0 || !Number.isFinite(event.updatedAt.getTime())) {
+      continue;
+    }
+    lastProgressActivityAt = latestDate(lastProgressActivityAt, event.updatedAt);
+    const activityDay = localDateKey(event.updatedAt, timeZone);
+    const daysAgo = dateKeyDifference(activityDay, today);
+    if (daysAgo >= 0 && daysAgo < 7) {
+      dailyProgressDeltas[6 - daysAgo] += delta;
+    }
+  }
+
+  const weeklyProgress = dailyProgressDeltas.map((delta, index) => {
+    const value = trackedLessons === 0 ? 0 : clampProgress(delta / trackedLessons);
+    if (value > 0) {
+      weeklyProgressByDate[localDateKey(addDays(now, index - 6), timeZone)] = value;
+    }
+    return value;
+  });
+
+  return {
+    globalProgress: trackedLessons === 0 ? 0 : totalProgress / trackedLessons,
+    trackedLessons,
+    completedLessons,
+    subjectProgress,
+    strongSubjects: rankedSubjects
+      .filter(([, value]) => value >= 0.7)
+      .slice(0, 3)
+      .map(([subjectId]) => subjectId),
+    weakSubjects: rankedSubjects
+      .filter(([, value]) => value < 0.7)
+      .reverse()
+      .slice(0, 3)
+      .map(([subjectId]) => subjectId),
+    // Each value is the honest contribution made that day to the current
+    // global lesson progression, not a snapshot repeatedly counted as work.
+    weeklyProgress,
+    weeklyProgressByDate,
+    lastProgressActivityAt
+  };
+}
+
+function normalizeStoredCorrections(value: unknown): QuizSubmissionResult["corrections"] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+    .map((item) => ({
+      questionId: String(item.questionId ?? ""),
+      prompt: String(item.prompt ?? ""),
+      userAnswer: String(item.userAnswer ?? ""),
+      correctAnswer: String(item.correctAnswer ?? ""),
+      explanation: String(item.explanation ?? ""),
+      isCorrect: Boolean(item.isCorrect),
+      pointsReward: Number(item.pointsReward ?? item.xpReward ?? 0)
+    }));
 }
 
 function attemptDocumentId(studentId: string, clientAttemptId: string): string {
@@ -362,6 +709,45 @@ function firestoreTimestampToIso(value: unknown): string {
   }
 
   return new Date().toISOString();
+}
+
+function timestampDate(value: unknown): Date | null {
+  if (value && typeof value === "object" && "toDate" in value) {
+    const timestamp = value as { toDate?: () => Date };
+    if (typeof timestamp.toDate === "function") {
+      return timestamp.toDate();
+    }
+  }
+  if (value instanceof Date) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    return Number.isFinite(parsed.getTime()) ? parsed : null;
+  }
+  return null;
+}
+
+function latestDate(left: Date | null, right: Date | null): Date | null {
+  if (!left) return right;
+  if (!right) return left;
+  return left.getTime() >= right.getTime() ? left : right;
+}
+
+function normalizedString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function sameAcademicValue(left: string, right: string): boolean {
+  return left.trim().toLocaleLowerCase("fr") === right.trim().toLocaleLowerCase("fr");
+}
+
+function dateKeyDifference(earlier: string, later: string): number {
+  const earlierDate = new Date(`${earlier}T00:00:00.000Z`);
+  const laterDate = new Date(`${later}T00:00:00.000Z`);
+  return Math.floor(
+    (laterDate.getTime() - earlierDate.getTime()) / (24 * 60 * 60 * 1000)
+  );
 }
 
 function localDateKey(date: Date, timeZone: string): string {

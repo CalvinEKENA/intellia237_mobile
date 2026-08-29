@@ -5,6 +5,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/widgets/intellia_pressable.dart';
+import '../../../../core/widgets/tab_presentation.dart';
 import '../../domain/student_home_snapshot.dart';
 
 class DailyChallengesSection extends StatefulWidget {
@@ -22,14 +24,16 @@ class DailyChallengesSection extends StatefulWidget {
 }
 
 class _DailyChallengeSectionState extends State<DailyChallengesSection> {
-  late Timer _timer;
+  Timer? _timer;
   late Duration _remaining;
 
   @override
   void initState() {
     super.initState();
     _remaining = _timeUntilMidnight();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+    // Précision minute (au lieu d'un rebuild par seconde) : le compte à
+    // rebours indique un horizon, pas un chrono — 60× moins de rebuilds.
+    _timer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (mounted) {
         setState(() => _remaining = _timeUntilMidnight());
       }
@@ -38,7 +42,7 @@ class _DailyChallengeSectionState extends State<DailyChallengesSection> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -49,14 +53,16 @@ class _DailyChallengeSectionState extends State<DailyChallengesSection> {
   }
 
   String _formatDuration(Duration d) {
-    final h = d.inHours.toString().padLeft(2, '0');
-    final m = (d.inMinutes % 60).toString().padLeft(2, '0');
-    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
-    return '$h:$m:$s';
+    final h = d.inHours;
+    final m = d.inMinutes % 60;
+    if (h <= 0) return '$m min';
+    return '$h h ${m.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -68,46 +74,43 @@ class _DailyChallengeSectionState extends State<DailyChallengesSection> {
               style: GoogleFonts.manrope(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: s.textPrimary,
               ),
             ),
             const Spacer(),
-            // Countdown pill
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.xxs + 2,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.gold.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(99),
-                border: Border.all(
-                  color: AppColors.gold.withValues(alpha: 0.30),
+            // Countdown pill — or profond lisible sur la surface courante.
+            Semantics(
+              label:
+                  'Les défis se renouvellent dans ${_formatDuration(_remaining)}',
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: IntelliaSpacing.sm,
+                  vertical: IntelliaSpacing.xxs + 2,
                 ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.timer_outlined,
-                    size: 12,
-                    color: AppColors.gold,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _formatDuration(_remaining),
-                    style: GoogleFonts.manrope(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.gold,
+                decoration: BoxDecoration(
+                  color: s.numberAccentSoft,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.timer_outlined, size: 12, color: s.numberAccent),
+                    const SizedBox(width: 4),
+                    Text(
+                      _formatDuration(_remaining),
+                      style: GoogleFonts.manrope(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: s.numberAccent,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
 
         // Challenge cards
         for (int i = 0; i < widget.items.length; i++) ...[
@@ -117,7 +120,7 @@ class _DailyChallengeSectionState extends State<DailyChallengesSection> {
             onTap: () => widget.onItemTap(widget.items[i]),
           ),
           if (i < widget.items.length - 1)
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: IntelliaSpacing.xs),
         ],
       ],
     );
@@ -137,120 +140,119 @@ class _ChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
-            ),
-            decoration: BoxDecoration(
-              gradient: item.completed
-                  ? const LinearGradient(
-                      colors: [Color(0x1A11AFA5), Color(0x0D11AFA5)],
-                    )
-                  : const LinearGradient(
-                      colors: [Color(0x18FFFFFF), Color(0x0CFFFFFF)],
-                    ),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              border: Border.all(
-                color: item.completed
-                    ? AppColors.accent.withValues(alpha: 0.30)
-                    : Colors.white.withValues(alpha: 0.12),
-              ),
-            ),
-            child: Row(
-              children: [
-                // Completion icon
-                item.completed
-                    ? Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: AppColors.accent.withValues(alpha: 0.20),
-                              shape: BoxShape.circle,
+    final s = TabSurface.of(context);
+    final completed = item.completed;
+
+    // Surfaces opaques du contrat de surface : plus de voiles blancs
+    // translucides conçus pour un fond sombre (invisibles sur fond clair).
+    final cardColor = completed
+        ? (s.isLight ? const Color(0xFFEDF7F0) : s.surfaceMuted)
+        : s.surface;
+    final borderColor = completed
+        ? s.success.withValues(alpha: 0.35)
+        : s.border;
+
+    return Semantics(
+      button: !completed,
+      label: completed
+          ? 'Défi terminé : ${item.title}'
+          : 'Défi : ${item.title}, récompense ${item.rewardPoints} points',
+      child: IntelliaPressable(
+        onTap: completed ? null : onTap,
+        disabledOpacity: 1,
+        child:
+            Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: IntelliaSpacing.md,
+                    vertical: IntelliaSpacing.sm,
+                  ),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(IntelliaRadii.small),
+                    border: Border.all(color: borderColor),
+                    boxShadow: completed
+                        ? null
+                        : IntelliaShadows.card(Colors.black),
+                  ),
+                  child: Row(
+                    children: [
+                      // Completion icon
+                      completed
+                          ? Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: s.success.withValues(alpha: 0.16),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.check_rounded,
+                                color: s.success,
+                                size: 20,
+                              ),
+                            )
+                          : Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: s.accentSoft,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.bolt_rounded,
+                                color: s.accent,
+                                size: 20,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.check_rounded,
-                              color: AppColors.accent,
-                              size: 20,
-                            ),
-                          )
-                          .animate()
-                          .scale(
-                            begin: const Offset(0.5, 0.5),
-                            end: const Offset(1.0, 1.0),
-                            duration: AppMotion.medium,
-                            curve: AppMotion.spring,
-                          )
-                          .fadeIn(duration: AppMotion.fast)
-                    : Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.brand.withValues(alpha: 0.20),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.bolt_rounded,
-                          color: AppColors.brand,
-                          size: 20,
+
+                      const SizedBox(width: IntelliaSpacing.sm),
+
+                      // Title
+                      Expanded(
+                        child: Text(
+                          item.title,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: completed ? s.textDisabled : s.textPrimary,
+                            decoration: completed
+                                ? TextDecoration.lineThrough
+                                : null,
+                            decorationColor: s.textDisabled,
+                          ),
                         ),
                       ),
 
-                const SizedBox(width: AppSpacing.sm),
+                      const SizedBox(width: IntelliaSpacing.sm),
 
-                // Title
-                Expanded(
-                  child: Text(
-                    item.title,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: item.completed
-                          ? Colors.white.withValues(alpha: 0.55)
-                          : Colors.white,
-                      decoration: item.completed
-                          ? TextDecoration.lineThrough
-                          : null,
-                      decorationColor: Colors.white.withValues(alpha: 0.30),
-                    ),
+                      // Pastille de points
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: IntelliaSpacing.xs,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: completed
+                              ? s.surfaceMuted
+                              : s.numberAccentSoft,
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                        child: Text(
+                          '+${item.rewardPoints} pts',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: completed ? s.textDisabled : s.numberAccent,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-
-                const SizedBox(width: AppSpacing.sm),
-
-                // XP badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xs,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: item.completed ? null : AppGradients.heroGold,
-                    color: item.completed
-                        ? Colors.white.withValues(alpha: 0.10)
-                        : null,
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                  child: Text(
-                    '+${item.rewardXp} XP',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: item.completed
-                          ? Colors.white.withValues(alpha: 0.40)
-                          : Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        )
-        .animate(delay: Duration(milliseconds: 80 + index * 60))
-        .fadeIn(duration: 400.ms)
-        .slideX(begin: 0.04, end: 0);
+                )
+                .animate(delay: Duration(milliseconds: 80 + index * 60))
+                .fadeIn(duration: 400.ms)
+                .slideX(begin: 0.04, end: 0),
+      ),
+    );
   }
 }

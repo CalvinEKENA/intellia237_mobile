@@ -29,7 +29,7 @@ LearnHubSnapshot _learnSnapshot() => LearnHubSnapshot(
   ],
 );
 
-List<QuizModel> _quizzes() => const [
+List<QuizModel> _quizzes() => [
   QuizModel(
     id: 'q1',
     title: 'Test de logique',
@@ -162,6 +162,13 @@ void main() {
 
         expect(find.text('Quiz'), findsOneWidget);
         expect(_titleColor(tester, 'Quiz'), IntelliaColors.textPrimary);
+        if (find.text('Test de logique').evaluate().isEmpty) {
+          await tester.scrollUntilVisible(
+            find.text('Test de logique'),
+            240,
+            scrollable: find.byType(Scrollable).first,
+          );
+        }
         expect(find.text('Test de logique'), findsOneWidget);
         expect(tester.takeException(), isNull);
       });

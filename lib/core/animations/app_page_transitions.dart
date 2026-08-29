@@ -10,12 +10,12 @@ CustomTransitionPage<void> buildAppTransitionPage({
   return CustomTransitionPage<void>(
     key: state.pageKey,
     child: child,
-    transitionDuration: AppMotion.medium,
-    reverseTransitionDuration: AppMotion.fast,
+    transitionDuration: IntelliaMotion.medium,
+    reverseTransitionDuration: IntelliaMotion.fast,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       final curved = CurvedAnimation(
         parent: animation,
-        curve: AppMotion.emphasizedDecelerate,
+        curve: IntelliaMotion.emphasizedDecelerate,
       );
 
       return FadeTransition(

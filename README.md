@@ -50,7 +50,7 @@ La CI bloque uniquement les vulnerabilites npm hautes ou critiques via `npm audi
 
 ## Regles Firebase
 
-- `firestore.rules` protege les roles sensibles, les tentatives de quiz, les XP et la progression.
+- `firestore.rules` protège les rôles sensibles, les tentatives de quiz, les points et la progression.
 - `storage.rules` limite les avatars utilisateurs.
 - Les tests de regles tournent avec les emulateurs Firebase depuis `functions`.
 

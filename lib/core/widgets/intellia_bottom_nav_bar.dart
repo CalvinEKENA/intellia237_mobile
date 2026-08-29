@@ -50,7 +50,19 @@ class _IntelliaBottomNavBarState extends State<IntelliaBottomNavBar>
     _glowController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2400),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final disabled = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (disabled) {
+      _glowController.stop();
+      _glowController.value = 0;
+    } else if (!_glowController.isAnimating) {
+      _glowController.repeat(reverse: true);
+    }
   }
 
   @override

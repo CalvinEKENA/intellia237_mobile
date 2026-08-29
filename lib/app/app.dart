@@ -1,9 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'config/app_config.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
+import '../features/profile/application/user_preferences_controller.dart';
+import '../core/widgets/network_status_banner.dart';
+import '../core/network/network_status.dart';
+import '../features/learn/application/learn_providers.dart';
+import '../features/auth/application/auth_controller.dart';
+import '../features/auth/application/auth_state.dart';
+import '../features/auth/domain/app_role.dart';
 
 class Intellia237App extends ConsumerWidget {
   const Intellia237App({super.key});
@@ -12,9 +22,33 @@ class Intellia237App extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final config = ref.watch(appConfigProvider);
+    final preferences = ref.watch(userPreferencesProvider);
+
+    ref.listen<bool>(isOfflineProvider, (previous, offline) {
+      if (!offline && previous != false) {
+        unawaited(ref.read(learnActionsProvider).flushQueuedProgress());
+      }
+    });
+    ref.listen(authControllerProvider, (previous, auth) {
+      final becameStudent =
+          auth.status == AuthStatus.authenticated &&
+          auth.role == AppRole.student &&
+          (previous?.userId != auth.userId ||
+              previous?.status != AuthStatus.authenticated);
+      if (becameStudent && !ref.read(isOfflineProvider)) {
+        unawaited(ref.read(learnActionsProvider).flushQueuedProgress());
+      }
+    });
 
     return MaterialApp.router(
       title: config.appName,
+      locale: const Locale('fr'),
+      supportedLocales: const [Locale('fr'), Locale('en')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
@@ -24,7 +58,20 @@ class Intellia237App extends ConsumerWidget {
       themeMode: ThemeMode.light,
       routerConfig: router,
       builder: (context, child) {
-        final app = child ?? const SizedBox.shrink();
+        final media = MediaQuery.of(context);
+        final systemScale = media.textScaler.scale(1);
+        final app = MediaQuery(
+          data: media.copyWith(
+            textScaler: TextScaler.linear(
+              (systemScale * preferences.textScale).clamp(0.8, 2.0),
+            ),
+            disableAnimations:
+                media.disableAnimations ||
+                preferences.reduceMotion ||
+                preferences.dataSaver,
+          ),
+          child: NetworkStatusBanner(child: child ?? const SizedBox.shrink()),
+        );
         if (!config.isStaging) {
           return app;
         }

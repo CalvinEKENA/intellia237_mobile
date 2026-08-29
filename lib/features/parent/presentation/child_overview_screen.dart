@@ -7,6 +7,8 @@ import '../../../app/theme/design_tokens.dart';
 import '../application/parent_providers.dart';
 import '../domain/parent_child_profile.dart';
 import 'widgets/progress_line_chart.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class ChildOverviewScreen extends ConsumerWidget {
   const ChildOverviewScreen({required this.childId, super.key});
@@ -21,12 +23,11 @@ class ChildOverviewScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Vue enfant')),
       body: childAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: FilledButton.icon(
-            onPressed: () => ref.invalidate(parentChildByIdProvider(childId)),
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Recharger'),
-          ),
+        error: (error, stackTrace) => IntelliaStateView(
+          kind: stateKindForError(error),
+          message: stateMessageForKind(stateKindForError(error)),
+          primaryLabel: 'Réessayer',
+          onPrimary: () => ref.invalidate(parentChildByIdProvider(childId)),
         ),
         data: (child) {
           if (child == null) {
@@ -48,16 +49,16 @@ class _ChildOverviewBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.xl,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.xl,
       ),
       children: [
         Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(IntelliaSpacing.lg),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
             gradient: const LinearGradient(
               colors: [Color(0xFF1451E1), Color(0xFF0E7490)],
             ),
@@ -72,7 +73,7 @@ class _ChildOverviewBody extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: IntelliaSpacing.xs),
               Text(
                 child.classLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -82,10 +83,10 @@ class _ChildOverviewBody extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         Card(
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -95,37 +96,42 @@ class _ChildOverviewBody extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                ProgressLineChart(values: child.weeklyProgress),
+                const SizedBox(height: IntelliaSpacing.sm),
+                if (child.weeklyProgress.isNotEmpty)
+                  ProgressLineChart(values: child.weeklyProgress)
+                else
+                  const Text(
+                    'La courbe apparaîtra après les premières activités.',
+                  ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         Row(
           children: [
             Expanded(
               child: _SubjectsBlock(
-                title: 'Matieres fortes',
+                title: 'Matières fortes',
                 color: const Color(0xFF16A34A),
                 items: child.strongSubjects,
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: IntelliaSpacing.sm),
             Expanded(
               child: _SubjectsBlock(
-                title: 'A renforcer',
+                title: 'À renforcer',
                 color: const Color(0xFFDC2626),
                 items: child.weakSubjects,
               ),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         FilledButton.icon(
           onPressed: () => context.push(AppRoutes.childProgress(child.id)),
           icon: const Icon(Icons.show_chart_rounded),
-          label: const Text('Voir progression detaillee'),
+          label: const Text('Voir la progression détaillée'),
         ),
       ],
     );
@@ -146,7 +152,7 @@ class _SubjectsBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.all(IntelliaSpacing.sm),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         color: color.withValues(alpha: 0.08),
@@ -162,8 +168,8 @@ class _SubjectsBlock extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(items.join(', ')),
+          const SizedBox(height: IntelliaSpacing.xs),
+          Text(items.isEmpty ? 'Pas encore mesuré' : items.join(', ')),
         ],
       ),
     );

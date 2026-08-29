@@ -1,115 +1,127 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../domain/quiz_attempt.dart';
+import '../domain/quiz_attempt_summary.dart';
+import '../domain/quiz_mode.dart';
 import '../domain/quiz_model.dart';
 import '../domain/quiz_question.dart';
 import '../domain/quiz_result_payload.dart';
 import '../domain/quiz_type.dart';
+import 'firebase_quiz_content_service.dart';
 import 'firestore_quiz_attempt_service.dart';
 import 'quiz_repository.dart';
 
-/// Implémentation Firestore de [QuizRepository].
+/// Student-facing quiz repository.
 ///
-/// Structure Firestore :
-///   quizzes/{quizId}
-///     title, subjectId, subjectLabel, description,
-///     difficultyLabel, timerSeconds,
-///     classLevels: ['3eme', 'Seconde', ...],
-///     series: ['A', 'C'] (vide = toutes),
-///     status: 'draft' | 'published' | 'ai_generated',
-///     questions: [{id, type, prompt, ...}]
+/// Despite the historical class name, published content is now loaded through
+/// authenticated Cloud Functions. The backend returns an allow-listed public
+/// projection, so answer keys never transit with the quiz payload. Final
+/// scoring remains a single grouped server submission.
 class FirestoreQuizRepository implements QuizRepository {
   FirestoreQuizRepository({
-    FirebaseFirestore? firestore,
+    FirebaseQuizContentService? contentService,
     FirestoreQuizAttemptService? attemptService,
-  }) : _db = firestore ?? FirebaseFirestore.instance,
-       _attemptService = attemptService ?? FirestoreQuizAttemptService();
+    FirebaseFirestore? firestore,
+  }) : _contentService = contentService ?? FirebaseQuizContentService(),
+       _attemptService = attemptService ?? FirestoreQuizAttemptService(),
+       _firestore = firestore ?? FirebaseFirestore.instance;
 
-  final FirebaseFirestore _db;
+  final FirebaseQuizContentService _contentService;
   final FirestoreQuizAttemptService _attemptService;
-
-  // ───── fetchQuizzes ─────────────────────────────────────────
+  final FirebaseFirestore _firestore;
 
   @override
   Future<List<QuizModel>> fetchQuizzes({
     required String classLevel,
     required String? series,
   }) async {
-    final snap = await _db
-        .collection('quizzes')
-        .where('status', isEqualTo: 'published')
-        .where('classLevels', arrayContains: classLevel)
-        .get();
-
-    final quizzes = <QuizModel>[];
-    for (final doc in snap.docs) {
-      final data = doc.data();
-
-      // Filter by series if specified
-      final allowedSeries = List<String>.from(data['series'] as List? ?? []);
-      if (allowedSeries.isNotEmpty) {
-        if (series == null || !allowedSeries.contains(series)) continue;
-      }
-
-      quizzes.add(_quizFromData(doc.id, data));
-    }
-    return quizzes;
+    final payloads = await _contentService.listPublishedQuizzes(
+      classLevel: classLevel,
+      series: series,
+    );
+    return payloads.map(parsePublicQuizPayload).toList(growable: false);
   }
-
-  // ───── fetchQuizById ────────────────────────────────────────
 
   @override
   Future<QuizModel> fetchQuizById(String quizId) async {
-    final doc = await _db.collection('quizzes').doc(quizId).get();
-    if (!doc.exists || doc.data() == null) {
-      throw StateError('Quiz introuvable: $quizId');
-    }
-    return _quizFromData(doc.id, doc.data()!);
+    final payload = await _contentService.getPublishedQuiz(quizId);
+    return parsePublicQuizPayload(payload);
   }
 
-  // ───── saveAttempt ──────────────────────────────────────────
+  @override
+  Future<List<QuizAttemptSummary>> fetchRecentAttempts({
+    required String studentId,
+    int limit = 5,
+  }) async {
+    final snapshot = await _firestore
+        .collection('quiz_attempts')
+        .where('studentId', isEqualTo: studentId)
+        .orderBy('createdAt', descending: true)
+        .limit(limit.clamp(1, 20))
+        .get();
+
+    return snapshot.docs
+        .map((document) => QuizAttemptSummary.fromFirestore(document.data()))
+        .toList(growable: false);
+  }
+
+  @override
+  Future<QuizQuestionCorrection> checkTrainingAnswer({
+    required String quizId,
+    required String questionId,
+    required String answer,
+  }) {
+    return _contentService.checkTrainingAnswer(
+      quizId: quizId,
+      questionId: questionId,
+      answer: answer,
+    );
+  }
 
   @override
   Future<QuizResultPayload> saveAttempt(QuizAttempt attempt) {
     return _attemptService.saveAttempt(attempt);
   }
+}
 
-  // ───── Private helpers ───────────────────────────────────────
+/// Parses the deliberately restricted student payload.
+///
+/// Correct answers and explanations are intentionally not read here. They are
+/// present only in a correction returned by the server after a check or final
+/// submission.
+QuizModel parsePublicQuizPayload(Map<String, dynamic> data) {
+  final rawQuestions = data['questions'] as List<dynamic>? ?? const [];
+  final questions = rawQuestions
+      .whereType<Map>()
+      .map((rawQuestion) {
+        final question = Map<String, dynamic>.from(rawQuestion);
+        final type = switch (question['type']) {
+          'trueFalse' => QuizQuestionType.trueFalse,
+          'shortAnswer' => QuizQuestionType.shortAnswer,
+          _ => QuizQuestionType.qcm,
+        };
 
-  QuizModel _quizFromData(String id, Map<String, dynamic> data) {
-    final rawQuestions = data['questions'] as List<dynamic>? ?? [];
+        return QuizQuestion(
+          id: question['id'] as String? ?? '',
+          type: type,
+          prompt: question['prompt'] as String? ?? '',
+          options: List<String>.from(question['options'] as List? ?? const []),
+          explanation: '',
+          pointsReward: (question['pointsReward'] as num?)?.toInt() ?? 10,
+        );
+      })
+      .toList(growable: false);
 
-    final questions = rawQuestions.map((q) {
-      final m = q as Map<String, dynamic>;
-      final typeStr = m['type'] as String? ?? 'qcm';
-      final type = switch (typeStr) {
-        'trueFalse' => QuizQuestionType.trueFalse,
-        'shortAnswer' => QuizQuestionType.shortAnswer,
-        _ => QuizQuestionType.qcm,
-      };
-
-      return QuizQuestion(
-        id: m['id'] as String? ?? '',
-        type: type,
-        prompt: m['prompt'] as String? ?? '',
-        options: List<String>.from(m['options'] as List? ?? []),
-        correctOptionIndex: m['correctOptionIndex'] as int?,
-        correctBooleanValue: m['correctBooleanValue'] as bool?,
-        acceptedAnswers: List<String>.from(m['acceptedAnswers'] as List? ?? []),
-        explanation: m['explanation'] as String? ?? '',
-        xpReward: (m['xpReward'] as int?) ?? 10,
-      );
-    }).toList();
-
-    return QuizModel(
-      id: id,
-      title: data['title'] as String? ?? '',
-      subjectId: data['subjectId'] as String? ?? '',
-      subjectLabel: data['subjectLabel'] as String? ?? '',
-      description: data['description'] as String? ?? '',
-      difficultyLabel: data['difficultyLabel'] as String? ?? 'Intermédiaire',
-      timerSeconds: data['timerSeconds'] as int?,
-      questions: questions,
-    );
-  }
+  return QuizModel(
+    id: data['id'] as String? ?? '',
+    title: data['title'] as String? ?? '',
+    subjectId: data['subjectId'] as String? ?? '',
+    subjectLabel: data['subjectLabel'] as String? ?? '',
+    description: data['description'] as String? ?? '',
+    difficultyLabel: data['difficultyLabel'] as String? ?? 'Intermédiaire',
+    timerSeconds: (data['timerSeconds'] as num?)?.toInt(),
+    mode: QuizModeX.fromWireValue(data['mode']),
+    questionCount: (data['questionCount'] as num?)?.toInt() ?? questions.length,
+    questions: questions,
+  );
 }

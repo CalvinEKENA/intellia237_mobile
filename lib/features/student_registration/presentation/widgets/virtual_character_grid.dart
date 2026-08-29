@@ -23,8 +23,8 @@ class VirtualCharacterGrid extends StatelessWidget {
       itemCount: options.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: AppSpacing.sm,
-        mainAxisSpacing: AppSpacing.sm,
+        crossAxisSpacing: IntelliaSpacing.sm,
+        mainAxisSpacing: IntelliaSpacing.sm,
         mainAxisExtent: 160,
       ),
       itemBuilder: (context, index) {
@@ -33,10 +33,10 @@ class VirtualCharacterGrid extends StatelessWidget {
         final isSelected = option.id == selectedId;
 
         return AnimatedContainer(
-          duration: AppMotion.fast,
-          curve: AppMotion.emphasizedDecelerate,
+          duration: IntelliaMotion.fast,
+          curve: IntelliaMotion.emphasizedDecelerate,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -55,10 +55,10 @@ class VirtualCharacterGrid extends StatelessWidget {
             ),
           ),
           child: InkWell(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
             onTap: () => onSelected(option),
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(IntelliaSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -85,7 +85,7 @@ class VirtualCharacterGrid extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.xxs),
+                  const SizedBox(height: IntelliaSpacing.xxs),
                   Text(
                     option.tagline,
                     style: Theme.of(context).textTheme.bodySmall,
@@ -109,7 +109,7 @@ class _CharacterVisual {
   final IconData icon;
 
   static const fallback = _CharacterVisual(
-    color: AppColors.brand,
+    color: IntelliaColors.brandIndigo,
     icon: Icons.psychology_alt_rounded,
   );
 }

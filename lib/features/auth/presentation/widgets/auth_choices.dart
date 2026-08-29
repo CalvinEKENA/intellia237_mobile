@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import 'auth_experience_scaffold.dart';
 
@@ -41,7 +42,7 @@ class AuthChoiceCard extends StatelessWidget {
             color: isSelected
                 ? accent.withValues(alpha: 0.18)
                 : Colors.white.withValues(alpha: 0.055),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(IntelliaRadii.small),
             border: Border.all(
               color: isSelected
                   ? accent.withValues(alpha: 0.9)
@@ -56,7 +57,7 @@ class AuthChoiceCard extends StatelessWidget {
                 height: 48,
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(IntelliaRadii.small),
                 ),
                 child: Icon(icon, color: accent, size: 25),
               ),
@@ -147,7 +148,7 @@ class CompanionSelectionCard extends StatelessWidget {
           height: 230,
           decoration: BoxDecoration(
             color: accent.withValues(alpha: isSelected ? 0.20 : 0.09),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(IntelliaRadii.small),
             border: Border.all(
               color: isSelected ? accent : Colors.white.withValues(alpha: 0.12),
               width: isSelected ? 1.8 : 1,

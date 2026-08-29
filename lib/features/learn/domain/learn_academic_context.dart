@@ -15,6 +15,6 @@ class LearnAcademicContext {
     if (series == null || series!.isEmpty) {
       return classLevel;
     }
-    return '$classLevel - Serie $series';
+    return '$classLevel - Série $series';
   }
 }

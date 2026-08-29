@@ -5,6 +5,8 @@ import '../../../app/theme/design_tokens.dart';
 import '../application/parent_providers.dart';
 import '../domain/parent_child_profile.dart';
 import 'widgets/progress_line_chart.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class ChildProgressScreen extends ConsumerWidget {
   const ChildProgressScreen({required this.childId, super.key});
@@ -19,12 +21,11 @@ class ChildProgressScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Progression enfant')),
       body: childAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: FilledButton.icon(
-            onPressed: () => ref.invalidate(parentChildByIdProvider(childId)),
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Recharger'),
-          ),
+        error: (error, stackTrace) => IntelliaStateView(
+          kind: stateKindForError(error),
+          message: stateMessageForKind(stateKindForError(error)),
+          primaryLabel: 'Réessayer',
+          onPrimary: () => ref.invalidate(parentChildByIdProvider(childId)),
         ),
         data: (child) {
           if (child == null) {
@@ -46,15 +47,15 @@ class _ProgressBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.xl,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.xl,
       ),
       children: [
         Card(
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -64,34 +65,44 @@ class _ProgressBody extends StatelessWidget {
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                ProgressLineChart(values: child.weeklyProgress),
+                const SizedBox(height: IntelliaSpacing.sm),
+                if (child.weeklyProgress.isNotEmpty)
+                  ProgressLineChart(values: child.weeklyProgress)
+                else
+                  const Text(
+                    'La courbe apparaîtra après les premières activités.',
+                  ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         Row(
           children: [
             Expanded(
               child: _MetricCard(
                 title: 'Global',
-                value: '${(child.globalProgress * 100).round()}%',
+                value: child.hasProgressData
+                    ? '${(child.globalProgress * 100).round()}%'
+                    : '—',
                 icon: Icons.track_changes_rounded,
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: IntelliaSpacing.sm),
             Expanded(
               child: _MetricCard(
-                title: 'Etude jour',
-                value: '${child.studyMinutesToday} min',
+                title: 'Étude du jour',
+                value: child.hasStudyTimeData
+                    ? '${child.studyMinutesToday} min'
+                    : '—',
                 icon: Icons.schedule_rounded,
               ),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.sm),
-        _DailyBars(values: child.weeklyProgress),
+        const SizedBox(height: IntelliaSpacing.sm),
+        if (child.weeklyProgress.isNotEmpty)
+          _DailyBars(values: child.weeklyProgress),
       ],
     );
   }
@@ -111,9 +122,9 @@ class _MetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(IntelliaSpacing.md),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         color: Theme.of(
           context,
         ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
@@ -122,7 +133,7 @@ class _MetricCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             value,
             style: Theme.of(
@@ -145,7 +156,7 @@ class _DailyBars extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -155,7 +166,7 @@ class _DailyBars extends StatelessWidget {
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             SizedBox(
               height: 120,
               child: Row(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/theme/design_tokens.dart';
 import 'auth_choices.dart';
 import 'auth_controls.dart';
 import 'auth_experience_scaffold.dart';
@@ -43,15 +44,15 @@ class AuthRegistrationFrame extends StatelessWidget {
         filled: true,
         fillColor: Colors.white.withValues(alpha: 0.06),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(IntelliaRadii.small),
           borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.14)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(IntelliaRadii.small),
           borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.14)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(IntelliaRadii.small),
           borderSide: const BorderSide(
             color: AuthExperienceColors.indigo,
             width: 1.5,

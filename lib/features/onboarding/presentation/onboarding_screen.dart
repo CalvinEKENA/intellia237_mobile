@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
 import 'package:animations/animations.dart';
@@ -12,6 +13,7 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/intellia_buttons.dart';
 import '../../../core/widgets/intellia_pressable.dart';
 import '../../../core/widgets/intellia_scaffold.dart';
+import '../../../core/telemetry/intellia_telemetry.dart';
 import '../data/onboarding_preferences.dart';
 import '../domain/onboarding_slides.dart';
 import 'widgets/onboarding_progress_indicator.dart';
@@ -100,6 +102,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     HapticFeedback.mediumImpact();
     _progress.stop();
     final persistence = markOnboardingSeen(ref);
+    unawaited(IntelliaTelemetry.onboardingCompleted());
     if (!mounted) return;
     context.go(AppRoutes.register);
     await persistence;

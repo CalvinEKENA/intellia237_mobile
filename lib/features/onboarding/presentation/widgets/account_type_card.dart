@@ -89,12 +89,12 @@ class _AccountTypeCardState extends State<AccountTypeCard>
       child: GestureDetector(
         onTap: widget.onTap,
         child: AnimatedContainer(
-          duration: AppMotion.medium,
-          curve: AppMotion.emphasizedDecelerate,
-          padding: const EdgeInsets.all(AppSpacing.md),
+          duration: IntelliaMotion.medium,
+          curve: IntelliaMotion.emphasizedDecelerate,
+          padding: const EdgeInsets.all(IntelliaSpacing.md),
           decoration: BoxDecoration(
             color: bgColor,
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
             border: Border.all(color: borderColor, width: selected ? 2.0 : 1.0),
             boxShadow: selected
                 ? [
@@ -116,8 +116,8 @@ class _AccountTypeCardState extends State<AccountTypeCard>
             children: [
               // Icone dans cercle gradient
               AnimatedContainer(
-                duration: AppMotion.medium,
-                curve: AppMotion.emphasizedDecelerate,
+                duration: IntelliaMotion.medium,
+                curve: IntelliaMotion.emphasizedDecelerate,
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
@@ -137,13 +137,13 @@ class _AccountTypeCardState extends State<AccountTypeCard>
                 child: Center(
                   child: AnimatedScale(
                     scale: selected ? 1.15 : 1.0,
-                    duration: AppMotion.medium,
-                    curve: AppMotion.emphasizedDecelerate,
+                    duration: IntelliaMotion.medium,
+                    curve: IntelliaMotion.emphasizedDecelerate,
                     child: Icon(widget.icon, color: color, size: 26),
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: IntelliaSpacing.md),
 
               // Texte
               Expanded(
@@ -175,7 +175,7 @@ class _AccountTypeCardState extends State<AccountTypeCard>
 
               // Indicateur de selection
               AnimatedSwitcher(
-                duration: AppMotion.fast,
+                duration: IntelliaMotion.fast,
                 switchInCurve: Curves.easeOut,
                 transitionBuilder: (child, animation) =>
                     ScaleTransition(scale: animation, child: child),

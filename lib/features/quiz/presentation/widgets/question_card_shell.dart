@@ -17,9 +17,9 @@ class QuestionCardShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(IntelliaSpacing.md),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -41,7 +41,7 @@ class QuestionCardShell extends StatelessWidget {
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: AppSpacing.xxs),
+          const SizedBox(height: IntelliaSpacing.xxs),
           Text(
             subtitle,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -50,7 +50,7 @@ class QuestionCardShell extends StatelessWidget {
               ).colorScheme.onSurface.withValues(alpha: 0.74),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           child,
         ],
       ),

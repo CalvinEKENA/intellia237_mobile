@@ -19,12 +19,12 @@ class ShortAnswerQuestionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return QuestionCardShell(
       title: question.prompt,
-      subtitle: 'Reponds en quelques mots',
+      subtitle: 'Réponds en quelques mots',
       child: TextFormField(
         initialValue: value,
         onChanged: onChanged,
         textInputAction: TextInputAction.done,
-        decoration: const InputDecoration(hintText: 'Ta reponse...'),
+        decoration: const InputDecoration(hintText: 'Ta réponse…'),
       ),
     );
   }

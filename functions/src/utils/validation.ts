@@ -27,7 +27,7 @@ export const askTutorCallableInputSchema = z.object({
     .array(
       z.object({
         role: z.enum(["user", "assistant"]),
-        text: z.string(),
+        text: z.string().max(4000),
       }),
     )
     .max(20),
@@ -65,12 +65,23 @@ export const submitQuizAttemptCallableInputSchema = z
   })
   .strict();
 
+function firestoreDocumentSegmentSchema(maxLength: number) {
+  return z
+    .string()
+    .trim()
+    .min(1)
+    .max(maxLength)
+    .refine((value) => value !== "." && value !== ".." && !value.includes("/"), {
+      message: "Must be a single Firestore document id segment.",
+    });
+}
+
 export const recordLessonProgressCallableInputSchema = z
   .object({
-    classLevel: z.string().trim().min(1).max(64),
-    subjectId: z.string().trim().min(1).max(128),
-    chapterId: z.string().trim().min(1).max(128),
-    lessonId: z.string().trim().min(1).max(128),
+    classLevel: firestoreDocumentSegmentSchema(64),
+    subjectId: firestoreDocumentSegmentSchema(128),
+    chapterId: firestoreDocumentSegmentSchema(128),
+    lessonId: firestoreDocumentSegmentSchema(128),
     progress: z.coerce.number().min(0).max(1),
     clientEventId: clientIdSchema,
   })
@@ -81,6 +92,37 @@ export type SubmitQuizAttemptCallableInput = z.infer<
 >;
 export type RecordLessonProgressCallableInput = z.infer<
   typeof recordLessonProgressCallableInputSchema
+>;
+
+export const listPublishedQuizzesCallableInputSchema = z
+  .object({
+    classLevel: z.string().trim().min(1).max(64),
+    series: z.string().trim().min(1).max(32).nullable().optional(),
+  })
+  .strict();
+
+export const getPublishedQuizCallableInputSchema = z
+  .object({
+    quizId: z.string().trim().min(1).max(128),
+  })
+  .strict();
+
+export const checkTrainingQuizAnswerCallableInputSchema = z
+  .object({
+    quizId: z.string().trim().min(1).max(128),
+    questionId: z.string().trim().min(1).max(128),
+    answer: z.string().max(1000),
+  })
+  .strict();
+
+export type ListPublishedQuizzesCallableInput = z.infer<
+  typeof listPublishedQuizzesCallableInputSchema
+>;
+export type GetPublishedQuizCallableInput = z.infer<
+  typeof getPublishedQuizCallableInputSchema
+>;
+export type CheckTrainingQuizAnswerCallableInput = z.infer<
+  typeof checkTrainingQuizAnswerCallableInputSchema
 >;
 
 const staffNameSchema = z.string().trim().min(2).max(60);
@@ -130,4 +172,20 @@ export const staffRegistrationCallableInputSchema = z.discriminatedUnion(
 
 export type StaffRegistrationCallableInput = z.infer<
   typeof staffRegistrationCallableInputSchema
+>;
+
+export const staffAccountReviewCallableInputSchema = z
+  .object({
+    reviewId: z
+      .string()
+      .trim()
+      .min(1)
+      .max(128)
+      .regex(/^[A-Za-z0-9_-]+$/),
+    approved: z.boolean(),
+  })
+  .strict();
+
+export type StaffAccountReviewCallableInput = z.infer<
+  typeof staffAccountReviewCallableInputSchema
 >;

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 import '../application/admin_content_providers.dart';
 import '../domain/admin_content_models.dart';
 import 'content_lesson_editor_screen.dart';
@@ -55,7 +57,13 @@ class ContentChapterScreen extends ConsumerWidget {
       ),
       body: chaptersAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(e.toString())),
+        error: (error, _) => IntelliaStateView(
+          kind: stateKindForError(error),
+          title: 'Chapitres indisponibles',
+          message: stateMessageForKind(stateKindForError(error)),
+          primaryLabel: 'Réessayer',
+          onPrimary: () => ref.invalidate(adminChaptersProvider(args)),
+        ),
         data: (chapters) => chapters.isEmpty
             ? Center(
                 child: Column(
@@ -66,7 +74,7 @@ class ContentChapterScreen extends ConsumerWidget {
                       size: 56,
                       color: color.withValues(alpha: 0.3),
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: IntelliaSpacing.md),
                     const Text(
                       'Aucun chapitre.\nAppuyez sur + pour commencer.',
                       textAlign: TextAlign.center,
@@ -76,14 +84,14 @@ class ContentChapterScreen extends ConsumerWidget {
               )
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.md,
-                  AppSpacing.md,
+                  IntelliaSpacing.md,
+                  IntelliaSpacing.md,
+                  IntelliaSpacing.md,
                   120,
                 ),
                 itemCount: chapters.length,
                 separatorBuilder: (_, _) =>
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: IntelliaSpacing.sm),
                 itemBuilder: (context, i) => _ChapterCard(
                   chapter: chapters[i],
                   subjectColor: color,
@@ -112,7 +120,7 @@ class ContentChapterScreen extends ConsumerWidget {
               controller: titleCtrl,
               decoration: const InputDecoration(labelText: 'Titre du chapitre'),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             TextField(
               controller: descCtrl,
               decoration: const InputDecoration(
@@ -159,7 +167,7 @@ class _ChapterCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute<void>(
@@ -167,7 +175,7 @@ class _ChapterCard extends ConsumerWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(IntelliaSpacing.md),
           child: Row(
             children: [
               Container(
@@ -188,7 +196,7 @@ class _ChapterCard extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: IntelliaSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -248,7 +256,13 @@ class ContentLessonsScreen extends ConsumerWidget {
       ),
       body: lessonsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(e.toString())),
+        error: (error, _) => IntelliaStateView(
+          kind: stateKindForError(error),
+          title: 'Leçons indisponibles',
+          message: stateMessageForKind(stateKindForError(error)),
+          primaryLabel: 'Réessayer',
+          onPrimary: () => ref.invalidate(adminLessonsProvider(args)),
+        ),
         data: (lessons) => lessons.isEmpty
             ? const Center(
                 child: Text(
@@ -258,14 +272,14 @@ class ContentLessonsScreen extends ConsumerWidget {
               )
             : ListView.separated(
                 padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.md,
-                  AppSpacing.md,
+                  IntelliaSpacing.md,
+                  IntelliaSpacing.md,
+                  IntelliaSpacing.md,
                   120,
                 ),
                 itemCount: lessons.length,
                 separatorBuilder: (_, _) =>
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: IntelliaSpacing.xs),
                 itemBuilder: (context, i) {
                   final lesson = lessons[i];
                   return _LessonTile(
@@ -298,13 +312,13 @@ class ContentLessonsScreen extends ConsumerWidget {
               controller: titleCtrl,
               decoration: const InputDecoration(labelText: 'Titre'),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             TextField(
               controller: summaryCtrl,
               decoration: const InputDecoration(labelText: 'Objectif / résumé'),
               maxLines: 2,
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             TextField(
               controller: durationCtrl,
               decoration: const InputDecoration(
@@ -364,18 +378,18 @@ class _LessonTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (statusLabel, statusColor) = switch (lesson.status) {
-      'published' => ('Publié', AppColors.accent),
-      'ai_generated' => ('IA ✨', AppColors.gold),
+      'published' => ('Publié', IntelliaColors.success),
+      'ai_generated' => ('IA ✨', IntelliaColors.warning),
       _ => ('Brouillon', Colors.grey),
     };
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs,
+        horizontal: IntelliaSpacing.md,
+        vertical: IntelliaSpacing.xs,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(IntelliaRadii.small),
       ),
       tileColor: Theme.of(
         context,
@@ -403,7 +417,7 @@ class _LessonTile extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.xs),
+          const SizedBox(width: IntelliaSpacing.xs),
           const Icon(Icons.edit_outlined, size: 18),
         ],
       ),

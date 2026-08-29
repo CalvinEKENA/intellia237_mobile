@@ -9,86 +9,90 @@ List<TourGuideStepData> roleTourSteps(AppRole role) {
     AppRole.student => const [
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentHeader,
-        title: 'Accueil personnalise',
-        description: 'Tu retrouves ici tes notifications et ton acces profil.',
+        title: 'Accueil personnalisé',
+        description:
+            'Tu retrouves ici tes notifications et l’accès à ton profil.',
         icon: Icons.waving_hand_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentStreak,
-        title: 'Streak quotidien',
-        description: 'Garde ton rythme pour cumuler plus d\'XP chaque jour.',
+        title: 'Série quotidienne',
+        description:
+            'Garde ton rythme pour cumuler plus de points chaque jour.',
         icon: Icons.local_fire_department_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentResume,
         title: 'Continuer ton cours',
-        description: 'Reprends ta derniere lecon exactement au bon chapitre.',
+        description: 'Reprends ta dernière leçon exactement au bon chapitre.',
         icon: Icons.play_circle_fill_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentSubjects,
-        title: 'Matieres',
+        title: 'Matières',
         description:
-            'Navigue rapidement entre tes matieres et leur progression.',
+            'Navigue rapidement entre tes matières et leur progression.',
         icon: Icons.auto_stories_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentRecommendations,
         title: 'Recommandations IA',
         description:
-            'Contenus proposes selon tes forces et points a renforcer.',
+            'Contenus proposés selon tes forces et les points à renforcer.',
         icon: Icons.auto_awesome_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentChallenges,
-        title: 'Defis du jour',
+        title: 'Défis du jour',
         description: 'Des objectifs courts pour maintenir ta motivation.',
         icon: Icons.bolt_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentQuickQuiz,
         title: 'Quiz express',
-        description: 'Lance un quiz en un tap pour progresser rapidement.',
+        description: 'Lance un quiz d’un geste pour progresser rapidement.',
         icon: Icons.quiz_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentQuickAi,
         title: 'Assistant IA',
-        description: 'Pose tes questions et recois une aide immediate.',
+        description: 'Pose tes questions et reçois une aide immédiate.',
         icon: Icons.smart_toy_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentBottomNav,
         title: 'Navigation',
-        description: 'Accede a Accueil, Apprendre, Quiz, IA et Profil ici.',
+        description:
+            'Accède à Accueil, Apprendre, Quiz, Compagnon et Profil ici.',
         icon: Icons.navigation_rounded,
       ),
     ],
     AppRole.parent => const [
       TourGuideStepData(
         targetId: TourGuideTargetIds.roleHero,
-        title: 'Espace Parent',
+        title: 'Espace parent',
         description:
-            'Vue principale pour suivre les enfants et leurs activites.',
+            'Vue principale pour suivre les enfants et leurs activités.',
         icon: Icons.family_restroom_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.roleSignOut,
-        title: 'Deconnexion',
-        description: 'Quitte la session en toute securite.',
+        title: 'Déconnexion',
+        description: 'Quitte la session en toute sécurité.',
         icon: Icons.logout_rounded,
       ),
     ],
     AppRole.teacher => const [
       TourGuideStepData(
         targetId: TourGuideTargetIds.roleHero,
-        title: 'Espace Enseignant',
-        description: 'Zone centrale pour cours, classes et activites a venir.',
+        title: 'Espace enseignant',
+        description:
+            'Zone centrale pour les cours, classes et activités à venir.',
         icon: Icons.school_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.roleSignOut,
-        title: 'Deconnexion',
+        title: 'Déconnexion',
         description: 'Termine proprement la session active.',
         icon: Icons.logout_rounded,
       ),
@@ -96,14 +100,15 @@ List<TourGuideStepData> roleTourSteps(AppRole role) {
     AppRole.admin => const [
       TourGuideStepData(
         targetId: TourGuideTargetIds.roleHero,
-        title: 'Espace Administration',
-        description: 'Acces principal pour pilotage et supervision globale.',
+        title: 'Espace administration',
+        description:
+            'Accès principal pour le pilotage et la supervision globale.',
         icon: Icons.admin_panel_settings_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.roleSignOut,
-        title: 'Deconnexion',
-        description: 'Ferme la session avec securite.',
+        title: 'Déconnexion',
+        description: 'Ferme la session en toute sécurité.',
         icon: Icons.logout_rounded,
       ),
     ],

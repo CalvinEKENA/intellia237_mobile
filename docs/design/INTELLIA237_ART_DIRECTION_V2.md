@@ -26,7 +26,7 @@ d'écrans. La continuité se mesure à trois choses vérifiables :
    même rythme typographique, même profondeur).
 2. **Toute descente dans la hiérarchie est spatialement explicite** (l'élément source se
    transforme en écran cible) plutôt qu'un remplacement abrupt.
-3. **Les nombres (XP, niveau, série, score) sont traités comme une matière de marque**,
+3. **Les nombres (points, niveau, série, score) sont traités comme une matière de marque**,
    pas comme du texte ordinaire.
 
 Critère de réussite global : un utilisateur qui filme son parcours
@@ -72,7 +72,7 @@ cohérence de marque).
    l'émotion ou la continuité. Pas d'animation décorative isolée.
 2. **Clair par défaut, sombre par rituel.** Le sombre est réservé au seuil (splash + auth).
    Partout ailleurs : famille claire de la homepage.
-3. **Les nombres parlent.** XP, niveau, série, score : matière de marque (tabular, animés,
+3. **Les nombres parlent.** Points, niveau, série, score : matière de marque (tabular, animés,
    colorés sémantiquement).
 4. **La fierté est tricolore, le reste ne l'est pas.** Vert/rouge/jaune = récompense
    méritée, jamais chrome d'interface.
@@ -92,7 +92,7 @@ cohérence de marque).
 | Intensité animation | élevée (célébrations fréquentes) | modérée | sobre |
 | Vocabulaire | chaleureux, imagé | précis, orienté objectif | exigeant, lexique d'examen |
 | Récompenses | grandes, fréquentes (badges) | paliers, maîtrise | jalons sérieux, % de maîtrise |
-| Statistiques | simples (XP, série, badges) | + maîtrise par thème | + rang, temps, prédiction |
+| Statistiques | simples (points, série, badges) | + maîtrise par thème | + rang, temps, prédiction |
 | Gamification | forte | modérée | cadrée « performance » |
 | Ton des messages | encourageant, ludique | pair à pair, motivant | respectueux, responsabilisant |
 | Couleurs secondaires | accents plus présents | accents mesurés | neutres + accent sur la donnée |
@@ -123,7 +123,7 @@ primaire, la typo, les rayons, la grammaire de mouvement.
 | Succès | `success` | #34C759 | validation, juste |
 | Alerte | `warning` | #FF9500 | série, attention |
 | Erreur | `error` | #FF3B30 | faux, échec |
-| XP | `xpGold` | #FFD60A | points d'expérience |
+| Points | `pointsGold` | #FFD60A | récompenses de progression |
 | Fierté 237 | `cmVert/cmRouge/cmJaune` | #007A5E/#CE1126/#FCD116 | **moments de fierté uniquement** (§12) |
 | Seuil (rituel) | `night` | #080722 | splash + auth seulement |
 | Surfaces claires | `backgroundPremium/Primary` | #FBFAF7 / #FCFCFF | app quotidienne |
@@ -233,7 +233,7 @@ manque (déjà fait sur l'écran de succès → généraliser).
 | Hero | élément partagé (compagnon) | emphasized→cinematic | (0.2,0,0,1) | trajectoire + scale | source→cible | rare | si pas de continuité réelle |
 | Scale de pression | tout interactif | press 150 | swiftOut | 1.0→0.97 | — | à chaque tap | comme seule affordance d'état |
 | Staggered entrance | listes/cartes | standard | emphasizedDecelerate | y +8→0, fade | bas→haut | à l'apparition d'écran | délais > 60 ms/élément, > 6 éléments |
-| Progression numérique | XP/score/% | 400–900 ms (selon Δ) | (0.2,0,0,1) | count-up | — | à la mise à jour | sur grands deltas sans plafond |
+| Progression numérique | points/score/% | 400–900 ms (selon Δ) | (0.2,0,0,1) | count-up | — | à la mise à jour | sur grands deltas sans plafond |
 | Skeleton | chargement | boucle 1200 ms | sinus doux | shimmer 0.3 | balayage | pendant chargement | shimmer agressif/contrasté |
 | Changement d'état | normal↔selected etc. | quick | swiftOut | couleur/échelle | — | à l'interaction | transitions > 250 ms |
 | Feedback juste | bonne réponse | standard | (0.2,0,0,1) | éclosion verte + check | depuis l'option | par réponse | éclats bruyants/confettis lourds |
@@ -306,7 +306,7 @@ cliquable sans feedback · icône seule ambiguë (toujours libellé/aria-label).
 | Contraste icône/élément non textuel porteur de sens | ≥ **3:1** |
 | Cible tactile | ≥ **48×48 dp**, espacement ≥ 8 |
 | Échelle texte | support **1.0 → 1.5** sans clipping ; tester **1.3 et 1.5** ; tout écran scrollable |
-| Lecteurs d'écran | `Semantics(button/selected/header/label)` sur chaque interactif ; live region pour XP/score/résultats |
+| Lecteurs d'écran | `Semantics(button/selected/header/label)` sur chaque interactif ; live region pour points/score/résultats |
 | Ordre sémantique | de lecture logique (haut→bas, gauche→droite) ; focus initial sur le titre |
 | Couleur jamais seule | juste/faux = couleur **+ icône** ; verrouillé = opacité **+ cadenas** ; série = couleur **+ libellé** |
 | Textes alternatifs | Kira/Léo, badges, illustrations décrits |
@@ -376,7 +376,7 @@ Détection : `disableAnimations` (immédiat) + heuristique « frames perdues » 
 | Label | Manrope | 13 / 600 / 1.35 | étiquettes, chips |
 | Caption | Montserrat | 12–13 / 400 / 1.35 | secondaire |
 | Bouton | Montserrat/Manrope | 15–16 / 700 / 1.0 | actions |
-| **Donnée numérique** | Manrope | 20–56 / 800 / 1.0, **tabular** | XP, score, niveau, série |
+| **Donnée numérique** | Manrope | 20–56 / 800 / 1.0, **tabular** | points, score, niveau, série |
 
 Wordmark « **Intellia 237** » : Manrope extrabold ; « 237 » peut porter l'accent tricolore
 **uniquement** dans le contexte logo/célébration (§12). Bannir « INTELLIA237 » en texte.
@@ -384,7 +384,7 @@ Wordmark « **Intellia 237** » : Manrope extrabold ; « 237 » peut porter l'ac
 ### 11.2 Système numérique
 | Donnée | Couleur | Animation de valeur | Particularité |
 |---|---|---|---|
-| XP | `xpGold` | count-up `cinematic`, +Δ flottant qui monte et s'efface | tabular, +N visible |
+| Points | `pointsGold` | count-up `cinematic`, +Δ flottant qui monte et s'efface | tabular, +N visible |
 | Score | primaire / succès | count-up `emphasized` au résultat | /max en caption |
 | Niveau | primaire | montée = level-up (§12) | « Niv. N » Manrope 800 |
 | Série | `warning` (+ couronne tricolore aux paliers) | incrément `quick` | icône flamme + jours |
@@ -522,10 +522,10 @@ fin. *Risque* : surcharge d'effets par réponse (1 effet max). *Priorité* : **P
 
 **15. Résultat du quiz** — *Pb* : moment d'émotion peu exploité. *Émotion* : fierté,
 envie de recommencer. *Focal* : **le score** (compte à rebours animé). *Dispo* :
-« bulletin » : score → XP gagné → badges → corrections. *Profondeur* : niv.1 + halo
+« bulletin » : score → points gagnés → badges → corrections. *Profondeur* : niv.1 + halo
 succès. *Typo* : Display (score) + corps. *Entrée* : emphasized depuis le quiz. *Sortie* :
 retour hub (Shared Axis) ou rejouer (Container Transform). *Micro* : count-up score,
-remplissage XP, **révélation de badge** (sobre, sans confetti bruyant), level-up si
+remplissage des points, **révélation de badge** (sobre, sans confetti bruyant), level-up si
 atteint (§12). *États* : échec (ton bienveillant + « réessaie »), parfait (célébration
 tricolore mesurée). *Risque* : empilement de célébrations (file d'attente). *Priorité* :
 **P2 (moment émotionnel)**.
@@ -533,7 +533,7 @@ tricolore mesurée). *Risque* : empilement de célébrations (file d'attente). *
 **16. Flow** — *Pb* : aucun majeur (déjà premium). *Émotion* : curiosité, élan. *Focal* :
 la carte plein écran. *Dispo* : pager vertical, HUD discret. *Profondeur* : niv.0 +
 visuels. *Typo* : Hero/corps selon carte. *Entrée* : depuis carte d'accueil (Container
-Transform possible). *Sortie* : quitte → Accueil. *Micro* : célébrations XP/badge sobres,
+Transform possible). *Sortie* : quitte → Accueil. *Micro* : célébrations points/badge sobres,
 dwell-award. *États* : fin de feed (« reviens demain »). *Risque* : déjà cadré. *Priorité* :
 P3 (ancrer la cohérence avec le reste).
 
@@ -553,7 +553,7 @@ anneau d'avatar (déjà), valeurs animées. *États* : chargement, erreur. *Risq
 faible. *Priorité* : **P2**.
 
 **19. Statistiques** — *Pb* : lisibilité et hiérarchie des nombres. *Émotion* : progrès
-mesurable. *Focal* : XP/niveau/série/progression. *Dispo* : anneaux + barres + tuiles
+mesurable. *Focal* : points/niveau/série/progression. *Dispo* : anneaux + barres + tuiles
 numériques, **densité selon maturité**. *Profondeur* : niv.1. *Typo* : Display numérique +
 label. *Entrée* : Fade Through. *Sortie* : drill-down vers détail (maîtrise par thème en
 lycée). *Micro* : count-up, anneaux animés, série tricolore aux paliers. *États* : vide
@@ -686,7 +686,7 @@ isolés).
 
 1. **Container Transform « matière → détail »** *(premier)*.
 2. **Transition « aube » succès → accueil**.
-3. **Bulletin de résultat de quiz (XP + badge)**.
+3. **Bulletin de résultat de quiz (points + badge)**.
 
 **À construire en premier : le Container Transform matière → détail.** Raisons :
 - **Réutilisation maximale** : il établit la **grammaire de descente** (élément partagé +
@@ -719,7 +719,7 @@ le **bulletin de quiz**.
   retour = collapse exact, reduced motion = cross-fade 200 ms, 60 fps maintenu.
 - **Aube** : ≤ 1.4 s, morph nuit→crème sans flash, Hero compagnon arrivant à la position
   avatar de l'accueil, reduced motion = fondu 250 ms, jamais de blocage de taps.
-- **Bulletin quiz** : score count-up (≤ 900 ms), XP qui se remplit, badge révélé sans
+- **Bulletin quiz** : score count-up (≤ 900 ms), points qui se remplissent, badge révélé sans
   effet bruyant, level-up tricolore seulement si atteint, reduced motion = valeurs directes.
 
 ---

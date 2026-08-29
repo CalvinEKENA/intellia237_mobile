@@ -10,6 +10,12 @@ import {
   submitQuizAttemptHandler,
 } from "./services/academicCallables";
 import { submitStaffRegistrationHandler } from "./services/staffRegistrationCallable";
+import {
+  checkTrainingQuizAnswerHandler,
+  getPublishedQuizHandler,
+  listPublishedQuizzesHandler,
+} from "./services/quizContentCallables";
+import { listQuizAttemptHistoryHandler } from "./services/quizAttemptHistoryCallable";
 import { GenerateQuizUseCase } from "./services/generateQuizUseCase";
 import { GenerateSummaryUseCase } from "./services/generateSummaryUseCase";
 import { toHttpsError } from "./utils/errors";
@@ -19,6 +25,15 @@ import {
   askTutorCallableInputSchema,
 } from "./utils/validation";
 import { AskTutorUseCase } from "./services/askTutorUseCase";
+import { requestAccountDeletionHandler } from "./services/accountDeletionCallable";
+import { reviewStaffAccountHandler } from "./services/staffAccountReviewCallable";
+import { submitFlowActivityHandler } from "./services/flowPointsCallable";
+import {
+  getMobileMoneyOverviewHandler,
+  listMobileMoneyPaymentsHandler,
+  reviewMobileMoneyPaymentHandler,
+  submitMobileMoneyPaymentHandler,
+} from "./services/mobileMoneyCallables";
 
 const env = getEnv();
 setGlobalOptions({
@@ -147,6 +162,42 @@ export const submitQuizAttempt = onCall(
   submitQuizAttemptHandler,
 );
 
+export const listPublishedQuizzes = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  listPublishedQuizzesHandler,
+);
+
+export const getPublishedQuiz = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  getPublishedQuizHandler,
+);
+
+export const checkTrainingQuizAnswer = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  checkTrainingQuizAnswerHandler,
+);
+
+export const listQuizAttemptHistory = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  listQuizAttemptHistoryHandler,
+);
+
 export const recordLessonProgress = onCall(
   {
     region: env.FUNCTIONS_REGION,
@@ -163,4 +214,67 @@ export const submitStaffRegistration = onCall(
     memory: "256MiB",
   },
   submitStaffRegistrationHandler,
+);
+
+export const requestAccountDeletion = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 15,
+    memory: "256MiB",
+  },
+  requestAccountDeletionHandler,
+);
+
+export const reviewStaffAccount = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  reviewStaffAccountHandler,
+);
+
+export const submitFlowActivity = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  submitFlowActivityHandler,
+);
+
+export const getMobileMoneyOverview = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  getMobileMoneyOverviewHandler,
+);
+
+export const submitMobileMoneyPayment = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  submitMobileMoneyPaymentHandler,
+);
+
+export const listMobileMoneyPayments = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  listMobileMoneyPaymentsHandler,
+);
+
+export const reviewMobileMoneyPayment = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  reviewMobileMoneyPaymentHandler,
 );

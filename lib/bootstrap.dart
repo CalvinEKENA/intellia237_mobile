@@ -1,13 +1,20 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart'
+    show LicenseEntryWithLineBreaks, LicenseRegistry, kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/config/app_config.dart';
 import 'features/auth/data/auth_entry_preferences.dart';
 import 'features/onboarding/data/onboarding_preferences.dart';
+import 'core/notifications/learning_reminder_service.dart';
 import 'firebase_options.dart';
 
 Future<void> bootstrap({
@@ -32,11 +39,22 @@ Future<void> bootstrap({
       'with Firebase project ${config.firebaseProjectId}.',
     );
 
-    // Google Fonts utilise allowRuntimeFetching = true par défaut pour permettre le
-    // téléchargement en ligne. Si l'appareil est hors-ligne, le package google_fonts
-    // utilise automatiquement les polices système par défaut (Roboto/San Francisco)
-    // sans bloquer le rendu de l'interface ni lever d'exception.
-    GoogleFonts.config.allowRuntimeFetching = true;
+    // Montserrat, Manrope et Playfair Display sont embarquées dans
+    // assets/fonts. Aucun texte ne doit dépendre du réseau pour s'afficher :
+    // une variante manquante devient ainsi une erreur détectable en test au lieu
+    // d'un téléchargement silencieux en production.
+    GoogleFonts.config.allowRuntimeFetching = false;
+    LicenseRegistry.addLicense(() async* {
+      for (final font in const <(String, String)>[
+        ('Montserrat', 'assets/fonts/OFL-Montserrat.txt'),
+        ('Manrope', 'assets/fonts/OFL-Manrope.txt'),
+        ('Playfair Display', 'assets/fonts/OFL-PlayfairDisplay.txt'),
+      ]) {
+        yield LicenseEntryWithLineBreaks(<String>[
+          font.$1,
+        ], await rootBundle.loadString(font.$2));
+      }
+    });
   } catch (error, stackTrace) {
     debugPrint(
       'Non-critical bootstrap step failed (GoogleFonts config): $error',
@@ -58,8 +76,26 @@ Future<void> bootstrap({
   // 4. Initialisation Firebase (avec options dynamiques par flavor)
   try {
     await initializeFirebase(config);
+    final prefs = await SharedPreferences.getInstance();
+    final diagnostics =
+        prefs.getBool('preferences_diagnostics_consent') ?? false;
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(diagnostics);
+    if (!kIsWeb) {
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+        diagnostics,
+      );
+    }
   } catch (error, stackTrace) {
     debugPrint('Firebase initialization failed: $error');
+    debugPrintStack(stackTrace: stackTrace);
+  }
+
+  // 4b. Notifications locales : initialisation sans demande de permission.
+  // La permission n'est demandée qu'après un choix explicite dans Paramètres.
+  try {
+    await LearningReminderService.initialize();
+  } catch (error, stackTrace) {
+    debugPrint('Local notification initialization failed: $error');
     debugPrintStack(stackTrace: stackTrace);
   }
 
@@ -67,6 +103,20 @@ Future<void> bootstrap({
   try {
     FlutterError.onError = (details) {
       FlutterError.presentError(details);
+      if (!kIsWeb && Firebase.apps.isNotEmpty) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+      }
+    };
+    PlatformDispatcher.instance.onError = (error, stackTrace) {
+      debugPrint('[INTELLIA237][AsyncError] $error');
+      if (!kIsWeb && Firebase.apps.isNotEmpty) {
+        FirebaseCrashlytics.instance.recordError(
+          error,
+          stackTrace,
+          fatal: true,
+        );
+      }
+      return true;
     };
     // En staging/debug : message + code diagnostic + détail technique.
     // En production : message + code uniquement (jamais de stack trace).
@@ -161,11 +211,19 @@ Future<void> bootstrap({
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  error.toString(),
-                  style: const TextStyle(color: Colors.grey),
+                const Text(
+                  'Code diagnostic : APP-START-500',
+                  style: TextStyle(color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
+                if (config.isStaging || kDebugMode) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    error.toString(),
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ],
             ),
           ),

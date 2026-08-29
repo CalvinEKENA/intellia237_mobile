@@ -85,7 +85,7 @@ Pour maximiser l'ergonomie à une main sur mobile, les zones interactives sont r
 ### B. Fin de Mission
 * À la validation de la 10ème carte, la transition ne mène pas à une nouvelle activité mais à un **Écran de Célébration de Fin de Mission** :
   * Kira et Léo apparaissent côte à côte pour féliciter l'élève.
-  * Affichage de la jauge d'XP qui grimpe avec une animation festive (`xp-pop`).
+  * Affichage de la jauge de points qui grimpe avec une animation festive (`points-pop`).
   * Révélation des badges éventuellement débloqués (ex. "As des fractions", "Champion d'anglais").
   * **Verrouillage de session** : Un message bienveillant indique : *"Superbe travail pour aujourd'hui ! Reviens demain pour ta prochaine mission de vacances."* avec un compte à rebours discret. Cela pose une limite saine et valorise l'effort régulier.
 

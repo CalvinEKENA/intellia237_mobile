@@ -55,7 +55,7 @@ Future<void> maybeShowContextualTourGuide({
     pageBuilder: (dialogContext, animation, secondaryAnimation) {
       return _TourGuideOverlay(steps: filteredSteps, targets: targets);
     },
-    transitionDuration: AppMotion.medium,
+    transitionDuration: IntelliaMotion.medium,
     transitionBuilder: (context, animation, secondaryAnimation, child) {
       return FadeTransition(opacity: animation, child: child);
     },
@@ -106,7 +106,7 @@ class _TourGuideOverlayState extends State<_TourGuideOverlay> {
               behavior: HitTestBehavior.opaque,
               onTap: () => Navigator.of(context).pop(false),
               child: AnimatedSwitcher(
-                duration: AppMotion.medium,
+                duration: IntelliaMotion.medium,
                 child: CustomPaint(
                   key: ValueKey(_index),
                   painter: _SpotlightPainter(targetRect: targetRect),
@@ -116,8 +116,8 @@ class _TourGuideOverlayState extends State<_TourGuideOverlay> {
           ),
           if (targetRect != null)
             AnimatedPositioned(
-              duration: AppMotion.medium,
-              curve: AppMotion.emphasizedDecelerate,
+              duration: IntelliaMotion.medium,
+              curve: IntelliaMotion.emphasizedDecelerate,
               left: targetRect.left - 6,
               top: targetRect.top - 6,
               width: targetRect.width + 12,
@@ -135,13 +135,13 @@ class _TourGuideOverlayState extends State<_TourGuideOverlay> {
               ),
             ),
           Positioned(
-            left: AppSpacing.lg,
-            right: AppSpacing.lg,
-            bottom: mediaQuery.padding.bottom + AppSpacing.lg,
+            left: IntelliaSpacing.lg,
+            right: IntelliaSpacing.lg,
+            bottom: mediaQuery.padding.bottom + IntelliaSpacing.lg,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: colorScheme.surface.withValues(alpha: 0.96),
-                borderRadius: BorderRadius.circular(AppRadius.md),
+                borderRadius: BorderRadius.circular(IntelliaRadii.medium),
                 border: Border.all(
                   color: colorScheme.outline.withValues(alpha: 0.2),
                 ),
@@ -154,7 +154,7 @@ class _TourGuideOverlayState extends State<_TourGuideOverlay> {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: const EdgeInsets.all(IntelliaSpacing.md),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +162,7 @@ class _TourGuideOverlayState extends State<_TourGuideOverlay> {
                     Row(
                       children: [
                         Icon(_currentStep.icon, color: colorScheme.primary),
-                        const SizedBox(width: AppSpacing.xs),
+                        const SizedBox(width: IntelliaSpacing.xs),
                         Expanded(
                           child: Text(
                             _currentStep.title,
@@ -176,14 +176,14 @@ class _TourGuideOverlayState extends State<_TourGuideOverlay> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: IntelliaSpacing.xs),
                     Text(
                       _currentStep.description,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurface.withValues(alpha: 0.78),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: IntelliaSpacing.md),
                     Row(
                       children: [
                         TextButton(

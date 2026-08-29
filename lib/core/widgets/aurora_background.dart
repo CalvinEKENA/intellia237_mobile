@@ -9,9 +9,9 @@ import '../../app/theme/design_tokens.dart';
 class AuroraBackground extends StatefulWidget {
   const AuroraBackground({
     required this.child,
-    this.primaryColor = AppColors.brand,
-    this.secondaryColor = AppColors.accent,
-    this.tertiaryColor = AppColors.gold,
+    this.primaryColor = IntelliaColors.brandIndigo,
+    this.secondaryColor = IntelliaColors.success,
+    this.tertiaryColor = IntelliaColors.warning,
     super.key,
   });
 
@@ -36,15 +36,32 @@ class _AuroraBackgroundState extends State<AuroraBackground>
     _ctrl1 = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 20),
-    )..repeat();
+    );
     _ctrl2 = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 14),
-    )..repeat();
+    );
     _ctrl3 = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 8),
-    )..repeat();
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateMotion(MediaQuery.maybeOf(context)?.disableAnimations ?? false);
+  }
+
+  void _updateMotion(bool disabled) {
+    for (final controller in [_ctrl1, _ctrl2, _ctrl3]) {
+      if (disabled) {
+        controller.stop();
+        controller.value = 0;
+      } else if (!controller.isAnimating) {
+        controller.repeat();
+      }
+    }
   }
 
   @override

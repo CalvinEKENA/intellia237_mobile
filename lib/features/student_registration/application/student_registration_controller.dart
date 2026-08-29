@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/domain/auth_input_validators.dart';
+import '../../../core/telemetry/intellia_telemetry.dart';
 import '../data/firebase_student_registration_repository.dart';
 import '../data/student_registration_repository.dart';
 import '../domain/academic_rules.dart';
@@ -153,6 +154,7 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
         isCompleted: true,
         clearError: true,
       );
+      await IntelliaTelemetry.registrationCompleted(role: 'student');
       return true;
     } on StudentRegistrationException catch (error) {
       state = state.copyWith(isSubmitting: false, errorMessage: error.message);
@@ -190,18 +192,18 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
     final firstName = state.firstName.trim();
     final lastName = state.lastName.trim();
 
-    return AuthInputValidators.displayName(firstName, label: 'Le prenom') ??
+    return AuthInputValidators.displayName(firstName, label: 'Le prénom') ??
         AuthInputValidators.displayName(lastName, label: 'Le nom');
   }
 
   String? _validateAcademicInfo() {
     final schoolClass = state.schoolClass;
     if (schoolClass == null) {
-      return 'Selectionnez votre classe.';
+      return 'Sélectionnez votre classe.';
     }
 
     if (schoolClass.requiresSeries && state.schoolSeries == null) {
-      return 'La serie est obligatoire pour cette classe.';
+      return 'La série est obligatoire pour cette classe.';
     }
 
     return null;
@@ -209,7 +211,7 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
 
   String? _validatePreferences() {
     if (state.selectedTutorId == null) {
-      return 'Choisissez Kira ou Leo pour personnaliser votre accompagnement.';
+      return 'Choisissez Kira ou Léo pour personnaliser votre accompagnement.';
     }
     return null;
   }

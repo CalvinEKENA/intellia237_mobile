@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../app/theme/design_tokens.dart';
@@ -33,6 +35,7 @@ class _IntelliaPressableState extends State<IntelliaPressable>
   late final AnimationController _controller;
   late final Animation<double> _scaleAnimation;
   bool _isDebouncing = false;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -49,11 +52,12 @@ class _IntelliaPressableState extends State<IntelliaPressable>
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _handleTap() async {
+  void _handleTap() {
     if (widget.onTap == null || _isDebouncing) return;
     _isDebouncing = true;
 
@@ -63,9 +67,12 @@ class _IntelliaPressableState extends State<IntelliaPressable>
 
     widget.onTap!();
 
-    // Prevent double taps within 350ms
-    await Future.delayed(const Duration(milliseconds: 350));
-    _isDebouncing = false;
+    // Anti double-tap (350 ms) : Timer annulable — jamais de timer pendant
+    // après le démontage du widget (les tests l'exigent aussi).
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 350), () {
+      _isDebouncing = false;
+    });
   }
 
   void _handleTapDown(TapDownDetails _) {

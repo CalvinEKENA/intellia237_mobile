@@ -72,7 +72,7 @@ La limite d'essai gratuite $m$ est configurable globalement (par exemple, $m = 3
 | **4** | Série (Si applicable) | Choix de la série (2nde à Tle) | **Titre** : "Et quelle est ta série ?"<br>**Options** : "Série A (Littéraire)", "Série C (Scientifique)", "Série D (Sciences de la Vie)" |
 | **5** | Diagnostic | Première connexion au chat | **Kira** : "Bienvenue [Prénom] ! Pour commencer nos vacances ensemble, quelle notion aimerais-tu tester en premier aujourd'hui ?" |
 | **6** | Activités gratuites | Utilisation des $m$ questions d'essai | **Indicateur visuel** : "Questions d'essai restantes : $m$ / 3"<br>**Léo** : "Tu as droit à 3 questions gratuites pour tester ma rapidité ! Pose-moi ta colle." |
-| **7** | Progression visible | Gain de la première XP | **Notification** : "+10 XP ! Niveau 1 commencé. Continue comme ça !" |
+| **7** | Progression visible | Gain des premiers points | **Notification** : "+10 points ! Niveau 1 commencé. Continue comme ça !" |
 | **8** | Intervention utile | Explication de Kira ou défi de Léo | **Kira** : "J'adore ta curiosité ! N'oublie pas que je suis là pour t'expliquer chaque détail difficile, formule par formule." |
 | **9** | Atteinte de la limite $m$ | Blocage après $m$ questions | **Kira** : "Bravo pour tes premiers efforts ! Tu as utilisé tes 3 questions d'essai gratuites. Pour continuer à réviser ensemble tout l'été, demande à ton parent de débloquer ton Pass." |
 | **10** | Demande du Pass au parent | Transition Parent / Paywall | **Titre** : "Espace Parent - Activer l'accès complet"<br>**Description** : "Cher parent, offrez à votre enfant un été d'apprentissage stimulant. Le Pass Grandes Vacances donne un accès illimité à toutes les matières de la 6ème à la Terminale de juin à août." |

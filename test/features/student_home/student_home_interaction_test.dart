@@ -302,7 +302,13 @@ void main() {
     await _tapNav(tester, 'Apprendre');
     expect(find.text('Parcours personnalisé'), findsOneWidget);
     await _tapNav(tester, 'Quiz');
-    expect(find.text('Prêt à relever un défi ?'), findsOneWidget);
+    expect(
+      find.text(
+        'Entraîne-toi avec des corrections guidées ou évalue-toi '
+        'dans les conditions d’un examen blanc.',
+      ),
+      findsOneWidget,
+    );
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.text('Reprendre le dernier cours'), findsOneWidget);
@@ -359,13 +365,22 @@ void main() {
     await _scrollHomeTo(tester, find.text('Continuer'));
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
-    expect(find.text('Parcours personnalisé'), findsOneWidget);
-    await _tapNav(tester, 'Accueil');
+    expect(find.text('Leçon math/chap-3/lecon-2'), findsOneWidget);
+    tester.state<NavigatorState>(find.byType(Navigator)).pop();
+    await tester.pump(const Duration(milliseconds: 900));
+    await tester.pumpAndSettle();
+    await _resetHomeScroll(tester);
 
     await _scrollHomeTo(tester, find.text('Quiz rapide'));
     await tester.tap(find.text('Quiz rapide'));
     await tester.pumpAndSettle();
-    expect(find.text('Prêt à relever un défi ?'), findsOneWidget);
+    expect(
+      find.text(
+        'Entraîne-toi avec des corrections guidées ou évalue-toi '
+        'dans les conditions d’un examen blanc.',
+      ),
+      findsOneWidget,
+    );
     await _tapNav(tester, 'Accueil');
 
     await _scrollHomeTo(tester, find.text('Quiz rapide'));
@@ -387,7 +402,13 @@ void main() {
     await _scrollHomeTo(tester, find.text('Terminer un quiz'));
     await tester.tap(find.text('Terminer un quiz'));
     await tester.pumpAndSettle();
-    expect(find.text('Prêt à relever un défi ?'), findsOneWidget);
+    expect(
+      find.text(
+        'Entraîne-toi avec des corrections guidées ou évalue-toi '
+        'dans les conditions d’un examen blanc.',
+      ),
+      findsOneWidget,
+    );
     await _tapNav(tester, 'Accueil');
 
     await _scrollHomeTo(tester, find.text('Ma progression'));
@@ -469,6 +490,16 @@ Future<void> _pumpHome(
           body: Text('Matière ${state.pathParameters['subjectId']}'),
         ),
       ),
+      GoRoute(
+        path: AppRoutes.lessonViewerRoute,
+        builder: (_, state) => Scaffold(
+          body: Text(
+            'Leçon ${state.pathParameters['subjectId']}/'
+            '${state.pathParameters['chapterId']}/'
+            '${state.pathParameters['lessonId']}',
+          ),
+        ),
+      ),
     ],
   );
   addTearDown(router.dispose);
@@ -547,17 +578,21 @@ class _HomeRepository implements StudentHomeRepository {
     return Future.value(
       StudentHomeSnapshot(
         firstName: firstName,
-        streakDays: 7,
-        motivationText: 'Continue comme ça.',
-        lastCourseTitle: 'Fonctions affines',
-        lastCourseChapter: 'Chapitre 3',
-        lastCourseProgress: 0.64,
+        resume: const ResumeTarget(
+          subjectId: 'math',
+          chapterId: 'chap-3',
+          lessonId: 'lecon-2',
+          lessonTitle: 'Fonctions affines',
+          subjectTitle: 'Maths — Chapitre 3',
+          progress: 0.64,
+        ),
         subjects: const [
           SubjectOverview(
             id: 'math',
             title: 'Mathématiques',
             progress: 0.71,
             colorHex: 0xFF1451E1,
+            iconKey: 'math',
           ),
         ],
         recommendations: const [
@@ -570,13 +605,17 @@ class _HomeRepository implements StudentHomeRepository {
         challenges: const [
           DailyChallengeItem(
             title: 'Terminer un quiz',
-            rewardXp: 35,
+            rewardPoints: 35,
             completed: false,
           ),
         ],
         globalProgress: 0.58,
-        level: 12,
-        currentXp: 1840,
+        gamification: const StudentGamification(
+          currentPoints: 1840,
+          level: 12,
+          streakDays: 7,
+          motivationText: 'Continue comme ça.',
+        ),
       ),
     );
   }
@@ -601,7 +640,12 @@ class _TabCase {
 const _tabCases = [
   _TabCase('Accueil', 'student-tab-home', 'Reprendre le dernier cours'),
   _TabCase('Apprendre', 'student-tab-learn', 'Parcours personnalisé'),
-  _TabCase('Quiz', 'student-tab-quiz', 'Prêt à relever un défi ?'),
+  _TabCase(
+    'Quiz',
+    'student-tab-quiz',
+    'Entraîne-toi avec des corrections guidées ou évalue-toi '
+        'dans les conditions d’un examen blanc.',
+  ),
   _TabCase('Compagnon', 'student-tab-companion', 'Explique ce concept'),
   _TabCase('Profil', 'student-tab-profile', 'Mon profil'),
 ];

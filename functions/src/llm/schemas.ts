@@ -51,7 +51,7 @@ export const QuizQuestionSchema = z.object({
   correctBooleanValue: z.boolean().optional(),
   acceptedAnswers: z.array(z.string()).default([]),
   explanation: z.string(),
-  xpReward: z.number().int().min(1),
+  pointsReward: z.number().int().min(1),
 }).refine((data) => {
   if (data.type === "qcm") {
     return data.options.length === 3 && data.correctOptionIndex !== undefined;

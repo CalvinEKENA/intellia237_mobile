@@ -16,6 +16,11 @@ class ParentPremiumNavBar extends StatelessWidget {
     IntelliaBottomNavItem(label: 'Accueil', icon: Icons.home_rounded),
     IntelliaBottomNavItem(label: 'Enfants', icon: Icons.groups_rounded),
     IntelliaBottomNavItem(label: 'Annonces', icon: Icons.campaign_rounded),
+    IntelliaBottomNavItem(
+      label: 'Abonnement',
+      icon: Icons.account_balance_wallet_outlined,
+      activeIcon: Icons.account_balance_wallet_rounded,
+    ),
     IntelliaBottomNavItem(label: 'Profil', icon: Icons.person_rounded),
   ];
 

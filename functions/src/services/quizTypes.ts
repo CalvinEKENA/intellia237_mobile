@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const quizQuestionTypeSchema = z.enum(["qcm", "trueFalse", "shortAnswer"]);
+export const quizModeSchema = z.enum(["training", "exam"]);
 
 export const quizQuestionRecordSchema = z.object({
   id: z.string().trim().min(1).max(128),
@@ -11,14 +12,20 @@ export const quizQuestionRecordSchema = z.object({
   correctBooleanValue: z.boolean().optional(),
   acceptedAnswers: z.array(z.string()).default([]),
   explanation: z.string().default(""),
-  xpReward: z.number().int().default(10)
-}).passthrough();
+  pointsReward: z.number().int().optional(),
+  // Ancienne clé acceptée en lecture uniquement pendant la transition.
+  xpReward: z.number().int().optional()
+}).passthrough().transform((question) => ({
+  ...question,
+  pointsReward: question.pointsReward ?? question.xpReward ?? 10
+}));
 
 export const quizDocumentSchema = z.object({
   title: z.string().default(""),
   subjectId: z.string().default(""),
   subjectLabel: z.string().default(""),
   status: z.string().default("draft"),
+  mode: quizModeSchema.default("exam"),
   questions: z.array(quizQuestionRecordSchema).min(1)
 }).passthrough();
 
@@ -35,7 +42,7 @@ export interface QuizCorrection {
   correctAnswer: string;
   explanation: string;
   isCorrect: boolean;
-  xpReward: number;
+  pointsReward: number;
 }
 
 export interface QuizSubmissionResult {
@@ -46,7 +53,7 @@ export interface QuizSubmissionResult {
   subjectLabel: string;
   score: number;
   maxScore: number;
-  xpAwarded: number;
+  pointsAwarded: number;
   corrections: QuizCorrection[];
   submittedAt: string;
   idempotentReplay: boolean;

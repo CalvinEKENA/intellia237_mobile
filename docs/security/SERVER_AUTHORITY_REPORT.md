@@ -8,7 +8,7 @@
 - Moved Flutter lesson progress writes to `recordLessonProgress`.
 - Kept lesson favorites client-owned but restricted rules to `isFavorite` only.
 - Denied client writes to `quiz_attempts`, `progress`, and `streaks`.
-- Protected role, XP, level, establishment, and academic profile fields with Firestore rule whitelists.
+- Protected role, points, level, establishment, and academic profile fields with Firestore rule whitelists.
 - Blocked public teacher/admin role creation.
 - Constrained avatar uploads to owner-only image files up to 5 MB.
 - Added unit tests for quiz scoring, idempotency, conflict handling, invalid payloads, transaction failures, and lesson progress monotonicity.

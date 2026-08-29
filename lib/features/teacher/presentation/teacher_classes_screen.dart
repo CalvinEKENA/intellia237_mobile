@@ -6,6 +6,8 @@ import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class TeacherClassesScreen extends ConsumerWidget {
   const TeacherClassesScreen({super.key, this.embedded = false});
@@ -17,19 +19,18 @@ class TeacherClassesScreen extends ConsumerWidget {
     final classesAsync = ref.watch(teacherClassesProvider);
     final content = classesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: FilledButton.icon(
-          onPressed: () => ref.invalidate(teacherClassesProvider),
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Recharger'),
-        ),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        message: stateMessageForKind(stateKindForError(error)),
+        primaryLabel: 'Réessayer',
+        onPrimary: () => ref.invalidate(teacherClassesProvider),
       ),
       data: (classes) => ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.xl,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.xl,
         ),
         children: [
           if (!embedded) ...[
@@ -39,11 +40,11 @@ class TeacherClassesScreen extends ConsumerWidget {
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: IntelliaSpacing.md),
           ],
           for (final item in classes) ...[
             _ClassCard(classItem: item),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
           ],
         ],
       ),
@@ -69,10 +70,10 @@ class _ClassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         onTap: () => context.push(AppRoutes.teacherClassDetail(classItem.id)),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(IntelliaSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -86,12 +87,12 @@ class _ClassCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Chip(label: Text('${classItem.studentCount} eleves')),
+                  Chip(label: Text('${classItem.studentCount} élèves')),
                 ],
               ),
-              const SizedBox(height: AppSpacing.xxs),
+              const SizedBox(height: IntelliaSpacing.xxs),
               Text(classItem.levelLabel),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: IntelliaSpacing.sm),
               ClipRRect(
                 borderRadius: BorderRadius.circular(999),
                 child: LinearProgressIndicator(
@@ -99,7 +100,7 @@ class _ClassCard extends StatelessWidget {
                   minHeight: 8,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: IntelliaSpacing.xs),
               Row(
                 children: [
                   Text(

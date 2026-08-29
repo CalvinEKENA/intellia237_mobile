@@ -97,7 +97,7 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
       final user = credential.user;
       if (user == null) {
         throw const RoleRegistrationException(
-          message: 'Impossible de creer le compte utilisateur.',
+          message: 'Impossible de créer le compte utilisateur.',
           code: 'missing-user',
         );
       }
@@ -115,6 +115,7 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
 
       await batch.commit();
       await user.updateDisplayName(displayName);
+      await _sendVerificationBestEffort(user);
 
       return RoleRegistrationResult(
         uid: uid,
@@ -171,7 +172,7 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
       final user = credential.user;
       if (user == null) {
         throw const RoleRegistrationException(
-          message: 'Impossible de creer le compte utilisateur.',
+          message: 'Impossible de créer le compte utilisateur.',
           code: 'missing-user',
         );
       }
@@ -183,6 +184,7 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
       final callable = _functions.httpsCallable(_staffRegistrationCallable);
       final result = await callable.call<Map<String, dynamic>>(callableData);
       final data = result.data;
+      await _sendVerificationBestEffort(user);
 
       return RoleRegistrationResult(
         uid: (data['uid'] as String?) ?? user.uid,
@@ -223,6 +225,16 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
         message: 'Une erreur inattendue est survenue.',
         code: 'unknown-error',
       );
+    }
+  }
+
+  Future<void> _sendVerificationBestEffort(User user) async {
+    if (user.emailVerified) return;
+    try {
+      await user.sendEmailVerification();
+    } on FirebaseAuthException {
+      // La demande staff est déjà enregistrée. L’utilisateur peut renvoyer
+      // le lien depuis Paramètres après validation du compte.
     }
   }
 

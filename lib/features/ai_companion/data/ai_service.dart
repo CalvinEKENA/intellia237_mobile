@@ -1,5 +1,6 @@
 import '../../tutor/domain/tutor_persona.dart';
 import '../domain/ai_message.dart';
+import '../domain/ai_companion_reply.dart';
 import 'ai_repository.dart';
 
 class AIService {
@@ -7,7 +8,7 @@ class AIService {
 
   final AIRepository _repository;
 
-  Future<AIMessage> ask({
+  Future<AICompanionReply> ask({
     required TutorPersona tutor,
     required String classLevel,
     required List<AIMessage> history,

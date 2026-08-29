@@ -1,127 +1,127 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/widgets/intellia_pressable.dart';
+import '../../../../core/widgets/tab_presentation.dart';
 
+/// Carte « Ma progression » de l'accueil.
+///
+/// Surface opaque du contrat [TabSurface] : plus de verre translucide ni de
+/// BackdropFilter (invisible et coûteux sur fond clair), plus de boucle de
+/// « shine » permanente sur les valeurs. L'anneau s'anime une seule fois à
+/// l'entrée pour matérialiser la progression.
 class ProgressOverviewCard extends StatelessWidget {
   const ProgressOverviewCard({
     required this.globalProgress,
     required this.level,
-    required this.currentXp,
+    required this.currentPoints,
     required this.onTap,
     super.key,
   });
 
   final double globalProgress;
   final int level;
-  final int currentXp;
+  final int currentPoints;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0x1AFFFFFF), Color(0x0CFFFFFF)],
+    final s = TabSurface.of(context);
+
+    return Semantics(
+      button: true,
+      label:
+          'Ma progression : ${(globalProgress * 100).round()} % global, '
+          'niveau $level, $currentPoints points. Ouvrir le profil.',
+      child: IntelliaPressable(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(IntelliaSpacing.lg),
+          decoration: BoxDecoration(
+            color: s.surface,
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+            border: Border.all(color: s.border),
+            boxShadow: IntelliaShadows.card(Colors.black),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Text(
+                    'Ma progression',
+                    style: GoogleFonts.manrope(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: s.textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  // Level badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: IntelliaSpacing.sm,
+                      vertical: IntelliaSpacing.xxs + 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: s.numberAccentSoft,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                    child: Text(
+                      'Niv. $level',
+                      style: TextStyle(
+                        color: s.numberAccent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(color: AppColors.glassBorder),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Row(
-                  children: [
-                    Text(
-                      'Ma progression',
-                      style: GoogleFonts.manrope(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const Spacer(),
-                    // Level badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.xxs + 2,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: AppGradients.heroGold,
-                        borderRadius: BorderRadius.circular(99),
-                        boxShadow: AppShadows.glow(
-                          AppColors.gold,
-                          intensity: 0.25,
-                        ),
-                      ),
-                      child: Text(
-                        'Niv. $level',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: IntelliaSpacing.lg),
 
-                // Ring + metrics row
-                Row(
-                  children: [
-                    // Animated sweep ring
-                    _ProgressRing(
-                      progress: globalProgress,
-                      size: 120,
-                      strokeWidth: 8,
-                    ),
-                    const SizedBox(width: AppSpacing.lg),
+              // Ring + metrics row
+              Row(
+                children: [
+                  _ProgressRing(
+                    progress: globalProgress,
+                    size: 120,
+                    strokeWidth: 8,
+                  ),
+                  const SizedBox(width: IntelliaSpacing.lg),
 
-                    // Metrics column
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _MetricRow(
-                            label: 'Progression',
-                            value: '${(globalProgress * 100).round()}%',
-                            color: AppColors.gold,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          _MetricRow(
-                            label: 'Points XP',
-                            value: '$currentXp XP',
-                            color: AppColors.accent,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          _MetricRow(
-                            label: 'Niveau actuel',
-                            value: 'Niveau $level',
-                            color: AppColors.brand,
-                          ),
-                        ],
-                      ),
+                  // Metrics column
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _MetricRow(
+                          label: 'Progression',
+                          value: '${(globalProgress * 100).round()}%',
+                          color: s.numberAccent,
+                        ),
+                        const SizedBox(height: IntelliaSpacing.sm),
+                        _MetricRow(
+                          label: 'Points',
+                          value: '$currentPoints',
+                          color: s.success,
+                        ),
+                        const SizedBox(height: IntelliaSpacing.sm),
+                        _MetricRow(
+                          label: 'Niveau actuel',
+                          value: 'Niveau $level',
+                          color: s.accent,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -142,6 +142,7 @@ class _MetricRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
     return Row(
       children: [
         Container(
@@ -149,18 +150,19 @@ class _MetricRow extends StatelessWidget {
           height: 4,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: AppSpacing.xs),
+        const SizedBox(width: IntelliaSpacing.xs),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(label, style: TextStyle(fontSize: 11, color: s.textSecondary)),
             Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.white.withValues(alpha: 0.50),
+              value,
+              style: GoogleFonts.manrope(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: color,
               ),
             ),
-            _GoldShineText(value: value),
           ],
         ),
       ],
@@ -168,66 +170,7 @@ class _MetricRow extends StatelessWidget {
   }
 }
 
-/// XP/metric value with optional gold shine animation.
-class _GoldShineText extends StatefulWidget {
-  const _GoldShineText({required this.value});
-
-  final String value;
-
-  @override
-  State<_GoldShineText> createState() => _GoldShineTextState();
-}
-
-class _GoldShineTextState extends State<_GoldShineText>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _ctrl,
-      builder: (context, child) {
-        return ShaderMask(
-          blendMode: BlendMode.srcIn,
-          shaderCallback: (bounds) {
-            final t = _ctrl.value;
-            return LinearGradient(
-              begin: Alignment(-2 + t * 4, 0),
-              end: Alignment(-1 + t * 4, 0),
-              colors: const [AppColors.gold, Color(0xFFFFF3D0), AppColors.gold],
-            ).createShader(bounds);
-          },
-          child: child,
-        );
-      },
-      child: Text(
-        widget.value,
-        style: GoogleFonts.manrope(
-          fontSize: 16,
-          fontWeight: FontWeight.w800,
-          color: AppColors.gold,
-        ),
-      ),
-    );
-  }
-}
-
-/// Animated sweep ring for overall progress.
+/// Anneau de progression : sweep unique à l'entrée (aucune boucle).
 class _ProgressRing extends StatefulWidget {
   const _ProgressRing({
     required this.progress,
@@ -260,6 +203,14 @@ class _ProgressRingState extends State<_ProgressRing>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) {
+      _ctrl.value = 1;
+    }
+  }
+
+  @override
   void dispose() {
     _ctrl.dispose();
     super.dispose();
@@ -267,6 +218,7 @@ class _ProgressRingState extends State<_ProgressRing>
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
     return SizedBox(
       width: widget.size,
       height: widget.size,
@@ -276,6 +228,9 @@ class _ProgressRingState extends State<_ProgressRing>
           painter: _RingPainter(
             progress: widget.progress * _sweepAnim.value,
             strokeWidth: widget.strokeWidth,
+            trackColor: s.isLight
+                ? s.textPrimary.withValues(alpha: 0.08)
+                : Colors.white.withValues(alpha: 0.10),
           ),
           child: child,
         ),
@@ -283,26 +238,17 @@ class _ProgressRingState extends State<_ProgressRing>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ShaderMask(
-                blendMode: BlendMode.srcIn,
-                shaderCallback: (bounds) => AppGradients.heroGold.createShader(
-                  Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                ),
-                child: Text(
-                  '${(widget.progress * 100).round()}%',
-                  style: GoogleFonts.manrope(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.gold,
-                  ),
+              Text(
+                '${(widget.progress * 100).round()}%',
+                style: GoogleFonts.manrope(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: s.numberAccent,
                 ),
               ),
               Text(
                 'global',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.white.withValues(alpha: 0.45),
-                ),
+                style: TextStyle(fontSize: 10, color: s.textTertiary),
               ),
             ],
           ),
@@ -313,10 +259,15 @@ class _ProgressRingState extends State<_ProgressRing>
 }
 
 class _RingPainter extends CustomPainter {
-  const _RingPainter({required this.progress, required this.strokeWidth});
+  const _RingPainter({
+    required this.progress,
+    required this.strokeWidth,
+    required this.trackColor,
+  });
 
   final double progress;
   final double strokeWidth;
+  final Color trackColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -331,13 +282,13 @@ class _RingPainter extends CustomPainter {
       math.pi * 2,
       false,
       Paint()
-        ..color = Colors.white.withValues(alpha: 0.10)
+        ..color = trackColor
         ..strokeWidth = strokeWidth
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round,
     );
 
-    // Progress fill with gold gradient
+    // Progress fill with warm gradient
     canvas.drawArc(
       rect,
       -math.pi / 2,
@@ -347,7 +298,7 @@ class _RingPainter extends CustomPainter {
         ..shader = const SweepGradient(
           startAngle: 0,
           endAngle: math.pi * 2,
-          colors: [AppColors.gold, Color(0xFFFDD898), AppColors.gold],
+          colors: [Color(0xFFB8741A), Color(0xFFE8890C), Color(0xFFB8741A)],
           stops: [0.0, 0.5, 1.0],
         ).createShader(rect)
         ..strokeWidth = strokeWidth
@@ -357,5 +308,6 @@ class _RingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_RingPainter old) => old.progress != progress;
+  bool shouldRepaint(_RingPainter old) =>
+      old.progress != progress || old.trackColor != trackColor;
 }

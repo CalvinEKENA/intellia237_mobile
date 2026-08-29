@@ -2,6 +2,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../tutor/domain/tutor_persona.dart';
 import '../domain/ai_message.dart';
+import '../domain/ai_companion_reply.dart';
 import 'ai_repository.dart';
 
 class CloudAIRepository implements AIRepository {
@@ -11,7 +12,7 @@ class CloudAIRepository implements AIRepository {
   final FirebaseFunctions _functions;
 
   @override
-  Future<AIMessage> sendMessage({
+  Future<AICompanionReply> sendMessage({
     required TutorPersona tutor,
     required String classLevel,
     required List<AIMessage> history,
@@ -20,11 +21,16 @@ class CloudAIRepository implements AIRepository {
     try {
       final callable = _functions.httpsCallable('askTutor');
 
-      final mappedHistory = history
+      final recentHistory = history.length > 20
+          ? history.sublist(history.length - 20)
+          : history;
+      final mappedHistory = recentHistory
           .map(
             (msg) => {
               'role': msg.role == AIMessageRole.user ? 'user' : 'assistant',
-              'text': msg.text,
+              'text': msg.text.length > 4000
+                  ? msg.text.substring(msg.text.length - 4000)
+                  : msg.text,
             },
           )
           .toList();
@@ -48,14 +54,38 @@ class CloudAIRepository implements AIRepository {
         throw Exception("Réponse vide de l'IA.");
       }
 
-      return AIMessage(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        role: AIMessageRole.assistant,
-        text: textData,
-        createdAt: DateTime.now(),
+      return AICompanionReply(
+        message: AIMessage(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          role: AIMessageRole.assistant,
+          text: textData,
+          createdAt: DateTime.now(),
+        ),
+        quota: AICompanionQuota.fromMap(data),
       );
-    } catch (e) {
-      throw Exception("Erreur lors de la communication avec le Tuteur: $e");
+    } on FirebaseFunctionsException catch (error) {
+      if (error.code == 'resource-exhausted') {
+        final details = error.details;
+        final quota = details is Map
+            ? AICompanionQuota.fromMap(Map<String, dynamic>.from(details))
+            : null;
+        throw AICompanionException(
+          message:
+              error.message ??
+              'Tu as atteint la limite de questions du jour. De nouvelles questions seront disponibles à 00 h, heure du Cameroun.',
+          retryable: false,
+          quota: quota,
+        );
+      }
+      throw const AICompanionException(
+        message: 'Le Compagnon est temporairement indisponible.',
+      );
+    } on AICompanionException {
+      rethrow;
+    } catch (_) {
+      throw const AICompanionException(
+        message: 'Le Compagnon est temporairement indisponible.',
+      );
     }
   }
 }

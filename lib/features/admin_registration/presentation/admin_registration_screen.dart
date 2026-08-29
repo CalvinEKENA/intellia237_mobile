@@ -9,6 +9,7 @@ import '../../../core/widgets/intellia_text_field.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../../auth/presentation/widgets/auth_registration_frame.dart';
 import '../application/admin_registration_controller.dart';
+import '../../legal/presentation/legal_links.dart';
 import '../application/admin_registration_state.dart';
 
 class AdminRegistrationScreen extends ConsumerStatefulWidget {
@@ -165,7 +166,7 @@ class _AdminRegistrationScreenState
             prefixIcon: Icons.person_rounded,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
-              label: 'Le prenom',
+              label: 'Le prénom',
             ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
@@ -180,7 +181,7 @@ class _AdminRegistrationScreenState
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _emailController,
-            label: 'Email',
+            label: 'Adresse e-mail',
             hint: 'direction@exemple.com',
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_rounded,
@@ -259,10 +260,11 @@ class _AdminRegistrationScreenState
           onChanged: (value) => controller.setAcceptedPrivacy(value ?? false),
           label: 'J\'accepte la politique de confidentialité.',
         ),
+        const LegalLinks(),
         const SizedBox(height: IntelliaSpacing.lg),
         const _InfoBanner(
           message:
-              'Une fois validé, vous recevrez une notification par email vous invitant à vous connecter à votre console d\'administration.',
+              'Une fois validé, vous recevrez une notification par e-mail vous invitant à vous connecter à votre console d\'administration.',
         ),
       ],
     );

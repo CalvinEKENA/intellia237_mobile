@@ -34,7 +34,7 @@ Définies dans [tailwind.config.ts](file:///C:/projets/FlutterProjects/Intellia2
 * **Success** : `#34C759` (`--success`)
 * **Warning** : `#FF9500` (`--warning`)
 * **Error** : `#FF3B30` (`--error`)
-* **XP Gold** : `#FFD60A` (`--xp-gold`)
+* **Or des points** : `#FFD60A` (`--points-gold`)
 
 ---
 

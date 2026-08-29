@@ -11,6 +11,7 @@ import '../../auth/presentation/widgets/auth_registration_frame.dart';
 import '../../role_registration/domain/teacher_catalogs.dart';
 import '../../student_registration/presentation/widgets/subject_multi_selector.dart';
 import '../application/teacher_registration_controller.dart';
+import '../../legal/presentation/legal_links.dart';
 import '../application/teacher_registration_state.dart';
 
 class TeacherRegistrationScreen extends ConsumerStatefulWidget {
@@ -159,7 +160,7 @@ class _TeacherRegistrationScreenState
             prefixIcon: Icons.person_rounded,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
-              label: 'Le prenom',
+              label: 'Le prénom',
             ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
@@ -174,7 +175,7 @@ class _TeacherRegistrationScreenState
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _emailController,
-            label: 'Email',
+            label: 'Adresse e-mail',
             hint: 'enseignant@exemple.com',
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_rounded,
@@ -254,6 +255,7 @@ class _TeacherRegistrationScreenState
           onChanged: (value) => controller.setAcceptedPrivacy(value ?? false),
           label: 'J\'accepte la politique de confidentialité.',
         ),
+        const LegalLinks(),
         const SizedBox(height: IntelliaSpacing.lg),
         const _InfoBanner(
           message:

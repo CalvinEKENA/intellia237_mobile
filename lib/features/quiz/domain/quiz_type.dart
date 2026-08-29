@@ -5,7 +5,7 @@ extension QuizQuestionTypeX on QuizQuestionType {
     return switch (this) {
       QuizQuestionType.qcm => 'QCM',
       QuizQuestionType.trueFalse => 'Vrai/Faux',
-      QuizQuestionType.shortAnswer => 'Reponse courte',
+      QuizQuestionType.shortAnswer => 'Réponse courte',
     };
   }
 }

@@ -8,6 +8,9 @@ abstract final class AppRoutes {
   static const teacherRegistration = '/register/teacher';
   static const adminRegistration = '/register/admin';
   static const forgotPassword = '/forgot-password';
+  static const legalTerms = '/legal/terms';
+  static const legalPrivacy = '/legal/privacy';
+  static const legalEducationalData = '/legal/educational-data';
 
   static const studentHome = '/student';
   static const flow = '/flow';
@@ -21,6 +24,8 @@ abstract final class AppRoutes {
   static const quizPlayRoute = '/quiz/play/:quizId';
   static const quizResult = '/quiz/result';
   static const aiCompanion = '/ai';
+  static const settings = '/settings';
+  static const editProfile = '/profile/edit';
 
   static const parentHome = '/parent';
   static const childOverviewRoute = '/parent/child/:childId';
@@ -48,6 +53,9 @@ abstract final class AppRoutes {
     teacherRegistration,
     adminRegistration,
     forgotPassword,
+    legalTerms,
+    legalPrivacy,
+    legalEducationalData,
     tutorSelection,
   };
 

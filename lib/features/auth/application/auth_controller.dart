@@ -172,6 +172,13 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
+  void updateProfileName(String firstName) {
+    if (state.status != AuthStatus.authenticated) return;
+    final cleaned = firstName.trim();
+    if (cleaned.isEmpty) return;
+    state = state.copyWith(firstName: cleaned, error: null);
+  }
+
   Future<void> _markOnboardingSeen() async {
     if (ref.read(hasSeenOnboardingProvider)) {
       return;

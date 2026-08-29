@@ -50,6 +50,7 @@ firebase-debug.*.log
 
 # Local agent/workspace state
 .claude/
+.codex/
 
 # Separate web project in this workspace; do not add it to the mobile repo.
 intellia237/

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class TeacherQuizBuilderScreen extends ConsumerStatefulWidget {
   const TeacherQuizBuilderScreen({super.key, this.embedded = false});
@@ -48,12 +50,11 @@ class _TeacherQuizBuilderScreenState
     final classesAsync = ref.watch(teacherClassesProvider);
     final body = classesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: FilledButton.icon(
-          onPressed: () => ref.invalidate(teacherClassesProvider),
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Recharger'),
-        ),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        message: stateMessageForKind(stateKindForError(error)),
+        primaryLabel: 'Réessayer',
+        onPrimary: () => ref.invalidate(teacherClassesProvider),
       ),
       data: (classes) => _buildForm(context, classes),
     );
@@ -73,27 +74,27 @@ class _TeacherQuizBuilderScreenState
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.xl,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.xl,
       ),
       children: [
         Text(
-          'Quiz Builder',
+          'Création de quiz',
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
         ),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: IntelliaSpacing.xs),
         Text(
           'Créez une évaluation et publiez-la à vos classes.',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         Card(
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
             child: Form(
               key: _formKey,
               child: Column(
@@ -112,7 +113,7 @@ class _TeacherQuizBuilderScreenState
                     onChanged: (value) =>
                         setState(() => _selectedClassId = value),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   DropdownButtonFormField<String>(
                     initialValue: _selectedSubject,
                     decoration: const InputDecoration(labelText: 'Matière'),
@@ -126,7 +127,7 @@ class _TeacherQuizBuilderScreenState
                       }
                     },
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   TextFormField(
                     controller: _quizTitleController,
                     decoration: const InputDecoration(
@@ -137,14 +138,14 @@ class _TeacherQuizBuilderScreenState
                         ? 'Titre requis'
                         : null,
                   ),
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: IntelliaSpacing.md),
                   Text(
                     'Questions',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   for (int i = 0; i < _questions.length; i++) ...[
                     _QuestionDraftCard(
                       index: i + 1,
@@ -156,7 +157,7 @@ class _TeacherQuizBuilderScreenState
                               removed.dispose();
                             }),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: IntelliaSpacing.sm),
                   ],
                   OutlinedButton.icon(
                     onPressed: () =>
@@ -164,7 +165,7 @@ class _TeacherQuizBuilderScreenState
                     icon: const Icon(Icons.add_rounded),
                     label: const Text('Ajouter une question'),
                   ),
-                  const SizedBox(height: AppSpacing.md),
+                  const SizedBox(height: IntelliaSpacing.md),
                   FilledButton.icon(
                     onPressed: _isPublishing ? null : _publishQuiz,
                     icon: _isPublishing
@@ -175,7 +176,7 @@ class _TeacherQuizBuilderScreenState
                           )
                         : const Icon(Icons.publish_rounded),
                     label: Text(
-                      _isPublishing ? 'Publication...' : 'Publier le quiz',
+                      _isPublishing ? 'Publication…' : 'Publier le quiz',
                     ),
                   ),
                 ],
@@ -271,9 +272,9 @@ class _QuestionDraftCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.all(IntelliaSpacing.sm),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(IntelliaRadii.small),
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
       child: Column(
@@ -303,7 +304,7 @@ class _QuestionDraftCard extends StatelessWidget {
               hintText: 'Posez la question',
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           TextFormField(
             controller: draft.answerController,
             decoration: const InputDecoration(

@@ -39,11 +39,11 @@ class _RolePlaceholderScreenState extends ConsumerState<RolePlaceholderScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.role.label} Space'),
+        title: Text('Espace ${widget.role.label.toLowerCase()}'),
         actions: [
           IconButton(
             key: _tourTargets[TourGuideTargetIds.roleSignOut],
-            tooltip: 'Se deconnecter',
+            tooltip: 'Se déconnecter',
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).signOut(),
             icon: const Icon(Icons.logout_rounded),
@@ -51,14 +51,14 @@ class _RolePlaceholderScreenState extends ConsumerState<RolePlaceholderScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(IntelliaSpacing.xl),
         children: [
           KeyedSubtree(
             key: _tourTargets[TourGuideTargetIds.roleHero],
             child: Container(
-              padding: const EdgeInsets.all(AppSpacing.xl),
+              padding: const EdgeInsets.all(IntelliaSpacing.xl),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppRadius.lg),
+                borderRadius: BorderRadius.circular(IntelliaRadii.large),
                 gradient: LinearGradient(
                   colors: [
                     roleColor.withValues(alpha: 0.18),
@@ -75,7 +75,7 @@ class _RolePlaceholderScreenState extends ConsumerState<RolePlaceholderScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   Text(
                     'Consultez les options disponibles pour votre profil.',
                     style: textTheme.bodyMedium,

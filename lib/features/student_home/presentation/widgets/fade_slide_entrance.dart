@@ -16,8 +16,8 @@ class FadeSlideEntrance extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: AppMotion.slow,
-      curve: AppMotion.emphasizedDecelerate,
+      duration: IntelliaMotion.slow,
+      curve: IntelliaMotion.emphasizedDecelerate,
       builder: (context, value, child) {
         return Opacity(
           opacity: value,
@@ -58,7 +58,7 @@ class _DelayedBuildState extends State<_DelayedBuild> {
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       opacity: _visible ? 1 : 0,
-      duration: AppMotion.medium,
+      duration: IntelliaMotion.medium,
       child: widget.child,
     );
   }

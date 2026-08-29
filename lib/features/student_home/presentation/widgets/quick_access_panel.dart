@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/widgets/intellia_pressable.dart';
 
 class QuickAccessPanel extends StatelessWidget {
   const QuickAccessPanel({
@@ -31,7 +32,7 @@ class QuickAccessPanel extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: AppSpacing.sm),
+        const SizedBox(width: IntelliaSpacing.sm),
         Expanded(
           child: KeyedSubtree(
             key: aiKey,
@@ -63,35 +64,44 @@ class _QuickAccessTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      onTap: onTap,
-      child: Ink(
-        height: 92,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: gradientColors,
+    // Container (et non Ink) : la décoration d'un Ink est peinte sur le
+    // Material ancêtre, c'est-à-dire SOUS le backdrop opaque de l'accueil —
+    // le dégradé disparaissait et le libellé blanc flottait sur fond clair.
+    // Un Container peint dans le sous-arbre : le texte blanc repose toujours
+    // sur son propre dégradé sombre (contraste garanti).
+    return Semantics(
+      button: true,
+      label: label,
+      child: IntelliaPressable(
+        onTap: onTap,
+        child: Container(
+          height: 92,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: gradientColors,
+            ),
+            boxShadow: IntelliaShadows.card(gradientColors.first),
           ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
-            children: [
-              Icon(icon, color: Colors.white),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
+          child: Padding(
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
+            child: Row(
+              children: [
+                Icon(icon, color: Colors.white),
+                const SizedBox(width: IntelliaSpacing.sm),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

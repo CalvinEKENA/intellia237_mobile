@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class TeacherClassDetailScreen extends ConsumerWidget {
   const TeacherClassDetailScreen({required this.classId, super.key});
@@ -15,16 +17,14 @@ class TeacherClassDetailScreen extends ConsumerWidget {
     final detailAsync = ref.watch(teacherClassDetailProvider(classId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Detail classe')),
+      appBar: AppBar(title: const Text('Détail de la classe')),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: FilledButton.icon(
-            onPressed: () =>
-                ref.invalidate(teacherClassDetailProvider(classId)),
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Recharger'),
-          ),
+        error: (error, stackTrace) => IntelliaStateView(
+          kind: stateKindForError(error),
+          message: stateMessageForKind(stateKindForError(error)),
+          primaryLabel: 'Réessayer',
+          onPrimary: () => ref.invalidate(teacherClassDetailProvider(classId)),
         ),
         data: (detail) => _ClassDetailBody(detail: detail),
       ),
@@ -46,16 +46,16 @@ class _ClassDetailBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
         112,
       ),
       children: [
         Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(IntelliaSpacing.lg),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
             gradient: const LinearGradient(
               colors: [Color(0xFF0F766E), Color(0xFF16A34A)],
             ),
@@ -70,7 +70,7 @@ class _ClassDetailBody extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xs),
+              const SizedBox(height: IntelliaSpacing.xs),
               Text(
                 detail.classInfo.levelLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -80,7 +80,7 @@ class _ClassDetailBody extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         Row(
           children: [
             Expanded(
@@ -90,27 +90,39 @@ class _ClassDetailBody extends StatelessWidget {
                 items: detail.strongSubjects,
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
+            const SizedBox(width: IntelliaSpacing.sm),
             Expanded(
               child: _SubjectSummaryCard(
-                title: 'A renforcer',
+                title: 'À renforcer',
                 color: const Color(0xFFDC2626),
                 items: detail.weakSubjects,
               ),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: IntelliaSpacing.md),
         Text(
-          'Progression eleves',
+          'Progression élèves',
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
+        if (detail.students.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(IntelliaSpacing.md),
+              child: Text(
+                'Le suivi individuel arrive : les élèves de cette classe '
+                'apparaîtront ici avec leur progression dès leurs premières '
+                'activités.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+          ),
         for (final student in detail.students) ...[
           _StudentProgressTile(student: student),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
         ],
       ],
     );
@@ -131,7 +143,7 @@ class _SubjectSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.all(IntelliaSpacing.sm),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         color: color.withValues(alpha: 0.1),
@@ -147,7 +159,7 @@ class _SubjectSummaryCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(items.join(', ')),
         ],
       ),
@@ -164,7 +176,7 @@ class _StudentProgressTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.sm),
+        padding: const EdgeInsets.all(IntelliaSpacing.sm),
         child: Row(
           children: [
             Expanded(
@@ -177,7 +189,7 @@ class _StudentProgressTile extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.xxs),
+                  const SizedBox(height: IntelliaSpacing.xxs),
                   Text('${student.studyMinutesToday} min aujourd\'hui'),
                 ],
               ),
@@ -192,7 +204,7 @@ class _StudentProgressTile extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: AppSpacing.xs),
+            const SizedBox(width: IntelliaSpacing.xs),
             Text('${(student.progress * 100).round()}%'),
           ],
         ),
@@ -223,7 +235,7 @@ Future<void> _showAnnouncementDialog(
                 controller: titleController,
                 decoration: const InputDecoration(labelText: 'Titre'),
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: IntelliaSpacing.sm),
               TextField(
                 controller: messageController,
                 maxLines: 4,
@@ -251,7 +263,7 @@ Future<void> _showAnnouncementDialog(
               }
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Annonce publiee')),
+                  const SnackBar(content: Text('Annonce publiée.')),
                 );
               }
             },

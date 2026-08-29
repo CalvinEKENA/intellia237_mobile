@@ -95,7 +95,8 @@ service cloud.firestore {
         'establishmentName',
         'classLevel',
         'series',
-        'xp',
+        'points',
+        'xp', // Ancienne clé tolérée uniquement pour les anciens clients.
         'level',
         'streak',
         'tutorId',
@@ -136,13 +137,14 @@ service cloud.firestore {
       return isOwner(uid)
         && request.resource.data.keys().hasOnly(studentProfileCreateKeys())
         && request.resource.data.uid == uid
-        && request.resource.data.xp == 0
+        && request.resource.data.keys().hasAny(['points', 'xp'])
+        && (!('points' in request.resource.data) || request.resource.data.points == 0)
+        && (!('xp' in request.resource.data) || request.resource.data.xp == 0)
         && request.resource.data.level == 1;
     }
 
     function isStudentProfileOwnerUpdate() {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(studentProfileOwnerUpdateKeys())
-        && request.resource.data.xp == resource.data.xp
         && request.resource.data.level == resource.data.level
         && request.resource.data.establishmentId == resource.data.establishmentId
         && request.resource.data.classLevel == resource.data.classLevel
@@ -284,9 +286,18 @@ service cloud.firestore {
                     || isSuperAdmin()
                     || isAdmin()
                   );
-      allow create: if isAuthenticated() && (
-                      isParent() && request.auth.uid == request.resource.data.parentId
-                    );
+      allow create: if isParent()
+                    && request.auth.uid == request.resource.data.parentId
+                    && request.resource.data.keys().hasOnly([
+                         'parentId',
+                         'studentId',
+                         'status',
+                         'createdAt',
+                         'updatedAt'
+                       ])
+                    && request.resource.data.parentId is string
+                    && request.resource.data.studentId is string
+                    && request.resource.data.status == 'pending';
       allow update: if isSuperAdmin()
                     || (isAdmin() && isSameEstablishment(
                          get(/databases/$(database)/documents/users/$(resource.data.studentId)).data.establishmentId));
@@ -388,9 +399,18 @@ service cloud.firestore {
     // QUIZZES
     // =============================================
     match /quizzes/{quizId} {
-      allow read: if isAuthenticated();
+      // Les élèves chargent les quiz via les callables qui projettent une
+      // représentation publique sans corrigé. La lecture directe reste
+      // réservée aux auteurs afin de ne pas exposer les anciens documents qui
+      // contiennent encore leurs réponses pendant la migration.
+      allow read: if isStaff();
       allow create: if isTeacher() || isAdmin() || isSuperAdmin();
       allow update: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow delete: if isAdmin() || isSuperAdmin();
+    }
+
+    match /quiz_answer_keys/{quizId} {
+      allow read, create, update: if isStaff();
       allow delete: if isAdmin() || isSuperAdmin();
     }
 
@@ -491,6 +511,40 @@ service cloud.firestore {
       allow create: if false; // Créées uniquement via Cloud Functions / AI
       allow update: if isAuthenticated() && request.auth.uid == resource.data.studentId;
       allow delete: if isSuperAdmin();
+    }
+
+    // =============================================
+    // MANUAL MOBILE MONEY (server-authoritative)
+    // =============================================
+    match /mobile_money_offers/{offerId} {
+      // Amounts and recipient numbers are projected through an authenticated
+      // callable. Direct access would bypass its role and school scoping.
+      allow read, create, update, delete: if false;
+    }
+
+    match /mobile_money_payment_requests/{paymentRequestId} {
+      allow read: if isAuthenticated() && (
+                    request.auth.uid == resource.data.parentId
+                    || ((isAdmin() || isSuperAdmin())
+                        && isSameEstablishment(resource.data.establishmentId))
+                  );
+      // Submission and review are transactionally validated by Cloud Functions.
+      allow create, update, delete: if false;
+    }
+
+    match /mobile_money_reference_keys/{referenceHash} {
+      // Anti-replay keys intentionally reveal neither existence nor metadata.
+      allow read, create, update, delete: if false;
+    }
+
+    match /entitlements/{entitlementId} {
+      allow read: if isAuthenticated() && (
+                    request.auth.uid == resource.data.userId
+                    || ((isAdmin() || isSuperAdmin())
+                        && isSameEstablishment(resource.data.establishmentId))
+                  );
+      // Only a successful server-side review grants or extends access.
+      allow create, update, delete: if false;
     }
 
     // =============================================

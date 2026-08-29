@@ -15,22 +15,22 @@ abstract final class VirtualCharacterCatalog {
     VirtualCharacterOption(
       id: 'nova',
       name: 'Nova',
-      tagline: 'Coach analytique et precis',
+      tagline: 'Coach analytique et précis',
     ),
     VirtualCharacterOption(
       id: 'kibo',
       name: 'Kibo',
-      tagline: 'Guide bienveillant et motive',
+      tagline: 'Guide bienveillant et motivé',
     ),
     VirtualCharacterOption(
       id: 'zuri',
       name: 'Zuri',
-      tagline: 'Mentor creatif et dynamique',
+      tagline: 'Mentor créatif et dynamique',
     ),
     VirtualCharacterOption(
       id: 'atlas',
       name: 'Atlas',
-      tagline: 'Strategiste rigoureux et calme',
+      tagline: 'Stratégiste rigoureux et calme',
     ),
   ];
 }

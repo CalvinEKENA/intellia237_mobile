@@ -21,6 +21,7 @@ import '../../features/learn/presentation/chapter_detail_screen.dart';
 import '../../features/learn/presentation/learn_hub_screen.dart';
 import '../../features/learn/presentation/lesson_viewer_screen.dart';
 import '../../features/learn/presentation/subject_detail_screen.dart';
+import '../../features/legal/presentation/legal_document_screen.dart';
 import '../../features/onboarding/data/onboarding_preferences.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/parent/presentation/child_overview_screen.dart';
@@ -31,6 +32,8 @@ import '../../features/quiz/domain/quiz_result_payload.dart';
 import '../../features/quiz/presentation/quiz_hub_screen.dart';
 import '../../features/quiz/presentation/quiz_play_screen.dart';
 import '../../features/quiz/presentation/quiz_result_screen.dart';
+import '../../features/profile/presentation/settings_screen.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/student_home/presentation/student_home_screen.dart';
 import '../../features/student_registration/presentation/student_registration_flow_screen.dart';
 import '../../features/teacher_registration/presentation/teacher_registration_screen.dart';
@@ -103,6 +106,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
           child: const ForgotPasswordScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.legalTerms,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const LegalDocumentScreen(type: LegalDocumentType.terms),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.legalPrivacy,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const LegalDocumentScreen(type: LegalDocumentType.privacy),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.legalEducationalData,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const LegalDocumentScreen(
+            type: LegalDocumentType.educationalData,
+          ),
         ),
       ),
       GoRoute(
@@ -230,7 +256,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.aiCompanion,
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
-          child: const AICompanionScreen(),
+          child: AICompanionScreen(topic: state.uri.queryParameters['topic']),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        pageBuilder: (context, state) =>
+            buildAppTransitionPage(state: state, child: const SettingsScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.editProfile,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const EditProfileScreen(),
         ),
       ),
       GoRoute(

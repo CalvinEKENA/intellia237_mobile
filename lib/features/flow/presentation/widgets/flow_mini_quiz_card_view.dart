@@ -30,17 +30,19 @@ class _FlowMiniQuizCardViewState extends ConsumerState<FlowMiniQuizCardView> {
 
   bool get _locked => _selected != null;
 
-  void _choose(int index) {
+  Future<void> _choose(int index) async {
     if (_locked) return;
     setState(() => _selected = index);
-    final award = ref
-        .read(flowControllerProvider.notifier)
-        .answerMiniQuiz(widget.card, index);
-    if (award.correct == true) {
+    final localCorrect = index == widget.card.correctIndex;
+    if (localCorrect) {
       HapticFeedback.mediumImpact();
     } else {
       HapticFeedback.heavyImpact();
     }
+    final award = await ref
+        .read(flowControllerProvider.notifier)
+        .answerMiniQuiz(widget.card, index);
+    if (!mounted) return;
     widget.onAward(award);
   }
 

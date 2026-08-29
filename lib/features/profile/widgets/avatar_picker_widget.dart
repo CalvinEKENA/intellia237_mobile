@@ -120,11 +120,13 @@ class _AvatarPickerWidgetState extends State<AvatarPickerWidget> {
           );
         }
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur : ${e.toString()}'),
+          const SnackBar(
+            content: Text(
+              'La photo n’a pas pu être enregistrée. Vérifie la connexion et réessaie.',
+            ),
             backgroundColor: Colors.red,
           ),
         );

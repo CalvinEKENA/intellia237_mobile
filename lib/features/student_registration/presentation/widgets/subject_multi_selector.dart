@@ -31,21 +31,21 @@ class SubjectMultiSelector extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: AppSpacing.xxs),
+        const SizedBox(height: IntelliaSpacing.xxs),
         Text(
           caption,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
         Wrap(
-          spacing: AppSpacing.xs,
-          runSpacing: AppSpacing.xs,
+          spacing: IntelliaSpacing.xs,
+          runSpacing: IntelliaSpacing.xs,
           children: [
             for (final subject in options)
               FilterChip(
-                label: Text(subject),
+                label: Text(_displayOption(subject)),
                 selected: selected.contains(subject),
                 onSelected: (_) => onToggle(subject),
               ),
@@ -54,4 +54,12 @@ class SubjectMultiSelector extends StatelessWidget {
       ],
     );
   }
+
+  String _displayOption(String option) => switch (option) {
+    'Mathematiques' => 'Mathématiques',
+    'Francais' => 'Français',
+    'Geographie' => 'Géographie',
+    'Premiere' => 'Première',
+    _ => option,
+  };
 }

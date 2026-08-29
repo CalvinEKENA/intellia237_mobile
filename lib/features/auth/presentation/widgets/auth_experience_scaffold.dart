@@ -179,7 +179,7 @@ class AuthHeader extends StatelessWidget {
               Row(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(IntelliaRadii.small),
                     child: Image.asset(
                       'assets/branding/icon-192.png',
                       width: 34,
@@ -252,7 +252,7 @@ class AuthGlassPanel extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.065),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(IntelliaRadii.small),
         border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
         boxShadow: [
           BoxShadow(
@@ -285,7 +285,7 @@ class _BackButton extends StatelessWidget {
             height: 42,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.07),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
               border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
             ),
             child: const Icon(

@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -12,6 +11,8 @@ import '../../../app/theme/design_tokens.dart';
 import '../application/learn_providers.dart';
 import '../domain/learn_chapter.dart';
 import '../domain/learn_subject.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class SubjectDetailScreen extends ConsumerWidget {
   const SubjectDetailScreen({required this.subjectId, this.summary, super.key});
@@ -33,23 +34,19 @@ class SubjectDetailScreen extends ConsumerWidget {
       loading: () => knownSummary != null
           ? _SubjectLoadingWithHeader(summary: knownSummary)
           : Scaffold(
-              backgroundColor: const Color(0xFF060E22),
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                iconTheme: const IconThemeData(color: Colors.white),
-              ),
-              body: const Center(
-                child: CircularProgressIndicator(color: AppColors.gold),
-              ),
+              backgroundColor: IntelliaColors.backgroundPrimary,
+              appBar: AppBar(backgroundColor: Colors.transparent),
+              body: const IntelliaStateView(kind: IntelliaStateKind.loading),
             ),
       error: (error, stackTrace) => Scaffold(
+        backgroundColor: IntelliaColors.backgroundPrimary,
         appBar: AppBar(title: const Text('Matière')),
-        body: Center(
-          child: FilledButton.icon(
-            onPressed: () => ref.invalidate(subjectDetailProvider(subjectId)),
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Recharger'),
-          ),
+        body: IntelliaStateView(
+          kind: stateKindForError(error),
+          title: 'Matière indisponible',
+          message: stateMessageForKind(stateKindForError(error)),
+          primaryLabel: 'Réessayer',
+          onPrimary: () => ref.invalidate(subjectDetailProvider(subjectId)),
         ),
       ),
       data: (subject) => _SubjectDetailBody(subject: subject),
@@ -67,7 +64,7 @@ class _SubjectDetailBody extends StatelessWidget {
     final gradient = AppGradients.forSubject(subject.iconKey);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF060E22),
+      backgroundColor: IntelliaColors.backgroundPrimary,
       body: CustomScrollView(
         slivers: [
           // En-tête immersif (identique à celui montré pendant le morph).
@@ -81,35 +78,54 @@ class _SubjectDetailBody extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
-                AppSpacing.xl,
-                AppSpacing.lg,
-                AppSpacing.xl,
-                AppSpacing.sm,
+                IntelliaSpacing.xl,
+                IntelliaSpacing.lg,
+                IntelliaSpacing.xl,
+                IntelliaSpacing.sm,
               ),
               child: Text(
                 'Chapitres',
                 style: GoogleFonts.manrope(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: IntelliaColors.textPrimary,
                 ),
               ),
             ),
           ),
 
+          if (subject.chapters.isEmpty)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  IntelliaSpacing.xl,
+                  0,
+                  IntelliaSpacing.xl,
+                  IntelliaSpacing.xxxl,
+                ),
+                child: IntelliaStateView(
+                  kind: IntelliaStateKind.comingSoon,
+                  compact: true,
+                  title: 'Chapitres en préparation',
+                  message:
+                      'Le contenu de cette matière est en cours de '
+                      'rédaction pour ta classe. Reviens bientôt !',
+                ),
+              ),
+            ),
           // ── Chapters list ────────────────────────────────────
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xl,
+              IntelliaSpacing.xl,
               0,
-              AppSpacing.xl,
-              AppSpacing.xxxl,
+              IntelliaSpacing.xl,
+              IntelliaSpacing.xxxl,
             ),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final chapter = subject.chapters[index];
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
                   child: _ChapterCard(
                     subjectId: subject.id,
                     chapter: chapter,
@@ -172,10 +188,10 @@ class _SubjectImmersiveSliverAppBar extends StatelessWidget {
               right: 0,
               child: Container(
                 padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.xl,
-                  AppSpacing.xxxl,
-                  AppSpacing.xl,
-                  AppSpacing.lg,
+                  IntelliaSpacing.xl,
+                  IntelliaSpacing.xxxl,
+                  IntelliaSpacing.xl,
+                  IntelliaSpacing.lg,
                 ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -207,7 +223,7 @@ class _SubjectImmersiveSliverAppBar extends StatelessWidget {
                         size: 32,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: IntelliaSpacing.sm),
                     Text(
                       title,
                       style: GoogleFonts.playfairDisplay(
@@ -216,7 +232,7 @@ class _SubjectImmersiveSliverAppBar extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xxs),
+                    const SizedBox(height: IntelliaSpacing.xxs),
                     Text(
                       description,
                       maxLines: 2,
@@ -248,7 +264,7 @@ class _SubjectLoadingWithHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF060E22),
+      backgroundColor: IntelliaColors.backgroundPrimary,
       body: CustomScrollView(
         slivers: [
           _SubjectImmersiveSliverAppBar(
@@ -259,32 +275,32 @@ class _SubjectLoadingWithHeader extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
-                AppSpacing.xl,
-                AppSpacing.lg,
-                AppSpacing.xl,
-                AppSpacing.sm,
+                IntelliaSpacing.xl,
+                IntelliaSpacing.lg,
+                IntelliaSpacing.xl,
+                IntelliaSpacing.sm,
               ),
               child: Text(
                 'Chapitres',
                 style: GoogleFonts.manrope(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: IntelliaColors.textPrimary,
                 ),
               ),
             ),
           ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xl,
+              IntelliaSpacing.xl,
               0,
-              AppSpacing.xl,
-              AppSpacing.xxxl,
+              IntelliaSpacing.xl,
+              IntelliaSpacing.xxxl,
             ),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) => const Padding(
-                  padding: EdgeInsets.only(bottom: AppSpacing.sm),
+                  padding: EdgeInsets.only(bottom: IntelliaSpacing.sm),
                   child: _ChapterSkeleton(),
                 ),
                 childCount: 3,
@@ -311,8 +327,8 @@ class _ChapterSkeleton extends StatelessWidget {
         child: Container(
           height: 84,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            color: IntelliaColors.textPrimary.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
           ),
         ),
       ),
@@ -339,19 +355,18 @@ class _ChapterCard extends StatelessWidget {
           onTap: () =>
               context.push(AppRoutes.chapterDetail(subjectId, chapter.id)),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+            child: DecoratedBox(
+              decoration: const BoxDecoration(),
               child: Container(
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: const EdgeInsets.all(IntelliaSpacing.md),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0x18FFFFFF), Color(0x0CFFFFFF)],
+                  color: IntelliaColors.surfaceSolid,
+                  borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+                  border: Border.all(
+                    color: IntelliaColors.brandIndigo.withValues(alpha: 0.10),
                   ),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  border: Border.all(color: AppColors.glassBorder),
+                  boxShadow: IntelliaShadows.card(Colors.black),
                 ),
                 child: Row(
                   children: [
@@ -360,7 +375,7 @@ class _ChapterCard extends StatelessWidget {
                       gradient: subjectGradient,
                       size: 44,
                     ),
-                    const SizedBox(width: AppSpacing.md),
+                    const SizedBox(width: IntelliaSpacing.md),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,26 +385,26 @@ class _ChapterCard extends StatelessWidget {
                             style: GoogleFonts.manrope(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: IntelliaColors.textPrimary,
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.xxs),
+                          const SizedBox(height: IntelliaSpacing.xxs),
                           Text(
                             chapter.description,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white.withValues(alpha: 0.55),
+                              color: IntelliaColors.textSecondary,
                               height: 1.4,
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.xs),
+                          const SizedBox(height: IntelliaSpacing.xs),
                           Text(
                             '${chapter.lessons.length} leçon${chapter.lessons.length > 1 ? 's' : ''}',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.white.withValues(alpha: 0.40),
+                              color: IntelliaColors.textTertiary,
                             ),
                           ),
                         ],
@@ -403,13 +418,13 @@ class _ChapterCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.gold,
+                            color: Color(0xFF8A5300),
                           ),
                         ),
-                        const SizedBox(height: AppSpacing.xxs),
+                        const SizedBox(height: IntelliaSpacing.xxs),
                         Icon(
                           Icons.chevron_right_rounded,
-                          color: Colors.white.withValues(alpha: 0.35),
+                          color: IntelliaColors.textTertiary,
                           size: 20,
                         ),
                       ],
@@ -479,7 +494,7 @@ class _ChapterArcState extends State<_ChapterArc>
             chapterCompletionLabel(widget.progress),
             style: const TextStyle(
               fontSize: 9,
-              color: Colors.white,
+              color: IntelliaColors.textPrimary,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -517,7 +532,7 @@ class _ChapterArcPainter extends CustomPainter {
       math.pi * 2,
       false,
       Paint()
-        ..color = Colors.white.withValues(alpha: 0.15)
+        ..color = IntelliaColors.textPrimary.withValues(alpha: 0.10)
         ..strokeWidth = strokeWidth
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round,

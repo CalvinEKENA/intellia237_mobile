@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/widgets/intellia_async_states.dart';
 import '../application/admin_content_providers.dart';
 import '../domain/admin_content_models.dart';
 import 'content_chapter_screen.dart';
@@ -61,16 +62,16 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
+                        horizontal: IntelliaSpacing.md,
                       ),
                       itemCount: kAllClassLevels.length,
                       separatorBuilder: (_, _) =>
-                          const SizedBox(width: AppSpacing.xs),
+                          const SizedBox(width: IntelliaSpacing.xs),
                       itemBuilder: (context, i) {
                         final cls = kAllClassLevels[i];
                         final active = cls == selectedClass;
                         return FilterChip(
-                          label: Text(cls),
+                          label: Text(adminClassLevelLabel(cls)),
                           selected: active,
                           onSelected: (_) =>
                               ref
@@ -121,8 +122,8 @@ class _SubjectsTab extends ConsumerWidget {
 
     return subjectsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => _ErrorView(
-        message: e.toString(),
+      error: (error, _) => _ErrorView(
+        message: stateMessageForKind(stateKindForError(error)),
         onRetry: () => ref.invalidate(adminSubjectsProvider(classLevel)),
       ),
       data: (subjects) => RefreshIndicator(
@@ -132,9 +133,9 @@ class _SubjectsTab extends ConsumerWidget {
           slivers: [
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                AppSpacing.md,
-                AppSpacing.md,
+                IntelliaSpacing.md,
+                IntelliaSpacing.md,
+                IntelliaSpacing.md,
                 120,
               ),
               sliver: subjects.isEmpty
@@ -142,13 +143,14 @@ class _SubjectsTab extends ConsumerWidget {
                       child: _EmptyState(
                         icon: Icons.auto_stories_outlined,
                         message:
-                            'Aucune matière pour $classLevel.\nAjoutez-en une pour commencer.',
+                            'Aucune matière pour ${adminClassLevelLabel(classLevel)}.\n'
+                            'Ajoutez-en une pour commencer.',
                       ),
                     )
                   : SliverList.separated(
                       itemCount: subjects.length,
                       separatorBuilder: (_, _) =>
-                          const SizedBox(height: AppSpacing.sm),
+                          const SizedBox(height: IntelliaSpacing.sm),
                       itemBuilder: (context, i) =>
                           _SubjectCard(subject: subjects[i])
                               .animate(delay: Duration(milliseconds: i * 50))
@@ -175,7 +177,7 @@ class _SubjectCard extends ConsumerWidget {
 
     return Card(
       child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute<void>(
@@ -183,7 +185,7 @@ class _SubjectCard extends ConsumerWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
+          padding: const EdgeInsets.all(IntelliaSpacing.md),
           child: Row(
             children: [
               // Color badge
@@ -196,7 +198,7 @@ class _SubjectCard extends ConsumerWidget {
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: IntelliaSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,8 +247,8 @@ class _QuizzesTab extends ConsumerWidget {
 
     return quizzesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => _ErrorView(
-        message: e.toString(),
+      error: (error, _) => _ErrorView(
+        message: stateMessageForKind(stateKindForError(error)),
         onRetry: () => ref.invalidate(adminQuizzesProvider(classLevel)),
       ),
       data: (quizzes) => Stack(
@@ -263,14 +265,14 @@ class _QuizzesTab extends ConsumerWidget {
                   )
                 : ListView.separated(
                     padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.md,
-                      AppSpacing.md,
+                      IntelliaSpacing.md,
+                      IntelliaSpacing.md,
+                      IntelliaSpacing.md,
                       120,
                     ),
                     itemCount: quizzes.length,
                     separatorBuilder: (_, _) =>
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: IntelliaSpacing.sm),
                     itemBuilder: (context, i) {
                       final quiz = quizzes[i];
                       return Card(
@@ -278,8 +280,8 @@ class _QuizzesTab extends ConsumerWidget {
                           leading: Icon(
                             Icons.quiz_rounded,
                             color: quiz.isPublished
-                                ? AppColors.accent
-                                : AppColors.gold,
+                                ? IntelliaColors.success
+                                : IntelliaColors.warning,
                           ),
                           title: Text(
                             quiz.title,
@@ -297,7 +299,7 @@ class _QuizzesTab extends ConsumerWidget {
                                   child: Icon(
                                     Icons.auto_awesome,
                                     size: 16,
-                                    color: AppColors.gold,
+                                    color: IntelliaColors.warning,
                                   ),
                                 ),
                               const SizedBox(width: 4),
@@ -319,8 +321,8 @@ class _QuizzesTab extends ConsumerWidget {
                   ),
           ),
           Positioned(
-            bottom: AppSpacing.lg,
-            right: AppSpacing.lg,
+            bottom: IntelliaSpacing.lg,
+            right: IntelliaSpacing.lg,
             child: FloatingActionButton.extended(
               onPressed: () => Navigator.push(
                 context,
@@ -351,8 +353,8 @@ class _StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, color) = switch (status) {
-      'published' => ('Publié', AppColors.accent),
-      'ai_generated' => ('IA', AppColors.gold),
+      'published' => ('Publié', IntelliaColors.success),
+      'ai_generated' => ('IA', IntelliaColors.warning),
       _ => ('Brouillon', Colors.grey),
     };
 
@@ -387,7 +389,7 @@ class _EmptyState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 56, color: Theme.of(context).colorScheme.outline),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           Text(
             message,
             textAlign: TextAlign.center,
@@ -411,7 +413,7 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(IntelliaSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -420,9 +422,9 @@ class _ErrorView extends StatelessWidget {
               size: 48,
               color: Color(0xFFDC2626),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: IntelliaSpacing.md),
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),

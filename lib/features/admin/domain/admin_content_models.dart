@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../learn/domain/learn_lesson.dart';
 import '../../quiz/domain/quiz_question.dart';
+import '../../quiz/domain/quiz_mode.dart';
 import '../../quiz/domain/quiz_type.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -21,6 +22,16 @@ const kAllClassLevels = <String>[
 const kSeriesByClass = <String, List<String>>{
   'Premiere': ['A', 'C', 'D', 'TI'],
   'Terminale': ['A', 'C', 'D', 'TI'],
+};
+
+/// Libellé destiné à l’interface, sans modifier la clé de stockage historique.
+String adminClassLevelLabel(String value) => switch (value) {
+  '6eme' => '6e',
+  '5eme' => '5e',
+  '4eme' => '4e',
+  '3eme' => '3e',
+  'Premiere' => 'Première',
+  _ => value,
 };
 
 /// Icônes disponibles pour les matières (clé → IconData)
@@ -298,6 +309,7 @@ class AdminQuizModel {
     required this.classLevels,
     required this.status,
     required this.questions,
+    this.mode = QuizMode.exam,
     this.series = const [],
     this.timerSeconds,
     this.sourceLessonId,
@@ -314,13 +326,14 @@ class AdminQuizModel {
   final List<String> series;
   final String status; // 'draft' | 'published' | 'ai_generated'
   final List<QuizQuestion> questions;
+  final QuizMode mode;
   final int? timerSeconds;
   final String? sourceLessonId;
   final bool aiGenerated;
 
   bool get isPublished => status == 'published';
 
-  Map<String, dynamic> toFirestore() => <String, dynamic>{
+  Map<String, dynamic> toPublicFirestore() => <String, dynamic>{
     'title': title,
     'subjectId': subjectId,
     'subjectLabel': subjectLabel,
@@ -330,6 +343,7 @@ class AdminQuizModel {
     'series': series,
     'timerSeconds': timerSeconds,
     'status': status,
+    'mode': mode.wireValue,
     'aiGenerated': aiGenerated,
     'sourceLessonId': sourceLessonId,
     'questions': questions
@@ -339,20 +353,43 @@ class AdminQuizModel {
             'type': q.type.name,
             'prompt': q.prompt,
             'options': q.options,
-            'correctOptionIndex': q.correctOptionIndex,
-            'correctBooleanValue': q.correctBooleanValue,
-            'acceptedAnswers': q.acceptedAnswers,
-            'explanation': q.explanation,
-            'xpReward': q.xpReward,
+            'pointsReward': q.pointsReward,
           },
         )
         .toList(),
   };
 
-  factory AdminQuizModel.fromFirestore(String id, Map<String, dynamic> data) {
+  Map<String, dynamic> toAnswerKeyFirestore() => <String, dynamic>{
+    'answers': questions
+        .map(
+          (q) => <String, dynamic>{
+            'id': q.id,
+            'correctOptionIndex': q.correctOptionIndex,
+            'correctBooleanValue': q.correctBooleanValue,
+            'acceptedAnswers': q.acceptedAnswers,
+            'explanation': q.explanation,
+            'pointsReward': q.pointsReward,
+          },
+        )
+        .toList(),
+  };
+
+  factory AdminQuizModel.fromFirestore(
+    String id,
+    Map<String, dynamic> data, {
+    Map<String, dynamic>? answerKeyData,
+  }) {
+    final answerEntries =
+        answerKeyData?['answers'] as List<dynamic>? ?? const [];
+    final answerById = <String, Map<String, dynamic>>{
+      for (final raw in answerEntries.whereType<Map>())
+        if (raw['id'] is String)
+          raw['id'] as String: Map<String, dynamic>.from(raw),
+    };
     final rawQ = data['questions'] as List<dynamic>? ?? [];
     final questions = rawQ.map((q) {
       final m = q as Map<String, dynamic>;
+      final answer = answerById[m['id']] ?? const <String, dynamic>{};
       final typeStr = m['type'] as String?;
       final type = switch (typeStr) {
         'trueFalse' => QuizQuestionType.trueFalse,
@@ -364,11 +401,24 @@ class AdminQuizModel {
         type: type,
         prompt: m['prompt'] as String? ?? '',
         options: List<String>.from(m['options'] as List? ?? []),
-        correctOptionIndex: m['correctOptionIndex'] as int?,
-        correctBooleanValue: m['correctBooleanValue'] as bool?,
-        acceptedAnswers: List<String>.from(m['acceptedAnswers'] as List? ?? []),
-        explanation: m['explanation'] as String? ?? '',
-        xpReward: (m['xpReward'] as int?) ?? 10,
+        correctOptionIndex:
+            (answer['correctOptionIndex'] ?? m['correctOptionIndex']) as int?,
+        correctBooleanValue:
+            (answer['correctBooleanValue'] ?? m['correctBooleanValue'])
+                as bool?,
+        acceptedAnswers: List<String>.from(
+          (answer['acceptedAnswers'] ?? m['acceptedAnswers']) as List? ?? [],
+        ),
+        explanation:
+            (answer['explanation'] ?? m['explanation']) as String? ?? '',
+        pointsReward:
+            ((answer['pointsReward'] ??
+                        answer['xpReward'] ??
+                        m['pointsReward'] ??
+                        m['xpReward'])
+                    as num?)
+                ?.toInt() ??
+            10,
       );
     }).toList();
 
@@ -385,6 +435,7 @@ class AdminQuizModel {
       status: data['status'] as String? ?? 'draft',
       aiGenerated: data['aiGenerated'] as bool? ?? false,
       sourceLessonId: data['sourceLessonId'] as String?,
+      mode: QuizModeX.fromWireValue(data['mode']),
       questions: questions,
     );
   }

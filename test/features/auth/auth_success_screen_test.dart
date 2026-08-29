@@ -131,12 +131,50 @@ void main() {
     expect(find.text('Découvrir Intellia 237'), findsOneWidget);
   });
 
-  testWidgets('10. tap sur « Découvrir Intellia 237 »', (tester) async {
-    var tapped = false;
-    await pumpSuccess(tester, onContinue: () => tapped = true);
+  testWidgets("10. tap CTA : l'aube joue puis onContinue est appelé une fois", (
+    tester,
+  ) async {
+    var calls = 0;
+    await pumpSuccess(tester, onContinue: () => calls++);
     await tester.tap(find.text('Découvrir Intellia 237'));
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(tapped, isTrue);
+    // Frame d'amorçage : l'overlay se construit et l'aube démarre.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    // L'aube est en cours : pas encore de navigation.
+    expect(calls, 0);
+    await tester.pump(const Duration(milliseconds: 1000));
+    expect(calls, 1, reason: "fin de l'aube = un seul onContinue");
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(calls, 1);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('10b. aube jamais bloquante : un tap la termine tout de suite', (
+    tester,
+  ) async {
+    var calls = 0;
+    await pumpSuccess(tester, onContinue: () => calls++);
+    await tester.tap(find.text('Découvrir Intellia 237'));
+    await tester.pump(const Duration(milliseconds: 120));
+    // Tap n'importe où pendant l'aube → arrivée immédiate.
+    await tester.tapAt(const Offset(200, 400));
+    await tester.pump();
+    expect(calls, 1);
+    await tester.pump(const Duration(milliseconds: 1400));
+    expect(calls, 1, reason: 'le skip ne double pas la fin naturelle');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('10c. animations réduites : fondu court (≤ 300 ms)', (
+    tester,
+  ) async {
+    var calls = 0;
+    await pumpSuccess(tester, reduceMotion: true, onContinue: () => calls++);
+    await tester.tap(find.text('Découvrir Intellia 237'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(calls, 1);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('11 & 12. aucun overflow / aucun flex sous hauteur non bornée', (

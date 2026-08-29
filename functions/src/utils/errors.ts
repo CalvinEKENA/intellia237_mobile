@@ -8,6 +8,7 @@ type ErrorCode =
   | "permission-denied"
   | "not-found"
   | "failed-precondition"
+  | "resource-exhausted"
   | "deadline-exceeded"
   | "unavailable"
   | "internal";

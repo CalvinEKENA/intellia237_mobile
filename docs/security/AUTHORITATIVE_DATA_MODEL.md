@@ -1,6 +1,6 @@
 # Authoritative Academic Data Model
 
-Phase 2A moves reward-bearing academic state from client writes to authenticated callable Cloud Functions. The client may request an academic action, but Firestore state that affects XP, score, progression, streaks, rank, badges, or roles is computed and persisted on the server.
+Phase 2A moves reward-bearing academic state from client writes to authenticated callable Cloud Functions. The client may request an academic action, but Firestore state that affects points, score, progression, streaks, rank, badges, or roles is computed and persisted on the server.
 
 ## Ownership Boundaries
 
@@ -8,10 +8,10 @@ Phase 2A moves reward-bearing academic state from client writes to authenticated
 | --- | --- | --- | --- |
 | `quiz_attempts/{attemptId}` | Student owner, linked parent, staff. | None. | `submitQuizAttempt` creates immutable attempts. |
 | `progress/{progressId}` | Student owner, linked parent, staff. | None. | Quiz and lesson functions update summary progress. |
-| `student_profiles/{uid}` | Student owner, linked parent, staff in establishment. | Preferences/consents only after bootstrap. | XP, level, score totals, mastery, badges, streak summaries, rank fields. |
+| `student_profiles/{uid}` | Student owner, linked parent, staff in establishment. | Preferences/consents only after bootstrap. | Points, level, score totals, mastery, badges, streak summaries, rank fields. |
 | `student_profiles/{uid}/lessonProgress/{progressId}` | Student owner, linked parent, staff. | `isFavorite` only. | `recordLessonProgress` writes progress and timestamps. |
 | `streaks/{uid}` | Student owner and linked parent. | None. | Academic functions update server-day streak state. |
-| `users/{uid}` | Existing role-scoped access. | Safe display/profile fields only. | Roles, XP mirrors, entitlement/subscription, establishment assignment, approval state. |
+| `users/{uid}` | Existing role-scoped access. | Safe display/profile fields only. | Roles, points mirrors, entitlement/subscription, establishment assignment, approval state. |
 | `teacher_profiles/{uid}` | Existing role-scoped access. | No public self-approval fields. | Future staff onboarding workflow. |
 | `admin_profiles/{uid}` | Owner and superAdmin. | None for public creation. | SuperAdmin/server provisioning only. |
 
@@ -21,8 +21,8 @@ Phase 2A moves reward-bearing academic state from client writes to authenticated
 2. The function uses `request.auth.uid` as the only student id.
 3. Zod validates payload shape and answer limits.
 4. The function loads the quiz from Firestore and verifies that it is published.
-5. The function computes corrections, `score`, `maxScore`, and XP from stored quiz answers only.
-6. A transaction writes the immutable attempt, increments XP on server-owned profile fields, updates progress/streak summaries, and returns the computed result.
+5. The function computes corrections, `score`, `maxScore`, and points from stored quiz answers only.
+6. A transaction writes the immutable attempt, increments points on server-owned profile fields, updates progress/streak summaries, and returns the computed result.
 7. Idempotency uses `(studentId, clientAttemptId)`. A replay with the same request hash returns the stored result. A reused id with a different payload is rejected.
 
 ## Lesson Progress Flow
@@ -34,13 +34,15 @@ Phase 2A moves reward-bearing academic state from client writes to authenticated
 5. Streaks are evaluated from the server date in the documented default timezone, not from phone time.
 6. Lesson favorites remain client-owned, but rules allow only `isFavorite` changes on the progress document.
 
-## XP Policy
+## Points Policy
 
-XP is centralized in Functions. The initial policy is deliberately simple:
+Points are centralized in Functions. The initial policy is deliberately simple:
 
-- Each correct quiz answer earns that question's server-defined `xpReward`.
-- Invalid, missing, or negative `xpReward` values fall back to a bounded default.
-- Client-supplied XP is ignored.
+- Each correct quiz answer earns that question's server-defined `pointsReward`.
+- Invalid, missing, or negative `pointsReward` values fall back to a bounded default.
+- Client-supplied points are ignored.
+- Existing `xp`, `xpReward`, and `xpAwarded` fields remain read-only fallbacks;
+  new writes use `points`, `pointsReward`, and `pointsAwarded`.
 - Future badge, league, and rank logic must call the same policy/service layer instead of writing from Flutter.
 
 ## Role Security

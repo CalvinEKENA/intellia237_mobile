@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
+import '../../../core/widgets/intellia_state_view.dart';
+import '../../../core/widgets/tab_presentation.dart';
 import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
 import 'teacher_analytics_screen.dart';
@@ -40,7 +45,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
       activeIcon: Icons.quiz_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Stats',
+      label: 'Statistiques',
       icon: Icons.insights_outlined,
       activeIcon: Icons.insights_rounded,
     ),
@@ -54,15 +59,19 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
       extendBody: true,
       body: SafeArea(
         bottom: false,
-        child: IndexedStack(
-          index: _index,
-          children: const [
-            _TeacherDashboardTab(),
-            TeacherClassesScreen(embedded: true),
-            TeacherContentManagerScreen(embedded: true),
-            TeacherQuizBuilderScreen(embedded: true),
-            TeacherAnalyticsScreen(embedded: true),
-          ],
+        // Contrat de surface claire pour tout l'espace enseignant.
+        child: TabSurface(
+          palette: const TabPalette(TabPresentationMode.embeddedLight),
+          child: IndexedStack(
+            index: _index,
+            children: const [
+              _TeacherDashboardTab(),
+              TeacherClassesScreen(embedded: true),
+              TeacherContentManagerScreen(embedded: true),
+              TeacherQuizBuilderScreen(embedded: true),
+              TeacherAnalyticsScreen(embedded: true),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: IntelliaBottomNavBar(
@@ -82,51 +91,62 @@ class _TeacherDashboardTab extends ConsumerWidget {
     final dashboardAsync = ref.watch(teacherDashboardProvider);
 
     return dashboardAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: FilledButton.icon(
-          onPressed: () => ref.invalidate(teacherDashboardProvider),
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Recharger'),
-        ),
+      loading: () => const IntelliaStateView(kind: IntelliaStateKind.loading),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        title: 'Tableau de bord indisponible',
+        message: stateMessageForKind(stateKindForError(error)),
+        primaryLabel: 'Réessayer',
+        onPrimary: () => ref.invalidate(teacherDashboardProvider),
       ),
       data: (dashboard) => ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
           132,
         ),
         children: [
           _TeacherHeroCard(dashboard: dashboard),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           _TeacherKpiGrid(kpi: dashboard.kpi),
-          const SizedBox(height: AppSpacing.md),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Classes actives',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+          const SizedBox(height: IntelliaSpacing.md),
+          if (dashboard.classes.isEmpty)
+            const IntelliaStateView(
+              kind: IntelliaStateKind.empty,
+              compact: true,
+              title: 'Aucune classe pour le moment',
+              message:
+                  'Vos classes apparaîtront ici dès que votre établissement '
+                  'vous les aura assignées. Vous pouvez déjà préparer des '
+                  'quiz depuis l\'onglet Quiz.',
+            )
+          else
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(IntelliaSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Classes actives',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  for (final item in dashboard.classes.take(4)) ...[
-                    _ClassProgressRow(item: item),
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: IntelliaSpacing.sm),
+                    for (final item in dashboard.classes.take(4)) ...[
+                      _ClassProgressRow(item: item),
+                      const SizedBox(height: IntelliaSpacing.xs),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(IntelliaSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -136,7 +156,12 @@ class _TeacherDashboardTab extends ConsumerWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
+                  if (dashboard.latestAnnouncements.isEmpty)
+                    Text(
+                      'Aucune annonce récente.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   for (final ann in dashboard.latestAnnouncements.take(5)) ...[
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,15 +170,25 @@ class _TeacherDashboardTab extends ConsumerWidget {
                           padding: EdgeInsets.only(top: 5),
                           child: Icon(Icons.circle, size: 7),
                         ),
-                        const SizedBox(width: AppSpacing.xs),
+                        const SizedBox(width: IntelliaSpacing.xs),
                         Expanded(child: Text(ann)),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: IntelliaSpacing.xs),
                   ],
                 ],
               ),
             ),
+          ),
+          const SizedBox(height: IntelliaSpacing.md),
+          ListTile(
+            leading: const Icon(Icons.settings_outlined),
+            title: const Text('Paramètres'),
+            subtitle: const Text(
+              'Accessibilité, rappels, données et confidentialité',
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push(AppRoutes.settings),
           ),
         ],
       ),
@@ -169,9 +204,9 @@ class _TeacherHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(IntelliaSpacing.lg),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -188,7 +223,7 @@ class _TeacherHeroCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: AppSpacing.xxs),
+          const SizedBox(height: IntelliaSpacing.xxs),
           Text(
             dashboard.teacherName,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -196,7 +231,7 @@ class _TeacherHeroCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             'Pilotez vos classes, contenus et évaluations depuis un tableau unique.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -217,8 +252,8 @@ class _TeacherKpiGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
+      spacing: IntelliaSpacing.sm,
+      runSpacing: IntelliaSpacing.sm,
       children: [
         _KpiTile(
           label: 'Classes',
@@ -231,13 +266,16 @@ class _TeacherKpiGrid extends StatelessWidget {
           icon: Icons.school_rounded,
         ),
         _KpiTile(
-          label: 'Completion',
+          label: 'Complétion',
           value: '${(kpi.averageCompletion * 100).round()}%',
           icon: Icons.trending_up_rounded,
         ),
         _KpiTile(
-          label: 'Engagement',
-          value: '${kpi.dailyEngagementMinutes} min',
+          label: 'Engagement / jour',
+          // Tiret tant que la mesure n'existe pas (jamais de faux zero).
+          value: kpi.dailyEngagementMinutes == null
+              ? '\u2014'
+              : '${kpi.dailyEngagementMinutes} min',
           icon: Icons.timer_rounded,
         ),
       ],
@@ -261,9 +299,9 @@ class _KpiTile extends StatelessWidget {
     final width = (MediaQuery.of(context).size.width - 56) / 2;
     return Container(
       width: width,
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(IntelliaSpacing.md),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         color: Theme.of(context).colorScheme.surface,
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
@@ -273,14 +311,14 @@ class _KpiTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             value,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: AppSpacing.xxs),
+          const SizedBox(height: IntelliaSpacing.xxs),
           Text(label, style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
@@ -311,7 +349,7 @@ class _ClassProgressRow extends StatelessWidget {
             Text('${(item.averageProgress * 100).round()}%'),
           ],
         ),
-        const SizedBox(height: AppSpacing.xxs),
+        const SizedBox(height: IntelliaSpacing.xxs),
         ClipRRect(
           borderRadius: BorderRadius.circular(999),
           child: LinearProgressIndicator(

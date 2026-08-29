@@ -8,16 +8,25 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/network/network_status.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../application/quiz_providers.dart';
+import '../data/firebase_quiz_content_service.dart';
+import '../data/firestore_quiz_attempt_service.dart';
 import '../domain/quiz_attempt.dart';
+import '../domain/quiz_mode.dart';
 import '../domain/quiz_model.dart';
 import '../domain/quiz_question.dart';
+import '../../student_home/application/personal_goal_providers.dart';
 import '../domain/quiz_result_payload.dart';
 import '../domain/quiz_type.dart';
 import 'widgets/qcm_question_card.dart';
 import 'widgets/short_answer_question_card.dart';
 import 'widgets/true_false_question_card.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
+import '../../../core/widgets/tab_presentation.dart';
+import '../../../core/telemetry/intellia_telemetry.dart';
 
 class QuizPlayScreen extends ConsumerStatefulWidget {
   const QuizPlayScreen({required this.quizId, super.key});
@@ -36,7 +45,12 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
   Timer? _timer;
   int? _remainingSeconds;
   bool _submitting = false;
+  bool _checkingAnswer = false;
+  bool _openTelemetrySent = false;
+  final Map<String, String> _checkedAnswers = {};
+  QuizAttempt? _pendingAttempt;
   late final DateTime _startedAt;
+  late final String _clientAttemptId;
 
   late final AnimationController _flipCtrl;
   bool _flipping = false;
@@ -46,6 +60,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
   void initState() {
     super.initState();
     _startedAt = DateTime.now().toUtc();
+    _clientAttemptId = _newClientAttemptId(_startedAt);
     _flipCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 450),
@@ -87,72 +102,189 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
 
   @override
   Widget build(BuildContext context) {
-    final quizAsync = ref.watch(quizByIdProvider(widget.quizId));
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF060E22),
-      body: quizAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.gold),
-        ),
-        error: (error, stackTrace) => Center(
-          child: FilledButton.icon(
-            onPressed: () => ref.invalidate(quizByIdProvider(widget.quizId)),
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Recharger'),
+    final offline = ref.watch(isOfflineProvider);
+    if (offline) {
+      _pauseTimerForOffline();
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) _requestExit();
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFF060E22),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            leading: IconButton(
+              tooltip: 'Retour',
+              onPressed: _requestExit,
+              icon: const Icon(Icons.arrow_back_rounded),
+            ),
+          ),
+          body: IntelliaStateView(
+            kind: IntelliaStateKind.offline,
+            title: 'Quiz indisponible hors connexion',
+            message:
+                'Le contenu, la correction et l’envoi sont vérifiés par le '
+                'serveur. Intellia237 ne conserve ni tes réponses ni les '
+                'corrigés hors ligne. Reconnecte-toi, ou poursuis une activité '
+                'déjà disponible sur cet appareil.',
+            palette: const TabPalette(TabPresentationMode.standaloneDark),
+            primaryLabel: 'Ouvrir le Flow hors ligne',
+            onPrimary: () => context.push(AppRoutes.flow),
+            secondaryLabel: 'Voir mes leçons téléchargées',
+            onSecondary: () => context.push(AppRoutes.learnHub),
           ),
         ),
-        data: (quiz) {
-          _startTimerIfNeeded(quiz);
-          final question = quiz.questions[_displayedIndex];
-          final displayedProgress =
-              (_displayedIndex + 1) / quiz.questions.length;
+      );
+    }
 
-          return SafeArea(
-            child: Column(
-              children: [
-                // ── Top bar: back + timer ring + progress ─────
-                _QuizTopBar(
-                  onBack: () => context.pop(),
-                  remainingSeconds: _remainingSeconds,
-                  totalSeconds: quiz.timerSeconds,
-                  progress: displayedProgress,
-                ),
+    final quizAsync = ref.watch(quizByIdProvider(widget.quizId));
 
-                // ── Card flip area ─────────────────────────────
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.xl,
-                    ),
-                    child: _FlipCard(
-                      controller: _flipCtrl,
-                      showNew: _showNewCard,
-                      child: _buildQuestionWidget(
-                        _showNewCard ? quiz.questions[_currentIndex] : question,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _requestExit();
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFF060E22),
+        body: quizAsync.when(
+          loading: () => const Center(
+            child: CircularProgressIndicator(color: IntelliaColors.warning),
+          ),
+          error: (error, stackTrace) => IntelliaStateView(
+            kind: stateKindForError(error),
+            message: stateMessageForKind(stateKindForError(error)),
+            palette: const TabPalette(TabPresentationMode.standaloneDark),
+            primaryLabel: 'Réessayer',
+            onPrimary: () => ref.invalidate(quizByIdProvider(widget.quizId)),
+          ),
+          data: (quiz) {
+            if (quiz.questions.isEmpty) {
+              return const IntelliaStateView(
+                kind: IntelliaStateKind.comingSoon,
+                title: 'Questions en préparation',
+                message:
+                    'Ce quiz est publié, mais ses questions ne sont pas encore disponibles.',
+                palette: TabPalette(TabPresentationMode.standaloneDark),
+              );
+            }
+            _trackQuizOpened(quiz);
+            _startTimerIfNeeded(quiz);
+            final question = quiz.questions[_displayedIndex];
+            final displayedProgress =
+                (_displayedIndex + 1) / quiz.questions.length;
+
+            return SafeArea(
+              child: Column(
+                children: [
+                  // ── Top bar: back + timer ring + progress ─────
+                  _QuizTopBar(
+                    onBack: _requestExit,
+                    remainingSeconds: _remainingSeconds,
+                    totalSeconds: quiz.timerSeconds,
+                    progress: displayedProgress,
+                  ),
+
+                  // ── Card flip area ─────────────────────────────
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: IntelliaSpacing.xl,
+                      ),
+                      child: _FlipCard(
+                        controller: _flipCtrl,
+                        showNew: _showNewCard,
+                        child: _buildQuestionWidget(
+                          _showNewCard
+                              ? quiz.questions[_currentIndex]
+                              : question,
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // ── Bottom navigation ──────────────────────────
-                _QuizBottomNav(
-                  currentIndex: _displayedIndex,
-                  totalCount: quiz.questions.length,
-                  submitting: _submitting,
-                  onPrev: _displayedIndex == 0 || _flipping
-                      ? null
-                      : () => _advance(_displayedIndex - 1),
-                  onNext: _submitting || _flipping
-                      ? null
-                      : () => _onNextOrSubmit(context, quiz),
-                ),
-              ],
-            ),
-          );
-        },
+                  // ── Bottom navigation ──────────────────────────
+                  _QuizBottomNav(
+                    currentIndex: _displayedIndex,
+                    totalCount: quiz.questions.length,
+                    submitting: _submitting || _checkingAnswer,
+                    nextLabel: _nextLabel(quiz, question),
+                    onPrev: _displayedIndex == 0 || _flipping
+                        ? null
+                        : () => _advance(_displayedIndex - 1),
+                    onNext: _submitting || _checkingAnswer || _flipping
+                        ? null
+                        : () => _onNextOrSubmit(context, quiz),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
+  }
+
+  Future<void> _requestExit() async {
+    if (_submitting) return;
+    final hasWork = _answersByQuestion.values.any(
+      (value) => value.trim().isNotEmpty,
+    );
+    if (!hasWork) {
+      if (mounted) context.pop();
+      return;
+    }
+    final leave = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: const Color(0xFF111B32),
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(IntelliaSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(
+                Icons.help_outline_rounded,
+                color: IntelliaColors.warning,
+                size: 38,
+              ),
+              const SizedBox(height: IntelliaSpacing.md),
+              const Text(
+                'Quitter ce quiz ?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: IntelliaSpacing.xs),
+              Text(
+                'Tes réponses de cette tentative seront perdues.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.72),
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: IntelliaSpacing.xl),
+              FilledButton(
+                onPressed: () => Navigator.pop(sheetContext, false),
+                child: const Text('Continuer le quiz'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(sheetContext, true),
+                child: const Text('Quitter et perdre mes réponses'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (leave == true && mounted) context.pop();
   }
 
   Widget _buildQuestionWidget(QuizQuestion question) {
@@ -164,8 +296,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
         return QcmQuestionCard(
           question: question,
           selectedIndex: selectedIndex,
-          onSelected: (value) =>
-              setState(() => _answersByQuestion[question.id] = '$value'),
+          onSelected: (value) => _setAnswer(question.id, '$value'),
         );
       case QuizQuestionType.trueFalse:
         final answer = _answersByQuestion[question.id];
@@ -173,23 +304,34 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
         return TrueFalseQuestionCard(
           question: question,
           selectedValue: selected,
-          onSelected: (value) =>
-              setState(() => _answersByQuestion[question.id] = '$value'),
+          onSelected: (value) => _setAnswer(question.id, '$value'),
         );
       case QuizQuestionType.shortAnswer:
         return ShortAnswerQuestionCard(
           key: ValueKey(question.id),
           question: question,
           value: _answersByQuestion[question.id] ?? '',
-          onChanged: (value) => _answersByQuestion[question.id] = value,
+          onChanged: (value) => _setAnswer(question.id, value),
         );
     }
+  }
+
+  void _setAnswer(String questionId, String answer) {
+    // Once a grouped submission has started, its exact payload must remain
+    // stable so a lost network response can be replayed idempotently.
+    if (_pendingAttempt != null) return;
+    setState(() {
+      _answersByQuestion[questionId] = answer;
+      if (_checkedAnswers[questionId] != answer) {
+        _checkedAnswers.remove(questionId);
+      }
+    });
   }
 
   void _startTimerIfNeeded(QuizModel quiz) {
     if (_timer != null || quiz.timerSeconds == null) return;
 
-    _remainingSeconds = quiz.timerSeconds;
+    _remainingSeconds ??= quiz.timerSeconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         timer.cancel();
@@ -206,46 +348,334 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
     });
   }
 
+  void _pauseTimerForOffline() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
   Future<void> _onNextOrSubmit(BuildContext context, QuizModel quiz) async {
+    final currentQuestion = quiz.questions[_displayedIndex];
+    final currentAnswer = (_answersByQuestion[currentQuestion.id] ?? '').trim();
+    if (shouldCheckQuizAnswerImmediately(
+      mode: quiz.mode,
+      answer: currentAnswer,
+      checkedAnswer: _checkedAnswers[currentQuestion.id],
+    )) {
+      final mayContinue = await _checkTrainingAnswer(
+        quiz: quiz,
+        question: currentQuestion,
+        answer: currentAnswer,
+      );
+      if (!mayContinue || !mounted) return;
+    }
+
     if (_displayedIndex < quiz.questions.length - 1) {
       await _advance(_displayedIndex + 1);
       return;
     }
+    final unanswered = quiz.questions
+        .where(
+          (question) => (_answersByQuestion[question.id] ?? '').trim().isEmpty,
+        )
+        .toList();
+    if (unanswered.isNotEmpty) {
+      final submitAnyway = await _confirmIncomplete(unanswered.length);
+      if (submitAnyway != true) {
+        final firstMissing = quiz.questions.indexWhere(
+          (question) => (_answersByQuestion[question.id] ?? '').trim().isEmpty,
+        );
+        if (firstMissing >= 0 && firstMissing != _displayedIndex) {
+          await _advance(firstMissing);
+        }
+        return;
+      }
+    }
     await _submitQuiz(quiz);
   }
+
+  String _nextLabel(QuizModel quiz, QuizQuestion question) {
+    final answer = (_answersByQuestion[question.id] ?? '').trim();
+    final needsCheck = shouldCheckQuizAnswerImmediately(
+      mode: quiz.mode,
+      answer: answer,
+      checkedAnswer: _checkedAnswers[question.id],
+    );
+    if (needsCheck) return 'Vérifier';
+    return _displayedIndex == quiz.questions.length - 1
+        ? 'Terminer'
+        : 'Suivant';
+  }
+
+  Future<bool> _checkTrainingAnswer({
+    required QuizModel quiz,
+    required QuizQuestion question,
+    required String answer,
+  }) async {
+    setState(() => _checkingAnswer = true);
+    try {
+      final correction = await ref
+          .read(quizRepositoryProvider)
+          .checkTrainingAnswer(
+            quizId: quiz.id,
+            questionId: question.id,
+            answer: answer,
+          );
+      if (!mounted) return false;
+      setState(() {
+        _checkedAnswers[question.id] = answer;
+      });
+      await _showTrainingCorrection(correction);
+      return mounted;
+    } catch (error) {
+      if (!mounted) return false;
+      final continueWithoutCorrection = await showModalBottomSheet<bool>(
+        context: context,
+        backgroundColor: const Color(0xFF111B32),
+        builder: (sheetContext) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(IntelliaSpacing.xl),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Icon(
+                  Icons.signal_wifi_connected_no_internet_4_rounded,
+                  color: IntelliaColors.warning,
+                  size: 36,
+                ),
+                const SizedBox(height: IntelliaSpacing.sm),
+                const Text(
+                  'Correction indisponible',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: IntelliaSpacing.xs),
+                Text(
+                  '${_trainingCheckErrorMessage(error)}\nTa réponse reste '
+                  'saisie sur cet écran et n’est pas mise en cache.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.72),
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: IntelliaSpacing.lg),
+                FilledButton(
+                  onPressed: () => Navigator.pop(sheetContext, false),
+                  child: const Text('Réessayer'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(sheetContext, true),
+                  child: const Text('Continuer sans correction'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      return continueWithoutCorrection == true;
+    } finally {
+      if (mounted) setState(() => _checkingAnswer = false);
+    }
+  }
+
+  Future<void> _showTrainingCorrection(QuizQuestionCorrection correction) {
+    final color = correction.isCorrect
+        ? const Color(0xFF4ADE80)
+        : const Color(0xFFFBBF24);
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF111B32),
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(IntelliaSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Icon(
+                correction.isCorrect
+                    ? Icons.check_circle_rounded
+                    : Icons.tips_and_updates_rounded,
+                color: color,
+                size: 42,
+              ),
+              const SizedBox(height: IntelliaSpacing.sm),
+              Text(
+                correction.isCorrect ? 'Bonne réponse !' : 'À retenir',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 21,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              if (!correction.isCorrect) ...[
+                const SizedBox(height: IntelliaSpacing.sm),
+                Text(
+                  'Réponse attendue : ${correction.correctAnswer}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+              if (correction.explanation.trim().isNotEmpty) ...[
+                const SizedBox(height: IntelliaSpacing.sm),
+                Text(
+                  correction.explanation,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.78),
+                    height: 1.45,
+                  ),
+                ),
+              ],
+              const SizedBox(height: IntelliaSpacing.lg),
+              FilledButton(
+                onPressed: () => Navigator.pop(sheetContext),
+                child: const Text('Continuer'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<bool?> _confirmIncomplete(int count) => showModalBottomSheet<bool>(
+    context: context,
+    backgroundColor: const Color(0xFF111B32),
+    builder: (sheetContext) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(IntelliaSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              '$count question${count > 1 ? 's' : ''} sans réponse',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: IntelliaSpacing.xs),
+            Text(
+              'Tu peux revenir à la première question incomplète ou envoyer maintenant.',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.72),
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: IntelliaSpacing.lg),
+            FilledButton(
+              onPressed: () => Navigator.pop(sheetContext, false),
+              child: const Text('Compléter mes réponses'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(sheetContext, true),
+              child: const Text('Envoyer quand même'),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 
   Future<void> _submitQuiz(QuizModel quiz) async {
     if (_submitting) return;
     setState(() => _submitting = true);
     _timer?.cancel();
+    _timer = null;
 
     final elapsed = DateTime.now().toUtc().difference(_startedAt).inSeconds;
+
+    _pendingAttempt ??= QuizAttempt(
+      quizId: quiz.id,
+      clientAttemptId: _clientAttemptId,
+      answersByQuestion: Map<String, String>.from(_answersByQuestion),
+      startedAt: _startedAt,
+      durationSeconds: elapsed,
+    );
 
     late final QuizResultPayload resultPayload;
     try {
       resultPayload = await ref
           .read(quizAttemptSaverProvider)
-          .saveAttempt(
-            QuizAttempt(
-              quizId: quiz.id,
-              answersByQuestion: Map<String, String>.from(_answersByQuestion),
-              startedAt: _startedAt,
-              durationSeconds: elapsed,
-            ),
-          );
+          .saveAttempt(_pendingAttempt!);
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(error.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${_submissionErrorMessage(error)} Tes réponses restent saisies '
+            'sur cet écran : réessaie sans les ressaisir. Aucune copie hors '
+            'ligne n’est créée.',
+          ),
+        ),
+      );
       setState(() => _submitting = false);
+      if ((_remainingSeconds ?? 0) > 0) {
+        _startTimerIfNeeded(quiz);
+      }
       return;
     }
 
     if (!mounted) return;
-    await context.push(AppRoutes.quizResult, extra: resultPayload);
-    setState(() => _submitting = false);
+    unawaited(
+      IntelliaTelemetry.quizSubmitted(
+        answeredCount: _answersByQuestion.values
+            .where((answer) => answer.trim().isNotEmpty)
+            .length,
+        questionCount: quiz.questions.length,
+        scorePercent: resultPayload.maxScore > 0
+            ? (resultPayload.score / resultPayload.maxScore * 100).round()
+            : null,
+      ),
+    );
+    ref.invalidate(quizAttemptHistoryProvider);
+    // Objectif hebdo : un quiz soumis compte comme séance du jour.
+    unawaited(
+      ref.read(personalGoalControllerProvider.notifier).recordActivityToday(),
+    );
+    context.pushReplacement(AppRoutes.quizResult, extra: resultPayload);
   }
+
+  void _trackQuizOpened(QuizModel quiz) {
+    if (_openTelemetrySent) return;
+    _openTelemetrySent = true;
+    unawaited(
+      IntelliaTelemetry.quizOpened(
+        mode: quiz.mode.wireValue,
+        questionCount: quiz.questionCount,
+      ),
+    );
+  }
+
+  String _newClientAttemptId(DateTime startedAt) {
+    final timestamp = startedAt.microsecondsSinceEpoch;
+    final entropy = math.Random.secure().nextInt(1 << 32).toRadixString(36);
+    return 'attempt_${timestamp}_$entropy';
+  }
+}
+
+String _trainingCheckErrorMessage(Object error) {
+  if (error is QuizContentException) return error.message;
+  return 'La correction guidée ne répond pas pour le moment. Vérifie ta '
+      'connexion, puis réessaie.';
+}
+
+String _submissionErrorMessage(Object error) {
+  if (error is QuizSubmissionException) return error.message;
+  return 'Le serveur n’a pas pu valider cette tentative pour le moment.';
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -309,10 +739,10 @@ class _QuizTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.sm,
-        AppSpacing.xs,
-        AppSpacing.xl,
-        AppSpacing.xs,
+        IntelliaSpacing.sm,
+        IntelliaSpacing.xs,
+        IntelliaSpacing.xl,
+        IntelliaSpacing.xs,
       ),
       child: Row(
         children: [
@@ -325,7 +755,9 @@ class _QuizTopBar extends StatelessWidget {
           Expanded(
             child: Container(
               height: 4,
-              margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              margin: const EdgeInsets.symmetric(
+                horizontal: IntelliaSpacing.sm,
+              ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(2),
                 color: Colors.white.withValues(alpha: 0.10),
@@ -371,10 +803,10 @@ class _TimerRing extends StatelessWidget {
   Widget build(BuildContext context) {
     final ratio = total > 0 ? remaining / total : 0.0;
     final isUrgent = remaining <= 10;
-    final ringColor = isUrgent ? Colors.redAccent : AppColors.accent;
+    final ringColor = isUrgent ? Colors.redAccent : IntelliaColors.success;
 
     return AnimatedContainer(
-      duration: AppMotion.fast,
+      duration: IntelliaMotion.fast,
       width: size,
       height: size,
       child: Stack(
@@ -457,6 +889,7 @@ class _QuizBottomNav extends StatelessWidget {
     required this.currentIndex,
     required this.totalCount,
     required this.submitting,
+    required this.nextLabel,
     required this.onPrev,
     required this.onNext,
   });
@@ -464,6 +897,7 @@ class _QuizBottomNav extends StatelessWidget {
   final int currentIndex;
   final int totalCount;
   final bool submitting;
+  final String nextLabel;
   final VoidCallback? onPrev;
   final VoidCallback? onNext;
 
@@ -473,10 +907,10 @@ class _QuizBottomNav extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xl,
-        AppSpacing.sm,
-        AppSpacing.xl,
-        AppSpacing.xl,
+        IntelliaSpacing.xl,
+        IntelliaSpacing.sm,
+        IntelliaSpacing.xl,
+        IntelliaSpacing.xl,
       ),
       child: Row(
         children: [
@@ -492,7 +926,7 @@ class _QuizBottomNav extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.25),
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      borderRadius: BorderRadius.circular(IntelliaRadii.small),
                     ),
                   ),
                   child: const Row(
@@ -508,7 +942,7 @@ class _QuizBottomNav extends StatelessWidget {
             )
           else
             const Spacer(),
-          const SizedBox(width: AppSpacing.sm),
+          const SizedBox(width: IntelliaSpacing.sm),
           Expanded(
             flex: 2,
             child: GradientButton(
@@ -519,7 +953,7 @@ class _QuizBottomNav extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    isLast ? 'Terminer' : 'Suivant',
+                    nextLabel,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 15,

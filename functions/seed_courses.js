@@ -26,18 +26,50 @@ async function seedData() {
 
       // 2. Insérer la Matière (Subject)
       const subjectRef = db.collection('classes').doc(classLevel).collection('subjects').doc(subjectId);
-      await subjectRef.set(courseData.subject);
+      const chapterSummaries = courseData.chapters.map((chapter) => {
+        const publishedLessons = chapter.lessons.filter((lesson) => lesson.data.status === 'published');
+        return {
+          id: chapter.chapterId,
+          title: chapter.data.title || '',
+          description: chapter.data.description || '',
+          lessonsCount: publishedLessons.length,
+          order: Number(chapter.data.order || 0),
+        };
+      });
+      await subjectRef.set({ ...courseData.subject, chapterSummaries });
       console.log(`✅ Matière ${subjectId} insérée.`);
 
       // 3. Insérer les Chapitres (Chapters) et Leçons (Lessons)
       for (const chapter of courseData.chapters) {
         const chapterRef = subjectRef.collection('chapters').doc(chapter.chapterId);
-        await chapterRef.set(chapter.data);
+        const publishedLessons = chapter.lessons.filter((lesson) => lesson.data.status === 'published');
+        const lessonPreviews = publishedLessons.map((lesson) => ({
+          id: lesson.lessonId,
+          classLevel,
+          subjectId,
+          chapterId: chapter.chapterId,
+          title: lesson.data.title || '',
+          summary: lesson.data.summary || '',
+          estimatedMinutes: Number(lesson.data.estimatedMinutes || 0),
+          order: Number(lesson.data.order || 0),
+        }));
+        await chapterRef.set({
+          ...chapter.data,
+          classLevel,
+          subjectId,
+          lessonsCount: lessonPreviews.length,
+          lessonPreviews,
+        });
         console.log(`  ✅ Chapitre ${chapter.chapterId} inséré.`);
 
         for (const lesson of chapter.lessons) {
           const lessonRef = chapterRef.collection('lessons').doc(lesson.lessonId);
-          await lessonRef.set(lesson.data);
+          await lessonRef.set({
+            ...lesson.data,
+            classLevel,
+            subjectId,
+            chapterId: chapter.chapterId,
+          });
           console.log(`    ✅ Leçon ${lesson.lessonId} insérée.`);
         }
       }

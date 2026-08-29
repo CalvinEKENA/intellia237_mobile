@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../application/admin_providers.dart';
@@ -10,6 +12,9 @@ import 'content_moderation_screen.dart';
 import 'content_studio_screen.dart';
 import 'school_analytics_screen.dart';
 import 'user_management_screen.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
+import '../../mobile_money/presentation/mobile_money_admin_queue_screen.dart';
 
 class AdminHomeScreen extends ConsumerStatefulWidget {
   const AdminHomeScreen({super.key});
@@ -26,12 +31,12 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
       activeIcon: Icons.space_dashboard_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Studio',
+      label: 'Contenus',
       icon: Icons.auto_stories_outlined,
       activeIcon: Icons.auto_stories_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Analytics',
+      label: 'Analyses',
       icon: Icons.analytics_outlined,
       activeIcon: Icons.analytics_rounded,
     ),
@@ -41,14 +46,9 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
       activeIcon: Icons.groups_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Annonces',
-      icon: Icons.campaign_outlined,
-      activeIcon: Icons.campaign_rounded,
-    ),
-    IntelliaBottomNavItem(
-      label: 'Modération',
-      icon: Icons.shield_outlined,
-      activeIcon: Icons.shield_rounded,
+      label: 'Outils',
+      icon: Icons.tune_outlined,
+      activeIcon: Icons.tune_rounded,
     ),
   ];
 
@@ -67,8 +67,7 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
             ContentStudioScreen(embedded: true),
             SchoolAnalyticsScreen(embedded: true),
             UserManagementScreen(embedded: true),
-            BroadcastCenterScreen(embedded: true),
-            ContentModerationScreen(embedded: true),
+            _AdminToolsTab(),
           ],
         ),
       ),
@@ -90,26 +89,25 @@ class _AdminDashboardTab extends ConsumerWidget {
 
     return dashboardAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: FilledButton.icon(
-          onPressed: () => ref.invalidate(adminDashboardProvider),
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Recharger'),
-        ),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        message: stateMessageForKind(stateKindForError(error)),
+        primaryLabel: 'Réessayer',
+        onPrimary: () => ref.invalidate(adminDashboardProvider),
       ),
       data: (dashboard) => ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
           132,
         ),
         children: [
           _AdminHeroCard(dashboard: dashboard),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
+            spacing: IntelliaSpacing.sm,
+            runSpacing: IntelliaSpacing.sm,
             children: [
               _AdminKpiTile(
                 label: 'Élèves',
@@ -133,10 +131,10 @@ class _AdminDashboardTab extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(IntelliaSpacing.md),
               child: Row(
                 children: [
                   Expanded(
@@ -146,7 +144,7 @@ class _AdminDashboardTab extends ConsumerWidget {
                       color: const Color(0xFFF59E0B),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: IntelliaSpacing.sm),
                   Expanded(
                     child: _StatusItem(
                       label: 'Tickets modération',
@@ -158,10 +156,20 @@ class _AdminDashboardTab extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
+          ListTile(
+            leading: const Icon(Icons.settings_outlined),
+            title: const Text('Paramètres'),
+            subtitle: const Text(
+              'Accessibilité, diagnostics et confidentialité',
+            ),
+            trailing: const Icon(Icons.chevron_right_rounded),
+            onTap: () => context.push(AppRoutes.settings),
+          ),
+          const SizedBox(height: IntelliaSpacing.md),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(IntelliaSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -171,7 +179,7 @@ class _AdminDashboardTab extends ConsumerWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
                   for (final ann in dashboard.recentAnnouncements.take(4)) ...[
                     Text(
                       ann.title,
@@ -179,9 +187,9 @@ class _AdminDashboardTab extends ConsumerWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.xxs),
+                    const SizedBox(height: IntelliaSpacing.xxs),
                     Text(ann.message),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: IntelliaSpacing.sm),
                   ],
                 ],
               ),
@@ -189,6 +197,69 @@ class _AdminDashboardTab extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AdminToolsTab extends StatefulWidget {
+  const _AdminToolsTab();
+
+  @override
+  State<_AdminToolsTab> createState() => _AdminToolsTabState();
+}
+
+class _AdminToolsTabState extends State<_AdminToolsTab> {
+  int _selected = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            IntelliaSpacing.lg,
+            IntelliaSpacing.md,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.xs,
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SegmentedButton<int>(
+              segments: const [
+                ButtonSegment(
+                  value: 0,
+                  icon: Icon(Icons.campaign_outlined),
+                  label: Text('Annonces'),
+                ),
+                ButtonSegment(
+                  value: 1,
+                  icon: Icon(Icons.shield_outlined),
+                  label: Text('Modération'),
+                ),
+                ButtonSegment(
+                  value: 2,
+                  icon: Icon(Icons.payments_outlined),
+                  label: Text('Paiements'),
+                ),
+              ],
+              selected: {_selected},
+              onSelectionChanged: (selection) {
+                setState(() => _selected = selection.first);
+              },
+            ),
+          ),
+        ),
+        Expanded(
+          child: IndexedStack(
+            index: _selected,
+            children: const [
+              BroadcastCenterScreen(embedded: true),
+              ContentModerationScreen(embedded: true),
+              MobileMoneyAdminQueueScreen(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -201,9 +272,9 @@ class _AdminHeroCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(IntelliaSpacing.lg),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -220,7 +291,7 @@ class _AdminHeroCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             'Bonjour, ${dashboard.adminName}',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -228,7 +299,7 @@ class _AdminHeroCard extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             'Supervisez l\'usage de la plateforme et les opérations critiques.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -257,9 +328,9 @@ class _AdminKpiTile extends StatelessWidget {
     final width = (MediaQuery.of(context).size.width - 56) / 2;
     return Container(
       width: width,
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(IntelliaSpacing.md),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         color: Theme.of(context).colorScheme.surface,
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
@@ -269,14 +340,14 @@ class _AdminKpiTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             value,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: AppSpacing.xxs),
+          const SizedBox(height: IntelliaSpacing.xxs),
           Text(label, style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
@@ -298,9 +369,9 @@ class _StatusItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: const EdgeInsets.all(IntelliaSpacing.sm),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppRadius.sm),
+        borderRadius: BorderRadius.circular(IntelliaRadii.small),
         color: color.withValues(alpha: 0.1),
       ),
       child: Column(
@@ -313,7 +384,7 @@ class _StatusItem extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: AppSpacing.xxs),
+          const SizedBox(height: IntelliaSpacing.xxs),
           Text(label, style: Theme.of(context).textTheme.bodySmall),
         ],
       ),

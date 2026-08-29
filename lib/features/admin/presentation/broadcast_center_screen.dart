@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 
 class BroadcastCenterScreen extends ConsumerStatefulWidget {
   const BroadcastCenterScreen({super.key, this.embedded = false});
@@ -42,36 +44,35 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
     final dashboardAsync = ref.watch(adminDashboardProvider);
     final body = dashboardAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: FilledButton.icon(
-          onPressed: () => ref.invalidate(adminDashboardProvider),
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Recharger'),
-        ),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        message: stateMessageForKind(stateKindForError(error)),
+        primaryLabel: 'Réessayer',
+        onPrimary: () => ref.invalidate(adminDashboardProvider),
       ),
       data: (dashboard) => ListView(
         padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.xl,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.lg,
+          IntelliaSpacing.xl,
         ),
         children: [
           Text(
-            'Broadcast Center',
+            'Centre de diffusion',
             style: Theme.of(
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             'Publiez des annonces officielles ciblées.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(IntelliaSpacing.md),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -85,7 +86,7 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                           ? 'Titre requis'
                           : null,
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: IntelliaSpacing.sm),
                     DropdownButtonFormField<String>(
                       initialValue: _audience,
                       decoration: const InputDecoration(labelText: 'Audience'),
@@ -99,7 +100,7 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                         }
                       },
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: IntelliaSpacing.sm),
                     TextFormField(
                       controller: _messageController,
                       maxLines: 4,
@@ -109,7 +110,7 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                           ? 'Message requis'
                           : null,
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: IntelliaSpacing.md),
                     FilledButton.icon(
                       onPressed: _isSending ? null : _send,
                       icon: _isSending
@@ -120,7 +121,7 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                             )
                           : const Icon(Icons.campaign_rounded),
                       label: Text(
-                        _isSending ? 'Publication...' : 'Publier l\'annonce',
+                        _isSending ? 'Publication…' : 'Publier l\'annonce',
                       ),
                     ),
                   ],
@@ -128,17 +129,17 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: IntelliaSpacing.md),
           Text(
             'Historique récent',
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: IntelliaSpacing.sm),
           for (final ann in dashboard.recentAnnouncements) ...[
             _AnnouncementItem(announcement: ann),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: IntelliaSpacing.xs),
           ],
         ],
       ),
@@ -149,7 +150,7 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Broadcast Center')),
+      appBar: AppBar(title: const Text('Centre de diffusion')),
       body: body,
     );
   }
@@ -186,7 +187,7 @@ class _AnnouncementItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -196,9 +197,9 @@ class _AnnouncementItem extends StatelessWidget {
                 context,
               ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: AppSpacing.xxs),
+            const SizedBox(height: IntelliaSpacing.xxs),
             Text(announcement.message),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: IntelliaSpacing.xs),
             Text(
               'Audience: ${announcement.audience}',
               style: Theme.of(context).textTheme.bodySmall,

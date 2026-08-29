@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/domain/auth_input_validators.dart';
+import '../../../core/telemetry/intellia_telemetry.dart';
 import '../../role_registration/data/firebase_role_registration_repository.dart';
 import '../../role_registration/data/role_registration_repository.dart';
 import '../../role_registration/domain/parent_registration_payload.dart';
@@ -133,6 +134,7 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
           );
 
       state = state.copyWith(isSubmitting: false, clearError: true);
+      await IntelliaTelemetry.registrationCompleted(role: 'parent');
       return true;
     } on RoleRegistrationException catch (error) {
       state = state.copyWith(isSubmitting: false, errorMessage: error.message);
@@ -148,14 +150,14 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
 
   String? _validateIdentity() {
     final identityError =
-        AuthInputValidators.displayName(state.firstName, label: 'Le prenom') ??
+        AuthInputValidators.displayName(state.firstName, label: 'Le prénom') ??
         AuthInputValidators.displayName(state.lastName, label: 'Le nom') ??
         AuthInputValidators.email(state.email);
     if (identityError != null) return identityError;
 
     if (state.phoneNumber.trim().isNotEmpty &&
         !_isPhoneValid(state.phoneNumber.trim())) {
-      return 'Numero de telephone invalide.';
+      return 'Numéro de téléphone invalide.';
     }
 
     return AuthInputValidators.password(state.password) ??

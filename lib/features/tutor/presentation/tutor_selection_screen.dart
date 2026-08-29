@@ -118,12 +118,12 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
         children: [
           // ── Animated liquid background — swaps per tutor ──────
           AnimatedSwitcher(
-            duration: AppMotion.cinematic,
+            duration: IntelliaMotion.cinematic,
             child: LiquidBackground(
               key: ValueKey(tutor.id),
               primaryColor: tutor.accentColor,
               secondaryColor: tutor.gradientColors.first,
-              tertiaryColor: AppColors.gold,
+              tertiaryColor: IntelliaColors.warning,
               child: const SizedBox.expand(),
             ),
           ),
@@ -163,15 +163,15 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
                   current: _currentIndex,
                   accentColor: tutor.accentColor,
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: IntelliaSpacing.md),
 
                 // CTA
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.xl,
+                    IntelliaSpacing.xl,
                     0,
-                    AppSpacing.xl,
-                    AppSpacing.xl,
+                    IntelliaSpacing.xl,
+                    IntelliaSpacing.xl,
                   ),
                   child: GradientButton(
                     gradient: LinearGradient(colors: tutor.gradientColors),
@@ -188,7 +188,7 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
                           size: 20,
                           color: Colors.white,
                         ),
-                        const SizedBox(width: AppSpacing.xs),
+                        const SizedBox(width: IntelliaSpacing.xs),
                         Text(
                           'Choisir ${tutor.name.split(' ').first} comme tuteur',
                           style: const TextStyle(
@@ -233,10 +233,10 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.sm,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.sm,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.sm,
       ),
       child: Column(
         children: [
@@ -257,7 +257,7 @@ class _TopBar extends StatelessWidget {
                   onTap: onSkip,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
+                      horizontal: IntelliaSpacing.sm,
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
@@ -281,7 +281,7 @@ class _TopBar extends StatelessWidget {
                 const SizedBox(width: 72),
             ],
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: IntelliaSpacing.xs),
           Text(
             'Il t\'accompagnera tout au long de ton parcours',
             style: TextStyle(
@@ -291,7 +291,7 @@ class _TopBar extends StatelessWidget {
           ).animate(delay: 100.ms).fadeIn(duration: 400.ms),
 
           if (showTabs) ...[
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             ClipRRect(
               borderRadius: BorderRadius.circular(99),
               child: BackdropFilter(
@@ -301,7 +301,7 @@ class _TopBar extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(99),
-                    border: Border.all(color: AppColors.glassBorder),
+                    border: Border.all(color: IntelliaColors.glassBorder),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -310,10 +310,10 @@ class _TopBar extends StatelessWidget {
                         GestureDetector(
                           onTap: () => onLevelSelected(i),
                           child: AnimatedContainer(
-                            duration: AppMotion.fast,
-                            curve: AppMotion.emphasizedDecelerate,
+                            duration: IntelliaMotion.fast,
+                            curve: IntelliaMotion.emphasizedDecelerate,
                             padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md,
+                              horizontal: IntelliaSpacing.md,
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
@@ -381,9 +381,22 @@ class _TutorCardState extends State<_TutorCard>
     _floatCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3200),
-    )..repeat(reverse: true);
+    );
 
     if (widget.isActive) _scheduleTypewriter();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final disabled = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (disabled) {
+      _floatCtrl.stop();
+      _floatCtrl.value = 0.5;
+      if (_typewriterMode) _typewriterMode = false;
+    } else if (!_floatCtrl.isAnimating && !_isTouching) {
+      _floatCtrl.repeat(reverse: true);
+    }
   }
 
   @override
@@ -432,7 +445,9 @@ class _TutorCardState extends State<_TutorCard>
       _tiltX = 0;
       _tiltY = 0;
     });
-    _floatCtrl.repeat(reverse: true);
+    if (!(MediaQuery.maybeOf(context)?.disableAnimations ?? false)) {
+      _floatCtrl.repeat(reverse: true);
+    }
   }
 
   @override
@@ -601,7 +616,7 @@ class _FallbackPortrait extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             Text(
               tutor.name,
               style: GoogleFonts.playfairDisplay(
@@ -630,21 +645,21 @@ class _StatsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSlide(
-      duration: AppMotion.cinematic,
-      curve: AppMotion.emphasizedDecelerate,
+      duration: IntelliaMotion.cinematic,
+      curve: IntelliaMotion.emphasizedDecelerate,
       offset: isActive ? Offset.zero : const Offset(0, 0.15),
       child: AnimatedOpacity(
-        duration: AppMotion.slow,
+        duration: IntelliaMotion.slow,
         opacity: isActive ? 1.0 : 0.0,
         child: ClipRRect(
           borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(AppRadius.xl),
-            topRight: Radius.circular(AppRadius.xl),
+            topLeft: Radius.circular(IntelliaRadii.extraLarge),
+            topRight: Radius.circular(IntelliaRadii.extraLarge),
           ),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(IntelliaSpacing.lg),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -655,13 +670,13 @@ class _StatsPanel extends StatelessWidget {
                   ],
                 ),
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(AppRadius.xl),
-                  topRight: Radius.circular(AppRadius.xl),
+                  topLeft: Radius.circular(IntelliaRadii.extraLarge),
+                  topRight: Radius.circular(IntelliaRadii.extraLarge),
                 ),
                 border: Border(
-                  top: BorderSide(color: AppColors.glassBorder),
-                  left: BorderSide(color: AppColors.glassBorder),
-                  right: BorderSide(color: AppColors.glassBorder),
+                  top: BorderSide(color: IntelliaColors.glassBorder),
+                  left: BorderSide(color: IntelliaColors.glassBorder),
+                  right: BorderSide(color: IntelliaColors.glassBorder),
                 ),
               ),
               child: Column(
@@ -697,7 +712,7 @@ class _StatsPanel extends StatelessWidget {
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
+                          horizontal: IntelliaSpacing.sm,
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
@@ -723,7 +738,7 @@ class _StatsPanel extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
 
                   // Specialty chip
                   Row(
@@ -745,7 +760,7 @@ class _StatsPanel extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
 
                   // Bio
                   Text(
@@ -759,12 +774,14 @@ class _StatsPanel extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
 
                   // Stat bars
                   ...tutor.stats.map(
                     (stat) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                      padding: const EdgeInsets.only(
+                        bottom: IntelliaSpacing.xs,
+                      ),
                       child: _StatBar(
                         stat: stat,
                         accentColor: tutor.accentColor,
@@ -772,7 +789,7 @@ class _StatsPanel extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: IntelliaSpacing.sm),
 
                   // Motto
                   Text(
@@ -920,10 +937,10 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
+        IntelliaSpacing.lg,
         0,
-        AppSpacing.lg,
-        AppSpacing.lg,
+        IntelliaSpacing.lg,
+        IntelliaSpacing.lg,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -969,7 +986,7 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
                 opacity: _segmentDone(0) ? 1.0 : 0.0,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
+                    horizontal: IntelliaSpacing.sm,
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
@@ -996,7 +1013,7 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
 
           // ── Specialty ────────────────────────────────────────
           if (_segmentStarted(2)) ...[
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             Row(
               children: [
                 Icon(Icons.star_rounded, size: 14, color: tutor.accentColor),
@@ -1017,7 +1034,7 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
 
           // ── Bio ───────────────────────────────────────────────
           if (_segmentStarted(3)) ...[
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             _TypewriterLine(
               text: bioText,
               showCursor: activeSegment == 3,
@@ -1038,10 +1055,12 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
             child: _statsVisible
                 ? Column(
                     children: [
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: IntelliaSpacing.sm),
                       ...tutor.stats.map(
                         (stat) => Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                          padding: const EdgeInsets.only(
+                            bottom: IntelliaSpacing.xs,
+                          ),
                           child: _StatBar(
                             stat: stat,
                             accentColor: tutor.accentColor,
@@ -1055,7 +1074,7 @@ class _TypewriterOverlayState extends State<_TypewriterOverlay> {
 
           // ── Motto ─────────────────────────────────────────────
           if (_segmentStarted(4)) ...[
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: IntelliaSpacing.sm),
             _TypewriterLine(
               text: mottoText,
               showCursor: activeSegment == 4 && !done,
@@ -1240,8 +1259,8 @@ class _LevelDots extends StatelessWidget {
       children: List.generate(count, (i) {
         final isActive = i == current;
         return AnimatedContainer(
-          duration: AppMotion.fast,
-          curve: AppMotion.emphasizedDecelerate,
+          duration: IntelliaMotion.fast,
+          curve: IntelliaMotion.emphasizedDecelerate,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           width: isActive ? 20 : 7,
           height: 7,

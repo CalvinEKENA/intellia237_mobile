@@ -11,6 +11,7 @@ import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/presentation/widgets/auth_selection_pill.dart';
 import '../../auth/presentation/widgets/auth_success_screen.dart';
 import '../../tutor/domain/tutor_persona.dart';
+import '../../legal/presentation/legal_links.dart';
 import '../application/student_registration_controller.dart';
 import '../application/student_registration_state.dart';
 import '../domain/academic_rules.dart';
@@ -356,6 +357,7 @@ class _StudentRegistrationFlowScreenState
               label: 'J’accepte le traitement pédagogique des données.',
               onChanged: controller.setAcceptedDataPolicy,
             ),
+            const LegalLinks(showEducationalData: true),
           ],
         ),
       ),

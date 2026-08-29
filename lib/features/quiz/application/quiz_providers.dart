@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
+import '../../auth/application/auth_state.dart';
 import '../../auth/application/auth_user_id.dart';
 import '../../learn/application/learn_providers.dart';
 import '../data/firestore_quiz_repository.dart';
 import '../data/quiz_repository.dart';
 import '../domain/quiz_attempt.dart';
+import '../domain/quiz_attempt_summary.dart';
 import '../domain/quiz_model.dart';
 import '../domain/quiz_result_payload.dart';
 
@@ -28,6 +30,22 @@ final quizByIdProvider = FutureProvider.family<QuizModel, String>((
   quizId,
 ) {
   return ref.watch(quizRepositoryProvider).fetchQuizById(quizId);
+});
+
+final quizAttemptHistoryProvider = FutureProvider<List<QuizAttemptSummary>>((
+  ref,
+) async {
+  final auth = ref.watch(authControllerProvider);
+  final studentId = auth.userId;
+  if (auth.status != AuthStatus.authenticated ||
+      studentId == null ||
+      studentId.trim().isEmpty) {
+    return const [];
+  }
+
+  return ref
+      .watch(quizRepositoryProvider)
+      .fetchRecentAttempts(studentId: studentId, limit: 5);
 });
 
 final currentQuizUserIdProvider = Provider<String>((ref) {

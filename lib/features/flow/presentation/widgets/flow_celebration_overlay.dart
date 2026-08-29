@@ -7,9 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../app/theme/design_tokens.dart';
 import '../../application/flow_controller.dart';
 
-/// Célébration discrète d'une récompense (XP, badge).
+/// Célébration discrète d'une récompense (points, badge).
 ///
-/// Pas de confetti ni de bruit : un éclat XP qui monte, ou une carte badge
+/// Pas de confetti ni de bruit : un éclat de points qui monte, ou une carte badge
 /// sobre — dans l'esprit Apple / Brilliant. S'auto-efface.
 class FlowCelebrationOverlay extends StatefulWidget {
   const FlowCelebrationOverlay({
@@ -54,21 +54,21 @@ class _FlowCelebrationOverlayState extends State<FlowCelebrationOverlay> {
       child: Center(
         child: badge != null
             ? _badgeCard(badge.icon, badge.title, badge.accent)
-            : _xpBurst(widget.award.xpGained),
+            : _pointsBurst(widget.award.pointsGained),
       ),
     );
   }
 
-  Widget _xpBurst(int xp) {
+  Widget _pointsBurst(int points) {
     return Text(
-          '+$xp XP',
+          '+$points points',
           style: GoogleFonts.montserrat(
             fontSize: 34,
             fontWeight: FontWeight.w900,
-            color: IntelliaColors.xpGold,
+            color: IntelliaColors.pointsGold,
             shadows: [
               Shadow(
-                color: IntelliaColors.xpGold.withValues(alpha: 0.5),
+                color: IntelliaColors.pointsGold.withValues(alpha: 0.5),
                 blurRadius: 18,
               ),
             ],

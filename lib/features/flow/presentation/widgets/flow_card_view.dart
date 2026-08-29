@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../application/flow_controller.dart';
 import '../../domain/flow_card.dart';
 import 'flow_content_card_views.dart';
+import 'flow_exercise_card_views.dart';
 import 'flow_mini_quiz_card_view.dart';
 import 'flow_reward_card_view.dart';
 
@@ -22,6 +23,9 @@ class FlowCardView extends StatelessWidget {
       FlowAnimationCard c => FlowAnimationCardView(card: c),
       FlowAnecdoteCard c => FlowAnecdoteCardView(card: c),
       FlowMiniQuizCard c => FlowMiniQuizCardView(card: c, onAward: onAward),
+      FlowTrueFalseCard c => FlowTrueFalseCardView(card: c, onAward: onAward),
+      FlowFillBlankCard c => FlowFillBlankCardView(card: c, onAward: onAward),
+      FlowOrderingCard c => FlowOrderingCardView(card: c, onAward: onAward),
       FlowRewardCard c => FlowRewardCardView(card: c),
     };
   }

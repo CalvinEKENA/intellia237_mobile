@@ -9,13 +9,74 @@ import {
 } from "../services/academicStateStore";
 import { createSubmitQuizAttemptHandler } from "../services/academicCallables";
 import { scoreQuizAttempt } from "../services/quizScoring";
-import type { QuizRecord, QuizSubmissionResult } from "../services/quizTypes";
+import { accumulatedPoints } from "../services/pointsPolicy";
+import {
+  quizQuestionRecordSchema,
+  type QuizRecord,
+  type QuizSubmissionResult
+} from "../services/quizTypes";
 import { SubmitQuizAttemptUseCase } from "../services/submitQuizAttemptUseCase";
 import { AppError } from "../utils/errors";
 
 const submittedAt = "2026-06-18T12:00:00.000Z";
 
 describe("submitQuizAttempt", () => {
+  it("prefers accumulated points and falls back to legacy xp", () => {
+    expect(accumulatedPoints({ points: 120, xp: 90 })).toBe(120);
+    expect(accumulatedPoints({ xp: 90 })).toBe(90);
+    expect(accumulatedPoints(undefined)).toBe(0);
+  });
+
+  it("prefers pointsReward and reads legacy xpReward as a fallback", () => {
+    const base = {
+      id: "q-legacy",
+      type: "qcm" as const,
+      prompt: "2 + 2",
+      options: ["4", "5"],
+      correctOptionIndex: 0
+    };
+
+    expect(quizQuestionRecordSchema.parse({
+      ...base,
+      xpReward: 7
+    }).pointsReward).toBe(7);
+    expect(quizQuestionRecordSchema.parse({
+      ...base,
+      pointsReward: 11,
+      xpReward: 7
+    }).pointsReward).toBe(11);
+  });
+
+  it("does not count an unanswered false statement as correct", () => {
+    const quiz: QuizRecord = {
+      id: "quiz-false",
+      title: "Vrai ou faux",
+      subjectId: "science",
+      subjectLabel: "Sciences",
+      status: "published",
+      mode: "exam",
+      questions: [{
+        id: "q-false",
+        type: "trueFalse",
+        prompt: "La Terre est plate.",
+        options: [],
+        correctBooleanValue: false,
+        acceptedAnswers: [],
+        explanation: "La Terre est approximativement sphérique.",
+        pointsReward: 5
+      }]
+    };
+
+    const result = scoreQuizAttempt({
+      quiz,
+      attemptId: "attempt-empty",
+      answersByQuestion: {},
+      submittedAt
+    });
+    expect(result.score).toBe(0);
+    expect(result.pointsAwarded).toBe(0);
+  });
+
   it("rejects unauthenticated callers", async () => {
     const handler = createSubmitQuizAttemptHandler(
       new SubmitQuizAttemptUseCase(new MemoryAcademicStateStore())
@@ -57,7 +118,7 @@ describe("submitQuizAttempt", () => {
     });
   });
 
-  it("computes score, corrections, and XP from server quiz answers", async () => {
+  it("computes score, corrections, and points from server quiz answers", async () => {
     const store = new MemoryAcademicStateStore([publishedQuiz()]);
     const handler = createSubmitQuizAttemptHandler(new SubmitQuizAttemptUseCase(store));
 
@@ -74,13 +135,13 @@ describe("submitQuizAttempt", () => {
 
     expect(result.score).toBe(2);
     expect(result.maxScore).toBe(3);
-    expect(result.xpAwarded).toBe(12);
+    expect(result.pointsAwarded).toBe(12);
     expect(result.corrections.map((item) => item.isCorrect)).toEqual([true, false, true]);
     expect(result.submittedAt).toBe(submittedAt);
     expect(result.submittedAt).not.toBe("2020-01-01T00:00:00.000Z");
   });
 
-  it("rejects client-supplied XP instead of trusting it", async () => {
+  it("rejects client-supplied points instead of trusting them", async () => {
     const store = new MemoryAcademicStateStore([publishedQuiz()]);
     const handler = createSubmitQuizAttemptHandler(new SubmitQuizAttemptUseCase(store));
 
@@ -88,7 +149,7 @@ describe("submitQuizAttempt", () => {
       auth: { uid: "student-a" },
       data: {
         ...validPayload(),
-        xpAwarded: 999999
+        pointsAwarded: 999999
       }
     } as never)).rejects.toMatchObject({
       code: "invalid-argument"
@@ -128,7 +189,7 @@ describe("submitQuizAttempt", () => {
     expect(first.idempotentReplay).toBe(false);
     expect(second.idempotentReplay).toBe(true);
     expect(second.score).toBe(first.score);
-    expect(second.xpAwarded).toBe(first.xpAwarded);
+    expect(second.pointsAwarded).toBe(first.pointsAwarded);
   });
 
   it("rejects reused client attempt ids with different payloads", async () => {
@@ -232,6 +293,7 @@ function publishedQuiz(): QuizRecord {
     subjectId: "math",
     subjectLabel: "Mathematiques",
     status: "published",
+    mode: "exam",
     questions: [
       {
         id: "q1",
@@ -241,7 +303,7 @@ function publishedQuiz(): QuizRecord {
         correctOptionIndex: 0,
         acceptedAnswers: [],
         explanation: "2 + 2 = 4.",
-        xpReward: 5
+        pointsReward: 5
       },
       {
         id: "q2",
@@ -250,7 +312,7 @@ function publishedQuiz(): QuizRecord {
         options: [],
         acceptedAnswers: ["Yaounde", "Yaoundé"],
         explanation: "The capital is Yaounde.",
-        xpReward: 9
+        pointsReward: 9
       },
       {
         id: "q3",
@@ -260,7 +322,7 @@ function publishedQuiz(): QuizRecord {
         correctBooleanValue: true,
         acceptedAnswers: [],
         explanation: "Often true in daylight.",
-        xpReward: 7
+        pointsReward: 7
       }
     ]
   };

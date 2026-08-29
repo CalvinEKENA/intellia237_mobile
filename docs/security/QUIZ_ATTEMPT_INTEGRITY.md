@@ -21,7 +21,7 @@ Server response:
 - `subjectLabel`
 - `score`
 - `maxScore`
-- `xpAwarded`
+- `pointsAwarded`
 - `corrections`
 - `submittedAt`
 - `idempotentReplay`
@@ -30,10 +30,10 @@ Server response:
 ## Integrity Controls
 
 - The function uses `request.auth.uid` as the student id. Any client-supplied user id is ignored.
-- Zod rejects unknown fields, including client-supplied `xpAwarded`.
+- Zod rejects unknown fields, including client-supplied `pointsAwarded`.
 - The quiz is loaded from Firestore inside the transaction and must have `status = published`.
 - Every answer id must match a server-side question id from the quiz.
-- The server computes score, corrections, max score, and XP from stored quiz data.
+- The server computes score, corrections, max score, and points from stored quiz data.
 - Firestore rules deny all client create/update/delete on `quiz_attempts`.
 - Reward writes to `users`, `student_profiles`, `progress`, and `streaks` happen through Admin SDK transaction writes only.
 
@@ -45,16 +45,18 @@ The attempt document id is derived from `(studentId, clientAttemptId)`.
 - Same key and different request hash: reject with `already-exists`.
 - New key: compute and persist a new immutable attempt.
 
-## XP Policy
+## Points Policy
 
-The initial policy is implemented in `functions/src/services/xpPolicy.ts`.
+The initial policy is implemented in `functions/src/services/pointsPolicy.ts`.
 
-- Correct answers earn the server-defined `question.xpReward`.
-- Missing or invalid `xpReward` values fall back to the bounded default policy.
-- Client-side XP is never read.
+- Correct answers earn the server-defined `question.pointsReward`.
+- Missing or invalid `pointsReward` values fall back to the bounded default policy.
+- Client-supplied points are never read.
+- Legacy `xpReward` data remains readable only as a fallback after
+  `pointsReward`; new documents use the canonical points fields.
 
 ## Known Follow-Ups
 
 - Add abuse throttling once App Check telemetry is available.
-- Add a review workflow for quiz content quality before increasing XP stakes.
+- Add a review workflow for quiz content quality before increasing point stakes.
 - Add rank/league recalculation as a separate server-owned job, not a client write.

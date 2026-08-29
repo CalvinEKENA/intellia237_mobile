@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/widgets/tab_presentation.dart';
 import '../../domain/student_home_snapshot.dart';
 
 class SubjectsCarousel extends StatelessWidget {
@@ -19,6 +20,7 @@ class SubjectsCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -27,20 +29,20 @@ class SubjectsCarousel extends StatelessWidget {
           style: GoogleFonts.manrope(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: s.textPrimary,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: IntelliaSpacing.sm),
         SizedBox(
           height: 120,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: subjects.length,
             separatorBuilder: (context, index) =>
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: IntelliaSpacing.sm),
             itemBuilder: (context, index) {
               final subject = subjects[index];
-              final gradient = AppGradients.forSubject(subject.id);
+              final gradient = AppGradients.forSubject(subject.iconKey);
 
               return _SubjectCard(
                 subject: subject,
@@ -71,87 +73,92 @@ class _SubjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-          width: 160,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTap,
-              borderRadius: BorderRadius.circular(20),
-              child: ClipRRect(
+    return Semantics(
+          button: true,
+          label:
+              '${subject.title}, ${(subject.progress * 100).round()} % complété',
+          child: SizedBox(
+            width: 160,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onTap,
                 borderRadius: BorderRadius.circular(20),
-                child: Stack(
-                  children: [
-                    // Gradient background
-                    Positioned.fill(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(gradient: gradient),
-                      ),
-                    ),
-
-                    // Subtle overlay circle for depth
-                    Positioned(
-                      top: -20,
-                      right: -20,
-                      child: Container(
-                        width: 90,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.08),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Stack(
+                    children: [
+                      // Gradient background
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(gradient: gradient),
                         ),
                       ),
-                    ),
 
-                    // Content
-                    Padding(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Subject icon
-                          Icon(
-                            AppIcons.forSubject(subject.id),
-                            color: Colors.white.withValues(alpha: 0.90),
-                            size: 22,
+                      // Subtle overlay circle for depth
+                      Positioned(
+                        top: -20,
+                        right: -20,
+                        child: Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withValues(alpha: 0.08),
                           ),
-                          const SizedBox(height: AppSpacing.xs),
-                          // Title
-                          Text(
-                            subject.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.manrope(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                              height: 1.2,
-                            ),
-                          ),
-                          const Spacer(),
-                          // Progress percentage
-                          Text(
-                            '${(subject.progress * 100).round()}%',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white.withValues(alpha: 0.80),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
 
-                    // Progress arc bottom-right
-                    Positioned(
-                      bottom: AppSpacing.xs,
-                      right: AppSpacing.xs,
-                      child: _SmallProgressArc(
-                        progress: subject.progress,
-                        size: 36,
+                      // Content
+                      Padding(
+                        padding: const EdgeInsets.all(IntelliaSpacing.md),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Subject icon
+                            Icon(
+                              AppIcons.forSubject(subject.iconKey),
+                              color: Colors.white.withValues(alpha: 0.90),
+                              size: 22,
+                            ),
+                            const SizedBox(height: IntelliaSpacing.xs),
+                            // Title
+                            Text(
+                              subject.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.manrope(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                height: 1.2,
+                              ),
+                            ),
+                            const Spacer(),
+                            // Progress percentage
+                            Text(
+                              '${(subject.progress * 100).round()}%',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white.withValues(alpha: 0.80),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+
+                      // Progress arc bottom-right
+                      Positioned(
+                        bottom: IntelliaSpacing.xs,
+                        right: IntelliaSpacing.xs,
+                        child: _SmallProgressArc(
+                          progress: subject.progress,
+                          size: 36,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -222,7 +229,7 @@ class _ArcPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final fill = Paint()
-      ..color = AppColors.gold
+      ..color = IntelliaColors.warning
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
