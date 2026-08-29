@@ -35,7 +35,7 @@ class AuthRepositoryImpl implements AuthRepository {
         );
       }
 
-      return _fetchUserData(uid);
+      return await _fetchUserData(uid);
     } on FirebaseAuthException catch (error) {
       _debugLog('signInWithEmail', error.code, error.message, error.stackTrace);
       throw _mapFirebaseAuthError(error);

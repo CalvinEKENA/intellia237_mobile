@@ -7,6 +7,10 @@ import {
   type AuthorizedTutorContext,
   type TutorContextStore,
 } from "../services/askTutorUseCase";
+import type {
+  TutorQuotaSnapshot,
+  TutorQuotaStore,
+} from "../services/tutorDailyQuota";
 import type { AskTutorCallableInput } from "../utils/validation";
 
 describe("AskTutorUseCase academic isolation", () => {
@@ -77,6 +81,7 @@ describe("AskTutorUseCase academic isolation", () => {
 
   it("sends only the authorized context and authoritative class to the LLM", async () => {
     const prompts: string[] = [];
+    const quotaStore = new FixedQuotaStore();
     const useCase = new AskTutorUseCase(
       new FixedContextStore({
         scope: { classLevel: "Terminale", establishmentId: "school-a" },
@@ -86,6 +91,7 @@ describe("AskTutorUseCase academic isolation", () => {
         prompts.push(prompt);
         return "Réponse sûre";
       },
+      quotaStore,
     );
 
     const result = await useCase.execute({
@@ -100,6 +106,9 @@ describe("AskTutorUseCase academic isolation", () => {
     expect(prompts[0]).toContain("CONTENU_AUTORISE_SCHOOL_A");
     expect(prompts[0]).not.toContain("Première");
     expect(prompts[0]).not.toContain("school-b");
+    expect(quotaStore.reservedTraceIds).toEqual(["trace-a"]);
+    expect(quotaStore.consumedTraceIds).toEqual(["trace-a"]);
+    expect(quotaStore.releasedTraceIds).toEqual([]);
   });
 });
 
@@ -109,6 +118,42 @@ class FixedContextStore implements TutorContextStore {
   async loadAuthorizedContext(): Promise<AuthorizedTutorContext> {
     return this.context;
   }
+}
+
+class FixedQuotaStore implements TutorQuotaStore {
+  readonly reservedTraceIds: string[] = [];
+  readonly consumedTraceIds: string[] = [];
+  readonly releasedTraceIds: string[] = [];
+
+  async reserve(params: {
+    userId: string;
+    traceId: string;
+    limit: number;
+  }): Promise<TutorQuotaSnapshot> {
+    this.reservedTraceIds.push(params.traceId);
+    return quotaSnapshot(params.limit);
+  }
+
+  async consume(params: {
+    userId: string;
+    traceId: string;
+    limit: number;
+  }): Promise<TutorQuotaSnapshot> {
+    this.consumedTraceIds.push(params.traceId);
+    return quotaSnapshot(params.limit);
+  }
+
+  async release(params: { userId: string; traceId: string }): Promise<void> {
+    this.releasedTraceIds.push(params.traceId);
+  }
+}
+
+function quotaSnapshot(limit: number): TutorQuotaSnapshot {
+  return {
+    limit,
+    remaining: limit - 1,
+    resetsAt: "2026-08-30T23:00:00.000Z",
+  };
 }
 
 function validInput(): AskTutorCallableInput {
