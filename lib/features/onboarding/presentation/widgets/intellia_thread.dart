@@ -68,6 +68,7 @@ class IntelliaThreadPainter extends CustomPainter {
             OnboardingAct.companions => 0.84,
             OnboardingAct.journey => 0.94,
             OnboardingAct.portal => 1,
+            OnboardingAct.ascension => 1,
             OnboardingAct.activation => 0.18,
           };
     final active = metric.extractPath(0, metric.length * progress);
@@ -128,7 +129,7 @@ class IntelliaThreadPainter extends CustomPainter {
       _paintCompanionSplit(canvas, size, accent);
     } else if (act == OnboardingAct.journey) {
       _paintJourneyNodes(canvas, path);
-    } else if (act == OnboardingAct.portal) {
+    } else if (act == OnboardingAct.portal || act == OnboardingAct.ascension) {
       _paintPortal(canvas, size, accent);
     }
   }
@@ -141,6 +142,7 @@ class IntelliaThreadPainter extends CustomPainter {
       OnboardingAct.companions => size.width * 0.12,
       OnboardingAct.journey => size.width * 0.20,
       OnboardingAct.portal => size.width * 0.04,
+      OnboardingAct.ascension => size.width * 0.025,
     };
     final center = size.width / 2;
     return Path()
@@ -182,6 +184,7 @@ class IntelliaThreadPainter extends CustomPainter {
       OnboardingAct.companions => IntelliaColors.brandPurple,
       OnboardingAct.journey => IntelliaColors.success,
       OnboardingAct.portal => IntelliaColors.pointsGold,
+      OnboardingAct.ascension => IntelliaColors.pointsGold,
     };
   }
 

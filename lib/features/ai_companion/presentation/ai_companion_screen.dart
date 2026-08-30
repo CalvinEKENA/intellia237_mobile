@@ -553,7 +553,7 @@ class _QuickPromptChips extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(
-                        Icons.auto_awesome_rounded,
+                        Icons.forum_outlined,
                         size: 12,
                         color: IntelliaColors.brandIndigo,
                       ),

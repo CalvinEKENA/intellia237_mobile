@@ -9,8 +9,14 @@ class StudentRegistrationState {
     this.errorMessage,
     this.firstName = '',
     this.lastName = '',
+    this.interfaceLanguage = InterfaceLanguage.french,
+    this.educationalSubsystem = EducationalSubsystem.francophone,
+    this.educationType = EducationType.general,
+    this.accountLinkage = LearnerAccountLinkage.individual,
     this.schoolClass,
     this.schoolSeries,
+    this.streamOrSpeciality = '',
+    this.establishment,
     this.selectedTutorId,
     this.preferredSubjects = const <String>[],
     this.difficultSubjects = const <String>[],
@@ -32,8 +38,15 @@ class StudentRegistrationState {
   final String firstName;
   final String lastName;
 
+  final InterfaceLanguage interfaceLanguage;
+  final EducationalSubsystem educationalSubsystem;
+  final EducationType educationType;
+  final LearnerAccountLinkage accountLinkage;
+
   final SchoolClass? schoolClass;
   final SchoolSeries? schoolSeries;
+  final String streamOrSpeciality;
+  final EstablishmentAffiliation? establishment;
 
   final String? selectedTutorId;
 
@@ -61,10 +74,17 @@ class StudentRegistrationState {
     bool clearError = false,
     String? firstName,
     String? lastName,
+    InterfaceLanguage? interfaceLanguage,
+    EducationalSubsystem? educationalSubsystem,
+    EducationType? educationType,
+    LearnerAccountLinkage? accountLinkage,
     SchoolClass? schoolClass,
     bool clearSchoolClass = false,
     SchoolSeries? schoolSeries,
     bool clearSchoolSeries = false,
+    String? streamOrSpeciality,
+    EstablishmentAffiliation? establishment,
+    bool clearEstablishment = false,
     String? selectedTutorId,
     bool clearSelectedTutorId = false,
     List<String>? preferredSubjects,
@@ -86,10 +106,18 @@ class StudentRegistrationState {
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
+      interfaceLanguage: interfaceLanguage ?? this.interfaceLanguage,
+      educationalSubsystem: educationalSubsystem ?? this.educationalSubsystem,
+      educationType: educationType ?? this.educationType,
+      accountLinkage: accountLinkage ?? this.accountLinkage,
       schoolClass: clearSchoolClass ? null : (schoolClass ?? this.schoolClass),
       schoolSeries: clearSchoolSeries
           ? null
           : (schoolSeries ?? this.schoolSeries),
+      streamOrSpeciality: streamOrSpeciality ?? this.streamOrSpeciality,
+      establishment: clearEstablishment
+          ? null
+          : (establishment ?? this.establishment),
       selectedTutorId: clearSelectedTutorId
           ? null
           : (selectedTutorId ?? this.selectedTutorId),
@@ -122,6 +150,12 @@ class StudentRegistrationState {
       lastName: lastName.trim(),
       schoolClass: selectedClass,
       schoolSeries: schoolSeries,
+      interfaceLanguage: interfaceLanguage,
+      educationalSubsystem: educationalSubsystem,
+      educationType: educationType,
+      streamOrSpeciality: streamOrSpeciality.trim(),
+      establishment: establishment,
+      accountLinkage: accountLinkage,
       selectedTutorId: selectedTutorId,
       preferredSubjects: preferredSubjects,
       difficultSubjects: difficultSubjects,

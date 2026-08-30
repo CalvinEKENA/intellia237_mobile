@@ -297,7 +297,7 @@ class _QuizzesTab extends ConsumerWidget {
                                 const Tooltip(
                                   message: 'Généré par l\'IA',
                                   child: Icon(
-                                    Icons.auto_awesome,
+                                    Icons.edit_note_rounded,
                                     size: 16,
                                     color: IntelliaColors.warning,
                                   ),

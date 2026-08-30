@@ -1,21 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
+import '../../../core/localization/app_locale_controller.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../domain/app_role.dart';
 import 'widgets/auth_choices.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   AppRole? _selectedRole;
 
   void _continue() {
@@ -23,51 +27,112 @@ class _RegisterScreenState extends State<RegisterScreen> {
       AppRole.student => AppRoutes.studentRegistration,
       AppRole.parent => AppRoutes.parentRegistration,
       AppRole.teacher => AppRoutes.teacherRegistration,
-      AppRole.admin => AppRoutes.adminRegistration,
-      null => null,
+      // Administration remains an internal, authorised route. It is never
+      // proposed in the public INTELLIA PASS entry experience.
+      AppRole.admin || null => null,
     };
     if (route != null) context.push(route);
   }
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final l10n = context.l10n;
+    final selectedLanguage = ref.watch(appLocaleProvider).languageCode;
+
     return AuthExperienceScaffold(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AuthHeader(
-            eyebrow: 'Une expérience à votre mesure',
-            title: 'Choisissez votre\nprofil.',
-            subtitle:
-                'Chaque espace propose des outils et un parcours adaptés.',
+          Align(
+            alignment: Alignment.centerRight,
+            child: SegmentedButton<String>(
+              key: const ValueKey('pass-language-selector'),
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(value: 'fr', label: Text('FR')),
+                ButtonSegment(value: 'en', label: Text('EN')),
+              ],
+              selected: {selectedLanguage},
+              onSelectionChanged: (selection) {
+                unawaited(
+                  ref
+                      .read(appLocaleProvider.notifier)
+                      .setLanguage(selection.first),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          AuthHeader(
+            eyebrow: l10n.passEyebrow,
+            title: l10n.passTitle,
+            subtitle: l10n.passSubtitle,
           ),
           const SizedBox(height: 26),
-          ...AppRole.values.indexed.map((entry) {
-            final role = entry.$2;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child:
-                  AuthChoiceCard(
-                        title: role.label,
-                        description: _description(role),
-                        icon: _icon(role),
-                        accent: _accent(role),
-                        isSelected: _selectedRole == role,
-                        onTap: () => setState(() => _selectedRole = role),
-                      )
-                      .animate(
-                        target: reduceMotion ? 0 : 1,
-                        delay: Duration(milliseconds: 90 * entry.$1),
-                      )
-                      .fadeIn(duration: 300.ms)
-                      .slideY(begin: 0.05, end: 0),
-            );
-          }),
-          const SizedBox(height: 14),
+          AuthChoiceCard(
+            key: const ValueKey('pass-role-student'),
+            title: l10n.studentRole,
+            description: l10n.studentRoleDescription,
+            icon: Icons.school_rounded,
+            accent: AuthExperienceColors.indigo,
+            isSelected: _selectedRole == AppRole.student,
+            onTap: () => setState(() => _selectedRole = AppRole.student),
+          ),
+          const SizedBox(height: 12),
+          AuthChoiceCard(
+            key: const ValueKey('pass-role-parent'),
+            title: l10n.parentRole,
+            description: l10n.parentRoleDescription,
+            icon: Icons.family_restroom_rounded,
+            accent: AuthExperienceColors.purple,
+            isSelected: _selectedRole == AppRole.parent,
+            onTap: () => setState(() => _selectedRole = AppRole.parent),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            l10n.professionalAccess.toUpperCase(),
+            style: const TextStyle(
+              color: AuthExperienceColors.textSecondary,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.4,
+            ),
+          ),
+          const SizedBox(height: 9),
+          Semantics(
+            label: l10n.chooseIdentityA11y(l10n.teacherRole),
+            button: true,
+            child: OutlinedButton.icon(
+              key: const ValueKey('pass-role-teacher'),
+              onPressed: () => setState(() => _selectedRole = AppRole.teacher),
+              icon: const Icon(Icons.menu_book_rounded),
+              label: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '${l10n.teacherRole} — ${l10n.teacherRoleDescription}',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _selectedRole == AppRole.teacher
+                    ? AuthExperienceColors.gold
+                    : Colors.white70,
+                side: BorderSide(
+                  color: _selectedRole == AppRole.teacher
+                      ? AuthExperienceColors.gold
+                      : Colors.white24,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 15,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 22),
           AuthPrimaryButton(
-            label: 'Continuer',
+            label: l10n.continueLabel,
             onTap: _selectedRole == null ? null : _continue,
           ),
           const SizedBox(height: 22),
@@ -77,32 +142,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               style: TextButton.styleFrom(
                 foregroundColor: AuthExperienceColors.gold,
               ),
-              child: const Text('J’ai déjà un compte'),
+              child: Text(l10n.existingAccount),
             ),
           ),
         ],
       ),
     );
   }
-
-  String _description(AppRole role) => switch (role) {
-    AppRole.student => 'Apprendre, s’entraîner et progresser avec Kira ou Léo.',
-    AppRole.parent => 'Suivre les progrès et accompagner avec sérénité.',
-    AppRole.teacher => 'Préparer ses classes et partager ses ressources.',
-    AppRole.admin => 'Piloter les accès après validation de votre demande.',
-  };
-
-  IconData _icon(AppRole role) => switch (role) {
-    AppRole.student => Icons.school_rounded,
-    AppRole.parent => Icons.family_restroom_rounded,
-    AppRole.teacher => Icons.menu_book_rounded,
-    AppRole.admin => Icons.admin_panel_settings_rounded,
-  };
-
-  Color _accent(AppRole role) => switch (role) {
-    AppRole.student => AuthExperienceColors.indigo,
-    AppRole.parent => AuthExperienceColors.purple,
-    AppRole.teacher => const Color(0xFF35C8A0),
-    AppRole.admin => AuthExperienceColors.champagne,
-  };
 }

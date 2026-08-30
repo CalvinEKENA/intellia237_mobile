@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/core/assets/intellia_assets.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_act.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  test('INTELLIA L’Éveil is modeled as six continuous acts', () {
+  test('INTELLIA L’Éveil is modeled as seven continuous acts', () {
     expect(OnboardingAct.values, const [
       OnboardingAct.activation,
       OnboardingAct.knowledge,
@@ -17,9 +19,11 @@ void main() {
       OnboardingAct.companions,
       OnboardingAct.journey,
       OnboardingAct.portal,
+      OnboardingAct.ascension,
     ]);
     expect(OnboardingAct.activation.previous, isNull);
-    expect(OnboardingAct.portal.next, isNull);
+    expect(OnboardingAct.portal.next, OnboardingAct.ascension);
+    expect(OnboardingAct.ascension.next, isNull);
   });
 
   testWidgets('onboarding starts in the activation act', (tester) async {
@@ -129,15 +133,29 @@ void main() {
     expect(find.text('CALME • MÉTHODE • CONFIANCE'), findsOneWidget);
   });
 
-  testWidgets('final portal persists completion and routes to registration', (
+  testWidgets('portal opens Act VI, whose CTA persists and opens Pass', (
     tester,
   ) async {
     final router = await _pumpOnboarding(tester);
     addTearDown(router.dispose);
     await _reachPortal(tester);
 
-    expect(find.text('Entrer dans INTELLIA237'), findsOneWidget);
+    expect(find.text('Découvrir la suite'), findsOneWidget);
     expect(_imageAssets(tester), contains(IntelliaBrandAssets.appIcon));
+    await _tapVisible(tester, const ValueKey('portal-continue'));
+
+    expect(
+      find.text('Ton avenir se construit, marche après marche.'),
+      findsOneWidget,
+    );
+    expect(_imageAssets(tester), contains(IntelliaBrandAssets.ascensionPoster));
+    final poster = tester.widget<Image>(
+      find.byKey(const ValueKey('ascension-poster')),
+    );
+    expect(poster.fit, BoxFit.contain);
+    expect(poster.image, isA<ResizeImage>());
+    expect((poster.image as ResizeImage).width, 768);
+    expect(find.text('Créer mon INTELLIA PASS'), findsOneWidget);
     await tester.ensureVisible(find.byKey(const ValueKey('onboarding-enter')));
     await tester.tap(find.byKey(const ValueKey('onboarding-enter')));
     await tester.pump();
@@ -146,6 +164,34 @@ void main() {
     expect(find.text('Inscription prête'), findsOneWidget);
     final preferences = await SharedPreferences.getInstance();
     expect(preferences.getBool('has_seen_onboarding'), isTrue);
+  });
+
+  testWidgets('Act VI copy and final CTA are localized in English', (
+    tester,
+  ) async {
+    final router = await _pumpOnboarding(tester, locale: const Locale('en'));
+    addTearDown(router.dispose);
+    await _reachPortal(tester);
+    await _tapVisible(tester, const ValueKey('portal-continue'));
+
+    expect(find.text('ACT VI — THE ASCENT'), findsOneWidget);
+    expect(find.text('Build your future, one step at a time.'), findsOneWidget);
+    expect(find.text('Create my INTELLIA PASS'), findsOneWidget);
+  });
+
+  testWidgets('back from Act VI returns to the portal without completing', (
+    tester,
+  ) async {
+    final router = await _pumpOnboarding(tester);
+    addTearDown(router.dispose);
+    await _reachPortal(tester);
+    await _tapVisible(tester, const ValueKey('portal-continue'));
+    await tester.tap(find.byKey(const ValueKey('onboarding-back')));
+    await tester.pump();
+
+    expect(find.text('Découvrir la suite'), findsOneWidget);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getBool('has_seen_onboarding'), isNot(true));
   });
 
   testWidgets('skip is discreet, persists completion, and opens registration', (
@@ -230,7 +276,10 @@ void main() {
       await _tapVisible(tester, const ValueKey('journey-mastery'));
       _expectNoLayoutException(tester, configuration);
 
-      expect(find.text('Entrer dans INTELLIA237'), findsOneWidget);
+      expect(find.text('Découvrir la suite'), findsOneWidget);
+      await _tapVisible(tester, const ValueKey('portal-continue'));
+      _expectNoLayoutException(tester, configuration);
+      expect(find.text('Créer mon INTELLIA PASS'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
       router.dispose();
     }
@@ -255,6 +304,7 @@ Future<GoRouter> _pumpOnboarding(
   bool reduceMotion = true,
   Size size = const Size(390, 844),
   double textScale = 1,
+  Locale locale = const Locale('fr'),
 }) async {
   SharedPreferences.setMockInitialValues({});
   await tester.binding.setSurfaceSize(size);
@@ -274,6 +324,14 @@ Future<GoRouter> _pumpOnboarding(
   await tester.pumpWidget(
     ProviderScope(
       child: MaterialApp.router(
+        locale: locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         routerConfig: router,
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(

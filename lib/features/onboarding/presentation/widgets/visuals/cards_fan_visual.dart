@@ -119,7 +119,7 @@ class _CardsFanVisualState extends State<CardsFanVisual>
               dx: 0,
               dy: -18,
               phase: math.pi / 2,
-              icon: Icons.auto_awesome_rounded,
+              icon: Icons.forum_outlined,
             ),
           ],
         ),

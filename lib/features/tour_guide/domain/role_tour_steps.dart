@@ -39,7 +39,7 @@ List<TourGuideStepData> roleTourSteps(AppRole role) {
         title: 'Recommandations IA',
         description:
             'Contenus proposés selon tes forces et les points à renforcer.',
-        icon: Icons.auto_awesome_rounded,
+        icon: Icons.menu_book_rounded,
       ),
       TourGuideStepData(
         targetId: TourGuideTargetIds.studentChallenges,

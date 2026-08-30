@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/auth_controller.dart';
 import '../domain/auth_input_validators.dart';
 import 'widgets/auth_controls.dart';
@@ -44,6 +45,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final controller = ref.read(authControllerProvider.notifier);
+    final l10n = context.l10n;
 
     return AuthExperienceScaffold(
       showBackButton: false,
@@ -54,11 +56,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 18),
-              const AuthHeader(
-                eyebrow: 'Votre espace personnel',
-                title: 'Heureux de vous\nretrouver.',
-                subtitle:
-                    'Reprenez votre progression et retrouvez votre compagnon.',
+              AuthHeader(
+                eyebrow: l10n.loginEyebrow,
+                title: l10n.loginTitle,
+                subtitle: l10n.loginSubtitle,
               ),
               const SizedBox(height: 30),
               AuthGlassPanel(
@@ -67,8 +68,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     AuthAnimatedField(
                       controller: _emailController,
-                      label: 'Adresse e-mail',
-                      hint: 'prenom.nom@exemple.com',
+                      label: l10n.emailLabel,
+                      hint: l10n.emailHint,
                       icon: Icons.alternate_email_rounded,
                       enabled: !auth.isLoading,
                       keyboardType: TextInputType.emailAddress,
@@ -82,8 +83,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     AuthAnimatedField(
                       controller: _passwordController,
                       focusNode: _passwordFocus,
-                      label: 'Mot de passe',
-                      hint: 'Votre mot de passe',
+                      label: l10n.passwordLabel,
+                      hint: l10n.passwordHint,
                       icon: Icons.lock_outline_rounded,
                       enabled: !auth.isLoading,
                       isPassword: true,
@@ -103,7 +104,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           foregroundColor: AuthExperienceColors.gold,
                           padding: const EdgeInsets.symmetric(vertical: 10),
                         ),
-                        child: const Text('Mot de passe oublié ?'),
+                        child: Text(l10n.forgotPassword),
                       ),
                     ),
                     AnimatedSwitcher(
@@ -121,7 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                     ),
                     AuthPrimaryButton(
-                      label: 'Se connecter',
+                      label: l10n.signIn,
                       onTap: auth.isLoading ? null : _submit,
                       isLoading: auth.isLoading,
                       icon: Icons.login_rounded,
@@ -133,10 +134,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Flexible(
+                  Flexible(
                     child: Text(
-                      'Pas encore de compte ?',
-                      style: TextStyle(
+                      l10n.noAccount,
+                      style: const TextStyle(
                         color: AuthExperienceColors.textSecondary,
                         fontSize: 13,
                       ),
@@ -149,9 +150,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     style: TextButton.styleFrom(
                       foregroundColor: AuthExperienceColors.gold,
                     ),
-                    child: const Text(
-                      'Créer un compte',
-                      style: TextStyle(fontWeight: FontWeight.w800),
+                    child: Text(
+                      l10n.createAccountLink,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ),
                 ],

@@ -14,6 +14,8 @@ import '../features/learn/application/learn_providers.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/auth/application/auth_state.dart';
 import '../features/auth/domain/app_role.dart';
+import '../core/localization/app_locale_controller.dart';
+import '../l10n/generated/app_localizations.dart';
 
 class Intellia237App extends ConsumerWidget {
   const Intellia237App({super.key});
@@ -23,6 +25,7 @@ class Intellia237App extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final config = ref.watch(appConfigProvider);
     final preferences = ref.watch(userPreferencesProvider);
+    final locale = ref.watch(appLocaleProvider);
 
     ref.listen<bool>(isOfflineProvider, (previous, offline) {
       if (!offline && previous != false) {
@@ -42,9 +45,10 @@ class Intellia237App extends ConsumerWidget {
 
     return MaterialApp.router(
       title: config.appName,
-      locale: const Locale('fr'),
-      supportedLocales: const [Locale('fr'), Locale('en')],
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

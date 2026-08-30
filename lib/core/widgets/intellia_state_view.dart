@@ -80,7 +80,7 @@ class IntelliaStateView extends StatelessWidget {
     IntelliaStateKind.loading => Icons.hourglass_top_rounded,
     IntelliaStateKind.empty => Icons.inbox_rounded,
     IntelliaStateKind.noResults => Icons.search_off_rounded,
-    IntelliaStateKind.comingSoon => Icons.auto_awesome_rounded,
+    IntelliaStateKind.comingSoon => Icons.hourglass_top_rounded,
     IntelliaStateKind.errorRetryable => Icons.refresh_rounded,
     IntelliaStateKind.errorFatal => Icons.error_outline_rounded,
     IntelliaStateKind.offline => Icons.wifi_off_rounded,

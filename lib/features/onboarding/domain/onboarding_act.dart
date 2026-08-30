@@ -4,7 +4,8 @@ enum OnboardingAct {
   challenge,
   companions,
   journey,
-  portal;
+  portal,
+  ascension;
 
   OnboardingAct? get previous => index == 0 ? null : values[index - 1];
 
@@ -17,7 +18,8 @@ enum OnboardingAct {
     OnboardingAct.challenge => 0.44,
     OnboardingAct.companions => 0.62,
     OnboardingAct.journey => 0.82,
-    OnboardingAct.portal => 1,
+    OnboardingAct.portal => 0.92,
+    OnboardingAct.ascension => 1,
   };
 
   String get semanticLabel => switch (this) {
@@ -27,5 +29,6 @@ enum OnboardingAct {
     OnboardingAct.companions => 'Kira et Léo',
     OnboardingAct.journey => 'Parcours d’apprentissage',
     OnboardingAct.portal => 'Portail INTELLIA237',
+    OnboardingAct.ascension => 'L’Ascension',
   };
 }

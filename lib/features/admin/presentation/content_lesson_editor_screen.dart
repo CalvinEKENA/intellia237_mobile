@@ -235,7 +235,7 @@ class _ContentLessonEditorScreenState
               child: const Row(
                 children: [
                   Icon(
-                    Icons.auto_awesome,
+                    Icons.library_add_rounded,
                     color: IntelliaColors.warning,
                     size: 16,
                   ),

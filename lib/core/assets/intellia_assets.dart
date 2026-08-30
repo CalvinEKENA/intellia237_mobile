@@ -2,6 +2,7 @@
 abstract final class IntelliaBrandAssets {
   static const identityMaster = 'assets/branding/identity_master.png';
   static const appIcon = 'assets/branding/icone.png';
+  static const ascensionPoster = 'assets/branding/affiche.jpg';
 }
 
 /// Décline explicitement les portraits produit et les silhouettes de

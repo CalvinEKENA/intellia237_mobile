@@ -10,11 +10,13 @@ import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
 import '../../../core/widgets/intellia_pressable.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../data/onboarding_preferences.dart';
 import '../domain/onboarding_act.dart';
 import '../domain/onboarding_journey_state.dart';
 import 'widgets/intellia_thread.dart';
 import 'widgets/scenes/activation_scene.dart';
+import 'widgets/scenes/ascension_scene.dart';
 import 'widgets/scenes/challenge_scene.dart';
 import 'widgets/scenes/companions_scene.dart';
 import 'widgets/scenes/journey_scene.dart';
@@ -23,7 +25,7 @@ import 'widgets/scenes/portal_scene.dart';
 
 /// INTELLIA // L'ÉVEIL
 ///
-/// Une expérience de premier lancement continue, pilotée par six actes et un
+/// Une expérience de premier lancement continue, pilotée par sept actes et un
 /// motif visuel unique. Aucun acte ne progresse automatiquement : chaque
 /// transition résulte d'une interaction qui démontre une capacité du produit.
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -147,7 +149,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                   children: [
                     _ExperienceHeader(
                       canGoBack: _act.previous != null,
-                      showSkip: _act != OnboardingAct.portal,
+                      showSkip: _act != OnboardingAct.ascension,
                       onBack: _previous,
                       onSkip: _complete,
                     ),
@@ -155,7 +157,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                       child: ClipRect(
                         child: Semantics(
                           liveRegion: true,
-                          label: _act.semanticLabel,
+                          label: _act == OnboardingAct.ascension
+                              ? context.l10n.ascensionSemanticLabel
+                              : _act.semanticLabel,
                           child: AnimatedSwitcher(
                             duration: reduceMotion
                                 ? Duration.zero
@@ -220,6 +224,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
             : IntelliaColors.leoDark,
       OnboardingAct.journey => IntelliaColors.success,
       OnboardingAct.portal => IntelliaColors.pointsGold,
+      OnboardingAct.ascension => IntelliaColors.pointsGold,
     };
 
     return RepaintBoundary(
@@ -240,7 +245,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         child: AnimatedBuilder(
           animation: _ambient,
           builder: (context, _) => CustomPaint(
-            painter: _ConstellationPainter(phase: _ambient.value),
+            painter: _LearningPathTexturePainter(phase: _ambient.value),
           ),
         ),
       ),
@@ -289,7 +294,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       OnboardingAct.journey => JourneyScene(
         onMasteryReached: () => _goTo(OnboardingAct.portal),
       ),
-      OnboardingAct.portal => PortalScene(onEnter: _complete),
+      OnboardingAct.portal => PortalScene(
+        onEnter: () => _goTo(OnboardingAct.ascension),
+      ),
+      OnboardingAct.ascension => AscensionScene(
+        animation: _ambient,
+        reduceMotion: reduceMotion,
+        onEnter: _complete,
+      ),
     };
   }
 }
@@ -321,7 +333,7 @@ class _ExperienceHeader extends StatelessWidget {
               child: canGoBack
                   ? Semantics(
                       button: true,
-                      label: 'Revenir à l’acte précédent',
+                      label: context.l10n.backToPreviousAct,
                       child: IntelliaPressable(
                         key: const ValueKey('onboarding-back'),
                         onTap: onBack,
@@ -334,7 +346,7 @@ class _ExperienceHeader extends StatelessWidget {
                     )
                   : const Center(
                       child: Icon(
-                        Icons.auto_awesome_rounded,
+                        Icons.menu_book_rounded,
                         color: IntelliaColors.pointsGold,
                         size: 18,
                       ),
@@ -359,7 +371,7 @@ class _ExperienceHeader extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: Semantics(
                         button: true,
-                        label: 'Passer l’expérience d’introduction',
+                        label: context.l10n.skipIntroductionA11y,
                         child: IntelliaPressable(
                           key: const ValueKey('skip'),
                           onTap: onSkip,
@@ -371,7 +383,7 @@ class _ExperienceHeader extends StatelessWidget {
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               child: Text(
-                                'Passer l’expérience',
+                                context.l10n.skipIntroduction,
                                 maxLines: 1,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.58),
@@ -393,8 +405,8 @@ class _ExperienceHeader extends StatelessWidget {
   }
 }
 
-class _ConstellationPainter extends CustomPainter {
-  const _ConstellationPainter({required this.phase});
+class _LearningPathTexturePainter extends CustomPainter {
+  const _LearningPathTexturePainter({required this.phase});
 
   final double phase;
 
@@ -415,6 +427,6 @@ class _ConstellationPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _ConstellationPainter oldDelegate) =>
+  bool shouldRepaint(covariant _LearningPathTexturePainter oldDelegate) =>
       oldDelegate.phase != phase;
 }

@@ -5,7 +5,7 @@ class TourGuideStepData {
     required this.targetId,
     required this.title,
     required this.description,
-    this.icon = Icons.auto_awesome_rounded,
+    this.icon = Icons.explore_outlined,
   });
 
   final String targetId;

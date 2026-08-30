@@ -49,7 +49,7 @@ abstract final class FlowBadges {
     id: 'polymath',
     title: 'Polymathe',
     description: '4 matières différentes dans une session.',
-    icon: Icons.auto_awesome_rounded,
+    icon: Icons.emoji_events_outlined,
     accent: IntelliaColors.brandPurple,
   );
 

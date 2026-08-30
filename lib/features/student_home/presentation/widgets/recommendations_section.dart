@@ -31,7 +31,7 @@ class RecommendationsSection extends StatelessWidget {
           Card(
             child: ListTile(
               onTap: () => onItemTap(item),
-              leading: const Icon(Icons.auto_awesome_rounded),
+              leading: const Icon(Icons.menu_book_outlined),
               title: Text(item.title),
               subtitle: Text(item.subtitle),
               trailing: Row(

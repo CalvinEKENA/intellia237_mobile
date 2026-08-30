@@ -167,7 +167,7 @@ class _FlowQuestionCardViewState extends State<FlowQuestionCardView> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.auto_awesome_rounded, size: 16, color: accent),
+          Icon(Icons.emoji_events_outlined, size: 16, color: accent),
           const SizedBox(width: 8),
           Text(
             'Découvrir la réponse',

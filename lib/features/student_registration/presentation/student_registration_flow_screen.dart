@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router/app_routes.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../../auth/presentation/widgets/auth_choices.dart';
 import '../../auth/presentation/widgets/auth_controls.dart';
@@ -15,6 +16,7 @@ import '../../legal/presentation/legal_links.dart';
 import '../application/student_registration_controller.dart';
 import '../application/student_registration_state.dart';
 import '../domain/academic_rules.dart';
+import '../../../core/localization/localization_extensions.dart';
 import 'widgets/companion_discovery.dart';
 
 class StudentRegistrationFlowScreen extends ConsumerStatefulWidget {
@@ -168,7 +170,7 @@ class _StudentRegistrationFlowScreenState
 
   Widget _stepContent(StudentRegistrationState state) {
     return switch (state.currentStep) {
-      0 => _identityStep(),
+      0 => _identityStep(state),
       1 => _classStep(state),
       2 => _companionStep(),
       3 => _securityStep(state),
@@ -176,16 +178,47 @@ class _StudentRegistrationFlowScreenState
     };
   }
 
-  Widget _identityStep() {
+  Widget _identityStep(StudentRegistrationState state) {
+    final controller = ref.read(studentRegistrationControllerProvider.notifier);
+    final l10n = context.l10n;
     return Form(
       key: _identityFormKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const _StepHeading(
-            title: 'Faisons connaissance',
-            subtitle:
-                'Ces informations permettent de personnaliser ton espace.',
+          _StepHeading(
+            title: l10n.academicPassport,
+            subtitle: l10n.academicPassportDescription,
+          ),
+          const SizedBox(height: 18),
+          Text(
+            l10n.interfaceLanguage,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              AuthSelectionPill(
+                key: const ValueKey('passport-language-fr'),
+                label: l10n.frenchLanguage,
+                selected: state.interfaceLanguage == InterfaceLanguage.french,
+                onTap: () =>
+                    controller.setInterfaceLanguage(InterfaceLanguage.french),
+              ),
+              AuthSelectionPill(
+                key: const ValueKey('passport-language-en'),
+                label: l10n.englishLanguage,
+                selected: state.interfaceLanguage == InterfaceLanguage.english,
+                onTap: () =>
+                    controller.setInterfaceLanguage(InterfaceLanguage.english),
+              ),
+            ],
           ),
           const SizedBox(height: 18),
           AuthAnimatedField(
@@ -199,6 +232,40 @@ class _StudentRegistrationFlowScreenState
               value ?? '',
               label: 'Le prénom',
             ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.parentLinkedHelp,
+            style: const TextStyle(
+              color: AuthExperienceColors.textSecondary,
+              fontSize: 12,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              AuthSelectionPill(
+                key: const ValueKey('passport-linkage-individual'),
+                label: l10n.individualAccount,
+                selected:
+                    state.accountLinkage == LearnerAccountLinkage.individual,
+                onTap: () => controller.setAccountLinkage(
+                  LearnerAccountLinkage.individual,
+                ),
+              ),
+              AuthSelectionPill(
+                key: const ValueKey('passport-linkage-parent'),
+                label: l10n.parentLinkedAccount,
+                selected:
+                    state.accountLinkage == LearnerAccountLinkage.parentManaged,
+                onTap: () => controller.setAccountLinkage(
+                  LearnerAccountLinkage.parentManaged,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
           AuthAnimatedField(
@@ -219,20 +286,93 @@ class _StudentRegistrationFlowScreenState
   Widget _classStep(StudentRegistrationState state) {
     final controller = ref.read(studentRegistrationControllerProvider.notifier);
     final selectedClass = state.schoolClass;
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _StepHeading(
-          title: 'Où en es-tu ?',
-          subtitle:
-              'Choisis ta classe. La série apparaît uniquement si nécessaire.',
+        _StepHeading(
+          title: l10n.academicPassport,
+          subtitle: l10n.establishmentSecurityNote,
         ),
         const SizedBox(height: 18),
+        Text(
+          l10n.educationalSubsystem,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 10),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
-            for (final schoolClass in SchoolClassX.ordered)
+            AuthSelectionPill(
+              key: const ValueKey('passport-subsystem-francophone'),
+              label: l10n.francophoneSubsystem,
+              selected:
+                  state.educationalSubsystem ==
+                  EducationalSubsystem.francophone,
+              onTap: () => controller.setEducationalSubsystem(
+                EducationalSubsystem.francophone,
+              ),
+            ),
+            AuthSelectionPill(
+              key: const ValueKey('passport-subsystem-anglophone'),
+              label: l10n.anglophoneSubsystem,
+              selected:
+                  state.educationalSubsystem == EducationalSubsystem.anglophone,
+              onTap: () => controller.setEducationalSubsystem(
+                EducationalSubsystem.anglophone,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        Text(
+          l10n.educationType,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          children: [
+            AuthSelectionPill(
+              key: const ValueKey('passport-education-general'),
+              label: l10n.generalEducation,
+              selected: state.educationType == EducationType.general,
+              onTap: () => controller.setEducationType(EducationType.general),
+            ),
+            AuthSelectionPill(
+              key: const ValueKey('passport-education-technical'),
+              label: l10n.technicalEducation,
+              selected: state.educationType == EducationType.technical,
+              onTap: () => controller.setEducationType(EducationType.technical),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        Text(
+          l10n.schoolLevel,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final schoolClass in SchoolClassX.forSubsystem(
+              state.educationalSubsystem,
+            ))
               AuthSelectionPill(
                 label: schoolClass.label,
                 selected: selectedClass == schoolClass,
@@ -261,6 +401,45 @@ class _StudentRegistrationFlowScreenState
                   onTap: () => controller.setSchoolSeries(series),
                 ),
             ],
+          ),
+        ],
+        if (state.educationType == EducationType.technical) ...[
+          const SizedBox(height: 18),
+          TextFormField(
+            key: const ValueKey('passport-speciality'),
+            initialValue: state.streamOrSpeciality,
+            onChanged: controller.setStreamOrSpeciality,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              labelText: l10n.streamOrSpeciality,
+              labelStyle: const TextStyle(color: Colors.white70),
+            ),
+          ),
+        ],
+        const SizedBox(height: 18),
+        TextFormField(
+          key: const ValueKey('passport-establishment'),
+          initialValue: state.establishment?.name,
+          onChanged: controller.setEstablishmentCandidate,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            labelText: l10n.establishment,
+            hintText: l10n.establishmentHint,
+            labelStyle: const TextStyle(color: Colors.white70),
+            hintStyle: const TextStyle(color: Colors.white38),
+            prefixIcon: const Icon(Icons.search_rounded),
+          ),
+        ),
+        if (state.establishment != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            l10n.establishmentUnverified,
+            key: const ValueKey('establishment-unverified-status'),
+            style: const TextStyle(
+              color: AuthExperienceColors.gold,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ],
@@ -338,8 +517,8 @@ class _StudentRegistrationFlowScreenState
             ),
             const SizedBox(height: 8),
             _SummaryRow(
-              icon: Icons.auto_awesome_rounded,
-              label: 'Compagnon : ${companion.name}',
+              icon: Icons.forum_outlined,
+              label: '${context.l10n.learningCompanion} : ${companion.name}',
             ),
             const SizedBox(height: 16),
             AuthConsentTile(
@@ -390,7 +569,11 @@ class _StudentRegistrationFlowScreenState
         ],
         Expanded(
           child: AuthPrimaryButton(
-            label: state.isLastStep ? 'Créer mon compte' : 'Continuer',
+            label: state.isLastStep
+                ? state.accountLinkage == LearnerAccountLinkage.parentManaged
+                      ? context.l10n.parentArea
+                      : context.l10n.createAccount
+                : context.l10n.continueLabel,
             onTap: (state.isSubmitting || blockCompanion)
                 ? null
                 : () => _handlePrimaryAction(state),
@@ -425,7 +608,11 @@ class _StudentRegistrationFlowScreenState
       _localError = null;
     });
     if (state.isLastStep) {
-      await _submit(state);
+      if (state.accountLinkage == LearnerAccountLinkage.parentManaged) {
+        context.push(AppRoutes.parentRegistration);
+      } else {
+        await _submit(state);
+      }
     } else {
       controller.goToNextStep();
     }

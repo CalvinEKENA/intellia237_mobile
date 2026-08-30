@@ -7,6 +7,7 @@ import '../../../../../core/widgets/intellia_companion_avatar.dart';
 import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
+import '../../../../../core/localization/localization_extensions.dart';
 
 class PortalScene extends StatelessWidget {
   const PortalScene({required this.onEnter, super.key});
@@ -51,7 +52,7 @@ class PortalScene extends StatelessWidget {
                     cacheWidth: 120,
                     filterQuality: FilterQuality.medium,
                     errorBuilder: (_, _, _) => const Icon(
-                      Icons.auto_awesome_rounded,
+                      Icons.school_rounded,
                       color: IntelliaColors.brandIndigo,
                     ),
                   ),
@@ -134,7 +135,7 @@ class PortalScene extends StatelessWidget {
                     ),
                     _MiniDestination(icon: Icons.quiz_rounded, label: 'Quiz'),
                     _MiniDestination(
-                      icon: Icons.auto_awesome_rounded,
+                      icon: Icons.forum_outlined,
                       label: 'Compagnon',
                     ),
                   ],
@@ -147,19 +148,19 @@ class PortalScene extends StatelessWidget {
       footer: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 430),
         child: IntelliaPrimaryButton(
-          key: const ValueKey('onboarding-enter'),
+          key: const ValueKey('portal-continue'),
           onTap: onEnter,
           gradient: const LinearGradient(
             colors: [Color(0xFF173C78), IntelliaColors.brandIndigo],
           ),
-          child: const FittedBox(
+          child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Entrer dans INTELLIA237'),
-                SizedBox(width: 9),
-                Icon(Icons.arrow_forward_rounded, size: 19),
+                Text(context.l10n.portalContinue),
+                const SizedBox(width: 9),
+                const Icon(Icons.arrow_forward_rounded, size: 19),
               ],
             ),
           ),

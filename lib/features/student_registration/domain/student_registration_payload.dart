@@ -8,6 +8,12 @@ class StudentRegistrationPayload {
     required this.lastName,
     required this.schoolClass,
     required this.schoolSeries,
+    this.interfaceLanguage = InterfaceLanguage.french,
+    this.educationalSubsystem = EducationalSubsystem.francophone,
+    this.educationType = EducationType.general,
+    this.streamOrSpeciality = '',
+    this.establishment,
+    this.accountLinkage = LearnerAccountLinkage.individual,
     this.selectedTutorId,
     required this.preferredSubjects,
     required this.difficultSubjects,
@@ -24,6 +30,12 @@ class StudentRegistrationPayload {
   final String lastName;
   final SchoolClass schoolClass;
   final SchoolSeries? schoolSeries;
+  final InterfaceLanguage interfaceLanguage;
+  final EducationalSubsystem educationalSubsystem;
+  final EducationType educationType;
+  final String streamOrSpeciality;
+  final EstablishmentAffiliation? establishment;
+  final LearnerAccountLinkage accountLinkage;
   final String? selectedTutorId;
   final List<String> preferredSubjects;
   final List<String> difficultSubjects;
@@ -84,7 +96,23 @@ class StudentRegistrationPayload {
         'dailyStudyMinutes': dailyStudyMinutes,
         'studyReminderEnabled': true,
         'notificationsEnabled': true,
-        'contentLanguage': 'fr',
+        'contentLanguage': interfaceLanguage.code,
+        'interfaceLanguage': interfaceLanguage.code,
+        'educationalSubsystem': educationalSubsystem.storageValue,
+        'educationType': educationType.name,
+        'streamOrSpeciality': streamOrSpeciality.isEmpty
+            ? schoolSeries?.label
+            : streamOrSpeciality,
+        'accountLinkage': accountLinkage.name,
+        // Candidate metadata is deliberately non-authoritative. A trusted
+        // backend is solely responsible for writing establishmentId.
+        'establishmentCandidate': establishment == null
+            ? null
+            : <String, dynamic>{
+                'candidateId': establishment!.candidateId,
+                'name': establishment!.name,
+                'status': establishment!.status.name,
+              },
       },
       'consents': <String, dynamic>{
         'termsAccepted': acceptedTerms,

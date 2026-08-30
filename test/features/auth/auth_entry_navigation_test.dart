@@ -35,6 +35,7 @@ void main() {
           authRepositoryProvider.overrideWithValue(_AuthRepository()),
         ],
         child: MaterialApp.router(
+          locale: const Locale('fr'),
           routerConfig: router,
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context).copyWith(disableAnimations: true),

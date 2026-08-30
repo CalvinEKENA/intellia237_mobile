@@ -117,7 +117,7 @@ class _CharacterVisual {
 const _visuals = <String, _CharacterVisual>{
   'nova': _CharacterVisual(
     color: Color(0xFF1451E1),
-    icon: Icons.auto_awesome_rounded,
+    icon: Icons.forum_outlined,
   ),
   'kibo': _CharacterVisual(
     color: Color(0xFF0F766E),

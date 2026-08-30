@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../application/auth_controller.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../domain/auth_input_validators.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
@@ -39,17 +40,17 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     final controller = ref.read(authControllerProvider.notifier);
+    final l10n = context.l10n;
     return AuthExperienceScaffold(
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AuthHeader(
-              eyebrow: 'Accès au compte',
-              title: 'Retrouvez votre\nmot de passe.',
-              subtitle:
-                  'Nous enverrons un lien sécurisé à l’adresse de votre compte.',
+            AuthHeader(
+              eyebrow: l10n.forgotEyebrow,
+              title: l10n.forgotTitle,
+              subtitle: l10n.forgotSubtitle,
             ),
             const SizedBox(height: 28),
             AuthGlassPanel(
@@ -65,9 +66,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                             size: 54,
                           ),
                           const SizedBox(height: 18),
-                          const Text(
-                            'E-mail envoyé',
-                            style: TextStyle(
+                          Text(
+                            l10n.emailSent,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
@@ -75,7 +76,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Consulte ${_emailController.text.trim()} et ouvre le lien reçu.',
+                            l10n.checkEmail(_emailController.text.trim()),
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: AuthExperienceColors.textSecondary,
@@ -84,7 +85,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           ),
                           const SizedBox(height: 22),
                           AuthPrimaryButton(
-                            label: 'Retour à la connexion',
+                            label: l10n.backToLogin,
                             onTap: context.pop,
                             icon: Icons.login_rounded,
                           ),
@@ -96,8 +97,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         children: [
                           AuthAnimatedField(
                             controller: _emailController,
-                            label: 'Adresse e-mail',
-                            hint: 'prenom.nom@exemple.com',
+                            label: l10n.emailLabel,
+                            hint: l10n.emailHint,
                             icon: Icons.alternate_email_rounded,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.done,
@@ -116,7 +117,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           ],
                           const SizedBox(height: 18),
                           AuthPrimaryButton(
-                            label: 'Envoyer le lien',
+                            label: l10n.sendLink,
                             onTap: auth.isLoading ? null : _submit,
                             isLoading: auth.isLoading,
                             icon: Icons.send_rounded,

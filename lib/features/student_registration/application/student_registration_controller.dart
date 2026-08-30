@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
@@ -11,6 +13,7 @@ import '../domain/learning_goal.dart';
 import '../domain/student_registration_result.dart';
 import '../domain/subject_catalog.dart';
 import 'student_registration_state.dart';
+import '../../../core/localization/app_locale_controller.dart';
 
 final studentRegistrationControllerProvider =
     NotifierProvider<StudentRegistrationController, StudentRegistrationState>(
@@ -32,6 +35,49 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
 
   void setLastName(String value) {
     state = state.copyWith(lastName: value, clearError: true);
+  }
+
+  void setInterfaceLanguage(InterfaceLanguage language) {
+    state = state.copyWith(interfaceLanguage: language, clearError: true);
+    unawaited(ref.read(appLocaleProvider.notifier).setLanguage(language.code));
+  }
+
+  void setEducationalSubsystem(EducationalSubsystem subsystem) {
+    final selectedClass = state.schoolClass;
+    state = state.copyWith(
+      educationalSubsystem: subsystem,
+      clearSchoolClass:
+          selectedClass != null && selectedClass.subsystem != subsystem,
+      clearSchoolSeries:
+          selectedClass != null && selectedClass.subsystem != subsystem,
+      clearError: true,
+    );
+  }
+
+  void setEducationType(EducationType type) {
+    state = state.copyWith(
+      educationType: type,
+      clearSchoolSeries: type == EducationType.technical,
+      clearError: true,
+    );
+  }
+
+  void setAccountLinkage(LearnerAccountLinkage linkage) {
+    state = state.copyWith(accountLinkage: linkage, clearError: true);
+  }
+
+  void setStreamOrSpeciality(String value) {
+    state = state.copyWith(streamOrSpeciality: value, clearError: true);
+  }
+
+  void setEstablishmentCandidate(String value) {
+    final name = value.trim();
+    state = name.isEmpty
+        ? state.copyWith(clearEstablishment: true, clearError: true)
+        : state.copyWith(
+            establishment: EstablishmentAffiliation(name: name),
+            clearError: true,
+          );
   }
 
   void setSchoolClass(SchoolClass schoolClass) {
@@ -202,7 +248,13 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
       return 'Sélectionnez votre classe.';
     }
 
-    if (schoolClass.requiresSeries && state.schoolSeries == null) {
+    if (schoolClass.subsystem != state.educationalSubsystem) {
+      return 'Le niveau doit correspondre au sous-système éducatif choisi.';
+    }
+
+    if (state.educationType == EducationType.general &&
+        schoolClass.requiresSeries &&
+        state.schoolSeries == null) {
       return 'La série est obligatoire pour cette classe.';
     }
 

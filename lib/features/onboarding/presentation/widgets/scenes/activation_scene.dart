@@ -145,7 +145,7 @@ class _ActivationSceneState extends State<ActivationScene>
                             cacheWidth: 384,
                             filterQuality: FilterQuality.medium,
                             errorBuilder: (_, _, _) => const Icon(
-                              Icons.auto_awesome_rounded,
+                              Icons.school_rounded,
                               color: IntelliaColors.pointsGold,
                               size: 72,
                             ),

@@ -50,6 +50,12 @@ abstract final class OnboardingNarratives {
       body:
           'Retrouve tes matières, tes défis et ton compagnon dans une seule expérience.',
     ),
+    OnboardingAct.ascension: OnboardingNarrative(
+      eyebrow: 'ACTE VI — L’ASCENSION',
+      title: 'Ton avenir se construit, marche après marche.',
+      body:
+          'INTELLIA237 complète tes cours, tes livres et tes cahiers. Tes enseignants restent au cœur de ton parcours.',
+    ),
   };
 
   static OnboardingNarrative forAct(OnboardingAct act) => values[act]!;

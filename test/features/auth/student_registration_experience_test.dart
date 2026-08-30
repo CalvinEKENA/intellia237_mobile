@@ -34,6 +34,7 @@ void main() {
           UncontrolledProviderScope(
             container: container,
             child: const MaterialApp(
+              locale: Locale('fr'),
               home: MediaQuery(
                 data: MediaQueryData(
                   disableAnimations: true,
@@ -46,7 +47,10 @@ void main() {
         );
         await tester.pump();
 
-        expect(find.textContaining('établissement'), findsNothing);
+        expect(
+          find.byKey(const ValueKey('passport-establishment')),
+          findsOneWidget,
+        );
         expect(find.text('6ème'), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
@@ -82,6 +86,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: const MaterialApp(
+          locale: Locale('fr'),
           home: MediaQuery(
             data: MediaQueryData(
               disableAnimations: true,
@@ -121,6 +126,7 @@ void main() {
         UncontrolledProviderScope(
           container: container,
           child: const MaterialApp(
+            locale: Locale('fr'),
             home: MediaQuery(
               data: MediaQueryData(disableAnimations: true),
               child: StudentRegistrationFlowScreen(),
