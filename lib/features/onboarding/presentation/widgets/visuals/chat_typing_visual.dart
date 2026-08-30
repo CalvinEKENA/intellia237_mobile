@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
-import 'onboarding_visual_view.dart';
+import '../onboarding_motion.dart';
 
 /// Slide 3 — « Teste-toi sans stress ».
 ///

@@ -1,17 +1,19 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
-import 'onboarding_visual_view.dart';
+import '../onboarding_motion.dart';
 
-/// Slide 1 — « Quelques minutes par jour ».
+/// Éventail réutilisable de cartes de leçon.
 ///
-/// Trois cartes de leçon disposées en éventail, qui apparaissent en cascade
-/// puis « respirent » doucement. Reprend les trois dégradés de la Web App.
+/// Les trois cartes « respirent » doucement.
+/// La transition de scène orchestre leur apparition pour éviter des timers
+/// locaux lorsque les animations sont désactivées.
 class CardsFanVisual extends StatefulWidget {
-  const CardsFanVisual({super.key});
+  const CardsFanVisual({this.isActive = true, super.key});
+
+  final bool isActive;
 
   @override
   State<CardsFanVisual> createState() => _CardsFanVisualState();
@@ -47,6 +49,26 @@ class _CardsFanVisualState extends State<CardsFanVisual>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncMotion();
+  }
+
+  @override
+  void didUpdateWidget(covariant CardsFanVisual oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncMotion();
+  }
+
+  void _syncMotion() {
+    if (prefersReducedMotion(context) || !widget.isActive) {
+      _breath.stop();
+      return;
+    }
+    if (!_breath.isAnimating) _breath.repeat();
+  }
+
+  @override
   void dispose() {
     _breath.dispose();
     super.dispose();
@@ -54,10 +76,6 @@ class _CardsFanVisualState extends State<CardsFanVisual>
 
   @override
   Widget build(BuildContext context) {
-    if (!prefersReducedMotion(context) && !_breath.isAnimating) {
-      _breath.repeat();
-    }
-
     return Center(
       child: SizedBox(
         width: 280,
@@ -86,7 +104,6 @@ class _CardsFanVisualState extends State<CardsFanVisual>
               dy: 14,
               phase: 0,
               icon: Icons.menu_book_rounded,
-              delayMs: 0,
             ),
             _card(
               gradient: _purple,
@@ -95,7 +112,6 @@ class _CardsFanVisualState extends State<CardsFanVisual>
               dy: 14,
               phase: math.pi,
               icon: Icons.calculate_rounded,
-              delayMs: 220,
             ),
             _card(
               gradient: _indigo,
@@ -104,7 +120,6 @@ class _CardsFanVisualState extends State<CardsFanVisual>
               dy: -18,
               phase: math.pi / 2,
               icon: Icons.auto_awesome_rounded,
-              delayMs: 110,
             ),
           ],
         ),
@@ -119,9 +134,8 @@ class _CardsFanVisualState extends State<CardsFanVisual>
     required double dy,
     required double phase,
     required IconData icon,
-    required int delayMs,
   }) {
-    final body = AnimatedBuilder(
+    return AnimatedBuilder(
       animation: _breath,
       builder: (context, child) {
         final wobble =
@@ -133,17 +147,6 @@ class _CardsFanVisualState extends State<CardsFanVisual>
       },
       child: _CardBody(gradient: gradient, icon: icon),
     );
-
-    return body
-        .animate()
-        .fadeIn(delay: delayMs.ms, duration: 460.ms)
-        .scale(
-          begin: const Offset(0.9, 0.9),
-          end: const Offset(1, 1),
-          delay: delayMs.ms,
-          duration: 520.ms,
-          curve: Curves.easeOutBack,
-        );
   }
 }
 

@@ -1,31 +1,31 @@
 import 'dart:async';
-import 'dart:ui' show ImageFilter;
+import 'dart:math' as math;
 
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
-import '../../../core/widgets/intellia_buttons.dart';
-import '../../../core/widgets/intellia_pressable.dart';
-import '../../../core/widgets/intellia_scaffold.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../../core/widgets/intellia_pressable.dart';
 import '../data/onboarding_preferences.dart';
-import '../domain/onboarding_slides.dart';
-import 'widgets/onboarding_progress_indicator.dart';
-import 'widgets/onboarding_slide_view.dart';
+import '../domain/onboarding_act.dart';
+import '../domain/onboarding_journey_state.dart';
+import 'widgets/intellia_thread.dart';
+import 'widgets/scenes/activation_scene.dart';
+import 'widgets/scenes/challenge_scene.dart';
+import 'widgets/scenes/companions_scene.dart';
+import 'widgets/scenes/journey_scene.dart';
+import 'widgets/scenes/knowledge_scene.dart';
+import 'widgets/scenes/portal_scene.dart';
 
-/// Onboarding premium d'INTELLIA237 — reconstruction fidèle de la Web App.
+/// INTELLIA // L'ÉVEIL
 ///
-/// Quatre scènes narratives s'enchaînent en Shared Axis, 5 s chacune
-/// (environ 20 s sans interaction). « Passer » reste disponible ; « Commencer »
-/// n'apparaît qu'au dernier écran.
-const onboardingSlideDuration = Duration(seconds: 5);
-
+/// Une expérience de premier lancement continue, pilotée par six actes et un
+/// motif visuel unique. Aucun acte ne progresse automatiquement : chaque
+/// transition résulte d'une interaction qui démontre une capacité du produit.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -34,449 +34,387 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
-  late final AnimationController _progress;
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  late final AnimationController _ambient;
+  final _activationCharge = ValueNotifier<double>(0);
 
-  final _slides = OnboardingSlides.slides;
-  int _index = 0;
-  bool _reverse = false;
+  OnboardingJourneyState _journey = const OnboardingJourneyState();
+  bool _appActive = true;
+  bool _completing = false;
 
-  bool get _isLast => _index >= _slides.length - 1;
-  Color get _accent => _slides[_index].accentColor;
+  OnboardingAct get _act => _journey.act;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _progress =
-        AnimationController(vsync: this, duration: onboardingSlideDuration)
-          ..addStatusListener((status) {
-            if (status == AnimationStatus.completed && !_isLast) {
-              _goTo(_index + 1);
-            }
-          });
-    _progress.forward();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        if (!_progress.isCompleted) _progress.forward();
-      case AppLifecycleState.inactive:
-      case AppLifecycleState.hidden:
-      case AppLifecycleState.paused:
-      case AppLifecycleState.detached:
-        _progress.stop();
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _progress.dispose();
-    super.dispose();
-  }
-
-  void _goTo(int target) {
-    if (target < 0 || target >= _slides.length || target == _index) return;
-    HapticFeedback.selectionClick();
-    setState(() {
-      _reverse = target < _index;
-      _index = target;
-    });
-    if (_isLast) {
-      HapticFeedback.lightImpact();
-      _progress
-        ..stop()
-        ..forward(from: 0); // remplit la barre une dernière fois, sans avancer
-    } else {
-      _progress.forward(from: 0);
-    }
-  }
-
-  void _next() => _goTo(_index + 1);
-  void _previous() => _goTo(_index - 1);
-
-  Future<void> _complete() async {
-    HapticFeedback.mediumImpact();
-    _progress.stop();
-    final persistence = markOnboardingSeen(ref);
-    unawaited(IntelliaTelemetry.onboardingCompleted());
-    if (!mounted) return;
-    context.go(AppRoutes.register);
-    await persistence;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    return IntelliaScaffold(
-      showTopHalo: false,
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onHorizontalDragEnd: (details) {
-          final v = details.primaryVelocity ?? 0;
-          if (v < -280) {
-            _next();
-          } else if (v > 280) {
-            _previous();
-          }
-        },
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // ── Fond ambiant animé (profondeur) ──────────────────
-            _AmbientBackground(accent: _accent),
-
-            // ── Scènes en Shared Axis ────────────────────────────
-            PageTransitionSwitcher(
-              duration: reduceMotion
-                  ? Duration.zero
-                  : const Duration(milliseconds: 420),
-              reverse: _reverse,
-              transitionBuilder: (child, primary, secondary) {
-                return SharedAxisTransition(
-                  animation: primary,
-                  secondaryAnimation: secondary,
-                  transitionType: SharedAxisTransitionType.horizontal,
-                  fillColor: Colors.transparent,
-                  child: child,
-                );
-              },
-              child: SizedBox.expand(
-                key: ValueKey(_index),
-                child: OnboardingSlideView(data: _slides[_index]),
-              ),
-            ),
-
-            // ── Overlays (progression, en-tête, contrôles) ───────
-            SafeArea(
-              child: Column(
-                children: [
-                  const SizedBox(height: IntelliaSpacing.sm),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: IntelliaSpacing.lg,
-                    ),
-                    child: AnimatedBuilder(
-                      animation: _progress,
-                      builder: (context, _) => OnboardingProgressBar(
-                        totalSlides: _slides.length,
-                        currentSlide: _index,
-                        progress: _progress.value,
-                        accentColor: _accent,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: IntelliaSpacing.md),
-                  _header(),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      IntelliaSpacing.xl,
-                      0,
-                      IntelliaSpacing.xl,
-                      IntelliaSpacing.lg,
-                    ),
-                    child: _controls(),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _header() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: IntelliaSpacing.lg),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(7),
-            child: Container(
-              width: 26,
-              height: 26,
-              color: Colors.black.withValues(alpha: 0.04),
-              padding: const EdgeInsets.all(4),
-              child: Image.asset(
-                'assets/branding/icon-192.png',
-                errorBuilder: (_, _, _) => const Icon(
-                  Icons.school_rounded,
-                  size: 16,
-                  color: IntelliaColors.brandIndigo,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: IntelliaSpacing.xs),
-          Text(
-            'Intellia 237',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.4,
-              color: IntelliaColors.textPrimary,
-            ),
-          ),
-          const Spacer(),
-          // « Passer » reste disponible tant que l'écran final n'est pas atteint.
-          AnimatedSwitcher(
-            duration: IntelliaMotion.medium,
-            transitionBuilder: (child, anim) =>
-                FadeTransition(opacity: anim, child: child),
-            child: _isLast
-                ? const SizedBox.shrink()
-                : IntelliaPressable(
-                    key: const ValueKey('skip'),
-                    onTap: _complete,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 7,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(IntelliaRadii.full),
-                      ),
-                      child: const Text(
-                        'Passer',
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.bold,
-                          color: IntelliaColors.textSecondary,
-                        ),
-                      ),
-                    ),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _controls() {
-    return PageTransitionSwitcher(
-      duration: IntelliaMotion.slow,
-      transitionBuilder: (child, primary, secondary) => FadeThroughTransition(
-        animation: primary,
-        secondaryAnimation: secondary,
-        fillColor: Colors.transparent,
-        child: child,
-      ),
-      child: _isLast
-          ? Column(
-              key: const ValueKey('controls-last'),
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IntelliaPrimaryButton(
-                      key: const ValueKey('onboarding-start'),
-                      onTap: _complete,
-                      gradient: IntelliaGradients.brand,
-                      child: const Text('Commencer'),
-                    )
-                    .animate()
-                    .fadeIn(duration: 420.ms)
-                    .slideY(begin: 0.25, end: 0, curve: Curves.easeOutCubic),
-                const SizedBox(height: IntelliaSpacing.sm),
-                IntelliaPressable(
-                  onTap: _previous,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                    child: Text(
-                      'Précédent',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: IntelliaColors.textTertiary,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : Row(
-              key: const ValueKey('controls-nav'),
-              children: [
-                AnimatedOpacity(
-                  duration: IntelliaMotion.medium,
-                  opacity: _index > 0 ? 1 : 0,
-                  child: IgnorePointer(
-                    ignoring: _index == 0,
-                    child: IntelliaPressable(
-                      onTap: _previous,
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 8,
-                        ),
-                        child: Text(
-                          'Précédent',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: IntelliaColors.textTertiary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                _NextButton(
-                  key: const ValueKey('onboarding-next'),
-                  accent: _accent,
-                  onTap: _next,
-                ),
-              ],
-            ),
-    );
-  }
-}
-
-/// Bouton circulaire « suivant » en verre dépoli (slides intermédiaires).
-class _NextButton extends StatelessWidget {
-  const _NextButton({required this.accent, required this.onTap, super.key});
-
-  final Color accent;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return IntelliaPressable(
-      onTap: onTap,
-      child: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: IntelliaGradients.brand,
-          boxShadow: IntelliaShadows.glow(accent, intensity: 0.32),
-        ),
-        child: const Icon(
-          Icons.arrow_forward_rounded,
-          color: Colors.white,
-          size: 24,
-        ),
-      ),
-    );
-  }
-}
-
-/// Fond ambiant : dégradé teinté par la slide courante + halos flous mobiles.
-class _AmbientBackground extends StatefulWidget {
-  const _AmbientBackground({required this.accent});
-
-  final Color accent;
-
-  @override
-  State<_AmbientBackground> createState() => _AmbientBackgroundState();
-}
-
-class _AmbientBackgroundState extends State<_AmbientBackground>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _drift;
-
-  @override
-  void initState() {
-    super.initState();
-    _drift = AnimationController(
+    _ambient = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 22),
+      duration: const Duration(seconds: 14),
     );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!(MediaQuery.maybeOf(context)?.disableAnimations ?? false) &&
-        !_drift.isAnimating) {
-      _drift.repeat();
+    _syncAmbientMotion();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final active = state == AppLifecycleState.resumed;
+    if (_appActive == active) return;
+    setState(() => _appActive = active);
+    _syncAmbientMotion();
+  }
+
+  void _syncAmbientMotion() {
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (!_appActive || reduceMotion) {
+      _ambient.stop();
+      return;
     }
+    if (!_ambient.isAnimating) _ambient.repeat();
   }
 
   @override
   void dispose() {
-    _drift.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _activationCharge.dispose();
+    _ambient.dispose();
     super.dispose();
+  }
+
+  void _goTo(OnboardingAct target) {
+    if (target == _act) return;
+    if (target == OnboardingAct.activation) _activationCharge.value = 0;
+    setState(() => _journey = _journey.copyWith(act: target));
+  }
+
+  void _previous() {
+    final previous = _act.previous;
+    if (previous == null) return;
+    HapticFeedback.selectionClick();
+    _goTo(previous);
+  }
+
+  Future<void> _complete() async {
+    if (_completing) return;
+    _completing = true;
+    HapticFeedback.mediumImpact();
+    final persistence = markOnboardingSeen(ref);
+    unawaited(IntelliaTelemetry.onboardingCompleted());
+    if (mounted) context.go(AppRoutes.register);
+    await persistence;
   }
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.easeInOut,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  IntelliaColors.backgroundPremium,
-                  widget.accent.withValues(alpha: 0.07),
-                  IntelliaColors.backgroundPrimary,
-                ],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-            ),
-          ),
-          AnimatedBuilder(
-            animation: _drift,
-            builder: (context, _) {
-              final t = _drift.value;
-              return Stack(
-                children: [
-                  _orb(
-                    color: widget.accent,
-                    alignment: Alignment(
-                      -0.7 + 0.2 * _wave(t),
-                      -0.6 + 0.1 * _wave(t + 0.3),
-                    ),
-                  ),
-                  _orb(
-                    color: IntelliaColors.brandPurple,
-                    alignment: Alignment(
-                      0.8 - 0.2 * _wave(t + 0.5),
-                      0.5 + 0.1 * _wave(t),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    final motionEnabled = _appActive && !reduceMotion;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Color(0xFF030817),
+        systemNavigationBarIconBrightness: Brightness.light,
       ),
-    );
-  }
-
-  double _wave(double t) {
-    final x = (t % 1.0) * 2 - 1;
-    return 1 - 2 * (x * x); // oscillation douce dans [-1, 1]
-  }
-
-  Widget _orb({required Color color, required Alignment alignment}) {
-    return Align(
-      alignment: alignment,
-      child: IgnorePointer(
-        child: ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-          child: Container(
-            width: 220,
-            height: 220,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color.withValues(alpha: 0.10),
-            ),
+      child: PopScope<Object?>(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) _previous();
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFF030817),
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              _backgroundLayer(),
+              AnimatedBuilder(
+                animation: Listenable.merge([_ambient, _activationCharge]),
+                builder: (context, _) => IntelliaThread(
+                  act: _act,
+                  animation: _ambient,
+                  activationCharge: _activationCharge.value,
+                  challengeOutcome: _journey.challengeOutcome,
+                  companionFocus: _journey.companionFocus,
+                ),
+              ),
+              SafeArea(
+                child: Column(
+                  children: [
+                    _ExperienceHeader(
+                      canGoBack: _act.previous != null,
+                      showSkip: _act != OnboardingAct.portal,
+                      onBack: _previous,
+                      onSkip: _complete,
+                    ),
+                    Expanded(
+                      child: ClipRect(
+                        child: Semantics(
+                          liveRegion: true,
+                          label: _act.semanticLabel,
+                          child: AnimatedSwitcher(
+                            duration: reduceMotion
+                                ? Duration.zero
+                                : const Duration(milliseconds: 620),
+                            switchInCurve: Curves.easeOutCubic,
+                            switchOutCurve: Curves.easeInCubic,
+                            transitionBuilder: (child, animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: ScaleTransition(
+                                  scale: Tween<double>(
+                                    begin: 1.045,
+                                    end: 1,
+                                  ).animate(animation),
+                                  child: SlideTransition(
+                                    position: Tween<Offset>(
+                                      begin: const Offset(0, 0.025),
+                                      end: Offset.zero,
+                                    ).animate(animation),
+                                    child: child,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: KeyedSubtree(
+                              key: ValueKey(_act),
+                              child: TickerMode(
+                                enabled: motionEnabled,
+                                child: _scene(
+                                  reduceMotion: reduceMotion,
+                                  motionEnabled: motionEnabled,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+
+  Widget _backgroundLayer() {
+    final color = switch (_act) {
+      OnboardingAct.activation => IntelliaColors.pointsGold,
+      OnboardingAct.knowledge => IntelliaColors.brandBlue,
+      OnboardingAct.challenge =>
+        _journey.challengeOutcome == OnboardingChallengeOutcome.needsHelp
+            ? IntelliaColors.warning
+            : _journey.challengeOutcome == OnboardingChallengeOutcome.solved
+            ? IntelliaColors.success
+            : IntelliaColors.brandIndigo,
+      OnboardingAct.companions =>
+        _journey.companionFocus == OnboardingCompanionFocus.kira
+            ? IntelliaColors.kiraDark
+            : IntelliaColors.leoDark,
+      OnboardingAct.journey => IntelliaColors.success,
+      OnboardingAct.portal => IntelliaColors.pointsGold,
+    };
+
+    return RepaintBoundary(
+      child: AnimatedContainer(
+        duration: IntelliaMotion.cinematic,
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: const Alignment(0, -0.10),
+            radius: 1.12,
+            colors: [
+              color.withValues(alpha: 0.16),
+              const Color(0xFF071534).withValues(alpha: 0.94),
+              const Color(0xFF030817),
+            ],
+            stops: const [0, 0.48, 1],
+          ),
+        ),
+        child: AnimatedBuilder(
+          animation: _ambient,
+          builder: (context, _) => CustomPaint(
+            painter: _ConstellationPainter(phase: _ambient.value),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _scene({required bool reduceMotion, required bool motionEnabled}) {
+    return switch (_act) {
+      OnboardingAct.activation => ActivationScene(
+        motionEnabled: motionEnabled,
+        reduceMotion: reduceMotion,
+        onChargeChanged: (value) => _activationCharge.value = value,
+        onActivated: () => _goTo(OnboardingAct.knowledge),
+      ),
+      OnboardingAct.knowledge => KnowledgeScene(
+        motionEnabled: motionEnabled,
+        onSubjectSelected: (subject) {
+          setState(() {
+            _journey = _journey.copyWith(
+              selectedSubject: subject,
+              act: OnboardingAct.challenge,
+            );
+          });
+        },
+      ),
+      OnboardingAct.challenge => ChallengeScene(
+        outcome: _journey.challengeOutcome,
+        reduceMotion: reduceMotion,
+        onOutcomeChanged: (outcome) {
+          setState(() {
+            _journey = _journey.copyWith(challengeOutcome: outcome);
+          });
+        },
+        onSolved: () => _goTo(OnboardingAct.companions),
+      ),
+      OnboardingAct.companions => CompanionsScene(
+        focus: _journey.companionFocus,
+        reduceMotion: reduceMotion,
+        onFocusChanged: (focus) {
+          setState(() {
+            _journey = _journey.copyWith(companionFocus: focus);
+          });
+        },
+        onContinue: () => _goTo(OnboardingAct.journey),
+      ),
+      OnboardingAct.journey => JourneyScene(
+        onMasteryReached: () => _goTo(OnboardingAct.portal),
+      ),
+      OnboardingAct.portal => PortalScene(onEnter: _complete),
+    };
+  }
+}
+
+class _ExperienceHeader extends StatelessWidget {
+  const _ExperienceHeader({
+    required this.canGoBack,
+    required this.showSkip,
+    required this.onBack,
+    required this.onSkip,
+  });
+
+  final bool canGoBack;
+  final bool showSkip;
+  final VoidCallback onBack;
+  final VoidCallback onSkip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      child: SizedBox(
+        height: 44,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 48,
+              height: 44,
+              child: canGoBack
+                  ? Semantics(
+                      button: true,
+                      label: 'Revenir à l’acte précédent',
+                      child: IntelliaPressable(
+                        key: const ValueKey('onboarding-back'),
+                        onTap: onBack,
+                        child: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.white70,
+                          size: 21,
+                        ),
+                      ),
+                    )
+                  : const Center(
+                      child: Icon(
+                        Icons.auto_awesome_rounded,
+                        color: IntelliaColors.pointsGold,
+                        size: 18,
+                      ),
+                    ),
+            ),
+            Expanded(
+              child: Text(
+                'INTELLIA237',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.58),
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 2.1,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 122,
+              child: showSkip
+                  ? Align(
+                      alignment: Alignment.centerRight,
+                      child: Semantics(
+                        button: true,
+                        label: 'Passer l’expérience d’introduction',
+                        child: IntelliaPressable(
+                          key: const ValueKey('skip'),
+                          onTap: onSkip,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 8,
+                            ),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                'Passer l’expérience',
+                                maxLines: 1,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.58),
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ConstellationPainter extends CustomPainter {
+  const _ConstellationPainter({required this.phase});
+
+  final double phase;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = Colors.white.withValues(alpha: 0.16);
+    for (var index = 0; index < 18; index++) {
+      final seed = index * 0.61803398875;
+      final x = (seed % 1) * size.width;
+      final baseY = ((seed * 1.73) % 1) * size.height;
+      final y = (baseY + math.sin(phase * math.pi * 2 + index) * 4).clamp(
+        0.0,
+        size.height,
+      );
+      final radius = index.isEven ? 0.8 : 1.25;
+      canvas.drawCircle(Offset(x, y), radius, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ConstellationPainter oldDelegate) =>
+      oldDelegate.phase != phase;
 }
