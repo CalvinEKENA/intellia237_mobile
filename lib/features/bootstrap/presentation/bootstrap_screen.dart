@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/assets/intellia_assets.dart';
 import '../../auth/application/auth_controller.dart';
 
 /// Couleur de fond du premier frame — strictement identique au splash natif
@@ -14,9 +15,8 @@ const Color kSplashBackground = Color(0xFFFAFAFD);
 
 /// Splash Flutter animé (couche B), fidèle au splash de la Web App.
 ///
-/// Reprend la composition Web : fond radial clair, logo officiel, mot-marque
-/// « INTELLIA237 » qui s'écrit lettre par lettre (« 237 » aux couleurs du
-/// Cameroun), halo indigo→violet, tagline, et « by TECH MOTION ».
+/// Reprend la composition Web : fond radial clair, identité officielle,
+/// halo indigo→violet, message produit et « by TECH MOTION ».
 /// Conserve la logique de bootstrap (précache + initialisation) et le routing.
 class BootstrapScreen extends ConsumerStatefulWidget {
   const BootstrapScreen({super.key});
@@ -41,8 +41,14 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen> {
     // Précache des assets non critiques — n'empêche jamais le démarrage.
     try {
       await Future.wait([
-        precacheImage(const AssetImage('assets/companions/kira.png'), context),
-        precacheImage(const AssetImage('assets/companions/leo.png'), context),
+        precacheImage(
+          const AssetImage(IntelliaCompanionAssets.kiraPortrait),
+          context,
+        ),
+        precacheImage(
+          const AssetImage(IntelliaCompanionAssets.leoPortrait),
+          context,
+        ),
       ]);
     } catch (error, stackTrace) {
       debugPrint('Non-critical asset precaching failed: $error');
@@ -130,20 +136,24 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen> {
 
           // Logo officiel — centré, comme le splash natif (anti-saut).
           Align(
-            alignment: const Alignment(0, -0.05),
+            alignment: const Alignment(0, -0.12),
             child: Image.asset(
-              'assets/icons/icone_final.png',
-              width: 104,
-              height: 104,
+              IntelliaBrandAssets.identityMaster,
+              width: 184,
+              height: 184,
+              fit: BoxFit.contain,
+              cacheWidth: 460,
+              filterQuality: FilterQuality.medium,
               errorBuilder: (_, _, _) =>
-                  const SizedBox(width: 104, height: 104),
+                  const SizedBox(width: 184, height: 184),
             ),
           ),
 
-          // Mot-marque + tagline, sous le logo.
+          // Message produit sous l'identité officielle. Le mot-marque n'est
+          // pas répété : il fait déjà partie de l'asset maître.
           Align(
-            alignment: const Alignment(0, 0.28),
-            child: _WordmarkAndTagline(reduce: reduce),
+            alignment: const Alignment(0, 0.32),
+            child: _BootstrapMessage(reduce: reduce),
           ),
 
           // Signature discrète.
@@ -166,30 +176,13 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen> {
   }
 }
 
-class _WordmarkAndTagline extends StatelessWidget {
-  const _WordmarkAndTagline({required this.reduce});
+class _BootstrapMessage extends StatelessWidget {
+  const _BootstrapMessage({required this.reduce});
 
   final bool reduce;
 
-  static const _word = 'Intellia 237';
-
-  Color _colorFor(int index) {
-    // « INTELLIA » indigo ; « 237 » aux couleurs du drapeau camerounais.
-    const suffixStart = 9; // index de '2'
-    if (index < suffixStart) return IntelliaColors.brandIndigo;
-    return switch (index - suffixStart) {
-      0 => IntelliaColors.cmVert,
-      1 => IntelliaColors.cmRouge,
-      _ => IntelliaColors.cmJaune,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
-    final letters = <Widget>[
-      for (var i = 0; i < _word.length; i++) _letter(_word[i], _colorFor(i), i),
-    ];
-
     final tagline = Text(
       'Apprends avec quelqu’un qui te comprend.',
       textAlign: TextAlign.center,
@@ -201,54 +194,15 @@ class _WordmarkAndTagline extends StatelessWidget {
       ),
     );
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(mainAxisSize: MainAxisSize.min, children: letters),
-        const SizedBox(height: 14),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: reduce
-              ? tagline
-              : tagline
-                    .animate()
-                    .fadeIn(
-                      delay: (200 + _word.length * 45 + 350).ms,
-                      duration: 500.ms,
-                    )
-                    .slideY(begin: 0.4, end: 0, curve: Curves.easeOutCubic),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: reduce
+          ? tagline
+          : tagline
+                .animate()
+                .fadeIn(delay: 620.ms, duration: 500.ms)
+                .slideY(begin: 0.4, end: 0, curve: Curves.easeOutCubic),
     );
-  }
-
-  Widget _letter(String char, Color color, int index) {
-    final text = Text(
-      char,
-      style: GoogleFonts.manrope(
-        fontSize: 40,
-        height: 1,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.5,
-        color: color,
-      ),
-    );
-    if (reduce) return text;
-    return text
-        .animate()
-        .fadeIn(delay: (200 + index * 45).ms, duration: 350.ms)
-        .slideY(
-          begin: 0.4,
-          end: 0,
-          delay: (200 + index * 45).ms,
-          duration: 350.ms,
-        )
-        .scale(
-          begin: const Offset(0.85, 0.85),
-          end: const Offset(1, 1),
-          delay: (200 + index * 45).ms,
-          duration: 350.ms,
-        );
   }
 }
 

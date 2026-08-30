@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../app/theme/design_tokens.dart';
+import '../assets/intellia_assets.dart';
 
 enum CompanionVariant { kira, leo }
 
@@ -38,8 +40,8 @@ class IntelliaCompanionAvatar extends StatelessWidget {
       : IntelliaGradients.leo;
 
   String get _assetPath => variant == CompanionVariant.kira
-      ? 'assets/companions/kira.png'
-      : 'assets/companions/leo.png';
+      ? IntelliaCompanionAssets.kiraPortrait
+      : IntelliaCompanionAssets.leoPortrait;
 
   @override
   Widget build(BuildContext context) {

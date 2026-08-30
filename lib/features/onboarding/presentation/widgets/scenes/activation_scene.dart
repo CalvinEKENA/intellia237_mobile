@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
+import '../../../../../core/assets/intellia_assets.dart';
 import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
@@ -136,19 +137,17 @@ class _ActivationSceneState extends State<ActivationScene>
                               ),
                             ),
                           ),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(32),
-                            child: Image.asset(
-                              'assets/branding/intellia237_app_icon.png',
-                              width: 142,
-                              height: 142,
-                              fit: BoxFit.cover,
-                              cacheWidth: 320,
-                              errorBuilder: (_, _, _) => const Icon(
-                                Icons.auto_awesome_rounded,
-                                color: IntelliaColors.pointsGold,
-                                size: 72,
-                              ),
+                          Image.asset(
+                            IntelliaBrandAssets.identityMaster,
+                            width: 158,
+                            height: 158,
+                            fit: BoxFit.contain,
+                            cacheWidth: 384,
+                            filterQuality: FilterQuality.medium,
+                            errorBuilder: (_, _, _) => const Icon(
+                              Icons.auto_awesome_rounded,
+                              color: IntelliaColors.pointsGold,
+                              size: 72,
                             ),
                           ),
                           SizedBox(

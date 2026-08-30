@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
+import 'package:intellia237/core/assets/intellia_assets.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_act.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +31,11 @@ void main() {
     expect(find.text('Passer l’expérience'), findsOneWidget);
     expect(find.text('Suivant'), findsNothing);
     expect(find.byKey(const ValueKey('activation-hold')), findsOneWidget);
+    expect(_imageAssets(tester), contains(IntelliaBrandAssets.identityMaster));
+    expect(
+      _imageAssets(tester),
+      isNot(contains('assets/branding/intellia237_app_icon.png')),
+    );
   });
 
   testWidgets('holding the INTELLIA element opens the knowledge universe', (
@@ -78,6 +84,27 @@ void main() {
     expect(find.text('Deux personnalités. Un même objectif.'), findsOneWidget);
     expect(find.byKey(const ValueKey('companion-kira')), findsOneWidget);
     expect(find.byKey(const ValueKey('companion-leo')), findsOneWidget);
+    expect(
+      _imageAssets(tester),
+      containsAll([
+        IntelliaCompanionAssets.kiraOnboardingFullBody,
+        IntelliaCompanionAssets.leoOnboardingFullBody,
+      ]),
+    );
+    final fullBodyImages = tester
+        .widgetList<Image>(find.byType(Image))
+        .where(
+          (image) => {
+            IntelliaCompanionAssets.kiraOnboardingFullBody,
+            IntelliaCompanionAssets.leoOnboardingFullBody,
+          }.contains(_assetName(image.image)),
+        );
+    expect(fullBodyImages, hasLength(2));
+    for (final image in fullBodyImages) {
+      expect(image.fit, BoxFit.contain);
+      expect(image.image, isA<ResizeImage>());
+      expect((image.image as ResizeImage).height, 700);
+    }
   });
 
   testWidgets('companion focus moves between Kira and Léo without locking it', (
@@ -88,6 +115,13 @@ void main() {
     await _reachCompanions(tester);
 
     expect(find.text('CALME • MÉTHODE • CONFIANCE'), findsOneWidget);
+    expect(
+      _imageAssets(tester),
+      containsAll([
+        IntelliaCompanionAssets.kiraOnboardingFullBody,
+        IntelliaCompanionAssets.leoOnboardingFullBody,
+      ]),
+    );
     await _tapVisible(tester, const ValueKey('companion-leo'));
     expect(find.text('DÉFI • ÉNERGIE • DÉPASSEMENT'), findsOneWidget);
 
@@ -103,6 +137,7 @@ void main() {
     await _reachPortal(tester);
 
     expect(find.text('Entrer dans INTELLIA237'), findsOneWidget);
+    expect(_imageAssets(tester), contains(IntelliaBrandAssets.appIcon));
     await tester.ensureVisible(find.byKey(const ValueKey('onboarding-enter')));
     await tester.tap(find.byKey(const ValueKey('onboarding-enter')));
     await tester.pump();
@@ -162,12 +197,16 @@ void main() {
   testWidgets('all acts remain overflow-free across target viewports', (
     tester,
   ) async {
-    const configurations = <({Size size, double scale})>[
-      (size: Size(360, 640), scale: 1),
-      (size: Size(360, 640), scale: 1.5),
-      (size: Size(360, 800), scale: 1.3),
-      (size: Size(390, 844), scale: 1.5),
-      (size: Size(412, 915), scale: 1),
+    const portraitSizes = <Size>[
+      Size(360, 640),
+      Size(360, 800),
+      Size(390, 844),
+      Size(412, 915),
+    ];
+    const textScales = <double>[1, 1.3, 1.5];
+    final configurations = <({Size size, double scale})>[
+      for (final size in portraitSizes)
+        for (final scale in textScales) (size: size, scale: scale),
       (size: Size(800, 360), scale: 1.3),
     ];
 
@@ -196,6 +235,19 @@ void main() {
       router.dispose();
     }
   });
+}
+
+Set<String> _imageAssets(WidgetTester tester) => tester
+    .widgetList<Image>(find.byType(Image))
+    .map((image) => image.image)
+    .map(_assetName)
+    .whereType<String>()
+    .toSet();
+
+String? _assetName(ImageProvider<Object> provider) {
+  if (provider is AssetImage) return provider.assetName;
+  if (provider is ResizeImage) return _assetName(provider.imageProvider);
+  return null;
 }
 
 Future<GoRouter> _pumpOnboarding(

@@ -6,6 +6,11 @@ final _legacyPattern = RegExp(
   caseSensitive: false,
 );
 
+final _legacyVisualAssetPattern = RegExp(
+  r'assets/(?:branding/intellia237_app_icon\.png|icons/(?:icone_final|icone|logo|logo_splash|logo_android12)\.png)',
+  caseSensitive: false,
+);
+
 const _skipDirectories = {
   '.dart_tool',
   '.firebase',
@@ -86,10 +91,16 @@ void main() {
     final lines = const LineSplitter().convert(content);
     for (var index = 0; index < lines.length; index++) {
       final line = lines[index];
+      final lineNumber = index + 1;
+      if (_isActiveBrandingSource(path) &&
+          _legacyVisualAssetPattern.hasMatch(line)) {
+        violations.add(
+          '$path:$lineNumber: active source references a legacy visual asset',
+        );
+      }
       if (!_legacyPattern.hasMatch(line)) {
         continue;
       }
-      final lineNumber = index + 1;
       if (_isAllowed(path, lineNumber, line)) {
         continue;
       }
@@ -112,6 +123,15 @@ void main() {
   );
   exitCode = 1;
 }
+
+bool _isActiveBrandingSource(String path) =>
+    path == 'pubspec.yaml' ||
+    path.startsWith('lib/') ||
+    path.startsWith('android/') ||
+    path.startsWith('ios/') ||
+    path.startsWith('web/') ||
+    path.startsWith('windows/') ||
+    path.startsWith('macos/');
 
 Iterable<File> _sourceFiles(Directory root) sync* {
   yield* _sourceFilesIn(root, root);

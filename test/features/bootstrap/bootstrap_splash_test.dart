@@ -5,6 +5,7 @@ import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
 import 'package:intellia237/features/bootstrap/presentation/bootstrap_screen.dart';
+import 'package:intellia237/core/assets/intellia_assets.dart';
 
 void main() {
   Future<void> pumpSplash(WidgetTester tester) async {
@@ -27,8 +28,8 @@ void main() {
   Set<String> imageAssets(WidgetTester tester) => tester
       .widgetList<Image>(find.byType(Image))
       .map((image) => image.image)
-      .whereType<AssetImage>()
-      .map((asset) => asset.assetName)
+      .map(_assetName)
+      .whereType<String>()
       .toSet();
 
   testWidgets(
@@ -47,7 +48,7 @@ void main() {
     (tester) async {
       await pumpSplash(tester);
 
-      expect(imageAssets(tester), contains('assets/icons/icone_final.png'));
+      expect(imageAssets(tester), contains(IntelliaBrandAssets.identityMaster));
       expect(
         find.text('Apprends avec quelqu’un qui te comprend.'),
         findsOneWidget,
@@ -60,14 +61,19 @@ void main() {
   testWidgets('le splash n’utilise que le logo officiel', (tester) async {
     await pumpSplash(tester);
 
-    // Parmi les logos sous assets/icons/, seul le logo officiel est utilisé —
-    // aucun logo hérité (assets/icons/logo.png, etc.).
-    final iconAssets = imageAssets(
-      tester,
-    ).where((a) => a.startsWith('assets/icons/')).toSet();
-    expect(iconAssets, everyElement('assets/icons/icone_final.png'));
-    expect(iconAssets, isNot(contains('assets/icons/logo.png')));
+    final activeAssets = imageAssets(tester);
+    expect(activeAssets, contains(IntelliaBrandAssets.identityMaster));
+    expect(
+      activeAssets.where((asset) => asset.startsWith('assets/icons/')),
+      isEmpty,
+    );
   });
+}
+
+String? _assetName(ImageProvider<Object> provider) {
+  if (provider is AssetImage) return provider.assetName;
+  if (provider is ResizeImage) return _assetName(provider.imageProvider);
+  return null;
 }
 
 class _FakeAuthRepository implements AuthRepository {

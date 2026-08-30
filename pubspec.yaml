@@ -52,7 +52,6 @@ flutter:
 
   assets:
     - assets/fonts/
-    - assets/icons/icone_final.png
     - assets/branding/
     - assets/companions/
 
@@ -61,29 +60,32 @@ flutter_launcher_icons:
   ios: true
   web:
     generate: true
-    image_path: assets/icons/icone_final.png
-    background_color: "#FBFAF7"
-    theme_color: "#5856D6"
+    image_path: assets/branding/icone.png
+    background_color: "#041025"
+    theme_color: "#071B3D"
   windows:
     generate: true
-    image_path: assets/icons/icone_final.png
+    image_path: assets/branding/icone.png
   macos:
     generate: true
-    image_path: assets/icons/icone_final.png
-  image_path: assets/icons/icone_final.png
+    image_path: assets/branding/icone.png
+  image_path: assets/branding/icone.png
   min_sdk_android: 21
-  adaptive_icon_background: "#FBFAF7"
-  adaptive_icon_foreground: assets/icons/icone_final.png
+  adaptive_icon_background: "#041025"
+  adaptive_icon_foreground: assets/branding/icone.png
+  adaptive_icon_foreground_inset: 0
+  remove_alpha_ios: true
+  background_color_ios: "#041025"
 
 # Splash natif — couche A. Couleur de fond identique au premier frame du
 # splash Flutter (web : #FAFAFD) pour éliminer toute frame blanche au cold start.
 # Logo officiel INTELLIA237 (jamais un ancien logo hérité).
 flutter_native_splash:
   color: "#FAFAFD"
-  image: assets/icons/icone_final.png
+  image: assets/branding/identity_master.png
   android: true
   ios: true
   web: true
   android_12:
     color: "#FAFAFD"
-    image: assets/icons/icone_final.png
+    image: assets/branding/icone.png

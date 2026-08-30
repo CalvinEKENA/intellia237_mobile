@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
+import '../../../../../core/assets/intellia_assets.dart';
 import '../../../../../core/widgets/intellia_buttons.dart';
 import '../../../../../core/widgets/intellia_companion_avatar.dart';
 import '../../../domain/onboarding_act.dart';
@@ -42,18 +43,16 @@ class PortalScene extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.asset(
-                      'assets/branding/intellia237_app_icon.png',
-                      width: 42,
-                      height: 42,
-                      fit: BoxFit.cover,
-                      cacheWidth: 100,
-                      errorBuilder: (_, _, _) => const Icon(
-                        Icons.auto_awesome_rounded,
-                        color: IntelliaColors.brandIndigo,
-                      ),
+                  Image.asset(
+                    IntelliaBrandAssets.appIcon,
+                    width: 42,
+                    height: 42,
+                    fit: BoxFit.contain,
+                    cacheWidth: 120,
+                    filterQuality: FilterQuality.medium,
+                    errorBuilder: (_, _, _) => const Icon(
+                      Icons.auto_awesome_rounded,
+                      color: IntelliaColors.brandIndigo,
                     ),
                   ),
                   const SizedBox(width: 10),
