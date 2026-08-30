@@ -6,7 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/core/assets/intellia_assets.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_act.dart';
+import 'package:intellia237/features/onboarding/domain/onboarding_micro_challenge.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:intellia237/features/onboarding/presentation/widgets/onboarding_motion.dart';
+import 'package:intellia237/features/onboarding/presentation/widgets/scenes/ascension_scene.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,13 +29,91 @@ void main() {
     expect(OnboardingAct.ascension.next, isNull);
   });
 
+  test('each subject resolves to a distinct context-ready micro-challenge', () {
+    const subjects = ['Mathématiques', 'Français', 'English', 'Sciences'];
+    final challenges = [
+      for (final subject in subjects)
+        OnboardingMicroChallenges.forContext(
+          subject: subject,
+          academicLevel: 'secondary-wide',
+          subsystem: 'francophone',
+        ),
+    ];
+
+    expect(challenges.map((item) => item.prompt).toSet(), hasLength(4));
+    expect(challenges.map((item) => item.instruction).toSet(), hasLength(4));
+    for (final challenge in challenges) {
+      expect(challenge.academicLevel, 'secondary-wide');
+      expect(challenge.subsystem, 'francophone');
+      expect(challenge.answers, hasLength(3));
+    }
+  });
+
+  testWidgets('typewriter can be completed immediately by touch', (
+    tester,
+  ) async {
+    const text = 'Une explication humaine, calme et claire.';
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: OnboardingTypewriterText(text: text, reduceMotion: false),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 80));
+    expect(find.text(text), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('companion-typewriter')));
+    await tester.pump();
+    expect(find.text(text), findsOneWidget);
+  });
+
+  testWidgets('poster uses subtle camera motion when animations are enabled', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('fr'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: Scaffold(
+          body: AscensionScene(
+            animation: const AlwaysStoppedAnimation<double>(0.5),
+            reduceMotion: false,
+            onEnter: _noop,
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final camera = tester.widget<Transform>(
+      find.byKey(const ValueKey('ascension-camera-motion')),
+    );
+    expect(camera.transform.getTranslation().x, closeTo(2.5, 0.01));
+    expect(camera.transform.getTranslation().y, closeTo(-2.5, 0.01));
+  });
+
   testWidgets('onboarding starts in the activation act', (tester) async {
     final router = await _pumpOnboarding(tester);
     addTearDown(router.dispose);
 
     expect(find.text('Le savoir attend ton signal.'), findsOneWidget);
+    expect(
+      find.text(
+        'Une expérience d’apprentissage pour mieux comprendre, pratiquer et progresser.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Maintiens pour entrer'), findsOneWidget);
-    expect(find.text('Passer l’expérience'), findsOneWidget);
+    expect(find.text('Passer l’expérience'), findsNothing);
+    expect(find.byKey(const ValueKey('skip')), findsNothing);
     expect(find.text('Suivant'), findsNothing);
     expect(find.byKey(const ValueKey('activation-hold')), findsOneWidget);
     expect(_imageAssets(tester), contains(IntelliaBrandAssets.identityMaster));
@@ -59,6 +140,26 @@ void main() {
     expect(find.byKey(const ValueKey('subject-mathematics')), findsOneWidget);
   });
 
+  testWidgets('the selected subject really drives the next challenge', (
+    tester,
+  ) async {
+    const cases = {
+      'subject-mathematics': 'Quel nombre complète : 2, 4, 8, … ?',
+      'subject-french': 'Laquelle est correcte ?',
+      'subject-english': 'What does “careful” mean?',
+      'subject-sciences': 'Quand l’eau liquide devient vapeur, elle…',
+    };
+
+    for (final entry in cases.entries) {
+      final router = await _pumpOnboarding(tester);
+      await _activateReducedMotion(tester);
+      await _tapVisible(tester, ValueKey(entry.key));
+      expect(find.text(entry.value), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
   testWidgets('an incorrect challenge answer remains calm and recoverable', (
     tester,
   ) async {
@@ -67,11 +168,15 @@ void main() {
     await _reachChallenge(tester);
 
     await _tapVisible(tester, const ValueKey('challenge-answer-0'));
-    expect(find.text('On décompose, sans pression.'), findsOneWidget);
+    expect(find.text('On apprend aussi en essayant.'), findsOneWidget);
     expect(find.text('Comprendre compte plus que deviner.'), findsOneWidget);
+    expect(find.text('Appuie pour continuer'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('challenge-continue-arrow')),
+      findsOneWidget,
+    );
 
-    await _tapVisible(tester, const ValueKey('challenge-answer-2'));
-    await tester.pump(const Duration(milliseconds: 1));
+    await _tapVisible(tester, const ValueKey('challenge-continue'));
     expect(find.text('Deux personnalités. Un même objectif.'), findsOneWidget);
   });
 
@@ -83,7 +188,8 @@ void main() {
     await _reachChallenge(tester);
 
     await _tapVisible(tester, const ValueKey('challenge-answer-2'));
-    await tester.pump(const Duration(milliseconds: 1));
+    expect(find.text('Appuie pour continuer'), findsOneWidget);
+    await _tapVisible(tester, const ValueKey('challenge-continue'));
 
     expect(find.text('Deux personnalités. Un même objectif.'), findsOneWidget);
     expect(find.byKey(const ValueKey('companion-kira')), findsOneWidget);
@@ -120,6 +226,15 @@ void main() {
 
     expect(find.text('CALME • MÉTHODE • CONFIANCE'), findsOneWidget);
     expect(
+      find.textContaining('Tu pourras changer plus tard.'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('companion-typewriter')), findsOneWidget);
+    expect(
+      find.text('« On reprend l’idée essentielle, puis on avance ensemble. »'),
+      findsOneWidget,
+    );
+    expect(
       _imageAssets(tester),
       containsAll([
         IntelliaCompanionAssets.kiraOnboardingFullBody,
@@ -128,9 +243,45 @@ void main() {
     );
     await _tapVisible(tester, const ValueKey('companion-leo'));
     expect(find.text('DÉFI • ÉNERGIE • DÉPASSEMENT'), findsOneWidget);
+    expect(
+      find.text(
+        '« Prêt pour un défi ? Je te donne l’indice qui débloque tout. »',
+      ),
+      findsOneWidget,
+    );
 
     await _tapVisible(tester, const ValueKey('companion-kira'));
     expect(find.text('CALME • MÉTHODE • CONFIANCE'), findsOneWidget);
+  });
+
+  testWidgets('choosing Léo persists into the following portal scene', (
+    tester,
+  ) async {
+    final router = await _pumpOnboarding(tester);
+    addTearDown(router.dispose);
+    await _reachCompanions(tester);
+
+    await _tapVisible(tester, const ValueKey('companion-leo'));
+    await _tapVisible(tester, const ValueKey('companion-continue'));
+    await _tapVisible(tester, const ValueKey('journey-mastery'));
+
+    expect(find.byKey(const ValueKey('portal-companion-leo')), findsOneWidget);
+    expect(find.byKey(const ValueKey('portal-companion-kira')), findsNothing);
+  });
+
+  testWidgets('choosing Kira persists into the following portal scene', (
+    tester,
+  ) async {
+    final router = await _pumpOnboarding(tester);
+    addTearDown(router.dispose);
+    await _reachCompanions(tester);
+
+    await _tapVisible(tester, const ValueKey('companion-kira'));
+    await _tapVisible(tester, const ValueKey('companion-continue'));
+    await _tapVisible(tester, const ValueKey('journey-mastery'));
+
+    expect(find.byKey(const ValueKey('portal-companion-kira')), findsOneWidget);
+    expect(find.byKey(const ValueKey('portal-companion-leo')), findsNothing);
   });
 
   testWidgets('portal opens Act VI, whose CTA persists and opens Pass', (
@@ -149,6 +300,11 @@ void main() {
       findsOneWidget,
     );
     expect(_imageAssets(tester), contains(IntelliaBrandAssets.ascensionPoster));
+    final reducedCamera = tester.widget<Transform>(
+      find.byKey(const ValueKey('ascension-camera-motion')),
+    );
+    expect(reducedCamera.transform.getTranslation().x, 0);
+    expect(reducedCamera.transform.getTranslation().y, 0);
     final poster = tester.widget<Image>(
       find.byKey(const ValueKey('ascension-poster')),
     );
@@ -179,6 +335,23 @@ void main() {
     expect(find.text('Create my INTELLIA PASS'), findsOneWidget);
   });
 
+  testWidgets('opening and continuation copy are localized in English', (
+    tester,
+  ) async {
+    final router = await _pumpOnboarding(tester, locale: const Locale('en'));
+    addTearDown(router.dispose);
+
+    expect(
+      find.text(
+        'A learning experience designed to help you understand, practise and progress.',
+      ),
+      findsOneWidget,
+    );
+    await _reachChallenge(tester);
+    await _tapVisible(tester, const ValueKey('challenge-answer-0'));
+    expect(find.text('Tap to continue'), findsOneWidget);
+  });
+
   testWidgets('back from Act VI returns to the portal without completing', (
     tester,
   ) async {
@@ -194,19 +367,17 @@ void main() {
     expect(preferences.getBool('has_seen_onboarding'), isNot(true));
   });
 
-  testWidgets('skip is discreet, persists completion, and opens registration', (
+  testWidgets('visible skip is completely absent from every onboarding act', (
     tester,
   ) async {
     final router = await _pumpOnboarding(tester);
     addTearDown(router.dispose);
 
-    await tester.tap(find.byKey(const ValueKey('skip')));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    expect(find.text('Inscription prête'), findsOneWidget);
+    expect(find.byKey(const ValueKey('skip')), findsNothing);
+    await _activateReducedMotion(tester);
+    expect(find.byKey(const ValueKey('skip')), findsNothing);
     final preferences = await SharedPreferences.getInstance();
-    expect(preferences.getBool('has_seen_onboarding'), isTrue);
+    expect(preferences.getBool('has_seen_onboarding'), isNot(true));
   });
 
   testWidgets('reverse navigation preserves challenge and companion state', (
@@ -219,9 +390,12 @@ void main() {
     await _tapVisible(tester, const ValueKey('companion-leo'));
     await tester.tap(find.byKey(const ValueKey('onboarding-back')));
     await tester.pump();
-    expect(find.text('Exact. Le raisonnement est en place.'), findsOneWidget);
+    expect(
+      find.text('Bien vu. Ton raisonnement est en place.'),
+      findsOneWidget,
+    );
 
-    await _tapVisible(tester, const ValueKey('challenge-answer-2'));
+    await _tapVisible(tester, const ValueKey('challenge-continue'));
     expect(find.text('DÉFI • ÉNERGIE • DÉPASSEMENT'), findsOneWidget);
   });
 
@@ -271,6 +445,7 @@ void main() {
       await _tapVisible(tester, const ValueKey('challenge-answer-2'));
       await tester.pump();
       _expectNoLayoutException(tester, configuration);
+      await _tapVisible(tester, const ValueKey('challenge-continue'));
       await _tapVisible(tester, const ValueKey('companion-continue'));
       _expectNoLayoutException(tester, configuration);
       await _tapVisible(tester, const ValueKey('journey-mastery'));
@@ -359,7 +534,7 @@ Future<void> _reachChallenge(WidgetTester tester) async {
 Future<void> _reachCompanions(WidgetTester tester) async {
   await _reachChallenge(tester);
   await _tapVisible(tester, const ValueKey('challenge-answer-2'));
-  await tester.pump();
+  await _tapVisible(tester, const ValueKey('challenge-continue'));
 }
 
 Future<void> _reachPortal(WidgetTester tester) async {
@@ -388,3 +563,5 @@ void _expectNoLayoutException(
         'Unexpected layout error at ${configuration.size} and ${configuration.scale}x',
   );
 }
+
+void _noop() {}

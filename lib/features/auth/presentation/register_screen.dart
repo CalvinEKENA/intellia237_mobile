@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/localization/app_locale_controller.dart';
 import '../../../core/localization/localization_extensions.dart';
+import '../../../core/widgets/intellia_text_wordmark.dart';
 import '../domain/app_role.dart';
 import 'widgets/auth_choices.dart';
 import 'widgets/auth_controls.dart';
@@ -66,6 +67,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           AuthHeader(
             eyebrow: l10n.passEyebrow,
             title: l10n.passTitle,
+            titleWidget: _PassTitle(title: l10n.passTitle),
             subtitle: l10n.passSubtitle,
           ),
           const SizedBox(height: 26),
@@ -117,11 +119,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: _selectedRole == AppRole.teacher
                     ? AuthExperienceColors.gold
-                    : Colors.white70,
+                    : AuthExperienceColors.textPrimary,
                 side: BorderSide(
                   color: _selectedRole == AppRole.teacher
                       ? AuthExperienceColors.gold
-                      : Colors.white24,
+                      : AuthExperienceColors.border,
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -146,6 +148,36 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PassTitle extends StatelessWidget {
+  const _PassTitle({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final parts = title.split('INTELLIA237');
+    return Semantics(
+      label: title,
+      header: true,
+      child: ExcludeSemantics(
+        child: Intellia237TextWordmark(
+          key: const ValueKey('pass-cameroon-wordmark'),
+          prefix: parts.first,
+          suffix: parts.length > 1 ? parts.last : '',
+          wordmarkColor: AuthExperienceColors.indigo,
+          maxLines: 2,
+          style: const TextStyle(
+            color: AuthExperienceColors.textPrimary,
+            fontSize: 30,
+            height: 1.12,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
       ),
     );
   }

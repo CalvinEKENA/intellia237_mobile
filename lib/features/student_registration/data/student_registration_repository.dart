@@ -8,10 +8,17 @@ abstract class StudentRegistrationRepository {
 }
 
 class StudentRegistrationException implements Exception {
-  const StudentRegistrationException({required this.message, this.code});
+  const StudentRegistrationException({
+    required this.message,
+    this.code,
+    this.registrationOperation,
+    this.diagnosticId,
+  });
 
   final String message;
   final String? code;
+  final String? registrationOperation;
+  final String? diagnosticId;
 
   @override
   String toString() => message;

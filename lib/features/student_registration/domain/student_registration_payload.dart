@@ -50,6 +50,39 @@ class StudentRegistrationPayload {
   String? get _normalizedTutorId =>
       selectedTutorId == null ? null : TutorPersona.resolveId(selectedTutorId);
 
+  Map<String, dynamic> _preferences() => <String, dynamic>{
+    'preferredSubjects': preferredSubjects,
+    'difficultSubjects': difficultSubjects,
+    'learningGoal': learningGoal.label,
+    'dailyStudyMinutes': dailyStudyMinutes,
+    'studyReminderEnabled': true,
+    'notificationsEnabled': true,
+    'contentLanguage': interfaceLanguage.code,
+    'interfaceLanguage': interfaceLanguage.code,
+    'educationalSubsystem': educationalSubsystem.storageValue,
+    'educationType': educationType.name,
+    'streamOrSpeciality': streamOrSpeciality.isEmpty
+        ? schoolSeries?.label
+        : streamOrSpeciality,
+    'accountLinkage': accountLinkage.name,
+    // Candidate metadata is deliberately non-authoritative. A trusted
+    // backend is solely responsible for writing establishmentId.
+    'establishmentCandidate': establishment == null
+        ? null
+        : <String, dynamic>{
+            'candidateId': establishment!.candidateId,
+            'name': establishment!.name,
+            'status': establishment!.status.name,
+          },
+  };
+
+  Map<String, dynamic> _consents(DateTime now) => <String, dynamic>{
+    'termsAccepted': acceptedTerms,
+    'privacyAccepted': acceptedPrivacy,
+    'dataPolicyAccepted': acceptedDataPolicy,
+    'acceptedAt': now.toUtc(),
+  };
+
   Map<String, dynamic> toUserDocument({
     required String uid,
     required DateTime now,
@@ -66,6 +99,20 @@ class StudentRegistrationPayload {
       'profileCompleted': true,
       'tourGuideSeen': false,
       'createdAt': now.toUtc(),
+      'updatedAt': now.toUtc(),
+    };
+  }
+
+  /// Only fields that the owner rules explicitly allow to change.
+  ///
+  /// Initial authority fields such as role and establishmentId are never
+  /// replayed during a retry. This is what makes a second registration submit
+  /// safe without widening the Firestore rules.
+  Map<String, dynamic> toUserUpdateDocument({required DateTime now}) {
+    return <String, dynamic>{
+      'firstName': firstName,
+      'lastName': lastName,
+      'profileCompleted': true,
       'updatedAt': now.toUtc(),
     };
   }
@@ -89,39 +136,26 @@ class StudentRegistrationPayload {
         'lastStudyDate': null,
       },
       'tutorId': _normalizedTutorId,
-      'preferences': <String, dynamic>{
-        'preferredSubjects': preferredSubjects,
-        'difficultSubjects': difficultSubjects,
-        'learningGoal': learningGoal.label,
-        'dailyStudyMinutes': dailyStudyMinutes,
-        'studyReminderEnabled': true,
-        'notificationsEnabled': true,
-        'contentLanguage': interfaceLanguage.code,
-        'interfaceLanguage': interfaceLanguage.code,
-        'educationalSubsystem': educationalSubsystem.storageValue,
-        'educationType': educationType.name,
-        'streamOrSpeciality': streamOrSpeciality.isEmpty
-            ? schoolSeries?.label
-            : streamOrSpeciality,
-        'accountLinkage': accountLinkage.name,
-        // Candidate metadata is deliberately non-authoritative. A trusted
-        // backend is solely responsible for writing establishmentId.
-        'establishmentCandidate': establishment == null
-            ? null
-            : <String, dynamic>{
-                'candidateId': establishment!.candidateId,
-                'name': establishment!.name,
-                'status': establishment!.status.name,
-              },
-      },
-      'consents': <String, dynamic>{
-        'termsAccepted': acceptedTerms,
-        'privacyAccepted': acceptedPrivacy,
-        'dataPolicyAccepted': acceptedDataPolicy,
-        'acceptedAt': now.toUtc(),
-      },
+      'preferences': _preferences(),
+      'consents': _consents(now),
       'profileCompleted': true,
       'createdAt': now.toUtc(),
+      'updatedAt': now.toUtc(),
+    };
+  }
+
+  /// Retry payload for a profile that already exists.
+  ///
+  /// points, level, establishmentId, classLevel and series are intentionally
+  /// absent. They remain immutable from an untrusted client.
+  Map<String, dynamic> toStudentProfileUpdateDocument({required DateTime now}) {
+    return <String, dynamic>{
+      'firstName': firstName,
+      'lastName': lastName,
+      'tutorId': _normalizedTutorId,
+      'preferences': _preferences(),
+      'consents': _consents(now),
+      'profileCompleted': true,
       'updatedAt': now.toUtc(),
     };
   }

@@ -158,7 +158,7 @@ class _ParentRegistrationScreenState
           const _SectionHeader(
             title: 'Coordonnées du parent',
             subtitle:
-                'Renseignez votre identité, votre e-mail et votre téléphone (optionnel).',
+                'Quelques informations suffisent pour préparer le parcours de votre enfant.',
           ),
           const SizedBox(height: IntelliaSpacing.lg),
           IntelliaTextField(
@@ -183,7 +183,7 @@ class _ParentRegistrationScreenState
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _emailController,
-            label: 'Adresse e-mail',
+            label: 'E-mail technique (temporaire)',
             hint: 'parent@exemple.com',
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_rounded,
@@ -192,7 +192,7 @@ class _ParentRegistrationScreenState
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _phoneController,
-            label: 'Téléphone (optionnel)',
+            label: 'Téléphone — identité principale cible',
             hint: '+2376...',
             keyboardType: TextInputType.phone,
             prefixIcon: Icons.phone_rounded,

@@ -6,8 +6,16 @@ import {
   assertSucceeds,
   initializeTestEnvironment,
 } from "@firebase/rules-unit-testing";
-import { deleteDoc, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
+import {
+  deleteDoc,
+  doc,
+  getDoc,
+  runTransaction,
+  setDoc,
+  updateDoc,
+  writeBatch,
+} from "firebase/firestore";
+import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
 const projectId = "demo-intellia237";
 
@@ -127,6 +135,142 @@ function dbFor(uid?: string) {
   return uid
     ? testEnv.authenticatedContext(uid).firestore()
     : testEnv.unauthenticatedContext().firestore();
+}
+
+type RegistrationPayloadOptions = {
+  series?: string | null;
+  tutorId?: string | null;
+  establishmentCandidate?:
+    | { candidateId: string | null; name: string; status: string }
+    | null;
+};
+
+function exactStudentRegistrationPayload(
+  uid: string,
+  now: Date,
+  options: RegistrationPayloadOptions = {},
+) {
+  const series = options.series === undefined ? "D" : options.series;
+  const tutorId = options.tutorId === undefined ? "leo" : options.tutorId;
+  const establishmentCandidate =
+    options.establishmentCandidate === undefined
+      ? {
+          candidateId: null,
+          name: "Lycée de la Réunification",
+          status: "selectedUnverified",
+        }
+      : options.establishmentCandidate;
+  const preferences = {
+    preferredSubjects: ["Mathématiques", "Sciences"],
+    difficultSubjects: ["Anglais"],
+    learningGoal: "Maitriser les examens",
+    dailyStudyMinutes: 45,
+    studyReminderEnabled: true,
+    notificationsEnabled: true,
+    contentLanguage: "fr",
+    interfaceLanguage: "fr",
+    educationalSubsystem: "francophone",
+    educationType: "general",
+    streamOrSpeciality: series,
+    accountLinkage: "individual",
+    establishmentCandidate,
+  };
+  const consents = {
+    termsAccepted: true,
+    privacyAccepted: true,
+    dataPolicyAccepted: true,
+    acceptedAt: now,
+  };
+
+  return {
+    user: {
+      uid,
+      firstName: "Amina",
+      lastName: "Ndi",
+      email: "amina.ndi@example.com",
+      role: "student",
+      classLevel: "Terminale",
+      series,
+      tutorId,
+      profileCompleted: true,
+      tourGuideSeen: false,
+      createdAt: now,
+      updatedAt: now,
+    },
+    userUpdate: {
+      firstName: "Amina",
+      lastName: "Ndi",
+      profileCompleted: true,
+      updatedAt: now,
+    },
+    profile: {
+      uid,
+      firstName: "Amina",
+      lastName: "Ndi",
+      email: "amina.ndi@example.com",
+      classLevel: "Terminale",
+      series,
+      points: 0,
+      level: 1,
+      streak: { current: 0, best: 0, lastStudyDate: null },
+      tutorId,
+      preferences,
+      consents,
+      profileCompleted: true,
+      createdAt: now,
+      updatedAt: now,
+    },
+    profileUpdate: {
+      firstName: "Amina",
+      lastName: "Ndi",
+      tutorId,
+      preferences,
+      consents,
+      profileCompleted: true,
+      updatedAt: now,
+    },
+  };
+}
+
+async function legacyMergedBatchWrite(
+  uid: string,
+  options: RegistrationPayloadOptions = {},
+) {
+  const db = dbFor(uid);
+  const payload = exactStudentRegistrationPayload(uid, new Date(), options);
+  const batch = writeBatch(db);
+  batch.set(doc(db, `users/${uid}`), payload.user, { merge: true });
+  batch.set(doc(db, `student_profiles/${uid}`), payload.profile, {
+    merge: true,
+  });
+  await batch.commit();
+}
+
+async function idempotentRegistrationWrite(
+  uid: string,
+  options: RegistrationPayloadOptions = {},
+) {
+  const db = dbFor(uid);
+  const payload = exactStudentRegistrationPayload(uid, new Date(), options);
+  const userRef = doc(db, `users/${uid}`);
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(userRef);
+    if (snapshot.exists()) {
+      transaction.update(userRef, payload.userUpdate);
+    } else {
+      transaction.set(userRef, payload.user);
+    }
+  });
+
+  const profileRef = doc(db, `student_profiles/${uid}`);
+  await runTransaction(db, async (transaction) => {
+    const snapshot = await transaction.get(profileRef);
+    if (snapshot.exists()) {
+      transaction.update(profileRef, payload.profileUpdate);
+    } else {
+      transaction.set(profileRef, payload.profile);
+    }
+  });
 }
 
 describe("Firestore security rules", () => {
@@ -486,5 +630,109 @@ describe("Firestore security rules", () => {
         status: "active",
       }),
     );
+  });
+
+  describe("student registration idempotence", () => {
+    it("reproduces DATA-PERM-101 when the legacy exact merged batch is retried", async () => {
+      await assertSucceeds(legacyMergedBatchWrite("legacy-retry"));
+      await assertFails(legacyMergedBatchWrite("legacy-retry"));
+    });
+
+    it("CASE 1/2 accepts the exact full payload when Auth is new or already exists", async () => {
+      await assertSucceeds(idempotentRegistrationWrite("auth-new"));
+      await assertSucceeds(idempotentRegistrationWrite("auth-existing"));
+    });
+
+    it("CASE 3 resumes when users exists and student_profiles is absent", async () => {
+      const uid = "user-only";
+      const db = dbFor(uid);
+      const payload = exactStudentRegistrationPayload(uid, new Date());
+      await setDoc(doc(db, `users/${uid}`), payload.user);
+
+      await assertSucceeds(idempotentRegistrationWrite(uid));
+      expect((await getDoc(doc(db, `student_profiles/${uid}`))).exists()).toBe(
+        true,
+      );
+    });
+
+    it("CASE 4/5 updates both existing documents and permits a double submit", async () => {
+      const uid = "double-submit";
+      await assertSucceeds(idempotentRegistrationWrite(uid));
+      await assertSucceeds(idempotentRegistrationWrite(uid));
+      await assertSucceeds(idempotentRegistrationWrite(uid));
+    });
+
+    it("CASE 6 updates historical documents that have no establishmentId", async () => {
+      const uid = "historical-no-establishment";
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        const db = context.firestore();
+        await setDoc(doc(db, `users/${uid}`), {
+          uid,
+          role: "student",
+          firstName: "Amina",
+          lastName: "Ndi",
+          profileCompleted: false,
+        });
+        await setDoc(doc(db, `student_profiles/${uid}`), {
+          uid,
+          firstName: "Amina",
+          lastName: "Ndi",
+          classLevel: "Terminale",
+          series: "D",
+          points: 0,
+          level: 1,
+          profileCompleted: false,
+        });
+      });
+
+      await assertSucceeds(idempotentRegistrationWrite(uid));
+    });
+
+    it("CASE 7/8 accepts null tutorId and null series", async () => {
+      await assertSucceeds(
+        idempotentRegistrationWrite("nullable-fields", {
+          tutorId: null,
+          series: null,
+        }),
+      );
+    });
+
+    it("CASE 9 accepts non-authoritative establishmentCandidate metadata", async () => {
+      const uid = "candidate-present";
+      await assertSucceeds(idempotentRegistrationWrite(uid));
+      const snapshot = await getDoc(doc(dbFor(uid), `student_profiles/${uid}`));
+      expect(snapshot.data()?.preferences.establishmentCandidate.name).toBe(
+        "Lycée de la Réunification",
+      );
+      expect(snapshot.data()).not.toHaveProperty("establishmentId");
+    });
+
+    it("CASE 10 accepts an absent establishment candidate represented by null", async () => {
+      const uid = "candidate-absent";
+      await assertSucceeds(
+        idempotentRegistrationWrite(uid, { establishmentCandidate: null }),
+      );
+      const snapshot = await getDoc(doc(dbFor(uid), `student_profiles/${uid}`));
+      expect(snapshot.data()?.preferences.establishmentCandidate).toBeNull();
+    });
+
+    it("still blocks privilege, points, level, and authoritative establishment escalation", async () => {
+      const uid = "no-escalation";
+      await idempotentRegistrationWrite(uid);
+      const db = dbFor(uid);
+
+      await assertFails(updateDoc(doc(db, `users/${uid}`), { role: "admin" }));
+      await assertFails(
+        updateDoc(doc(db, `users/${uid}`), {
+          establishmentId: "school-forged",
+        }),
+      );
+      await assertFails(
+        updateDoc(doc(db, `student_profiles/${uid}`), { points: 9000 }),
+      );
+      await assertFails(
+        updateDoc(doc(db, `student_profiles/${uid}`), { level: 99 }),
+      );
+    });
   });
 });

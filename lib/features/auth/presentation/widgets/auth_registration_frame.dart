@@ -31,10 +31,10 @@ class AuthRegistrationFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final darkTheme = ThemeData.dark(useMaterial3: true).copyWith(
+    final lightTheme = ThemeData.light(useMaterial3: true).copyWith(
       colorScheme: ColorScheme.fromSeed(
         seedColor: AuthExperienceColors.indigo,
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
         primary: AuthExperienceColors.indigo,
         secondary: AuthExperienceColors.purple,
         error: AuthExperienceColors.error,
@@ -42,14 +42,14 @@ class AuthRegistrationFrame extends StatelessWidget {
       scaffoldBackgroundColor: Colors.transparent,
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.06),
+        fillColor: AuthExperienceColors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(IntelliaRadii.small),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.14)),
+          borderSide: const BorderSide(color: AuthExperienceColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(IntelliaRadii.small),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.14)),
+          borderSide: const BorderSide(color: AuthExperienceColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(IntelliaRadii.small),
@@ -62,10 +62,10 @@ class AuthRegistrationFrame extends StatelessWidget {
     );
 
     return Theme(
-      data: darkTheme,
+      data: lightTheme,
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        backgroundColor: AuthExperienceColors.night,
+        backgroundColor: AuthExperienceColors.canvas,
         body: Stack(
           fit: StackFit.expand,
           children: [
@@ -87,7 +87,7 @@ class AuthRegistrationFrame extends StatelessWidget {
                           child: Text(
                             title,
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: AuthExperienceColors.textPrimary,
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
                             ),

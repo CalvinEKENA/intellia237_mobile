@@ -5,13 +5,19 @@ import '../../../../../core/assets/intellia_assets.dart';
 import '../../../../../core/widgets/intellia_buttons.dart';
 import '../../../../../core/widgets/intellia_companion_avatar.dart';
 import '../../../domain/onboarding_act.dart';
+import '../../../domain/onboarding_journey_state.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
 import '../../../../../core/localization/localization_extensions.dart';
 
 class PortalScene extends StatelessWidget {
-  const PortalScene({required this.onEnter, super.key});
+  const PortalScene({
+    required this.companionFocus,
+    required this.onEnter,
+    super.key,
+  });
 
+  final OnboardingCompanionFocus companionFocus;
   final VoidCallback onEnter;
 
   @override
@@ -82,8 +88,11 @@ class PortalScene extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const IntelliaCompanionAvatar(
-                    variant: CompanionVariant.kira,
+                  IntelliaCompanionAvatar(
+                    key: ValueKey('portal-companion-${companionFocus.name}'),
+                    variant: companionFocus == OnboardingCompanionFocus.kira
+                        ? CompanionVariant.kira
+                        : CompanionVariant.leo,
                     size: CompanionSize.small,
                   ),
                 ],

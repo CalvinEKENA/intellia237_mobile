@@ -12,10 +12,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get backToPreviousAct => 'Revenir à l’acte précédent';
 
   @override
-  String get skipIntroduction => 'Passer l’expérience';
+  String get onboardingOpeningBody =>
+      'Une expérience d’apprentissage pour mieux comprendre, pratiquer et progresser.';
 
   @override
-  String get skipIntroductionA11y => 'Passer l’expérience d’introduction';
+  String get onboardingTapToContinue => 'Appuie pour continuer';
+
+  @override
+  String get companionSwitchHint =>
+      'Touche ou balaie pour changer de personnalité.';
+
+  @override
+  String get companionChangeLater => 'Tu pourras changer plus tard.';
 
   @override
   String get ascensionSemanticLabel => 'L’Ascension';
@@ -103,7 +111,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get academicPassportDescription =>
-      'Regroupez l’identité d’usage, la langue et le parcours scolaire dans une seule fiche.';
+      'Parle-nous un peu de toi pour préparer ton espace.';
 
   @override
   String get interfaceLanguage => 'Langue de l’interface';
@@ -249,6 +257,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get emailOptional => 'E-mail (optionnel)';
+
+  @override
+  String get phoneIdentityTarget => 'Identité cible : téléphone + code OTP';
+
+  @override
+  String get temporaryEmailNotice =>
+      'Dans cette version, un e-mail technique reste temporairement nécessaire pour créer le compte Firebase. Il ne constitue pas l’identité principale cible.';
+
+  @override
+  String get temporaryEmailLabel => 'E-mail technique (temporaire)';
 
   @override
   String get otpChannelTitle => 'Comment souhaitez-vous recevoir le code ?';

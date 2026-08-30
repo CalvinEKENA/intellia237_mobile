@@ -194,7 +194,7 @@ class _StudentRegistrationFlowScreenState
           Text(
             l10n.interfaceLanguage,
             style: const TextStyle(
-              color: Colors.white,
+              color: AuthExperienceColors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w800,
             ),
@@ -298,7 +298,7 @@ class _StudentRegistrationFlowScreenState
         Text(
           l10n.educationalSubsystem,
           style: const TextStyle(
-            color: Colors.white,
+            color: AuthExperienceColors.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w800,
           ),
@@ -333,7 +333,7 @@ class _StudentRegistrationFlowScreenState
         Text(
           l10n.educationType,
           style: const TextStyle(
-            color: Colors.white,
+            color: AuthExperienceColors.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w800,
           ),
@@ -360,7 +360,7 @@ class _StudentRegistrationFlowScreenState
         Text(
           l10n.schoolLevel,
           style: const TextStyle(
-            color: Colors.white,
+            color: AuthExperienceColors.textPrimary,
             fontSize: 13,
             fontWeight: FontWeight.w800,
           ),
@@ -385,7 +385,7 @@ class _StudentRegistrationFlowScreenState
           const Text(
             'Série',
             style: TextStyle(
-              color: Colors.white,
+              color: AuthExperienceColors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w800,
             ),
@@ -409,10 +409,12 @@ class _StudentRegistrationFlowScreenState
             key: const ValueKey('passport-speciality'),
             initialValue: state.streamOrSpeciality,
             onChanged: controller.setStreamOrSpeciality,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: AuthExperienceColors.textPrimary),
             decoration: InputDecoration(
               labelText: l10n.streamOrSpeciality,
-              labelStyle: const TextStyle(color: Colors.white70),
+              labelStyle: const TextStyle(
+                color: AuthExperienceColors.textSecondary,
+              ),
             ),
           ),
         ],
@@ -421,13 +423,25 @@ class _StudentRegistrationFlowScreenState
           key: const ValueKey('passport-establishment'),
           initialValue: state.establishment?.name,
           onChanged: controller.setEstablishmentCandidate,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: AuthExperienceColors.textPrimary),
           decoration: InputDecoration(
             labelText: l10n.establishment,
             hintText: l10n.establishmentHint,
-            labelStyle: const TextStyle(color: Colors.white70),
-            hintStyle: const TextStyle(color: Colors.white38),
-            prefixIcon: const Icon(Icons.search_rounded),
+            labelStyle: const TextStyle(
+              color: AuthExperienceColors.textSecondary,
+            ),
+            hintStyle: const TextStyle(
+              color: AuthExperienceColors.textTertiary,
+            ),
+            prefixIcon: const Icon(
+              Icons.search_rounded,
+              color: AuthExperienceColors.textSecondary,
+            ),
+            filled: true,
+            fillColor: AuthExperienceColors.surface,
+            enabledBorder: const OutlineInputBorder(
+              borderSide: BorderSide(color: AuthExperienceColors.border),
+            ),
           ),
         ),
         if (state.establishment != null) ...[
@@ -472,12 +486,58 @@ class _StudentRegistrationFlowScreenState
           children: [
             const _StepHeading(
               title: 'Sécurise ton compte',
-              subtitle: 'Vérifie le résumé puis crée réellement ton espace.',
+              subtitle:
+                  'Le téléphone deviendra l’accès principal du foyer. '
+                  'Le mécanisme actuel reste temporaire.',
             ),
             const SizedBox(height: 18),
+            Container(
+              key: const ValueKey('phone-primary-target'),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: AuthExperienceColors.surfaceSoft,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AuthExperienceColors.border),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.phone_android_rounded,
+                    color: AuthExperienceColors.success,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.l10n.phoneIdentityTarget,
+                          style: const TextStyle(
+                            color: AuthExperienceColors.textPrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          context.l10n.temporaryEmailNotice,
+                          style: const TextStyle(
+                            color: AuthExperienceColors.textSecondary,
+                            fontSize: 11.5,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
             AuthAnimatedField(
               controller: _emailController,
-              label: 'Adresse e-mail',
+              label: context.l10n.temporaryEmailLabel,
               hint: 'prenom.nom@exemple.com',
               icon: Icons.alternate_email_rounded,
               keyboardType: TextInputType.emailAddress,
@@ -563,7 +623,10 @@ class _StudentRegistrationFlowScreenState
                         .read(studentRegistrationControllerProvider.notifier)
                         .goToPreviousStep();
                   },
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white70),
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: AuthExperienceColors.textSecondary,
+            ),
           ),
           const SizedBox(width: 10),
         ],
@@ -643,7 +706,7 @@ class _StepHeading extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            color: Colors.white,
+            color: AuthExperienceColors.textPrimary,
             fontSize: 21,
             fontWeight: FontWeight.w900,
           ),
@@ -678,7 +741,7 @@ class _SummaryRow extends StatelessWidget {
           child: Text(
             label,
             style: const TextStyle(
-              color: Colors.white,
+              color: AuthExperienceColors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),

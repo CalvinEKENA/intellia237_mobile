@@ -128,9 +128,11 @@ service cloud.firestore {
     }
 
     function isUserOwnerUpdate() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(userOwnerUpdateKeys())
-        && request.resource.data.role == resource.data.role
-        && request.resource.data.establishmentId == resource.data.establishmentId;
+      // role and establishmentId are deliberately absent from the update
+      // allowlist. Avoid dereferencing either field here: historical documents
+      // may not contain establishmentId, and a missing map key turns an
+      // otherwise safe retry into an evaluation error.
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(userOwnerUpdateKeys());
     }
 
     function isStudentProfileCreate(uid) {
@@ -144,11 +146,10 @@ service cloud.firestore {
     }
 
     function isStudentProfileOwnerUpdate() {
-      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(studentProfileOwnerUpdateKeys())
-        && request.resource.data.level == resource.data.level
-        && request.resource.data.establishmentId == resource.data.establishmentId
-        && request.resource.data.classLevel == resource.data.classLevel
-        && request.resource.data.series == resource.data.series;
+      // Sensitive academic/bootstrap fields are immutable because none of
+      // them are in studentProfileOwnerUpdateKeys(). The allowlist is enough
+      // and remains valid for legacy documents with missing optional keys.
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(studentProfileOwnerUpdateKeys());
     }
 
     function isLessonFavoriteCreate() {

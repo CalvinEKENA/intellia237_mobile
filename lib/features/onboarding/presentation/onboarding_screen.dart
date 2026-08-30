@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -149,9 +148,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                   children: [
                     _ExperienceHeader(
                       canGoBack: _act.previous != null,
-                      showSkip: _act != OnboardingAct.ascension,
                       onBack: _previous,
-                      onSkip: _complete,
                     ),
                     Expanded(
                       child: ClipRect(
@@ -210,7 +207,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   Widget _backgroundLayer() {
     final color = switch (_act) {
-      OnboardingAct.activation => IntelliaColors.pointsGold,
+      OnboardingAct.activation => const Color(0xFFF6F0E4),
       OnboardingAct.knowledge => IntelliaColors.brandBlue,
       OnboardingAct.challenge =>
         _journey.challengeOutcome == OnboardingChallengeOutcome.needsHelp
@@ -242,12 +239,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
             stops: const [0, 0.48, 1],
           ),
         ),
-        child: AnimatedBuilder(
-          animation: _ambient,
-          builder: (context, _) => CustomPaint(
-            painter: _LearningPathTexturePainter(phase: _ambient.value),
-          ),
-        ),
       ),
     );
   }
@@ -266,12 +257,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           setState(() {
             _journey = _journey.copyWith(
               selectedSubject: subject,
+              challengeOutcome: OnboardingChallengeOutcome.unanswered,
               act: OnboardingAct.challenge,
             );
           });
         },
       ),
       OnboardingAct.challenge => ChallengeScene(
+        subject: _journey.selectedSubject ?? 'Mathématiques',
         outcome: _journey.challengeOutcome,
         reduceMotion: reduceMotion,
         onOutcomeChanged: (outcome) {
@@ -279,7 +272,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
             _journey = _journey.copyWith(challengeOutcome: outcome);
           });
         },
-        onSolved: () => _goTo(OnboardingAct.companions),
+        onContinue: () => _goTo(OnboardingAct.companions),
       ),
       OnboardingAct.companions => CompanionsScene(
         focus: _journey.companionFocus,
@@ -295,6 +288,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         onMasteryReached: () => _goTo(OnboardingAct.portal),
       ),
       OnboardingAct.portal => PortalScene(
+        companionFocus: _journey.companionFocus,
         onEnter: () => _goTo(OnboardingAct.ascension),
       ),
       OnboardingAct.ascension => AscensionScene(
@@ -307,17 +301,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 }
 
 class _ExperienceHeader extends StatelessWidget {
-  const _ExperienceHeader({
-    required this.canGoBack,
-    required this.showSkip,
-    required this.onBack,
-    required this.onSkip,
-  });
+  const _ExperienceHeader({required this.canGoBack, required this.onBack});
 
   final bool canGoBack;
-  final bool showSkip;
   final VoidCallback onBack;
-  final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -364,69 +351,10 @@ class _ExperienceHeader extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
-              width: 122,
-              child: showSkip
-                  ? Align(
-                      alignment: Alignment.centerRight,
-                      child: Semantics(
-                        button: true,
-                        label: context.l10n.skipIntroductionA11y,
-                        child: IntelliaPressable(
-                          key: const ValueKey('skip'),
-                          onTap: onSkip,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 8,
-                            ),
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                context.l10n.skipIntroduction,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.58),
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
+            SizedBox(width: 48, child: const SizedBox.shrink()),
           ],
         ),
       ),
     );
   }
-}
-
-class _LearningPathTexturePainter extends CustomPainter {
-  const _LearningPathTexturePainter({required this.phase});
-
-  final double phase;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white.withValues(alpha: 0.16);
-    for (var index = 0; index < 18; index++) {
-      final seed = index * 0.61803398875;
-      final x = (seed % 1) * size.width;
-      final baseY = ((seed * 1.73) % 1) * size.height;
-      final y = (baseY + math.sin(phase * math.pi * 2 + index) * 4).clamp(
-        0.0,
-        size.height,
-      );
-      final radius = index.isEven ? 0.8 : 1.25;
-      canvas.drawCircle(Offset(x, y), radius, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _LearningPathTexturePainter oldDelegate) =>
-      oldDelegate.phase != phase;
 }

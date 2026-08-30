@@ -110,7 +110,7 @@ class _CharacterVisual {
 
   static const fallback = _CharacterVisual(
     color: IntelliaColors.brandIndigo,
-    icon: Icons.psychology_alt_rounded,
+    icon: Icons.explore_rounded,
   );
 }
 

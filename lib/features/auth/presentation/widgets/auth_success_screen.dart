@@ -121,7 +121,7 @@ class _SuccessBody extends StatelessWidget {
                         'Bienvenue, $firstName !',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AuthExperienceColors.textPrimary,
                           fontSize: 30,
                           height: 1.15,
                           fontWeight: FontWeight.w900,

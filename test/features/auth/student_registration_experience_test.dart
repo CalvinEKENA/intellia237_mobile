@@ -101,10 +101,59 @@ void main() {
     await tester.pump();
 
     expect(find.text('Créer mon compte'), findsOneWidget);
+    expect(find.byKey(const ValueKey('phone-primary-target')), findsOneWidget);
+    expect(find.text('Identité cible : téléphone + code OTP'), findsOneWidget);
+    expect(find.text('E-mail technique (temporaire)'), findsOneWidget);
+    expect(find.text('Adresse e-mail'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 1));
   });
+
+  for (final brightness in Brightness.values) {
+    testWidgets(
+      'academic choices and establishment placeholder remain legible under ${brightness.name} theme',
+      (tester) async {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        final controller = container.read(
+          studentRegistrationControllerProvider.notifier,
+        );
+        controller
+          ..setFirstName('Amina')
+          ..setLastName('Ndi')
+          ..goToNextStep();
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: ThemeData(brightness: brightness),
+              home: const MediaQuery(
+                data: MediaQueryData(disableAnimations: true),
+                child: StudentRegistrationFlowScreen(),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        final field = tester.widget<TextField>(
+          find.descendant(
+            of: find.byKey(const ValueKey('passport-establishment')),
+            matching: find.byType(TextField),
+          ),
+        );
+        expect(field.decoration?.hintText, isNotEmpty);
+        expect(field.decoration?.hintStyle?.color, const Color(0xFF6F7B88));
+        expect(find.text('Francophone'), findsOneWidget);
+        expect(find.text('Anglophone'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(seconds: 1));
+      },
+    );
+  }
 
   testWidgets(
     'companion step reveals Kira then Léo one at a time, official assets only',

@@ -104,17 +104,29 @@ abstract class AppLocalizations {
   /// **'Revenir à l’acte précédent'**
   String get backToPreviousAct;
 
-  /// No description provided for @skipIntroduction.
+  /// No description provided for @onboardingOpeningBody.
   ///
   /// In fr, this message translates to:
-  /// **'Passer l’expérience'**
-  String get skipIntroduction;
+  /// **'Une expérience d’apprentissage pour mieux comprendre, pratiquer et progresser.'**
+  String get onboardingOpeningBody;
 
-  /// No description provided for @skipIntroductionA11y.
+  /// No description provided for @onboardingTapToContinue.
   ///
   /// In fr, this message translates to:
-  /// **'Passer l’expérience d’introduction'**
-  String get skipIntroductionA11y;
+  /// **'Appuie pour continuer'**
+  String get onboardingTapToContinue;
+
+  /// No description provided for @companionSwitchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche ou balaie pour changer de personnalité.'**
+  String get companionSwitchHint;
+
+  /// No description provided for @companionChangeLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu pourras changer plus tard.'**
+  String get companionChangeLater;
 
   /// No description provided for @ascensionSemanticLabel.
   ///
@@ -269,7 +281,7 @@ abstract class AppLocalizations {
   /// No description provided for @academicPassportDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Regroupez l’identité d’usage, la langue et le parcours scolaire dans une seule fiche.'**
+  /// **'Parle-nous un peu de toi pour préparer ton espace.'**
   String get academicPassportDescription;
 
   /// No description provided for @interfaceLanguage.
@@ -547,6 +559,24 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'E-mail (optionnel)'**
   String get emailOptional;
+
+  /// No description provided for @phoneIdentityTarget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identité cible : téléphone + code OTP'**
+  String get phoneIdentityTarget;
+
+  /// No description provided for @temporaryEmailNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans cette version, un e-mail technique reste temporairement nécessaire pour créer le compte Firebase. Il ne constitue pas l’identité principale cible.'**
+  String get temporaryEmailNotice;
+
+  /// No description provided for @temporaryEmailLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'E-mail technique (temporaire)'**
+  String get temporaryEmailLabel;
 
   /// No description provided for @otpChannelTitle.
   ///

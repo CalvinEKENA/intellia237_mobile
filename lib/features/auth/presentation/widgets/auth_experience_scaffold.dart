@@ -3,19 +3,27 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/assets/intellia_assets.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
+import '../../../../core/widgets/intellia_text_wordmark.dart';
 
 abstract final class AuthExperienceColors {
-  static const night = Color(0xFF080722);
-  static const nightRaised = Color(0xFF0D0B2D);
-  static const indigo = Color(0xFF5856D6);
-  static const purple = Color(0xFFAF52DE);
-  static const blue = Color(0xFF007AFF);
-  static const champagne = Color(0xFFE5B566);
-  static const gold = Color(0xFFF4C56B);
-  static const success = Color(0xFF34C759);
-  static const error = Color(0xFFFF453A);
-  static const textSecondary = Color(0xADFFFFFF);
+  static const canvas = Color(0xFFFBF8F1);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceSoft = Color(0xFFF4EFE5);
+  static const night = canvas;
+  static const nightRaised = surfaceSoft;
+  static const indigo = Color(0xFF315B93);
+  static const purple = Color(0xFF75639C);
+  static const blue = Color(0xFF2E6FA8);
+  static const champagne = Color(0xFFE7D9BD);
+  static const gold = Color(0xFF8A671B);
+  static const success = Color(0xFF2F7D4C);
+  static const error = Color(0xFFB3261E);
+  static const textPrimary = Color(0xFF17243A);
+  static const textSecondary = Color(0xFF526173);
+  static const textTertiary = Color(0xFF6F7B88);
+  static const border = Color(0xFFD9D3C8);
 }
 
 class AuthExperienceScaffold extends StatelessWidget {
@@ -42,7 +50,7 @@ class AuthExperienceScaffold extends StatelessWidget {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: AuthExperienceColors.night,
+      backgroundColor: AuthExperienceColors.canvas,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -106,9 +114,9 @@ class AuthAmbientBackground extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AuthExperienceColors.night,
-                  AuthExperienceColors.nightRaised,
-                  Color(0xFF09081E),
+                  AuthExperienceColors.canvas,
+                  Color(0xFFFFFDF8),
+                  AuthExperienceColors.surfaceSoft,
                 ],
               ),
             ),
@@ -123,8 +131,8 @@ class AuthAmbientBackground extends StatelessWidget {
                   center: const Alignment(0.2, -0.8),
                   radius: 1.2,
                   colors: [
-                    AuthExperienceColors.purple.withValues(alpha: 0.22),
-                    AuthExperienceColors.indigo.withValues(alpha: 0.10),
+                    const Color(0xFFFFFDF8).withValues(alpha: 0.82),
+                    AuthExperienceColors.champagne.withValues(alpha: 0.24),
                     Colors.transparent,
                   ],
                 ),
@@ -141,7 +149,7 @@ class AuthAmbientBackground extends StatelessWidget {
                   center: const Alignment(-0.6, 1.0),
                   radius: 1.1,
                   colors: [
-                    AuthExperienceColors.blue.withValues(alpha: 0.13),
+                    AuthExperienceColors.blue.withValues(alpha: 0.06),
                     Colors.transparent,
                   ],
                 ),
@@ -160,6 +168,7 @@ class AuthHeader extends StatelessWidget {
     required this.subtitle,
     this.eyebrow,
     this.showBrand = true,
+    this.titleWidget,
     super.key,
   });
 
@@ -167,6 +176,7 @@ class AuthHeader extends StatelessWidget {
   final String subtitle;
   final String? eyebrow;
   final bool showBrand;
+  final Widget? titleWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -181,16 +191,15 @@ class AuthHeader extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(IntelliaRadii.small),
                     child: Image.asset(
-                      'assets/branding/icon-192.png',
+                      IntelliaBrandAssets.appIcon,
                       width: 34,
                       height: 34,
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Text(
-                    'Intellia 237',
+                  const Intellia237TextWordmark(
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AuthExperienceColors.indigo,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 0,
@@ -212,16 +221,17 @@ class AuthHeader extends StatelessWidget {
               ),
               const SizedBox(height: 8),
             ],
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                height: 1.12,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0,
-              ),
-            ),
+            titleWidget ??
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AuthExperienceColors.textPrimary,
+                    fontSize: 30,
+                    height: 1.12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0,
+                  ),
+                ),
             const SizedBox(height: 10),
             Text(
               subtitle,
@@ -251,12 +261,12 @@ class AuthGlassPanel extends StatelessWidget {
     return Container(
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.065),
+        color: AuthExperienceColors.surface,
         borderRadius: BorderRadius.circular(IntelliaRadii.small),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+        border: Border.all(color: AuthExperienceColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.24),
+            color: const Color(0xFF473C2B).withValues(alpha: 0.10),
             blurRadius: 28,
             offset: const Offset(0, 16),
           ),
@@ -284,13 +294,13 @@ class _BackButton extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.07),
+              color: AuthExperienceColors.surface,
               borderRadius: BorderRadius.circular(IntelliaRadii.small),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+              border: Border.all(color: AuthExperienceColors.border),
             ),
             child: const Icon(
               Icons.arrow_back_rounded,
-              color: Colors.white,
+              color: AuthExperienceColors.textPrimary,
               size: 21,
             ),
           ),

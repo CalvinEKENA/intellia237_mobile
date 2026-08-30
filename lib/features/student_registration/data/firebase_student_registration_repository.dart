@@ -4,15 +4,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/config/app_config.dart';
 import '../../auth/domain/firebase_error_mapper.dart';
+import '../domain/registration_diagnostic.dart';
 import '../domain/student_registration_payload.dart';
 import '../domain/student_registration_result.dart';
+import 'student_registration_gateways.dart';
 import 'student_registration_repository.dart';
 
 final studentRegistrationRepositoryProvider =
     Provider<StudentRegistrationRepository>((ref) {
-      final config = ref.watch(appConfigProvider);
       String? projectId;
       String? appId;
       try {
@@ -20,10 +20,10 @@ final studentRegistrationRepositoryProvider =
         projectId = options.projectId;
         appId = options.appId;
       } catch (_) {
-        // Firebase non initialisé (ex. tests) — diagnostics simplement omis.
+        // Firebase is not initialized in some unit tests. Diagnostics simply
+        // omit the build identity in that case.
       }
       return FirebaseStudentRegistrationRepository(
-        isStaging: config.isStaging,
         projectId: projectId,
         appId: appId,
       );
@@ -34,84 +34,56 @@ class FirebaseStudentRegistrationRepository
   FirebaseStudentRegistrationRepository({
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
-    this.isStaging = false,
+    RegistrationAuthGateway? authGateway,
+    RegistrationDocumentStore? documentStore,
     this.projectId,
     this.appId,
-  }) : _auth = auth ?? FirebaseAuth.instance,
-       _firestore = firestore ?? FirebaseFirestore.instance;
+  }) : _authGateway =
+           authGateway ??
+           FirebaseRegistrationAuthGateway(auth ?? FirebaseAuth.instance),
+       _documentStore =
+           documentStore ??
+           FirebaseRegistrationDocumentStore(
+             firestore ?? FirebaseFirestore.instance,
+           );
 
-  final FirebaseAuth _auth;
-  final FirebaseFirestore _firestore;
-
-  /// En staging, l'erreur affichée inclut un identifiant diagnostic copiable
-  /// et un log non sensible est émis. En production : message utilisateur seul.
-  final bool isStaging;
+  final RegistrationAuthGateway _authGateway;
+  final RegistrationDocumentStore _documentStore;
   final String? projectId;
   final String? appId;
-
-  static const _usersCollection = 'users';
-  static const _profilesCollection = 'student_profiles';
 
   @override
   Future<StudentRegistrationResult> registerStudent(
     StudentRegistrationPayload payload,
   ) async {
-    User? user;
-    var createdHere = false;
+    var operation = RegistrationOperation.authCreate;
 
     try {
-      final normalizedEmail = payload.email.trim().toLowerCase();
-      final currentUser = _auth.currentUser;
-      if (currentUser != null &&
-          currentUser.email?.trim().toLowerCase() == normalizedEmail) {
-        user = currentUser;
-      } else {
-        final credential = await _auth
-            .createUserWithEmailAndPassword(
-              email: payload.email.trim(),
-              password: payload.password,
-            )
-            .timeout(const Duration(seconds: 20));
-        user = credential.user;
-        createdHere = true;
-      }
-
+      final user = await _resolveAuthUser(payload);
       if (user == null) {
-        _logStaging('create-user', 'missing-user', null);
-        throw StudentRegistrationException(
-          message: _decorate(
-            'Impossible de créer le compte utilisateur.',
-            'missing-user',
-            null,
-          ),
+        throw const _RegistrationFailure(
+          operation: RegistrationOperation.authCreate,
           code: 'missing-user',
         );
       }
 
       final now = DateTime.now();
       final uid = user.uid;
+
+      operation = await _documentStore.upsertUser(
+        uid: uid,
+        createData: payload.toUserDocument(uid: uid, now: now),
+        updateData: payload.toUserUpdateDocument(now: now),
+      );
+      operation = await _documentStore.upsertProfile(
+        uid: uid,
+        createData: payload.toStudentProfileDocument(uid: uid, now: now),
+        updateData: payload.toStudentProfileUpdateDocument(now: now),
+      );
+
       final displayName =
           '${payload.firstName.trim()} ${payload.lastName.trim()}'.trim();
-
-      final batch = _firestore.batch();
-
-      final userRef = _firestore.collection(_usersCollection).doc(uid);
-      batch.set(
-        userRef,
-        payload.toUserDocument(uid: uid, now: now),
-        SetOptions(merge: true),
-      );
-
-      final profileRef = _firestore.collection(_profilesCollection).doc(uid);
-      batch.set(
-        profileRef,
-        payload.toStudentProfileDocument(uid: uid, now: now),
-        SetOptions(merge: true),
-      );
-
-      await batch.commit().timeout(const Duration(seconds: 20));
-      await user.updateDisplayName(displayName);
-      await _sendVerificationBestEffort(user);
+      await _updateAuthMetadataBestEffort(user, displayName);
 
       return StudentRegistrationResult(
         uid: uid,
@@ -119,113 +91,183 @@ class FirebaseStudentRegistrationRepository
         firstName: payload.firstName.trim(),
         lastName: payload.lastName.trim(),
       );
-    } on FirebaseAuthException catch (error, stackTrace) {
-      _debugLog('create-user', error.code, error.message, stackTrace);
-      _logStaging('create-user', error.code, error.message);
-      final code = FirebaseErrorMapper.normalizeCode(error.code, error.message);
-      throw StudentRegistrationException(
-        message: _decorate(
-          FirebaseErrorMapper.authMessage(
-            code: error.code,
-            technicalMessage: error.message,
-          ),
-          error.code,
-          error.message,
-        ),
-        code: code,
+    } on RegistrationAuthFailure catch (error, stackTrace) {
+      _throwRegistrationFailure(
+        operation: RegistrationOperation.authCreate,
+        code: error.code,
+        technicalMessage: error.technicalMessage,
+        stackTrace: stackTrace,
+        isAuth: true,
       );
-    } on FirebaseException catch (error, stackTrace) {
-      _debugLog('create-profile', error.code, error.message, stackTrace);
-      _logStaging('create-profile', error.code, error.message);
-      await _rollbackAuthUser(user, createdHere: createdHere);
-      throw StudentRegistrationException(
-        message: _decorate(
-          FirebaseErrorMapper.serviceMessage(
-            code: error.code,
-            technicalMessage: error.message,
-          ),
-          error.code,
-          error.message,
-        ),
-        code: FirebaseErrorMapper.normalizeCode(error.code, error.message),
+    } on RegistrationWriteFailure catch (error, stackTrace) {
+      _throwRegistrationFailure(
+        operation: error.operation,
+        code: error.code,
+        technicalMessage: error.technicalMessage,
+        stackTrace: stackTrace,
+      );
+    } on _RegistrationFailure catch (error, stackTrace) {
+      _throwRegistrationFailure(
+        operation: error.operation,
+        code: error.code,
+        technicalMessage: null,
+        stackTrace: stackTrace,
+        isAuth: error.operation == RegistrationOperation.authCreate,
       );
     } on StudentRegistrationException {
-      await _rollbackAuthUser(user, createdHere: createdHere);
       rethrow;
     } catch (error, stackTrace) {
-      _debugLog('registration', 'unknown-error', error.toString(), stackTrace);
-      _logStaging('registration', 'unknown-error', error.toString());
-      await _rollbackAuthUser(user, createdHere: createdHere);
-      throw StudentRegistrationException(
-        message: _decorate(
-          FirebaseErrorMapper.serviceMessage(code: 'unknown-error'),
-          'unknown-error',
-          null,
-        ),
+      _throwRegistrationFailure(
+        operation: operation,
         code: 'unknown-error',
+        technicalMessage: error.runtimeType.toString(),
+        stackTrace: stackTrace,
       );
     }
   }
 
-  Future<void> _sendVerificationBestEffort(User user) async {
-    if (user.emailVerified) return;
+  Future<RegistrationAuthUser?> _resolveAuthUser(
+    StudentRegistrationPayload payload,
+  ) async {
+    final normalizedEmail = payload.email.trim().toLowerCase();
+    final currentUser = _authGateway.currentUser;
+    if (currentUser != null &&
+        currentUser.email?.trim().toLowerCase() == normalizedEmail) {
+      return currentUser;
+    }
+
     try {
-      await user.sendEmailVerification();
-    } on FirebaseAuthException {
-      // L’inscription reste valide ; l’élève pourra renvoyer le lien depuis
-      // Paramètres sans perdre son profil pédagogique.
+      return await _authGateway.createUser(
+        email: payload.email.trim(),
+        password: payload.password,
+      );
+    } on RegistrationAuthFailure catch (error) {
+      final normalized = FirebaseErrorMapper.normalizeCode(
+        error.code,
+        error.technicalMessage,
+      );
+      if (normalized != 'email-already-in-use') rethrow;
+
+      // A previous submit may have created Firebase Auth before a Firestore
+      // write failed. Re-authenticate and resume the idempotent writes.
+      return _authGateway.signIn(
+        email: payload.email.trim(),
+        password: payload.password,
+      );
     }
   }
 
-  Future<void> _rollbackAuthUser(
-    User? user, {
-    required bool createdHere,
-  }) async {
-    if (user == null || !createdHere) return;
-
+  Future<void> _updateAuthMetadataBestEffort(
+    RegistrationAuthUser user,
+    String displayName,
+  ) async {
     try {
-      await user.delete();
-    } catch (error, stackTrace) {
+      await user.updateDisplayName(displayName);
+      if (!user.emailVerified) await user.sendEmailVerification();
+    } on Object catch (error, stackTrace) {
       _debugLog(
-        'rollback-user',
-        'rollback-failed',
-        error.toString(),
-        stackTrace,
+        operation: RegistrationOperation.authCreate,
+        normalizedErrorCode: 'metadata-best-effort',
+        diagnosticId: 'AUTH-META-106',
+        stackTrace: stackTrace,
+        technicalType: error.runtimeType.toString(),
       );
     }
   }
 
-  void _debugLog(
-    String operation,
-    String? code,
-    String? message,
-    StackTrace stackTrace,
-  ) {
-    if (!kDebugMode) return;
-    debugPrint(
-      'Student registration $operation failed: code=$code message=$message',
+  Never _throwRegistrationFailure({
+    required RegistrationOperation operation,
+    required String? code,
+    required String? technicalMessage,
+    required StackTrace stackTrace,
+    bool isAuth = false,
+  }) {
+    final normalized = FirebaseErrorMapper.normalizeCode(
+      code,
+      technicalMessage,
     );
-    debugPrintStack(stackTrace: stackTrace);
+    final classifiedOperation = _classifyOperation(
+      operation,
+      normalized,
+      technicalMessage,
+    );
+    final diagnosticId = FirebaseErrorMapper.diagnosticId(
+      normalized,
+      technicalMessage,
+    );
+    _debugLog(
+      operation: classifiedOperation,
+      normalizedErrorCode: normalized,
+      diagnosticId: diagnosticId,
+      stackTrace: stackTrace,
+    );
+
+    final baseMessage = isAuth
+        ? FirebaseErrorMapper.authMessage(
+            code: normalized,
+            technicalMessage: technicalMessage,
+          )
+        : FirebaseErrorMapper.serviceMessage(
+            code: normalized,
+            technicalMessage: technicalMessage,
+          );
+    throw StudentRegistrationException(
+      message: '$baseMessage\n[$diagnosticId]',
+      code: normalized,
+      registrationOperation: classifiedOperation.code,
+      diagnosticId: diagnosticId,
+    );
   }
 
-  /// En staging, ajoute l'identifiant diagnostic copiable au message.
-  String _decorate(String message, String? code, String? technical) {
-    if (!isStaging) return message;
-    return '$message\n[${FirebaseErrorMapper.diagnosticId(code, technical)}]';
+  RegistrationOperation _classifyOperation(
+    RegistrationOperation operation,
+    String normalizedCode,
+    String? technicalMessage,
+  ) {
+    final source = '$normalizedCode ${technicalMessage ?? ''}'.toLowerCase();
+    if (source.contains('app-check') || source.contains('app check')) {
+      return RegistrationOperation.appCheck;
+    }
+    if ({
+      'network-request-failed',
+      'network-error',
+      'unavailable',
+      'deadline-exceeded',
+      'timeout',
+    }.contains(normalizedCode)) {
+      return RegistrationOperation.network;
+    }
+    if (normalizedCode == 'unknown-error') {
+      return RegistrationOperation.unknown;
+    }
+    return operation;
   }
 
-  /// Log de diagnostic staging — uniquement des champs NON sensibles.
-  /// Jamais de mot de passe, clé API, token, ni contenu privé du profil.
-  void _logStaging(String step, String? code, String? technical) {
-    if (!isStaging) return;
+  void _debugLog({
+    required RegistrationOperation operation,
+    required String normalizedErrorCode,
+    required String diagnosticId,
+    required StackTrace stackTrace,
+    String? technicalType,
+  }) {
     final appIdShort = appId == null
         ? 'n/a'
         : (appId!.length <= 14 ? appId! : '${appId!.substring(0, 14)}…');
     debugPrint(
-      '[INTELLIA237][staging][registration] env=staging '
-      'projectId=${projectId ?? 'n/a'} appId=$appIdShort step=$step '
-      'code=${FirebaseErrorMapper.normalizeCode(code, technical)} '
-      'diagnostic=${FirebaseErrorMapper.diagnosticId(code, technical)}',
+      '[INTELLIA237][registration] '
+      'registrationOperation=${operation.code} '
+      'normalizedErrorCode=$normalizedErrorCode '
+      'diagnosticId=$diagnosticId '
+      'projectId=${projectId ?? 'n/a'} appId=$appIdShort '
+      'technicalType=${technicalType ?? 'n/a'}',
     );
+    if (kDebugMode) debugPrintStack(stackTrace: stackTrace);
   }
+}
+
+class _RegistrationFailure implements Exception {
+  const _RegistrationFailure({required this.operation, required this.code});
+
+  final RegistrationOperation operation;
+  final String code;
 }

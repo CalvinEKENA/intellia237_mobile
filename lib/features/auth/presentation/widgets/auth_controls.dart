@@ -56,14 +56,21 @@ class _AuthAnimatedFieldState extends State<AuthAnimatedField> {
       autofillHints: widget.autofillHints,
       autocorrect: !widget.isPassword,
       enableSuggestions: !widget.isPassword,
-      style: const TextStyle(color: Colors.white, fontSize: 15),
+      style: const TextStyle(
+        color: AuthExperienceColors.textPrimary,
+        fontSize: 15,
+      ),
       cursorColor: AuthExperienceColors.gold,
       decoration: InputDecoration(
         labelText: widget.label,
         hintText: widget.hint,
         labelStyle: const TextStyle(color: AuthExperienceColors.textSecondary),
-        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.32)),
-        prefixIcon: Icon(widget.icon, color: Colors.white70, size: 20),
+        hintStyle: const TextStyle(color: AuthExperienceColors.textTertiary),
+        prefixIcon: Icon(
+          widget.icon,
+          color: AuthExperienceColors.textSecondary,
+          size: 20,
+        ),
         suffixIcon: widget.isPassword
             ? IconButton(
                 tooltip: _obscure
@@ -74,24 +81,24 @@ class _AuthAnimatedFieldState extends State<AuthAnimatedField> {
                   _obscure
                       ? Icons.visibility_rounded
                       : Icons.visibility_off_rounded,
-                  color: Colors.white60,
+                  color: AuthExperienceColors.textSecondary,
                   size: 20,
                 ),
               )
             : null,
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.06),
+        fillColor: AuthExperienceColors.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 17,
         ),
-        enabledBorder: _border(Colors.white.withValues(alpha: 0.13)),
+        enabledBorder: _border(AuthExperienceColors.border),
         focusedBorder: _border(AuthExperienceColors.indigo, width: 1.6),
         errorBorder: _border(AuthExperienceColors.error),
         focusedErrorBorder: _border(AuthExperienceColors.error, width: 1.6),
-        disabledBorder: _border(Colors.white.withValues(alpha: 0.06)),
+        disabledBorder: _border(AuthExperienceColors.border),
         errorStyle: const TextStyle(
-          color: Color(0xFFFF8D86),
+          color: AuthExperienceColors.error,
           fontSize: 12,
           height: 1.25,
         ),
@@ -136,12 +143,7 @@ class AuthPrimaryButton extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(IntelliaRadii.small),
             gradient: onTap == null
-                ? LinearGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.10),
-                      Colors.white.withValues(alpha: 0.06),
-                    ],
-                  )
+                ? LinearGradient(colors: [Color(0xFFD9DEE5), Color(0xFFC9D0D9)])
                 : const LinearGradient(
                     colors: [
                       AuthExperienceColors.indigo,
@@ -230,11 +232,11 @@ class AuthConsentTile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                   color: value
                       ? AuthExperienceColors.indigo
-                      : Colors.white.withValues(alpha: 0.05),
+                      : AuthExperienceColors.surface,
                   border: Border.all(
                     color: value
                         ? AuthExperienceColors.indigo
-                        : Colors.white.withValues(alpha: 0.22),
+                        : AuthExperienceColors.border,
                   ),
                 ),
                 child: value
@@ -250,7 +252,7 @@ class AuthConsentTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: const TextStyle(
-                    color: AuthExperienceColors.textSecondary,
+                    color: AuthExperienceColors.textPrimary,
                     fontSize: 13,
                     height: 1.4,
                   ),
@@ -296,7 +298,7 @@ class AuthErrorBanner extends StatelessWidget {
           children: [
             const Icon(
               Icons.error_outline_rounded,
-              color: Color(0xFFFF8D86),
+              color: AuthExperienceColors.error,
               size: 21,
             ),
             const SizedBox(width: 10),
@@ -307,7 +309,7 @@ class AuthErrorBanner extends StatelessWidget {
                   Text(
                     message,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AuthExperienceColors.textPrimary,
                       fontSize: 13,
                       height: 1.4,
                     ),
@@ -317,7 +319,7 @@ class AuthErrorBanner extends StatelessWidget {
                     TextButton.icon(
                       onPressed: onRetry,
                       style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFFFFB0AB),
+                        foregroundColor: AuthExperienceColors.error,
                         padding: EdgeInsets.zero,
                         minimumSize: const Size(0, 36),
                       ),
@@ -334,7 +336,7 @@ class AuthErrorBanner extends StatelessWidget {
                 onPressed: onDismiss,
                 icon: const Icon(
                   Icons.close_rounded,
-                  color: Colors.white60,
+                  color: AuthExperienceColors.textSecondary,
                   size: 19,
                 ),
               ),

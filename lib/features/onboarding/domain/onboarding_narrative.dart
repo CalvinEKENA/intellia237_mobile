@@ -18,7 +18,7 @@ abstract final class OnboardingNarratives {
       eyebrow: 'INTELLIA // L’ÉVEIL',
       title: 'Le savoir attend ton signal.',
       body:
-          'Une intelligence éducative pensée pour comprendre, pratiquer et progresser.',
+          'Une expérience d’apprentissage pour mieux comprendre, pratiquer et progresser.',
     ),
     OnboardingAct.knowledge: OnboardingNarrative(
       eyebrow: 'UNIVERS DES SAVOIRS',

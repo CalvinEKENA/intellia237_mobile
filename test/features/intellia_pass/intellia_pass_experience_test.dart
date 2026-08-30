@@ -5,6 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/core/localization/app_locale_controller.dart';
+import 'package:intellia237/core/assets/intellia_assets.dart';
+import 'package:intellia237/core/widgets/intellia_text_wordmark.dart';
 import 'package:intellia237/features/auth/presentation/register_screen.dart';
 import 'package:intellia237/features/intellia_pass/domain/household_profile.dart';
 import 'package:intellia237/features/intellia_pass/presentation/widgets/household_learner_selector.dart';
@@ -19,10 +21,28 @@ void main() {
     addTearDown(router.dispose);
 
     expect(find.text('Qui utilise INTELLIA237 ?'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('pass-cameroon-wordmark')),
+      findsOneWidget,
+    );
     expect(find.byKey(const ValueKey('pass-role-student')), findsOneWidget);
     expect(find.byKey(const ValueKey('pass-role-parent')), findsOneWidget);
     expect(find.byKey(const ValueKey('pass-role-teacher')), findsOneWidget);
     expect(find.textContaining('Administrateur'), findsNothing);
+    final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
+    expect(scaffold.backgroundColor, const Color(0xFFFBF8F1));
+    final imageAssets = tester
+        .widgetList<Image>(find.byType(Image))
+        .map((image) => image.image)
+        .whereType<AssetImage>()
+        .map((asset) => asset.assetName)
+        .toSet();
+    expect(imageAssets, contains(IntelliaBrandAssets.appIcon));
+    expect(imageAssets, isNot(contains('assets/branding/icon-192.png')));
+    final wordmark = tester.widget<Intellia237TextWordmark>(
+      find.byKey(const ValueKey('pass-cameroon-wordmark')),
+    );
+    expect(wordmark.wordmarkColor, isNotNull);
     await _disposeAnimatedSurface(tester);
   });
 

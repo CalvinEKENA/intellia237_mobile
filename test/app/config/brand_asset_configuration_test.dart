@@ -46,6 +46,21 @@ void main() {
     expect(pubspec, isNot(contains('assets/icons/logo_android12.png')));
   });
 
+  test('INTELLIA PASS cannot reintroduce the legacy header asset', () {
+    final authSurface = File(
+      'lib/features/auth/presentation/widgets/auth_experience_scaffold.dart',
+    ).readAsStringSync();
+    expect(authSurface, contains('IntelliaBrandAssets.appIcon'));
+    expect(authSurface, isNot(contains('assets/branding/icon-192.png')));
+    final allProductDart = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.dart'))
+        .map((file) => file.readAsStringSync())
+        .join('\n');
+    expect(allProductDart, isNot(contains('assets/branding/icon-192.png')));
+  });
+
   test('generated platform resources match the official configuration', () {
     const generatedAssets = [
       'android/app/src/main/res/mipmap-mdpi/ic_launcher.png',

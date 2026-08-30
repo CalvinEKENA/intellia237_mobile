@@ -7,12 +7,14 @@ void main() {
   Future<void> pumpPill(
     WidgetTester tester, {
     required bool selected,
+    Brightness brightness = Brightness.light,
     VoidCallback? onTap,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(brightness: brightness),
         home: Scaffold(
-          backgroundColor: const Color(0xFF080722),
+          backgroundColor: const Color(0xFFFBF8F1),
           body: Center(
             child: AuthSelectionPill(
               label: 'Terminale',
@@ -37,24 +39,20 @@ void main() {
     return tester.widget<Text>(find.text('Terminale')).style!.color!;
   }
 
-  testWidgets(
-    'état NON sélectionné : texte clair sur fond sombre translucide',
-    (tester) async {
-      await pumpPill(tester, selected: false);
+  testWidgets('état NON sélectionné : texte sombre sur surface claire', (
+    tester,
+  ) async {
+    await pumpPill(tester, selected: false);
 
-      final textColor = textColorOf(tester);
-      final decoration = decorationOf(tester);
+    final textColor = textColorOf(tester);
+    final decoration = decorationOf(tester);
 
-      // Texte blanc à ~90 % : lisible, jamais hérité du thème.
-      expect(textColor, const Color(0xE6FFFFFF));
-      expect(textColor.a, greaterThan(0.85));
+    expect(textColor, const Color(0xFF17243A));
+    expect(textColor.a, 1);
 
-      // Fond sombre translucide — surtout PAS un bloc blanc opaque.
-      expect(decoration.gradient, isNull);
-      expect(decoration.color, const Color(0x0FFFFFFF));
-      expect(decoration.color!.a, lessThan(0.1));
-    },
-  );
+    expect(decoration.gradient, isNull);
+    expect(decoration.color, Colors.white);
+  });
 
   testWidgets('état sélectionné : gradient + texte blanc + coche', (
     tester,
@@ -86,7 +84,7 @@ void main() {
     expect(idleBg, isNotNull);
     expect(selectedBg, isNull);
     expect(idleText, isNot(equals(selectedText)));
-    expect(idleText.a, greaterThan(0.85));
+    expect(idleText.a, 1.0);
     expect(selectedText.a, 1.0);
   });
 
@@ -113,6 +111,35 @@ void main() {
     // Toujours une seule coche, désormais sur C.
     expect(find.byIcon(Icons.check_rounded), findsOneWidget);
   });
+
+  for (final brightness in Brightness.values) {
+    testWidgets(
+      'language and subsystem labels stay readable under ${brightness.name} global theme',
+      (tester) async {
+        for (final label in const [
+          'Français',
+          'English',
+          'Francophone',
+          'Anglophone',
+        ]) {
+          await tester.pumpWidget(
+            MaterialApp(
+              theme: ThemeData(brightness: brightness),
+              home: Scaffold(
+                body: AuthSelectionPill(
+                  label: label,
+                  selected: false,
+                  onTap: () {},
+                ),
+              ),
+            ),
+          );
+          final text = tester.widget<Text>(find.text(label));
+          expect(text.style?.color, const Color(0xFF17243A));
+        }
+      },
+    );
+  }
 
   test('aucune classe ni série n’a de label vide ou invisible', () {
     expect(SchoolClassX.ordered.length, 7);
@@ -142,7 +169,7 @@ class _SeriesHarnessState extends State<_SeriesHarness> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080722),
+      backgroundColor: const Color(0xFFFBF8F1),
       body: Center(
         child: Row(
           mainAxisSize: MainAxisSize.min,

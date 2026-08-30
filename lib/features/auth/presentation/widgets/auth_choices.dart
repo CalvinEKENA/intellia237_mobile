@@ -41,12 +41,12 @@ class AuthChoiceCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected
                 ? accent.withValues(alpha: 0.18)
-                : Colors.white.withValues(alpha: 0.055),
+                : AuthExperienceColors.surface,
             borderRadius: BorderRadius.circular(IntelliaRadii.small),
             border: Border.all(
               color: isSelected
                   ? accent.withValues(alpha: 0.9)
-                  : Colors.white.withValues(alpha: 0.11),
+                  : AuthExperienceColors.border,
               width: isSelected ? 1.5 : 1,
             ),
           ),
@@ -70,7 +70,7 @@ class AuthChoiceCard extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AuthExperienceColors.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                       ),
@@ -100,7 +100,7 @@ class AuthChoiceCard extends StatelessWidget {
                     : const Icon(
                         Icons.arrow_forward_ios_rounded,
                         key: ValueKey('idle'),
-                        color: Colors.white38,
+                        color: AuthExperienceColors.textTertiary,
                         size: 17,
                       ),
               ),
@@ -150,7 +150,7 @@ class CompanionSelectionCard extends StatelessWidget {
             color: accent.withValues(alpha: isSelected ? 0.20 : 0.09),
             borderRadius: BorderRadius.circular(IntelliaRadii.small),
             border: Border.all(
-              color: isSelected ? accent : Colors.white.withValues(alpha: 0.12),
+              color: isSelected ? accent : AuthExperienceColors.border,
               width: isSelected ? 1.8 : 1,
             ),
             boxShadow: isSelected
@@ -203,7 +203,7 @@ class CompanionSelectionCard extends StatelessWidget {
                     Text(
                       name,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AuthExperienceColors.textPrimary,
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
                       ),
@@ -279,7 +279,7 @@ class AuthStepIndicator extends StatelessWidget {
                             ],
                           )
                         : null,
-                    color: active ? null : Colors.white.withValues(alpha: 0.12),
+                    color: active ? null : AuthExperienceColors.border,
                   ),
                 ),
               );

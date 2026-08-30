@@ -3,11 +3,13 @@ import 'package:flutter/services.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
 import '../../../../../core/assets/intellia_assets.dart';
+import '../../../../../core/localization/localization_extensions.dart';
 import '../../../../../core/widgets/intellia_pressable.dart';
 import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_journey_state.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
+import '../onboarding_motion.dart';
 
 class CompanionsScene extends StatelessWidget {
   const CompanionsScene({
@@ -108,6 +110,7 @@ class CompanionsScene extends StatelessWidget {
                 child: _PersonaIntroduction(
                   key: ValueKey(focus),
                   persona: persona,
+                  reduceMotion: reduceMotion,
                 ),
               ),
             ],
@@ -117,8 +120,8 @@ class CompanionsScene extends StatelessWidget {
       footer: Column(
         children: [
           Text(
-            'Touche ou balaie pour changer de personnalité. '
-            'Ce choix reste réversible.',
+            '${context.l10n.companionSwitchHint} '
+            '${context.l10n.companionChangeLater}',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.52),
@@ -304,9 +307,14 @@ class _CharacterAura extends StatelessWidget {
 }
 
 class _PersonaIntroduction extends StatelessWidget {
-  const _PersonaIntroduction({required this.persona, super.key});
+  const _PersonaIntroduction({
+    required this.persona,
+    required this.reduceMotion,
+    super.key,
+  });
 
   final _CompanionPersona persona;
+  final bool reduceMotion;
 
   @override
   Widget build(BuildContext context) {
@@ -329,11 +337,11 @@ class _PersonaIntroduction extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 7),
-          Text(
-            '« ${persona.example} »',
+          OnboardingTypewriterText(
+            text: '« ${persona.example} »',
+            reduceMotion: reduceMotion,
             textAlign: TextAlign.center,
             maxLines: 2,
-            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: Colors.white70,
               fontSize: 13,

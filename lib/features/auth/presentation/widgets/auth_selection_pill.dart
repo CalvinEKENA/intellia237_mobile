@@ -8,7 +8,7 @@ import 'auth_experience_scaffold.dart';
 ///
 /// Contrairement à un [ChoiceChip], elle ne dépend d'aucun `ChipTheme` global :
 /// fond et couleur de texte sont fixés explicitement, donc toujours lisibles
-/// quel que soit le thème (clair/sombre), le flavor (staging) ou la plateforme.
+/// quel que soit le thème global (clair/sombre) ou la plateforme.
 /// Corrige le bug « blocs blancs / texte blanc » (Problème A).
 class AuthSelectionPill extends StatelessWidget {
   const AuthSelectionPill({
@@ -28,10 +28,10 @@ class AuthSelectionPill extends StatelessWidget {
     colors: [AuthExperienceColors.indigo, AuthExperienceColors.purple],
   );
 
-  // États visuels — valeurs littérales, jamais issues du thème.
-  static const Color _idleFill = Color(0x0FFFFFFF); // white @ 0.06
-  static const Color _idleBorder = Color(0x24FFFFFF); // white @ 0.14
-  static const Color _idleText = Color(0xE6FFFFFF); // white @ 0.90
+  // États visuels — valeurs littérales, jamais issues du thème global.
+  static const Color _idleFill = AuthExperienceColors.surface;
+  static const Color _idleBorder = AuthExperienceColors.border;
+  static const Color _idleText = AuthExperienceColors.textPrimary;
   static const Color _selectedBorder = Color(0x8CFFFFFF); // white @ 0.55
 
   @override

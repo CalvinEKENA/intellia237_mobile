@@ -36,40 +36,41 @@ class AscensionScene extends StatelessWidget {
         visual: AnimatedBuilder(
           animation: animation,
           builder: (context, _) {
-            final wave = reduceMotion
+            final camera = reduceMotion
                 ? 0.0
-                : math.sin(animation.value * math.pi * 2);
-            return Transform.translate(
-              offset: Offset(0, wave * 3),
-              child: Transform.scale(
-                scale: reduceMotion ? 1 : 1 + wave * 0.004,
-                child: RepaintBoundary(
-                  child: Semantics(
-                    image: true,
-                    label: l10n.ascensionImageA11y,
-                    child: Container(
-                      key: const ValueKey('ascension-poster-frame'),
-                      width: double.infinity,
-                      constraints: const BoxConstraints(maxWidth: 300),
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF101A2D),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: IntelliaColors.pointsGold.withValues(
-                            alpha: 0.55,
-                          ),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.34),
-                            blurRadius: 18,
-                            offset: const Offset(0, 12),
-                          ),
-                        ],
+                : (1 - math.cos(animation.value * math.pi * 2)) / 2;
+            return RepaintBoundary(
+              child: Semantics(
+                image: true,
+                label: l10n.ascensionImageA11y,
+                child: Container(
+                  key: const ValueKey('ascension-poster-frame'),
+                  width: double.infinity,
+                  constraints: const BoxConstraints(maxWidth: 300),
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF101A2D),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: IntelliaColors.pointsGold.withValues(alpha: 0.55),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.34),
+                        blurRadius: 18,
+                        offset: const Offset(0, 12),
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(19),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(19),
+                    child: Transform.translate(
+                      key: const ValueKey('ascension-camera-motion'),
+                      offset: reduceMotion
+                          ? Offset.zero
+                          : Offset(-2.5 + camera * 5, -camera * 2.5),
+                      child: Transform.scale(
+                        scale: reduceMotion ? 1 : 1 + camera * 0.018,
                         child: Image.asset(
                           IntelliaBrandAssets.ascensionPoster,
                           key: const ValueKey('ascension-poster'),

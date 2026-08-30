@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
 import '../../../../../core/assets/intellia_assets.dart';
+import '../../../../../core/localization/localization_extensions.dart';
 import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
@@ -27,6 +28,7 @@ class ActivationScene extends StatefulWidget {
 
 class _ActivationSceneState extends State<ActivationScene>
     with TickerProviderStateMixin {
+  static const _softIvory = Color(0xFFFFFBF2);
   late final AnimationController _reveal;
   late final AnimationController _charge;
   bool _completed = false;
@@ -98,7 +100,11 @@ class _ActivationSceneState extends State<ActivationScene>
   @override
   Widget build(BuildContext context) {
     return OnboardingSceneFrame(
-      narrative: OnboardingNarratives.forAct(OnboardingAct.activation),
+      narrative: OnboardingNarrative(
+        eyebrow: OnboardingNarratives.forAct(OnboardingAct.activation).eyebrow,
+        title: OnboardingNarratives.forAct(OnboardingAct.activation).title,
+        body: context.l10n.onboardingOpeningBody,
+      ),
       visualHeight: 330,
       visual: AnimatedBuilder(
         animation: Listenable.merge([_reveal, _charge]),
@@ -126,12 +132,12 @@ class _ActivationSceneState extends State<ActivationScene>
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  IntelliaColors.pointsGold.withValues(
-                                    alpha: 0.08 + charge * 0.18,
+                                  _softIvory.withValues(
+                                    alpha: 0.10 + charge * 0.22,
                                   ),
-                                  IntelliaColors.brandIndigo.withValues(
-                                    alpha: 0.10,
-                                  ),
+                                  const Color(
+                                    0xFFEDE7DA,
+                                  ).withValues(alpha: 0.08),
                                   Colors.transparent,
                                 ],
                               ),
@@ -146,7 +152,7 @@ class _ActivationSceneState extends State<ActivationScene>
                             filterQuality: FilterQuality.medium,
                             errorBuilder: (_, _, _) => const Icon(
                               Icons.school_rounded,
-                              color: IntelliaColors.pointsGold,
+                              color: _softIvory,
                               size: 72,
                             ),
                           ),
@@ -159,7 +165,7 @@ class _ActivationSceneState extends State<ActivationScene>
                               backgroundColor: Colors.white.withValues(
                                 alpha: 0.08,
                               ),
-                              color: IntelliaColors.pointsGold,
+                              color: _softIvory,
                             ),
                           ),
                         ],
@@ -194,7 +200,7 @@ class _ActivationSceneState extends State<ActivationScene>
                       border: Border.all(
                         color: Color.lerp(
                           Colors.white.withValues(alpha: 0.14),
-                          IntelliaColors.pointsGold,
+                          _softIvory,
                           charge,
                         )!,
                       ),
@@ -208,7 +214,7 @@ class _ActivationSceneState extends State<ActivationScene>
                             Icons.fingerprint_rounded,
                             color: Color.lerp(
                               Colors.white70,
-                              IntelliaColors.pointsGold,
+                              _softIvory,
                               charge,
                             ),
                             size: 20,

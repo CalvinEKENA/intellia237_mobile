@@ -1,62 +1,67 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
+import '../../../../../core/localization/localization_extensions.dart';
 import '../../../../../core/widgets/intellia_pressable.dart';
 import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_journey_state.dart';
+import '../../../domain/onboarding_micro_challenge.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
 
 class ChallengeScene extends StatefulWidget {
   const ChallengeScene({
+    required this.subject,
     required this.outcome,
     required this.reduceMotion,
     required this.onOutcomeChanged,
-    required this.onSolved,
+    required this.onContinue,
+    this.academicLevel,
+    this.subsystem,
     super.key,
   });
 
+  final String subject;
+  final String? academicLevel;
+  final String? subsystem;
   final OnboardingChallengeOutcome outcome;
   final bool reduceMotion;
   final ValueChanged<OnboardingChallengeOutcome> onOutcomeChanged;
-  final VoidCallback onSolved;
+  final VoidCallback onContinue;
 
   @override
   State<ChallengeScene> createState() => _ChallengeSceneState();
 }
 
 class _ChallengeSceneState extends State<ChallengeScene> {
-  bool _advancing = false;
+  int? _answeredIndex;
 
-  Future<void> _answer(int index) async {
-    if (_advancing) return;
-    if (widget.outcome == OnboardingChallengeOutcome.solved) {
-      widget.onSolved();
-      return;
-    }
-    if (index != 2) {
-      HapticFeedback.selectionClick();
-      widget.onOutcomeChanged(OnboardingChallengeOutcome.needsHelp);
-      return;
-    }
+  OnboardingMicroChallenge get _challenge =>
+      OnboardingMicroChallenges.forContext(
+        subject: widget.subject,
+        academicLevel: widget.academicLevel,
+        subsystem: widget.subsystem,
+      );
 
-    _advancing = true;
-    widget.onOutcomeChanged(OnboardingChallengeOutcome.solved);
-    HapticFeedback.lightImpact();
-    await Future<void>.delayed(
-      widget.reduceMotion ? Duration.zero : const Duration(milliseconds: 420),
+  void _answer(int index) {
+    if (widget.outcome != OnboardingChallengeOutcome.unanswered) return;
+    final solved = index == _challenge.correctAnswerIndex;
+    HapticFeedback.selectionClick();
+    setState(() => _answeredIndex = index);
+    widget.onOutcomeChanged(
+      solved
+          ? OnboardingChallengeOutcome.solved
+          : OnboardingChallengeOutcome.needsHelp,
     );
-    if (mounted) widget.onSolved();
   }
 
   @override
   Widget build(BuildContext context) {
+    final challenge = _challenge;
     return OnboardingSceneFrame(
       narrative: OnboardingNarratives.forAct(OnboardingAct.challenge),
-      visualHeight: 390,
+      visualHeight: 430,
       visual: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
         child: Container(
@@ -81,30 +86,32 @@ class _ChallengeSceneState extends State<ChallengeScene> {
                       color: IntelliaColors.brandIndigo.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
-                      Icons.functions_rounded,
+                    child: Icon(
+                      challenge.icon,
                       color: IntelliaColors.brandBlue,
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Résous cette équation',
-                          style: TextStyle(
+                          challenge.instruction,
+                          key: const ValueKey('challenge-instruction'),
+                          style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
-                          '3(x + 2) = 15',
-                          style: TextStyle(
+                          challenge.prompt,
+                          key: const ValueKey('challenge-prompt'),
+                          style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 19,
+                            fontSize: 18,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -114,16 +121,24 @@ class _ChallengeSceneState extends State<ChallengeScene> {
                 ],
               ),
               const SizedBox(height: 16),
-              for (var index = 0; index < _answers.length; index++) ...[
+              for (
+                var index = 0;
+                index < challenge.answers.length;
+                index++
+              ) ...[
                 _AnswerOption(
                   key: ValueKey('challenge-answer-$index'),
-                  label: _answers[index],
+                  label: challenge.answers[index],
+                  selected: _answeredIndex == index,
                   solved:
-                      widget.outcome == OnboardingChallengeOutcome.solved &&
-                      index == 2,
+                      _answeredIndex == index &&
+                      index == challenge.correctAnswerIndex,
+                  enabled:
+                      widget.outcome == OnboardingChallengeOutcome.unanswered,
                   onTap: () => _answer(index),
                 ),
-                if (index != _answers.length - 1) const SizedBox(height: 8),
+                if (index != challenge.answers.length - 1)
+                  const SizedBox(height: 8),
               ],
               AnimatedSwitcher(
                 duration: widget.reduceMotion
@@ -134,22 +149,30 @@ class _ChallengeSceneState extends State<ChallengeScene> {
                     key: ValueKey('challenge-neutral'),
                     height: 8,
                   ),
-                  OnboardingChallengeOutcome.needsHelp => const _Explanation(
-                    key: ValueKey('challenge-help'),
+                  OnboardingChallengeOutcome.needsHelp => _Explanation(
+                    key: const ValueKey('challenge-help'),
                     color: IntelliaColors.warning,
                     icon: Icons.lightbulb_rounded,
-                    title: 'On décompose, sans pression.',
-                    body: '3(x + 2) = 15  →  x + 2 = 5  →  x = 3',
+                    title: 'On apprend aussi en essayant.',
+                    body: challenge.explanation,
                   ),
-                  OnboardingChallengeOutcome.solved => const _Explanation(
-                    key: ValueKey('challenge-solved'),
+                  OnboardingChallengeOutcome.solved => _Explanation(
+                    key: const ValueKey('challenge-solved'),
                     color: IntelliaColors.success,
                     icon: Icons.check_circle_rounded,
-                    title: 'Exact. Le raisonnement est en place.',
-                    body: 'Cette compréhension devient l’énergie du parcours.',
+                    title: 'Bien vu. Ton raisonnement est en place.',
+                    body: challenge.explanation,
                   ),
                 },
               ),
+              if (widget.outcome != OnboardingChallengeOutcome.unanswered) ...[
+                const SizedBox(height: 12),
+                _ContinuePrompt(
+                  reduceMotion: widget.reduceMotion,
+                  label: context.l10n.onboardingTapToContinue,
+                  onTap: widget.onContinue,
+                ),
+              ],
             ],
           ),
         ),
@@ -164,41 +187,46 @@ class _ChallengeSceneState extends State<ChallengeScene> {
   };
 }
 
-const _answers = ['x = 7', 'x = 5', 'x = 3'];
-
 class _AnswerOption extends StatelessWidget {
   const _AnswerOption({
     required this.label,
+    required this.selected,
     required this.solved,
+    required this.enabled,
     required this.onTap,
     super.key,
   });
 
   final String label;
+  final bool selected;
   final bool solved;
+  final bool enabled;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final color = solved
+        ? IntelliaColors.success
+        : selected
+        ? IntelliaColors.warning
+        : Colors.white54;
     return Semantics(
       button: true,
-      selected: solved,
+      selected: selected,
       label: 'Réponse $label',
       child: IntelliaPressable(
-        onTap: onTap,
+        onTap: enabled ? onTap : null,
         child: AnimatedContainer(
           duration: IntelliaMotion.fast,
           constraints: const BoxConstraints(minHeight: 48),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: solved
-                ? IntelliaColors.success.withValues(alpha: 0.17)
+            color: selected
+                ? color.withValues(alpha: 0.17)
                 : Colors.white.withValues(alpha: 0.055),
             borderRadius: BorderRadius.circular(IntelliaRadii.medium),
             border: Border.all(
-              color: solved
-                  ? IntelliaColors.success
-                  : Colors.white.withValues(alpha: 0.12),
+              color: selected ? color : Colors.white.withValues(alpha: 0.12),
             ),
           ),
           child: Row(
@@ -214,8 +242,12 @@ class _AnswerOption extends StatelessWidget {
                 ),
               ),
               Icon(
-                solved ? Icons.check_rounded : Icons.arrow_forward_rounded,
-                color: solved ? IntelliaColors.success : Colors.white54,
+                solved
+                    ? Icons.check_rounded
+                    : selected
+                    ? Icons.close_rounded
+                    : Icons.arrow_forward_rounded,
+                color: color,
                 size: 19,
               ),
             ],
@@ -224,6 +256,110 @@ class _AnswerOption extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ContinuePrompt extends StatefulWidget {
+  const _ContinuePrompt({
+    required this.reduceMotion,
+    required this.label,
+    required this.onTap,
+  });
+
+  final bool reduceMotion;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  State<_ContinuePrompt> createState() => _ContinuePromptState();
+}
+
+class _ContinuePromptState extends State<_ContinuePrompt>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 850),
+    );
+    if (!widget.reduceMotion) _controller.repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(covariant _ContinuePrompt oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.reduceMotion) {
+      _controller.stop();
+      _controller.value = 0;
+    } else if (!_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: widget.label,
+      child: IntelliaPressable(
+        key: const ValueKey('challenge-continue'),
+        onTap: widget.onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: _accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(IntelliaRadii.full),
+            border: Border.all(color: _accent.withValues(alpha: 0.45)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.label,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) => Transform.translate(
+                  key: const ValueKey('challenge-continue-arrow'),
+                  offset: Offset(
+                    widget.reduceMotion ? 0 : _controller.value * 5,
+                    0,
+                  ),
+                  child: child,
+                ),
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  color: _accent,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color get _accent => IntelliaColors.success;
 }
 
 class _Explanation extends StatelessWidget {

@@ -1,9 +1,22 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/app/config/app_config.dart';
 
 void main() {
   group('AppConfig', () {
+    test('edunova-aabd1 is the canonical default Firebase target', () {
+      final aliases =
+          jsonDecode(File('.firebaserc').readAsStringSync())
+              as Map<String, dynamic>;
+      expect(
+        (aliases['projects'] as Map<String, dynamic>)['default'],
+        'edunova-aabd1',
+      );
+    });
+
     test('keeps production store and Firebase identifiers stable', () {
       expect(AppConfig.production.appName, 'Intellia 237');
       expect(AppConfig.production.firebaseProjectId, 'edunova-aabd1');

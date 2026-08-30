@@ -54,8 +54,8 @@ abstract final class FirebaseErrorMapper {
     };
   }
 
-  /// Identifiant diagnostic stable, affiché discrètement en staging et
-  /// copiable par le testeur (ex. « AUTH-CONFIG-001 » quand Firebase
+  /// Identifiant diagnostic stable et non sensible, copiable par le support
+  /// (ex. « AUTH-CONFIG-001 » quand Firebase
   /// Authentication ou Email/Mot de passe n'est pas activé côté console).
   ///
   /// N'expose jamais d'information sensible : c'est un code de catégorie.

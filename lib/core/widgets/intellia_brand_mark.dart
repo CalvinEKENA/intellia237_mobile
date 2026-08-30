@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../app/theme/design_tokens.dart';
+import '../assets/intellia_assets.dart';
+import 'intellia_text_wordmark.dart';
 
 class IntelliaBrandMark extends StatelessWidget {
   const IntelliaBrandMark({
@@ -35,7 +37,7 @@ class IntelliaBrandMark extends StatelessWidget {
           ),
           child: Center(
             child: Image.asset(
-              'assets/branding/icon-192.png',
+              IntelliaBrandAssets.appIcon,
               width: size * 0.6,
               height: size * 0.6,
               fit: BoxFit.contain,
@@ -49,8 +51,7 @@ class IntelliaBrandMark extends StatelessWidget {
         ),
         if (showText) ...[
           const SizedBox(height: IntelliaSpacing.xs),
-          Text(
-            'Intellia 237',
+          Intellia237TextWordmark(
             style: GoogleFonts.playfairDisplay(
               fontSize: textSize,
               fontWeight: FontWeight.bold,
