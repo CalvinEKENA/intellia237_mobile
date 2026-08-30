@@ -300,4 +300,55 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reclaimDevice => 'Récupérer l’appareil';
+
+  @override
+  String get preparingYourSpace => 'Préparation de ton espace…';
+
+  @override
+  String companionQuotaReached(String name) {
+    return 'Tu as utilisé toutes tes questions du jour. Tu pourras de nouveau interroger $name demain.';
+  }
+
+  @override
+  String companionProfileSync(String name) {
+    return '$name a besoin de resynchroniser ton profil avant de répondre. Tes cours et exercices restent disponibles.';
+  }
+
+  @override
+  String companionInvalidRequest(String name) {
+    return '$name ne peut pas traiter cette question. Reformule-la en quelques mots.';
+  }
+
+  @override
+  String companionNetworkUnavailable(String name) {
+    return '$name n’arrive pas à se connecter pour le moment. Vérifie ta connexion; tes cours et exercices restent disponibles.';
+  }
+
+  @override
+  String companionServiceUnavailable(String name) {
+    return '$name n’arrive pas à répondre pour le moment. Tu peux continuer à consulter tes cours et exercices.';
+  }
+
+  @override
+  String companionInvalidResponse(String name) {
+    return '$name a reçu une réponse incomplète. Tu peux réessayer dans un instant.';
+  }
+
+  @override
+  String get companionStatusReady => 'Prêt à t’aider';
+
+  @override
+  String get companionStatusThinking => 'réfléchit…';
+
+  @override
+  String get companionStatusQuota => 'limite du jour atteinte';
+
+  @override
+  String get companionStatusProfile => 'profil à synchroniser';
+
+  @override
+  String get companionStatusNetwork => 'connexion à retrouver';
+
+  @override
+  String get companionStatusUnavailable => 'réponse indisponible';
 }

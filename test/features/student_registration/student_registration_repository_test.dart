@@ -65,6 +65,7 @@ void main() {
         'interfaceLanguage',
         'educationalSubsystem',
         'educationType',
+        'academicLevelId',
         'streamOrSpeciality',
         'accountLinkage',
         'establishmentCandidate',

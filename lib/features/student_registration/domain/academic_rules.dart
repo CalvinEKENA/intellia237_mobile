@@ -112,6 +112,81 @@ extension SchoolClassX on SchoolClass {
     SchoolClass.upperSixth => 'Upper Sixth',
   };
 
+  /// Stable catalog key used by the existing Firestore course and quiz pool.
+  ///
+  /// These values deliberately preserve the historical production schema.
+  /// UI labels such as `6ème` and `1ère` must never be used as document IDs or
+  /// authoritative backend filters.
+  String get catalogKey => switch (this) {
+    SchoolClass.sixieme => '6eme',
+    SchoolClass.cinquieme => '5eme',
+    SchoolClass.quatrieme => '4eme',
+    SchoolClass.troisieme => '3eme',
+    SchoolClass.seconde => 'Seconde',
+    SchoolClass.premiere => 'Premiere',
+    SchoolClass.terminale => 'Terminale',
+    SchoolClass.form1 => 'Form1',
+    SchoolClass.form2 => 'Form2',
+    SchoolClass.form3 => 'Form3',
+    SchoolClass.form4 => 'Form4',
+    SchoolClass.form5 => 'Form5',
+    SchoolClass.lowerSixth => 'LowerSixth',
+    SchoolClass.upperSixth => 'UpperSixth',
+  };
+
+  String get _stableLevelSlug => switch (this) {
+    SchoolClass.sixieme => '6e',
+    SchoolClass.cinquieme => '5e',
+    SchoolClass.quatrieme => '4e',
+    SchoolClass.troisieme => '3e',
+    SchoolClass.seconde => '2nde',
+    SchoolClass.premiere => '1ere',
+    SchoolClass.terminale => 'terminale',
+    SchoolClass.form1 => 'form1',
+    SchoolClass.form2 => 'form2',
+    SchoolClass.form3 => 'form3',
+    SchoolClass.form4 => 'form4',
+    SchoolClass.form5 => 'form5',
+    SchoolClass.lowerSixth => 'lower_sixth',
+    SchoolClass.upperSixth => 'upper_sixth',
+  };
+
+  /// Canonical identifier: subsystem and education type remain independent
+  /// dimensions instead of being inferred from a translated label.
+  String academicLevelId(EducationType educationType) {
+    final subsystemId = subsystem == EducationalSubsystem.francophone
+        ? 'fr'
+        : 'en';
+    return '${subsystemId}_${educationType.name}_$_stableLevelSlug';
+  }
+
+  /// Explicit compatibility mapper for historical profile and catalog values.
+  static SchoolClass? fromStoredValue(String? value) {
+    final raw = value?.trim();
+    if (raw == null || raw.isEmpty) return null;
+    final normalized = _normalizeAcademicValue(raw);
+
+    for (final schoolClass in SchoolClass.values) {
+      if (normalized == _normalizeAcademicValue(schoolClass.label) ||
+          normalized == _normalizeAcademicValue(schoolClass.catalogKey) ||
+          normalized.endsWith(
+            _normalizeAcademicValue(schoolClass._stableLevelSlug),
+          )) {
+        return schoolClass;
+      }
+    }
+
+    return switch (normalized) {
+      'sixieme' => SchoolClass.sixieme,
+      'cinquieme' => SchoolClass.cinquieme,
+      'quatrieme' => SchoolClass.quatrieme,
+      'troisieme' => SchoolClass.troisieme,
+      'premiere' => SchoolClass.premiere,
+      'tle' => SchoolClass.terminale,
+      _ => null,
+    };
+  }
+
   List<SchoolSeries> get allowedSeries => switch (this) {
     SchoolClass.sixieme ||
     SchoolClass.cinquieme ||
@@ -165,22 +240,31 @@ extension SchoolClassX on SchoolClass {
 
   /// Retourne le tutorLevel a partir d'un classLevel stocke.
   static String? tutorLevelFromClassLabel(String? classLabel) =>
-      switch (classLabel) {
-        '6ème' => 'bepc',
-        '5ème' => 'bepc',
-        '4ème' => 'bepc',
-        '3ème' => 'bepc',
-        '2nde' => 'proba',
-        '1ère' => 'proba',
-        '1ere' => 'proba',
-        'Première' => 'proba',
-        'Terminale' => 'bac',
-        'Tle' => 'bac',
-        'Form 1' || 'Form 2' || 'Form 3' || 'Form 4' || 'Form 5' => 'gce-ol',
-        'Lower Sixth' || 'Upper Sixth' => 'gce-al',
+      switch (fromStoredValue(classLabel)) {
+        SchoolClass.sixieme ||
+        SchoolClass.cinquieme ||
+        SchoolClass.quatrieme ||
+        SchoolClass.troisieme => 'bepc',
+        SchoolClass.seconde || SchoolClass.premiere => 'proba',
+        SchoolClass.terminale => 'bac',
+        SchoolClass.form1 ||
+        SchoolClass.form2 ||
+        SchoolClass.form3 ||
+        SchoolClass.form4 ||
+        SchoolClass.form5 => 'gce-ol',
+        SchoolClass.lowerSixth || SchoolClass.upperSixth => 'gce-al',
         _ => null,
       };
 }
+
+String _normalizeAcademicValue(String value) => value
+    .trim()
+    .toLowerCase()
+    .replaceAll('é', 'e')
+    .replaceAll('è', 'e')
+    .replaceAll('ê', 'e')
+    .replaceAll('ë', 'e')
+    .replaceAll(RegExp(r'[^a-z0-9]'), '');
 
 extension InterfaceLanguageX on InterfaceLanguage {
   String get code => this == InterfaceLanguage.french ? 'fr' : 'en';

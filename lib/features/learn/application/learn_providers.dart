@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/network_status.dart';
@@ -9,9 +8,11 @@ import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_state.dart';
 import '../../auth/application/auth_user_id.dart';
 import '../../auth/domain/app_role.dart';
+import '../../student_registration/domain/academic_level_identity.dart';
 import '../data/firestore_learn_repository.dart';
 import '../data/learn_repository.dart';
 import '../data/offline_progress_queue.dart';
+import '../data/student_academic_profile_source.dart';
 
 import '../domain/learn_academic_context.dart';
 import '../domain/learn_chapter.dart';
@@ -32,34 +33,56 @@ final studentAcademicContextProvider = FutureProvider<LearnAcademicContext>((
   if (auth.status != AuthStatus.authenticated ||
       auth.role != AppRole.student ||
       auth.userId == null) {
-    return const LearnAcademicContext(classLevel: 'Terminale', series: 'D');
+    throw const AcademicProfileException(
+      kind: AcademicProfileFailureKind.missing,
+      normalizedErrorCode: 'unauthenticated',
+      diagnosticId: 'ACADEMIC-PROFILE-201',
+    );
   }
 
   final uid = auth.userId!;
-
-  try {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('student_profiles')
-        .doc(uid)
-        .get();
-    final data = snapshot.data();
-    if (data == null) {
-      return const LearnAcademicContext(classLevel: 'Terminale', series: 'D');
-    }
-
-    final classLevel = (data['classLevel'] as String?)?.trim();
-    final series = (data['series'] as String?)?.trim();
-
-    return LearnAcademicContext(
-      classLevel: (classLevel == null || classLevel.isEmpty)
-          ? 'Terminale'
-          : classLevel,
-      series: (series == null || series.isEmpty) ? null : series,
-    );
-  } catch (_) {
-    return const LearnAcademicContext(classLevel: 'Terminale', series: 'D');
-  }
+  final data = await ref.watch(studentAcademicProfileSourceProvider).fetch(uid);
+  return studentAcademicContextFromProfile(data);
 });
+
+/// Pure profile contract used by post-registration and compatibility tests.
+LearnAcademicContext studentAcademicContextFromProfile(
+  Map<String, dynamic> data,
+) {
+  final storedClassLevel = (data['classLevel'] as String?)?.trim();
+  final preferences = data['preferences'];
+  final preferenceMap = preferences is Map
+      ? Map<String, dynamic>.from(preferences)
+      : const <String, dynamic>{};
+  final identity = AcademicLevelIdentity.resolve(
+    academicLevelId: preferenceMap['academicLevelId'] as String?,
+    storedClassLevel: storedClassLevel,
+    educationalSubsystem: preferenceMap['educationalSubsystem'] as String?,
+    educationType: preferenceMap['educationType'] as String?,
+  );
+  if (storedClassLevel == null ||
+      storedClassLevel.isEmpty ||
+      identity == null) {
+    throw const AcademicProfileException(
+      kind: AcademicProfileFailureKind.invalid,
+      normalizedErrorCode: 'academic-class-mapping',
+      diagnosticId: 'ACADEMIC-CLASS-205',
+    );
+  }
+
+  final series = (data['series'] as String?)?.trim();
+  final tutorId = (data['tutorId'] as String?)?.trim();
+  return LearnAcademicContext(
+    classLevel: storedClassLevel,
+    series: series == null || series.isEmpty ? null : series,
+    catalogClassLevel: identity.catalogKey,
+    academicLevelId: identity.stableId,
+    displayClassLevel: identity.displayLabel,
+    educationalSubsystem: identity.subsystem.name,
+    educationType: identity.educationType.name,
+    tutorId: tutorId == null || tutorId.isEmpty ? null : tutorId,
+  );
+}
 
 final _learnUserIdProvider = Provider<String>((ref) {
   final auth = ref.watch(authControllerProvider);
@@ -73,7 +96,7 @@ final learnHubProvider = FutureProvider<LearnHubSnapshot>((ref) async {
 
   final subjects = await repository.fetchSubjects(
     userId: userId,
-    classLevel: context.classLevel,
+    classLevel: context.quizAndCatalogClassLevel,
     series: context.series,
   );
 
@@ -88,7 +111,7 @@ final subjectDetailProvider = FutureProvider.family<LearnSubjectDetail, String>(
 
     return repository.fetchSubjectDetail(
       userId: userId,
-      classLevel: context.classLevel,
+      classLevel: context.quizAndCatalogClassLevel,
       series: context.series,
       subjectId: subjectId,
     );
@@ -103,7 +126,7 @@ final chapterDetailProvider =
 
       return repository.fetchChapter(
         userId: userId,
-        classLevel: context.classLevel,
+        classLevel: context.quizAndCatalogClassLevel,
         series: context.series,
         subjectId: request.subjectId,
         chapterId: request.chapterId,
@@ -120,7 +143,7 @@ final lessonDetailProvider = FutureProvider.family<LearnLesson, LessonRequest>((
 
   return repository.fetchLesson(
     userId: userId,
-    classLevel: context.classLevel,
+    classLevel: context.quizAndCatalogClassLevel,
     series: context.series,
     subjectId: request.subjectId,
     chapterId: request.chapterId,

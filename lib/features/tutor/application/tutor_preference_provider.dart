@@ -41,20 +41,33 @@ class TutorPreferenceNotifier extends StateNotifier<String?> {
   }
 
   Future<void> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString(_kTutorKey);
-    if (mounted) state = saved;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString(_kTutorKey);
+      if (mounted) state = saved;
+    } catch (_) {
+      // Local storage is a convenience cache. Profile-backed selection and
+      // authentication must remain usable if the cache is unavailable.
+    }
   }
 
   Future<void> select(String tutorId) async {
     state = tutorId;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kTutorKey, tutorId);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kTutorKey, tutorId);
+    } catch (_) {
+      // The in-memory choice remains active and the profile is authoritative.
+    }
   }
 
   Future<void> clear() async {
     state = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_kTutorKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_kTutorKey);
+    } catch (_) {
+      // Clearing the optional cache must not fail the user flow.
+    }
   }
 }

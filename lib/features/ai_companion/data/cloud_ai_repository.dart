@@ -1,15 +1,59 @@
+import 'dart:async';
+
 import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../tutor/domain/tutor_persona.dart';
-import '../domain/ai_message.dart';
 import '../domain/ai_companion_reply.dart';
+import '../domain/ai_message.dart';
 import 'ai_repository.dart';
 
-class CloudAIRepository implements AIRepository {
-  CloudAIRepository({FirebaseFunctions? functions})
-    : _functions = functions ?? FirebaseFunctions.instance;
+abstract interface class TutorFunctionsGateway {
+  Future<Object?> askTutor(Map<String, dynamic> payload);
+}
+
+class TutorCallableFailure implements Exception {
+  const TutorCallableFailure({required this.code, this.message, this.details});
+
+  final String code;
+  final String? message;
+  final Object? details;
+}
+
+class FirebaseTutorFunctionsGateway implements TutorFunctionsGateway {
+  FirebaseTutorFunctionsGateway({FirebaseFunctions? functions})
+    : _functions =
+          functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1');
 
   final FirebaseFunctions _functions;
+
+  @override
+  Future<Object?> askTutor(Map<String, dynamic> payload) async {
+    try {
+      final result = await _functions
+          .httpsCallable('askTutor')
+          .call<Map<String, dynamic>>(payload)
+          .timeout(const Duration(seconds: 45));
+      return result.data;
+    } on FirebaseFunctionsException catch (error) {
+      throw TutorCallableFailure(
+        code: error.code,
+        message: error.message,
+        details: error.details,
+      );
+    } on TimeoutException {
+      throw const TutorCallableFailure(code: 'deadline-exceeded');
+    }
+  }
+}
+
+class CloudAIRepository implements AIRepository {
+  CloudAIRepository({
+    FirebaseFunctions? functions,
+    TutorFunctionsGateway? gateway,
+  }) : _gateway =
+           gateway ?? FirebaseTutorFunctionsGateway(functions: functions);
+
+  final TutorFunctionsGateway _gateway;
 
   @override
   Future<AICompanionReply> sendMessage({
@@ -18,28 +62,26 @@ class CloudAIRepository implements AIRepository {
     required List<AIMessage> history,
     required String userMessage,
   }) async {
+    final recentHistory = history.length > 20
+        ? history.sublist(history.length - 20)
+        : history;
+    final mappedHistory = recentHistory
+        .map(
+          (message) => <String, String>{
+            'role': message.role == AIMessageRole.user ? 'user' : 'assistant',
+            'text': message.text.length > 4000
+                ? message.text.substring(message.text.length - 4000)
+                : message.text,
+          },
+        )
+        .toList(growable: false);
+
     try {
-      final callable = _functions.httpsCallable('askTutor');
-
-      final recentHistory = history.length > 20
-          ? history.sublist(history.length - 20)
-          : history;
-      final mappedHistory = recentHistory
-          .map(
-            (msg) => {
-              'role': msg.role == AIMessageRole.user ? 'user' : 'assistant',
-              'text': msg.text.length > 4000
-                  ? msg.text.substring(msg.text.length - 4000)
-                  : msg.text,
-            },
-          )
-          .toList();
-
-      final result = await callable.call(<String, dynamic>{
+      final rawData = await _gateway.askTutor(<String, dynamic>{
         'userMessage': userMessage,
         'classLevel': classLevel,
         'history': mappedHistory,
-        'tutor': {
+        'tutor': <String, String>{
           'name': tutor.name,
           'specialty': tutor.specialty,
           'personality': tutor.personality,
@@ -47,45 +89,135 @@ class CloudAIRepository implements AIRepository {
         },
       });
 
-      final data = result.data as Map<String, dynamic>;
-      final textData = data['text'] as String?;
-
-      if (textData == null || textData.isEmpty) {
-        throw Exception("Réponse vide de l'IA.");
+      if (rawData is! Map) {
+        throw _invalidResponse(tutor);
+      }
+      final data = Map<String, dynamic>.from(rawData);
+      final text = data['text'];
+      if (text is! String || text.trim().isEmpty) {
+        throw _invalidResponse(tutor);
+      }
+      if (data['limit'] is! num || data['remaining'] is! num) {
+        throw _invalidResponse(tutor);
       }
 
       return AICompanionReply(
         message: AIMessage(
           id: DateTime.now().microsecondsSinceEpoch.toString(),
           role: AIMessageRole.assistant,
-          text: textData,
+          text: text.trim(),
           createdAt: DateTime.now(),
         ),
         quota: AICompanionQuota.fromMap(data),
       );
-    } on FirebaseFunctionsException catch (error) {
-      if (error.code == 'resource-exhausted') {
-        final details = error.details;
-        final quota = details is Map
-            ? AICompanionQuota.fromMap(Map<String, dynamic>.from(details))
-            : null;
-        throw AICompanionException(
-          message:
-              error.message ??
-              'Tu as atteint la limite de questions du jour. De nouvelles questions seront disponibles à 00 h, heure du Cameroun.',
-          retryable: false,
-          quota: quota,
-        );
-      }
-      throw const AICompanionException(
-        message: 'Le Compagnon est temporairement indisponible.',
-      );
+    } on TutorCallableFailure catch (error) {
+      throw _mapCallableFailure(error, tutor);
     } on AICompanionException {
       rethrow;
     } catch (_) {
-      throw const AICompanionException(
-        message: 'Le Compagnon est temporairement indisponible.',
+      throw AICompanionException(
+        message:
+            '${tutor.name} n’arrive pas à répondre pour le moment. '
+            'Tu peux continuer à consulter tes cours et exercices.',
+        kind: AICompanionFailureKind.unknown,
+        normalizedErrorCode: 'unknown',
+        diagnosticId: 'TUTOR-UNKNOWN-599',
       );
     }
+  }
+
+  AICompanionException _mapCallableFailure(
+    TutorCallableFailure error,
+    TutorPersona tutor,
+  ) {
+    final code = error.code.toLowerCase().replaceAll('_', '-');
+    final source = '$code ${error.message ?? ''} ${error.details ?? ''}'
+        .toLowerCase();
+    if (source.contains('app-check') || source.contains('app check')) {
+      return AICompanionException(
+        message:
+            '${tutor.name} ne peut pas répondre sur cet appareil pour le '
+            'moment. Tes cours et exercices restent disponibles.',
+        kind: AICompanionFailureKind.appCheck,
+        normalizedErrorCode: 'app-check',
+        diagnosticId: 'TUTOR-APP-CHECK-506',
+        retryable: false,
+      );
+    }
+
+    return switch (code) {
+      'resource-exhausted' => AICompanionException(
+        message:
+            'Tu as utilisé toutes tes questions du jour. '
+            'Tu pourras de nouveau interroger ${tutor.name} demain.',
+        kind: AICompanionFailureKind.quotaExhausted,
+        normalizedErrorCode: code,
+        diagnosticId: 'TUTOR-QUOTA-501',
+        retryable: false,
+        quota: error.details is Map
+            ? AICompanionQuota.fromMap(
+                Map<String, dynamic>.from(error.details! as Map),
+              )
+            : null,
+      ),
+      'permission-denied' ||
+      'unauthenticated' ||
+      'failed-precondition' => AICompanionException(
+        message:
+            '${tutor.name} a besoin de resynchroniser ton profil avant de '
+            'répondre. Tes cours et exercices restent disponibles.',
+        kind: AICompanionFailureKind.authorizationProfile,
+        normalizedErrorCode: code,
+        diagnosticId: 'TUTOR-PROFILE-502',
+        retryable: false,
+      ),
+      'invalid-argument' => AICompanionException(
+        message:
+            '${tutor.name} ne peut pas traiter cette question. '
+            'Reformule-la en quelques mots.',
+        kind: AICompanionFailureKind.invalidRequest,
+        normalizedErrorCode: code,
+        diagnosticId: 'TUTOR-REQUEST-503',
+        retryable: false,
+      ),
+      'unavailable' ||
+      'deadline-exceeded' ||
+      'cancelled' ||
+      'network-request-failed' => AICompanionException(
+        message:
+            '${tutor.name} n’arrive pas à se connecter pour le moment. '
+            'Vérifie ta connexion; tes cours et exercices restent disponibles.',
+        kind: AICompanionFailureKind.network,
+        normalizedErrorCode: code,
+        diagnosticId: 'TUTOR-NETWORK-504',
+      ),
+      'not-found' || 'unimplemented' || 'internal' => AICompanionException(
+        message:
+            '${tutor.name} n’arrive pas à répondre pour le moment. '
+            'Tu peux continuer à consulter tes cours et exercices.',
+        kind: AICompanionFailureKind.serviceUnavailable,
+        normalizedErrorCode: code,
+        diagnosticId: 'TUTOR-SERVICE-505',
+      ),
+      _ => AICompanionException(
+        message:
+            '${tutor.name} n’arrive pas à répondre pour le moment. '
+            'Tu peux continuer à consulter tes cours et exercices.',
+        kind: AICompanionFailureKind.unknown,
+        normalizedErrorCode: code,
+        diagnosticId: 'TUTOR-UNKNOWN-599',
+      ),
+    };
+  }
+
+  AICompanionException _invalidResponse(TutorPersona tutor) {
+    return AICompanionException(
+      message:
+          '${tutor.name} a reçu une réponse incomplète. '
+          'Tu peux réessayer dans un instant.',
+      kind: AICompanionFailureKind.invalidResponse,
+      normalizedErrorCode: 'invalid-response',
+      diagnosticId: 'TUTOR-RESPONSE-507',
+    );
   }
 }

@@ -44,6 +44,8 @@ void main() {
       final quiz = parsePublicQuizPayload(<String, dynamic>{
         'id': 'quiz-a',
         'title': 'Équations',
+        'subjectId': 'math',
+        'subjectLabel': 'Mathématiques',
         'questionCount': 12,
         'mode': 'exam',
       });

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/animations/app_page_transitions.dart';
+import '../../core/widgets/intellia_loading_surface.dart';
 import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/application/auth_state.dart';
 import '../../features/auth/domain/app_role.dart';
@@ -135,6 +136,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.studentHome,
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
+          transitionBackground: const IntelliaLoadingSurface(),
           child: const StudentHomeScreen(),
         ),
       ),

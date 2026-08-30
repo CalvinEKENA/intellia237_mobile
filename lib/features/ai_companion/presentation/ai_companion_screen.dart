@@ -9,7 +9,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/liquid_background.dart';
 import '../../../core/widgets/tab_presentation.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/ai_companion_controller.dart';
+import '../domain/ai_companion_reply.dart';
 import 'widgets/chat_bubble.dart';
 
 class AICompanionScreen extends ConsumerStatefulWidget {
@@ -91,7 +93,7 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
             children: [
               Expanded(
                 child: Text(
-                  state.errorMessage!,
+                  _localizedCompanionError(context, state),
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFFFF6B6B),
@@ -329,10 +331,17 @@ class _CompanionHeader extends StatelessWidget {
     final s = TabSurface.of(context);
     final tutor = state.tutor;
     final statusLabel = state.isSending
-        ? 'réfléchit…'
-        : state.errorMessage != null
-        ? 'temporairement indisponible'
-        : 'Prêt à t’aider';
+        ? context.l10n.companionStatusThinking
+        : switch (state.errorKind) {
+            AICompanionFailureKind.quotaExhausted =>
+              context.l10n.companionStatusQuota,
+            AICompanionFailureKind.authorizationProfile =>
+              context.l10n.companionStatusProfile,
+            AICompanionFailureKind.network =>
+              context.l10n.companionStatusNetwork,
+            null => context.l10n.companionStatusReady,
+            _ => context.l10n.companionStatusUnavailable,
+          };
 
     return Container(
       padding: const EdgeInsets.all(IntelliaSpacing.sm),
@@ -381,8 +390,10 @@ class _CompanionHeader extends StatelessWidget {
                     Container(
                       width: 7,
                       height: 7,
-                      decoration: const BoxDecoration(
-                        color: IntelliaColors.success,
+                      decoration: BoxDecoration(
+                        color: state.errorMessage == null
+                            ? IntelliaColors.success
+                            : IntelliaColors.warning,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -419,6 +430,30 @@ class _CompanionHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+String _localizedCompanionError(BuildContext context, AICompanionState state) {
+  final name = state.tutor.name;
+  return switch (state.errorKind) {
+    AICompanionFailureKind.quotaExhausted => context.l10n.companionQuotaReached(
+      name,
+    ),
+    AICompanionFailureKind.authorizationProfile =>
+      context.l10n.companionProfileSync(name),
+    AICompanionFailureKind.invalidRequest =>
+      context.l10n.companionInvalidRequest(name),
+    AICompanionFailureKind.network => context.l10n.companionNetworkUnavailable(
+      name,
+    ),
+    AICompanionFailureKind.invalidResponse =>
+      context.l10n.companionInvalidResponse(name),
+    AICompanionFailureKind.serviceUnavailable ||
+    AICompanionFailureKind.appCheck ||
+    AICompanionFailureKind.unknown => context.l10n.companionServiceUnavailable(
+      name,
+    ),
+    null => state.errorMessage ?? '',
+  };
 }
 
 // ─────────────────────────────────────────────────────────────

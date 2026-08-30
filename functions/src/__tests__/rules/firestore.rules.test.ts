@@ -171,6 +171,7 @@ function exactStudentRegistrationPayload(
     interfaceLanguage: "fr",
     educationalSubsystem: "francophone",
     educationType: "general",
+    academicLevelId: "fr_general_terminale",
     streamOrSpeciality: series,
     accountLinkage: "individual",
     establishmentCandidate,

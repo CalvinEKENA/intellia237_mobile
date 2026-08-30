@@ -14,6 +14,7 @@ import 'package:intellia237/features/student_registration/domain/academic_rules.
 import 'package:intellia237/features/student_registration/domain/student_registration_payload.dart';
 import 'package:intellia237/features/student_registration/domain/student_registration_result.dart';
 import 'package:intellia237/features/student_registration/presentation/student_registration_flow_screen.dart';
+import 'package:intellia237/features/tutor/application/tutor_preference_provider.dart';
 
 void main() {
   Future<void> pumpSuccess(
@@ -131,41 +132,30 @@ void main() {
     expect(find.text('Découvrir Intellia 237'), findsOneWidget);
   });
 
-  testWidgets("10. tap CTA : l'aube joue puis onContinue est appelé une fois", (
+  testWidgets('10. tap CTA : navigation immédiate sans délai décoratif', (
     tester,
   ) async {
     var calls = 0;
     await pumpSuccess(tester, onContinue: () => calls++);
     await tester.tap(find.text('Découvrir Intellia 237'));
-    // Frame d'amorçage : l'overlay se construit et l'aube démarre.
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-    // L'aube est en cours : pas encore de navigation.
-    expect(calls, 0);
-    await tester.pump(const Duration(milliseconds: 1000));
-    expect(calls, 1, reason: "fin de l'aube = un seul onContinue");
-    await tester.pump(const Duration(milliseconds: 500));
     expect(calls, 1);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('10b. aube jamais bloquante : un tap la termine tout de suite', (
+  testWidgets('10b. aucune surface de transition retardatrice n’est ajoutée', (
     tester,
   ) async {
     var calls = 0;
     await pumpSuccess(tester, onContinue: () => calls++);
     await tester.tap(find.text('Découvrir Intellia 237'));
-    await tester.pump(const Duration(milliseconds: 120));
-    // Tap n'importe où pendant l'aube → arrivée immédiate.
-    await tester.tapAt(const Offset(200, 400));
     await tester.pump();
     expect(calls, 1);
-    await tester.pump(const Duration(milliseconds: 1400));
-    expect(calls, 1, reason: 'le skip ne double pas la fin naturelle');
+    expect(find.bySemanticsLabel('Ouverture de ton espace'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('10c. animations réduites : fondu court (≤ 300 ms)', (
+  testWidgets('10c. animations réduites : navigation immédiate également', (
     tester,
   ) async {
     var calls = 0;
@@ -258,6 +248,7 @@ void main() {
       final auth = container.read(authControllerProvider);
       expect(auth.status, AuthStatus.authenticated);
       expect(auth.role, AppRole.student);
+      expect(container.read(selectedTutorIdProvider), 'kira');
       // Le router redirige le student vers studentHome.
       expect(AppRole.student.homePath, AppRoutes.studentHome);
       expect(tester.takeException(), isNull);

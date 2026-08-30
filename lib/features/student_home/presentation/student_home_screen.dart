@@ -9,7 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
-import '../../../app/config/app_config.dart';
 import '../../../app/config/build_identity.dart';
 import '../../../app/config/feature_flags.dart';
 import '../../../app/theme/design_tokens.dart';
@@ -121,14 +120,13 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
       : <String, GlobalKey>{};
 
   int _currentIndex = 0;
-  int _stagingTapCount = 0;
+  int _debugTapCount = 0;
   bool _tourLaunchRequested = false;
 
   @override
   Widget build(BuildContext context) {
     final snapshotAsync = ref.watch(studentHomeControllerProvider);
-    final config = ref.watch(appConfigProvider);
-    final showTapDiagnostics = config.isStaging || kDebugMode;
+    final showTapDiagnostics = kDebugMode;
     _scheduleTourGuideIfNeeded(snapshotAsync);
 
     return PopScope(
@@ -220,7 +218,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
                         vertical: 4,
                       ),
                       child: Text(
-                        'TAPS $_stagingTapCount',
+                        'TAPS $_debugTapCount',
                         key: const ValueKey('student-nav-tap-counter'),
                         style: const TextStyle(
                           color: Colors.white,
@@ -254,8 +252,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
 
   void _handleNavTap(int index) {
     final previous = _currentIndex;
-    final config = ref.read(appConfigProvider);
-    final diagnosticsEnabled = config.isStaging || kDebugMode;
+    final diagnosticsEnabled = kDebugMode;
     if (diagnosticsEnabled) {
       final route = _currentRoute();
       final overlayActive = !(ModalRoute.of(context)?.isCurrent ?? true);
@@ -267,7 +264,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
     if (index != previous) FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _currentIndex = index;
-      if (diagnosticsEnabled) _stagingTapCount += 1;
+      if (diagnosticsEnabled) _debugTapCount += 1;
     });
     if (diagnosticsEnabled) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -619,8 +616,7 @@ class _ProfileTab extends ConsumerWidget {
     final academicAsync = ref.watch(studentAcademicContextProvider);
     final homeAsync = ref.watch(studentHomeControllerProvider);
     final theme = Theme.of(context);
-    final config = ref.watch(appConfigProvider);
-    final showBuildIdentity = config.isStaging || kDebugMode;
+    final showBuildIdentity = kDebugMode;
 
     return _ResponsiveBody(
       child: ListView(

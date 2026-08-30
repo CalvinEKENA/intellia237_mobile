@@ -6,6 +6,7 @@ import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../tutor/application/tutor_preference_provider.dart';
 import '../data/firebase_student_registration_repository.dart';
 import '../data/student_registration_repository.dart';
 import '../domain/academic_rules.dart';
@@ -217,6 +218,10 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
   void completeRegistration() {
     final result = _registeredUser;
     if (result == null || !state.isCompleted) return;
+    final tutorId = state.selectedTutorId;
+    if (tutorId != null) {
+      unawaited(ref.read(selectedTutorIdProvider.notifier).select(tutorId));
+    }
     ref
         .read(authControllerProvider.notifier)
         .setAuthenticatedUser(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../../../../app/theme/design_tokens.dart';
 import 'auth_controls.dart';
 import 'auth_experience_scaffold.dart';
 
@@ -13,9 +12,8 @@ import 'auth_experience_scaffold.dart';
 /// contenu via `LayoutBuilder` + `ConstrainedBox(minHeight)` + `Center` avec une
 /// `Column(mainAxisSize: min)` ; le tout défile sur les petits écrans.
 ///
-/// Moment signature « aube » (AD §14) : au tap sur « Découvrir », la nuit du
-/// seuil se dissout dans la lumière crème de l'accueil (≤ 1,2 s, jamais
-/// bloquant : un tap passe directement, animations réduites = fondu court).
+/// Le CTA ouvre immédiatement l'accueil. La route suivante porte elle-même
+/// une surface INTELLIA visible pendant son fondu, sans délai décoratif.
 class AuthSuccessScreen extends StatefulWidget {
   const AuthSuccessScreen({
     required this.firstName,
@@ -35,13 +33,6 @@ class AuthSuccessScreen extends StatefulWidget {
 }
 
 class _AuthSuccessScreenState extends State<AuthSuccessScreen> {
-  bool _dawnStarted = false;
-
-  void _startDawn() {
-    if (_dawnStarted) return;
-    setState(() => _dawnStarted = true);
-  }
-
   @override
   Widget build(BuildContext context) {
     final reduceMotion =
@@ -58,17 +49,8 @@ class _AuthSuccessScreenState extends State<AuthSuccessScreen> {
             companionName: widget.companionName,
             companionAsset: widget.companionAsset,
             reduceMotion: reduceMotion,
-            onContinue: _startDawn,
+            onContinue: widget.onContinue,
           ),
-          if (_dawnStarted)
-            Positioned.fill(
-              child: _DawnOverlay(
-                companionAsset: widget.companionAsset,
-                companionName: widget.companionName,
-                reduceMotion: reduceMotion,
-                onFinished: widget.onContinue,
-              ),
-            ),
         ],
       ),
     );
@@ -151,139 +133,6 @@ class _SuccessBody extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-/// « Aube » : rideau de lumière crème qui descend sur la nuit du seuil,
-/// compagnon porté par la lumière, puis arrivée sur l'accueil clair.
-/// Jamais bloquant : un tap n'importe où termine immédiatement.
-class _DawnOverlay extends StatefulWidget {
-  const _DawnOverlay({
-    required this.companionAsset,
-    required this.companionName,
-    required this.reduceMotion,
-    required this.onFinished,
-  });
-
-  final String companionAsset;
-  final String companionName;
-  final bool reduceMotion;
-  final VoidCallback onFinished;
-
-  @override
-  State<_DawnOverlay> createState() => _DawnOverlayState();
-}
-
-class _DawnOverlayState extends State<_DawnOverlay>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  bool _finished = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      // Cap AD §14 : bien en dessous de 1,4 s ; fondu court en reduced motion.
-      duration: widget.reduceMotion
-          ? const Duration(milliseconds: 220)
-          : const Duration(milliseconds: 1100),
-    );
-    _ctrl.addStatusListener((status) {
-      if (status == AnimationStatus.completed) _finish();
-    });
-    _ctrl.forward();
-  }
-
-  void _finish() {
-    if (_finished) return;
-    _finished = true;
-    widget.onFinished();
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const dawn = IntelliaColors.backgroundPrimary;
-
-    return Semantics(
-      label: 'Ouverture de ton espace',
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _finish,
-        child: AnimatedBuilder(
-          animation: _ctrl,
-          builder: (context, _) {
-            final t = Curves.easeInOutCubic.transform(_ctrl.value);
-
-            if (widget.reduceMotion) {
-              // Substitution AD §8.1 : simple fondu nuit → crème.
-              return Opacity(
-                opacity: t,
-                child: const ColoredBox(color: dawn),
-              );
-            }
-
-            // Rideau de lumière : la crème descend du haut (lever de jour).
-            final curtain = (t * 1.25).clamp(0.0, 1.0);
-            // Le compagnon apparaît dans la lumière puis s'y dissout.
-            final companionIn = (t / 0.45).clamp(0.0, 1.0);
-            final companionOut = t <= 0.62
-                ? 1.0
-                : (1 - (t - 0.62) / 0.38).clamp(0.0, 1.0);
-
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        dawn,
-                        dawn,
-                        const Color(
-                          0xFFFFE9C4,
-                        ).withValues(alpha: 0.9 * curtain),
-                        dawn.withValues(alpha: 0),
-                      ],
-                      stops: [
-                        0,
-                        (curtain - 0.12).clamp(0.0, 1.0),
-                        curtain,
-                        (curtain + 0.10).clamp(0.0, 1.0),
-                      ],
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Opacity(
-                    opacity: companionIn * companionOut,
-                    child: Transform.scale(
-                      scale: 0.96 + 0.12 * t,
-                      child: Image.asset(
-                        widget.companionAsset,
-                        width: 150,
-                        height: 150,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, _, _) =>
-                            const SizedBox.square(dimension: 150),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
       ),
     );
   }

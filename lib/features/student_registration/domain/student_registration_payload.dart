@@ -61,6 +61,7 @@ class StudentRegistrationPayload {
     'interfaceLanguage': interfaceLanguage.code,
     'educationalSubsystem': educationalSubsystem.storageValue,
     'educationType': educationType.name,
+    'academicLevelId': schoolClass.academicLevelId(educationType),
     'streamOrSpeciality': streamOrSpeciality.isEmpty
         ? schoolSeries?.label
         : streamOrSpeciality,
@@ -93,7 +94,7 @@ class StudentRegistrationPayload {
       'lastName': lastName,
       'email': email,
       'role': 'student',
-      'classLevel': schoolClass.label,
+      'classLevel': schoolClass.catalogKey,
       'series': schoolSeries?.label,
       'tutorId': _normalizedTutorId,
       'profileCompleted': true,
@@ -126,7 +127,7 @@ class StudentRegistrationPayload {
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
-      'classLevel': schoolClass.label,
+      'classLevel': schoolClass.catalogKey,
       'series': schoolSeries?.label,
       'points': 0,
       'level': 1,

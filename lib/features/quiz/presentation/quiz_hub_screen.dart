@@ -8,6 +8,7 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/network/network_status.dart';
 import '../../../core/widgets/tab_section_header.dart';
 import '../application/quiz_providers.dart';
+import '../data/quiz_diagnostic.dart';
 import '../domain/quiz_attempt_summary.dart';
 import '../domain/quiz_mode.dart';
 import '../domain/quiz_model.dart';
@@ -30,12 +31,9 @@ class QuizHubScreen extends ConsumerWidget {
           : const IntelliaStateView(kind: IntelliaStateKind.loading),
       error: (error, stackTrace) => offline
           ? const _OfflineQuizHubState()
-          : IntelliaStateView(
-              kind: stateKindForError(error),
-              title: 'Impossible de charger les quiz',
-              message: stateMessageForKind(stateKindForError(error)),
-              primaryLabel: 'Réessayer',
-              onPrimary: () => ref.invalidate(quizHubProvider),
+          : _QuizFailureState(
+              error: error,
+              onRetry: () => ref.invalidate(quizHubProvider),
             ),
       data: (quizzes) => _QuizHubBody(quizzes: quizzes, offline: offline),
     );
@@ -47,6 +45,49 @@ class QuizHubScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Quiz')),
       body: content,
+    );
+  }
+}
+
+class _QuizFailureState extends StatelessWidget {
+  const _QuizFailureState({required this.error, required this.onRetry});
+
+  final Object error;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final failure = error is QuizContentException
+        ? error as QuizContentException
+        : null;
+    final message = switch (failure?.operation) {
+      QuizOperation.profileMissing || QuizOperation.classMapping =>
+        'Ton profil scolaire doit être complété ou resynchronisé avant de '
+            'choisir les quiz de ton niveau.',
+      QuizOperation.firestorePermission =>
+        'L’accès au catalogue n’a pas été autorisé pour ce profil. Tu peux '
+            'continuer avec tes cours pendant la vérification.',
+      QuizOperation.callableUnavailable =>
+        'Le catalogue validé est momentanément inaccessible. Aucun contenu '
+            'n’est inventé : poursuis avec le Flow ou tes cours.',
+      QuizOperation.invalidResponse || QuizOperation.subjectMapping =>
+        'Le catalogue reçu est incomplet. Il n’est pas affiché afin de ne pas '
+            'te proposer un contenu incorrect.',
+      QuizOperation.appCheck || QuizOperation.network =>
+        'La connexion au catalogue est interrompue. Tes cours et le Flow '
+            'restent disponibles.',
+      QuizOperation.unknown ||
+      null => stateMessageForKind(stateKindForError(error)),
+    };
+
+    return IntelliaStateView(
+      kind: stateKindForError(error),
+      title: 'Impossible de charger les quiz pour le moment.',
+      message: message,
+      primaryLabel: 'Réessayer',
+      onPrimary: onRetry,
+      secondaryLabel: 'Continuer avec le Flow',
+      onSecondary: () => context.push(AppRoutes.flow),
     );
   }
 }

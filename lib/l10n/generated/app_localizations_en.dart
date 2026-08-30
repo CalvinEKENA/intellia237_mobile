@@ -299,4 +299,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reclaimDevice => 'Reclaim device';
+
+  @override
+  String get preparingYourSpace => 'Preparing your space…';
+
+  @override
+  String companionQuotaReached(String name) {
+    return 'You have used all your questions for today. You can ask $name again tomorrow.';
+  }
+
+  @override
+  String companionProfileSync(String name) {
+    return '$name needs to resync your profile before answering. Your lessons and exercises remain available.';
+  }
+
+  @override
+  String companionInvalidRequest(String name) {
+    return '$name cannot process that question. Try rephrasing it in a few words.';
+  }
+
+  @override
+  String companionNetworkUnavailable(String name) {
+    return '$name cannot connect right now. Check your connection; your lessons and exercises remain available.';
+  }
+
+  @override
+  String companionServiceUnavailable(String name) {
+    return '$name cannot answer right now. You can keep using your lessons and exercises.';
+  }
+
+  @override
+  String companionInvalidResponse(String name) {
+    return '$name received an incomplete response. You can try again in a moment.';
+  }
+
+  @override
+  String get companionStatusReady => 'Ready to help';
+
+  @override
+  String get companionStatusThinking => 'thinking…';
+
+  @override
+  String get companionStatusQuota => 'daily limit reached';
+
+  @override
+  String get companionStatusProfile => 'profile needs syncing';
+
+  @override
+  String get companionStatusNetwork => 'waiting for connection';
+
+  @override
+  String get companionStatusUnavailable => 'answer unavailable';
 }

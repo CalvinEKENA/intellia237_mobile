@@ -55,17 +55,27 @@ class FirestoreStudentHomeRepository implements StudentHomeRepository {
       _ref.read(authControllerProvider),
     );
 
-    final hub = await _ref.read(learnHubProvider.future);
-    final subjects = [
-      for (final subject in hub.subjects)
-        SubjectOverview(
-          id: subject.id,
-          title: subject.title,
-          progress: subject.completion,
-          colorHex: subject.colorHex,
-          iconKey: subject.iconKey,
-        ),
-    ];
+    // Subjects are an important entry point, but profile/catalog/network
+    // failures remain isolated from the core home shell. Identity, Flow and
+    // navigation must render immediately after authentication.
+    var subjects = const <SubjectOverview>[];
+    try {
+      final hub = await _ref
+          .read(learnHubProvider.future)
+          .timeout(const Duration(seconds: 10));
+      subjects = [
+        for (final subject in hub.subjects)
+          SubjectOverview(
+            id: subject.id,
+            title: subject.title,
+            progress: subject.completion,
+            colorHex: subject.colorHex,
+            iconKey: subject.iconKey,
+          ),
+      ];
+    } catch (_) {
+      subjects = const <SubjectOverview>[];
+    }
 
     final globalProgress = subjects.isEmpty
         ? null

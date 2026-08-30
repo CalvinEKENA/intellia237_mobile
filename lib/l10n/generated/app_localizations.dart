@@ -637,6 +637,84 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Récupérer l’appareil'**
   String get reclaimDevice;
+
+  /// No description provided for @preparingYourSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation de ton espace…'**
+  String get preparingYourSpace;
+
+  /// No description provided for @companionQuotaReached.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as utilisé toutes tes questions du jour. Tu pourras de nouveau interroger {name} demain.'**
+  String companionQuotaReached(String name);
+
+  /// No description provided for @companionProfileSync.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a besoin de resynchroniser ton profil avant de répondre. Tes cours et exercices restent disponibles.'**
+  String companionProfileSync(String name);
+
+  /// No description provided for @companionInvalidRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} ne peut pas traiter cette question. Reformule-la en quelques mots.'**
+  String companionInvalidRequest(String name);
+
+  /// No description provided for @companionNetworkUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} n’arrive pas à se connecter pour le moment. Vérifie ta connexion; tes cours et exercices restent disponibles.'**
+  String companionNetworkUnavailable(String name);
+
+  /// No description provided for @companionServiceUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} n’arrive pas à répondre pour le moment. Tu peux continuer à consulter tes cours et exercices.'**
+  String companionServiceUnavailable(String name);
+
+  /// No description provided for @companionInvalidResponse.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a reçu une réponse incomplète. Tu peux réessayer dans un instant.'**
+  String companionInvalidResponse(String name);
+
+  /// No description provided for @companionStatusReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prêt à t’aider'**
+  String get companionStatusReady;
+
+  /// No description provided for @companionStatusThinking.
+  ///
+  /// In fr, this message translates to:
+  /// **'réfléchit…'**
+  String get companionStatusThinking;
+
+  /// No description provided for @companionStatusQuota.
+  ///
+  /// In fr, this message translates to:
+  /// **'limite du jour atteinte'**
+  String get companionStatusQuota;
+
+  /// No description provided for @companionStatusProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'profil à synchroniser'**
+  String get companionStatusProfile;
+
+  /// No description provided for @companionStatusNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'connexion à retrouver'**
+  String get companionStatusNetwork;
+
+  /// No description provided for @companionStatusUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'réponse indisponible'**
+  String get companionStatusUnavailable;
 }
 
 class _AppLocalizationsDelegate

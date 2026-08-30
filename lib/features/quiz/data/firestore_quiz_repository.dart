@@ -9,6 +9,7 @@ import '../domain/quiz_result_payload.dart';
 import '../domain/quiz_type.dart';
 import 'firebase_quiz_content_service.dart';
 import 'firestore_quiz_attempt_service.dart';
+import 'quiz_diagnostic.dart';
 import 'quiz_repository.dart';
 
 /// Student-facing quiz repository.
@@ -90,7 +91,15 @@ class FirestoreQuizRepository implements QuizRepository {
 /// present only in a correction returned by the server after a check or final
 /// submission.
 QuizModel parsePublicQuizPayload(Map<String, dynamic> data) {
-  final rawQuestions = data['questions'] as List<dynamic>? ?? const [];
+  final id = _requiredQuizString(data, 'id');
+  final title = _requiredQuizString(data, 'title');
+  final subjectId = _requiredQuizString(data, 'subjectId', subject: true);
+  final subjectLabel = _requiredQuizString(data, 'subjectLabel', subject: true);
+  final rawQuestionValue = data['questions'];
+  if (rawQuestionValue != null && rawQuestionValue is! List) {
+    throw const QuizContentException.invalidResponse();
+  }
+  final rawQuestions = rawQuestionValue as List<dynamic>? ?? const [];
   final questions = rawQuestions
       .whereType<Map>()
       .map((rawQuestion) {
@@ -113,10 +122,10 @@ QuizModel parsePublicQuizPayload(Map<String, dynamic> data) {
       .toList(growable: false);
 
   return QuizModel(
-    id: data['id'] as String? ?? '',
-    title: data['title'] as String? ?? '',
-    subjectId: data['subjectId'] as String? ?? '',
-    subjectLabel: data['subjectLabel'] as String? ?? '',
+    id: id,
+    title: title,
+    subjectId: subjectId,
+    subjectLabel: subjectLabel,
     description: data['description'] as String? ?? '',
     difficultyLabel: data['difficultyLabel'] as String? ?? 'Intermédiaire',
     timerSeconds: (data['timerSeconds'] as num?)?.toInt(),
@@ -124,4 +133,16 @@ QuizModel parsePublicQuizPayload(Map<String, dynamic> data) {
     questionCount: (data['questionCount'] as num?)?.toInt() ?? questions.length,
     questions: questions,
   );
+}
+
+String _requiredQuizString(
+  Map<String, dynamic> data,
+  String key, {
+  bool subject = false,
+}) {
+  final value = data[key];
+  if (value is! String || value.trim().isEmpty) {
+    throw QuizContentException.invalidResponse(subjectMapping: subject);
+  }
+  return value.trim();
 }

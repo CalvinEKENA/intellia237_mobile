@@ -30,14 +30,31 @@ class AICompanionReply {
   final AICompanionQuota quota;
 }
 
+enum AICompanionFailureKind {
+  quotaExhausted,
+  network,
+  serviceUnavailable,
+  authorizationProfile,
+  invalidRequest,
+  appCheck,
+  invalidResponse,
+  unknown,
+}
+
 class AICompanionException implements Exception {
   const AICompanionException({
     required this.message,
+    required this.kind,
+    required this.normalizedErrorCode,
+    required this.diagnosticId,
     this.retryable = true,
     this.quota,
   });
 
   final String message;
+  final AICompanionFailureKind kind;
+  final String normalizedErrorCode;
+  final String diagnosticId;
   final bool retryable;
   final AICompanionQuota? quota;
 

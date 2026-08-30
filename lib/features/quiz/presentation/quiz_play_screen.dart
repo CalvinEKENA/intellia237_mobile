@@ -11,8 +11,8 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/network/network_status.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../application/quiz_providers.dart';
-import '../data/firebase_quiz_content_service.dart';
 import '../data/firestore_quiz_attempt_service.dart';
+import '../data/quiz_diagnostic.dart';
 import '../domain/quiz_attempt.dart';
 import '../domain/quiz_mode.dart';
 import '../domain/quiz_model.dart';
@@ -668,7 +668,16 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
 }
 
 String _trainingCheckErrorMessage(Object error) {
-  if (error is QuizContentException) return error.message;
+  if (error is QuizContentException) {
+    return switch (error.operation) {
+      QuizOperation.network =>
+        'La connexion est trop faible pour vérifier cette réponse. Réessaie '
+            'quand le réseau revient.',
+      QuizOperation.callableUnavailable =>
+        'La correction guidée est indisponible pour le moment.',
+      _ => 'Cette réponse ne peut pas être vérifiée pour le moment.',
+    };
+  }
   return 'La correction guidée ne répond pas pour le moment. Vérifie ta '
       'connexion, puis réessaie.';
 }
