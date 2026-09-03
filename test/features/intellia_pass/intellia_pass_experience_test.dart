@@ -46,7 +46,7 @@ void main() {
     await _disposeAnimatedSurface(tester);
   });
 
-  testWidgets('parent identity routes to the real parent registration flow', (
+  testWidgets('parent identity routes through phone-first authentication', (
     tester,
   ) async {
     final router = await _pumpPass(tester);
@@ -57,7 +57,7 @@ void main() {
     await tester.ensureVisible(find.text('Continuer'));
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
-    expect(find.text('Route parent réelle'), findsOneWidget);
+    expect(find.text('Authentification téléphone parent'), findsOneWidget);
     await _disposeAnimatedSurface(tester);
   });
 
@@ -125,6 +125,14 @@ Future<GoRouter> _pumpPass(WidgetTester tester) async {
       GoRoute(
         path: AppRoutes.parentRegistration,
         builder: (_, _) => const Scaffold(body: Text('Route parent réelle')),
+      ),
+      GoRoute(
+        path: AppRoutes.phoneAuth,
+        builder: (_, state) => Scaffold(
+          body: Text(
+            'Authentification téléphone ${state.uri.queryParameters['role']}',
+          ),
+        ),
       ),
       GoRoute(
         path: AppRoutes.teacherRegistration,

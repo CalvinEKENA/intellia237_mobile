@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_pressable.dart';
@@ -114,12 +115,12 @@ class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
                     const IntelliaStateView(kind: IntelliaStateKind.loading),
                 error: (error, stackTrace) => IntelliaStateView(
                   kind: stateKindForError(error),
-                  title: 'Leçon indisponible',
+                  title: context.l10n.lessonUnavailable,
                   message: stateMessageForKind(stateKindForError(error)),
-                  primaryLabel: 'Réessayer',
+                  primaryLabel: context.l10n.retryLabel,
                   onPrimary: () =>
                       ref.invalidate(lessonDetailProvider(_request)),
-                  secondaryLabel: 'Revenir en arrière',
+                  secondaryLabel: context.l10n.backLabel,
                   onSecondary: () => Navigator.of(context).maybePop(),
                 ),
                 data: (lesson) {
@@ -259,10 +260,8 @@ class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
       if (!mounted) return;
       if (saveStatus == LessonProgressSaveStatus.queued) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Progression conservée sur cet appareil. Elle sera synchronisée automatiquement.',
-            ),
+          SnackBar(
+            content: Text(context.l10n.localProgressSaved),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -564,7 +563,7 @@ class _FinishButtonState extends State<_FinishButton>
           ),
       child: Semantics(
         button: true,
-        label: 'Marquer la leçon comme terminée',
+        label: context.l10n.markLessonComplete,
         child: IntelliaPressable(
           onTap: widget.isLoading ? null : widget.onPressed,
           child: Container(
@@ -587,9 +586,9 @@ class _FinishButtonState extends State<_FinishButton>
                         color: Colors.white,
                       ),
                     )
-                  : const Text(
-                      'Marquer comme terminée',
-                      style: TextStyle(
+                  : Text(
+                      context.l10n.markComplete,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -656,7 +655,7 @@ class _LessonHeader extends StatelessWidget {
               Icon(Icons.check_circle_rounded, size: 14, color: s.success),
               const SizedBox(width: 4),
               Text(
-                'Terminée',
+                context.l10n.completedLabel,
                 style: TextStyle(
                   fontSize: 12,
                   color: s.success,
@@ -686,7 +685,7 @@ class _AskAiBanner extends StatelessWidget {
     final s = TabSurface.of(context);
     return Semantics(
       button: true,
-      label: 'Demander de l\'aide à ${tutor.name} sur cette leçon',
+      label: context.l10n.askTutorAboutLesson(tutor.name),
       child: IntelliaPressable(
         onTap: onTap,
         child: Container(
@@ -714,7 +713,7 @@ class _AskAiBanner extends StatelessWidget {
               const SizedBox(width: IntelliaSpacing.sm),
               Expanded(
                 child: Text(
-                  'Une question ? Demande à ${tutor.name.split(' ').first}',
+                  context.l10n.askTutorPrompt(tutor.name.split(' ').first),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -819,7 +818,7 @@ class _MiniQuizSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Vérifie ta compréhension',
+            context.l10n.checkUnderstanding,
             style: GoogleFonts.playfairDisplay(
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -1107,7 +1106,7 @@ class _CompletionSheet extends StatelessWidget {
                 child: Icon(Icons.check_rounded, color: s.success, size: 34),
               ),
               Text(
-                'Leçon terminée, bravo !',
+                context.l10n.lessonCompletedCongrats,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.playfairDisplay(
                   fontSize: 20,
@@ -1118,8 +1117,8 @@ class _CompletionSheet extends StatelessWidget {
               const SizedBox(height: IntelliaSpacing.xs),
               Text(
                 nextLesson == null
-                    ? 'Tu as terminé la dernière leçon de ce chapitre.'
-                    : 'Prochaine étape : « ${nextLesson!.title} ».',
+                    ? context.l10n.lastLessonCompleted
+                    : context.l10n.nextStepLesson(nextLesson!.title),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.montserrat(
                   fontSize: 13,
@@ -1131,7 +1130,7 @@ class _CompletionSheet extends StatelessWidget {
               if (onNext != null)
                 Semantics(
                   button: true,
-                  label: 'Commencer la leçon suivante',
+                  label: context.l10n.startNextLesson,
                   child: IntelliaPressable(
                     onTap: onNext,
                     child: Container(
@@ -1140,10 +1139,10 @@ class _CompletionSheet extends StatelessWidget {
                         gradient: IntelliaGradients.brand,
                         borderRadius: BorderRadius.circular(IntelliaRadii.full),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          'Leçon suivante',
-                          style: TextStyle(
+                          context.l10n.nextLesson,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -1156,7 +1155,7 @@ class _CompletionSheet extends StatelessWidget {
               const SizedBox(height: IntelliaSpacing.xs),
               TextButton(
                 onPressed: onBack,
-                child: const Text('Retour au chapitre'),
+                child: Text(context.l10n.backToChapter),
               ),
             ],
           ),

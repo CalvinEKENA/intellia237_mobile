@@ -18,6 +18,7 @@ import '../application/student_registration_state.dart';
 import '../domain/academic_rules.dart';
 import '../../../core/localization/localization_extensions.dart';
 import 'widgets/companion_discovery.dart';
+import 'widgets/establishment_search_field.dart';
 
 class StudentRegistrationFlowScreen extends ConsumerStatefulWidget {
   const StudentRegistrationFlowScreen({super.key});
@@ -29,20 +30,10 @@ class StudentRegistrationFlowScreen extends ConsumerStatefulWidget {
 
 class _StudentRegistrationFlowScreenState
     extends ConsumerState<StudentRegistrationFlowScreen> {
-  static const _stepLabels = <String>[
-    'Identité',
-    'Classe',
-    'Compagnon',
-    'Sécurité',
-  ];
-
   final _identityFormKey = GlobalKey<FormState>();
   final _securityFormKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   String? _localError;
   int _previousStep = 0;
 
@@ -59,30 +50,12 @@ class _StudentRegistrationFlowScreenState
           .read(studentRegistrationControllerProvider.notifier)
           .setLastName(_lastNameController.text),
     );
-    _emailController.addListener(
-      () => ref
-          .read(studentRegistrationControllerProvider.notifier)
-          .setEmail(_emailController.text),
-    );
-    _passwordController.addListener(
-      () => ref
-          .read(studentRegistrationControllerProvider.notifier)
-          .setPassword(_passwordController.text),
-    );
-    _confirmPasswordController.addListener(
-      () => ref
-          .read(studentRegistrationControllerProvider.notifier)
-          .setConfirmPassword(_confirmPasswordController.text),
-    );
   }
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -91,6 +64,7 @@ class _StudentRegistrationFlowScreenState
     final state = ref.watch(studentRegistrationControllerProvider);
     final controller = ref.read(studentRegistrationControllerProvider.notifier);
     final companion = TutorPersona.resolve(state.selectedTutorId);
+    final l10n = context.l10n;
 
     if (state.isCompleted) {
       return AuthSuccessScreen(
@@ -115,16 +89,20 @@ class _StudentRegistrationFlowScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AuthHeader(
-            eyebrow: 'Espace élève',
-            title: 'Crée ton parcours\nIntellia 237.',
-            subtitle:
-                'Quatre étapes rapides pour préparer ton espace personnel.',
+          AuthHeader(
+            eyebrow: l10n.studentSpaceEyebrow,
+            title: l10n.studentRegistrationTitle,
+            subtitle: l10n.studentRegistrationSubtitle,
           ),
           const SizedBox(height: 24),
           AuthStepIndicator(
             currentStep: state.currentStep,
-            labels: _stepLabels,
+            labels: [
+              l10n.stepIdentity,
+              l10n.stepClass,
+              l10n.stepCompanion,
+              l10n.stepSecurity,
+            ],
           ),
           const SizedBox(height: 18),
           PageTransitionSwitcher(
@@ -223,14 +201,14 @@ class _StudentRegistrationFlowScreenState
           const SizedBox(height: 18),
           AuthAnimatedField(
             controller: _firstNameController,
-            label: 'Prénom',
-            hint: 'Ex. Marie',
+            label: l10n.firstNameLabel,
+            hint: l10n.firstNameHint,
             icon: Icons.person_outline_rounded,
             textInputAction: TextInputAction.next,
             autofillHints: const [AutofillHints.givenName],
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
-              label: 'Le prénom',
+              label: l10n.firstNameLabel,
             ),
           ),
           const SizedBox(height: 20),
@@ -270,13 +248,15 @@ class _StudentRegistrationFlowScreenState
           const SizedBox(height: 14),
           AuthAnimatedField(
             controller: _lastNameController,
-            label: 'Nom',
-            hint: 'Ex. Ndi',
+            label: l10n.lastNameLabel,
+            hint: l10n.lastNameHint,
             icon: Icons.badge_outlined,
             textInputAction: TextInputAction.done,
             autofillHints: const [AutofillHints.familyName],
-            validator: (value) =>
-                AuthInputValidators.displayName(value ?? '', label: 'Le nom'),
+            validator: (value) => AuthInputValidators.displayName(
+              value ?? '',
+              label: l10n.lastNameLabel,
+            ),
           ),
         ],
       ),
@@ -382,9 +362,9 @@ class _StudentRegistrationFlowScreenState
         ),
         if (selectedClass?.requiresSeries ?? false) ...[
           const SizedBox(height: 22),
-          const Text(
-            'Série',
-            style: TextStyle(
+          Text(
+            l10n.seriesLabel,
+            style: const TextStyle(
               color: AuthExperienceColors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w800,
@@ -419,58 +399,26 @@ class _StudentRegistrationFlowScreenState
           ),
         ],
         const SizedBox(height: 18),
-        TextFormField(
-          key: const ValueKey('passport-establishment'),
-          initialValue: state.establishment?.name,
-          onChanged: controller.setEstablishmentCandidate,
-          style: const TextStyle(color: AuthExperienceColors.textPrimary),
-          decoration: InputDecoration(
-            labelText: l10n.establishment,
-            hintText: l10n.establishmentHint,
-            labelStyle: const TextStyle(
-              color: AuthExperienceColors.textSecondary,
-            ),
-            hintStyle: const TextStyle(
-              color: AuthExperienceColors.textTertiary,
-            ),
-            prefixIcon: const Icon(
-              Icons.search_rounded,
-              color: AuthExperienceColors.textSecondary,
-            ),
-            filled: true,
-            fillColor: AuthExperienceColors.surface,
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: AuthExperienceColors.border),
-            ),
-          ),
+        EstablishmentSearchField(
+          initialName: state.establishment?.name,
+          onSelected: controller.selectEstablishment,
+          onSuggestion: controller.suggestEstablishment,
         ),
-        if (state.establishment != null) ...[
-          const SizedBox(height: 8),
-          Text(
-            l10n.establishmentUnverified,
-            key: const ValueKey('establishment-unverified-status'),
-            style: const TextStyle(
-              color: AuthExperienceColors.gold,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
       ],
     );
   }
 
   Widget _companionStep() {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: const [
+      children: [
         _StepHeading(
-          title: 'Rencontre ton compagnon',
-          subtitle:
-              'Découvre Kira, puis Léo. Tu choisiras une fois que tu les auras vus.',
+          title: l10n.meetCompanionTitle,
+          subtitle: l10n.meetCompanionSubtitle,
         ),
-        SizedBox(height: 12),
-        CompanionDiscovery(),
+        const SizedBox(height: 12),
+        const CompanionDiscovery(),
       ],
     );
   }
@@ -478,17 +426,16 @@ class _StudentRegistrationFlowScreenState
   Widget _securityStep(StudentRegistrationState state) {
     final controller = ref.read(studentRegistrationControllerProvider.notifier);
     final companion = TutorPersona.resolve(state.selectedTutorId);
+    final l10n = context.l10n;
     return Form(
       key: _securityFormKey,
       child: AutofillGroup(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const _StepHeading(
-              title: 'Sécurise ton compte',
-              subtitle:
-                  'Le téléphone deviendra l’accès principal du foyer. '
-                  'Le mécanisme actuel reste temporaire.',
+            _StepHeading(
+              title: l10n.secureAccountTitle,
+              subtitle: l10n.phoneVerifiedNoExtraCredential,
             ),
             const SizedBox(height: 18),
             Container(
@@ -512,7 +459,7 @@ class _StudentRegistrationFlowScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          context.l10n.phoneIdentityTarget,
+                          l10n.phoneIdentityTarget,
                           style: const TextStyle(
                             color: AuthExperienceColors.textPrimary,
                             fontSize: 13,
@@ -521,7 +468,7 @@ class _StudentRegistrationFlowScreenState
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          context.l10n.temporaryEmailNotice,
+                          l10n.phoneVerificationSuccessBody,
                           style: const TextStyle(
                             color: AuthExperienceColors.textSecondary,
                             fontSize: 11.5,
@@ -534,66 +481,30 @@ class _StudentRegistrationFlowScreenState
                 ],
               ),
             ),
-            const SizedBox(height: 14),
-            AuthAnimatedField(
-              controller: _emailController,
-              label: context.l10n.temporaryEmailLabel,
-              hint: 'prenom.nom@exemple.com',
-              icon: Icons.alternate_email_rounded,
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              autofillHints: const [AutofillHints.newUsername],
-              validator: (value) => AuthInputValidators.email(value ?? ''),
-            ),
-            const SizedBox(height: 14),
-            AuthAnimatedField(
-              controller: _passwordController,
-              label: 'Mot de passe',
-              hint: '8 caractères minimum',
-              icon: Icons.lock_outline_rounded,
-              isPassword: true,
-              textInputAction: TextInputAction.next,
-              autofillHints: const [AutofillHints.newPassword],
-              validator: (value) => AuthInputValidators.password(value ?? ''),
-            ),
-            const SizedBox(height: 14),
-            AuthAnimatedField(
-              controller: _confirmPasswordController,
-              label: 'Confirmer le mot de passe',
-              hint: 'Retape le même mot de passe',
-              icon: Icons.verified_user_outlined,
-              isPassword: true,
-              textInputAction: TextInputAction.done,
-              validator: (value) => AuthInputValidators.confirmPassword(
-                password: _passwordController.text,
-                confirmation: value ?? '',
-              ),
-              onFieldSubmitted: (_) => _handlePrimaryAction(state),
-            ),
             const SizedBox(height: 18),
             _SummaryRow(
               icon: Icons.school_outlined,
-              label: state.schoolClass?.label ?? 'Classe à confirmer',
+              label: state.schoolClass?.label ?? l10n.classToConfirm,
             ),
             const SizedBox(height: 8),
             _SummaryRow(
               icon: Icons.forum_outlined,
-              label: '${context.l10n.learningCompanion} : ${companion.name}',
+              label: '${l10n.learningCompanion} : ${companion.name}',
             ),
             const SizedBox(height: 16),
             AuthConsentTile(
               value: state.acceptedTerms,
-              label: 'J’accepte les conditions d’utilisation.',
+              label: l10n.acceptTerms,
               onChanged: controller.setAcceptedTerms,
             ),
             AuthConsentTile(
               value: state.acceptedPrivacy,
-              label: 'J’accepte la politique de confidentialité.',
+              label: l10n.acceptPrivacy,
               onChanged: controller.setAcceptedPrivacy,
             ),
             AuthConsentTile(
               value: state.acceptedDataPolicy,
-              label: 'J’accepte le traitement pédagogique des données.',
+              label: l10n.acceptLearningData,
               onChanged: controller.setAcceptedDataPolicy,
             ),
             const LegalLinks(showEducationalData: true),
@@ -611,7 +522,7 @@ class _StudentRegistrationFlowScreenState
       children: [
         if (!state.isFirstStep) ...[
           IconButton(
-            tooltip: 'Étape précédente',
+            tooltip: context.l10n.previousLabel,
             onPressed: state.isSubmitting
                 ? null
                 : () {

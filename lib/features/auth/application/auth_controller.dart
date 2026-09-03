@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../onboarding/data/onboarding_preferences.dart';
+import '../../tutor/application/tutor_preference_provider.dart';
 import '../data/auth_entry_preferences.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../domain/app_role.dart';
@@ -80,6 +81,34 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
+  /// Adopts a Firebase session created by phone verification without ever
+  /// creating or replacing the user's Firestore identity.
+  ///
+  /// Returns false when the phone credential is valid but registration has
+  /// not created a profile yet.
+  Future<bool> adoptCurrentFirebaseSession() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final user = await _repo.getCurrentUser();
+      if (user == null) {
+        state = const AuthState.unauthenticated();
+        return false;
+      }
+      await _markOnboardingSeen();
+      await _markAuthenticatedBefore();
+      state = AuthState.authenticated(
+        role: user.role,
+        userId: user.uid,
+        email: user.email,
+        firstName: user.firstName,
+      );
+      return true;
+    } catch (_) {
+      state = const AuthState.unauthenticated();
+      return false;
+    }
+  }
+
   /// Inscription avec rôle
   Future<void> register({
     required String email,
@@ -145,6 +174,7 @@ class AuthController extends Notifier<AuthState> {
     } catch (_) {
       // On déconnecte localement même si Firebase échoue
     }
+    await ref.read(selectedTutorIdProvider.notifier).clear();
     state = const AuthState.unauthenticated();
   }
 

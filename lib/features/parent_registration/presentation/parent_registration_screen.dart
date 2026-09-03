@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_buttons.dart';
 import '../../../core/widgets/intellia_text_field.dart';
 import '../../auth/presentation/widgets/auth_registration_frame.dart';
@@ -26,19 +27,9 @@ class _ParentRegistrationScreenState
 
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   final _childCodeController = TextEditingController();
 
   int _previousStep = 0;
-
-  static const _stepLabels = <String>[
-    'Identité parent',
-    'Liaison enfants',
-    'Validation finale',
-  ];
 
   @override
   void initState() {
@@ -53,36 +44,12 @@ class _ParentRegistrationScreenState
           .read(parentRegistrationControllerProvider.notifier)
           .setLastName(_lastNameController.text);
     });
-    _emailController.addListener(() {
-      ref
-          .read(parentRegistrationControllerProvider.notifier)
-          .setEmail(_emailController.text);
-    });
-    _phoneController.addListener(() {
-      ref
-          .read(parentRegistrationControllerProvider.notifier)
-          .setPhoneNumber(_phoneController.text);
-    });
-    _passwordController.addListener(() {
-      ref
-          .read(parentRegistrationControllerProvider.notifier)
-          .setPassword(_passwordController.text);
-    });
-    _confirmPasswordController.addListener(() {
-      ref
-          .read(parentRegistrationControllerProvider.notifier)
-          .setConfirmPassword(_confirmPasswordController.text);
-    });
   }
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
     _childCodeController.dispose();
     super.dispose();
   }
@@ -91,11 +58,16 @@ class _ParentRegistrationScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(parentRegistrationControllerProvider);
     final controller = ref.read(parentRegistrationControllerProvider.notifier);
+    final l10n = context.l10n;
 
     return AuthRegistrationFrame(
-      title: 'Créer un compte Parent',
+      title: l10n.parentRegistrationTitle,
       currentStep: state.currentStep,
-      labels: _stepLabels,
+      labels: [
+        l10n.parentStepIdentity,
+        l10n.parentStepChildren,
+        l10n.parentStepFinal,
+      ],
       onBack: state.currentStep == 0
           ? () => context.pop()
           : () {
@@ -150,70 +122,40 @@ class _ParentRegistrationScreenState
   }
 
   Widget _buildIdentityStep() {
+    final l10n = context.l10n;
     return Form(
       key: _step1FormKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SectionHeader(
-            title: 'Coordonnées du parent',
-            subtitle:
-                'Quelques informations suffisent pour préparer le parcours de votre enfant.',
+          _SectionHeader(
+            title: l10n.parentDetailsTitle,
+            subtitle: l10n.parentDetailsSubtitle,
           ),
           const SizedBox(height: IntelliaSpacing.lg),
           IntelliaTextField(
             controller: _firstNameController,
-            label: 'Prénom',
-            hint: 'Ex: Clarisse',
+            label: l10n.firstNameLabel,
+            hint: l10n.firstNameHint,
             prefixIcon: Icons.person_rounded,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
-              label: 'Le prénom',
+              label: l10n.firstNameLabel,
             ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _lastNameController,
-            label: 'Nom',
-            hint: 'Ex: Ndzi',
+            label: l10n.lastNameLabel,
+            hint: l10n.lastNameHint,
             prefixIcon: Icons.badge_rounded,
-            validator: (value) =>
-                AuthInputValidators.displayName(value ?? '', label: 'Le nom'),
-          ),
-          const SizedBox(height: IntelliaSpacing.md),
-          IntelliaTextField(
-            controller: _emailController,
-            label: 'E-mail technique (temporaire)',
-            hint: 'parent@exemple.com',
-            keyboardType: TextInputType.emailAddress,
-            prefixIcon: Icons.email_rounded,
-            validator: (value) => AuthInputValidators.email(value ?? ''),
-          ),
-          const SizedBox(height: IntelliaSpacing.md),
-          IntelliaTextField(
-            controller: _phoneController,
-            label: 'Téléphone — identité principale cible',
-            hint: '+2376...',
-            keyboardType: TextInputType.phone,
-            prefixIcon: Icons.phone_rounded,
-          ),
-          const SizedBox(height: IntelliaSpacing.md),
-          IntelliaPasswordField(
-            controller: _passwordController,
-            label: 'Mot de passe',
-            hint: '8 caractères minimum',
-            validator: (value) => AuthInputValidators.password(value ?? ''),
-          ),
-          const SizedBox(height: IntelliaSpacing.md),
-          IntelliaPasswordField(
-            controller: _confirmPasswordController,
-            label: 'Confirmer le mot de passe',
-            hint: 'Retapez le mot de passe',
-            validator: (value) => AuthInputValidators.confirmPassword(
-              password: _passwordController.text,
-              confirmation: value ?? '',
+            validator: (value) => AuthInputValidators.displayName(
+              value ?? '',
+              label: l10n.lastNameLabel,
             ),
           ),
+          const SizedBox(height: IntelliaSpacing.md),
+          _InfoBanner(message: l10n.phoneVerifiedNoExtraCredential),
         ],
       ),
     );
@@ -223,52 +165,45 @@ class _ParentRegistrationScreenState
     final controller = ref.read(parentRegistrationControllerProvider.notifier);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionHeader(
-          title: 'Lier vos enfants',
-          subtitle: 'Ajoutez un identifiant élève maintenant, ou plus tard.',
+        _SectionHeader(
+          title: l10n.linkChildrenTitle,
+          subtitle: l10n.linkChildrenSubtitle,
         ),
         const SizedBox(height: IntelliaSpacing.lg),
-        Row(
-          children: [
-            Expanded(
-              child: IntelliaTextField(
-                controller: _childCodeController,
-                label: 'Code / Identifiant enfant',
-                hint: 'Ex: STU-94K2',
-                prefixIcon: Icons.link_rounded,
-              ),
+        IntelliaTextField(
+          key: const ValueKey('parent-child-identifier-field'),
+          controller: _childCodeController,
+          label: l10n.childIdentifierLabel,
+          hint: l10n.childIdentifierHint,
+          prefixIcon: Icons.link_rounded,
+        ),
+        const SizedBox(height: IntelliaSpacing.sm),
+        Align(
+          alignment: Alignment.centerRight,
+          child: IntelliaOutlineButton(
+            key: const ValueKey('parent-add-child-action'),
+            expand: false,
+            onTap: () {
+              if (_childCodeController.text.trim().isNotEmpty) {
+                controller.addChildIdentifier(_childCodeController.text.trim());
+                _childCodeController.clear();
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(l10n.addLabel),
             ),
-            const SizedBox(width: IntelliaSpacing.sm),
-            Padding(
-              padding: const EdgeInsets.only(top: 24.0),
-              child: SizedBox(
-                height: 52,
-                child: IntelliaOutlineButton(
-                  onTap: () {
-                    if (_childCodeController.text.trim().isNotEmpty) {
-                      controller.addChildIdentifier(
-                        _childCodeController.text.trim(),
-                      );
-                      _childCodeController.clear();
-                    }
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text('Ajouter'),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
         const SizedBox(height: IntelliaSpacing.md),
         if (state.childIdentifiers.isEmpty)
           Text(
-            'Aucun enfant lié pour le moment.',
+            l10n.noLinkedChild,
             style: TextStyle(
               fontSize: 14,
               color: isDark
@@ -299,39 +234,37 @@ class _ParentRegistrationScreenState
 
   Widget _buildFinalStep(ParentRegistrationState state) {
     final controller = ref.read(parentRegistrationControllerProvider.notifier);
+    final l10n = context.l10n;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionHeader(
-          title: 'Validation finale',
-          subtitle:
-              'Relisez vos informations et acceptez les consentements requis.',
+        _SectionHeader(
+          title: l10n.finalReviewTitle,
+          subtitle: l10n.finalReviewSubtitle,
         ),
         const SizedBox(height: IntelliaSpacing.lg),
         _IntelliaCheckboxTile(
           value: state.acceptedTerms,
           onChanged: (value) => controller.setAcceptedTerms(value ?? false),
-          label: 'J\'accepte les conditions d\'utilisation.',
+          label: l10n.acceptTerms,
         ),
         const SizedBox(height: IntelliaSpacing.sm),
         _IntelliaCheckboxTile(
           value: state.acceptedPrivacy,
           onChanged: (value) => controller.setAcceptedPrivacy(value ?? false),
-          label: 'J\'accepte la politique de confidentialité.',
+          label: l10n.acceptPrivacy,
         ),
         const LegalLinks(),
         const SizedBox(height: IntelliaSpacing.lg),
-        const _InfoBanner(
-          message:
-              'Vous pourrez également lier ou modifier vos enfants après la création de votre compte.',
-        ),
+        _InfoBanner(message: l10n.parentChildrenLater),
       ],
     );
   }
 
   Widget _buildBottomActions(ParentRegistrationState state) {
     final controller = ref.read(parentRegistrationControllerProvider.notifier);
+    final l10n = context.l10n;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -353,9 +286,9 @@ class _ParentRegistrationScreenState
                         });
                         controller.previousStep();
                       },
-                child: const FittedBox(
+                child: FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text('Précédent', maxLines: 1, softWrap: false),
+                  child: Text(l10n.previousLabel, maxLines: 1, softWrap: false),
                 ),
               ),
             )
@@ -368,7 +301,7 @@ class _ParentRegistrationScreenState
               onTap: state.isSubmitting ? null : () => _onPrimaryAction(state),
               isLoading: state.isSubmitting,
               child: Text(
-                state.isLastStep ? 'Créer mon compte parent' : 'Suivant',
+                state.isLastStep ? l10n.createParentAccount : l10n.nextLabel,
               ),
             ),
           ),

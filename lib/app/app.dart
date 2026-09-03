@@ -16,6 +16,7 @@ import '../features/auth/application/auth_state.dart';
 import '../features/auth/domain/app_role.dart';
 import '../core/localization/app_locale_controller.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../core/system/intellia_system_bars.dart';
 
 class Intellia237App extends ConsumerWidget {
   const Intellia237App({super.key});
@@ -76,15 +77,18 @@ class Intellia237App extends ConsumerWidget {
           ),
           child: NetworkStatusBanner(child: child ?? const SizedBox.shrink()),
         );
-        if (!config.isStaging) {
-          return app;
-        }
+        final location = router.routeInformationProvider.value.uri.path;
+        final surfaced = IntelliaSystemBars(
+          tone: IntelliaSystemBarPolicy.toneForLocation(location),
+          child: app,
+        );
+        if (!config.isStaging) return surfaced;
 
         return Banner(
           message: 'STAGING',
           location: BannerLocation.topEnd,
           color: Colors.deepOrange,
-          child: app,
+          child: surfaced,
         );
       },
     );

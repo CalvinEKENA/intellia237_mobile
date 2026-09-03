@@ -38,7 +38,7 @@ void main() {
               home: MediaQuery(
                 data: MediaQueryData(
                   disableAnimations: true,
-                  textScaler: TextScaler.linear(1.3),
+                  textScaler: TextScaler.linear(1.5),
                 ),
                 child: StudentRegistrationFlowScreen(),
               ),
@@ -103,7 +103,8 @@ void main() {
     expect(find.text('Créer mon compte'), findsOneWidget);
     expect(find.byKey(const ValueKey('phone-primary-target')), findsOneWidget);
     expect(find.text('Identité cible : téléphone + code OTP'), findsOneWidget);
-    expect(find.text('E-mail technique (temporaire)'), findsOneWidget);
+    expect(find.text('E-mail technique (temporaire)'), findsNothing);
+    expect(find.text('Mot de passe'), findsNothing);
     expect(find.text('Adresse e-mail'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());

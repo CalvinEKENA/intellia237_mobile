@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_pressable.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../../core/widgets/tab_section_header.dart';
@@ -49,9 +50,9 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
       loading: _LearnHubLoading.new,
       error: (error, stackTrace) => IntelliaStateView(
         kind: stateKindForError(error),
-        title: 'Impossible de charger les matières',
+        title: context.l10n.subjectsLoadError,
         message: stateMessageForKind(stateKindForError(error)),
-        primaryLabel: 'Réessayer',
+        primaryLabel: context.l10n.retryLabel,
         onPrimary: () => ref.invalidate(learnHubProvider),
       ),
       data: (snapshot) => _LearnHubBody(
@@ -71,7 +72,7 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text(
-          'Apprendre',
+          context.l10n.learnTitle,
           style: GoogleFonts.playfairDisplay(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -114,6 +115,7 @@ class _LearnHubBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filtered = _filtered;
+    final l10n = context.l10n;
     // Hauteur de tuile adaptative : évite tout débordement à grand facteur
     // de texte (1.3 / 1.5).
     final textScale = MediaQuery.textScalerOf(context).scale(1);
@@ -122,18 +124,18 @@ class _LearnHubBody extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         // ── En-tête commun clair ───────────────────────────
-        const SliverToBoxAdapter(
+        SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.fromLTRB(
+            padding: const EdgeInsets.fromLTRB(
               IntelliaSpacing.lg,
               IntelliaSpacing.lg,
               IntelliaSpacing.lg,
               IntelliaSpacing.md,
             ),
             child: TabSectionHeader(
-              eyebrow: 'Espace élève',
-              title: 'Apprendre',
-              subtitle: 'Tes matières, adaptées à ton niveau.',
+              eyebrow: l10n.studentSpaceEyebrow,
+              title: l10n.learnTitle,
+              subtitle: l10n.learnSubtitle,
             ),
           ),
         ),
@@ -169,9 +171,9 @@ class _LearnHubBody extends StatelessWidget {
 
         // ── Subject grid ───────────────────────────────────
         if (subjects.isEmpty)
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 IntelliaSpacing.lg,
                 IntelliaSpacing.md,
                 IntelliaSpacing.lg,
@@ -180,10 +182,8 @@ class _LearnHubBody extends StatelessWidget {
               child: IntelliaStateView(
                 kind: IntelliaStateKind.comingSoon,
                 compact: true,
-                title: 'Tes matières arrivent',
-                message:
-                    'Les cours de ta classe sont en cours de préparation. '
-                    'Tu seras parmi les premiers à en profiter.',
+                title: l10n.subjectsComingTitle,
+                message: l10n.subjectsComingBody,
               ),
             ),
           )
@@ -199,9 +199,9 @@ class _LearnHubBody extends StatelessWidget {
               child: IntelliaStateView(
                 kind: IntelliaStateKind.noResults,
                 compact: true,
-                title: 'Aucune matière trouvée',
-                message: 'Essaie un autre mot-clé.',
-                primaryLabel: 'Effacer la recherche',
+                title: l10n.noSubjectFound,
+                message: l10n.tryAnotherKeyword,
+                primaryLabel: l10n.clearSearch,
                 onPrimary: searchCtrl.clear,
               ),
             ),
@@ -259,7 +259,7 @@ class _ContextBanner extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Parcours personnalisé',
+            context.l10n.personalizedPath,
             style: GoogleFonts.playfairDisplay(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -268,7 +268,7 @@ class _ContextBanner extends StatelessWidget {
           ),
           const SizedBox(height: IntelliaSpacing.xxs),
           Text(
-            'Contenus adaptés à ton niveau actuel.',
+            context.l10n.levelAdaptedContent,
             style: TextStyle(
               fontSize: 13,
               color: Colors.white.withValues(alpha: 0.85),
@@ -327,7 +327,7 @@ class _GlassSearchBar extends StatelessWidget {
       controller: controller,
       style: TextStyle(color: s.textPrimary, fontSize: 15),
       decoration: InputDecoration(
-        hintText: 'Rechercher une matière…',
+        hintText: context.l10n.searchSubjectHint,
         hintStyle: TextStyle(color: s.textTertiary, fontSize: 15),
         filled: true,
         fillColor: s.fieldFill,

@@ -69,11 +69,18 @@ class FirebaseStudentRegistrationRepository
 
       final now = DateTime.now();
       final uid = user.uid;
+      final userCreateData = payload.toUserDocument(uid: uid, now: now);
+      final userUpdateData = payload.toUserUpdateDocument(now: now);
+      final verifiedPhone = user.phoneNumber?.trim();
+      if (verifiedPhone != null && verifiedPhone.isNotEmpty) {
+        userCreateData['phoneNumber'] = verifiedPhone;
+        userUpdateData['phoneNumber'] = verifiedPhone;
+      }
 
       operation = await _documentStore.upsertUser(
         uid: uid,
-        createData: payload.toUserDocument(uid: uid, now: now),
-        updateData: payload.toUserUpdateDocument(now: now),
+        createData: userCreateData,
+        updateData: userUpdateData,
       );
       operation = await _documentStore.upsertProfile(
         uid: uid,
@@ -87,7 +94,7 @@ class FirebaseStudentRegistrationRepository
 
       return StudentRegistrationResult(
         uid: uid,
-        email: payload.email.trim(),
+        email: user.email?.trim() ?? payload.email.trim(),
         firstName: payload.firstName.trim(),
         lastName: payload.lastName.trim(),
       );
@@ -131,9 +138,17 @@ class FirebaseStudentRegistrationRepository
   ) async {
     final normalizedEmail = payload.email.trim().toLowerCase();
     final currentUser = _authGateway.currentUser;
-    if (currentUser != null &&
-        currentUser.email?.trim().toLowerCase() == normalizedEmail) {
-      return currentUser;
+    if (currentUser != null) {
+      final verifiedPhone = currentUser.phoneNumber?.trim() ?? '';
+      final currentEmail = currentUser.email?.trim().toLowerCase() ?? '';
+      if (verifiedPhone.isNotEmpty ||
+          (normalizedEmail.isNotEmpty && currentEmail == normalizedEmail)) {
+        return currentUser;
+      }
+    }
+
+    if (normalizedEmail.isEmpty || payload.password.isEmpty) {
+      throw const RegistrationAuthFailure(code: 'phone-verification-required');
     }
 
     try {
@@ -163,7 +178,9 @@ class FirebaseStudentRegistrationRepository
   ) async {
     try {
       await user.updateDisplayName(displayName);
-      if (!user.emailVerified) await user.sendEmailVerification();
+      if ((user.email?.isNotEmpty ?? false) && !user.emailVerified) {
+        await user.sendEmailVerification();
+      }
     } on Object catch (error, stackTrace) {
       _debugLog(
         operation: RegistrationOperation.authCreate,

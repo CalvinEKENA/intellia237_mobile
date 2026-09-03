@@ -1,5 +1,8 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intellia237/features/tutor/application/tutor_preference_provider.dart';
 import 'package:intellia237/features/tutor/domain/tutor_persona.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('TutorPersona legacy compatibility', () {
@@ -29,5 +32,22 @@ void main() {
       expect(TutorPersona.resolve('unknown').id, 'kira');
       expect(TutorPersona.resolve({'id': 42}).id, 'kira');
     });
+  });
+
+  test('stored and newly selected companion ids are canonical', () async {
+    SharedPreferences.setMockInitialValues(<String, Object>{
+      'selected_tutor_id': 'Léo',
+    });
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    container.read(selectedTutorIdProvider);
+    await Future<void>.delayed(Duration.zero);
+    expect(container.read(selectedTutorIdProvider), 'leo');
+
+    await container.read(selectedTutorIdProvider.notifier).select('Grace');
+    expect(container.read(selectedTutorIdProvider), 'kira');
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('selected_tutor_id'), 'kira');
   });
 }

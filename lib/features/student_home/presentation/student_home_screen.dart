@@ -13,6 +13,7 @@ import '../../../app/config/build_identity.dart';
 import '../../../app/config/feature_flags.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../../../core/widgets/intellia_state_view.dart';
@@ -32,6 +33,7 @@ import '../../tour_guide/domain/tour_guide_target_ids.dart';
 import '../../tour_guide/presentation/contextual_tour_guide.dart';
 import '../../student_registration/domain/academic_rules.dart';
 import '../../tutor/application/tutor_preference_provider.dart';
+import '../../tutor/data/tutor_preference_repository.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../application/student_home_controller.dart';
 import '../domain/student_home_snapshot.dart';
@@ -821,7 +823,7 @@ class _AcademicSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Parcours académique',
+          'Parcours scolaire',
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -1030,10 +1032,11 @@ class _TutorSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Mon Compagnon d\'étude',
+          context.l10n.selectedCompanionEyebrow,
           style: GoogleFonts.manrope(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.2,
             color: s.textPrimary,
           ),
         ),
@@ -1056,10 +1059,19 @@ class _TutorSection extends ConsumerWidget {
               boxShadow: IntelliaShadows.card(Colors.black),
             ),
             child: tutor != null
-                ? _ActiveTutorCard(tutor: tutor)
+                ? StudentProfileTutorCard(tutor: tutor)
                 : _NoTutorPlaceholder(),
           ),
         ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.04, end: 0),
+        if (tutor != null) ...[
+          const SizedBox(height: IntelliaSpacing.sm),
+          OutlinedButton.icon(
+            onPressed: () =>
+                _openTutorSelection(context, ref, tutor, classLevel),
+            icon: const Icon(Icons.swap_horiz_rounded),
+            label: Text(context.l10n.changeCompanion),
+          ),
+        ],
       ],
     );
   }
@@ -1081,24 +1093,70 @@ class _TutorSection extends ConsumerWidget {
 
     context.push(
       AppRoutes.tutorSelection + query,
-      extra: (TutorPersona chosen) {
-        ref.read(selectedTutorIdProvider.notifier).select(chosen.id);
-        context.pop();
-      },
+      extra: (TutorPersona chosen) =>
+          unawaited(_persistTutorSelection(context, ref, current, chosen)),
     );
+  }
+
+  Future<void> _persistTutorSelection(
+    BuildContext context,
+    WidgetRef ref,
+    TutorPersona? current,
+    TutorPersona chosen,
+  ) async {
+    final userId = ref.read(authControllerProvider).userId;
+    if (userId == null) return;
+
+    try {
+      await ref
+          .read(tutorPreferenceRepositoryProvider)
+          .save(userId: userId, tutorId: chosen.id);
+      await ref.read(selectedTutorIdProvider.notifier).select(chosen.id);
+      ref.invalidate(studentAcademicContextProvider);
+      if (context.mounted) context.pop();
+    } on TutorPreferenceException catch (error) {
+      if (current != null) {
+        await ref.read(selectedTutorIdProvider.notifier).select(current.id);
+      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(error.message),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    } catch (_) {
+      if (current != null) {
+        await ref.read(selectedTutorIdProvider.notifier).select(current.id);
+      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Le compagnon n’a pas pu être enregistré pour le moment.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    }
   }
 }
 
-class _ActiveTutorCard extends StatefulWidget {
-  const _ActiveTutorCard({required this.tutor});
+class StudentProfileTutorCard extends StatefulWidget {
+  const StudentProfileTutorCard({required this.tutor, super.key});
 
   final TutorPersona tutor;
 
   @override
-  State<_ActiveTutorCard> createState() => _ActiveTutorCardState();
+  State<StudentProfileTutorCard> createState() =>
+      _StudentProfileTutorCardState();
 }
 
-class _ActiveTutorCardState extends State<_ActiveTutorCard>
+class _StudentProfileTutorCardState extends State<StudentProfileTutorCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _floatCtrl;
   late final Animation<double> _floatAnim;
@@ -1139,6 +1197,9 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
   Widget build(BuildContext context) {
     final tutor = widget.tutor;
     final s = TabSurface.of(context);
+    final tagline = tutor.id == 'leo'
+        ? context.l10n.leoProfileTagline
+        : context.l10n.kiraProfileTagline;
 
     return Row(
       children: [
@@ -1152,8 +1213,8 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
             );
           },
           child: Container(
-            width: 56,
-            height: 56,
+            width: 82,
+            height: 82,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(IntelliaRadii.small),
               boxShadow: AppShadows.glow(tutor.accentColor, intensity: 0.30),
@@ -1162,6 +1223,7 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
               borderRadius: BorderRadius.circular(IntelliaRadii.small),
               child: Image.asset(
                 tutor.imagePath,
+                key: ValueKey('student-profile-tutor-image-${tutor.id}'),
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => Container(
                   decoration: BoxDecoration(
@@ -1187,52 +1249,25 @@ class _ActiveTutorCardState extends State<_ActiveTutorCard>
             children: [
               Text(
                 tutor.name,
+                key: ValueKey('student-profile-tutor-name-${tutor.id}'),
                 style: GoogleFonts.manrope(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
                   color: s.textPrimary,
                 ),
               ),
               const SizedBox(height: 3),
               Text(
-                tutor.specialty,
+                tagline,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.5,
                   color: tutor.accentColor,
                   fontWeight: FontWeight.w700,
+                  height: 1.35,
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                tutor.personality,
-                style: TextStyle(fontSize: 11, color: s.textTertiary),
               ),
             ],
           ),
-        ),
-
-        // Level badge + chevron
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: tutor.gradientColors),
-                borderRadius: BorderRadius.circular(99),
-              ),
-              child: Text(
-                tutor.levelLabel,
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            const SizedBox(height: IntelliaSpacing.xs),
-            Icon(Icons.edit_rounded, size: 16, color: s.textTertiary),
-          ],
         ),
       ],
     );

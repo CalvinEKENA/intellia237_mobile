@@ -127,6 +127,24 @@ void main() {
     },
   );
 
+  test('verified phone user registers without email or password', () async {
+    final auth = _FakeAuthGateway(
+      currentUser: _FakeAuthUser(email: null, phoneNumber: '+237699123456'),
+    );
+    final store = _FakeDocumentStore();
+    final repository = FirebaseStudentRegistrationRepository(
+      authGateway: auth,
+      documentStore: store,
+    );
+    final payload = _payload(email: '', password: '');
+
+    final result = await repository.registerStudent(payload);
+
+    expect(result.email, isEmpty);
+    expect(auth.createCalls, 0);
+    expect(store.lastUserCreate?['phoneNumber'], '+237699123456');
+  });
+
   test('Auth record without a current session signs in and resumes', () async {
     final auth = _FakeAuthGateway(emailAlreadyInUse: true);
     final store = _FakeDocumentStore();
@@ -268,7 +286,10 @@ void main() {
   });
 }
 
-StudentRegistrationPayload _payload() => const StudentRegistrationPayload(
+StudentRegistrationPayload _payload({
+  String email = 'amina.ndi@example.com',
+  String password = 'MotDePasse!237',
+}) => StudentRegistrationPayload(
   firstName: 'Amina',
   lastName: 'Ndi',
   schoolClass: SchoolClass.terminale,
@@ -283,8 +304,8 @@ StudentRegistrationPayload _payload() => const StudentRegistrationPayload(
   difficultSubjects: ['Anglais'],
   learningGoal: LearningGoal.examMastery,
   dailyStudyMinutes: 45,
-  email: 'amina.ndi@example.com',
-  password: 'MotDePasse!237',
+  email: email,
+  password: password,
   acceptedTerms: true,
   acceptedPrivacy: true,
   acceptedDataPolicy: true,
@@ -322,10 +343,13 @@ class _FakeAuthGateway implements RegistrationAuthGateway {
 }
 
 class _FakeAuthUser implements RegistrationAuthUser {
-  _FakeAuthUser({this.email = 'amina.ndi@example.com'});
+  _FakeAuthUser({this.email = 'amina.ndi@example.com', this.phoneNumber});
 
   @override
   final String? email;
+
+  @override
+  final String? phoneNumber;
 
   @override
   bool get emailVerified => true;
@@ -356,6 +380,7 @@ class _FakeDocumentStore implements RegistrationDocumentStore {
   final userOperations = <RegistrationOperation>[];
   final profileOperations = <RegistrationOperation>[];
   Map<String, dynamic>? lastUserUpdate;
+  Map<String, dynamic>? lastUserCreate;
   Map<String, dynamic>? lastProfileUpdate;
 
   @override
@@ -364,6 +389,7 @@ class _FakeDocumentStore implements RegistrationDocumentStore {
     required Map<String, dynamic> createData,
     required Map<String, dynamic> updateData,
   }) async {
+    lastUserCreate = createData;
     lastUserUpdate = updateData;
     final operation = userExists
         ? RegistrationOperation.userDocumentUpdate

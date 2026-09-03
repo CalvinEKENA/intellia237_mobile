@@ -179,6 +179,7 @@ void main() {
         tester,
         const QuizHubScreen(embedded: true),
         overrides: [quizHubProvider.overrideWith((ref) async => _quizzes())],
+        size: const Size(360, 800),
         textScale: 1.5,
         reduceMotion: true,
       );

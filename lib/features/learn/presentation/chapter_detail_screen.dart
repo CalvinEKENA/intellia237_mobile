@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/network/network_status.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_pressable.dart';
@@ -47,13 +48,13 @@ class ChapterDetailScreen extends ConsumerWidget {
           error: (error, stackTrace) => SafeArea(
             child: Column(
               children: [
-                const _ChapterBackBar(title: 'Chapitre'),
+                _ChapterBackBar(title: context.l10n.chapterLabel),
                 Expanded(
                   child: IntelliaStateView(
                     kind: stateKindForError(error),
-                    title: 'Chapitre indisponible',
+                    title: context.l10n.chapterUnavailable,
                     message: stateMessageForKind(stateKindForError(error)),
-                    primaryLabel: 'Réessayer',
+                    primaryLabel: context.l10n.retryLabel,
                     onPrimary: () =>
                         ref.invalidate(chapterDetailProvider(request)),
                   ),
@@ -134,7 +135,7 @@ class _ChapterBody extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'CHAPITRE',
+                          context.l10n.chapterEyebrow,
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
@@ -186,7 +187,7 @@ class _ChapterBody extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  'Leçons',
+                  context.l10n.lessonsTitle,
                   style: GoogleFonts.manrope(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -195,8 +196,10 @@ class _ChapterBody extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  '${lessons.where((l) => l.progress >= 1.0).length}'
-                  '/${lessons.length} terminées',
+                  context.l10n.completedProgress(
+                    lessons.where((l) => l.progress >= 1.0).length,
+                    lessons.length,
+                  ),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -222,16 +225,14 @@ class _ChapterBody extends StatelessWidget {
 
         // ── Leçons ──────────────────────────────────────────────────
         if (lessons.isEmpty)
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.all(IntelliaSpacing.lg),
+              padding: const EdgeInsets.all(IntelliaSpacing.lg),
               child: IntelliaStateView(
                 kind: IntelliaStateKind.comingSoon,
                 compact: true,
-                title: 'Leçons en préparation',
-                message:
-                    'Les leçons de ce chapitre sont en cours de rédaction. '
-                    'Reviens bientôt !',
+                title: context.l10n.lessonsComingTitle,
+                message: context.l10n.lessonsComingBody,
               ),
             ),
           )
@@ -279,7 +280,6 @@ class _OfflineChapterActionState extends ConsumerState<_OfflineChapterAction> {
 
   @override
   Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
     final key = (
       subjectId: widget.chapter.subjectId,
       chapterId: widget.chapter.id,
@@ -292,82 +292,23 @@ class _OfflineChapterActionState extends ConsumerState<_OfflineChapterAction> {
     return Semantics(
       container: true,
       label: saved
-          ? 'Chapitre enregistré pour la lecture hors connexion'
-          : 'Enregistrer ce chapitre pour la lecture hors connexion',
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        padding: const EdgeInsets.all(IntelliaSpacing.md),
-        decoration: BoxDecoration(
-          color: saved ? s.success.withValues(alpha: 0.10) : s.surface,
-          borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-          border: Border.all(
-            color: saved ? s.success.withValues(alpha: 0.35) : s.border,
-          ),
-        ),
-        child: Row(
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 180),
-              child: _busy
-                  ? SizedBox(
-                      key: const ValueKey('busy'),
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.4,
-                        color: s.accent,
-                      ),
-                    )
-                  : Icon(
-                      saved
-                          ? Icons.offline_pin_rounded
-                          : Icons.download_for_offline_outlined,
-                      key: ValueKey(saved),
-                      color: saved ? s.success : s.accent,
-                    ),
-            ),
-            const SizedBox(width: IntelliaSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    saved ? 'Disponible hors connexion' : 'Étudier sans réseau',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: s.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    saved
-                        ? '${pack.lessonIds.length} leçon(s) préparée(s) sur cet appareil.'
-                        : offline
-                        ? 'Reconnecte-toi pour préparer toutes les leçons.'
-                        : 'Prépare les ${widget.chapter.lessons.length} leçon(s) de ce chapitre.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      height: 1.35,
-                      color: s.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: IntelliaSpacing.xs),
-            if (saved)
-              IconButton(
-                tooltip: 'Retirer de cet appareil',
-                onPressed: _busy ? null : _remove,
-                icon: const Icon(Icons.delete_outline_rounded),
-              )
-            else
-              FilledButton.tonal(
-                onPressed: canSave && !offline ? _save : null,
-                child: const Text('Préparer'),
-              ),
-          ],
-        ),
+          ? context.l10n.chapterSavedOffline
+          : context.l10n.saveChapterOffline,
+      child: ChapterOfflineActionCard(
+        saved: saved,
+        busy: _busy,
+        title: saved
+            ? context.l10n.availableOffline
+            : context.l10n.studyOffline,
+        subtitle: saved
+            ? context.l10n.offlineLessonPrepared(pack.lessonIds.length)
+            : offline
+            ? context.l10n.reconnectToPrepareLessons
+            : context.l10n.prepareChapterLessons(widget.chapter.lessons.length),
+        actionLabel: context.l10n.prepareLabel,
+        actionEnabled: canSave && !offline,
+        onAction: _save,
+        onRemove: _remove,
       ),
     );
   }
@@ -380,18 +321,16 @@ class _OfflineChapterActionState extends ConsumerState<_OfflineChapterAction> {
           .saveChapter(widget.chapter);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Chapitre prêt pour une lecture hors connexion.'),
+        SnackBar(
+          content: Text(context.l10n.chapterReadyOffline),
           behavior: SnackBarBehavior.floating,
         ),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Le téléchargement n’a pas abouti. Vérifie la connexion et réessaie.',
-          ),
+        SnackBar(
+          content: Text(context.l10n.downloadFailed),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -412,6 +351,129 @@ class _OfflineChapterActionState extends ConsumerState<_OfflineChapterAction> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+}
+
+/// Responsive editorial card used by the chapter offline action.
+///
+/// The action deliberately lives below the title row. This leaves the text
+/// block all available horizontal space at narrow widths and under large text
+/// scaling, while keeping the download action visually attached to the card.
+@visibleForTesting
+class ChapterOfflineActionCard extends StatelessWidget {
+  const ChapterOfflineActionCard({
+    required this.saved,
+    required this.busy,
+    required this.title,
+    required this.subtitle,
+    required this.actionLabel,
+    required this.actionEnabled,
+    required this.onAction,
+    required this.onRemove,
+    super.key,
+  });
+
+  final bool saved;
+  final bool busy;
+  final String title;
+  final String subtitle;
+  final String actionLabel;
+  final bool actionEnabled;
+  final VoidCallback onAction;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
+    return AnimatedContainer(
+      key: const ValueKey('offline-chapter-card'),
+      duration: const Duration(milliseconds: 220),
+      padding: const EdgeInsets.all(IntelliaSpacing.md),
+      decoration: BoxDecoration(
+        color: saved ? s.success.withValues(alpha: 0.10) : s.surface,
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+        border: Border.all(
+          color: saved ? s.success.withValues(alpha: 0.35) : s.border,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                child: busy
+                    ? SizedBox(
+                        key: const ValueKey('offline-chapter-busy'),
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          color: s.accent,
+                        ),
+                      )
+                    : Icon(
+                        saved
+                            ? Icons.offline_pin_rounded
+                            : Icons.download_for_offline_outlined,
+                        key: ValueKey('offline-chapter-icon-$saved'),
+                        color: saved ? s.success : s.accent,
+                      ),
+              ),
+              const SizedBox(width: IntelliaSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      key: const ValueKey('offline-chapter-title'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: s.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      key: const ValueKey('offline-chapter-subtitle'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        height: 1.35,
+                        color: s.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: IntelliaSpacing.sm),
+          Align(
+            alignment: Alignment.centerRight,
+            child: saved
+                ? IconButton(
+                    key: const ValueKey('offline-chapter-remove'),
+                    tooltip: 'Retirer de cet appareil',
+                    onPressed: busy ? null : onRemove,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                  )
+                : FilledButton.tonal(
+                    key: const ValueKey('offline-chapter-action'),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 44),
+                    ),
+                    onPressed: actionEnabled ? onAction : null,
+                    child: Text(actionLabel),
+                  ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -457,7 +519,7 @@ class _ChapterLoading extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ChapterBackBar(title: 'Chapitre'),
+          _ChapterBackBar(title: context.l10n.chapterLabel),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(IntelliaSpacing.lg),
@@ -591,7 +653,7 @@ class _LessonTile extends ConsumerWidget {
                                       borderRadius: BorderRadius.circular(99),
                                     ),
                                     child: Text(
-                                      'À suivre',
+                                      context.l10n.nextLabelShort,
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w800,

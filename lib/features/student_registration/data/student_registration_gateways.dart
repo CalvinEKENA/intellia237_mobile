@@ -6,6 +6,7 @@ import '../domain/registration_diagnostic.dart';
 abstract interface class RegistrationAuthUser {
   String get uid;
   String? get email;
+  String? get phoneNumber;
   bool get emailVerified;
 
   Future<void> delete();
@@ -120,6 +121,9 @@ class FirebaseRegistrationAuthUser implements RegistrationAuthUser {
 
   @override
   String? get email => _user.email;
+
+  @override
+  String? get phoneNumber => _user.phoneNumber;
 
   @override
   bool get emailVerified => _user.emailVerified;

@@ -73,6 +73,8 @@ class StudentRegistrationPayload {
         : <String, dynamic>{
             'candidateId': establishment!.candidateId,
             'name': establishment!.name,
+            'city': establishment!.city,
+            'region': establishment!.region,
             'status': establishment!.status.name,
           },
   };

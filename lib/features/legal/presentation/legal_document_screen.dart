@@ -122,7 +122,7 @@ class _LegalDocument {
         ),
         (
           'Décisions',
-          'Une recommandation automatisée ne constitue pas une décision scolaire officielle. L’enseignant et l’établissement restent responsables de l’évaluation académique.',
+          'Une recommandation automatisée ne constitue pas une décision scolaire officielle. L’enseignant et l’établissement restent responsables de l’évaluation scolaire.',
         ),
         (
           'Compagnon pédagogique',

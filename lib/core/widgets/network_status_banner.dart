@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../localization/localization_extensions.dart';
 import '../network/network_status.dart';
 
 class NetworkStatusBanner extends ConsumerWidget {
@@ -30,22 +31,25 @@ class NetworkStatusBanner extends ConsumerWidget {
                   color: const Color(0xFF3A2A00),
                   elevation: 4,
                   borderRadius: BorderRadius.circular(14),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.cloud_off_rounded,
                           color: Color(0xFFFFD18B),
                           size: 18,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Flexible(
                           child: Text(
-                            'Aucun réseau détecté — les contenus déjà chargés restent accessibles.',
+                            context.l10n.networkOfflineBanner,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,

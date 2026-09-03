@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,6 +66,46 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
   });
+
+  test('first message waits for the asynchronous academic profile', () async {
+    SharedPreferences.setMockInitialValues(const <String, Object>{});
+    final profile = Completer<LearnAcademicContext>();
+    final repository = _CapturingTutorRepository();
+    final container = ProviderContainer(
+      overrides: [
+        aiRepositoryProvider.overrideWithValue(repository),
+        studentAcademicContextProvider.overrideWith((ref) => profile.future),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final send = container
+        .read(aiCompanionControllerProvider.notifier)
+        .send('Explique les fractions');
+    await Future<void>.delayed(Duration.zero);
+    expect(repository.calls, 0);
+    expect(container.read(aiCompanionControllerProvider).isSending, isTrue);
+
+    profile.complete(
+      const LearnAcademicContext(
+        classLevel: '6eme',
+        catalogClassLevel: '6eme',
+        academicLevelId: 'fr_general_6e',
+        tutorId: 'kira',
+      ),
+    );
+    await send;
+
+    expect(repository.calls, 1);
+    expect(repository.classLevel, '6eme');
+    expect(
+      repository.history?.where(
+        (item) => item.text == 'Explique les fractions',
+      ),
+      isEmpty,
+    );
+    expect(container.read(aiCompanionControllerProvider).errorMessage, isNull);
+  });
 }
 
 bool _hasAvatar(WidgetTester tester, String assetName) {
@@ -93,6 +135,37 @@ class _UnavailableTutorRepository implements AIRepository {
       kind: AICompanionFailureKind.serviceUnavailable,
       normalizedErrorCode: 'not-found',
       diagnosticId: 'TUTOR-SERVICE-505',
+    );
+  }
+}
+
+class _CapturingTutorRepository implements AIRepository {
+  int calls = 0;
+  String? classLevel;
+  List<AIMessage>? history;
+
+  @override
+  Future<AICompanionReply> sendMessage({
+    required TutorPersona tutor,
+    required String classLevel,
+    required List<AIMessage> history,
+    required String userMessage,
+  }) async {
+    calls += 1;
+    this.classLevel = classLevel;
+    this.history = history;
+    return AICompanionReply(
+      message: AIMessage(
+        id: 'reply',
+        role: AIMessageRole.assistant,
+        text: 'Voici une explication.',
+        createdAt: DateTime(2026),
+      ),
+      quota: AICompanionQuota(
+        limit: 20,
+        remaining: 19,
+        resetsAt: DateTime(2026, 1, 2),
+      ),
     );
   }
 }

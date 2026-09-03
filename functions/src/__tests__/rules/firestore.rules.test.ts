@@ -297,6 +297,22 @@ describe("Firestore security rules", () => {
     await assertFails(getDoc(doc(db, "student_profiles/student-b")));
   });
 
+  it("allows a student to persist only their own companion preference", async () => {
+    await seedFirestore();
+    const db = dbFor("student-a");
+
+    await assertSucceeds(
+      updateDoc(doc(db, "student_profiles/student-a"), {
+        tutorId: "leo",
+        updatedAt: new Date(),
+      }),
+    );
+    await assertFails(
+      updateDoc(doc(db, "student_profiles/student-b"), { tutorId: "leo" }),
+    );
+    await assertFails(updateDoc(doc(db, "users/student-a"), { tutorId: "leo" }));
+  });
+
   it("blocks a student from modifying another user role or creating administrator-only content", async () => {
     await seedFirestore();
     const db = dbFor("student-a");

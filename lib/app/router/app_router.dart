@@ -10,6 +10,7 @@ import '../../features/auth/domain/app_role.dart';
 import '../../features/auth/data/auth_entry_preferences.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/phone_auth_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/admin/presentation/admin_home_screen.dart';
 import '../../features/tutor/domain/tutor_persona.dart';
@@ -66,8 +67,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.login,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const PhoneAuthScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.emailLogin,
         pageBuilder: (context, state) =>
             buildAppTransitionPage(state: state, child: const LoginScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.phoneAuth,
+        pageBuilder: (context, state) {
+          final roleName = state.uri.queryParameters['role'];
+          final roles = AppRole.values.where((item) => item.name == roleName);
+          final link = state.uri.queryParameters['mode'] == 'link';
+          return buildAppTransitionPage(
+            state: state,
+            child: PhoneAuthScreen(
+              registrationRole: roles.isEmpty ? null : roles.first,
+              linkCurrentUser: link,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.register,
@@ -452,6 +475,7 @@ String? resolveAppRedirect({
       if (location.startsWith(AppRoutes.tutorSelection)) {
         return role == AppRole.student ? null : expectedHome;
       }
+      if (location == AppRoutes.phoneAuth) return null;
 
       final isPreAuthFlow = AppRoutes.preAuthRoutes.contains(location);
       final isInvalidRolePath =

@@ -10,6 +10,7 @@ import '../../tutor/application/tutor_preference_provider.dart';
 import '../data/firebase_student_registration_repository.dart';
 import '../data/student_registration_repository.dart';
 import '../domain/academic_rules.dart';
+import '../domain/establishment.dart';
 import '../domain/learning_goal.dart';
 import '../domain/student_registration_result.dart';
 import '../domain/subject_catalog.dart';
@@ -79,6 +80,31 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
             establishment: EstablishmentAffiliation(name: name),
             clearError: true,
           );
+  }
+
+  void selectEstablishment(Establishment establishment) {
+    state = state.copyWith(
+      establishment: EstablishmentAffiliation(
+        name: establishment.officialName,
+        candidateId: establishment.id,
+        city: establishment.city,
+        region: establishment.region,
+        status: EstablishmentAffiliationStatus.pendingVerification,
+      ),
+      clearError: true,
+    );
+  }
+
+  void suggestEstablishment(EstablishmentSuggestion suggestion) {
+    state = state.copyWith(
+      establishment: EstablishmentAffiliation(
+        name: suggestion.name,
+        city: suggestion.city,
+        region: suggestion.region,
+        status: EstablishmentAffiliationStatus.pendingVerification,
+      ),
+      clearError: true,
+    );
   }
 
   void setSchoolClass(SchoolClass schoolClass) {
@@ -278,14 +304,18 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
     final password = state.password;
     final confirmPassword = state.confirmPassword;
 
-    final credentialsError =
-        AuthInputValidators.email(email) ??
-        AuthInputValidators.password(password) ??
-        AuthInputValidators.confirmPassword(
-          password: password,
-          confirmation: confirmPassword,
-        );
-    if (credentialsError != null) return credentialsError;
+    // Phone verification is the primary path. Email/password remains accepted
+    // only for compatibility when both fields are deliberately provided.
+    if (email.isNotEmpty || password.isNotEmpty || confirmPassword.isNotEmpty) {
+      final credentialsError =
+          AuthInputValidators.email(email) ??
+          AuthInputValidators.password(password) ??
+          AuthInputValidators.confirmPassword(
+            password: password,
+            confirmation: confirmPassword,
+          );
+      if (credentialsError != null) return credentialsError;
+    }
 
     if (!state.acceptedTerms ||
         !state.acceptedPrivacy ||

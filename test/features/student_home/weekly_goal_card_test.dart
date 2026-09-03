@@ -62,6 +62,10 @@ Future<void> _pumpCard(
   WeeklyGoalProgress? fakeProgress,
   ProviderContainer? container,
 }) async {
+  tester.view.physicalSize = const Size(360, 800);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
   final scope = container != null
       ? UncontrolledProviderScope(container: container, child: _host())
       : ProviderScope(
@@ -79,12 +83,19 @@ Future<void> _pumpCard(
 
 Widget _host() {
   return MaterialApp(
-    home: Scaffold(
-      backgroundColor: IntelliaColors.backgroundPrimary,
-      body: TabSurface(
-        palette: const TabPalette(TabPresentationMode.embeddedLight),
-        child: SingleChildScrollView(
-          child: WeeklyGoalCard(subjects: _subjects, onOpenSubject: (_) {}),
+    home: MediaQuery(
+      data: const MediaQueryData(
+        size: Size(360, 800),
+        textScaler: TextScaler.linear(1.5),
+        disableAnimations: true,
+      ),
+      child: Scaffold(
+        backgroundColor: IntelliaColors.backgroundPrimary,
+        body: TabSurface(
+          palette: const TabPalette(TabPresentationMode.embeddedLight),
+          child: SingleChildScrollView(
+            child: WeeklyGoalCard(subjects: _subjects, onOpenSubject: (_) {}),
+          ),
         ),
       ),
     ),

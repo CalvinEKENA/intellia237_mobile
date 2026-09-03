@@ -234,44 +234,37 @@ class AICompanionController extends Notifier<AICompanionState> {
   }
 
   Future<void> _persistHistory() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_legacyHistoryKey);
-    final historyKey = companionHistoryKeyForUser(
-      ref.read(authControllerProvider).userId,
-    );
-    if (historyKey == null) return;
-    final recent = state.messages.length > 60
-        ? state.messages.sublist(state.messages.length - 60)
-        : state.messages;
-    await prefs.setString(
-      historyKey,
-      jsonEncode([
-        for (final message in recent)
-          {
-            'id': message.id,
-            'role': message.role.name,
-            'text': message.text,
-            'createdAt': message.createdAt.toIso8601String(),
-          },
-      ]),
-    );
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_legacyHistoryKey);
+      final historyKey = companionHistoryKeyForUser(
+        ref.read(authControllerProvider).userId,
+      );
+      if (historyKey == null) return;
+      final recent = state.messages.length > 60
+          ? state.messages.sublist(state.messages.length - 60)
+          : state.messages;
+      await prefs.setString(
+        historyKey,
+        jsonEncode([
+          for (final message in recent)
+            {
+              'id': message.id,
+              'role': message.role.name,
+              'text': message.text,
+              'createdAt': message.createdAt.toIso8601String(),
+            },
+        ]),
+      );
+    } catch (_) {
+      // A local history-cache failure must never hide a successful AI reply.
+    }
   }
 
   Future<void> send(String message) async {
     final cleaned = message.trim();
     if (cleaned.isEmpty || state.isSending) return;
-    if (state.classLevel.trim().isEmpty) {
-      state = state.copyWith(
-        errorMessage:
-            '${state.tutor.name} a besoin de resynchroniser ton profil avant '
-            'de répondre. Tes cours et exercices restent disponibles.',
-        lastFailedMessage: null,
-        errorKind: AICompanionFailureKind.authorizationProfile,
-        normalizedErrorCode: 'profile-not-ready',
-        diagnosticId: 'TUTOR-PROFILE-502',
-      );
-      return;
-    }
+    if (!await _ensureAcademicContext()) return;
     if (state.remainingQuestions == 0) {
       state = state.copyWith(
         errorMessage:
@@ -284,9 +277,10 @@ class AICompanionController extends Notifier<AICompanionState> {
       return;
     }
     _historyChanged = true;
+    final historyBeforeSend = state.messages;
 
     final nextMessages = [
-      ...state.messages,
+      ...historyBeforeSend,
       AIMessage(
         id: DateTime.now().microsecondsSinceEpoch.toString(),
         role: AIMessageRole.user,
@@ -312,7 +306,9 @@ class AICompanionController extends Notifier<AICompanionState> {
       final reply = await _service.ask(
         tutor: state.tutor,
         classLevel: state.classLevel,
-        history: nextMessages,
+        // The current question has its own payload field. Sending it in the
+        // history as well duplicates the prompt and wastes context tokens.
+        history: historyBeforeSend,
         userMessage: '$contextPrefix$cleaned',
       );
 
@@ -329,7 +325,7 @@ class AICompanionController extends Notifier<AICompanionState> {
         diagnosticId: null,
       );
       unawaited(IntelliaTelemetry.companionMessageSent());
-      _persistHistory();
+      await _persistHistory();
     } on AICompanionException catch (error) {
       state = state.copyWith(
         isSending: false,
@@ -350,7 +346,7 @@ class AICompanionController extends Notifier<AICompanionState> {
           'diagnosticId': error.diagnosticId,
         },
       );
-      _persistHistory();
+      await _persistHistory();
     } catch (_) {
       state = state.copyWith(
         isSending: false,
@@ -362,7 +358,72 @@ class AICompanionController extends Notifier<AICompanionState> {
         normalizedErrorCode: 'unknown',
         diagnosticId: 'TUTOR-UNKNOWN-599',
       );
-      _persistHistory();
+      await _persistHistory();
+    }
+  }
+
+  Future<bool> _ensureAcademicContext() async {
+    if (state.classLevel.trim().isNotEmpty) return true;
+
+    // The companion tab can be opened before the asynchronous Firestore
+    // profile provider resolves. Waiting here avoids rejecting a valid first
+    // message locally — which previously meant askTutor was never invoked.
+    state = state.copyWith(
+      isSending: true,
+      errorMessage: null,
+      lastFailedMessage: null,
+      errorKind: null,
+      normalizedErrorCode: null,
+      diagnosticId: null,
+    );
+    try {
+      final academic = await ref.read(studentAcademicContextProvider.future);
+      if (academic.classLevel.trim().isEmpty) {
+        state = state.copyWith(
+          isSending: false,
+          errorMessage:
+              '${state.tutor.name} a besoin de resynchroniser ton profil avant '
+              'de répondre. Tes cours et exercices restent disponibles.',
+          lastFailedMessage: null,
+          errorKind: AICompanionFailureKind.authorizationProfile,
+          normalizedErrorCode: 'profile-not-ready',
+          diagnosticId: 'TUTOR-PROFILE-502',
+        );
+        return false;
+      }
+      state = state.copyWith(
+        classLevel: academic.classLevel,
+        isSending: false,
+        errorMessage: null,
+        errorKind: null,
+        normalizedErrorCode: null,
+        diagnosticId: null,
+      );
+      return true;
+    } on AcademicProfileException catch (error) {
+      state = state.copyWith(
+        isSending: false,
+        errorMessage:
+            '${state.tutor.name} a besoin de resynchroniser ton profil avant '
+            'de répondre. Tes cours et exercices restent disponibles.',
+        lastFailedMessage: null,
+        errorKind: AICompanionFailureKind.authorizationProfile,
+        normalizedErrorCode: error.normalizedErrorCode,
+        diagnosticId: 'TUTOR-PROFILE-502',
+      );
+      return false;
+    } catch (_) {
+      state = state.copyWith(
+        isSending: false,
+        errorMessage:
+            '${state.tutor.name} n’arrive pas à charger ton profil pour le '
+            'moment. Tu peux réessayer dans un instant.',
+        lastFailedMessage: null,
+        errorKind: AICompanionFailureKind.network,
+        normalizedErrorCode: 'profile-load-failed',
+        diagnosticId: 'TUTOR-PROFILE-502',
+      );
+      return false;
     }
   }
 

@@ -1,7 +1,11 @@
+import '../../features/auth/domain/app_role.dart';
+
 abstract final class AppRoutes {
   static const bootstrap = '/bootstrap';
   static const onboarding = '/onboarding';
   static const login = '/login';
+  static const emailLogin = '/login/email';
+  static const phoneAuth = '/auth/phone';
   static const register = '/register';
   static const studentRegistration = '/register/student';
   static const parentRegistration = '/register/parent';
@@ -47,6 +51,8 @@ abstract final class AppRoutes {
     bootstrap,
     onboarding,
     login,
+    emailLogin,
+    phoneAuth,
     register,
     studentRegistration,
     parentRegistration,
@@ -69,6 +75,9 @@ abstract final class AppRoutes {
   ) => '/learn/subject/$subjectId/chapter/$chapterId/lesson/$lessonId';
 
   static String quizPlay(String quizId) => '/quiz/play/$quizId';
+
+  static String phoneRegistration(AppRole role) =>
+      '$phoneAuth?role=${role.name}';
 
   static String childOverview(String childId) => '/parent/child/$childId';
   static String childProgress(String childId) =>

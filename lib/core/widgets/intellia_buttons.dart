@@ -140,6 +140,7 @@ class IntelliaOutlineButton extends StatelessWidget {
     this.onTap,
     this.isLoading = false,
     this.height = 52,
+    this.expand = true,
     super.key,
   });
 
@@ -147,6 +148,12 @@ class IntelliaOutlineButton extends StatelessWidget {
   final VoidCallback? onTap;
   final bool isLoading;
   final double height;
+
+  /// Whether the button fills the finite width supplied by its parent.
+  ///
+  /// Set to false for an inline action inside a Row or Align. An infinite
+  /// width request in an unbounded Row can otherwise collapse its siblings.
+  final bool expand;
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +163,7 @@ class IntelliaOutlineButton extends StatelessWidget {
       onTap: isLoading ? null : onTap,
       child: Container(
         height: height,
-        width: double.infinity,
+        width: expand ? double.infinity : null,
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(IntelliaRadii.full),

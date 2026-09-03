@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../learn/application/learn_providers.dart';
 import '../domain/tutor_persona.dart';
 
 // ─────────────────────────────────────────────────────────────
@@ -20,7 +21,14 @@ final selectedTutorIdProvider =
 
 /// Derive directement le [TutorPersona] depuis l'ID.
 final selectedTutorProvider = Provider<TutorPersona?>((ref) {
-  final id = ref.watch(selectedTutorIdProvider);
+  final cachedId = ref.watch(selectedTutorIdProvider);
+  final profileId = ref
+      .watch(studentAcademicContextProvider)
+      .valueOrNull
+      ?.tutorId;
+  // Firestore is authoritative. SharedPreferences only avoids an empty card
+  // while the profile is loading and may be absent on a second device.
+  final id = profileId ?? cachedId;
   if (id == null) return null;
   try {
     // Les identifiants des anciens compagnons sont resolus via TutorPersona.resolve
@@ -44,7 +52,13 @@ class TutorPreferenceNotifier extends StateNotifier<String?> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final saved = prefs.getString(_kTutorKey);
-      if (mounted) state = saved;
+      if (mounted && saved != null) {
+        final canonicalId = TutorPersona.resolveId(saved);
+        state = canonicalId;
+        if (canonicalId != saved) {
+          await prefs.setString(_kTutorKey, canonicalId);
+        }
+      }
     } catch (_) {
       // Local storage is a convenience cache. Profile-backed selection and
       // authentication must remain usable if the cache is unavailable.
@@ -52,10 +66,11 @@ class TutorPreferenceNotifier extends StateNotifier<String?> {
   }
 
   Future<void> select(String tutorId) async {
-    state = tutorId;
+    final canonicalId = TutorPersona.resolveId(tutorId);
+    state = canonicalId;
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_kTutorKey, tutorId);
+      await prefs.setString(_kTutorKey, canonicalId);
     } catch (_) {
       // The in-memory choice remains active and the profile is authoritative.
     }

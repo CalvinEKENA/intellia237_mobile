@@ -52,15 +52,17 @@ class ProgressOverviewCard extends StatelessWidget {
               // Header
               Row(
                 children: [
-                  Text(
-                    'Ma progression',
-                    style: GoogleFonts.manrope(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: s.textPrimary,
+                  Expanded(
+                    child: Text(
+                      'Ma progression',
+                      style: GoogleFonts.manrope(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: s.textPrimary,
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: IntelliaSpacing.sm),
                   // Level badge
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -151,19 +153,24 @@ class _MetricRow extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: IntelliaSpacing.xs),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: TextStyle(fontSize: 11, color: s.textSecondary)),
-            Text(
-              value,
-              style: GoogleFonts.manrope(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: color,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(fontSize: 11, color: s.textSecondary),
               ),
-            ),
-          ],
+              Text(
+                value,
+                style: GoogleFonts.manrope(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

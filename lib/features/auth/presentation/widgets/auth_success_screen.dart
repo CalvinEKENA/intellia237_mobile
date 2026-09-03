@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../../../core/localization/localization_extensions.dart';
 import 'auth_controls.dart';
 import 'auth_experience_scaffold.dart';
 
@@ -100,7 +101,7 @@ class _SuccessBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Bienvenue, $firstName !',
+                        context.l10n.welcomeName(firstName),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AuthExperienceColors.textPrimary,
@@ -111,8 +112,7 @@ class _SuccessBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Ton compte est prêt. $companionName '
-                        't’accompagne dès maintenant.',
+                        context.l10n.accountReadyWithCompanion(companionName),
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AuthExperienceColors.textSecondary,
@@ -122,7 +122,7 @@ class _SuccessBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 32),
                       AuthPrimaryButton(
-                        label: 'Découvrir Intellia 237',
+                        label: context.l10n.discoverIntellia,
                         onTap: onContinue,
                         icon: Icons.explore_rounded,
                       ),

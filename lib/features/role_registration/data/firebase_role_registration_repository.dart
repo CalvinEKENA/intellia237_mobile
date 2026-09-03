@@ -89,12 +89,20 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
     UserCredential? credential;
 
     try {
-      credential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
-
-      final user = credential.user;
+      final currentUser = _auth.currentUser;
+      final hasVerifiedPhone = currentUser?.phoneNumber?.isNotEmpty ?? false;
+      final User? user;
+      if (hasVerifiedPhone && email.trim().isEmpty && password.isEmpty) {
+        // Phone-first registration reuses the already verified Firebase user.
+        // No account is replaced and rollback must never delete this identity.
+        user = currentUser;
+      } else {
+        credential = await _auth.createUserWithEmailAndPassword(
+          email: email.trim(),
+          password: password,
+        );
+        user = credential.user;
+      }
       if (user == null) {
         throw const RoleRegistrationException(
           message: 'Impossible de créer le compte utilisateur.',
@@ -106,20 +114,29 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
       final uid = user.uid;
       final displayName = '${firstName.trim()} ${lastName.trim()}'.trim();
       final batch = _firestore.batch();
+      final userData = userBuilder(uid, now);
+      final profileData = profileBuilder(uid, now);
+      final verifiedPhone = user.phoneNumber?.trim();
+      if (verifiedPhone != null && verifiedPhone.isNotEmpty) {
+        userData['phoneNumber'] = verifiedPhone;
+        profileData['phoneNumber'] = verifiedPhone;
+      }
 
       final userRef = _firestore.collection(_usersCollection).doc(uid);
-      batch.set(userRef, userBuilder(uid, now), SetOptions(merge: true));
+      batch.set(userRef, userData, SetOptions(merge: true));
 
       final profileRef = _firestore.collection(profileCollection).doc(uid);
-      batch.set(profileRef, profileBuilder(uid, now), SetOptions(merge: true));
+      batch.set(profileRef, profileData, SetOptions(merge: true));
 
       await batch.commit();
       await user.updateDisplayName(displayName);
-      await _sendVerificationBestEffort(user);
+      if (user.email?.isNotEmpty ?? false) {
+        await _sendVerificationBestEffort(user);
+      }
 
       return RoleRegistrationResult(
         uid: uid,
-        email: email.trim(),
+        email: user.email?.trim() ?? email.trim(),
         firstName: firstName.trim(),
         lastName: lastName.trim(),
       );

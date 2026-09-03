@@ -149,22 +149,11 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
   }
 
   String? _validateIdentity() {
-    final identityError =
-        AuthInputValidators.displayName(state.firstName, label: 'Le prénom') ??
-        AuthInputValidators.displayName(state.lastName, label: 'Le nom') ??
-        AuthInputValidators.email(state.email);
-    if (identityError != null) return identityError;
-
-    if (state.phoneNumber.trim().isNotEmpty &&
-        !_isPhoneValid(state.phoneNumber.trim())) {
-      return 'Numéro de téléphone invalide.';
-    }
-
-    return AuthInputValidators.password(state.password) ??
-        AuthInputValidators.confirmPassword(
-          password: state.password,
-          confirmation: state.confirmPassword,
-        );
+    return AuthInputValidators.displayName(
+          state.firstName,
+          label: 'Le prénom',
+        ) ??
+        AuthInputValidators.displayName(state.lastName, label: 'Le nom');
   }
 
   String? _validateChildLinks() {
@@ -176,9 +165,5 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
       return 'Veuillez accepter les consentements requis.';
     }
     return null;
-  }
-
-  bool _isPhoneValid(String phone) {
-    return RegExp(r'^\+?[0-9]{8,15}$').hasMatch(phone);
   }
 }

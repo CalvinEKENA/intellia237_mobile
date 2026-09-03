@@ -115,91 +115,83 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     final reduceMotion = MediaQuery.of(context).disableAnimations;
     final motionEnabled = _appActive && !reduceMotion;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFF030817),
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-      child: PopScope<Object?>(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) {
-          if (!didPop) _previous();
-        },
-        child: Scaffold(
-          backgroundColor: const Color(0xFF030817),
-          body: Stack(
-            fit: StackFit.expand,
-            children: [
-              _backgroundLayer(),
-              AnimatedBuilder(
-                animation: Listenable.merge([_ambient, _activationCharge]),
-                builder: (context, _) => IntelliaThread(
-                  act: _act,
-                  animation: _ambient,
-                  activationCharge: _activationCharge.value,
-                  challengeOutcome: _journey.challengeOutcome,
-                  companionFocus: _journey.companionFocus,
-                ),
+    return PopScope<Object?>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _previous();
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFF030817),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            _backgroundLayer(),
+            AnimatedBuilder(
+              animation: Listenable.merge([_ambient, _activationCharge]),
+              builder: (context, _) => IntelliaThread(
+                act: _act,
+                animation: _ambient,
+                activationCharge: _activationCharge.value,
+                challengeOutcome: _journey.challengeOutcome,
+                companionFocus: _journey.companionFocus,
               ),
-              SafeArea(
-                child: Column(
-                  children: [
-                    _ExperienceHeader(
-                      canGoBack: _act.previous != null,
-                      onBack: _previous,
-                    ),
-                    Expanded(
-                      child: ClipRect(
-                        child: Semantics(
-                          liveRegion: true,
-                          label: _act == OnboardingAct.ascension
-                              ? context.l10n.ascensionSemanticLabel
-                              : _act.semanticLabel,
-                          child: AnimatedSwitcher(
-                            duration: reduceMotion
-                                ? Duration.zero
-                                : const Duration(milliseconds: 620),
-                            switchInCurve: Curves.easeOutCubic,
-                            switchOutCurve: Curves.easeInCubic,
-                            transitionBuilder: (child, animation) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: ScaleTransition(
-                                  scale: Tween<double>(
-                                    begin: 1.045,
-                                    end: 1,
+            ),
+            SafeArea(
+              child: Column(
+                children: [
+                  _ExperienceHeader(
+                    canGoBack: _act.previous != null,
+                    onBack: _previous,
+                  ),
+                  Expanded(
+                    child: ClipRect(
+                      child: Semantics(
+                        liveRegion: true,
+                        label: _act == OnboardingAct.ascension
+                            ? context.l10n.ascensionSemanticLabel
+                            : _act.semanticLabel,
+                        child: AnimatedSwitcher(
+                          duration: reduceMotion
+                              ? Duration.zero
+                              : const Duration(milliseconds: 620),
+                          switchInCurve: Curves.easeOutCubic,
+                          switchOutCurve: Curves.easeInCubic,
+                          transitionBuilder: (child, animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: ScaleTransition(
+                                scale: Tween<double>(
+                                  begin: 1.045,
+                                  end: 1,
+                                ).animate(animation),
+                                child: SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(0, 0.025),
+                                    end: Offset.zero,
                                   ).animate(animation),
-                                  child: SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: const Offset(0, 0.025),
-                                      end: Offset.zero,
-                                    ).animate(animation),
-                                    child: child,
-                                  ),
+                                  child: child,
                                 ),
-                              );
-                            },
-                            child: KeyedSubtree(
-                              key: ValueKey(_act),
-                              child: TickerMode(
-                                enabled: motionEnabled,
-                                child: _scene(
-                                  reduceMotion: reduceMotion,
-                                  motionEnabled: motionEnabled,
-                                ),
+                              ),
+                            );
+                          },
+                          child: KeyedSubtree(
+                            key: ValueKey(_act),
+                            child: TickerMode(
+                              enabled: motionEnabled,
+                              child: _scene(
+                                reduceMotion: reduceMotion,
+                                motionEnabled: motionEnabled,
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

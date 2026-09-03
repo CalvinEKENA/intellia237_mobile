@@ -101,7 +101,11 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size(double.infinity, 52),
+          // A theme-level infinite width is unsafe: a button used as a
+          // non-flex child of a Row claims all horizontal space and can leave
+          // adjacent text with only a few pixels. Full-width actions remain
+          // explicit at their call site (Expanded/SizedBox).
+          minimumSize: const Size(64, 52),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
@@ -117,7 +121,7 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 52),
+          minimumSize: const Size(64, 52),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           foregroundColor: colorScheme.primary,
           side: BorderSide(

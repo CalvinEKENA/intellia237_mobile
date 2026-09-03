@@ -69,15 +69,17 @@ class _DailyChallengeSectionState extends State<DailyChallengesSection> {
         // Header row with countdown
         Row(
           children: [
-            Text(
-              'Défis du jour',
-              style: GoogleFonts.manrope(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: s.textPrimary,
+            Expanded(
+              child: Text(
+                'Défis du jour',
+                style: GoogleFonts.manrope(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: s.textPrimary,
+                ),
               ),
             ),
-            const Spacer(),
+            const SizedBox(width: IntelliaSpacing.sm),
             // Countdown pill — or profond lisible sur la surface courante.
             Semantics(
               label:

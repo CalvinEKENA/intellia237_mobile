@@ -24,9 +24,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   AppRole? _selectedRole;
 
   void _continue() {
-    final route = switch (_selectedRole) {
-      AppRole.student => AppRoutes.studentRegistration,
-      AppRole.parent => AppRoutes.parentRegistration,
+    final role = _selectedRole;
+    final route = switch (role) {
+      AppRole.student || AppRole.parent => AppRoutes.phoneRegistration(role!),
       AppRole.teacher => AppRoutes.teacherRegistration,
       // Administration remains an internal, authorised route. It is never
       // proposed in the public INTELLIA PASS entry experience.

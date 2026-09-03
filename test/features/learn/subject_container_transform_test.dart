@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/features/learn/application/learn_providers.dart';
 import 'package:intellia237/features/learn/domain/learn_academic_context.dart';
+import 'package:intellia237/features/learn/domain/learn_chapter.dart';
 import 'package:intellia237/features/learn/domain/learn_hub_snapshot.dart';
+import 'package:intellia237/features/learn/domain/learn_lesson.dart';
 import 'package:intellia237/features/learn/domain/learn_subject.dart';
 import 'package:intellia237/features/learn/presentation/learn_hub_screen.dart';
 import 'package:intellia237/features/learn/presentation/subject_detail_screen.dart';
@@ -31,7 +33,25 @@ LearnSubjectDetail _detail(String id) {
     description: s.description,
     colorHex: s.colorHex,
     iconKey: s.iconKey,
-    chapters: const [],
+    chapters: const [
+      LearnChapter(
+        id: 'chapter-responsive',
+        subjectId: 'subj-0',
+        title: 'Le monde vivant et son environnement naturel',
+        description:
+            'Comprendre les relations durables entre les organismes vivants.',
+        lessons: [
+          LearnLessonPreview(
+            id: 'lesson-responsive',
+            title: 'Observer un écosystème',
+            summary: 'Une leçon de démonstration.',
+            estimatedMinutes: 20,
+            progress: 0.4,
+            isFavorite: false,
+          ),
+        ],
+      ),
+    ],
   );
 }
 
@@ -118,7 +138,12 @@ void main() {
 
   for (final scale in const [1.3, 1.5]) {
     testWidgets('9-10. facteur de texte $scale sans exception', (tester) async {
-      await _pumpHub(tester, textScale: scale);
+      await _pumpHub(
+        tester,
+        size: const Size(360, 800),
+        textScale: scale,
+        reduceMotion: true,
+      );
       // À grand texte, la tuile peut passer sous l'en-tête : on la révèle.
       await tester.ensureVisible(find.text('Mathématiques'));
       await tester.pumpAndSettle();
@@ -127,6 +152,10 @@ void main() {
       await tester.tap(find.text('Mathématiques'));
       await tester.pumpAndSettle();
       expect(find.byType(SubjectDetailScreen), findsOneWidget);
+      expect(
+        find.text('Le monde vivant et son environnement naturel'),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     });
   }

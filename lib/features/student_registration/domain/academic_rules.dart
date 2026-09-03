@@ -36,11 +36,15 @@ class EstablishmentAffiliation {
   const EstablishmentAffiliation({
     required this.name,
     this.candidateId,
+    this.city,
+    this.region,
     this.status = EstablishmentAffiliationStatus.selectedUnverified,
   });
 
   final String name;
   final String? candidateId;
+  final String? city;
+  final String? region;
   final EstablishmentAffiliationStatus status;
 
   /// A user selection is descriptive only. Only a server-verified link may

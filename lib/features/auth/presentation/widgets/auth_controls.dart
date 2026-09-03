@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import 'auth_experience_scaffold.dart';
 
@@ -324,7 +325,7 @@ class AuthErrorBanner extends StatelessWidget {
                         minimumSize: const Size(0, 36),
                       ),
                       icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Réessayer'),
+                      label: Text(context.l10n.retryLabel),
                     ),
                   ],
                 ],
@@ -332,7 +333,7 @@ class AuthErrorBanner extends StatelessWidget {
             ),
             if (onDismiss != null)
               IconButton(
-                tooltip: 'Fermer',
+                tooltip: context.l10n.closeLabel,
                 onPressed: onDismiss,
                 icon: const Icon(
                   Icons.close_rounded,

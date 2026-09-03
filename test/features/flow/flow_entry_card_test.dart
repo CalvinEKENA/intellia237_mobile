@@ -7,11 +7,22 @@ void main() {
     WidgetTester tester,
   ) async {
     var tapped = false;
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: Center(child: FlowEntryCard(onTap: () => tapped = true)),
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(360, 800),
+            textScaler: TextScaler.linear(1.5),
+            disableAnimations: true,
+          ),
+          child: Scaffold(
+            body: Center(child: FlowEntryCard(onTap: () => tapped = true)),
+          ),
         ),
       ),
     );

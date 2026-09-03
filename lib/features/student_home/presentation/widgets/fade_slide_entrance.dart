@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
@@ -44,14 +46,21 @@ class _DelayedBuild extends StatefulWidget {
 
 class _DelayedBuildState extends State<_DelayedBuild> {
   bool _visible = false;
+  Timer? _delayTimer;
 
   @override
   void initState() {
     super.initState();
-    Future<void>.delayed(widget.delay, () {
+    _delayTimer = Timer(widget.delay, () {
       if (!mounted) return;
       setState(() => _visible = true);
     });
+  }
+
+  @override
+  void dispose() {
+    _delayTimer?.cancel();
+    super.dispose();
   }
 
   @override

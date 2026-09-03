@@ -29,13 +29,6 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _quickPromptsVisible = true;
 
-  static const _quickPrompts = [
-    'Explique ce concept',
-    'Résume en points clés',
-    'Donne un exemple concret',
-    'Pose-moi 3 questions',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -58,6 +51,13 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(aiCompanionControllerProvider);
+    final l10n = context.l10n;
+    final quickPrompts = [
+      l10n.companionPromptExplain,
+      l10n.companionPromptSummarize,
+      l10n.companionPromptExample,
+      l10n.companionPromptQuestions,
+    ];
     ref.listen<AICompanionState>(aiCompanionControllerProvider, (
       previous,
       next,
@@ -79,7 +79,7 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
             scrollController: _scrollController,
             state: state,
             quickPromptsVisible: _quickPromptsVisible,
-            quickPrompts: _quickPrompts,
+            quickPrompts: quickPrompts,
             onQuickPrompt: (prompt) {
               ref.read(aiCompanionControllerProvider.notifier).send(prompt);
             },
@@ -108,7 +108,7 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
                             .read(aiCompanionControllerProvider.notifier)
                             .retryLastMessage(),
                   icon: const Icon(Icons.refresh_rounded, size: 16),
-                  label: const Text('Réessayer'),
+                  label: Text(l10n.retryLabel),
                 ),
             ],
           ),
@@ -120,7 +120,7 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
             child: Chip(
               avatar: const Icon(Icons.menu_book_rounded, size: 16),
               label: Text(
-                'Contexte : ${state.lessonContext}',
+                l10n.companionContext(state.lessonContext!),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -657,7 +657,7 @@ class _GlassComposer extends StatelessWidget {
               onSubmitted: (_) => onSubmit(),
               style: TextStyle(color: s.textPrimary, fontSize: 14),
               decoration: InputDecoration(
-                hintText: 'Écris ta question…',
+                hintText: context.l10n.writeQuestionHint,
                 hintStyle: TextStyle(color: s.textTertiary, fontSize: 14),
                 border: InputBorder.none,
                 isDense: true,

@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/learn_providers.dart';
 import '../domain/learn_chapter.dart';
 import '../domain/learn_subject.dart';
@@ -40,12 +41,12 @@ class SubjectDetailScreen extends ConsumerWidget {
             ),
       error: (error, stackTrace) => Scaffold(
         backgroundColor: IntelliaColors.backgroundPrimary,
-        appBar: AppBar(title: const Text('Matière')),
+        appBar: AppBar(title: Text(context.l10n.subjectGenericTitle)),
         body: IntelliaStateView(
           kind: stateKindForError(error),
-          title: 'Matière indisponible',
+          title: context.l10n.subjectUnavailable,
           message: stateMessageForKind(stateKindForError(error)),
-          primaryLabel: 'Réessayer',
+          primaryLabel: context.l10n.retryLabel,
           onPrimary: () => ref.invalidate(subjectDetailProvider(subjectId)),
         ),
       ),
@@ -84,7 +85,7 @@ class _SubjectDetailBody extends StatelessWidget {
                 IntelliaSpacing.sm,
               ),
               child: Text(
-                'Chapitres',
+                context.l10n.chaptersTitle,
                 style: GoogleFonts.manrope(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -95,9 +96,9 @@ class _SubjectDetailBody extends StatelessWidget {
           ),
 
           if (subject.chapters.isEmpty)
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(
+                padding: const EdgeInsets.fromLTRB(
                   IntelliaSpacing.xl,
                   0,
                   IntelliaSpacing.xl,
@@ -106,10 +107,8 @@ class _SubjectDetailBody extends StatelessWidget {
                 child: IntelliaStateView(
                   kind: IntelliaStateKind.comingSoon,
                   compact: true,
-                  title: 'Chapitres en préparation',
-                  message:
-                      'Le contenu de cette matière est en cours de '
-                      'rédaction pour ta classe. Reviens bientôt !',
+                  title: context.l10n.chaptersComingTitle,
+                  message: context.l10n.chaptersComingBody,
                 ),
               ),
             ),
@@ -281,7 +280,7 @@ class _SubjectLoadingWithHeader extends StatelessWidget {
                 IntelliaSpacing.sm,
               ),
               child: Text(
-                'Chapitres',
+                context.l10n.chaptersTitle,
                 style: GoogleFonts.manrope(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -401,7 +400,7 @@ class _ChapterCard extends StatelessWidget {
                           ),
                           const SizedBox(height: IntelliaSpacing.xs),
                           Text(
-                            '${chapter.lessons.length} leçon${chapter.lessons.length > 1 ? 's' : ''}',
+                            context.l10n.lessonCount(chapter.lessons.length),
                             style: TextStyle(
                               fontSize: 11,
                               color: IntelliaColors.textTertiary,

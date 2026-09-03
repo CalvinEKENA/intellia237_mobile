@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import 'auth_experience_scaffold.dart';
 
@@ -254,8 +255,11 @@ class AuthStepIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label:
-          'Étape ${currentStep + 1} sur ${labels.length}: ${labels[currentStep]}',
+      label: context.l10n.stepProgressA11y(
+        currentStep + 1,
+        labels.length,
+        labels[currentStep],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
