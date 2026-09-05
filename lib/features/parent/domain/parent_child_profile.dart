@@ -12,6 +12,8 @@ class ParentChildProfile {
     required this.weeklyProgress,
     this.hasProgressData = false,
     this.hasStudyTimeData = false,
+    this.exploredLessonCount,
+    this.coverageIsPartial = false,
   });
 
   final String id;
@@ -26,6 +28,10 @@ class ParentChildProfile {
   final List<double> weeklyProgress;
   final bool hasProgressData;
   final bool hasStudyTimeData;
+
+  /// Coverage only. Null means that this optional source is unavailable.
+  final int? exploredLessonCount;
+  final bool coverageIsPartial;
 
   String get classLabel {
     if (series == null || series!.isEmpty) {
