@@ -172,6 +172,12 @@ class AuthController extends Notifier<AuthState> {
     await ref.read(selectedTutorIdProvider.notifier).clear();
     final preferences = await SharedPreferences.getInstance();
     await preferences.remove(_lastValidSessionKey);
+    // La purge de l'état élève n'est volontairement pas déclenchée ici : un
+    // provider ne peut pas invalider ceux qui dépendent de lui, et le
+    // contrôleur d'authentification n'a pas à connaître les providers de
+    // fonctionnalités. La frontière est tenue par `learnerSessionBoundaryProvider`,
+    // qui observe l'identité depuis l'extérieur de ce graphe et couvre donc
+    // toutes les transitions, pas seulement ce bouton.
     state = const AuthState.unauthenticated();
   }
 

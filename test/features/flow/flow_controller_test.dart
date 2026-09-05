@@ -159,8 +159,14 @@ void main() {
   );
 
   test(
-    'les anciens XP locaux ne deviennent jamais des points vérifiés',
+    'un état hérité sans propriétaire prouvé n est présenté à personne',
     () async {
+      // Ce test encodait auparavant la restauration d'un état global vers
+      // « l'utilisateur courant ». Cette lecture est désormais interdite : sur
+      // un appareil partagé, l'ancienne clé peut appartenir à un autre élève.
+      // La règle est que « propriétaire inconnu » ne devient jamais
+      // « utilisateur courant ». Voir flow_learner_isolation_test.dart pour la
+      // migration lorsque la propriété est prouvée.
       container.dispose();
       SharedPreferences.setMockInitialValues({
         'intellia_flow_progress_v1': '{"xp":140,"streakDays":2}',
@@ -178,8 +184,10 @@ void main() {
 
       final restored = container.read(flowControllerProvider);
       expect(restored.sessionPoints, 0);
+      // Les anciens champs `xp` ne deviennent jamais des points vérifiés.
       expect(restored.verifiedTotalPoints, isNull);
-      expect(restored.streakDays, 2);
+      // Et la série héritée n'est pas attribuée non plus.
+      expect(restored.streakDays, 0);
     },
   );
 }
