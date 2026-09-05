@@ -1093,5 +1093,130 @@
   "noQuizForLevel": "Aucun quiz pour ce niveau.",
   "quizQuestionsDifficulty": "{count} questions • {difficulty}",
   "@quizQuestionsDifficulty": {"placeholders": {"count": {"type": "int"}, "difficulty": {"type": "String"}}},
-  "generatedByAi": "Généré par l’IA"
+  "generatedByAi": "Généré par l’IA",
+  "masteryTitle": "Ton apprentissage",
+  "masteryBySubject": "Matière par matière",
+  "masteryDimension": "Maîtrise",
+  "masteryCoverage": "Parcours",
+  "masteryContinuity": "Régularité",
+  "masteryNoEvidence": "Pas encore assez d’éléments",
+  "masteryExploring": "À explorer",
+  "masteryBuilding": "En construction",
+  "masteryUnderstood": "Bien compris",
+  "masterySolid": "Solide",
+  "masteryConfidenceInsufficient": "Données insuffisantes",
+  "masteryConfidenceLimited": "Estimation prudente",
+  "masteryConfidenceSupported": "Confiance étayée",
+  "masteryTrendProgressing": "Estimation en progression",
+  "masteryTrendSteady": "Estimation stable",
+  "masteryTrendDeclining": "Estimation à réexaminer",
+  "masteryConsolidate": "À consolider",
+  "masteryRevisit": "À revoir",
+  "masteryNoEvidenceHint": "Les réponses aux quiz aideront à construire cette lecture.",
+  "masteryScopeNote": "Une estimation issue des quiz, distincte du parcours et des notes scolaires.",
+  "masterySourceLimits": "Les résultats disponibles ne précisent pas les conditions de passation. Cette lecture reste prudente : « Bien compris » et « Solide » nécessitent des preuves plus complètes.",
+  "masteryLoading": "Les repères d’apprentissage se chargent.",
+  "masteryUnavailable": "La lecture de maîtrise est momentanément indisponible.",
+  "masterySubjectsUnavailable": "Les matières ne sont pas disponibles pour le moment.",
+  "masterySubjectsEmpty": "Les matières apparaîtront ici quand le programme sera disponible.",
+  "masteryStudentCollecting": "INTELLIA237 commence à construire ton profil d’apprentissage. Continue à travailler et à répondre aux exercices.",
+  "masteryStudentFirst": "Tes réponses aux quiz donnent de premiers repères. Cette lecture reste prudente et se précisera avec de nouvelles preuves.",
+  "masteryStudentProgress": "Une estimation a évolué avec de nouveaux résultats de quiz. Retrouve ce changement dans les matières ci-dessous.",
+  "masteryParentCollecting": "Il n’y a pas encore assez d’éléments pour lire ses acquis. Vous pouvez déjà l’encourager à expliquer ce qu’il apprend.",
+  "masteryParentFirst": "Les quiz donnent de premiers repères sur son apprentissage. Les estimations restent prudentes.",
+  "masteryParentProgress": "De nouveaux résultats de quiz font évoluer une estimation. Cette comparaison porte seulement sur les observations disponibles.",
+  "masteryParentTitle": "Comment avance son apprentissage ?",
+  "masteryParentEvolving": "Ce qui évolue",
+  "masteryParentNoComparison": "Pas encore de comparaison suffisamment étayée.",
+  "masteryParentSupport": "À accompagner",
+  "masteryParentSupportBody": "Poursuivre les exercices aidera à préciser cette lecture.",
+  "masteryParentContinuity": "Continuité du parcours",
+  "masteryParentNoPattern": "Les données disponibles ne permettent pas encore de décrire une régularité.",
+  "masteryParentHelp": "Comment l’aider",
+  "masteryParentHelpBody": "Vous pouvez lui demander quelle notion lui a semblé difficile et l’inviter à l’expliquer avec ses mots.",
+  "masteryCoverageNote": "Explorer un cours ne prouve pas encore qu’il est compris.",
+  "masteryCoverageUnavailable": "Le parcours n’est pas disponible pour le moment.",
+  "masteryChapterDetailPending": "Le détail des acquis par chapitre viendra avec des preuves rattachées aux chapitres. Aucune maîtrise de chapitre n’est déduite de la lecture.",
+  "masteryRecentActivity": "Résultats de quiz disponibles",
+  "masteryRecentLimits": "Seul le dernier résultat de chaque quiz est conservé dans cette lecture. Ce n’est pas l’historique de toutes les tentatives.",
+  "masteryRecordedQuiz": "Quiz corrigé",
+  "masteryOpenCourse": "Retrouver le cours",
+  "masteryScaleLegend": "L’étendue de l’encre indique l’état, sa densité la confiance. Un tracé apparaît seulement lorsqu’une estimation antérieure a réellement été observée.",
+  "masteryOfficialRecord": "Carnet officiel",
+  "masteryOfficialRecordBody": "Les notes scolaires restent des résultats officiels de l’établissement. Elles ne sont pas calculées à partir de cette estimation.",
+  "masteryOfficialRecordUnavailable": "Aucun carnet de notes scolaires n’est relié à cette vue pour le moment.",
+  "masteryRefresh": "Actualiser les repères",
+  "masteryEvidenceCount": "{count, plural, =0{Aucun résultat exploitable} =1{1 quiz distinct pris en compte} other{{count} quiz distincts pris en compte}}",
+  "@masteryEvidenceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "masteryExploredChapters": "{count, plural, =0{Aucun chapitre exploré} =1{1 chapitre exploré} other{{count} chapitres explorés}}",
+  "@masteryExploredChapters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "masteryExploredLessons": "{count, plural, =0{Aucune leçon explorée enregistrée} =1{1 leçon explorée enregistrée} other{{count} leçons explorées enregistrées}}",
+  "@masteryExploredLessons": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "masteryPartialCoverage": "Ce parcours porte sur une partie des leçons enregistrées.",
+  "masteryRecordedStreak": "{count, plural, =1{Série d’activité enregistrée : 1 jour} other{Série d’activité enregistrée : {count} jours}}",
+  "@masteryRecordedStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "masteryPreviousState": "Tracé précédent : {state}",
+  "@masteryPreviousState": {
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "masteryLastEvidence": "Dernier résultat enregistré : {date}",
+  "@masteryLastEvidence": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "masteryDeclaredSchool": "Établissement déclaré : {name}",
+  "@masteryDeclaredSchool": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masteryWithCompanion": "Avec {name}",
+  "@masteryWithCompanion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "masteryEvidenceWindow": "Résultats des {days} derniers jours.",
+  "@masteryEvidenceWindow": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  }
 }

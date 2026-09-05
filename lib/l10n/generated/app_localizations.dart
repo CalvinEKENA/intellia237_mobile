@@ -6027,6 +6027,378 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Généré par l’IA'**
   String get generatedByAi;
+
+  /// No description provided for @masteryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton apprentissage'**
+  String get masteryTitle;
+
+  /// No description provided for @masteryBySubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matière par matière'**
+  String get masteryBySubject;
+
+  /// No description provided for @masteryDimension.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrise'**
+  String get masteryDimension;
+
+  /// No description provided for @masteryCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours'**
+  String get masteryCoverage;
+
+  /// No description provided for @masteryContinuity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régularité'**
+  String get masteryContinuity;
+
+  /// No description provided for @masteryNoEvidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore assez d’éléments'**
+  String get masteryNoEvidence;
+
+  /// No description provided for @masteryExploring.
+  ///
+  /// In fr, this message translates to:
+  /// **'À explorer'**
+  String get masteryExploring;
+
+  /// No description provided for @masteryBuilding.
+  ///
+  /// In fr, this message translates to:
+  /// **'En construction'**
+  String get masteryBuilding;
+
+  /// No description provided for @masteryUnderstood.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien compris'**
+  String get masteryUnderstood;
+
+  /// No description provided for @masterySolid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solide'**
+  String get masterySolid;
+
+  /// No description provided for @masteryConfidenceInsufficient.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données insuffisantes'**
+  String get masteryConfidenceInsufficient;
+
+  /// No description provided for @masteryConfidenceLimited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation prudente'**
+  String get masteryConfidenceLimited;
+
+  /// No description provided for @masteryConfidenceSupported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance étayée'**
+  String get masteryConfidenceSupported;
+
+  /// No description provided for @masteryTrendProgressing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation en progression'**
+  String get masteryTrendProgressing;
+
+  /// No description provided for @masteryTrendSteady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation stable'**
+  String get masteryTrendSteady;
+
+  /// No description provided for @masteryTrendDeclining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation à réexaminer'**
+  String get masteryTrendDeclining;
+
+  /// No description provided for @masteryConsolidate.
+  ///
+  /// In fr, this message translates to:
+  /// **'À consolider'**
+  String get masteryConsolidate;
+
+  /// No description provided for @masteryRevisit.
+  ///
+  /// In fr, this message translates to:
+  /// **'À revoir'**
+  String get masteryRevisit;
+
+  /// No description provided for @masteryNoEvidenceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les réponses aux quiz aideront à construire cette lecture.'**
+  String get masteryNoEvidenceHint;
+
+  /// No description provided for @masteryScopeNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une estimation issue des quiz, distincte du parcours et des notes scolaires.'**
+  String get masteryScopeNote;
+
+  /// No description provided for @masterySourceLimits.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les résultats disponibles ne précisent pas les conditions de passation. Cette lecture reste prudente : « Bien compris » et « Solide » nécessitent des preuves plus complètes.'**
+  String get masterySourceLimits;
+
+  /// No description provided for @masteryLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les repères d’apprentissage se chargent.'**
+  String get masteryLoading;
+
+  /// No description provided for @masteryUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La lecture de maîtrise est momentanément indisponible.'**
+  String get masteryUnavailable;
+
+  /// No description provided for @masterySubjectsUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les matières ne sont pas disponibles pour le moment.'**
+  String get masterySubjectsUnavailable;
+
+  /// No description provided for @masterySubjectsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les matières apparaîtront ici quand le programme sera disponible.'**
+  String get masterySubjectsEmpty;
+
+  /// No description provided for @masteryStudentCollecting.
+  ///
+  /// In fr, this message translates to:
+  /// **'INTELLIA237 commence à construire ton profil d’apprentissage. Continue à travailler et à répondre aux exercices.'**
+  String get masteryStudentCollecting;
+
+  /// No description provided for @masteryStudentFirst.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes réponses aux quiz donnent de premiers repères. Cette lecture reste prudente et se précisera avec de nouvelles preuves.'**
+  String get masteryStudentFirst;
+
+  /// No description provided for @masteryStudentProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une estimation a évolué avec de nouveaux résultats de quiz. Retrouve ce changement dans les matières ci-dessous.'**
+  String get masteryStudentProgress;
+
+  /// No description provided for @masteryParentCollecting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il n’y a pas encore assez d’éléments pour lire ses acquis. Vous pouvez déjà l’encourager à expliquer ce qu’il apprend.'**
+  String get masteryParentCollecting;
+
+  /// No description provided for @masteryParentFirst.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les quiz donnent de premiers repères sur son apprentissage. Les estimations restent prudentes.'**
+  String get masteryParentFirst;
+
+  /// No description provided for @masteryParentProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'De nouveaux résultats de quiz font évoluer une estimation. Cette comparaison porte seulement sur les observations disponibles.'**
+  String get masteryParentProgress;
+
+  /// No description provided for @masteryParentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment avance son apprentissage ?'**
+  String get masteryParentTitle;
+
+  /// No description provided for @masteryParentEvolving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui évolue'**
+  String get masteryParentEvolving;
+
+  /// No description provided for @masteryParentNoComparison.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de comparaison suffisamment étayée.'**
+  String get masteryParentNoComparison;
+
+  /// No description provided for @masteryParentSupport.
+  ///
+  /// In fr, this message translates to:
+  /// **'À accompagner'**
+  String get masteryParentSupport;
+
+  /// No description provided for @masteryParentSupportBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poursuivre les exercices aidera à préciser cette lecture.'**
+  String get masteryParentSupportBody;
+
+  /// No description provided for @masteryParentContinuity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuité du parcours'**
+  String get masteryParentContinuity;
+
+  /// No description provided for @masteryParentNoPattern.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les données disponibles ne permettent pas encore de décrire une régularité.'**
+  String get masteryParentNoPattern;
+
+  /// No description provided for @masteryParentHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment l’aider'**
+  String get masteryParentHelp;
+
+  /// No description provided for @masteryParentHelpBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous pouvez lui demander quelle notion lui a semblé difficile et l’inviter à l’expliquer avec ses mots.'**
+  String get masteryParentHelpBody;
+
+  /// No description provided for @masteryCoverageNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer un cours ne prouve pas encore qu’il est compris.'**
+  String get masteryCoverageNote;
+
+  /// No description provided for @masteryCoverageUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le parcours n’est pas disponible pour le moment.'**
+  String get masteryCoverageUnavailable;
+
+  /// No description provided for @masteryChapterDetailPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le détail des acquis par chapitre viendra avec des preuves rattachées aux chapitres. Aucune maîtrise de chapitre n’est déduite de la lecture.'**
+  String get masteryChapterDetailPending;
+
+  /// No description provided for @masteryRecentActivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultats de quiz disponibles'**
+  String get masteryRecentActivity;
+
+  /// No description provided for @masteryRecentLimits.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul le dernier résultat de chaque quiz est conservé dans cette lecture. Ce n’est pas l’historique de toutes les tentatives.'**
+  String get masteryRecentLimits;
+
+  /// No description provided for @masteryRecordedQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz corrigé'**
+  String get masteryRecordedQuiz;
+
+  /// No description provided for @masteryOpenCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouver le cours'**
+  String get masteryOpenCourse;
+
+  /// No description provided for @masteryScaleLegend.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’étendue de l’encre indique l’état, sa densité la confiance. Un tracé apparaît seulement lorsqu’une estimation antérieure a réellement été observée.'**
+  String get masteryScaleLegend;
+
+  /// No description provided for @masteryOfficialRecord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carnet officiel'**
+  String get masteryOfficialRecord;
+
+  /// No description provided for @masteryOfficialRecordBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les notes scolaires restent des résultats officiels de l’établissement. Elles ne sont pas calculées à partir de cette estimation.'**
+  String get masteryOfficialRecordBody;
+
+  /// No description provided for @masteryOfficialRecordUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun carnet de notes scolaires n’est relié à cette vue pour le moment.'**
+  String get masteryOfficialRecordUnavailable;
+
+  /// No description provided for @masteryRefresh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualiser les repères'**
+  String get masteryRefresh;
+
+  /// No description provided for @masteryEvidenceCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun résultat exploitable} =1{1 quiz distinct pris en compte} other{{count} quiz distincts pris en compte}}'**
+  String masteryEvidenceCount(int count);
+
+  /// No description provided for @masteryExploredChapters.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun chapitre exploré} =1{1 chapitre exploré} other{{count} chapitres explorés}}'**
+  String masteryExploredChapters(int count);
+
+  /// No description provided for @masteryExploredLessons.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune leçon explorée enregistrée} =1{1 leçon explorée enregistrée} other{{count} leçons explorées enregistrées}}'**
+  String masteryExploredLessons(int count);
+
+  /// No description provided for @masteryPartialCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce parcours porte sur une partie des leçons enregistrées.'**
+  String get masteryPartialCoverage;
+
+  /// No description provided for @masteryRecordedStreak.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Série d’activité enregistrée : 1 jour} other{Série d’activité enregistrée : {count} jours}}'**
+  String masteryRecordedStreak(int count);
+
+  /// No description provided for @masteryPreviousState.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tracé précédent : {state}'**
+  String masteryPreviousState(String state);
+
+  /// No description provided for @masteryLastEvidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernier résultat enregistré : {date}'**
+  String masteryLastEvidence(String date);
+
+  /// No description provided for @masteryDeclaredSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Établissement déclaré : {name}'**
+  String masteryDeclaredSchool(String name);
+
+  /// No description provided for @masteryWithCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec {name}'**
+  String masteryWithCompanion(String name);
+
+  /// No description provided for @masteryEvidenceWindow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultats des {days} derniers jours.'**
+  String masteryEvidenceWindow(int days);
 }
 
 class _AppLocalizationsDelegate

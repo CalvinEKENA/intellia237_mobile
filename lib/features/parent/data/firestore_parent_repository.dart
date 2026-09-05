@@ -49,18 +49,29 @@ class FirestoreParentRepository implements ParentRepository {
         .collection('student_profiles')
         .doc(studentId)
         .get();
-    final lessonProgressFuture = _db
-        .collection('student_profiles')
-        .doc(studentId)
-        .collection('lessonProgress')
-        .limit(250)
-        .get();
-    final results = await Future.wait([profileFuture, lessonProgressFuture]);
-    final profile = results[0] as DocumentSnapshot<Map<String, dynamic>>;
-    final lessonProgress = results[1] as QuerySnapshot<Map<String, dynamic>>;
+    // Coverage is optional: a denied/offline lesson read must not erase identity.
+    final lessonProgressFuture = _fetchOptionalLessonCoverage(studentId);
+    final profile = await profileFuture;
+    final lessonProgress = await lessonProgressFuture;
     final profileData = profile.data();
     if (profileData == null) return null;
-    return _childFromProfile(studentId, profileData, lessonProgress.docs);
+    return _childFromProfile(studentId, profileData, lessonProgress);
+  }
+
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>?>
+  _fetchOptionalLessonCoverage(String studentId) async {
+    try {
+      final result = await _db
+          .collection('student_profiles')
+          .doc(studentId)
+          .collection('lessonProgress')
+          .limit(251)
+          .get()
+          .timeout(const Duration(seconds: 8));
+      return result.docs;
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<List<ParentAnnouncement>> _fetchAnnouncements() async {
@@ -87,11 +98,12 @@ class FirestoreParentRepository implements ParentRepository {
   ParentChildProfile _childFromProfile(
     String id,
     Map<String, dynamic> data,
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> lessonProgress,
+    List<QueryDocumentSnapshot<Map<String, dynamic>>>? lessonProgress,
   ) {
     final preferences = data['preferences'];
     final progress = data['progress'];
-    final computed = _computeProgress(lessonProgress);
+    final covered = lessonProgress?.take(250).toList();
+    final computed = _computeProgress(covered ?? const []);
     final honestWeekly = _readDatedWeeklyProgress(data['weeklyProgressByDate']);
     final hasStoredGlobal =
         progress is Map<String, dynamic> && progress['globalProgress'] is num;
@@ -109,12 +121,14 @@ class FirestoreParentRepository implements ParentRepository {
           : _readDouble(progress, 'globalProgress'),
       studyMinutesToday: _readInt(progress, 'studyMinutesToday'),
       studyMinutesTarget: _readInt(preferences, 'dailyStudyMinutes', 45),
-      strongSubjects: computed.strongSubjects.isNotEmpty
-          ? computed.strongSubjects
-          : _readStringList(data['strongSubjects']),
-      weakSubjects: computed.weakSubjects.isNotEmpty
-          ? computed.weakSubjects
-          : _readStringList(data['weakSubjects']),
+      // Legacy fields remain in telemetry, but coverage never defines strengths.
+      strongSubjects: const [],
+      weakSubjects: const [],
+      exploredLessonCount: covered?.where((document) {
+        final value = document.data()['progress'];
+        return value is num && value.isFinite && value > 0 && value <= 1;
+      }).length,
+      coverageIsPartial: (lessonProgress?.length ?? 0) > 250,
       weeklyProgress: honestWeekly,
       hasProgressData: computed.hasData || hasStoredGlobal,
       hasStudyTimeData: hasStoredStudyTime,
@@ -127,45 +141,17 @@ class FirestoreParentRepository implements ParentRepository {
     if (documents.isEmpty) return const _ComputedProgress.empty();
     var total = 0.0;
     var count = 0;
-    final subjects = <String, _SubjectScore>{};
     for (final document in documents) {
       final data = document.data();
       final rawProgress = data['progress'];
-      if (rawProgress is! num) continue;
+      if (rawProgress is! num || !rawProgress.isFinite) continue;
       final value = rawProgress.toDouble().clamp(0, 1).toDouble();
       total += value;
       count += 1;
-
-      final subjectId = (data['subjectId'] as String?)?.trim();
-      if (subjectId != null && subjectId.isNotEmpty) {
-        subjects.update(
-          subjectId,
-          (score) => score.add(value),
-          ifAbsent: () => _SubjectScore(value, 1),
-        );
-      }
     }
     if (count == 0) return const _ComputedProgress.empty();
 
-    final ranked = subjects.entries.toList()
-      ..sort((a, b) => b.value.average.compareTo(a.value.average));
-    final strong = ranked
-        .where((entry) => entry.value.average >= 0.7)
-        .take(2)
-        .map((entry) => _subjectLabel(entry.key))
-        .toList(growable: false);
-    final weak = ranked.reversed
-        .where((entry) => entry.value.average < 0.7)
-        .take(2)
-        .map((entry) => _subjectLabel(entry.key))
-        .toList(growable: false);
-
-    return _ComputedProgress(
-      hasData: true,
-      globalProgress: total / count,
-      strongSubjects: strong,
-      weakSubjects: weak,
-    );
+    return _ComputedProgress(hasData: true, globalProgress: total / count);
   }
 
   List<double> _readDatedWeeklyProgress(Object? source) {
@@ -190,19 +176,6 @@ class FirestoreParentRepository implements ParentRepository {
     return '${value.year}-${twoDigits(value.month)}-${twoDigits(value.day)}';
   }
 
-  String _subjectLabel(String id) {
-    return switch (id.toLowerCase()) {
-      'math' || 'maths' || 'mathematiques' => 'Mathématiques',
-      'phys' || 'physics' || 'physique' || 'pc' => 'Physique-Chimie',
-      'fr' || 'french' || 'francais' => 'Français',
-      'en' || 'english' || 'anglais' => 'Anglais',
-      'svt' || 'biology' || 'biologie' => 'SVT',
-      'history' || 'histoire' || 'hg' => 'Histoire-Géographie',
-      'philo' || 'philosophie' => 'Philosophie',
-      _ => id,
-    };
-  }
-
   DateTime _readDate(Object? value) {
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
@@ -225,42 +198,16 @@ class FirestoreParentRepository implements ParentRepository {
     }
     return 0;
   }
-
-  List<String> _readStringList(Object? value) {
-    if (value is List) {
-      return value.whereType<String>().toList(growable: false);
-    }
-    return const <String>[];
-  }
-}
-
-class _SubjectScore {
-  const _SubjectScore(this.total, this.count);
-
-  final double total;
-  final int count;
-
-  double get average => count == 0 ? 0 : total / count;
-
-  _SubjectScore add(double value) => _SubjectScore(total + value, count + 1);
 }
 
 class _ComputedProgress {
   const _ComputedProgress({
     required this.hasData,
     required this.globalProgress,
-    required this.strongSubjects,
-    required this.weakSubjects,
   });
 
-  const _ComputedProgress.empty()
-    : hasData = false,
-      globalProgress = 0,
-      strongSubjects = const [],
-      weakSubjects = const [];
+  const _ComputedProgress.empty() : hasData = false, globalProgress = 0;
 
   final bool hasData;
   final double globalProgress;
-  final List<String> strongSubjects;
-  final List<String> weakSubjects;
 }
