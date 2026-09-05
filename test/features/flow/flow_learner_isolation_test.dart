@@ -120,56 +120,65 @@ void main() {
     final keys = harness.preferences.getKeys();
     expect(keys, isNot(contains(FlowProgressStore.legacyGlobalKeyV2)));
     expect(keys, isNot(contains(FlowProgressStore.legacyGlobalKeyV1)));
-    expect(keys.where((key) => key.startsWith('intellia_flow_progress')), isEmpty);
-  });
-
-  test('5 · état hérité + propriété prouvée : migration unique vers A', () async {
-    await start(
-      preferences: {
-        FlowProgressStore.legacyGlobalKeyV2: _legacyBlob(
-          completed: ['n1'],
-          streakDays: 4,
-        ),
-        // Seul « uid-a » a laissé une trace locale sur cet appareil.
-        'lesson_resume_v1_uid-a': '{}',
-      },
+    expect(
+      keys.where((key) => key.startsWith('intellia_flow_progress')),
+      isEmpty,
     );
-
-    await harness.signIn('uid-a');
-
-    expect(harness.state.completedCardIds, {'n1'});
-    expect(harness.state.streakDays, 4);
-    final keys = harness.preferences.getKeys();
-    expect(keys, isNot(contains(FlowProgressStore.legacyGlobalKeyV2)));
-    expect(keys, isNot(contains(FlowProgressStore.legacyGlobalKeyV1)));
-    expect(keys, contains(FlowProgressStore.keyFor('uid-a')));
   });
 
-  test('6 · état hérité + propriété non prouvée : présenté à personne', () async {
-    await start(
-      preferences: {
-        FlowProgressStore.legacyGlobalKeyV2: _legacyBlob(
-          completed: ['n1'],
-          streakDays: 4,
-        ),
-        // Deux élèves ont utilisé cet appareil : la propriété est indécidable.
-        'lesson_resume_v1_uid-a': '{}',
-        'local_greeting_history_v1_uid-b': '{}',
-      },
-    );
+  test(
+    '5 · état hérité + propriété prouvée : migration unique vers A',
+    () async {
+      await start(
+        preferences: {
+          FlowProgressStore.legacyGlobalKeyV2: _legacyBlob(
+            completed: ['n1'],
+            streakDays: 4,
+          ),
+          // Seul « uid-a » a laissé une trace locale sur cet appareil.
+          'lesson_resume_v1_uid-a': '{}',
+        },
+      );
 
-    await harness.signIn('uid-a');
-    expect(harness.state.completedCardIds, isEmpty);
-    expect(harness.state.streakDays, 0);
+      await harness.signIn('uid-a');
 
-    await harness.signOut();
-    await harness.signIn('uid-b');
-    expect(harness.state.completedCardIds, isEmpty);
-    expect(harness.state.streakDays, 0);
+      expect(harness.state.completedCardIds, {'n1'});
+      expect(harness.state.streakDays, 4);
+      final keys = harness.preferences.getKeys();
+      expect(keys, isNot(contains(FlowProgressStore.legacyGlobalKeyV2)));
+      expect(keys, isNot(contains(FlowProgressStore.legacyGlobalKeyV1)));
+      expect(keys, contains(FlowProgressStore.keyFor('uid-a')));
+    },
+  );
 
-    final keys = harness.preferences.getKeys();
-    expect(keys, isNot(contains(FlowProgressStore.legacyGlobalKeyV2)));
-  });
+  test(
+    '6 · état hérité + propriété non prouvée : présenté à personne',
+    () async {
+      await start(
+        preferences: {
+          FlowProgressStore.legacyGlobalKeyV2: _legacyBlob(
+            completed: ['n1'],
+            streakDays: 4,
+          ),
+          // Deux élèves ont utilisé cet appareil : la propriété est indécidable.
+          'lesson_resume_v1_uid-a': '{}',
+          'local_greeting_history_v1_uid-b': '{}',
+        },
+      );
+
+      await harness.signIn('uid-a');
+      expect(harness.state.completedCardIds, isEmpty);
+      expect(harness.state.streakDays, 0);
+
+      await harness.signOut();
+      await harness.signIn('uid-b');
+      expect(harness.state.completedCardIds, isEmpty);
+      expect(harness.state.streakDays, 0);
+
+      final keys = harness.preferences.getKeys();
+      expect(keys, isNot(contains(FlowProgressStore.legacyGlobalKeyV2)));
+    },
+  );
 
   test(
     '6b · le marqueur de session ne suffit jamais à prouver la propriété',
@@ -253,10 +262,7 @@ void main() {
   );
 }
 
-String _legacyBlob({
-  required List<String> completed,
-  required int streakDays,
-}) {
+String _legacyBlob({required List<String> completed, required int streakDays}) {
   return jsonEncode(<String, Object?>{
     'verifiedTotalPoints': null,
     'streakDays': streakDays,

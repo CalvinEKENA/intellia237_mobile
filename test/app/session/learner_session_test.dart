@@ -161,7 +161,9 @@ class _FakeStudentHomeRepository implements StudentHomeRepository {
   int calls = 0;
 
   @override
-  Future<StudentHomeSnapshot> fetchHomeSnapshot({required String firstName}) async {
+  Future<StudentHomeSnapshot> fetchHomeSnapshot({
+    required String firstName,
+  }) async {
     calls++;
     return StudentHomeSnapshot(firstName: firstName);
   }
