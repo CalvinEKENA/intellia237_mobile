@@ -9,7 +9,9 @@ import '../../auth/application/auth_controller.dart';
 import '../../learn/application/learn_providers.dart';
 import '../../learn/data/student_academic_profile_source.dart';
 import '../../learn/domain/learn_academic_context.dart';
+import '../../greetings/domain/local_greeting_engine.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../../core/localization/app_locale_controller.dart';
 import '../../tutor/application/tutor_preference_provider.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../data/ai_repository.dart';
@@ -51,6 +53,7 @@ class AICompanionState {
   factory AICompanionState.initial(
     TutorPersona tutor, {
     String classLevel = '',
+    required String welcomeText,
   }) {
     return AICompanionState(
       tutor: tutor,
@@ -59,8 +62,7 @@ class AICompanionState {
         AIMessage(
           id: 'welcome',
           role: AIMessageRole.assistant,
-          text:
-              'Salut, je suis ${tutor.name}. Je peux t\'aider sur tes cours de ${tutor.levelLabel}. Que veux-tu réviser ?',
+          text: welcomeText,
           createdAt: DateTime.now(),
         ),
       ],
@@ -140,6 +142,8 @@ class AICompanionController extends Notifier<AICompanionState> {
     final currentAcademic = ref.read(studentAcademicContextProvider);
     final currentContext = currentAcademic.valueOrNull;
     final userId = ref.watch(authControllerProvider).userId;
+    final firstName = ref.watch(authControllerProvider).firstName;
+    final languageCode = ref.watch(appLocaleProvider).languageCode;
     if (_activeUserId != userId) {
       _activeUserId = userId;
       _historyChanged = false;
@@ -169,6 +173,15 @@ class AICompanionController extends Notifier<AICompanionState> {
             diagnosticId: null,
           );
         }
+        unawaited(
+          _refreshWelcome(
+            userId: userId,
+            firstName: firstName,
+            languageCode: languageCode,
+            tutor: state.tutor,
+            classLevel: context.displayClassLevel ?? context.classLevel,
+          ),
+        );
         return;
       }
 
@@ -196,9 +209,60 @@ class AICompanionController extends Notifier<AICompanionState> {
     }
 
     Future<void>.microtask(() => _restoreHistory(userId));
+    final greetingContext = GreetingContext(
+      learnerId: userId ?? 'anonymous',
+      companionId: tutor.id,
+      languageCode: languageCode,
+      firstName: firstName,
+      classLevel:
+          currentContext?.displayClassLevel ?? currentContext?.classLevel,
+    );
+    Future<void>.microtask(
+      () => _refreshWelcome(
+        userId: userId,
+        firstName: firstName,
+        languageCode: languageCode,
+        tutor: tutor,
+        classLevel:
+            currentContext?.displayClassLevel ?? currentContext?.classLevel,
+      ),
+    );
     return AICompanionState.initial(
       tutor,
       classLevel: currentContext?.classLevel ?? '',
+      welcomeText: LocalGreetingEngine.fallback(greetingContext),
+    );
+  }
+
+  Future<void> _refreshWelcome({
+    required String? userId,
+    required String? firstName,
+    required String languageCode,
+    required TutorPersona tutor,
+    required String? classLevel,
+  }) async {
+    final greeting = await LocalGreetingEngine.select(
+      GreetingContext(
+        learnerId: userId ?? 'anonymous',
+        companionId: tutor.id,
+        languageCode: languageCode,
+        firstName: firstName,
+        classLevel: classLevel,
+      ),
+    );
+    if (ref.read(authControllerProvider).userId != userId) return;
+    if (state.messages.length != 1 || state.messages.single.id != 'welcome') {
+      return;
+    }
+    state = state.copyWith(
+      messages: [
+        AIMessage(
+          id: 'welcome',
+          role: AIMessageRole.assistant,
+          text: greeting.text,
+          createdAt: DateTime.now(),
+        ),
+      ],
     );
   }
 
@@ -278,6 +342,9 @@ class AICompanionController extends Notifier<AICompanionState> {
     }
     _historyChanged = true;
     final historyBeforeSend = state.messages;
+    final requestHistory = historyBeforeSend
+        .where((item) => item.id != 'welcome')
+        .toList(growable: false);
 
     final nextMessages = [
       ...historyBeforeSend,
@@ -308,7 +375,7 @@ class AICompanionController extends Notifier<AICompanionState> {
         classLevel: state.classLevel,
         // The current question has its own payload field. Sending it in the
         // history as well duplicates the prompt and wastes context tokens.
-        history: historyBeforeSend,
+        history: requestHistory,
         userMessage: '$contextPrefix$cleaned',
       );
 

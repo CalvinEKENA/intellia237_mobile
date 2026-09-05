@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import '../../application/flow_controller.dart';
 
@@ -44,19 +45,24 @@ class FlowHud extends ConsumerWidget {
                           icon: Icons.bolt_rounded,
                           label: '+${p.sessionPoints} session',
                           color: IntelliaColors.pointsGold,
-                          semanticLabel:
-                              '${p.sessionPoints} points vérifiés dans cette session',
+                          semanticLabel: context.l10n.sessionVerifiedPoints(
+                            p.sessionPoints,
+                          ),
                         ),
                         const SizedBox(width: IntelliaSpacing.xs),
                         _pill(
                           icon: Icons.verified_rounded,
                           label: p.verifiedTotalPoints == null
-                              ? 'Total —'
-                              : '${p.verifiedTotalPoints} total',
+                              ? context.l10n.totalPendingShort
+                              : context.l10n.totalPointsShort(
+                                  p.verifiedTotalPoints!,
+                                ),
                           color: IntelliaColors.brandIndigo,
                           semanticLabel: p.verifiedTotalPoints == null
-                              ? 'Total en attente de validation serveur'
-                              : '${p.verifiedTotalPoints} points vérifiés au total',
+                              ? context.l10n.totalPendingValidation
+                              : context.l10n.totalVerifiedPoints(
+                                  p.verifiedTotalPoints!,
+                                ),
                         ),
                         const SizedBox(width: IntelliaSpacing.xs),
                         if (p.pendingValidationCount > 0)
@@ -64,10 +70,13 @@ class FlowHud extends ConsumerWidget {
                             icon: p.isSyncing
                                 ? Icons.sync_rounded
                                 : Icons.cloud_upload_outlined,
-                            label: '${p.pendingValidationCount} à valider',
+                            label: context.l10n.pendingValidationShort(
+                              p.pendingValidationCount,
+                            ),
                             color: IntelliaColors.warning,
-                            semanticLabel:
-                                '${p.pendingValidationCount} activités hors ligne à synchroniser',
+                            semanticLabel: context.l10n.offlineActivitiesToSync(
+                              p.pendingValidationCount,
+                            ),
                             onTap: p.isSyncing
                                 ? null
                                 : () => ref
@@ -79,7 +88,10 @@ class FlowHud extends ConsumerWidget {
                             icon: Icons.local_fire_department_rounded,
                             label: '${p.streakDays}',
                             color: IntelliaColors.warning,
-                            semanticLabel: 'Série de ${p.streakDays} jours',
+                            semanticLabel: context.l10n.streakA11y(
+                              p.streakDays,
+                              '',
+                            ),
                           ),
                       ],
                     ),
@@ -91,7 +103,7 @@ class FlowHud extends ConsumerWidget {
             Row(
               children: [
                 Text(
-                  'Niv. ${p.level}',
+                  context.l10n.levelShort(p.level),
                   style: GoogleFonts.montserrat(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,

@@ -100,6 +100,82 @@ void main() {
         AppRoutes.parentHome,
       );
     });
+
+    test('incomplete student profile is forced through academic setup', () {
+      const incomplete = AuthState.authenticated(
+        role: AppRole.student,
+        userId: 'student-without-profile',
+        profileCompleted: false,
+      );
+      expect(
+        _redirect(
+          auth: incomplete,
+          location: AppRoutes.studentHome,
+          hasSeenOnboarding: true,
+          hasAuthenticatedBefore: true,
+        ),
+        AppRoutes.studentRegistration,
+      );
+      expect(
+        _redirect(
+          auth: incomplete,
+          location: AppRoutes.studentRegistration,
+          hasSeenOnboarding: true,
+          hasAuthenticatedBefore: true,
+        ),
+        isNull,
+      );
+    });
+
+    test(
+      'profile resolution failures never bounce an Auth session to login',
+      () {
+        const retryable = AuthState.retryableProfileFailure(
+          userId: 'firebase-uid',
+          error: 'offline',
+        );
+        const unknownLegacy = AuthState.legacyProfileRecovery(
+          userId: 'legacy-uid',
+          error: 'unknown-role',
+        );
+        for (final auth in [retryable, unknownLegacy]) {
+          expect(
+            _redirect(
+              auth: auth,
+              location: AppRoutes.bootstrap,
+              hasSeenOnboarding: true,
+              hasAuthenticatedBefore: true,
+            ),
+            AppRoutes.authProfileRecovery,
+          );
+        }
+      },
+    );
+
+    test(
+      'the durable notification inbox is available to every signed-in role',
+      () {
+        for (final role in AppRole.values) {
+          expect(
+            _redirect(
+              auth: AuthState.authenticated(
+                role: role,
+                userId: '${role.name}-uid',
+              ),
+              location: AppRoutes.studentNotifications,
+              hasSeenOnboarding: true,
+              hasAuthenticatedBefore: true,
+            ),
+            isNull,
+            reason: role.name,
+          );
+        }
+        expect(
+          AppRoutes.isSafeNotificationRoute(AppRoutes.studentNotifications),
+          isTrue,
+        );
+      },
+    );
   });
 
   group('pre-auth routes remain stable', () {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_buttons.dart';
 import '../../../core/widgets/intellia_text_field.dart';
 import '../../auth/domain/auth_input_validators.dart';
@@ -33,12 +34,6 @@ class _AdminRegistrationScreenState
   final _jobTitleController = TextEditingController();
 
   int _previousStep = 0;
-
-  static const _stepLabels = <String>[
-    'Identité direction',
-    'Fonction',
-    'Validation finale',
-  ];
 
   @override
   void initState() {
@@ -90,11 +85,16 @@ class _AdminRegistrationScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(adminRegistrationControllerProvider);
     final controller = ref.read(adminRegistrationControllerProvider.notifier);
+    final l10n = context.l10n;
 
     return AuthRegistrationFrame(
-      title: 'Créer un compte Direction',
+      title: l10n.adminRegistrationTitle,
       currentStep: state.currentStep,
-      labels: _stepLabels,
+      labels: [
+        l10n.adminIdentityStep,
+        l10n.jobFunctionStep,
+        l10n.finalReviewTitle,
+      ],
       onBack: state.currentStep == 0
           ? () => context.pop()
           : () {
@@ -154,35 +154,37 @@ class _AdminRegistrationScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SectionHeader(
-            title: 'Coordonnées direction',
-            subtitle: 'Informations du responsable ou membre de direction.',
+          _SectionHeader(
+            title: context.l10n.adminDetailsTitle,
+            subtitle: context.l10n.adminDetailsSubtitle,
           ),
           const SizedBox(height: IntelliaSpacing.lg),
           IntelliaTextField(
             controller: _firstNameController,
-            label: 'Prénom',
-            hint: 'Ex: Nadine',
+            label: context.l10n.firstNameLabel,
+            hint: context.l10n.firstNameAdminHint,
             prefixIcon: Icons.person_rounded,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
-              label: 'Le prénom',
+              label: context.l10n.firstNameWithArticle,
             ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _lastNameController,
-            label: 'Nom',
-            hint: 'Ex: Meka',
+            label: context.l10n.lastNameLabel,
+            hint: context.l10n.lastNameAdminHint,
             prefixIcon: Icons.badge_rounded,
-            validator: (value) =>
-                AuthInputValidators.displayName(value ?? '', label: 'Le nom'),
+            validator: (value) => AuthInputValidators.displayName(
+              value ?? '',
+              label: context.l10n.lastNameWithArticle,
+            ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _emailController,
-            label: 'Adresse e-mail',
-            hint: 'direction@exemple.com',
+            label: context.l10n.emailLabel,
+            hint: context.l10n.adminEmailHint,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_rounded,
             validator: (value) => AuthInputValidators.email(value ?? ''),
@@ -190,15 +192,15 @@ class _AdminRegistrationScreenState
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaPasswordField(
             controller: _passwordController,
-            label: 'Mot de passe',
-            hint: '8 caractères minimum',
+            label: context.l10n.passwordLabel,
+            hint: context.l10n.passwordMinEight,
             validator: (value) => AuthInputValidators.password(value ?? ''),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaPasswordField(
             controller: _confirmPasswordController,
-            label: 'Confirmer le mot de passe',
-            hint: 'Retapez le mot de passe',
+            label: context.l10n.confirmPasswordLabel,
+            hint: context.l10n.confirmPasswordHint,
             validator: (value) => AuthInputValidators.confirmPassword(
               password: _passwordController.text,
               confirmation: value ?? '',
@@ -215,24 +217,22 @@ class _AdminRegistrationScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SectionHeader(
-            title: 'Votre fonction',
-            subtitle: 'Précisez votre rôle au sein de la direction.',
+          _SectionHeader(
+            title: context.l10n.adminFunctionTitle,
+            subtitle: context.l10n.adminFunctionSubtitle,
           ),
           const SizedBox(height: IntelliaSpacing.lg),
           IntelliaTextField(
             controller: _jobTitleController,
-            label: 'Fonction',
-            hint: 'Ex: Proviseur, Censeur, Directeur adjoint',
+            label: context.l10n.jobTitleLabel,
+            hint: context.l10n.jobTitleHint,
             prefixIcon: Icons.work_rounded,
-            validator: (value) =>
-                (value ?? '').trim().length < 3 ? 'Minimum 3 caractères' : null,
+            validator: (value) => (value ?? '').trim().length < 3
+                ? context.l10n.minimumThreeCharacters
+                : null,
           ),
           const SizedBox(height: IntelliaSpacing.lg),
-          const _InfoBanner(
-            message:
-                'Votre compte direction sera soumis à un contrôle d\'accréditation par nos équipes avant activation.',
-          ),
+          _InfoBanner(message: context.l10n.adminAccreditationNotice),
         ],
       ),
     );
@@ -244,28 +244,25 @@ class _AdminRegistrationScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionHeader(
-          title: 'Validation finale',
-          subtitle: 'Votre demande sera transmise pour validation.',
+        _SectionHeader(
+          title: context.l10n.finalReviewTitle,
+          subtitle: context.l10n.adminFinalSubtitle,
         ),
         const SizedBox(height: IntelliaSpacing.lg),
         _IntelliaCheckboxTile(
           value: state.acceptedTerms,
           onChanged: (value) => controller.setAcceptedTerms(value ?? false),
-          label: 'J\'accepte les conditions d\'utilisation.',
+          label: context.l10n.acceptTerms,
         ),
         const SizedBox(height: IntelliaSpacing.sm),
         _IntelliaCheckboxTile(
           value: state.acceptedPrivacy,
           onChanged: (value) => controller.setAcceptedPrivacy(value ?? false),
-          label: 'J\'accepte la politique de confidentialité.',
+          label: context.l10n.acceptPrivacy,
         ),
         const LegalLinks(),
         const SizedBox(height: IntelliaSpacing.lg),
-        const _InfoBanner(
-          message:
-              'Une fois validé, vous recevrez une notification par e-mail vous invitant à vous connecter à votre console d\'administration.',
-        ),
+        _InfoBanner(message: context.l10n.adminValidationNotice),
       ],
     );
   }
@@ -293,9 +290,13 @@ class _AdminRegistrationScreenState
                         });
                         controller.previousStep();
                       },
-                child: const FittedBox(
+                child: FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text('Précédent', maxLines: 1, softWrap: false),
+                  child: Text(
+                    context.l10n.previousLabel,
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
                 ),
               ),
             )
@@ -308,7 +309,9 @@ class _AdminRegistrationScreenState
               onTap: state.isSubmitting ? null : () => _onPrimaryAction(state),
               isLoading: state.isSubmitting,
               child: Text(
-                state.isLastStep ? 'Soumettre mon compte direction' : 'Suivant',
+                state.isLastStep
+                    ? context.l10n.createAdminAccount
+                    : context.l10n.nextLabel,
               ),
             ),
           ),

@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../application/mobile_money_providers.dart';
 import '../data/mobile_money_repository.dart';
 import '../domain/mobile_money_models.dart';
+import 'mobile_money_localization.dart';
 
 class MobileMoneyParentTab extends ConsumerStatefulWidget {
   const MobileMoneyParentTab({super.key});
@@ -49,17 +51,15 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
   Widget build(BuildContext context) {
     final overview = ref.watch(parentMobileMoneyOverviewProvider);
     return overview.when(
-      loading: () => const IntelliaStateView(
+      loading: () => IntelliaStateView(
         kind: IntelliaStateKind.loading,
-        title: 'Chargement de l’offre',
+        title: context.l10n.loadingOffer,
       ),
       error: (error, stackTrace) => IntelliaStateView(
         kind: IntelliaStateKind.errorRetryable,
-        title: 'Service indisponible',
-        message: error is MobileMoneyException
-            ? error.message
-            : 'Impossible de vérifier l’offre pour le moment.',
-        primaryLabel: 'Réessayer',
+        title: context.l10n.serviceUnavailable,
+        message: mobileMoneyErrorMessage(context, error),
+        primaryLabel: context.l10n.retryLabel,
         onPrimary: () => ref.invalidate(parentMobileMoneyOverviewProvider),
       ),
       data: (data) => _buildOverview(context, data),
@@ -77,14 +77,14 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
       ),
       children: [
         Text(
-          'Abonnement',
+          context.l10n.subscriptionTitle,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: IntelliaSpacing.xs),
         Text(
-          'Paiement Mobile Money déclaré puis vérifié manuellement par votre établissement.',
+          context.l10n.mobileMoneyParentDescription,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: IntelliaSpacing.md),
@@ -95,7 +95,7 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
         if (overview.recentRequests.isNotEmpty) ...[
           const SizedBox(height: IntelliaSpacing.lg),
           Text(
-            'Mes demandes',
+            context.l10n.myPaymentRequests,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
@@ -116,7 +116,7 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
       orElse: () => offer.operators.isEmpty ? null : offer.operators.first,
     );
     if (operator == null) {
-      return const _UnavailableOffer(
+      return _UnavailableOffer(
         availability: MobileMoneyAvailability.notConfigured,
       );
     }
@@ -158,7 +158,7 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
                 ),
               ),
               Text(
-                'Accès pendant ${offer.durationDays} jours après validation',
+                context.l10n.accessDaysAfterApproval(offer.durationDays),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.88),
                 ),
@@ -174,7 +174,7 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '1. Effectuez le transfert',
+                  context.l10n.mobileMoneyStepTransfer,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
@@ -182,9 +182,9 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
                 const SizedBox(height: IntelliaSpacing.sm),
                 DropdownButtonFormField<String>(
                   initialValue: operator.code,
-                  decoration: const InputDecoration(
-                    labelText: 'Opérateur',
-                    prefixIcon: Icon(Icons.sim_card_outlined),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.operatorLabel,
+                    prefixIcon: const Icon(Icons.sim_card_outlined),
                   ),
                   items: [
                     for (final item in offer.operators)
@@ -203,16 +203,16 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.phone_android_rounded),
                   title: Text(operator.recipientPhone),
-                  subtitle: const Text('Numéro bénéficiaire configuré'),
+                  subtitle: Text(context.l10n.recipientNumberConfigured),
                   trailing: IconButton(
-                    tooltip: 'Copier le numéro',
+                    tooltip: context.l10n.copyNumber,
                     onPressed: () async {
                       await Clipboard.setData(
                         ClipboardData(text: operator.recipientPhone),
                       );
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Numéro copié.')),
+                        SnackBar(content: Text(context.l10n.numberCopied)),
                       );
                     },
                     icon: const Icon(Icons.copy_rounded),
@@ -231,9 +231,7 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
                     ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(IntelliaRadii.small),
                   ),
-                  child: const Text(
-                    'Intellia237 ne déclenche aucun débit. Réalisez vous-même le transfert dans l’application de votre opérateur et vérifiez le numéro avant de confirmer.',
-                  ),
+                  child: Text(context.l10n.mobileMoneyNoDebitNotice),
                 ),
               ],
             ),
@@ -247,7 +245,7 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '2. Envoyez la preuve de transfert',
+                  context.l10n.mobileMoneyStepProof,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
@@ -257,10 +255,10 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   autofillHints: const [AutofillHints.telephoneNumber],
-                  decoration: const InputDecoration(
-                    labelText: 'Numéro ayant effectué le transfert',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.payerPhoneLabel,
                     hintText: '6XX XXX XXX',
-                    prefixIcon: Icon(Icons.phone_outlined),
+                    prefixIcon: const Icon(Icons.phone_outlined),
                   ),
                 ),
                 const SizedBox(height: IntelliaSpacing.sm),
@@ -268,9 +266,9 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
                   controller: _referenceController,
                   textCapitalization: TextCapitalization.characters,
                   autocorrect: false,
-                  decoration: const InputDecoration(
-                    labelText: 'Référence de transaction',
-                    prefixIcon: Icon(Icons.receipt_long_outlined),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.transactionReferenceLabel,
+                    prefixIcon: const Icon(Icons.receipt_long_outlined),
                   ),
                 ),
                 const SizedBox(height: IntelliaSpacing.md),
@@ -286,8 +284,8 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
                       : const Icon(Icons.verified_user_outlined),
                   label: Text(
                     _submitting
-                        ? 'Envoi en cours…'
-                        : 'Transmettre pour vérification',
+                        ? context.l10n.sendingLabel
+                        : context.l10n.submitForReview,
                   ),
                 ),
               ],
@@ -306,9 +304,7 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
     final reference = _referenceController.text.trim();
     if (phone.isEmpty || reference.length < 4) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Saisissez le téléphone et la référence du transfert.'),
-        ),
+        SnackBar(content: Text(context.l10n.enterTransferDetails)),
       );
       return;
     }
@@ -316,18 +312,22 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Confirmer la déclaration'),
+        title: Text(context.l10n.confirmDeclarationTitle),
         content: Text(
-          'Vous déclarez avoir transféré ${formatXaf(offer.amountXaf)} via ${operator.label} vers ${operator.recipientPhone}. Aucune somme ne sera débitée par Intellia237.',
+          context.l10n.confirmTransferDeclaration(
+            formatXaf(offer.amountXaf),
+            operator.label,
+            operator.recipientPhone,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.cancelLabel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Confirmer'),
+            child: Text(context.l10n.confirmLabel),
           ),
         ],
       ),
@@ -350,22 +350,12 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
       _referenceController.clear();
       _clientRequestId = null;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Demande transmise. L’accès sera activé uniquement après vérification.',
-          ),
-        ),
+        SnackBar(content: Text(context.l10n.paymentRequestSubmitted)),
       );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            error is MobileMoneyException
-                ? error.message
-                : 'Envoi impossible pour le moment.',
-          ),
-        ),
+        SnackBar(content: Text(mobileMoneyErrorMessage(context, error))),
       );
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -382,11 +372,10 @@ class _UnavailableOffer extends StatelessWidget {
   Widget build(BuildContext context) {
     final message = switch (availability) {
       MobileMoneyAvailability.schoolNotLinked =>
-        'Aucun établissement validé n’est encore lié à ce compte parent.',
+        context.l10n.noValidatedSchoolLinked,
       MobileMoneyAvailability.multipleSchools =>
-        'Plusieurs établissements sont liés. Contactez l’assistance pour choisir celui qui facturera l’accès.',
-      _ =>
-        'Votre établissement n’a pas encore publié d’offre Mobile Money active.',
+        context.l10n.multipleSchoolsLinked,
+      _ => context.l10n.noActiveMobileMoneyOffer,
     };
     return Card(
       child: Padding(
@@ -400,7 +389,7 @@ class _UnavailableOffer extends StatelessWidget {
             ),
             const SizedBox(height: IntelliaSpacing.sm),
             Text(
-              'Offre indisponible',
+              context.l10n.offerUnavailable,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
@@ -452,7 +441,7 @@ class _ParentRequestCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    request.status.label,
+                    mobileMoneyStatusLabel(context, request.status),
                     style: TextStyle(color: color, fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -460,10 +449,10 @@ class _ParentRequestCard extends StatelessWidget {
             ),
             const SizedBox(height: IntelliaSpacing.xs),
             Text('${formatXaf(request.amountXaf)} • ${request.operatorLabel}'),
-            Text('Référence ${request.referenceHint}'),
+            Text(context.l10n.referenceValue(request.referenceHint)),
             if (request.reviewNote case final note?) ...[
               const SizedBox(height: IntelliaSpacing.xs),
-              Text('Note de l’établissement : $note'),
+              Text(context.l10n.schoolNote(note)),
             ],
           ],
         ),

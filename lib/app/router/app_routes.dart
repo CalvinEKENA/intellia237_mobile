@@ -12,6 +12,7 @@ abstract final class AppRoutes {
   static const teacherRegistration = '/register/teacher';
   static const adminRegistration = '/register/admin';
   static const forgotPassword = '/forgot-password';
+  static const authProfileRecovery = '/auth/profile-recovery';
   static const legalTerms = '/legal/terms';
   static const legalPrivacy = '/legal/privacy';
   static const legalEducationalData = '/legal/educational-data';
@@ -30,6 +31,7 @@ abstract final class AppRoutes {
   static const aiCompanion = '/ai';
   static const settings = '/settings';
   static const editProfile = '/profile/edit';
+  static const studentNotifications = '/notifications';
 
   static const parentHome = '/parent';
   static const childOverviewRoute = '/parent/child/:childId';
@@ -91,6 +93,14 @@ abstract final class AppRoutes {
         location.startsWith(learnHub) ||
         location.startsWith(quizHub) ||
         location.startsWith(aiCompanion);
+  }
+
+  static bool isSafeNotificationRoute(String location) {
+    if (!location.startsWith('/')) return false;
+    return location == studentNotifications ||
+        isStudentPath(location) ||
+        location == settings ||
+        location == editProfile;
   }
 
   static bool isParentPath(String location) {

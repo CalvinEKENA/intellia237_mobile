@@ -84,3 +84,52 @@ class TabSectionHeader extends StatelessWidget {
         .slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic);
   }
 }
+
+/// Version épinglée du header d'onglet pour les écrans à contenu défilant.
+/// Sa hauteur est mesurée par Flutter : elle reste donc correcte à 360 px et
+/// avec une taille de texte augmentée, sans nombre magique de pixels.
+class StickyTabSectionHeader extends StatelessWidget {
+  const StickyTabSectionHeader({
+    required this.title,
+    this.eyebrow,
+    this.subtitle,
+    this.action,
+    super.key,
+  });
+
+  final String title;
+  final String? eyebrow;
+  final String? subtitle;
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = TabSurface.of(context);
+    return PinnedHeaderSliver(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: surface.background,
+          border: Border(bottom: BorderSide(color: surface.surfaceBorder)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            IntelliaSpacing.lg,
+            IntelliaSpacing.sm,
+            IntelliaSpacing.lg,
+            IntelliaSpacing.sm,
+          ),
+          child: SafeArea(
+            top: false,
+            bottom: false,
+            child: TabSectionHeader(
+              eyebrow: eyebrow,
+              title: title,
+              subtitle: subtitle,
+              action: action,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

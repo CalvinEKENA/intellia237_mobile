@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
 import '../../tour_guide/domain/role_tour_steps.dart';
@@ -39,11 +40,11 @@ class _RolePlaceholderScreenState extends ConsumerState<RolePlaceholderScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Espace ${widget.role.label.toLowerCase()}'),
+        title: Text(context.l10n.roleSpace(_roleLabel(context))),
         actions: [
           IconButton(
             key: _tourTargets[TourGuideTargetIds.roleSignOut],
-            tooltip: 'Se déconnecter',
+            tooltip: context.l10n.signOutTitle,
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).signOut(),
             icon: const Icon(Icons.logout_rounded),
@@ -70,14 +71,14 @@ class _RolePlaceholderScreenState extends ConsumerState<RolePlaceholderScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Bienvenue dans l\'espace ${widget.role.label}',
+                    context.l10n.welcomeRoleSpace(_roleLabel(context)),
                     style: textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: IntelliaSpacing.sm),
                   Text(
-                    'Consultez les options disponibles pour votre profil.',
+                    context.l10n.roleOptionsBody,
                     style: textTheme.bodyMedium,
                   ),
                 ],
@@ -88,6 +89,13 @@ class _RolePlaceholderScreenState extends ConsumerState<RolePlaceholderScreen> {
       ),
     );
   }
+
+  String _roleLabel(BuildContext context) => switch (widget.role) {
+    AppRole.student => context.l10n.studentRole,
+    AppRole.parent => context.l10n.parentRole,
+    AppRole.teacher => context.l10n.teacherRole,
+    AppRole.admin => context.l10n.adminRole,
+  };
 
   // Le placeholder reste guide pour les roles non-student durant la phase MVP.
   void _scheduleTourGuide() {

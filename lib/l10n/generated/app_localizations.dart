@@ -1939,6 +1939,4094 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Prochaine étape : « {title} ».'**
   String nextStepLesson(String title);
+
+  /// No description provided for @phoneProfileChoicePrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro n’a pas encore de profil. Choisis le compte à créer :'**
+  String get phoneProfileChoicePrompt;
+
+  /// No description provided for @phoneCreateStudentProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon profil élève'**
+  String get phoneCreateStudentProfile;
+
+  /// No description provided for @phoneCreateParentProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un profil parent'**
+  String get phoneCreateParentProfile;
+
+  /// No description provided for @authProfileSetupTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configuration du compte'**
+  String get authProfileSetupTitle;
+
+  /// No description provided for @authCompleteProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil'**
+  String get authCompleteProfileTitle;
+
+  /// No description provided for @authSessionActiveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta session est toujours active'**
+  String get authSessionActiveTitle;
+
+  /// No description provided for @authChooseProfileBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis le profil à créer. Ta session Firebase vérifiée sera réutilisée.'**
+  String get authChooseProfileBody;
+
+  /// No description provided for @authProfileSyncFailureBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le profil n’a pas pu être synchronisé. Aucune déconnexion automatique n’a été effectuée.'**
+  String get authProfileSyncFailureBody;
+
+  /// No description provided for @chooseRolePrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis…'**
+  String get chooseRolePrompt;
+
+  /// No description provided for @adminRole.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administration'**
+  String get adminRole;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationMarkAllRead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout lire'**
+  String get notificationMarkAllRead;
+
+  /// No description provided for @notificationsUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications indisponibles'**
+  String get notificationsUnavailable;
+
+  /// No description provided for @notificationsSyncError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La boîte de réception n’a pas pu être synchronisée. Vérifie la connexion puis réessaie.'**
+  String get notificationsSyncError;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout est calme'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les rappels de cours, nouveautés et messages importants apparaîtront ici.'**
+  String get notificationsEmptyBody;
+
+  /// No description provided for @notificationPermissionDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Permission refusée. La boîte de réception reste disponible ici.'**
+  String get notificationPermissionDenied;
+
+  /// No description provided for @notificationEnableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne manque aucune nouveauté'**
+  String get notificationEnableTitle;
+
+  /// No description provided for @notificationEnableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Active les alertes système. Tous les messages restent aussi conservés dans cette boîte de réception.'**
+  String get notificationEnableBody;
+
+  /// No description provided for @notificationEnableAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer les alertes'**
+  String get notificationEnableAction;
+
+  /// No description provided for @profileUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil indisponible'**
+  String get profileUnavailable;
+
+  /// No description provided for @profileUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le profil n’a pas pu être chargé. Vérifie la connexion puis réessaie.'**
+  String get profileUnavailableBody;
+
+  /// No description provided for @loginEmailImmutable.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’adresse de connexion ne se modifie pas ici.'**
+  String get loginEmailImmutable;
+
+  /// No description provided for @phoneOptionalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone (facultatif)'**
+  String get phoneOptionalLabel;
+
+  /// No description provided for @invalidCameroonPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro camerounais invalide.'**
+  String get invalidCameroonPhone;
+
+  /// No description provided for @savingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement…'**
+  String get savingLabel;
+
+  /// No description provided for @saveLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get saveLabel;
+
+  /// No description provided for @profileRestrictedFields.
+  ///
+  /// In fr, this message translates to:
+  /// **'La classe, le rôle et l’établissement ne peuvent être modifiés que par un responsable autorisé.'**
+  String get profileRestrictedFields;
+
+  /// No description provided for @profileNameLengthError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le champ {label} doit contenir entre 2 et 60 caractères.'**
+  String profileNameLengthError(String label);
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil mis à jour.'**
+  String get profileUpdated;
+
+  /// No description provided for @kiraDiscoveryPhraseOne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Elle prend le temps de t’expliquer.'**
+  String get kiraDiscoveryPhraseOne;
+
+  /// No description provided for @kiraDiscoveryPhraseTwo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Elle avance avec méthode et douceur.'**
+  String get kiraDiscoveryPhraseTwo;
+
+  /// No description provided for @kiraDiscoveryPhraseThree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Elle t’aide à comprendre sans pression.'**
+  String get kiraDiscoveryPhraseThree;
+
+  /// No description provided for @leoDiscoveryPhraseOne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il transforme chaque notion en défi.'**
+  String get leoDiscoveryPhraseOne;
+
+  /// No description provided for @leoDiscoveryPhraseTwo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te pousse à aller un peu plus loin.'**
+  String get leoDiscoveryPhraseTwo;
+
+  /// No description provided for @leoDiscoveryPhraseThree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il célèbre chaque progrès avec toi.'**
+  String get leoDiscoveryPhraseThree;
+
+  /// No description provided for @discoverLeo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir Léo'**
+  String get discoverLeo;
+
+  /// No description provided for @returnToKira.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir vers Kira'**
+  String get returnToKira;
+
+  /// No description provided for @discoverCompanionBeforeChoice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre {name} pour pouvoir le choisir'**
+  String discoverCompanionBeforeChoice(String name);
+
+  /// No description provided for @companionChosenA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} choisi'**
+  String companionChosenA11y(String name);
+
+  /// No description provided for @chooseCompanionA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir {name}'**
+  String chooseCompanionA11y(String name);
+
+  /// No description provided for @currentCompanionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, ton compagnon'**
+  String currentCompanionLabel(String name);
+
+  /// No description provided for @subjectMathematics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mathématiques'**
+  String get subjectMathematics;
+
+  /// No description provided for @subjectFrench.
+  ///
+  /// In fr, this message translates to:
+  /// **'Français'**
+  String get subjectFrench;
+
+  /// No description provided for @subjectGeography.
+  ///
+  /// In fr, this message translates to:
+  /// **'Géographie'**
+  String get subjectGeography;
+
+  /// No description provided for @classPremiereDisplay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Première'**
+  String get classPremiereDisplay;
+
+  /// No description provided for @stateLoadingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement…'**
+  String get stateLoadingTitle;
+
+  /// No description provided for @stateEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien ici pour le moment'**
+  String get stateEmptyTitle;
+
+  /// No description provided for @stateNoResultsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat'**
+  String get stateNoResultsTitle;
+
+  /// No description provided for @stateComingSoonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu bientôt disponible'**
+  String get stateComingSoonTitle;
+
+  /// No description provided for @stateRetryableErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un problème est survenu'**
+  String get stateRetryableErrorTitle;
+
+  /// No description provided for @stateFatalErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur inattendue est survenue'**
+  String get stateFatalErrorTitle;
+
+  /// No description provided for @stateOfflineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es hors ligne'**
+  String get stateOfflineTitle;
+
+  /// No description provided for @stateAccessDeniedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès non autorisé'**
+  String get stateAccessDeniedTitle;
+
+  /// No description provided for @stateLockedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu verrouillé'**
+  String get stateLockedTitle;
+
+  /// No description provided for @stateSuccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est fait !'**
+  String get stateSuccessTitle;
+
+  /// No description provided for @stateOfflineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta connexion puis réessaie. Tes contenus déjà consultés restent disponibles.'**
+  String get stateOfflineBody;
+
+  /// No description provided for @stateAccessDeniedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton compte n’a pas accès à ce contenu. Reconnecte-toi ou contacte ton établissement.'**
+  String get stateAccessDeniedBody;
+
+  /// No description provided for @stateRetryableErrorBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce n’est pas de ton côté. Réessaie dans un instant.'**
+  String get stateRetryableErrorBody;
+
+  /// No description provided for @completionPercent.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} % terminé'**
+  String completionPercent(int percent);
+
+  /// No description provided for @nextUpA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **', à suivre'**
+  String get nextUpA11y;
+
+  /// No description provided for @lessonTileA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Leçon {index} : {title}, {status}{next}'**
+  String lessonTileA11y(int index, String title, String status, String next);
+
+  /// No description provided for @subjectTileA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title}, {percent} % terminé, {lessons}'**
+  String subjectTileA11y(String title, int percent, String lessons);
+
+  /// No description provided for @lessonProgressQueuedOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors ligne : ta progression sera validée après la reconnexion.'**
+  String get lessonProgressQueuedOffline;
+
+  /// No description provided for @lessonProgressSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’enregistrer pour le moment. Réessaie dans un instant.'**
+  String get lessonProgressSaveFailed;
+
+  /// No description provided for @removeFromFavorites.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer des favoris'**
+  String get removeFromFavorites;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter aux favoris'**
+  String get addToFavorites;
+
+  /// No description provided for @lessonReadingMinutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Moins d’une minute de lecture} =1{1 min de lecture} other{{count} min de lecture}}'**
+  String lessonReadingMinutes(int count);
+
+  /// No description provided for @miniQuizScoreSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score : {score}/{total} — bien joué !'**
+  String miniQuizScoreSuccess(int score, int total);
+
+  /// No description provided for @miniQuizScoreReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score : {score}/{total} — relis la leçon et réessaie.'**
+  String miniQuizScoreReview(int score, int total);
+
+  /// No description provided for @submitMiniQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider le mini quiz'**
+  String get submitMiniQuiz;
+
+  /// No description provided for @answerAllBeforeSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponds à toutes les questions pour valider'**
+  String get answerAllBeforeSubmit;
+
+  /// No description provided for @answerAllQuestions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponds à toutes les questions'**
+  String get answerAllQuestions;
+
+  /// No description provided for @correctAnswerA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne réponse : {answer}'**
+  String correctAnswerA11y(String answer);
+
+  /// No description provided for @incorrectAnswerA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse est incorrecte : {answer}'**
+  String incorrectAnswerA11y(String answer);
+
+  /// No description provided for @quizProfileIncompleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil scolaire doit être complété ou resynchronisé avant de choisir les quiz de ton niveau.'**
+  String get quizProfileIncompleteBody;
+
+  /// No description provided for @quizCatalogDeniedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’accès au catalogue n’a pas été autorisé pour ce profil. Tu peux continuer avec tes cours pendant la vérification.'**
+  String get quizCatalogDeniedBody;
+
+  /// No description provided for @quizCatalogUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec le Flow ou tes cours.'**
+  String get quizCatalogUnavailableBody;
+
+  /// No description provided for @quizCatalogInvalidBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le catalogue reçu est incomplet. Il n’est pas affiché afin de ne pas te proposer un contenu incorrect.'**
+  String get quizCatalogInvalidBody;
+
+  /// No description provided for @quizCatalogNetworkBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion au catalogue est interrompue. Tes cours et le Flow restent disponibles.'**
+  String get quizCatalogNetworkBody;
+
+  /// No description provided for @quizLoadErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger les quiz pour le moment.'**
+  String get quizLoadErrorTitle;
+
+  /// No description provided for @quizOfflineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les quiz attendent le réseau'**
+  String get quizOfflineTitle;
+
+  /// No description provided for @quizOfflineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec le Flow ou une leçon téléchargée.'**
+  String get quizOfflineBody;
+
+  /// No description provided for @openOfflineFlow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le Flow hors ligne'**
+  String get openOfflineFlow;
+
+  /// No description provided for @viewDownloadedLessons.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mes leçons téléchargées'**
+  String get viewDownloadedLessons;
+
+  /// No description provided for @allLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get allLabel;
+
+  /// No description provided for @quizModeTraining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entraînement'**
+  String get quizModeTraining;
+
+  /// No description provided for @quizModeExam.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluation / examen blanc'**
+  String get quizModeExam;
+
+  /// No description provided for @quizModeUnspecified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode non précisé'**
+  String get quizModeUnspecified;
+
+  /// No description provided for @quizHubIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entraîne-toi avec des corrections guidées ou évalue-toi dans les conditions d’un examen blanc.'**
+  String get quizHubIntro;
+
+  /// No description provided for @chooseRevisionMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ton mode de révision'**
+  String get chooseRevisionMode;
+
+  /// No description provided for @quizPausedOfflineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz en pause hors connexion'**
+  String get quizPausedOfflineTitle;
+
+  /// No description provided for @quizPausedOfflineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les corrections et l’envoi sont vérifiés par le serveur. Pour protéger l’évaluation, aucune réponse ni aucun corrigé n’est conservé hors ligne.'**
+  String get quizPausedOfflineBody;
+
+  /// No description provided for @displayLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher'**
+  String get displayLabel;
+
+  /// No description provided for @filterQuizByModeA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filtrer les quiz par mode'**
+  String get filterQuizByModeA11y;
+
+  /// No description provided for @quizComingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les quiz de ta classe arrivent'**
+  String get quizComingTitle;
+
+  /// No description provided for @quizComingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance le Flow depuis l’accueil.'**
+  String get quizComingBody;
+
+  /// No description provided for @quizTrainingAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'S’entraîner'**
+  String get quizTrainingAction;
+
+  /// No description provided for @quizTrainingDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une correction guidée t’aide à comprendre avant de continuer.'**
+  String get quizTrainingDescription;
+
+  /// No description provided for @quizExamAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'S’évaluer'**
+  String get quizExamAction;
+
+  /// No description provided for @quizExamDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les réponses sont corrigées à la fin. Ces quiz préparent aux épreuves, sans remplacer un examen officiel.'**
+  String get quizExamDescription;
+
+  /// No description provided for @studentSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace élève'**
+  String get studentSpace;
+
+  /// No description provided for @quizTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz'**
+  String get quizTitle;
+
+  /// No description provided for @quizHistoryLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des tentatives validées…'**
+  String get quizHistoryLoading;
+
+  /// No description provided for @quizHistoryUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique indisponible pour le moment.'**
+  String get quizHistoryUnavailable;
+
+  /// No description provided for @quizNoValidatedAttempt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune tentative validée pour le moment.'**
+  String get quizNoValidatedAttempt;
+
+  /// No description provided for @lastScore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernier score : {score}'**
+  String lastScore(String score);
+
+  /// No description provided for @myResults.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes résultats'**
+  String get myResults;
+
+  /// No description provided for @quizResultsLoadFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de récupérer les résultats validés. Tes quiz restent accessibles.'**
+  String get quizResultsLoadFailed;
+
+  /// No description provided for @quizFirstResultBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat inventé ici : ta première tentative apparaîtra après sa validation par le serveur.'**
+  String get quizFirstResultBody;
+
+  /// No description provided for @quizMasteryUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La maîtrise par thème n’est pas affichée : les tentatives actuelles n’enregistrent pas encore de compétences pédagogiques validées.'**
+  String get quizMasteryUnavailable;
+
+  /// No description provided for @dateUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date non disponible'**
+  String get dateUnavailable;
+
+  /// No description provided for @pointsEarned.
+  ///
+  /// In fr, this message translates to:
+  /// **'+{count} points'**
+  String pointsEarned(int count);
+
+  /// No description provided for @scoreUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score non disponible'**
+  String get scoreUnavailable;
+
+  /// No description provided for @quizTrainingGuide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Correction guidée pendant le quiz.'**
+  String get quizTrainingGuide;
+
+  /// No description provided for @quizExamGuide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Correction complète après l’envoi.'**
+  String get quizExamGuide;
+
+  /// No description provided for @questionCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune question} =1{1 question} other{{count} questions}}'**
+  String questionCount(int count);
+
+  /// No description provided for @unavailableOfflineA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **' Indisponible hors connexion.'**
+  String get unavailableOfflineA11y;
+
+  /// No description provided for @quizNeedsNetworkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce quiz a besoin du réseau'**
+  String get quizNeedsNetworkTitle;
+
+  /// No description provided for @quizNeedsNetworkBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le serveur protège la correction et valide l’envoi. Intellia237 ne met ni tes réponses ni les corrigés en cache. Reconnecte-toi pour commencer, ou poursuis une activité disponible hors ligne.'**
+  String get quizNeedsNetworkBody;
+
+  /// No description provided for @quizPlayOfflineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz indisponible hors connexion'**
+  String get quizPlayOfflineTitle;
+
+  /// No description provided for @quizPlayOfflineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le contenu, la correction et l’envoi sont vérifiés par le serveur. Intellia237 ne conserve ni tes réponses ni les corrigés hors ligne. Reconnecte-toi, ou poursuis une activité déjà disponible sur cet appareil.'**
+  String get quizPlayOfflineBody;
+
+  /// No description provided for @quizQuestionsComingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions en préparation'**
+  String get quizQuestionsComingTitle;
+
+  /// No description provided for @quizQuestionsComingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce quiz est publié, mais ses questions ne sont pas encore disponibles.'**
+  String get quizQuestionsComingBody;
+
+  /// No description provided for @leaveQuizTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter ce quiz ?'**
+  String get leaveQuizTitle;
+
+  /// No description provided for @leaveQuizBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes réponses de cette tentative seront perdues.'**
+  String get leaveQuizBody;
+
+  /// No description provided for @continueQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer le quiz'**
+  String get continueQuiz;
+
+  /// No description provided for @leaveAndDiscardAnswers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter et perdre mes réponses'**
+  String get leaveAndDiscardAnswers;
+
+  /// No description provided for @checkAnswerAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier'**
+  String get checkAnswerAction;
+
+  /// No description provided for @finishLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer'**
+  String get finishLabel;
+
+  /// No description provided for @guidedCorrectionUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Correction indisponible'**
+  String get guidedCorrectionUnavailableTitle;
+
+  /// No description provided for @guidedCorrectionFailureBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{reason}\nTa réponse reste saisie sur cet écran et n’est pas mise en cache.'**
+  String guidedCorrectionFailureBody(String reason);
+
+  /// No description provided for @continueWithoutCorrection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer sans correction'**
+  String get continueWithoutCorrection;
+
+  /// No description provided for @correctAnswerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne réponse !'**
+  String get correctAnswerTitle;
+
+  /// No description provided for @keyTakeawayTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À retenir'**
+  String get keyTakeawayTitle;
+
+  /// No description provided for @expectedAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse attendue : {answer}'**
+  String expectedAnswer(String answer);
+
+  /// No description provided for @unansweredQuestionCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune question sans réponse} =1{1 question sans réponse} other{{count} questions sans réponse}}'**
+  String unansweredQuestionCount(int count);
+
+  /// No description provided for @incompleteQuizBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux revenir à la première question incomplète ou envoyer maintenant.'**
+  String get incompleteQuizBody;
+
+  /// No description provided for @completeMyAnswers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter mes réponses'**
+  String get completeMyAnswers;
+
+  /// No description provided for @submitAnyway.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer quand même'**
+  String get submitAnyway;
+
+  /// No description provided for @quizSubmissionFailureBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{reason} Tes réponses restent saisies sur cet écran : réessaie sans les ressaisir. Aucune copie hors ligne n’est créée.'**
+  String quizSubmissionFailureBody(String reason);
+
+  /// No description provided for @quizAnswerCheckNetworkError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion est trop faible pour vérifier cette réponse. Réessaie quand le réseau revient.'**
+  String get quizAnswerCheckNetworkError;
+
+  /// No description provided for @quizAnswerCheckUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La correction guidée est indisponible pour le moment.'**
+  String get quizAnswerCheckUnavailable;
+
+  /// No description provided for @quizAnswerCheckFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette réponse ne peut pas être vérifiée pour le moment.'**
+  String get quizAnswerCheckFailed;
+
+  /// No description provided for @quizAnswerCheckGenericError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La correction guidée ne répond pas pour le moment. Vérifie ta connexion, puis réessaie.'**
+  String get quizAnswerCheckGenericError;
+
+  /// No description provided for @quizSubmissionNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz introuvable ou indisponible.'**
+  String get quizSubmissionNotFound;
+
+  /// No description provided for @quizSubmissionPrecondition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce quiz ne peut pas encore être soumis.'**
+  String get quizSubmissionPrecondition;
+
+  /// No description provided for @quizSubmissionAlreadyExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette tentative a déjà été utilisée.'**
+  String get quizSubmissionAlreadyExists;
+
+  /// No description provided for @quizSubmissionDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu ne peux pas soumettre ce quiz.'**
+  String get quizSubmissionDenied;
+
+  /// No description provided for @quizSubmissionInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'La tentative contient des réponses invalides.'**
+  String get quizSubmissionInvalid;
+
+  /// No description provided for @quizSubmissionUnauthenticated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi pour valider le quiz.'**
+  String get quizSubmissionUnauthenticated;
+
+  /// No description provided for @quizSubmissionUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le serveur n’a pas pu valider cette tentative pour le moment.'**
+  String get quizSubmissionUnavailable;
+
+  /// No description provided for @singleAnswerQcm.
+  ///
+  /// In fr, this message translates to:
+  /// **'QCM — Une seule bonne réponse'**
+  String get singleAnswerQcm;
+
+  /// No description provided for @selectedA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **', sélectionnée'**
+  String get selectedA11y;
+
+  /// No description provided for @quizOptionA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse {letter} : {answer}{selected}'**
+  String quizOptionA11y(String letter, String answer, String selected);
+
+  /// No description provided for @shortAnswerInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponds en quelques mots'**
+  String get shortAnswerInstruction;
+
+  /// No description provided for @yourAnswerHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse…'**
+  String get yourAnswerHint;
+
+  /// No description provided for @trueOrFalse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vrai ou faux'**
+  String get trueOrFalse;
+
+  /// No description provided for @trueLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vrai'**
+  String get trueLabel;
+
+  /// No description provided for @falseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux'**
+  String get falseLabel;
+
+  /// No description provided for @backToQuizzes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour aux quiz'**
+  String get backToQuizzes;
+
+  /// No description provided for @replayMyMistakes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejouer mes erreurs'**
+  String get replayMyMistakes;
+
+  /// No description provided for @restartQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommencer'**
+  String get restartQuiz;
+
+  /// No description provided for @detailedCorrection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Correction détaillée'**
+  String get detailedCorrection;
+
+  /// No description provided for @mistakeProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur {current}/{total}'**
+  String mistakeProgress(int current, int total);
+
+  /// No description provided for @mentalAnswerInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponds mentalement, puis révèle la correction.'**
+  String get mentalAnswerInstruction;
+
+  /// No description provided for @revealAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révéler la réponse'**
+  String get revealAnswer;
+
+  /// No description provided for @finishReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer la révision'**
+  String get finishReview;
+
+  /// No description provided for @nextMistake.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur suivante'**
+  String get nextMistake;
+
+  /// No description provided for @excellentResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excellent !'**
+  String get excellentResult;
+
+  /// No description provided for @wellDoneResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien joué !'**
+  String get wellDoneResult;
+
+  /// No description provided for @keepGoingResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continue !'**
+  String get keepGoingResult;
+
+  /// No description provided for @zeroPoints.
+  ///
+  /// In fr, this message translates to:
+  /// **'0 point'**
+  String get zeroPoints;
+
+  /// No description provided for @yourAnswerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse'**
+  String get yourAnswerLabel;
+
+  /// No description provided for @correctAnswerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne réponse'**
+  String get correctAnswerLabel;
+
+  /// No description provided for @quizImprovement.
+  ///
+  /// In fr, this message translates to:
+  /// **'+{delta} % par rapport à ta dernière tentative'**
+  String quizImprovement(int delta);
+
+  /// No description provided for @quizImprovementA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score en progrès : {label}'**
+  String quizImprovementA11y(String label);
+
+  /// No description provided for @continueWithFlow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec le Flow'**
+  String get continueWithFlow;
+
+  /// No description provided for @homeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get homeLabel;
+
+  /// No description provided for @companionNavLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compagnon'**
+  String get companionNavLabel;
+
+  /// No description provided for @profileNavLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil'**
+  String get profileNavLabel;
+
+  /// No description provided for @homeLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger l’accueil'**
+  String get homeLoadError;
+
+  /// No description provided for @todayEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd’hui'**
+  String get todayEyebrow;
+
+  /// No description provided for @resumeWhereLeftOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprends là où tu t’es arrêté'**
+  String get resumeWhereLeftOff;
+
+  /// No description provided for @keepMomentum.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continue sur ta lancée.'**
+  String get keepMomentum;
+
+  /// No description provided for @exploreEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer'**
+  String get exploreEyebrow;
+
+  /// No description provided for @chooseNextActivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ta prochaine activité'**
+  String get chooseNextActivity;
+
+  /// No description provided for @homeLessonsComingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes cours arrivent'**
+  String get homeLessonsComingTitle;
+
+  /// No description provided for @homeLessonsComingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les leçons de ta classe sont en cours de préparation. En attendant, découvre le Flow ou révise avec ton compagnon.'**
+  String get homeLessonsComingBody;
+
+  /// No description provided for @discoverFlow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir le Flow'**
+  String get discoverFlow;
+
+  /// No description provided for @talkToCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parler à mon compagnon'**
+  String get talkToCompanion;
+
+  /// No description provided for @forYouEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour toi'**
+  String get forYouEyebrow;
+
+  /// No description provided for @adaptiveJourneyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un parcours qui avance avec toi'**
+  String get adaptiveJourneyTitle;
+
+  /// No description provided for @demoDataLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données de démonstration'**
+  String get demoDataLabel;
+
+  /// No description provided for @settingsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture, animations, données et confidentialité'**
+  String get settingsDescription;
+
+  /// No description provided for @myProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon profil'**
+  String get myProfileTitle;
+
+  /// No description provided for @testAppVersionA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version de l’application de test'**
+  String get testAppVersionA11y;
+
+  /// No description provided for @versionLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version en cours de lecture'**
+  String get versionLoading;
+
+  /// No description provided for @versionUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version indisponible'**
+  String get versionUnavailable;
+
+  /// No description provided for @intelliaUser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateur Intellia 237'**
+  String get intelliaUser;
+
+  /// No description provided for @studentAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte Élève'**
+  String get studentAccount;
+
+  /// No description provided for @academicJourney.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours scolaire'**
+  String get academicJourney;
+
+  /// No description provided for @loadErrorLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur de chargement'**
+  String get loadErrorLabel;
+
+  /// No description provided for @classLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe'**
+  String get classLabel;
+
+  /// No description provided for @statisticsAndProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques et progression'**
+  String get statisticsAndProgress;
+
+  /// No description provided for @statisticsUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques indisponibles'**
+  String get statisticsUnavailable;
+
+  /// No description provided for @pointsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points'**
+  String get pointsLabel;
+
+  /// No description provided for @levelLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau'**
+  String get levelLabel;
+
+  /// No description provided for @currentStreak.
+  ///
+  /// In fr, this message translates to:
+  /// **'Série actuelle'**
+  String get currentStreak;
+
+  /// No description provided for @dayCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{0 jour} =1{1 jour} other{{count} jours}}'**
+  String dayCount(int count);
+
+  /// No description provided for @progressLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression'**
+  String get progressLabel;
+
+  /// No description provided for @statisticsComingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes statistiques arrivent'**
+  String get statisticsComingTitle;
+
+  /// No description provided for @statisticsComingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Termine ta première leçon ou ton premier quiz pour voir tes points et ta progression ici.'**
+  String get statisticsComingBody;
+
+  /// No description provided for @companionSaveDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compagnon ne peut pas être enregistré sur ton profil.'**
+  String get companionSaveDenied;
+
+  /// No description provided for @companionSaveNetworkError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le réseau est indisponible. Réessaie dans un instant.'**
+  String get companionSaveNetworkError;
+
+  /// No description provided for @companionSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le compagnon n’a pas pu être enregistré pour le moment.'**
+  String get companionSaveFailed;
+
+  /// No description provided for @noCompanionSelected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compagnon sélectionné'**
+  String get noCompanionSelected;
+
+  /// No description provided for @chooseCompanionToPersonalize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis un compagnon pour personnaliser ton expérience'**
+  String get chooseCompanionToPersonalize;
+
+  /// No description provided for @dailyChallenges.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défis du jour'**
+  String get dailyChallenges;
+
+  /// No description provided for @challengesRenewIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les défis se renouvellent dans {duration}'**
+  String challengesRenewIn(String duration);
+
+  /// No description provided for @challengeCompletedA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi terminé : {title}'**
+  String challengeCompletedA11y(String title);
+
+  /// No description provided for @challengeRewardA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi : {title}, récompense {points} points'**
+  String challengeRewardA11y(String title, int points);
+
+  /// No description provided for @progressOverviewA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma progression : {percent} % global, niveau {level}, {points} points. Ouvrir le profil.'**
+  String progressOverviewA11y(int percent, int level, int points);
+
+  /// No description provided for @myProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma progression'**
+  String get myProgress;
+
+  /// No description provided for @levelShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niv. {level}'**
+  String levelShort(int level);
+
+  /// No description provided for @currentLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau actuel'**
+  String get currentLevel;
+
+  /// No description provided for @levelValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau {level}'**
+  String levelValue(int level);
+
+  /// No description provided for @globalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'global'**
+  String get globalLabel;
+
+  /// No description provided for @quickQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz rapide'**
+  String get quickQuiz;
+
+  /// No description provided for @personalizedRecommendations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandations personnalisées'**
+  String get personalizedRecommendations;
+
+  /// No description provided for @resumeLessonA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre la leçon {title}, avancée à {percent} pour cent.'**
+  String resumeLessonA11y(String title, int percent);
+
+  /// No description provided for @resumeLastLesson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre le dernier cours'**
+  String get resumeLastLesson;
+
+  /// No description provided for @streakA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Série de {count} jours. {message}'**
+  String streakA11y(int count, String message);
+
+  /// No description provided for @streakDayCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{0 jour de série} =1{1 jour de série} other{{count} jours de série}}'**
+  String streakDayCount(int count);
+
+  /// No description provided for @mySpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon espace'**
+  String get mySpace;
+
+  /// No description provided for @myLearningSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon espace d’apprentissage'**
+  String get myLearningSpace;
+
+  /// No description provided for @openNotificationsA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Ouvrir les notifications} =1{Ouvrir les notifications, 1 non lue} other{Ouvrir les notifications, {count} non lues}}'**
+  String openNotificationsA11y(int count);
+
+  /// No description provided for @openMyProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir mon profil'**
+  String get openMyProfile;
+
+  /// No description provided for @subjectsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matières'**
+  String get subjectsTitle;
+
+  /// No description provided for @subjectProgressA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title}, {percent} % terminé'**
+  String subjectProgressA11y(String title, int percent);
+
+  /// No description provided for @weeklyGoalProgressA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon objectif de la semaine : {done} sur {total} séances. {status}'**
+  String weeklyGoalProgressA11y(int done, int total, String status);
+
+  /// No description provided for @goalAchievedA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif atteint.'**
+  String get goalAchievedA11y;
+
+  /// No description provided for @myWeeklyGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon objectif de la semaine'**
+  String get myWeeklyGoal;
+
+  /// No description provided for @editMyGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier mon objectif'**
+  String get editMyGoal;
+
+  /// No description provided for @goalAchievedMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif atteint — belle semaine !'**
+  String get goalAchievedMessage;
+
+  /// No description provided for @weeklyGoalProgressSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done}/{total} séances · environ {minutes} min chacune'**
+  String weeklyGoalProgressSummary(int done, int total, int minutes);
+
+  /// No description provided for @openPrioritySubjectA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir ma matière prioritaire : {subject}'**
+  String openPrioritySubjectA11y(String subject);
+
+  /// No description provided for @prioritySubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Priorité : {subject}'**
+  String prioritySubject(String subject);
+
+  /// No description provided for @setWeeklyPace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fixer mon rythme de la semaine'**
+  String get setWeeklyPace;
+
+  /// No description provided for @setYourWeeklyPace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fixe ton rythme de la semaine'**
+  String get setYourWeeklyPace;
+
+  /// No description provided for @weeklyPaceChoices.
+  ///
+  /// In fr, this message translates to:
+  /// **'2, 3 ou 5 séances : c’est toi qui choisis.'**
+  String get weeklyPaceChoices;
+
+  /// No description provided for @weeklyGoalExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rythme réaliste que tu choisis. Le compteur repart chaque lundi, sans pression.'**
+  String get weeklyGoalExplanation;
+
+  /// No description provided for @sessionsPerWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séances par semaine'**
+  String get sessionsPerWeek;
+
+  /// No description provided for @sessionDuration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée d’une séance'**
+  String get sessionDuration;
+
+  /// No description provided for @prioritySubjectOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matière prioritaire (optionnel)'**
+  String get prioritySubjectOptional;
+
+  /// No description provided for @noneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune'**
+  String get noneLabel;
+
+  /// No description provided for @saveMyGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer mon objectif'**
+  String get saveMyGoal;
+
+  /// No description provided for @removeGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer l’objectif'**
+  String get removeGoal;
+
+  /// No description provided for @childOverviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue enfant'**
+  String get childOverviewTitle;
+
+  /// No description provided for @childNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enfant introuvable.'**
+  String get childNotFound;
+
+  /// No description provided for @weeklyProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression hebdomadaire'**
+  String get weeklyProgress;
+
+  /// No description provided for @progressChartComing.
+  ///
+  /// In fr, this message translates to:
+  /// **'La courbe apparaîtra après les premières activités.'**
+  String get progressChartComing;
+
+  /// No description provided for @strongSubjects.
+  ///
+  /// In fr, this message translates to:
+  /// **'Forts'**
+  String get strongSubjects;
+
+  /// No description provided for @needsImprovement.
+  ///
+  /// In fr, this message translates to:
+  /// **'À renforcer'**
+  String get needsImprovement;
+
+  /// No description provided for @viewDetailedProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir la progression détaillée'**
+  String get viewDetailedProgress;
+
+  /// No description provided for @notMeasuredYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore mesuré'**
+  String get notMeasuredYet;
+
+  /// No description provided for @childProgressTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression enfant'**
+  String get childProgressTitle;
+
+  /// No description provided for @childSevenDayProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} — progression sur 7 jours'**
+  String childSevenDayProgress(String name);
+
+  /// No description provided for @todayStudy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étude du jour'**
+  String get todayStudy;
+
+  /// No description provided for @dailyTrend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tendance quotidienne'**
+  String get dailyTrend;
+
+  /// No description provided for @childrenLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enfants'**
+  String get childrenLabel;
+
+  /// No description provided for @announcementsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annonces'**
+  String get announcementsLabel;
+
+  /// No description provided for @subscriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement'**
+  String get subscriptionLabel;
+
+  /// No description provided for @parentSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace parent'**
+  String get parentSpace;
+
+  /// No description provided for @myChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes enfants'**
+  String get myChildren;
+
+  /// No description provided for @paymentsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiements'**
+  String get paymentsLabel;
+
+  /// No description provided for @parentSpaceUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace parent indisponible'**
+  String get parentSpaceUnavailable;
+
+  /// No description provided for @parentSpaceDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi clair et rassurant de la progression scolaire.'**
+  String get parentSpaceDescription;
+
+  /// No description provided for @globalProgressPercent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression globale {percent}%'**
+  String globalProgressPercent(int percent);
+
+  /// No description provided for @progressComingAfterActivities.
+  ///
+  /// In fr, this message translates to:
+  /// **'La progression apparaîtra après les premières activités.'**
+  String get progressComingAfterActivities;
+
+  /// No description provided for @activityChartComing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Courbe d’activité à venir'**
+  String get activityChartComing;
+
+  /// No description provided for @childWeeklyProgressComing.
+  ///
+  /// In fr, this message translates to:
+  /// **'La progression hebdomadaire de {name} apparaîtra ici après ses premières leçons et quiz.'**
+  String childWeeklyProgressComing(String name);
+
+  /// No description provided for @subjectsToImprove.
+  ///
+  /// In fr, this message translates to:
+  /// **'À renforcer'**
+  String get subjectsToImprove;
+
+  /// No description provided for @subjectStrengthsComing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les points forts et les matières à renforcer seront identifiés après les premières évaluations.'**
+  String get subjectStrengthsComing;
+
+  /// No description provided for @schoolAnnouncements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annonces de l’établissement'**
+  String get schoolAnnouncements;
+
+  /// No description provided for @parentAccountActiveBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte est actif. Les enfants liés apparaîtront ici après validation du lien.'**
+  String get parentAccountActiveBody;
+
+  /// No description provided for @noChildLinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun enfant lié'**
+  String get noChildLinked;
+
+  /// No description provided for @linkChildHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez un code enfant depuis le profil ou demandez le lien à l’établissement.'**
+  String get linkChildHelp;
+
+  /// No description provided for @overviewLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue d’ensemble'**
+  String get overviewLabel;
+
+  /// No description provided for @parentProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil Parent'**
+  String get parentProfile;
+
+  /// No description provided for @parentAccountActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte parent actif'**
+  String get parentAccountActive;
+
+  /// No description provided for @parentSettingsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture, notifications, données et confidentialité'**
+  String get parentSettingsDescription;
+
+  /// No description provided for @toBeDetermined.
+  ///
+  /// In fr, this message translates to:
+  /// **'À déterminer'**
+  String get toBeDetermined;
+
+  /// No description provided for @studyTimeComing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le temps d’étude sera affiché dès que la mesure sera disponible.'**
+  String get studyTimeComing;
+
+  /// No description provided for @todayStudyTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Temps d’étude du jour'**
+  String get todayStudyTime;
+
+  /// No description provided for @studyMinutesGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} min / objectif {goal} min'**
+  String studyMinutesGoal(int done, int goal);
+
+  /// No description provided for @badgeUnlocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Badge débloqué'**
+  String get badgeUnlocked;
+
+  /// No description provided for @discoverAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir la réponse'**
+  String get discoverAnswer;
+
+  /// No description provided for @newLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'NOUVEAU'**
+  String get newLabel;
+
+  /// No description provided for @flowEntryDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apprends en glissant,\nune carte à la fois.'**
+  String get flowEntryDescription;
+
+  /// No description provided for @missingAnswerHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris le mot ou le nombre manquant'**
+  String get missingAnswerHint;
+
+  /// No description provided for @submitMyAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider ma réponse'**
+  String get submitMyAnswer;
+
+  /// No description provided for @checkOrder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier l’ordre'**
+  String get checkOrder;
+
+  /// No description provided for @sessionVerifiedPoints.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} points vérifiés dans cette session'**
+  String sessionVerifiedPoints(int count);
+
+  /// No description provided for @totalPendingShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total —'**
+  String get totalPendingShort;
+
+  /// No description provided for @totalPointsShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} au total'**
+  String totalPointsShort(int count);
+
+  /// No description provided for @totalPendingValidation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total en attente de validation serveur'**
+  String get totalPendingValidation;
+
+  /// No description provided for @totalVerifiedPoints.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} points vérifiés au total'**
+  String totalVerifiedPoints(int count);
+
+  /// No description provided for @pendingValidationShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} à valider'**
+  String pendingValidationShort(int count);
+
+  /// No description provided for @offlineActivitiesToSync.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} activités hors ligne à synchroniser'**
+  String offlineActivitiesToSync(int count);
+
+  /// No description provided for @verifiedSession.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session vérifiée'**
+  String get verifiedSession;
+
+  /// No description provided for @verifiedTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total vérifié'**
+  String get verifiedTotal;
+
+  /// No description provided for @pendingValidationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'À valider'**
+  String get pendingValidationLabel;
+
+  /// No description provided for @activeTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Onglet actif : {label}'**
+  String activeTab(String label);
+
+  /// No description provided for @startupInterrupted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrage interrompu'**
+  String get startupInterrupted;
+
+  /// No description provided for @roleSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace {role}'**
+  String roleSpace(String role);
+
+  /// No description provided for @welcomeRoleSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue dans l’espace {role}'**
+  String welcomeRoleSpace(String role);
+
+  /// No description provided for @roleOptionsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consultez les options disponibles pour votre profil.'**
+  String get roleOptionsBody;
+
+  /// No description provided for @skipLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get skipLabel;
+
+  /// No description provided for @probatoireLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Probatoire'**
+  String get probatoireLevel;
+
+  /// No description provided for @baccalaureateLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Baccalauréat'**
+  String get baccalaureateLevel;
+
+  /// No description provided for @chooseTutorA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir {name} comme tuteur'**
+  String chooseTutorA11y(String name);
+
+  /// No description provided for @chooseYourTutor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ton tuteur'**
+  String get chooseYourTutor;
+
+  /// No description provided for @tutorJourneyDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il t’accompagnera tout au long de ton parcours'**
+  String get tutorJourneyDescription;
+
+  /// No description provided for @activationEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'INTELLIA // L’ÉVEIL'**
+  String get activationEyebrow;
+
+  /// No description provided for @activationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le savoir attend ton signal.'**
+  String get activationTitle;
+
+  /// No description provided for @knowledgeEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'UNIVERS DES SAVOIRS'**
+  String get knowledgeEyebrow;
+
+  /// No description provided for @knowledgeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque matière ouvre une trajectoire.'**
+  String get knowledgeTitle;
+
+  /// No description provided for @knowledgeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mathématiques, français, anglais, sciences : entre par le sujet qui t’attire.'**
+  String get knowledgeBody;
+
+  /// No description provided for @challengeEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'PREMIER DÉFI'**
+  String get challengeEyebrow;
+
+  /// No description provided for @challengeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre compte plus que deviner.'**
+  String get challengeTitle;
+
+  /// No description provided for @challengeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essaie. Si tu hésites, INTELLIA décompose le raisonnement avec toi.'**
+  String get challengeBody;
+
+  /// No description provided for @companionsEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'DEUX ÉNERGIES'**
+  String get companionsEyebrow;
+
+  /// No description provided for @companionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deux personnalités. Un même objectif.'**
+  String get companionsTitle;
+
+  /// No description provided for @companionsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Te faire progresser, avec une manière d’expliquer qui te ressemble.'**
+  String get companionsBody;
+
+  /// No description provided for @journeyEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'PARCOURS INTELLIA'**
+  String get journeyEyebrow;
+
+  /// No description provided for @journeyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un défi devient une maîtrise.'**
+  String get journeyTitle;
+
+  /// No description provided for @journeyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'INTELLIA237 relie les leçons, l’entraînement et les quiz dans un parcours cohérent.'**
+  String get journeyBody;
+
+  /// No description provided for @portalEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'TON ESPACE PREND FORME'**
+  String get portalEyebrow;
+
+  /// No description provided for @portalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le parcours commence maintenant.'**
+  String get portalTitle;
+
+  /// No description provided for @portalBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouve tes matières, tes défis et ton compagnon dans une seule expérience.'**
+  String get portalBody;
+
+  /// No description provided for @holdToEnterIntellia.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintiens pour entrer dans INTELLIA237'**
+  String get holdToEnterIntellia;
+
+  /// No description provided for @holdCenterToActivate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenir le centre jusqu’à activation'**
+  String get holdCenterToActivate;
+
+  /// No description provided for @answerChoiceA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse {answer}'**
+  String answerChoiceA11y(String answer);
+
+  /// No description provided for @continueAfterDiscovering.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer après avoir découvert {name}'**
+  String continueAfterDiscovering(String name);
+
+  /// No description provided for @continueWithCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec {name}'**
+  String continueWithCompanion(String name);
+
+  /// No description provided for @discoverCompanionA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir {name}'**
+  String discoverCompanionA11y(String name);
+
+  /// No description provided for @kiraOnboardingSignature.
+  ///
+  /// In fr, this message translates to:
+  /// **'CALME • MÉTHODE • CONFIANCE'**
+  String get kiraOnboardingSignature;
+
+  /// No description provided for @kiraOnboardingExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'On reprend l’idée essentielle, puis on avance ensemble.'**
+  String get kiraOnboardingExample;
+
+  /// No description provided for @leoOnboardingSignature.
+  ///
+  /// In fr, this message translates to:
+  /// **'DÉFI • ÉNERGIE • DÉPASSEMENT'**
+  String get leoOnboardingSignature;
+
+  /// No description provided for @leoOnboardingExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prêt pour un défi ? Je te donne l’indice qui débloque tout.'**
+  String get leoOnboardingExample;
+
+  /// No description provided for @lessonNodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LEÇON'**
+  String get lessonNodeLabel;
+
+  /// No description provided for @trainingNodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'ENTRAÎNEMENT'**
+  String get trainingNodeLabel;
+
+  /// No description provided for @reachMasteryA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Atteindre la maîtrise et ouvrir le portail'**
+  String get reachMasteryA11y;
+
+  /// No description provided for @masteryNodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'MAÎTRISE'**
+  String get masteryNodeLabel;
+
+  /// No description provided for @tapMasteryInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche la maîtrise pour ouvrir ton espace'**
+  String get tapMasteryInstruction;
+
+  /// No description provided for @chooseSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis une matière'**
+  String get chooseSubject;
+
+  /// No description provided for @yourLearningSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton espace d’apprentissage'**
+  String get yourLearningSpace;
+
+  /// No description provided for @journeyAtYourPace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une trajectoire, à ton rythme'**
+  String get journeyAtYourPace;
+
+  /// No description provided for @nextLessonPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine leçon'**
+  String get nextLessonPreview;
+
+  /// No description provided for @equationsPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équations'**
+  String get equationsPreview;
+
+  /// No description provided for @dailyChallengePreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi du jour'**
+  String get dailyChallengePreview;
+
+  /// No description provided for @quizFiveMinutesPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz • 5 min'**
+  String get quizFiveMinutesPreview;
+
+  /// No description provided for @factorizedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Factorisé'**
+  String get factorizedLabel;
+
+  /// No description provided for @whoWillBeYourCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui sera ton compagnon pédagogique ?'**
+  String get whoWillBeYourCompanion;
+
+  /// No description provided for @learningDialogueA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dialogue pédagogique'**
+  String get learningDialogueA11y;
+
+  /// No description provided for @firstNameWithArticle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le prénom'**
+  String get firstNameWithArticle;
+
+  /// No description provided for @lastNameWithArticle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom'**
+  String get lastNameWithArticle;
+
+  /// No description provided for @passwordMinEight.
+  ///
+  /// In fr, this message translates to:
+  /// **'8 caractères minimum'**
+  String get passwordMinEight;
+
+  /// No description provided for @confirmPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le mot de passe'**
+  String get confirmPasswordLabel;
+
+  /// No description provided for @confirmPasswordHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retapez le mot de passe'**
+  String get confirmPasswordHint;
+
+  /// No description provided for @teacherRegistrationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte Enseignant'**
+  String get teacherRegistrationTitle;
+
+  /// No description provided for @teacherIdentityStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identité enseignant'**
+  String get teacherIdentityStep;
+
+  /// No description provided for @teachingStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enseignement'**
+  String get teachingStep;
+
+  /// No description provided for @teacherDetailsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coordonnées enseignant'**
+  String get teacherDetailsTitle;
+
+  /// No description provided for @teacherDetailsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseignez vos informations de connexion.'**
+  String get teacherDetailsSubtitle;
+
+  /// No description provided for @firstNameTeacherHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. Serge'**
+  String get firstNameTeacherHint;
+
+  /// No description provided for @lastNameTeacherHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. Mbarga'**
+  String get lastNameTeacherHint;
+
+  /// No description provided for @teacherEmailHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'enseignant@exemple.com'**
+  String get teacherEmailHint;
+
+  /// No description provided for @teachingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre enseignement'**
+  String get teachingTitle;
+
+  /// No description provided for @teachingSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez vos matières et niveaux enseignés.'**
+  String get teachingSubtitle;
+
+  /// No description provided for @taughtSubjectsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matières enseignées'**
+  String get taughtSubjectsTitle;
+
+  /// No description provided for @taughtSubjectsCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez vos disciplines principales.'**
+  String get taughtSubjectsCaption;
+
+  /// No description provided for @taughtLevelsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveaux enseignés'**
+  String get taughtLevelsTitle;
+
+  /// No description provided for @taughtLevelsCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez les classes que vous couvrez.'**
+  String get taughtLevelsCaption;
+
+  /// No description provided for @teacherFinalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relisez vos informations avant de confirmer.'**
+  String get teacherFinalSubtitle;
+
+  /// No description provided for @teacherValidationNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’inscription d’un compte enseignant nécessite une validation par une équipe autorisée.'**
+  String get teacherValidationNotice;
+
+  /// No description provided for @createTeacherAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon compte enseignant'**
+  String get createTeacherAccount;
+
+  /// No description provided for @adminRegistrationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte Direction'**
+  String get adminRegistrationTitle;
+
+  /// No description provided for @adminIdentityStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identité direction'**
+  String get adminIdentityStep;
+
+  /// No description provided for @jobFunctionStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonction'**
+  String get jobFunctionStep;
+
+  /// No description provided for @adminDetailsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coordonnées direction'**
+  String get adminDetailsTitle;
+
+  /// No description provided for @adminDetailsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations du responsable ou membre de direction.'**
+  String get adminDetailsSubtitle;
+
+  /// No description provided for @firstNameAdminHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. Nadine'**
+  String get firstNameAdminHint;
+
+  /// No description provided for @lastNameAdminHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. Meka'**
+  String get lastNameAdminHint;
+
+  /// No description provided for @adminEmailHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'direction@exemple.com'**
+  String get adminEmailHint;
+
+  /// No description provided for @adminFunctionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre fonction'**
+  String get adminFunctionTitle;
+
+  /// No description provided for @adminFunctionSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précisez votre rôle au sein de la direction.'**
+  String get adminFunctionSubtitle;
+
+  /// No description provided for @jobTitleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonction'**
+  String get jobTitleLabel;
+
+  /// No description provided for @jobTitleHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. Proviseur, Censeur, Directeur adjoint'**
+  String get jobTitleHint;
+
+  /// No description provided for @minimumThreeCharacters.
+  ///
+  /// In fr, this message translates to:
+  /// **'Minimum 3 caractères'**
+  String get minimumThreeCharacters;
+
+  /// No description provided for @adminAccreditationNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte direction sera soumis à un contrôle d’accréditation par nos équipes avant activation.'**
+  String get adminAccreditationNotice;
+
+  /// No description provided for @adminFinalSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre demande sera transmise pour validation.'**
+  String get adminFinalSubtitle;
+
+  /// No description provided for @adminValidationNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une fois validé, vous recevrez une notification par e-mail vous invitant à vous connecter à votre console d’administration.'**
+  String get adminValidationNotice;
+
+  /// No description provided for @createAdminAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soumettre mon compte direction'**
+  String get createAdminAccount;
+
+  /// No description provided for @legalVersion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version du 16 juillet 2026'**
+  String get legalVersion;
+
+  /// No description provided for @legalContactNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour toute question ou demande liée aux données, contacte ton établissement ou l’équipe Intellia237. Une validation juridique locale reste requise avant la mise en production commerciale.'**
+  String get legalContactNotice;
+
+  /// No description provided for @legalTermsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions d’utilisation'**
+  String get legalTermsTitle;
+
+  /// No description provided for @legalServicePurposeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objet du service'**
+  String get legalServicePurposeTitle;
+
+  /// No description provided for @legalServicePurposeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intellia237 fournit des ressources pédagogiques, des quiz et un compagnon d’apprentissage. Le service complète l’enseignement et ne remplace ni l’établissement ni l’enseignant.'**
+  String get legalServicePurposeBody;
+
+  /// No description provided for @legalAccountSecurityTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte et sécurité'**
+  String get legalAccountSecurityTitle;
+
+  /// No description provided for @legalAccountSecurityBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les informations fournies doivent être exactes. Les identifiants restent personnels. Les comptes enseignants et administrateurs peuvent nécessiter une validation.'**
+  String get legalAccountSecurityBody;
+
+  /// No description provided for @legalResponsibleUseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Usage responsable'**
+  String get legalResponsibleUseTitle;
+
+  /// No description provided for @legalResponsibleUseBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il est interdit de contourner les règles des évaluations, d’extraire des données d’autres utilisateurs ou d’utiliser le compagnon pour produire un contenu nuisible.'**
+  String get legalResponsibleUseBody;
+
+  /// No description provided for @availabilityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponibilité'**
+  String get availabilityLabel;
+
+  /// No description provided for @legalAvailabilityBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certaines fonctions exigent une connexion. Les maintenances et indisponibilités temporaires sont signalées aussi clairement que possible.'**
+  String get legalAvailabilityBody;
+
+  /// No description provided for @legalPrivacyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Politique de confidentialité'**
+  String get legalPrivacyTitle;
+
+  /// No description provided for @legalCollectedDataTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données collectées'**
+  String get legalCollectedDataTitle;
+
+  /// No description provided for @legalCollectedDataBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le compte, le rôle, la classe, la progression et les tentatives nécessaires au service peuvent être enregistrés. Les données demandées doivent rester limitées à la finalité pédagogique.'**
+  String get legalCollectedDataBody;
+
+  /// No description provided for @legalMinorsPrivacyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mineurs et confidentialité'**
+  String get legalMinorsPrivacyTitle;
+
+  /// No description provided for @legalMinorsPrivacyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les conversations, réponses libres, noms et e-mails ne doivent jamais être envoyés aux outils de mesure d’audience. Les diagnostics anonymes sont désactivés par défaut.'**
+  String get legalMinorsPrivacyBody;
+
+  /// No description provided for @legalRetentionAccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conservation et accès'**
+  String get legalRetentionAccessTitle;
+
+  /// No description provided for @legalRetentionAccessBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les données sont accessibles uniquement aux personnes autorisées selon leur rôle. Les durées de conservation et procédures d’accès doivent être validées avant mise en production.'**
+  String get legalRetentionAccessBody;
+
+  /// No description provided for @legalYourRightsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos droits'**
+  String get legalYourRightsTitle;
+
+  /// No description provided for @legalYourRightsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’utilisateur ou son représentant peut demander l’accès, la correction ou la suppression de ses données auprès de l’établissement ou de l’équipe Intellia237.'**
+  String get legalYourRightsBody;
+
+  /// No description provided for @legalEducationalDataTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement pédagogique des données'**
+  String get legalEducationalDataTitle;
+
+  /// No description provided for @legalPurposeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Finalité'**
+  String get legalPurposeTitle;
+
+  /// No description provided for @legalPurposeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les réponses, résultats et progressions servent à proposer une prochaine étape, présenter une correction et aider l’enseignant ou le parent autorisé à accompagner l’élève.'**
+  String get legalPurposeBody;
+
+  /// No description provided for @legalDecisionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décisions'**
+  String get legalDecisionsTitle;
+
+  /// No description provided for @legalDecisionsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une recommandation automatisée ne constitue pas une décision scolaire officielle. L’enseignant et l’établissement restent responsables de l’évaluation scolaire.'**
+  String get legalDecisionsBody;
+
+  /// No description provided for @legalCompanionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compagnon pédagogique'**
+  String get legalCompanionTitle;
+
+  /// No description provided for @legalCompanionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les messages sont transmis au service nécessaire pour générer une réponse. L’élève ne doit pas y communiquer d’information personnelle sensible.'**
+  String get legalCompanionBody;
+
+  /// No description provided for @readTerms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire les conditions'**
+  String get readTerms;
+
+  /// No description provided for @readPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire la confidentialité'**
+  String get readPrivacy;
+
+  /// No description provided for @readEducationalData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre les données pédagogiques'**
+  String get readEducationalData;
+
+  /// No description provided for @loadingOffer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement de l’offre'**
+  String get loadingOffer;
+
+  /// No description provided for @serviceUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service indisponible'**
+  String get serviceUnavailable;
+
+  /// No description provided for @subscriptionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement'**
+  String get subscriptionTitle;
+
+  /// No description provided for @mobileMoneyParentDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement Mobile Money déclaré puis vérifié manuellement par votre établissement.'**
+  String get mobileMoneyParentDescription;
+
+  /// No description provided for @myPaymentRequests.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes demandes'**
+  String get myPaymentRequests;
+
+  /// No description provided for @accessDaysAfterApproval.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès pendant {days} jours après validation'**
+  String accessDaysAfterApproval(int days);
+
+  /// No description provided for @mobileMoneyStepTransfer.
+  ///
+  /// In fr, this message translates to:
+  /// **'1. Effectuez le transfert'**
+  String get mobileMoneyStepTransfer;
+
+  /// No description provided for @operatorLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Opérateur'**
+  String get operatorLabel;
+
+  /// No description provided for @recipientNumberConfigured.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro bénéficiaire configuré'**
+  String get recipientNumberConfigured;
+
+  /// No description provided for @copyNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier le numéro'**
+  String get copyNumber;
+
+  /// No description provided for @numberCopied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro copié.'**
+  String get numberCopied;
+
+  /// No description provided for @mobileMoneyNoDebitNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intellia237 ne déclenche aucun débit. Réalisez vous-même le transfert dans l’application de votre opérateur et vérifiez le numéro avant de confirmer.'**
+  String get mobileMoneyNoDebitNotice;
+
+  /// No description provided for @mobileMoneyStepProof.
+  ///
+  /// In fr, this message translates to:
+  /// **'2. Envoyez la preuve de transfert'**
+  String get mobileMoneyStepProof;
+
+  /// No description provided for @payerPhoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro ayant effectué le transfert'**
+  String get payerPhoneLabel;
+
+  /// No description provided for @transactionReferenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence de transaction'**
+  String get transactionReferenceLabel;
+
+  /// No description provided for @sendingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoi en cours…'**
+  String get sendingLabel;
+
+  /// No description provided for @submitForReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transmettre pour vérification'**
+  String get submitForReview;
+
+  /// No description provided for @enterTransferDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez le téléphone et la référence du transfert.'**
+  String get enterTransferDetails;
+
+  /// No description provided for @confirmDeclarationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer la déclaration'**
+  String get confirmDeclarationTitle;
+
+  /// No description provided for @confirmTransferDeclaration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous déclarez avoir transféré {amount} via {operator} vers {phone}. Aucune somme ne sera débitée par Intellia237.'**
+  String confirmTransferDeclaration(
+    String amount,
+    String operator,
+    String phone,
+  );
+
+  /// No description provided for @paymentRequestSubmitted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande transmise. L’accès sera activé uniquement après vérification.'**
+  String get paymentRequestSubmitted;
+
+  /// No description provided for @noValidatedSchoolLinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun établissement validé n’est encore lié à ce compte parent.'**
+  String get noValidatedSchoolLinked;
+
+  /// No description provided for @multipleSchoolsLinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs établissements sont liés. Contactez l’assistance pour choisir celui qui facturera l’accès.'**
+  String get multipleSchoolsLinked;
+
+  /// No description provided for @noActiveMobileMoneyOffer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre établissement n’a pas encore publié d’offre Mobile Money active.'**
+  String get noActiveMobileMoneyOffer;
+
+  /// No description provided for @offerUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offre indisponible'**
+  String get offerUnavailable;
+
+  /// No description provided for @referenceValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence {reference}'**
+  String referenceValue(String reference);
+
+  /// No description provided for @schoolNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note de l’établissement : {note}'**
+  String schoolNote(String note);
+
+  /// No description provided for @mobileMoneyReferenceAlreadySubmitted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette référence a déjà été transmise. Consultez son statut ci-dessous.'**
+  String get mobileMoneyReferenceAlreadySubmitted;
+
+  /// No description provided for @mobileMoneyOfferNoLongerAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’offre ou le rattachement à l’établissement n’est plus disponible.'**
+  String get mobileMoneyOfferNoLongerAvailable;
+
+  /// No description provided for @mobileMoneyPermissionDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte n’est pas autorisé à effectuer cette opération.'**
+  String get mobileMoneyPermissionDenied;
+
+  /// No description provided for @mobileMoneyInvalidDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez le numéro de téléphone et la référence de transaction.'**
+  String get mobileMoneyInvalidDetails;
+
+  /// No description provided for @mobileMoneyTemporarilyUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le service est momentanément indisponible. Réessayez sans refaire le transfert.'**
+  String get mobileMoneyTemporarilyUnavailable;
+
+  /// No description provided for @mobileMoneyGenericError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de traiter cette demande pour le moment.'**
+  String get mobileMoneyGenericError;
+
+  /// No description provided for @paymentPendingReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'En vérification'**
+  String get paymentPendingReview;
+
+  /// No description provided for @paymentApproved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validé'**
+  String get paymentApproved;
+
+  /// No description provided for @paymentRejected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejeté'**
+  String get paymentRejected;
+
+  /// No description provided for @loadingPayments.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chargement des paiements'**
+  String get loadingPayments;
+
+  /// No description provided for @paymentQueueUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'File indisponible'**
+  String get paymentQueueUnavailable;
+
+  /// No description provided for @mobileMoneyApprovalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation Mobile Money'**
+  String get mobileMoneyApprovalTitle;
+
+  /// No description provided for @mobileMoneyAdminDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparez chaque référence avec le portail de l’opérateur avant toute décision. Intellia237 ne prélève aucune somme.'**
+  String get mobileMoneyAdminDescription;
+
+  /// No description provided for @noPendingPaymentRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune demande en attente'**
+  String get noPendingPaymentRequest;
+
+  /// No description provided for @payerPhoneShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone payeur'**
+  String get payerPhoneShort;
+
+  /// No description provided for @referenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Référence'**
+  String get referenceLabel;
+
+  /// No description provided for @rejectLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejeter'**
+  String get rejectLabel;
+
+  /// No description provided for @paymentVerifiedQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement vérifié ?'**
+  String get paymentVerifiedQuestion;
+
+  /// No description provided for @paymentVerificationWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmez uniquement si {amount} et la référence {reference} apparaissent dans le portail {operator}. Cette action activera l’accès.'**
+  String paymentVerificationWarning(
+    String amount,
+    String reference,
+    String operator,
+  );
+
+  /// No description provided for @paymentVerifiedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement vérifié'**
+  String get paymentVerifiedLabel;
+
+  /// No description provided for @rejectPaymentRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejeter la demande'**
+  String get rejectPaymentRequest;
+
+  /// No description provided for @rejectionReasonOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Motif visible par le parent (facultatif)'**
+  String get rejectionReasonOptional;
+
+  /// No description provided for @rejectionReasonHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. référence introuvable'**
+  String get rejectionReasonHint;
+
+  /// No description provided for @confirmRejection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le rejet'**
+  String get confirmRejection;
+
+  /// No description provided for @paymentApprovedAndActivated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement validé et accès activé.'**
+  String get paymentApprovedAndActivated;
+
+  /// No description provided for @paymentRequestRejected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande rejetée.'**
+  String get paymentRequestRejected;
+
+  /// No description provided for @classesUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classes indisponibles'**
+  String get classesUnavailable;
+
+  /// No description provided for @teacherAnalyticsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses enseignant'**
+  String get teacherAnalyticsTitle;
+
+  /// No description provided for @teacherAnalyticsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue d’ensemble des performances de vos classes.'**
+  String get teacherAnalyticsSubtitle;
+
+  /// No description provided for @averageCompletionRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux moyen de complétion'**
+  String get averageCompletionRate;
+
+  /// No description provided for @activeClassesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} classes actives'**
+  String activeClassesCount(int count);
+
+  /// No description provided for @dailyEngagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Engagement journalier'**
+  String get dailyEngagement;
+
+  /// No description provided for @metricComingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure disponible prochainement'**
+  String get metricComingSoon;
+
+  /// No description provided for @trackedStudentsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} élèves suivis'**
+  String trackedStudentsCount(int count);
+
+  /// No description provided for @weeklyTrend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tendance hebdomadaire'**
+  String get weeklyTrend;
+
+  /// No description provided for @weeklyTrendEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'La tendance apparaîtra après la première semaine d’activité de vos élèves.'**
+  String get weeklyTrendEmpty;
+
+  /// No description provided for @progressByClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression par classe'**
+  String get progressByClass;
+
+  /// No description provided for @noDataAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée disponible.'**
+  String get noDataAvailable;
+
+  /// No description provided for @classDetailTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail de la classe'**
+  String get classDetailTitle;
+
+  /// No description provided for @publishAnnouncementShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier annonce'**
+  String get publishAnnouncementShort;
+
+  /// No description provided for @studentProgressTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression élèves'**
+  String get studentProgressTitle;
+
+  /// No description provided for @studentTrackingComing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le suivi individuel arrive : les élèves de cette classe apparaîtront ici avec leur progression dès leurs premières activités.'**
+  String get studentTrackingComing;
+
+  /// No description provided for @studyMinutesToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} min aujourd’hui'**
+  String studyMinutesToday(int count);
+
+  /// No description provided for @publishAnnouncementTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier une annonce'**
+  String get publishAnnouncementTitle;
+
+  /// No description provided for @titleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre'**
+  String get titleLabel;
+
+  /// No description provided for @messageLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message'**
+  String get messageLabel;
+
+  /// No description provided for @announcementPublished.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annonce publiée.'**
+  String get announcementPublished;
+
+  /// No description provided for @publishLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier'**
+  String get publishLabel;
+
+  /// No description provided for @myClasses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes classes'**
+  String get myClasses;
+
+  /// No description provided for @classesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classes'**
+  String get classesLabel;
+
+  /// No description provided for @studentsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} élèves'**
+  String studentsCount(int count);
+
+  /// No description provided for @averageProgressPercent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyenne progression {percent}%'**
+  String averageProgressPercent(int percent);
+
+  /// No description provided for @pendingSubmissionsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} remises en attente'**
+  String pendingSubmissionsCount(int count);
+
+  /// No description provided for @contentManagementTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion de contenus'**
+  String get contentManagementTitle;
+
+  /// No description provided for @publishContentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier un contenu'**
+  String get publishContentTitle;
+
+  /// No description provided for @classSecondeA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seconde A'**
+  String get classSecondeA;
+
+  /// No description provided for @classSecondeC.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seconde C'**
+  String get classSecondeC;
+
+  /// No description provided for @classPremiereD.
+  ///
+  /// In fr, this message translates to:
+  /// **'Première D'**
+  String get classPremiereD;
+
+  /// No description provided for @subjectLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matière'**
+  String get subjectLabel;
+
+  /// No description provided for @subjectPhysics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Physique'**
+  String get subjectPhysics;
+
+  /// No description provided for @lessonTitleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre de la leçon'**
+  String get lessonTitleLabel;
+
+  /// No description provided for @titleRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre requis'**
+  String get titleRequired;
+
+  /// No description provided for @chapterRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitre requis'**
+  String get chapterRequired;
+
+  /// No description provided for @summaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé'**
+  String get summaryLabel;
+
+  /// No description provided for @summaryRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résumé requis'**
+  String get summaryRequired;
+
+  /// No description provided for @publishingLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publication…'**
+  String get publishingLabel;
+
+  /// No description provided for @contentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu'**
+  String get contentLabel;
+
+  /// No description provided for @contentPublishedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu publié avec succès.'**
+  String get contentPublishedSuccess;
+
+  /// No description provided for @quizLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz'**
+  String get quizLabel;
+
+  /// No description provided for @statisticsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statistiques'**
+  String get statisticsLabel;
+
+  /// No description provided for @dashboardUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tableau de bord indisponible'**
+  String get dashboardUnavailable;
+
+  /// No description provided for @noClassesYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune classe pour le moment'**
+  String get noClassesYet;
+
+  /// No description provided for @noClassesYetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos classes apparaîtront ici dès que votre établissement vous les aura assignées. Vous pouvez déjà préparer des quiz depuis l’onglet Quiz.'**
+  String get noClassesYetBody;
+
+  /// No description provided for @activeClassesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classes actives'**
+  String get activeClassesTitle;
+
+  /// No description provided for @recentAnnouncements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annonces récentes'**
+  String get recentAnnouncements;
+
+  /// No description provided for @noRecentAnnouncement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune annonce récente.'**
+  String get noRecentAnnouncement;
+
+  /// No description provided for @teacherSpaceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace Enseignant'**
+  String get teacherSpaceTitle;
+
+  /// No description provided for @teacherSpaceDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilotez vos classes, contenus et évaluations depuis un tableau unique.'**
+  String get teacherSpaceDescription;
+
+  /// No description provided for @studentsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élèves'**
+  String get studentsLabel;
+
+  /// No description provided for @completionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complétion'**
+  String get completionLabel;
+
+  /// No description provided for @dailyEngagementShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Engagement / jour'**
+  String get dailyEngagementShort;
+
+  /// No description provided for @quizCreationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Création de quiz'**
+  String get quizCreationTitle;
+
+  /// No description provided for @quizCreationSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez une évaluation et publiez-la à vos classes.'**
+  String get quizCreationSubtitle;
+
+  /// No description provided for @quizTitleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre du quiz'**
+  String get quizTitleLabel;
+
+  /// No description provided for @questionsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions'**
+  String get questionsLabel;
+
+  /// No description provided for @addQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une question'**
+  String get addQuestion;
+
+  /// No description provided for @publishQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publier le quiz'**
+  String get publishQuiz;
+
+  /// No description provided for @selectClassRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez une classe.'**
+  String get selectClassRequired;
+
+  /// No description provided for @addCompleteQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez au moins une question complète.'**
+  String get addCompleteQuestion;
+
+  /// No description provided for @quizPublishedSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz publié avec succès.'**
+  String get quizPublishedSuccess;
+
+  /// No description provided for @questionNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question {index}'**
+  String questionNumber(int index);
+
+  /// No description provided for @deleteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get deleteLabel;
+
+  /// No description provided for @questionPromptLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Énoncé'**
+  String get questionPromptLabel;
+
+  /// No description provided for @questionPromptHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Posez la question'**
+  String get questionPromptHint;
+
+  /// No description provided for @expectedAnswerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse attendue'**
+  String get expectedAnswerLabel;
+
+  /// No description provided for @expectedAnswerHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez la réponse'**
+  String get expectedAnswerHint;
+
+  /// No description provided for @subjectBiology.
+  ///
+  /// In fr, this message translates to:
+  /// **'SVT'**
+  String get subjectBiology;
+
+  /// No description provided for @subjectEnglish.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anglais'**
+  String get subjectEnglish;
+
+  /// No description provided for @subjectHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Histoire'**
+  String get subjectHistory;
+
+  /// No description provided for @administrationRole.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administration'**
+  String get administrationRole;
+
+  /// No description provided for @pendingStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get pendingStatus;
+
+  /// No description provided for @approvedStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approuvé'**
+  String get approvedStatus;
+
+  /// No description provided for @hiddenStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masqué'**
+  String get hiddenStatus;
+
+  /// No description provided for @publishedStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publié'**
+  String get publishedStatus;
+
+  /// No description provided for @aiStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'IA ✨'**
+  String get aiStatus;
+
+  /// No description provided for @draftStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Brouillon'**
+  String get draftStatus;
+
+  /// No description provided for @audienceWholeSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout l’établissement'**
+  String get audienceWholeSchool;
+
+  /// No description provided for @beginnerDifficulty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débutant'**
+  String get beginnerDifficulty;
+
+  /// No description provided for @intermediateDifficulty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intermédiaire'**
+  String get intermediateDifficulty;
+
+  /// No description provided for @advancedDifficulty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avancé'**
+  String get advancedDifficulty;
+
+  /// No description provided for @expertDifficulty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expert'**
+  String get expertDifficulty;
+
+  /// No description provided for @contentPluralLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenus'**
+  String get contentPluralLabel;
+
+  /// No description provided for @analyticsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses'**
+  String get analyticsLabel;
+
+  /// No description provided for @usersLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateurs'**
+  String get usersLabel;
+
+  /// No description provided for @toolsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils'**
+  String get toolsLabel;
+
+  /// No description provided for @teachersLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enseignants'**
+  String get teachersLabel;
+
+  /// No description provided for @parentsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parents'**
+  String get parentsLabel;
+
+  /// No description provided for @dailyActiveUsersShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actifs/jour'**
+  String get dailyActiveUsersShort;
+
+  /// No description provided for @pendingAccounts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comptes en attente'**
+  String get pendingAccounts;
+
+  /// No description provided for @moderationTickets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tickets modération'**
+  String get moderationTickets;
+
+  /// No description provided for @adminSettingsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accessibilité, diagnostics et confidentialité'**
+  String get adminSettingsDescription;
+
+  /// No description provided for @recentOfficialAnnouncements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annonces officielles récentes'**
+  String get recentOfficialAnnouncements;
+
+  /// No description provided for @moderationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modération'**
+  String get moderationLabel;
+
+  /// No description provided for @administrationAtSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Direction • {school}'**
+  String administrationAtSchool(String school);
+
+  /// No description provided for @helloUser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour, {name}'**
+  String helloUser(String name);
+
+  /// No description provided for @adminHeroDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supervisez l’usage de la plateforme et les opérations critiques.'**
+  String get adminHeroDescription;
+
+  /// No description provided for @broadcastCenterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Centre de diffusion'**
+  String get broadcastCenterTitle;
+
+  /// No description provided for @broadcastCenterSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Publiez des annonces officielles ciblées.'**
+  String get broadcastCenterSubtitle;
+
+  /// No description provided for @audienceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Audience'**
+  String get audienceLabel;
+
+  /// No description provided for @messageRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Message requis'**
+  String get messageRequired;
+
+  /// No description provided for @recentHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique récent'**
+  String get recentHistory;
+
+  /// No description provided for @audienceValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Audience : {audience}'**
+  String audienceValue(String audience);
+
+  /// No description provided for @contentModerationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modération des contenus'**
+  String get contentModerationTitle;
+
+  /// No description provided for @contentModerationSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validez ou masquez les contenus signalés.'**
+  String get contentModerationSubtitle;
+
+  /// No description provided for @noModerationTicket.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun ticket de modération.'**
+  String get noModerationTicket;
+
+  /// No description provided for @contentReports.
+  ///
+  /// In fr, this message translates to:
+  /// **'{type} • {count} signalement(s)'**
+  String contentReports(String type, int count);
+
+  /// No description provided for @contentHidden.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu masqué.'**
+  String get contentHidden;
+
+  /// No description provided for @hideLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer'**
+  String get hideLabel;
+
+  /// No description provided for @contentApproved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu validé.'**
+  String get contentApproved;
+
+  /// No description provided for @schoolAnalyticsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyses de l’établissement'**
+  String get schoolAnalyticsTitle;
+
+  /// No description provided for @activeUsersSevenDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilisateurs actifs (7 jours)'**
+  String get activeUsersSevenDays;
+
+  /// No description provided for @studyMinutesSevenDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Minutes d’étude cumulées (7 jours)'**
+  String get studyMinutesSevenDays;
+
+  /// No description provided for @averageProgressRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de progression moyen'**
+  String get averageProgressRate;
+
+  /// No description provided for @metricAvailableAfterActivities.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mesure en construction : disponible après les premières activités des élèves.'**
+  String get metricAvailableAfterActivities;
+
+  /// No description provided for @accountApprovalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation des comptes'**
+  String get accountApprovalTitle;
+
+  /// No description provided for @pendingRequestsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} demande(s) en attente'**
+  String pendingRequestsCount(int count);
+
+  /// No description provided for @noPendingRequest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune demande en attente.'**
+  String get noPendingRequest;
+
+  /// No description provided for @userManagementTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestion des utilisateurs'**
+  String get userManagementTitle;
+
+  /// No description provided for @accountRejected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte refusé.'**
+  String get accountRejected;
+
+  /// No description provided for @refuseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get refuseLabel;
+
+  /// No description provided for @accountApproved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte validé.'**
+  String get accountApproved;
+
+  /// No description provided for @unpublishLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépublier'**
+  String get unpublishLabel;
+
+  /// No description provided for @addChapter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter chapitre'**
+  String get addChapter;
+
+  /// No description provided for @chaptersUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitres indisponibles'**
+  String get chaptersUnavailable;
+
+  /// No description provided for @noChapterAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun chapitre.\nAppuyez sur + pour commencer.'**
+  String get noChapterAdmin;
+
+  /// No description provided for @newChapter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau chapitre'**
+  String get newChapter;
+
+  /// No description provided for @chapterTitleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre du chapitre'**
+  String get chapterTitleLabel;
+
+  /// No description provided for @shortDescriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description courte'**
+  String get shortDescriptionLabel;
+
+  /// No description provided for @createLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer'**
+  String get createLabel;
+
+  /// No description provided for @lessonsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} leçon(s)'**
+  String lessonsCount(int count);
+
+  /// No description provided for @addLesson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter leçon'**
+  String get addLesson;
+
+  /// No description provided for @lessonsUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Leçons indisponibles'**
+  String get lessonsUnavailable;
+
+  /// No description provided for @noLessonAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune leçon.\nAppuyez sur + pour créer.'**
+  String get noLessonAdmin;
+
+  /// No description provided for @newLesson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle leçon'**
+  String get newLesson;
+
+  /// No description provided for @objectiveSummaryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif / résumé'**
+  String get objectiveSummaryLabel;
+
+  /// No description provided for @estimatedDurationMinutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée estimée (min)'**
+  String get estimatedDurationMinutes;
+
+  /// No description provided for @lessonSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'✅ Leçon sauvegardée'**
+  String get lessonSaved;
+
+  /// No description provided for @lessonSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La leçon n’a pas pu être enregistrée. Vérifie la connexion et réessaie.'**
+  String get lessonSaveFailed;
+
+  /// No description provided for @lessonPublished.
+  ///
+  /// In fr, this message translates to:
+  /// **'🚀 Leçon publiée !'**
+  String get lessonPublished;
+
+  /// No description provided for @publicationFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La publication n’a pas abouti. Vérifie la connexion et réessaie.'**
+  String get publicationFailed;
+
+  /// No description provided for @newSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle section'**
+  String get newSection;
+
+  /// No description provided for @courseContentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu du cours'**
+  String get courseContentLabel;
+
+  /// No description provided for @lessonEditorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éditeur de leçon'**
+  String get lessonEditorTitle;
+
+  /// No description provided for @aiGeneratedReviewNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contenu généré par l’IA — Relisez avant publication'**
+  String get aiGeneratedReviewNotice;
+
+  /// No description provided for @informationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations'**
+  String get informationLabel;
+
+  /// No description provided for @learningObjectiveLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif pédagogique'**
+  String get learningObjectiveLabel;
+
+  /// No description provided for @estimatedDurationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée estimée'**
+  String get estimatedDurationLabel;
+
+  /// No description provided for @aiGenerationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Génération IA'**
+  String get aiGenerationTitle;
+
+  /// No description provided for @aiGenerationBackendOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'La génération IA n’est plus disponible côté client. Le flux backend-only passe désormais par Cloud Functions et le microservice LLM.'**
+  String get aiGenerationBackendOnly;
+
+  /// No description provided for @aiGenerationBackendInstructions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rédigez la leçon manuellement ici, puis utilisez le parcours backend sécurisé pour produire résumés et quiz.'**
+  String get aiGenerationBackendInstructions;
+
+  /// No description provided for @courseSectionsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sections du cours ({count})'**
+  String courseSectionsCount(int count);
+
+  /// No description provided for @noCourseSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune section.\nAjoutez-en manuellement.'**
+  String get noCourseSection;
+
+  /// No description provided for @miniQuizQuestionsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mini-quiz ({count} questions)'**
+  String miniQuizQuestionsCount(int count);
+
+  /// No description provided for @noGeneratedQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune question générée pour cette leçon.'**
+  String get noGeneratedQuestion;
+
+  /// No description provided for @quizOptionsCorrectAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'{options} options • Réponse : {answer}'**
+  String quizOptionsCorrectAnswer(int options, int answer);
+
+  /// No description provided for @quizPublished.
+  ///
+  /// In fr, this message translates to:
+  /// **'🚀 Quiz publié !'**
+  String get quizPublished;
+
+  /// No description provided for @quizSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'✅ Quiz sauvegardé'**
+  String get quizSaved;
+
+  /// No description provided for @quizSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le quiz n’a pas pu être enregistré. Vérifie la connexion et réessaie.'**
+  String get quizSaveFailed;
+
+  /// No description provided for @newQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau Quiz'**
+  String get newQuiz;
+
+  /// No description provided for @editQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier Quiz'**
+  String get editQuiz;
+
+  /// No description provided for @quizInformation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Informations du quiz'**
+  String get quizInformation;
+
+  /// No description provided for @descriptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description'**
+  String get descriptionLabel;
+
+  /// No description provided for @difficultyLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Difficulté'**
+  String get difficultyLabel;
+
+  /// No description provided for @durationSecondsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée (sec)'**
+  String get durationSecondsLabel;
+
+  /// No description provided for @trainingModeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entraînement'**
+  String get trainingModeLabel;
+
+  /// No description provided for @examModeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Examen'**
+  String get examModeLabel;
+
+  /// No description provided for @trainingCorrectionDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'La correction est affichée après chaque réponse validée.'**
+  String get trainingCorrectionDescription;
+
+  /// No description provided for @examCorrectionDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'La correction complète est révélée uniquement après la soumission.'**
+  String get examCorrectionDescription;
+
+  /// No description provided for @targetLevels.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveaux cibles'**
+  String get targetLevels;
+
+  /// No description provided for @questionsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions ({count})'**
+  String questionsCount(int count);
+
+  /// No description provided for @noQuestionAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune question.\nAjoutez-en manuellement.'**
+  String get noQuestionAdmin;
+
+  /// No description provided for @newQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle question'**
+  String get newQuestion;
+
+  /// No description provided for @trueFalseShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'V/F'**
+  String get trueFalseShort;
+
+  /// No description provided for @answerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse'**
+  String get answerLabel;
+
+  /// No description provided for @optionNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Option {number}'**
+  String optionNumber(int number);
+
+  /// No description provided for @selectCorrectAnswerInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'• Sélectionnez la bonne réponse avec le bouton radio'**
+  String get selectCorrectAnswerInstruction;
+
+  /// No description provided for @correctAnswerColon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse correcte :'**
+  String get correctAnswerColon;
+
+  /// No description provided for @acceptedAnswersLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse(s) acceptée(s) (séparées par ,)'**
+  String get acceptedAnswersLabel;
+
+  /// No description provided for @explanationLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explication'**
+  String get explanationLabel;
+
+  /// No description provided for @trueFalseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vrai/Faux'**
+  String get trueFalseLabel;
+
+  /// No description provided for @shortAnswerLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse courte'**
+  String get shortAnswerLabel;
+
+  /// No description provided for @contentStudioTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Studio de Contenu'**
+  String get contentStudioTitle;
+
+  /// No description provided for @subjectsAndCourses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matières & Cours'**
+  String get subjectsAndCourses;
+
+  /// No description provided for @noSubjectForClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune matière pour {classLevel}.\nAjoutez-en une pour commencer.'**
+  String noSubjectForClass(String classLevel);
+
+  /// No description provided for @chaptersCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} chapitre(s)'**
+  String chaptersCount(int count);
+
+  /// No description provided for @noQuizForLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun quiz pour ce niveau.'**
+  String get noQuizForLevel;
+
+  /// No description provided for @quizQuestionsDifficulty.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} questions • {difficulty}'**
+  String quizQuestionsDifficulty(int count, String difficulty);
+
+  /// No description provided for @generatedByAi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Généré par l’IA'**
+  String get generatedByAi;
 }
 
 class _AppLocalizationsDelegate

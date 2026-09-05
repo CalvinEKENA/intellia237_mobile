@@ -77,6 +77,12 @@ async function seedFirestore() {
       establishmentId: "school-a",
       accountStatus: "pending_validation",
     });
+    await setDoc(doc(db, "classes/class-a"), {
+      establishmentId: "school-a",
+      mainTeacherId: "teacher-a",
+      teacherIds: ["teacher-a"],
+      studentIds: ["student-a"],
+    });
 
     await setDoc(doc(db, "student_profiles/student-a"), {
       firstName: "Student A",
@@ -94,6 +100,15 @@ async function seedFirestore() {
     await setDoc(doc(db, "ai_conversations/private-conv"), {
       userId: "student-a",
       messages: [],
+    });
+    await setDoc(doc(db, "notifications/notification-owned"), {
+      userId: "student-a",
+      title: "Nouveau cours",
+      body: "Une leçon est disponible.",
+      route: "/learn",
+      type: "content",
+      createdAt: new Date("2026-09-04T12:00:00Z"),
+      readAt: null,
     });
     await setDoc(doc(db, "quizzes/quiz-a"), {
       title: "Legacy quiz",
@@ -581,6 +596,101 @@ describe("Firestore security rules", () => {
     await assertFails(
       setDoc(doc(db, "recommendations/recommendation-a"), {
         studentId: "student-a",
+      }),
+    );
+  });
+
+  it("allows only the owner read marker on server notifications", async () => {
+    await seedFirestore();
+    const ownerDb = dbFor("student-a");
+    const otherDb = dbFor("student-b");
+    const reference = doc(ownerDb, "notifications/notification-owned");
+
+    await assertSucceeds(getDoc(reference));
+    await assertFails(
+      getDoc(doc(otherDb, "notifications/notification-owned")),
+    );
+    await assertSucceeds(updateDoc(reference, { readAt: new Date() }));
+    await assertFails(updateDoc(reference, { title: "Texte falsifié" }));
+    await assertFails(updateDoc(reference, { userId: "student-b" }));
+  });
+
+  it("scopes notification device tokens to the authenticated owner", async () => {
+    await seedFirestore();
+    const ownerDb = dbFor("student-a");
+    const device = doc(ownerDb, "notification_devices/device-a");
+
+    await assertSucceeds(
+      setDoc(device, {
+        userId: "student-a",
+        token: "token-a",
+        platform: "android",
+        authorizationStatus: "authorized",
+        updatedAt: new Date(),
+      }),
+    );
+    await assertSucceeds(updateDoc(device, { token: "token-b" }));
+    await assertFails(updateDoc(device, { userId: "student-b" }));
+    await assertFails(
+      setDoc(doc(ownerDb, "notification_devices/device-b"), {
+        userId: "student-b",
+        token: "token-b",
+        platform: "android",
+        authorizationStatus: "authorized",
+        updatedAt: new Date(),
+      }),
+    );
+  });
+
+  it("permits only scoped, authenticated announcement publications", async () => {
+    await seedFirestore();
+    const now = new Date();
+
+    await assertSucceeds(
+      setDoc(doc(dbFor("admin-a"), "announcements/admin-valid"), {
+        createdBy: "admin-a",
+        establishmentId: "school-a",
+        title: "Réunion",
+        message: "Une information importante.",
+        audience: "Élèves",
+        publishedAt: now,
+        createdAt: now,
+      }),
+    );
+    await assertSucceeds(
+      setDoc(doc(dbFor("teacher-a"), "announcements/class-valid"), {
+        createdBy: "teacher-a",
+        establishmentId: "school-a",
+        classId: "class-a",
+        title: "Devoir",
+        message: "Le devoir est disponible.",
+        audience: "Classe",
+        publishedAt: now,
+        createdAt: now,
+      }),
+    );
+    await assertFails(
+      setDoc(doc(dbFor("admin-a"), "announcements/cross-school"), {
+        createdBy: "admin-a",
+        establishmentId: "school-b",
+        title: "Intrusion",
+        message: "Non autorisé",
+        audience: "Élèves",
+      }),
+    );
+    await assertFails(
+      setDoc(doc(dbFor("teacher-a"), "announcements/class-forged"), {
+        createdBy: "teacher-a",
+        establishmentId: "school-a",
+        classId: "missing-class",
+        title: "Intrusion",
+        message: "Non autorisé",
+        audience: "Classe",
+      }),
+    );
+    await assertFails(
+      updateDoc(doc(dbFor("admin-a"), "announcements/admin-valid"), {
+        message: "Message modifié après notification",
       }),
     );
   });

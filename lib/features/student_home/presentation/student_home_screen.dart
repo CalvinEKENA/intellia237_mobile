@@ -24,10 +24,14 @@ import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_state.dart';
 import '../../auth/domain/app_role.dart';
 import '../../flow/presentation/widgets/flow_entry_card.dart';
+import '../../greetings/application/greeting_provider.dart';
+import '../../greetings/domain/local_greeting_engine.dart';
 import '../../learn/application/learn_providers.dart';
+import '../../../core/localization/app_locale_controller.dart';
 import '../../learn/domain/learn_academic_context.dart';
 import '../../learn/presentation/learn_hub_screen.dart';
 import '../../quiz/presentation/quiz_hub_screen.dart';
+import '../../notifications/data/notification_repository.dart';
 import '../../tour_guide/domain/role_tour_steps.dart';
 import '../../tour_guide/domain/tour_guide_target_ids.dart';
 import '../../tour_guide/presentation/contextual_tour_guide.dart';
@@ -57,29 +61,29 @@ class StudentHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
-  static const _navItems = <IntelliaBottomNavItem>[
+  List<IntelliaBottomNavItem> _navItems(BuildContext context) => [
     IntelliaBottomNavItem(
-      label: 'Accueil',
+      label: context.l10n.homeLabel,
       icon: Icons.home_rounded,
       activeIcon: Icons.home_filled,
     ),
     IntelliaBottomNavItem(
-      label: 'Apprendre',
+      label: context.l10n.learnTitle,
       icon: Icons.auto_stories_rounded,
       activeIcon: Icons.menu_book_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Quiz',
+      label: context.l10n.quizTitle,
       icon: Icons.quiz_outlined,
       activeIcon: Icons.quiz_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Compagnon',
+      label: context.l10n.companionNavLabel,
       icon: Icons.school_outlined,
       activeIcon: Icons.school_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Profil',
+      label: context.l10n.profileNavLabel,
       icon: Icons.person_outline_rounded,
       activeIcon: Icons.person_rounded,
     ),
@@ -129,6 +133,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   Widget build(BuildContext context) {
     final snapshotAsync = ref.watch(studentHomeControllerProvider);
     final showTapDiagnostics = kDebugMode;
+    final unreadNotifications = ref.watch(unreadNotificationCountProvider);
     _scheduleTourGuideIfNeeded(snapshotAsync);
 
     return PopScope(
@@ -165,6 +170,9 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
                         onOpenQuiz: () => _selectTab(2),
                         onOpenAi: () => _selectTab(3),
                         onOpenProfile: () => _selectTab(4),
+                        onOpenNotifications: () =>
+                            context.push(AppRoutes.studentNotifications),
+                        unreadNotifications: unreadNotifications,
                         onOpenFlow: () => context.push(AppRoutes.flow),
                         onOpenSubject: (subject) =>
                             context.push(AppRoutes.subjectDetail(subject.id)),
@@ -237,7 +245,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
         bottomNavigationBar: KeyedSubtree(
           key: _tourTargets[TourGuideTargetIds.studentBottomNav],
           child: IntelliaBottomNavBar(
-            items: _navItems,
+            items: _navItems(context),
             currentIndex: _currentIndex,
             onTap: _handleNavTap,
           ),
@@ -307,7 +315,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   }
 }
 
-class _StudentHomeTab extends StatelessWidget {
+class _StudentHomeTab extends ConsumerWidget {
   const _StudentHomeTab({
     required this.snapshotAsync,
     required this.tourTargets,
@@ -316,6 +324,8 @@ class _StudentHomeTab extends StatelessWidget {
     required this.onOpenQuiz,
     required this.onOpenAi,
     required this.onOpenProfile,
+    required this.onOpenNotifications,
+    required this.unreadNotifications,
     required this.onOpenFlow,
     required this.onOpenSubject,
     required this.onResumeLesson,
@@ -328,6 +338,8 @@ class _StudentHomeTab extends StatelessWidget {
   final VoidCallback onOpenQuiz;
   final VoidCallback onOpenAi;
   final VoidCallback onOpenProfile;
+  final VoidCallback onOpenNotifications;
+  final int unreadNotifications;
   final VoidCallback onOpenFlow;
   final ValueChanged<SubjectOverview> onOpenSubject;
   final ValueChanged<ResumeTarget> onResumeLesson;
@@ -346,7 +358,7 @@ class _StudentHomeTab extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return snapshotAsync.when(
       loading: () => const _ResponsiveBody(
         child: Padding(
@@ -369,9 +381,9 @@ class _StudentHomeTab extends StatelessWidget {
           ),
           child: IntelliaStateView(
             kind: stateKindForError(error),
-            title: 'Impossible de charger l\'accueil',
-            message: stateMessageForKind(stateKindForError(error)),
-            primaryLabel: 'Réessayer',
+            title: context.l10n.homeLoadError,
+            message: stateMessageForKind(context, stateKindForError(error)),
+            primaryLabel: context.l10n.retryLabel,
             onPrimary: onRefresh,
           ),
         ),
@@ -379,33 +391,41 @@ class _StudentHomeTab extends StatelessWidget {
       data: (snapshot) {
         final gamification = snapshot.gamification;
         final entranceDelays = _EntranceDelays();
+        final auth = ref.watch(authControllerProvider);
+        final academic = ref.watch(studentAcademicContextProvider).valueOrNull;
+        final tutor = ref.watch(selectedTutorProvider);
+        final language = ref.watch(appLocaleProvider).languageCode;
+        final greetingContext = GreetingContext(
+          learnerId: auth.userId ?? 'anonymous',
+          companionId: tutor?.id ?? 'kira',
+          languageCode: language,
+          firstName: snapshot.firstName,
+          classLevel: academic?.displayClassLevel ?? academic?.classLevel,
+          hasProgress: snapshot.globalProgress != null,
+        );
+        final greeting = ref
+            .watch(
+              localGreetingProvider((
+                learnerId: greetingContext.learnerId,
+                companionId: greetingContext.companionId,
+                languageCode: greetingContext.languageCode,
+                firstName: greetingContext.firstName,
+                classLevel: greetingContext.classLevel,
+                hasProgress: greetingContext.hasProgress,
+              )),
+            )
+            .valueOrNull
+            ?.text;
 
         // Registre de décisions : chaque section n'apparaît que si sa donnée
         // est réelle (ou explicitement marquée démo). Aucune carte sans
         // destination réelle, aucun chiffre inventé.
         final sections = <Widget>[
-          KeyedSubtree(
-            key: tourTargets[TourGuideTargetIds.studentHeader],
-            child: StudentHomeHeader(
-              firstName: snapshot.firstName,
-              onProfileTap: onOpenProfile,
-            ),
-          ),
           if (snapshot.isDemoData) const _DemoDataBanner(),
-          if (gamification?.streakDays != null)
-            KeyedSubtree(
-              key: tourTargets[TourGuideTargetIds.studentStreak],
-              child: StreakMotivationCard(
-                streakDays: gamification!.streakDays!,
-                message:
-                    gamification.motivationText ?? 'Continue sur ta lancée.',
-              ),
-            ),
-          WeeklyGoalCard(
-            subjects: snapshot.subjects,
-            onOpenSubject: onOpenSubject,
+          _HomeSectionLabel(
+            eyebrow: context.l10n.todayEyebrow,
+            title: context.l10n.resumeWhereLeftOff,
           ),
-          FlowEntryCard(onTap: onOpenFlow),
           if (snapshot.resume != null)
             KeyedSubtree(
               key: tourTargets[TourGuideTargetIds.studentResume],
@@ -413,21 +433,46 @@ class _StudentHomeTab extends StatelessWidget {
                 resume: snapshot.resume!,
                 onResume: () => onResumeLesson(snapshot.resume!),
               ),
+            )
+          else
+            WeeklyGoalCard(
+              subjects: snapshot.subjects,
+              onOpenSubject: onOpenSubject,
             ),
+          FlowEntryCard(onTap: onOpenFlow),
+          _HomeGreetingCard(
+            companionName: tutor?.name ?? 'Kira',
+            text: greeting ?? LocalGreetingEngine.fallback(greetingContext),
+          ),
+          if (gamification?.streakDays != null)
+            KeyedSubtree(
+              key: tourTargets[TourGuideTargetIds.studentStreak],
+              child: StreakMotivationCard(
+                streakDays: gamification!.streakDays!,
+                message:
+                    gamification.motivationText ?? context.l10n.keepMomentum,
+              ),
+            ),
+          if (snapshot.resume != null)
+            WeeklyGoalCard(
+              subjects: snapshot.subjects,
+              onOpenSubject: onOpenSubject,
+            ),
+          _HomeSectionLabel(
+            eyebrow: context.l10n.exploreEyebrow,
+            title: context.l10n.chooseNextActivity,
+          ),
           KeyedSubtree(
             key: tourTargets[TourGuideTargetIds.studentSubjects],
             child: snapshot.subjects.isEmpty
                 ? IntelliaStateView(
                     kind: IntelliaStateKind.comingSoon,
                     compact: true,
-                    title: 'Tes cours arrivent',
-                    message:
-                        'Les leçons de ta classe sont en cours de '
-                        'préparation. En attendant, découvre le Flow ou '
-                        'révise avec ton compagnon.',
-                    primaryLabel: 'Découvrir le Flow',
+                    title: context.l10n.homeLessonsComingTitle,
+                    message: context.l10n.homeLessonsComingBody,
+                    primaryLabel: context.l10n.discoverFlow,
                     onPrimary: onOpenFlow,
-                    secondaryLabel: 'Parler à mon compagnon',
+                    secondaryLabel: context.l10n.talkToCompanion,
                     onSecondary: onOpenAi,
                   )
                 : SubjectsCarousel(
@@ -441,6 +486,13 @@ class _StudentHomeTab extends StatelessWidget {
             quizKey: tourTargets[TourGuideTargetIds.studentQuickQuiz],
             aiKey: tourTargets[TourGuideTargetIds.studentQuickAi],
           ),
+          if (snapshot.recommendations.isNotEmpty ||
+              snapshot.challenges.isNotEmpty ||
+              (gamification != null && snapshot.globalProgress != null))
+            _HomeSectionLabel(
+              eyebrow: context.l10n.forYouEyebrow,
+              title: context.l10n.adaptiveJourneyTitle,
+            ),
           if (snapshot.recommendations.isNotEmpty)
             KeyedSubtree(
               key: tourTargets[TourGuideTargetIds.studentRecommendations],
@@ -472,27 +524,147 @@ class _StudentHomeTab extends StatelessWidget {
         return _ResponsiveBody(
           child: RefreshIndicator(
             onRefresh: onRefresh,
-            child: ListView(
+            child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(
-                IntelliaSpacing.lg,
-                IntelliaSpacing.lg,
-                IntelliaSpacing.lg,
-                132,
-              ),
-              children: [
-                for (final section in sections) ...[
-                  FadeSlideEntrance(
-                    delay: entranceDelays.next(),
-                    child: section,
+              slivers: [
+                PinnedHeaderSliver(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: TabSurface.of(context).background,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: TabSurface.of(context).surfaceBorder,
+                        ),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        IntelliaSpacing.lg,
+                        IntelliaSpacing.sm,
+                        IntelliaSpacing.lg,
+                        IntelliaSpacing.sm,
+                      ),
+                      child: KeyedSubtree(
+                        key: tourTargets[TourGuideTargetIds.studentHeader],
+                        child: StudentHomeHeader(
+                          key: const ValueKey('student-home-sticky-header'),
+                          firstName: snapshot.firstName,
+                          onProfileTap: onOpenProfile,
+                          onNotificationsTap: onOpenNotifications,
+                          unreadNotifications: unreadNotifications,
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: IntelliaSpacing.md),
-                ],
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(
+                    IntelliaSpacing.lg,
+                    IntelliaSpacing.md,
+                    IntelliaSpacing.lg,
+                    132,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        for (final section in sections) ...[
+                          FadeSlideEntrance(
+                            delay: entranceDelays.next(),
+                            child: section,
+                          ),
+                          const SizedBox(height: IntelliaSpacing.md),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _HomeSectionLabel extends StatelessWidget {
+  const _HomeSectionLabel({required this.eyebrow, required this.title});
+
+  final String eyebrow;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = TabSurface.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          eyebrow.toUpperCase(),
+          style: GoogleFonts.montserrat(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+            color: IntelliaColors.brandIndigo,
+          ),
+        ),
+        const SizedBox(height: IntelliaSpacing.xxs),
+        Text(
+          title,
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 22,
+            height: 1.15,
+            fontWeight: FontWeight.w700,
+            color: surface.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HomeGreetingCard extends StatelessWidget {
+  const _HomeGreetingCard({required this.companionName, required this.text});
+
+  final String companionName;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = TabSurface.of(context);
+    return Container(
+      key: const ValueKey('student-local-greeting'),
+      padding: const EdgeInsets.all(IntelliaSpacing.md),
+      decoration: BoxDecoration(
+        color: surface.surface,
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+        border: Border.all(color: surface.surfaceBorder),
+        boxShadow: IntelliaShadows.card(Colors.black),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            companionName,
+            style: GoogleFonts.montserrat(
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0.8,
+              color: IntelliaColors.brandIndigo,
+            ),
+          ),
+          const SizedBox(height: IntelliaSpacing.xs),
+          Text(
+            text,
+            style: GoogleFonts.manrope(
+              fontSize: 15,
+              height: 1.45,
+              fontWeight: FontWeight.w600,
+              color: surface.textPrimary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -512,7 +684,7 @@ class _DemoDataBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = TabSurface.of(context);
     return Semantics(
-      label: 'Données de démonstration',
+      label: context.l10n.demoDataLabel,
       child: Container(
         padding: const EdgeInsets.symmetric(
           horizontal: IntelliaSpacing.sm,
@@ -528,7 +700,7 @@ class _DemoDataBanner extends StatelessWidget {
             Icon(Icons.science_rounded, size: 14, color: s.numberAccent),
             const SizedBox(width: 6),
             Text(
-              'Données de démonstration',
+              context.l10n.demoDataLabel,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -620,78 +792,83 @@ class _ProfileTab extends ConsumerWidget {
     final theme = Theme.of(context);
     final showBuildIdentity = kDebugMode;
 
-    return _ResponsiveBody(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          IntelliaSpacing.lg,
-          IntelliaSpacing.lg,
-          IntelliaSpacing.lg,
-          132,
-        ),
-        children: [
-          const TabSectionHeader(eyebrow: 'Espace élève', title: 'Mon profil'),
-          const SizedBox(height: IntelliaSpacing.lg),
-          // Carte d'identité principale
-          _ProfileIdentityCard(auth: auth, theme: theme),
-          const SizedBox(height: IntelliaSpacing.md),
-          // Section Académique
-          _AcademicSection(academicAsync: academicAsync, theme: theme),
-          const SizedBox(height: IntelliaSpacing.md),
-          // Section Compagnon pédagogique
-          _TutorSection(classLevel: academicAsync.value?.classLevel),
-          const SizedBox(height: IntelliaSpacing.md),
-          // Section Statistiques
-          _StatsSection(homeAsync: homeAsync, theme: theme),
-          const SizedBox(height: IntelliaSpacing.md),
-          ListTile(
-            onTap: () => context.push(AppRoutes.settings),
-            leading: const Icon(Icons.settings_outlined),
-            title: const Text('Paramètres'),
-            subtitle: const Text(
-              'Lecture, animations, données et confidentialité',
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-          ),
-          const SizedBox(height: IntelliaSpacing.xl),
-          OutlinedButton.icon(
-            onPressed: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (dialogContext) => AlertDialog(
-                  title: const Text('Se déconnecter ?'),
-                  content: const Text(
-                    'Tes données synchronisées resteront disponibles à ta prochaine connexion.',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext, false),
-                      child: const Text('Annuler'),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.pop(dialogContext, true),
-                      child: const Text('Se déconnecter'),
-                    ),
-                  ],
+    final sections = <Widget>[
+      // Carte d'identité principale
+      _ProfileIdentityCard(auth: auth, theme: theme),
+      const SizedBox(height: IntelliaSpacing.md),
+      // Section Académique
+      _AcademicSection(academicAsync: academicAsync, theme: theme),
+      const SizedBox(height: IntelliaSpacing.md),
+      // Section Compagnon pédagogique
+      _TutorSection(classLevel: academicAsync.valueOrNull?.classLevel),
+      const SizedBox(height: IntelliaSpacing.md),
+      // Section Statistiques
+      _StatsSection(homeAsync: homeAsync, theme: theme),
+      const SizedBox(height: IntelliaSpacing.md),
+      ListTile(
+        onTap: () => context.push(AppRoutes.settings),
+        leading: const Icon(Icons.settings_outlined),
+        title: Text(context.l10n.settingsTitle),
+        subtitle: Text(context.l10n.settingsDescription),
+        trailing: const Icon(Icons.chevron_right_rounded),
+      ),
+      const SizedBox(height: IntelliaSpacing.xl),
+      OutlinedButton.icon(
+        onPressed: () async {
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (dialogContext) => AlertDialog(
+              title: Text(context.l10n.signOutQuestion),
+              content: Text(context.l10n.signOutDescription),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: Text(context.l10n.cancelLabel),
                 ),
-              );
-              if (confirmed == true) {
-                await ref.read(authControllerProvider.notifier).signOut();
-              }
-            },
-            icon: const Icon(Icons.logout_rounded, color: Colors.red),
-            label: const Text(
-              'Se déconnecter',
-              style: TextStyle(color: Colors.red),
+                FilledButton(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  child: Text(context.l10n.signOutTitle),
+                ),
+              ],
             ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.red),
-              padding: const EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
-            ),
+          );
+          if (confirmed == true) {
+            await ref.read(authControllerProvider.notifier).signOut();
+          }
+        },
+        icon: const Icon(Icons.logout_rounded, color: Colors.red),
+        label: Text(
+          context.l10n.signOutTitle,
+          style: const TextStyle(color: Colors.red),
+        ),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Colors.red),
+          padding: const EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
+        ),
+      ),
+      if (showBuildIdentity) ...[
+        const SizedBox(height: IntelliaSpacing.md),
+        _BuildIdentityLabel(identity: ref.watch(buildIdentityProvider)),
+      ],
+    ];
+
+    return _ResponsiveBody(
+      child: CustomScrollView(
+        slivers: [
+          StickyTabSectionHeader(
+            key: ValueKey('profile-sticky-header'),
+            eyebrow: context.l10n.studentSpace,
+            title: context.l10n.myProfileTitle,
           ),
-          if (showBuildIdentity) ...[
-            const SizedBox(height: IntelliaSpacing.md),
-            _BuildIdentityLabel(identity: ref.watch(buildIdentityProvider)),
-          ],
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              IntelliaSpacing.lg,
+              IntelliaSpacing.lg,
+              IntelliaSpacing.lg,
+              132,
+            ),
+            sliver: SliverList.list(children: sections),
+          ),
         ],
       ),
     );
@@ -706,13 +883,13 @@ class _BuildIdentityLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Version de l’application de test',
+      label: context.l10n.testAppVersionA11y,
       child: Center(
         child: Text(
           identity.when(
             data: (value) => value.label,
-            loading: () => 'Version en cours de lecture',
-            error: (_, _) => 'Version indisponible',
+            loading: () => context.l10n.versionLoading,
+            error: (_, _) => context.l10n.versionUnavailable,
           ),
           key: const ValueKey('student-profile-build-identity'),
           style: Theme.of(
@@ -758,7 +935,7 @@ class _ProfileIdentityCard extends StatelessWidget {
                   Text(
                     auth.firstName?.isNotEmpty == true
                         ? auth.firstName!
-                        : 'Utilisateur Intellia 237',
+                        : context.l10n.intelliaUser,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -789,7 +966,7 @@ class _ProfileIdentityCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            'Compte Élève',
+                            context.l10n.studentAccount,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.labelSmall?.copyWith(
@@ -823,7 +1000,7 @@ class _AcademicSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Parcours scolaire',
+          context.l10n.academicJourney,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -831,14 +1008,14 @@ class _AcademicSection extends StatelessWidget {
         const SizedBox(height: IntelliaSpacing.sm),
         Card(
           child: academicAsync.when(
-            loading: () => const ListTile(title: Text('Chargement…')),
-            error: (_, _) =>
-                const ListTile(title: Text('Erreur de chargement')),
+            loading: () =>
+                ListTile(title: Text(context.l10n.stateLoadingTitle)),
+            error: (_, _) => ListTile(title: Text(context.l10n.loadErrorLabel)),
             data: (academic) => Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.school_rounded),
-                  title: const Text('Classe'),
+                  title: Text(context.l10n.classLabel),
                   trailing: Text(
                     academic.classLevel,
                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -847,7 +1024,7 @@ class _AcademicSection extends StatelessWidget {
                 if (academic.series != null)
                   ListTile(
                     leading: const Icon(Icons.category_rounded),
-                    title: const Text('Série'),
+                    title: Text(context.l10n.seriesLabel),
                     trailing: Text(
                       academic.series!,
                       style: const TextStyle(fontWeight: FontWeight.bold),
@@ -875,7 +1052,7 @@ class _StatsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Statistiques & Progression',
+          context.l10n.statisticsAndProgress,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -889,8 +1066,8 @@ class _StatsSection extends StatelessWidget {
           error: (error, _) => IntelliaStateView(
             kind: stateKindForError(error),
             compact: true,
-            title: 'Statistiques indisponibles',
-            message: stateMessageForKind(stateKindForError(error)),
+            title: context.l10n.statisticsUnavailable,
+            message: stateMessageForKind(context, stateKindForError(error)),
           ),
           data: (snapshot) {
             final gamification = snapshot.gamification;
@@ -898,28 +1075,28 @@ class _StatsSection extends StatelessWidget {
               if (gamification != null) ...[
                 _StatTile(
                   icon: Icons.bolt_rounded,
-                  label: 'Points',
+                  label: context.l10n.pointsLabel,
                   value: gamification.currentPoints.toString(),
                   color: Colors.orange,
                 ),
                 _StatTile(
                   icon: Icons.workspace_premium_rounded,
-                  label: 'Niveau',
+                  label: context.l10n.levelLabel,
                   value: gamification.level.toString(),
                   color: Colors.blue,
                 ),
                 if (gamification.streakDays != null)
                   _StatTile(
                     icon: Icons.local_fire_department_rounded,
-                    label: 'Série actuelle',
-                    value: '${gamification.streakDays} jours',
+                    label: context.l10n.currentStreak,
+                    value: context.l10n.dayCount(gamification.streakDays!),
                     color: Colors.red,
                   ),
               ],
               if (snapshot.globalProgress != null)
                 _StatTile(
                   icon: Icons.auto_graph_rounded,
-                  label: 'Progression',
+                  label: context.l10n.progressLabel,
                   value: '${(snapshot.globalProgress! * 100).round()}%',
                   color: Colors.green,
                 ),
@@ -928,13 +1105,11 @@ class _StatsSection extends StatelessWidget {
             if (tiles.isEmpty) {
               // Aucun agrégat réel : on l'explique — jamais de chiffres
               // inventés pour meubler le tableau de bord.
-              return const IntelliaStateView(
+              return IntelliaStateView(
                 kind: IntelliaStateKind.empty,
                 compact: true,
-                title: 'Tes statistiques arrivent',
-                message:
-                    'Termine ta première leçon ou ton premier quiz pour '
-                    'voir tes points et ta progression ici.',
+                title: context.l10n.statisticsComingTitle,
+                message: context.l10n.statisticsComingBody,
               );
             }
 
@@ -1123,7 +1298,14 @@ class _TutorSection extends ConsumerWidget {
         ..clearSnackBars()
         ..showSnackBar(
           SnackBar(
-            content: Text(error.message),
+            content: Text(
+              error.code == 'permission-denied'
+                  ? context.l10n.companionSaveDenied
+                  : error.code == 'unavailable' ||
+                        error.code == 'deadline-exceeded'
+                  ? context.l10n.companionSaveNetworkError
+                  : context.l10n.companionSaveFailed,
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -1135,10 +1317,8 @@ class _TutorSection extends ConsumerWidget {
       ScaffoldMessenger.of(context)
         ..clearSnackBars()
         ..showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Le compagnon n’a pas pu être enregistré pour le moment.',
-            ),
+          SnackBar(
+            content: Text(context.l10n.companionSaveFailed),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -1302,7 +1482,7 @@ class _NoTutorPlaceholder extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Aucun tuteur sélectionné',
+                context.l10n.noCompanionSelected,
                 style: GoogleFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -1311,7 +1491,7 @@ class _NoTutorPlaceholder extends StatelessWidget {
               ),
               const SizedBox(height: 3),
               Text(
-                'Choisis un tuteur pour personnaliser ton compagnon',
+                context.l10n.chooseCompanionToPersonalize,
                 style: TextStyle(fontSize: 12, color: s.textTertiary),
               ),
             ],

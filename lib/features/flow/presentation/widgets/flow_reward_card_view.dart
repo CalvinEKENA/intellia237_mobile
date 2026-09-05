@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../application/flow_controller.dart';
 import '../../domain/flow_card.dart';
 import 'flow_card_scaffold.dart';
@@ -56,19 +57,19 @@ class FlowRewardCardView extends ConsumerWidget {
             children: [
               _stat(
                 '+${progress.sessionPoints}',
-                'Session vérifiée',
+                context.l10n.verifiedSession,
                 IntelliaColors.pointsGold,
               ),
               _divider(),
               _stat(
                 progress.verifiedTotalPoints?.toString() ?? '—',
-                'Total vérifié',
+                context.l10n.verifiedTotal,
                 accent,
               ),
               _divider(),
               _stat(
                 progress.pendingValidationCount.toString(),
-                'À valider',
+                context.l10n.pendingValidationLabel,
                 IntelliaColors.warning,
               ),
             ],

@@ -51,7 +51,7 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
       error: (error, stackTrace) => IntelliaStateView(
         kind: stateKindForError(error),
         title: context.l10n.subjectsLoadError,
-        message: stateMessageForKind(stateKindForError(error)),
+        message: stateMessageForKind(context, stateKindForError(error)),
         primaryLabel: context.l10n.retryLabel,
         onPrimary: () => ref.invalidate(learnHubProvider),
       ),
@@ -124,27 +124,17 @@ class _LearnHubBody extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         // ── En-tête commun clair ───────────────────────────
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              IntelliaSpacing.lg,
-              IntelliaSpacing.lg,
-              IntelliaSpacing.lg,
-              IntelliaSpacing.md,
-            ),
-            child: TabSectionHeader(
-              eyebrow: l10n.studentSpaceEyebrow,
-              title: l10n.learnTitle,
-              subtitle: l10n.learnSubtitle,
-            ),
-          ),
+        StickyTabSectionHeader(
+          key: const ValueKey('learn-sticky-header'),
+          eyebrow: l10n.studentSpaceEyebrow,
+          title: l10n.learnTitle,
         ),
         // ── Context banner ─────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
               IntelliaSpacing.lg,
-              0,
+              IntelliaSpacing.md,
               IntelliaSpacing.lg,
               0,
             ),
@@ -419,13 +409,14 @@ class _SubjectCard extends StatelessWidget {
                 SubjectDetailScreen(subjectId: subject.id, summary: subject),
           );
 
-    final lessons =
-        '${subject.lessonsCount} leçon${subject.lessonsCount > 1 ? 's' : ''}';
+    final lessons = context.l10n.lessonCount(subject.lessonsCount);
     return Semantics(
           button: true,
-          label:
-              '${subject.title}, '
-              '${(subject.completion * 100).round()} % complété, $lessons',
+          label: context.l10n.subjectTileA11y(
+            subject.title,
+            (subject.completion * 100).round(),
+            lessons,
+          ),
           child: interactive,
         )
         .animate(delay: Duration(milliseconds: index * 60))
@@ -505,7 +496,7 @@ class _SubjectTileVisual extends StatelessWidget {
                 ),
                 const SizedBox(height: IntelliaSpacing.xxs),
                 Text(
-                  '${subject.lessonsCount} leçon${subject.lessonsCount > 1 ? 's' : ''}',
+                  context.l10n.lessonCount(subject.lessonsCount),
                   style: TextStyle(
                     fontSize: 11,
                     color: Colors.white.withValues(alpha: 0.65),

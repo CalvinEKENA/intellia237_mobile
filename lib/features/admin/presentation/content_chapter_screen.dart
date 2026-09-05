@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../application/admin_content_providers.dart';
 import '../domain/admin_content_models.dart';
 import 'content_lesson_editor_screen.dart';
+import 'admin_presentation_localization.dart';
 
 /// Écran des chapitres d'une matière — admin
 class ContentChapterScreen extends ConsumerWidget {
@@ -46,22 +48,26 @@ class ContentChapterScreen extends ConsumerWidget {
                   ? Icons.visibility_off_rounded
                   : Icons.publish_rounded,
             ),
-            label: Text(subject.isPublished ? 'Dépublier' : 'Publier'),
+            label: Text(
+              subject.isPublished
+                  ? context.l10n.unpublishLabel
+                  : context.l10n.publishLabel,
+            ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddChapterDialog(context, ref, actions),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Ajouter chapitre'),
+        label: Text(context.l10n.addChapter),
       ),
       body: chaptersAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => IntelliaStateView(
           kind: stateKindForError(error),
-          title: 'Chapitres indisponibles',
-          message: stateMessageForKind(stateKindForError(error)),
-          primaryLabel: 'Réessayer',
+          title: context.l10n.chaptersUnavailable,
+          message: stateMessageForKind(context, stateKindForError(error)),
+          primaryLabel: context.l10n.retryLabel,
           onPrimary: () => ref.invalidate(adminChaptersProvider(args)),
         ),
         data: (chapters) => chapters.isEmpty
@@ -75,8 +81,8 @@ class ContentChapterScreen extends ConsumerWidget {
                       color: color.withValues(alpha: 0.3),
                     ),
                     const SizedBox(height: IntelliaSpacing.md),
-                    const Text(
-                      'Aucun chapitre.\nAppuyez sur + pour commencer.',
+                    Text(
+                      context.l10n.noChapterAdmin,
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -112,19 +118,21 @@ class ContentChapterScreen extends ConsumerWidget {
     return showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Nouveau chapitre'),
+        title: Text(context.l10n.newChapter),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleCtrl,
-              decoration: const InputDecoration(labelText: 'Titre du chapitre'),
+              decoration: InputDecoration(
+                labelText: context.l10n.chapterTitleLabel,
+              ),
             ),
             const SizedBox(height: IntelliaSpacing.sm),
             TextField(
               controller: descCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Description courte',
+              decoration: InputDecoration(
+                labelText: context.l10n.shortDescriptionLabel,
               ),
               maxLines: 2,
             ),
@@ -133,7 +141,7 @@ class ContentChapterScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.cancelLabel),
           ),
           FilledButton(
             onPressed: () async {
@@ -145,7 +153,7 @@ class ContentChapterScreen extends ConsumerWidget {
               );
               if (ctx.mounted) Navigator.pop(ctx);
             },
-            child: const Text('Créer'),
+            child: Text(context.l10n.createLabel),
           ),
         ],
       ),
@@ -208,7 +216,7 @@ class _ChapterCard extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      '${chapter.lessonsCount} leçon(s)',
+                      context.l10n.lessonsCount(chapter.lessonsCount),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -252,21 +260,21 @@ class ContentLessonsScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddLessonDialog(context, ref, actions),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Ajouter leçon'),
+        label: Text(context.l10n.addLesson),
       ),
       body: lessonsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => IntelliaStateView(
           kind: stateKindForError(error),
-          title: 'Leçons indisponibles',
-          message: stateMessageForKind(stateKindForError(error)),
-          primaryLabel: 'Réessayer',
+          title: context.l10n.lessonsUnavailable,
+          message: stateMessageForKind(context, stateKindForError(error)),
+          primaryLabel: context.l10n.retryLabel,
           onPrimary: () => ref.invalidate(adminLessonsProvider(args)),
         ),
         data: (lessons) => lessons.isEmpty
-            ? const Center(
+            ? Center(
                 child: Text(
-                  'Aucune leçon.\nAppuyez sur + pour créer.',
+                  context.l10n.noLessonAdmin,
                   textAlign: TextAlign.center,
                 ),
               )
@@ -304,25 +312,27 @@ class ContentLessonsScreen extends ConsumerWidget {
     return showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Nouvelle leçon'),
+        title: Text(context.l10n.newLesson),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleCtrl,
-              decoration: const InputDecoration(labelText: 'Titre'),
+              decoration: InputDecoration(labelText: context.l10n.titleLabel),
             ),
             const SizedBox(height: IntelliaSpacing.sm),
             TextField(
               controller: summaryCtrl,
-              decoration: const InputDecoration(labelText: 'Objectif / résumé'),
+              decoration: InputDecoration(
+                labelText: context.l10n.objectiveSummaryLabel,
+              ),
               maxLines: 2,
             ),
             const SizedBox(height: IntelliaSpacing.sm),
             TextField(
               controller: durationCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Durée estimée (min)',
+              decoration: InputDecoration(
+                labelText: context.l10n.estimatedDurationMinutes,
                 suffixText: 'min',
               ),
               keyboardType: TextInputType.number,
@@ -332,7 +342,7 @@ class ContentLessonsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.cancelLabel),
           ),
           FilledButton(
             onPressed: () async {
@@ -357,7 +367,7 @@ class ContentLessonsScreen extends ConsumerWidget {
                 );
               }
             },
-            child: const Text('Créer'),
+            child: Text(context.l10n.createLabel),
           ),
         ],
       ),
@@ -377,10 +387,11 @@ class _LessonTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (statusLabel, statusColor) = switch (lesson.status) {
-      'published' => ('Publié', IntelliaColors.success),
-      'ai_generated' => ('IA ✨', IntelliaColors.warning),
-      _ => ('Brouillon', Colors.grey),
+    final statusLabel = adminContentStatusLabel(context, lesson.status);
+    final statusColor = switch (lesson.status) {
+      'published' => IntelliaColors.success,
+      'ai_generated' => IntelliaColors.warning,
+      _ => Colors.grey,
     };
 
     return ListTile(

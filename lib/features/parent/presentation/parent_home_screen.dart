@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
@@ -18,6 +19,7 @@ import '../../tour_guide/domain/tour_guide_target_ids.dart';
 import '../../tour_guide/presentation/contextual_tour_guide.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../../mobile_money/presentation/mobile_money_parent_tab.dart';
+import '../../notifications/presentation/notification_app_bar_action.dart';
 import 'widgets/parent_premium_nav_bar.dart';
 import 'widgets/progress_line_chart.dart';
 
@@ -29,6 +31,13 @@ class ParentHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
+  List<String> _tabTitles(BuildContext context) => [
+    context.l10n.parentSpace,
+    context.l10n.myChildren,
+    context.l10n.announcementsLabel,
+    context.l10n.paymentsLabel,
+    context.l10n.profileNavLabel,
+  ];
   int _tabIndex = 0;
   String? _selectedChildId;
   bool _tourLaunchRequested = false;
@@ -50,6 +59,10 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
 
     return Scaffold(
       extendBody: true,
+      appBar: AppBar(
+        title: Text(_tabTitles(context)[_tabIndex]),
+        actions: const [NotificationAppBarAction()],
+      ),
       body: TabSurface(
         palette: const TabPalette(TabPresentationMode.embeddedLight),
         child: dashboardAsync.when(
@@ -57,9 +70,9 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
               const IntelliaStateView(kind: IntelliaStateKind.loading),
           error: (error, stackTrace) => IntelliaStateView(
             kind: stateKindForError(error),
-            title: 'Espace parent indisponible',
-            message: stateMessageForKind(stateKindForError(error)),
-            primaryLabel: 'Réessayer',
+            title: context.l10n.parentSpaceUnavailable,
+            message: stateMessageForKind(context, stateKindForError(error)),
+            primaryLabel: context.l10n.retryLabel,
             onPrimary: () => ref.invalidate(parentDashboardProvider),
           ),
           data: (dashboard) {
@@ -197,7 +210,7 @@ class _ParentHomeTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Espace Parent',
+                  context.l10n.parentSpace,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
@@ -205,7 +218,7 @@ class _ParentHomeTab extends StatelessWidget {
                 ),
                 const SizedBox(height: IntelliaSpacing.xs),
                 Text(
-                  'Suivi clair et rassurant de la progression scolaire.',
+                  context.l10n.parentSpaceDescription,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                   ),
@@ -252,7 +265,9 @@ class _ParentHomeTab extends StatelessWidget {
                 const SizedBox(height: IntelliaSpacing.xs),
                 if (selectedChild.hasProgressData) ...[
                   Text(
-                    'Progression globale ${(selectedChild.globalProgress * 100).round()}%',
+                    context.l10n.globalProgressPercent(
+                      (selectedChild.globalProgress * 100).round(),
+                    ),
                   ),
                   const SizedBox(height: IntelliaSpacing.sm),
                   ClipRRect(
@@ -263,9 +278,7 @@ class _ParentHomeTab extends StatelessWidget {
                     ),
                   ),
                 ] else
-                  const Text(
-                    'La progression apparaîtra après les premières activités.',
-                  ),
+                  Text(context.l10n.progressComingAfterActivities),
                 const SizedBox(height: IntelliaSpacing.md),
                 // Jamais de courbe plate factice : la courbe n'apparaît que
                 // si l'agrégat hebdomadaire existe réellement.
@@ -275,11 +288,10 @@ class _ParentHomeTab extends StatelessWidget {
                   IntelliaStateView(
                     kind: IntelliaStateKind.empty,
                     compact: true,
-                    title: 'Courbe d\'activité à venir',
-                    message:
-                        'La progression hebdomadaire de '
-                        '${selectedChild.firstName} apparaîtra ici après ses '
-                        'premières leçons et quiz.',
+                    title: context.l10n.activityChartComing,
+                    message: context.l10n.childWeeklyProgressComing(
+                      selectedChild.firstName,
+                    ),
                   ),
                 const SizedBox(height: IntelliaSpacing.md),
                 if (selectedChild.strongSubjects.isNotEmpty ||
@@ -288,7 +300,7 @@ class _ParentHomeTab extends StatelessWidget {
                     children: [
                       Expanded(
                         child: _SubjectTagCard(
-                          title: 'Matières fortes',
+                          title: context.l10n.strongSubjects,
                           subjects: selectedChild.strongSubjects,
                           color: const Color(0xFF16A34A),
                         ),
@@ -296,7 +308,7 @@ class _ParentHomeTab extends StatelessWidget {
                       const SizedBox(width: IntelliaSpacing.sm),
                       Expanded(
                         child: _SubjectTagCard(
-                          title: 'Matières à renforcer',
+                          title: context.l10n.subjectsToImprove,
                           subjects: selectedChild.weakSubjects,
                           color: const Color(0xFFDC2626),
                         ),
@@ -305,8 +317,7 @@ class _ParentHomeTab extends StatelessWidget {
                   )
                 else
                   Text(
-                    'Les points forts et les matières à renforcer seront '
-                    'identifiés après les premières évaluations.',
+                    context.l10n.subjectStrengthsComing,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 const SizedBox(height: IntelliaSpacing.md),
@@ -325,7 +336,7 @@ class _ParentHomeTab extends StatelessWidget {
                           AppRoutes.childOverview(selectedChild.id),
                         ),
                         icon: const Icon(Icons.visibility_rounded),
-                        label: const Text('Vue enfant'),
+                        label: Text(context.l10n.childOverviewTitle),
                       ),
                     ),
                     const SizedBox(width: IntelliaSpacing.sm),
@@ -335,7 +346,7 @@ class _ParentHomeTab extends StatelessWidget {
                           AppRoutes.childProgress(selectedChild.id),
                         ),
                         icon: const Icon(Icons.show_chart_rounded),
-                        label: const Text('Progression'),
+                        label: Text(context.l10n.progressLabel),
                       ),
                     ),
                   ],
@@ -346,7 +357,7 @@ class _ParentHomeTab extends StatelessWidget {
         ),
         const SizedBox(height: IntelliaSpacing.md),
         Text(
-          'Annonces établissement',
+          context.l10n.schoolAnnouncements,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -393,7 +404,7 @@ class _EmptyParentHomeTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Espace Parent',
+                  context.l10n.parentSpace,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
@@ -401,7 +412,7 @@ class _EmptyParentHomeTab extends StatelessWidget {
                 ),
                 const SizedBox(height: IntelliaSpacing.xs),
                 Text(
-                  'Votre compte est actif. Les enfants liés apparaîtront ici après validation du lien.',
+                  context.l10n.parentAccountActiveBody,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                   ),
@@ -418,22 +429,20 @@ class _EmptyParentHomeTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Aucun enfant lié',
+                  context.l10n.noChildLinked,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: IntelliaSpacing.xs),
-                const Text(
-                  'Ajoutez un code enfant depuis le profil ou demandez le lien à l\'établissement.',
-                ),
+                Text(context.l10n.linkChildHelp),
               ],
             ),
           ),
         ),
         const SizedBox(height: IntelliaSpacing.md),
         Text(
-          'Annonces établissement',
+          context.l10n.schoolAnnouncements,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -464,7 +473,7 @@ class _ChildrenTab extends StatelessWidget {
       ),
       children: [
         Text(
-          'Mes enfants',
+          context.l10n.myChildren,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
@@ -492,7 +501,7 @@ class _ChildrenTab extends StatelessWidget {
                         child: OutlinedButton(
                           onPressed: () =>
                               context.push(AppRoutes.childOverview(child.id)),
-                          child: const Text('Vue d\'ensemble'),
+                          child: Text(context.l10n.overviewLabel),
                         ),
                       ),
                       const SizedBox(width: IntelliaSpacing.sm),
@@ -500,7 +509,7 @@ class _ChildrenTab extends StatelessWidget {
                         child: FilledButton(
                           onPressed: () =>
                               context.push(AppRoutes.childProgress(child.id)),
-                          child: const Text('Progression'),
+                          child: Text(context.l10n.progressLabel),
                         ),
                       ),
                     ],
@@ -532,7 +541,7 @@ class _AnnouncementsTab extends StatelessWidget {
       ),
       children: [
         Text(
-          'Annonces établissement',
+          context.l10n.schoolAnnouncements,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
@@ -564,7 +573,7 @@ class _ProfileTab extends StatelessWidget {
       ),
       children: [
         Text(
-          'Profil Parent',
+          context.l10n.parentProfile,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
@@ -576,15 +585,13 @@ class _ProfileTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Compte parent actif'),
+                Text(context.l10n.parentAccountActive),
                 const SizedBox(height: IntelliaSpacing.xs),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.settings_outlined),
-                  title: const Text('Paramètres'),
-                  subtitle: const Text(
-                    'Lecture, notifications, données et confidentialité',
-                  ),
+                  title: Text(context.l10n.settingsTitle),
+                  subtitle: Text(context.l10n.parentSettingsDescription),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push(AppRoutes.settings),
                 ),
@@ -598,7 +605,7 @@ class _ProfileTab extends StatelessWidget {
           key: signOutKey,
           onPressed: onSignOut,
           icon: const Icon(Icons.logout_rounded),
-          label: const Text('Se déconnecter'),
+          label: Text(context.l10n.signOutTitle),
         ),
       ],
     );
@@ -637,7 +644,9 @@ class _SubjectTagCard extends StatelessWidget {
           ),
           const SizedBox(height: IntelliaSpacing.xs),
           Text(
-            subjects.isEmpty ? 'À déterminer' : subjects.join(', '),
+            subjects.isEmpty
+                ? context.l10n.toBeDetermined
+                : subjects.join(', '),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -663,7 +672,7 @@ class _StudyIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!measured) {
       return Text(
-        'Le temps d’étude sera affiché dès que la mesure sera disponible.',
+        context.l10n.studyTimeComing,
         style: Theme.of(context).textTheme.bodySmall,
       );
     }
@@ -701,14 +710,17 @@ class _StudyIndicator extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Temps d\'étude du jour',
+                  context.l10n.todayStudyTime,
                   style: Theme.of(
                     context,
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: IntelliaSpacing.xxs),
                 Text(
-                  '$studyMinutesToday min / objectif $studyMinutesTarget min',
+                  context.l10n.studyMinutesGoal(
+                    studyMinutesToday,
+                    studyMinutesTarget,
+                  ),
                 ),
               ],
             ),

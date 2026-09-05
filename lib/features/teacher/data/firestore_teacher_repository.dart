@@ -210,12 +210,33 @@ class FirestoreTeacherRepository implements TeacherRepository {
     required String title,
     required String message,
   }) async {
+    final results = await Future.wait([
+      _db.collection('classes').doc(classId).get(),
+      _db.collection('users').doc(teacherUid).get(),
+    ]);
+    final classData = results[0].data() ?? const <String, dynamic>{};
+    final userData = results[1].data() ?? const <String, dynamic>{};
+    final teacherIds = List<String>.from(
+      classData['teacherIds'] as List? ?? const <String>[],
+    );
+    final mainTeacherId = (classData['mainTeacherId'] as String?)?.trim();
+    if (!teacherIds.contains(teacherUid) && mainTeacherId != teacherUid) {
+      throw StateError('Cette classe ne vous est pas assignée.');
+    }
+    final establishmentId =
+        (classData['establishmentId'] as String?)?.trim() ??
+        (userData['establishmentId'] as String?)?.trim() ??
+        '';
+    if (establishmentId.isEmpty) {
+      throw StateError('Aucun établissement n’est associé à cette classe.');
+    }
     await _db.collection('announcements').add({
       'createdBy': teacherUid,
       'classId': classId,
+      'establishmentId': establishmentId,
       'title': title,
       'message': message,
-      'audience': 'class',
+      'audience': 'Classe',
       'publishedAt': FieldValue.serverTimestamp(),
       'createdAt': FieldValue.serverTimestamp(),
     });

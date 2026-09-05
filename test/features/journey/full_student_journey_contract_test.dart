@@ -99,13 +99,18 @@ void main() {
 
       final reachableJourney = <String>[
         AppRoutes.studentHome,
+        AppRoutes.studentNotifications,
+        AppRoutes.flow,
         AppRoutes.learnHub,
         AppRoutes.subjectDetail('maths'),
         AppRoutes.chapterDetail('maths', 'algebra'),
         AppRoutes.lessonViewer('maths', 'algebra', 'equations'),
         AppRoutes.quizHub,
         AppRoutes.quizPlay('quiz-1'),
+        AppRoutes.quizResult,
         AppRoutes.aiCompanion,
+        AppRoutes.tutorSelection,
+        AppRoutes.settings,
         AppRoutes.editProfile,
       ];
       expect(reachableJourney, everyElement(startsWith('/')));

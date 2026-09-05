@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../../core/widgets/intellia_count_up.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,7 +56,7 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
         ? 0.0
         : widget.result.score / widget.result.maxScore;
 
-    final badge = _BadgeConfig.forRatio(ratio);
+    final badge = _BadgeConfig.forRatio(context, ratio);
 
     return Scaffold(
       backgroundColor: const Color(0xFF060E22),
@@ -78,7 +79,7 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: IconButton(
-                        tooltip: 'Retour aux quiz',
+                        tooltip: context.l10n.backToQuizzes,
                         onPressed: () => context.go(AppRoutes.quizHub),
                         icon: const Icon(
                           Icons.arrow_back_rounded,
@@ -128,9 +129,9 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                           ),
                         ),
                         gradient: AppGradients.heroTeal,
-                        child: const Text(
-                          'Rejouer mes erreurs',
-                          style: TextStyle(
+                        child: Text(
+                          context.l10n.replayMyMistakes,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -143,9 +144,9 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                       onPressed: () =>
                           context.go(AppRoutes.quizPlay(widget.result.quizId)),
                       gradient: badge.gradient,
-                      child: const Text(
-                        'Recommencer',
-                        style: TextStyle(
+                      child: Text(
+                        context.l10n.restartQuiz,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -168,14 +169,14 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                             ),
                           ),
                         ),
-                        child: const Text('Retour aux quiz'),
+                        child: Text(context.l10n.backToQuizzes),
                       ),
                     ),
                     const SizedBox(height: IntelliaSpacing.xxl),
 
                     // ── Detailed corrections ───────────────────
                     Text(
-                      'Correction détaillée',
+                      context.l10n.detailedCorrection,
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -258,7 +259,10 @@ class _MistakeReviewSheetState extends State<_MistakeReviewSheet> {
               children: [
                 Expanded(
                   child: Text(
-                    'Erreur ${_index + 1}/${widget.corrections.length}',
+                    context.l10n.mistakeProgress(
+                      _index + 1,
+                      widget.corrections.length,
+                    ),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -284,7 +288,7 @@ class _MistakeReviewSheetState extends State<_MistakeReviewSheet> {
             ),
             const SizedBox(height: IntelliaSpacing.sm),
             Text(
-              'Réponds mentalement, puis révèle la correction.',
+              context.l10n.mentalAnswerInstruction,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.65)),
             ),
             const SizedBox(height: IntelliaSpacing.lg),
@@ -296,7 +300,7 @@ class _MistakeReviewSheetState extends State<_MistakeReviewSheet> {
               firstChild: FilledButton.icon(
                 onPressed: () => setState(() => _revealed = true),
                 icon: const Icon(Icons.visibility_rounded),
-                label: const Text('Révéler la réponse'),
+                label: Text(context.l10n.revealAnswer),
               ),
               secondChild: Container(
                 padding: const EdgeInsets.all(IntelliaSpacing.md),
@@ -341,7 +345,9 @@ class _MistakeReviewSheetState extends State<_MistakeReviewSheet> {
                     });
                   }
                 },
-                child: Text(last ? 'Terminer la révision' : 'Erreur suivante'),
+                child: Text(
+                  last ? context.l10n.finishReview : context.l10n.nextMistake,
+                ),
               ),
             ],
           ],
@@ -512,23 +518,23 @@ class _BadgeConfig {
   final String emoji;
   final LinearGradient gradient;
 
-  static _BadgeConfig forRatio(double ratio) {
+  static _BadgeConfig forRatio(BuildContext context, double ratio) {
     if (ratio >= 0.80) {
-      return const _BadgeConfig(
-        label: 'Excellent !',
+      return _BadgeConfig(
+        label: context.l10n.excellentResult,
         emoji: '🏆',
         gradient: AppGradients.heroGold,
       );
     }
     if (ratio >= 0.60) {
-      return const _BadgeConfig(
-        label: 'Bien joué !',
+      return _BadgeConfig(
+        label: context.l10n.wellDoneResult,
         emoji: '👏',
         gradient: AppGradients.heroNavy,
       );
     }
-    return const _BadgeConfig(
-      label: 'Continue !',
+    return _BadgeConfig(
+      label: context.l10n.keepGoingResult,
       emoji: '💪',
       gradient: AppGradients.heroTeal,
     );
@@ -738,8 +744,8 @@ class _CorrectionCard extends StatelessWidget {
                   const SizedBox(width: IntelliaSpacing.sm),
                   Text(
                     isCorrect
-                        ? '+${correction.pointsReward} points'
-                        : '0 point',
+                        ? context.l10n.pointsEarned(correction.pointsReward)
+                        : context.l10n.zeroPoints,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -752,13 +758,13 @@ class _CorrectionCard extends StatelessWidget {
               ),
               const SizedBox(height: IntelliaSpacing.sm),
               _AnswerRow(
-                label: 'Ta réponse',
+                label: context.l10n.yourAnswerLabel,
                 value: correction.userAnswer,
                 isCorrect: null,
               ),
               const SizedBox(height: IntelliaSpacing.xxs),
               _AnswerRow(
-                label: 'Bonne réponse',
+                label: context.l10n.correctAnswerLabel,
                 value: correction.correctAnswer,
                 isCorrect: true,
               ),
@@ -864,10 +870,10 @@ class _ImprovementBadge extends ConsumerWidget {
     if (delta <= 0) return const SizedBox.shrink();
 
     final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    final label = '+$delta % par rapport à ta dernière tentative';
+    final label = context.l10n.quizImprovement(delta);
 
     final chip = Semantics(
-      label: 'Score en progrès : $label',
+      label: context.l10n.quizImprovementA11y(label),
       child: Container(
         margin: const EdgeInsets.only(top: IntelliaSpacing.sm),
         padding: const EdgeInsets.symmetric(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/theme/design_tokens.dart';
+import '../localization/localization_extensions.dart';
 
 class IntelliaTopBar extends StatelessWidget implements PreferredSizeWidget {
   const IntelliaTopBar({
@@ -27,7 +28,7 @@ class IntelliaTopBar extends StatelessWidget implements PreferredSizeWidget {
       leading: showBack
           ? IconButton(
               onPressed: onBack ?? () => context.pop(),
-              tooltip: 'Retour',
+              tooltip: context.l10n.backLabel,
               icon: const Icon(Icons.arrow_back_rounded),
             )
           : null,

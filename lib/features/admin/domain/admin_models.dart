@@ -1,27 +1,20 @@
 enum AdminRoleType { student, parent, teacher, admin }
 
-extension AdminRoleTypeX on AdminRoleType {
-  String get label {
-    return switch (this) {
-      AdminRoleType.student => 'Élève',
-      AdminRoleType.parent => 'Parent',
-      AdminRoleType.teacher => 'Enseignant',
-      AdminRoleType.admin => 'Administration',
-    };
-  }
-}
+/// Valeurs historiques attendues par le fan-out backend.
+const adminAudienceWholeSchool = "Tout l'établissement";
+const adminAudienceStudents = 'Élèves';
+const adminAudienceParents = 'Parents';
+const adminAudienceTeachers = 'Enseignants';
+const adminAudienceAdministration = 'Administration';
+const adminAudienceOptions = <String>[
+  adminAudienceWholeSchool,
+  adminAudienceStudents,
+  adminAudienceParents,
+  adminAudienceTeachers,
+  adminAudienceAdministration,
+];
 
 enum ModerationStatus { pending, approved, rejected }
-
-extension ModerationStatusX on ModerationStatus {
-  String get label {
-    return switch (this) {
-      ModerationStatus.pending => 'En attente',
-      ModerationStatus.approved => 'Approuvé',
-      ModerationStatus.rejected => 'Masqué',
-    };
-  }
-}
 
 class AdminKpi {
   const AdminKpi({

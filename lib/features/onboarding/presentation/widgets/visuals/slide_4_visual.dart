@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
 import '../../../../../core/assets/intellia_assets.dart';
+import '../../../../../core/localization/localization_extensions.dart';
 
 /// Legacy-compatible companion visual kept for callers outside the cinematic
 /// onboarding. It depicts two learning companions with a simple dialogue link.
@@ -17,7 +18,7 @@ class OnboardingSlide4Visual extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Qui sera ton compagnon pédagogique ?',
+            context.l10n.whoWillBeYourCompanion,
             style: Theme.of(context).textTheme.labelLarge,
           ),
           const SizedBox(height: 24),
@@ -32,7 +33,7 @@ class OnboardingSlide4Visual extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 22),
                 child: Semantics(
-                  label: 'Dialogue pédagogique',
+                  label: context.l10n.learningDialogueA11y,
                   child: const Icon(
                     Icons.forum_outlined,
                     color: IntelliaColors.brandIndigo,

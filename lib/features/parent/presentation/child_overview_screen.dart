@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/parent_providers.dart';
 import '../domain/parent_child_profile.dart';
 import 'widgets/progress_line_chart.dart';
@@ -20,18 +21,18 @@ class ChildOverviewScreen extends ConsumerWidget {
     final childAsync = ref.watch(parentChildByIdProvider(childId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Vue enfant')),
+      appBar: AppBar(title: Text(context.l10n.childOverviewTitle)),
       body: childAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => IntelliaStateView(
           kind: stateKindForError(error),
-          message: stateMessageForKind(stateKindForError(error)),
-          primaryLabel: 'Réessayer',
+          message: stateMessageForKind(context, stateKindForError(error)),
+          primaryLabel: context.l10n.retryLabel,
           onPrimary: () => ref.invalidate(parentChildByIdProvider(childId)),
         ),
         data: (child) {
           if (child == null) {
-            return const Center(child: Text('Enfant introuvable.'));
+            return Center(child: Text(context.l10n.childNotFound));
           }
           return _ChildOverviewBody(child: child);
         },
@@ -91,7 +92,7 @@ class _ChildOverviewBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Progression hebdomadaire',
+                  context.l10n.weeklyProgress,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -100,9 +101,7 @@ class _ChildOverviewBody extends StatelessWidget {
                 if (child.weeklyProgress.isNotEmpty)
                   ProgressLineChart(values: child.weeklyProgress)
                 else
-                  const Text(
-                    'La courbe apparaîtra après les premières activités.',
-                  ),
+                  Text(context.l10n.progressChartComing),
               ],
             ),
           ),
@@ -112,7 +111,7 @@ class _ChildOverviewBody extends StatelessWidget {
           children: [
             Expanded(
               child: _SubjectsBlock(
-                title: 'Matières fortes',
+                title: context.l10n.strongSubjects,
                 color: const Color(0xFF16A34A),
                 items: child.strongSubjects,
               ),
@@ -120,7 +119,7 @@ class _ChildOverviewBody extends StatelessWidget {
             const SizedBox(width: IntelliaSpacing.sm),
             Expanded(
               child: _SubjectsBlock(
-                title: 'À renforcer',
+                title: context.l10n.needsImprovement,
                 color: const Color(0xFFDC2626),
                 items: child.weakSubjects,
               ),
@@ -131,7 +130,7 @@ class _ChildOverviewBody extends StatelessWidget {
         FilledButton.icon(
           onPressed: () => context.push(AppRoutes.childProgress(child.id)),
           icon: const Icon(Icons.show_chart_rounded),
-          label: const Text('Voir la progression détaillée'),
+          label: Text(context.l10n.viewDetailedProgress),
         ),
       ],
     );
@@ -169,7 +168,7 @@ class _SubjectsBlock extends StatelessWidget {
             ),
           ),
           const SizedBox(height: IntelliaSpacing.xs),
-          Text(items.isEmpty ? 'Pas encore mesuré' : items.join(', ')),
+          Text(items.isEmpty ? context.l10n.notMeasuredYet : items.join(', ')),
         ],
       ),
     );

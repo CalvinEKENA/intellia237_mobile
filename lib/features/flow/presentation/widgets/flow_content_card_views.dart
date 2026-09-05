@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import '../../domain/flow_card.dart';
 import 'flow_card_scaffold.dart';
@@ -170,7 +171,7 @@ class _FlowQuestionCardViewState extends State<FlowQuestionCardView> {
           Icon(Icons.emoji_events_outlined, size: 16, color: accent),
           const SizedBox(width: 8),
           Text(
-            'Découvrir la réponse',
+            context.l10n.discoverAnswer,
             style: GoogleFonts.montserrat(
               fontSize: 14,
               fontWeight: FontWeight.w700,

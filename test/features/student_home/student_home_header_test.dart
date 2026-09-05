@@ -4,18 +4,6 @@ import 'package:intellia237/app/theme/design_tokens.dart';
 import 'package:intellia237/core/widgets/tab_presentation.dart';
 import 'package:intellia237/features/student_home/presentation/widgets/student_home_header.dart';
 
-TextSpan? _findNameSpan(WidgetTester tester, String name) {
-  for (final richText in tester.widgetList<RichText>(find.byType(RichText))) {
-    final root = richText.text;
-    if (root is TextSpan && root.children != null) {
-      for (final child in root.children!) {
-        if (child is TextSpan && child.text == name) return child;
-      }
-    }
-  }
-  return null;
-}
-
 Future<void> _pumpHeader(
   WidgetTester tester, {
   required TabPresentationMode mode,
@@ -44,23 +32,22 @@ void main() {
       final semantics = tester.ensureSemantics();
       await _pumpHeader(tester, mode: TabPresentationMode.embeddedLight);
 
-      final nameSpan = _findNameSpan(tester, 'Amina');
-      expect(nameSpan, isNotNull, reason: 'le prénom doit être rendu');
+      final name = tester.widget<Text>(find.text('Amina'));
 
       // Contrat de surface : texte sombre sur fond clair.
-      expect(nameSpan!.style!.color, IntelliaColors.textPrimary);
-      expect(nameSpan.style!.color!.computeLuminance(), lessThan(0.2));
+      expect(name.style!.color, IntelliaColors.textPrimary);
+      expect(name.style!.color!.computeLuminance(), lessThan(0.2));
 
       // Le halo (ombres) n'est plus un substitut de contraste.
       expect(
-        nameSpan.style!.shadows ?? const <Shadow>[],
+        name.style!.shadows ?? const <Shadow>[],
         isEmpty,
         reason: 'plus d\'ombre de texte comme béquille de lisibilité',
       );
 
       // Le sous-titre or profond reste lisible sur clair.
       final subtitle = tester.widget<Text>(
-        find.text('Prêt pour aujourd\'hui ?'),
+        find.text('Mon espace d’apprentissage'),
       );
       expect(
         subtitle.style!.color,
@@ -84,9 +71,8 @@ void main() {
   ) async {
     await _pumpHeader(tester, mode: TabPresentationMode.standaloneDark);
 
-    final nameSpan = _findNameSpan(tester, 'Amina');
-    expect(nameSpan, isNotNull);
-    expect(nameSpan!.style!.color, const Color(0xFFFFFFFF));
+    final name = tester.widget<Text>(find.text('Amina'));
+    expect(name.style!.color, const Color(0xFFFFFFFF));
     expect(tester.takeException(), isNull);
   });
 }

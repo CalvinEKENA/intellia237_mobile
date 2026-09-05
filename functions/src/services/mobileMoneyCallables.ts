@@ -661,7 +661,7 @@ export function authorizePaymentReview(
   requestEstablishmentId: string,
 ): void {
   const role = normalizedString(reviewerData?.role);
-  if (role !== "admin" && role !== "superAdmin") {
+  if (role !== "admin" && role !== "superAdmin" && role !== "super_admin") {
     throw new AppError(
       "permission-denied",
       "Only an administrator can review a payment request.",

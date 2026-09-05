@@ -15,6 +15,7 @@ import 'app/config/app_config.dart';
 import 'features/auth/data/auth_entry_preferences.dart';
 import 'features/onboarding/data/onboarding_preferences.dart';
 import 'core/notifications/learning_reminder_service.dart';
+import 'core/notifications/notification_push_service.dart';
 import 'core/security/app_check_service.dart';
 import 'firebase_options.dart';
 
@@ -95,6 +96,7 @@ Future<void> bootstrap({
   // La permission n'est demandée qu'après un choix explicite dans Paramètres.
   try {
     await LearningReminderService.initialize();
+    await NotificationPushService.initialize();
   } catch (error, stackTrace) {
     debugPrint('Local notification initialization failed: $error');
     debugPrintStack(stackTrace: stackTrace);

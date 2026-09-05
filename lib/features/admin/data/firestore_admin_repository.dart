@@ -111,8 +111,15 @@ class FirestoreAdminRepository implements AdminRepository {
     required String message,
     required String audience,
   }) async {
+    final context = await _fetchAdminContext(adminUid);
+    if (context.establishmentId.isEmpty) {
+      throw StateError(
+        'Aucun établissement n’est associé à ce compte administrateur.',
+      );
+    }
     await _db.collection('announcements').add({
       'createdBy': adminUid,
+      'establishmentId': context.establishmentId,
       'title': title,
       'message': message,
       'audience': audience,

@@ -5,6 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import '../../../core/notifications/learning_reminder_service.dart';
+import '../../../core/notifications/notification_push_service.dart';
+import '../../auth/application/auth_controller.dart';
 
 class UserPreferences {
   const UserPreferences({
@@ -109,6 +111,12 @@ class UserPreferencesController extends Notifier<UserPreferences> {
           )
         : false;
     if (!value) await LearningReminderService.disableReminder();
+    if (enabled) {
+      final userId = ref.read(authControllerProvider).userId;
+      if (userId != null) {
+        await NotificationPushService.requestAndRegister(userId);
+      }
+    }
     state = state.copyWith(notifications: enabled);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_notificationsKey, enabled);

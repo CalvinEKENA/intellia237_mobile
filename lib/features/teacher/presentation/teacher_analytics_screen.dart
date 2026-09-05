@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../application/teacher_providers.dart';
@@ -20,9 +21,9 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
       loading: () => const IntelliaStateView(kind: IntelliaStateKind.loading),
       error: (error, stackTrace) => IntelliaStateView(
         kind: stateKindForError(error),
-        title: 'Statistiques indisponibles',
-        message: stateMessageForKind(stateKindForError(error)),
-        primaryLabel: 'Réessayer',
+        title: context.l10n.statisticsUnavailable,
+        message: stateMessageForKind(context, stateKindForError(error)),
+        primaryLabel: context.l10n.retryLabel,
         onPrimary: () {
           ref.invalidate(teacherDashboardProvider);
           ref.invalidate(teacherClassesProvider);
@@ -32,9 +33,9 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
         loading: () => const IntelliaStateView(kind: IntelliaStateKind.loading),
         error: (error, stackTrace) => IntelliaStateView(
           kind: stateKindForError(error),
-          title: 'Classes indisponibles',
-          message: stateMessageForKind(stateKindForError(error)),
-          primaryLabel: 'Réessayer',
+          title: context.l10n.classesUnavailable,
+          message: stateMessageForKind(context, stateKindForError(error)),
+          primaryLabel: context.l10n.retryLabel,
           onPrimary: () => ref.invalidate(teacherClassesProvider),
         ),
         data: (classes) => ListView(
@@ -46,31 +47,35 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
           ),
           children: [
             Text(
-              'Analyses enseignant',
+              context.l10n.teacherAnalyticsTitle,
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: IntelliaSpacing.xs),
             Text(
-              'Vue d\'ensemble des performances de vos classes.',
+              context.l10n.teacherAnalyticsSubtitle,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: IntelliaSpacing.md),
             _MetricCard(
-              title: 'Taux moyen de complétion',
+              title: context.l10n.averageCompletionRate,
               value: '${(dashboard.kpi.averageCompletion * 100).round()}%',
-              subtitle: '${dashboard.kpi.activeClasses} classes actives',
+              subtitle: context.l10n.activeClassesCount(
+                dashboard.kpi.activeClasses,
+              ),
             ),
             const SizedBox(height: IntelliaSpacing.sm),
             _MetricCard(
-              title: 'Engagement journalier',
+              title: context.l10n.dailyEngagement,
               value: dashboard.kpi.dailyEngagementMinutes == null
                   ? '\u2014'
                   : '${dashboard.kpi.dailyEngagementMinutes} min',
               subtitle: dashboard.kpi.dailyEngagementMinutes == null
-                  ? 'Mesure disponible prochainement'
-                  : '${dashboard.kpi.activeStudents} élèves suivis',
+                  ? context.l10n.metricComingSoon
+                  : context.l10n.trackedStudentsCount(
+                      dashboard.kpi.activeStudents,
+                    ),
             ),
             const SizedBox(height: IntelliaSpacing.md),
             Card(
@@ -80,7 +85,7 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tendance hebdomadaire',
+                      context.l10n.weeklyTrend,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -88,8 +93,7 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
                     const SizedBox(height: IntelliaSpacing.sm),
                     if (dashboard.weeklyCompletionTrend.isEmpty)
                       Text(
-                        'La tendance apparaîtra après la première semaine '
-                        'd\'activité de vos élèves.',
+                        context.l10n.weeklyTrendEmpty,
                         style: Theme.of(context).textTheme.bodyMedium,
                       )
                     else
@@ -106,7 +110,7 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Progression par classe',
+                      context.l10n.progressByClass,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -143,7 +147,7 @@ class TeacherAnalyticsScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Analyses enseignant')),
+      appBar: AppBar(title: Text(context.l10n.teacherAnalyticsTitle)),
       body: body,
     );
   }
@@ -198,7 +202,7 @@ class _TrendBars extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (values.isEmpty) {
-      return const Text('Aucune donnée disponible.');
+      return Text(context.l10n.noDataAvailable);
     }
 
     return SizedBox(

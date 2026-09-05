@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_buttons.dart';
 import '../../../core/widgets/intellia_text_field.dart';
 import '../../auth/domain/auth_input_validators.dart';
@@ -33,12 +34,6 @@ class _TeacherRegistrationScreenState
   final _confirmPasswordController = TextEditingController();
 
   int _previousStep = 0;
-
-  static const _stepLabels = <String>[
-    'Identité enseignant',
-    'Enseignement',
-    'Validation finale',
-  ];
 
   @override
   void initState() {
@@ -84,11 +79,16 @@ class _TeacherRegistrationScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(teacherRegistrationControllerProvider);
     final controller = ref.read(teacherRegistrationControllerProvider.notifier);
+    final l10n = context.l10n;
 
     return AuthRegistrationFrame(
-      title: 'Créer un compte Enseignant',
+      title: l10n.teacherRegistrationTitle,
       currentStep: state.currentStep,
-      labels: _stepLabels,
+      labels: [
+        l10n.teacherIdentityStep,
+        l10n.teachingStep,
+        l10n.finalReviewTitle,
+      ],
       onBack: state.currentStep == 0
           ? () => context.pop()
           : () {
@@ -148,35 +148,37 @@ class _TeacherRegistrationScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _SectionHeader(
-            title: 'Coordonnées enseignant',
-            subtitle: 'Renseignez vos informations de connexion.',
+          _SectionHeader(
+            title: context.l10n.teacherDetailsTitle,
+            subtitle: context.l10n.teacherDetailsSubtitle,
           ),
           const SizedBox(height: IntelliaSpacing.lg),
           IntelliaTextField(
             controller: _firstNameController,
-            label: 'Prénom',
-            hint: 'Ex: Serge',
+            label: context.l10n.firstNameLabel,
+            hint: context.l10n.firstNameTeacherHint,
             prefixIcon: Icons.person_rounded,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
-              label: 'Le prénom',
+              label: context.l10n.firstNameWithArticle,
             ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _lastNameController,
-            label: 'Nom',
-            hint: 'Ex: Mbarga',
+            label: context.l10n.lastNameLabel,
+            hint: context.l10n.lastNameTeacherHint,
             prefixIcon: Icons.badge_rounded,
-            validator: (value) =>
-                AuthInputValidators.displayName(value ?? '', label: 'Le nom'),
+            validator: (value) => AuthInputValidators.displayName(
+              value ?? '',
+              label: context.l10n.lastNameWithArticle,
+            ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaTextField(
             controller: _emailController,
-            label: 'Adresse e-mail',
-            hint: 'enseignant@exemple.com',
+            label: context.l10n.emailLabel,
+            hint: context.l10n.teacherEmailHint,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_rounded,
             validator: (value) => AuthInputValidators.email(value ?? ''),
@@ -184,15 +186,15 @@ class _TeacherRegistrationScreenState
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaPasswordField(
             controller: _passwordController,
-            label: 'Mot de passe',
-            hint: '8 caractères minimum',
+            label: context.l10n.passwordLabel,
+            hint: context.l10n.passwordMinEight,
             validator: (value) => AuthInputValidators.password(value ?? ''),
           ),
           const SizedBox(height: IntelliaSpacing.md),
           IntelliaPasswordField(
             controller: _confirmPasswordController,
-            label: 'Confirmer le mot de passe',
-            hint: 'Retapez le mot de passe',
+            label: context.l10n.confirmPasswordLabel,
+            hint: context.l10n.confirmPasswordHint,
             validator: (value) => AuthInputValidators.confirmPassword(
               password: _passwordController.text,
               confirmation: value ?? '',
@@ -209,22 +211,22 @@ class _TeacherRegistrationScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionHeader(
-          title: 'Votre enseignement',
-          subtitle: 'Sélectionnez vos matières et niveaux enseignés.',
+        _SectionHeader(
+          title: context.l10n.teachingTitle,
+          subtitle: context.l10n.teachingSubtitle,
         ),
         const SizedBox(height: IntelliaSpacing.lg),
         SubjectMultiSelector(
-          title: 'Matières enseignées',
-          caption: 'Sélectionnez vos disciplines principales.',
+          title: context.l10n.taughtSubjectsTitle,
+          caption: context.l10n.taughtSubjectsCaption,
           options: TeacherCatalogs.subjects,
           selected: state.subjects,
           onToggle: controller.toggleSubject,
         ),
         const SizedBox(height: IntelliaSpacing.lg),
         SubjectMultiSelector(
-          title: 'Niveaux enseignés',
-          caption: 'Sélectionnez les classes que vous couvrez.',
+          title: context.l10n.taughtLevelsTitle,
+          caption: context.l10n.taughtLevelsCaption,
           options: TeacherCatalogs.levels,
           selected: state.levels,
           onToggle: controller.toggleLevel,
@@ -239,28 +241,25 @@ class _TeacherRegistrationScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionHeader(
-          title: 'Validation finale',
-          subtitle: 'Relisez vos informations avant de confirmer.',
+        _SectionHeader(
+          title: context.l10n.finalReviewTitle,
+          subtitle: context.l10n.teacherFinalSubtitle,
         ),
         const SizedBox(height: IntelliaSpacing.lg),
         _IntelliaCheckboxTile(
           value: state.acceptedTerms,
           onChanged: (value) => controller.setAcceptedTerms(value ?? false),
-          label: 'J\'accepte les conditions d\'utilisation.',
+          label: context.l10n.acceptTerms,
         ),
         const SizedBox(height: IntelliaSpacing.sm),
         _IntelliaCheckboxTile(
           value: state.acceptedPrivacy,
           onChanged: (value) => controller.setAcceptedPrivacy(value ?? false),
-          label: 'J\'accepte la politique de confidentialité.',
+          label: context.l10n.acceptPrivacy,
         ),
         const LegalLinks(),
         const SizedBox(height: IntelliaSpacing.lg),
-        const _InfoBanner(
-          message:
-              'L\'inscription d\'un compte enseignant nécessite une validation par une équipe autorisée.',
-        ),
+        _InfoBanner(message: context.l10n.teacherValidationNotice),
       ],
     );
   }
@@ -288,9 +287,13 @@ class _TeacherRegistrationScreenState
                         });
                         controller.previousStep();
                       },
-                child: const FittedBox(
+                child: FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text('Précédent', maxLines: 1, softWrap: false),
+                  child: Text(
+                    context.l10n.previousLabel,
+                    maxLines: 1,
+                    softWrap: false,
+                  ),
                 ),
               ),
             )
@@ -303,7 +306,9 @@ class _TeacherRegistrationScreenState
               onTap: state.isSubmitting ? null : () => _onPrimaryAction(state),
               isLoading: state.isSubmitting,
               child: Text(
-                state.isLastStep ? 'Créer mon compte enseignant' : 'Suivant',
+                state.isLastStep
+                    ? context.l10n.createTeacherAccount
+                    : context.l10n.nextLabel,
               ),
             ),
           ),

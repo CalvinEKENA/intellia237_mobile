@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/quiz_question.dart';
 import 'question_card_shell.dart';
 
@@ -19,12 +20,12 @@ class ShortAnswerQuestionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return QuestionCardShell(
       title: question.prompt,
-      subtitle: 'Réponds en quelques mots',
+      subtitle: context.l10n.shortAnswerInstruction,
       child: TextFormField(
         initialValue: value,
         onChanged: onChanged,
         textInputAction: TextInputAction.done,
-        decoration: const InputDecoration(hintText: 'Ta réponse…'),
+        decoration: InputDecoration(hintText: context.l10n.yourAnswerHint),
       ),
     );
   }

@@ -1047,4 +1047,2384 @@ class AppLocalizationsEn extends AppLocalizations {
   String nextStepLesson(String title) {
     return 'Next step: “$title”.';
   }
+
+  @override
+  String get phoneProfileChoicePrompt =>
+      'This number does not have a profile yet. Choose the account to create:';
+
+  @override
+  String get phoneCreateStudentProfile => 'Create my student profile';
+
+  @override
+  String get phoneCreateParentProfile => 'Create a parent profile';
+
+  @override
+  String get authProfileSetupTitle => 'Account setup';
+
+  @override
+  String get authCompleteProfileTitle => 'Complete your profile';
+
+  @override
+  String get authSessionActiveTitle => 'Your session is still active';
+
+  @override
+  String get authChooseProfileBody =>
+      'Choose the profile to create. Your verified Firebase session will be reused.';
+
+  @override
+  String get authProfileSyncFailureBody =>
+      'The profile could not be synchronized. No automatic sign-out was performed.';
+
+  @override
+  String get chooseRolePrompt => 'I am…';
+
+  @override
+  String get adminRole => 'Administration';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationMarkAllRead => 'Mark all read';
+
+  @override
+  String get notificationsUnavailable => 'Notifications unavailable';
+
+  @override
+  String get notificationsSyncError =>
+      'The inbox could not be synchronized. Check your connection and try again.';
+
+  @override
+  String get notificationsEmptyTitle => 'All quiet';
+
+  @override
+  String get notificationsEmptyBody =>
+      'Learning reminders, news and important messages will appear here.';
+
+  @override
+  String get notificationPermissionDenied =>
+      'Permission denied. The inbox remains available here.';
+
+  @override
+  String get notificationEnableTitle => 'Never miss an update';
+
+  @override
+  String get notificationEnableBody =>
+      'Enable system alerts. Every message is also kept in this inbox.';
+
+  @override
+  String get notificationEnableAction => 'Enable alerts';
+
+  @override
+  String get profileUnavailable => 'Profile unavailable';
+
+  @override
+  String get profileUnavailableBody =>
+      'The profile could not be loaded. Check your connection and try again.';
+
+  @override
+  String get loginEmailImmutable =>
+      'The sign-in address cannot be changed here.';
+
+  @override
+  String get phoneOptionalLabel => 'Phone number (optional)';
+
+  @override
+  String get invalidCameroonPhone => 'Enter a valid Cameroon phone number.';
+
+  @override
+  String get savingLabel => 'Saving…';
+
+  @override
+  String get saveLabel => 'Save';
+
+  @override
+  String get profileRestrictedFields =>
+      'Class, role and school can only be changed by an authorised person.';
+
+  @override
+  String profileNameLengthError(String label) {
+    return '$label must contain between 2 and 60 characters.';
+  }
+
+  @override
+  String get profileUpdated => 'Profile updated.';
+
+  @override
+  String get kiraDiscoveryPhraseOne =>
+      'She takes the time to explain things clearly.';
+
+  @override
+  String get kiraDiscoveryPhraseTwo =>
+      'She moves forward with method and calm.';
+
+  @override
+  String get kiraDiscoveryPhraseThree =>
+      'She helps you understand without pressure.';
+
+  @override
+  String get leoDiscoveryPhraseOne =>
+      'He turns every concept into a challenge.';
+
+  @override
+  String get leoDiscoveryPhraseTwo =>
+      'He encourages you to go a little further.';
+
+  @override
+  String get leoDiscoveryPhraseThree =>
+      'He celebrates every step forward with you.';
+
+  @override
+  String get discoverLeo => 'Discover Léo';
+
+  @override
+  String get returnToKira => 'Return to Kira';
+
+  @override
+  String discoverCompanionBeforeChoice(String name) {
+    return 'Discover $name before choosing this companion';
+  }
+
+  @override
+  String companionChosenA11y(String name) {
+    return '$name selected';
+  }
+
+  @override
+  String chooseCompanionA11y(String name) {
+    return 'Choose $name';
+  }
+
+  @override
+  String currentCompanionLabel(String name) {
+    return '$name, your companion';
+  }
+
+  @override
+  String get subjectMathematics => 'Mathematics';
+
+  @override
+  String get subjectFrench => 'French';
+
+  @override
+  String get subjectGeography => 'Geography';
+
+  @override
+  String get classPremiereDisplay => 'Première';
+
+  @override
+  String get stateLoadingTitle => 'Loading…';
+
+  @override
+  String get stateEmptyTitle => 'Nothing here yet';
+
+  @override
+  String get stateNoResultsTitle => 'No results';
+
+  @override
+  String get stateComingSoonTitle => 'Content coming soon';
+
+  @override
+  String get stateRetryableErrorTitle => 'Something went wrong';
+
+  @override
+  String get stateFatalErrorTitle => 'An unexpected error occurred';
+
+  @override
+  String get stateOfflineTitle => 'You are offline';
+
+  @override
+  String get stateAccessDeniedTitle => 'Access denied';
+
+  @override
+  String get stateLockedTitle => 'Content locked';
+
+  @override
+  String get stateSuccessTitle => 'Done!';
+
+  @override
+  String get stateOfflineBody =>
+      'Check your connection and try again. Content you have already opened remains available.';
+
+  @override
+  String get stateAccessDeniedBody =>
+      'Your account cannot access this content. Sign in again or contact your school.';
+
+  @override
+  String get stateRetryableErrorBody =>
+      'The problem is not on your side. Try again in a moment.';
+
+  @override
+  String completionPercent(int percent) {
+    return '$percent% completed';
+  }
+
+  @override
+  String get nextUpA11y => ', next up';
+
+  @override
+  String lessonTileA11y(int index, String title, String status, String next) {
+    return 'Lesson $index: $title, $status$next';
+  }
+
+  @override
+  String subjectTileA11y(String title, int percent, String lessons) {
+    return '$title, $percent% completed, $lessons';
+  }
+
+  @override
+  String get lessonProgressQueuedOffline =>
+      'Offline: your progress will be validated after reconnecting.';
+
+  @override
+  String get lessonProgressSaveFailed =>
+      'Unable to save right now. Try again in a moment.';
+
+  @override
+  String get removeFromFavorites => 'Remove from favourites';
+
+  @override
+  String get addToFavorites => 'Add to favourites';
+
+  @override
+  String lessonReadingMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count min read',
+      one: '1 min read',
+      zero: 'Less than one minute to read',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String miniQuizScoreSuccess(int score, int total) {
+    return 'Score: $score/$total — well done!';
+  }
+
+  @override
+  String miniQuizScoreReview(int score, int total) {
+    return 'Score: $score/$total — review the lesson and try again.';
+  }
+
+  @override
+  String get submitMiniQuiz => 'Submit mini quiz';
+
+  @override
+  String get answerAllBeforeSubmit => 'Answer every question before submitting';
+
+  @override
+  String get answerAllQuestions => 'Answer every question';
+
+  @override
+  String correctAnswerA11y(String answer) {
+    return 'Correct answer: $answer';
+  }
+
+  @override
+  String incorrectAnswerA11y(String answer) {
+    return 'Your answer is incorrect: $answer';
+  }
+
+  @override
+  String get quizProfileIncompleteBody =>
+      'Complete or resync your school profile before choosing quizzes for your level.';
+
+  @override
+  String get quizCatalogDeniedBody =>
+      'This profile is not authorised to access the catalogue. You can continue with your lessons while it is checked.';
+
+  @override
+  String get quizCatalogUnavailableBody =>
+      'The verified catalogue is temporarily unavailable. No content is fabricated: continue with Flow or your lessons.';
+
+  @override
+  String get quizCatalogInvalidBody =>
+      'The received catalogue is incomplete. It is hidden so that you are not offered incorrect content.';
+
+  @override
+  String get quizCatalogNetworkBody =>
+      'The catalogue connection was interrupted. Your lessons and Flow remain available.';
+
+  @override
+  String get quizLoadErrorTitle => 'Unable to load quizzes right now.';
+
+  @override
+  String get quizOfflineTitle => 'Quizzes are waiting for a connection';
+
+  @override
+  String get quizOfflineBody =>
+      'Quizzes cannot start offline: the server protects answer checking and validates submissions without storing your answers offline. You can continue with Flow or a downloaded lesson.';
+
+  @override
+  String get openOfflineFlow => 'Open Flow offline';
+
+  @override
+  String get viewDownloadedLessons => 'View my downloaded lessons';
+
+  @override
+  String get allLabel => 'All';
+
+  @override
+  String get quizModeTraining => 'Training';
+
+  @override
+  String get quizModeExam => 'Assessment / mock exam';
+
+  @override
+  String get quizModeUnspecified => 'Mode not specified';
+
+  @override
+  String get quizHubIntro =>
+      'Practise with guided feedback or assess yourself under mock exam conditions.';
+
+  @override
+  String get chooseRevisionMode => 'Choose your revision mode';
+
+  @override
+  String get quizPausedOfflineTitle => 'Quizzes paused offline';
+
+  @override
+  String get quizPausedOfflineBody =>
+      'Answer checking and submissions are verified by the server. To protect assessments, no answers or corrections are stored offline.';
+
+  @override
+  String get displayLabel => 'Show';
+
+  @override
+  String get filterQuizByModeA11y => 'Filter quizzes by mode';
+
+  @override
+  String get quizComingTitle => 'Quizzes for your class are coming';
+
+  @override
+  String get quizComingBody =>
+      'New quizzes are being prepared for your level. In the meantime, review a lesson or launch Flow from the home screen.';
+
+  @override
+  String get quizTrainingAction => 'Practise';
+
+  @override
+  String get quizTrainingDescription =>
+      'Guided feedback helps you understand before continuing.';
+
+  @override
+  String get quizExamAction => 'Assess myself';
+
+  @override
+  String get quizExamDescription =>
+      'Answers are checked at the end. These quizzes prepare you for assessments without replacing an official exam.';
+
+  @override
+  String get studentSpace => 'Student space';
+
+  @override
+  String get quizTitle => 'Quiz';
+
+  @override
+  String get quizHistoryLoading => 'Loading validated attempts…';
+
+  @override
+  String get quizHistoryUnavailable => 'History is unavailable right now.';
+
+  @override
+  String get quizNoValidatedAttempt => 'No validated attempts yet.';
+
+  @override
+  String lastScore(String score) {
+    return 'Latest score: $score';
+  }
+
+  @override
+  String get myResults => 'My results';
+
+  @override
+  String get quizResultsLoadFailed =>
+      'Unable to retrieve validated results. Your quizzes remain available.';
+
+  @override
+  String get quizFirstResultBody =>
+      'No result is fabricated here: your first attempt will appear after the server validates it.';
+
+  @override
+  String get quizMasteryUnavailable =>
+      'Mastery by topic is not shown because current attempts do not yet record validated learning skills.';
+
+  @override
+  String get dateUnavailable => 'Date unavailable';
+
+  @override
+  String pointsEarned(int count) {
+    return '+$count points';
+  }
+
+  @override
+  String get scoreUnavailable => 'Score unavailable';
+
+  @override
+  String get quizTrainingGuide => 'Guided feedback during the quiz.';
+
+  @override
+  String get quizExamGuide => 'Full correction after submission.';
+
+  @override
+  String questionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '1 question',
+      zero: 'No questions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get unavailableOfflineA11y => ' Unavailable offline.';
+
+  @override
+  String get quizNeedsNetworkTitle => 'This quiz needs a connection';
+
+  @override
+  String get quizNeedsNetworkBody =>
+      'The server protects answer checking and validates submissions. Intellia237 does not cache your answers or corrections. Reconnect to begin, or continue with an activity already available offline.';
+
+  @override
+  String get quizPlayOfflineTitle => 'Quiz unavailable offline';
+
+  @override
+  String get quizPlayOfflineBody =>
+      'Content, answer checking and submissions are verified by the server. Intellia237 does not store your answers or corrections offline. Reconnect, or continue with an activity already available on this device.';
+
+  @override
+  String get quizQuestionsComingTitle => 'Questions are being prepared';
+
+  @override
+  String get quizQuestionsComingBody =>
+      'This quiz is published, but its questions are not available yet.';
+
+  @override
+  String get leaveQuizTitle => 'Leave this quiz?';
+
+  @override
+  String get leaveQuizBody => 'The answers in this attempt will be lost.';
+
+  @override
+  String get continueQuiz => 'Continue quiz';
+
+  @override
+  String get leaveAndDiscardAnswers => 'Leave and discard my answers';
+
+  @override
+  String get checkAnswerAction => 'Check';
+
+  @override
+  String get finishLabel => 'Finish';
+
+  @override
+  String get guidedCorrectionUnavailableTitle => 'Feedback unavailable';
+
+  @override
+  String guidedCorrectionFailureBody(String reason) {
+    return '$reason\nYour answer remains on this screen and is not cached.';
+  }
+
+  @override
+  String get continueWithoutCorrection => 'Continue without feedback';
+
+  @override
+  String get correctAnswerTitle => 'Correct answer!';
+
+  @override
+  String get keyTakeawayTitle => 'Key takeaway';
+
+  @override
+  String expectedAnswer(String answer) {
+    return 'Expected answer: $answer';
+  }
+
+  @override
+  String unansweredQuestionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unanswered questions',
+      one: '1 unanswered question',
+      zero: 'No unanswered questions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get incompleteQuizBody =>
+      'You can return to the first incomplete question or submit now.';
+
+  @override
+  String get completeMyAnswers => 'Complete my answers';
+
+  @override
+  String get submitAnyway => 'Submit anyway';
+
+  @override
+  String quizSubmissionFailureBody(String reason) {
+    return '$reason Your answers remain on this screen: try again without re-entering them. No offline copy is created.';
+  }
+
+  @override
+  String get quizAnswerCheckNetworkError =>
+      'The connection is too weak to check this answer. Try again when the network returns.';
+
+  @override
+  String get quizAnswerCheckUnavailable =>
+      'Guided feedback is unavailable right now.';
+
+  @override
+  String get quizAnswerCheckFailed =>
+      'This answer cannot be checked right now.';
+
+  @override
+  String get quizAnswerCheckGenericError =>
+      'Guided feedback is not responding right now. Check your connection and try again.';
+
+  @override
+  String get quizSubmissionNotFound => 'Quiz not found or unavailable.';
+
+  @override
+  String get quizSubmissionPrecondition => 'This quiz cannot be submitted yet.';
+
+  @override
+  String get quizSubmissionAlreadyExists =>
+      'This attempt has already been used.';
+
+  @override
+  String get quizSubmissionDenied => 'You cannot submit this quiz.';
+
+  @override
+  String get quizSubmissionInvalid => 'The attempt contains invalid answers.';
+
+  @override
+  String get quizSubmissionUnauthenticated => 'Sign in to validate the quiz.';
+
+  @override
+  String get quizSubmissionUnavailable =>
+      'The server could not validate this attempt right now.';
+
+  @override
+  String get singleAnswerQcm => 'Multiple choice — One correct answer';
+
+  @override
+  String get selectedA11y => ', selected';
+
+  @override
+  String quizOptionA11y(String letter, String answer, String selected) {
+    return 'Answer $letter: $answer$selected';
+  }
+
+  @override
+  String get shortAnswerInstruction => 'Answer in a few words';
+
+  @override
+  String get yourAnswerHint => 'Your answer…';
+
+  @override
+  String get trueOrFalse => 'True or false';
+
+  @override
+  String get trueLabel => 'True';
+
+  @override
+  String get falseLabel => 'False';
+
+  @override
+  String get backToQuizzes => 'Back to quizzes';
+
+  @override
+  String get replayMyMistakes => 'Replay my mistakes';
+
+  @override
+  String get restartQuiz => 'Start again';
+
+  @override
+  String get detailedCorrection => 'Detailed feedback';
+
+  @override
+  String mistakeProgress(int current, int total) {
+    return 'Mistake $current/$total';
+  }
+
+  @override
+  String get mentalAnswerInstruction =>
+      'Answer mentally, then reveal the correction.';
+
+  @override
+  String get revealAnswer => 'Reveal answer';
+
+  @override
+  String get finishReview => 'Finish review';
+
+  @override
+  String get nextMistake => 'Next mistake';
+
+  @override
+  String get excellentResult => 'Excellent!';
+
+  @override
+  String get wellDoneResult => 'Well done!';
+
+  @override
+  String get keepGoingResult => 'Keep going!';
+
+  @override
+  String get zeroPoints => '0 points';
+
+  @override
+  String get yourAnswerLabel => 'Your answer';
+
+  @override
+  String get correctAnswerLabel => 'Correct answer';
+
+  @override
+  String quizImprovement(int delta) {
+    return '+$delta% compared with your previous attempt';
+  }
+
+  @override
+  String quizImprovementA11y(String label) {
+    return 'Score improved: $label';
+  }
+
+  @override
+  String get continueWithFlow => 'Continue with Flow';
+
+  @override
+  String get homeLabel => 'Home';
+
+  @override
+  String get companionNavLabel => 'Companion';
+
+  @override
+  String get profileNavLabel => 'Profile';
+
+  @override
+  String get homeLoadError => 'Unable to load the home screen';
+
+  @override
+  String get todayEyebrow => 'Today';
+
+  @override
+  String get resumeWhereLeftOff => 'Pick up where you left off';
+
+  @override
+  String get keepMomentum => 'Keep up the momentum.';
+
+  @override
+  String get exploreEyebrow => 'Explore';
+
+  @override
+  String get chooseNextActivity => 'Choose your next activity';
+
+  @override
+  String get homeLessonsComingTitle => 'Your lessons are coming';
+
+  @override
+  String get homeLessonsComingBody =>
+      'Lessons for your class are being prepared. In the meantime, discover Flow or review with your companion.';
+
+  @override
+  String get discoverFlow => 'Discover Flow';
+
+  @override
+  String get talkToCompanion => 'Talk to my companion';
+
+  @override
+  String get forYouEyebrow => 'For you';
+
+  @override
+  String get adaptiveJourneyTitle => 'A journey that grows with you';
+
+  @override
+  String get demoDataLabel => 'Demo data';
+
+  @override
+  String get settingsDescription => 'Reading, animations, data and privacy';
+
+  @override
+  String get myProfileTitle => 'My profile';
+
+  @override
+  String get testAppVersionA11y => 'Test application version';
+
+  @override
+  String get versionLoading => 'Reading version';
+
+  @override
+  String get versionUnavailable => 'Version unavailable';
+
+  @override
+  String get intelliaUser => 'Intellia 237 user';
+
+  @override
+  String get studentAccount => 'Student account';
+
+  @override
+  String get academicJourney => 'Academic journey';
+
+  @override
+  String get loadErrorLabel => 'Loading error';
+
+  @override
+  String get classLabel => 'Class';
+
+  @override
+  String get statisticsAndProgress => 'Statistics and progress';
+
+  @override
+  String get statisticsUnavailable => 'Statistics unavailable';
+
+  @override
+  String get pointsLabel => 'Points';
+
+  @override
+  String get levelLabel => 'Level';
+
+  @override
+  String get currentStreak => 'Current streak';
+
+  @override
+  String dayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+      zero: '0 days',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get progressLabel => 'Progress';
+
+  @override
+  String get statisticsComingTitle => 'Your statistics are coming';
+
+  @override
+  String get statisticsComingBody =>
+      'Complete your first lesson or quiz to see your points and progress here.';
+
+  @override
+  String get companionSaveDenied =>
+      'This companion cannot be saved to your profile.';
+
+  @override
+  String get companionSaveNetworkError =>
+      'The network is unavailable. Try again in a moment.';
+
+  @override
+  String get companionSaveFailed =>
+      'The companion could not be saved right now.';
+
+  @override
+  String get noCompanionSelected => 'No companion selected';
+
+  @override
+  String get chooseCompanionToPersonalize =>
+      'Choose a companion to personalise your experience';
+
+  @override
+  String get dailyChallenges => 'Today’s challenges';
+
+  @override
+  String challengesRenewIn(String duration) {
+    return 'Challenges renew in $duration';
+  }
+
+  @override
+  String challengeCompletedA11y(String title) {
+    return 'Challenge completed: $title';
+  }
+
+  @override
+  String challengeRewardA11y(String title, int points) {
+    return 'Challenge: $title, reward $points points';
+  }
+
+  @override
+  String progressOverviewA11y(int percent, int level, int points) {
+    return 'My progress: $percent% overall, level $level, $points points. Open profile.';
+  }
+
+  @override
+  String get myProgress => 'My progress';
+
+  @override
+  String levelShort(int level) {
+    return 'Lvl $level';
+  }
+
+  @override
+  String get currentLevel => 'Current level';
+
+  @override
+  String levelValue(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get globalLabel => 'overall';
+
+  @override
+  String get quickQuiz => 'Quick quiz';
+
+  @override
+  String get personalizedRecommendations => 'Personalised recommendations';
+
+  @override
+  String resumeLessonA11y(String title, int percent) {
+    return 'Resume lesson $title, $percent percent complete.';
+  }
+
+  @override
+  String get resumeLastLesson => 'Resume last lesson';
+
+  @override
+  String streakA11y(int count, String message) {
+    return '$count day streak. $message';
+  }
+
+  @override
+  String streakDayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count-day streak',
+      one: '1-day streak',
+      zero: '0-day streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mySpace => 'My space';
+
+  @override
+  String get myLearningSpace => 'My learning space';
+
+  @override
+  String openNotificationsA11y(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Open notifications, $count unread',
+      one: 'Open notifications, 1 unread',
+      zero: 'Open notifications',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get openMyProfile => 'Open my profile';
+
+  @override
+  String get subjectsTitle => 'Subjects';
+
+  @override
+  String subjectProgressA11y(String title, int percent) {
+    return '$title, $percent% completed';
+  }
+
+  @override
+  String weeklyGoalProgressA11y(int done, int total, String status) {
+    return 'My weekly goal: $done of $total sessions. $status';
+  }
+
+  @override
+  String get goalAchievedA11y => 'Goal achieved.';
+
+  @override
+  String get myWeeklyGoal => 'My weekly goal';
+
+  @override
+  String get editMyGoal => 'Edit my goal';
+
+  @override
+  String get goalAchievedMessage => 'Goal achieved — a great week!';
+
+  @override
+  String weeklyGoalProgressSummary(int done, int total, int minutes) {
+    return '$done/$total sessions · about $minutes min each';
+  }
+
+  @override
+  String openPrioritySubjectA11y(String subject) {
+    return 'Open my priority subject: $subject';
+  }
+
+  @override
+  String prioritySubject(String subject) {
+    return 'Priority: $subject';
+  }
+
+  @override
+  String get setWeeklyPace => 'Set my weekly pace';
+
+  @override
+  String get setYourWeeklyPace => 'Set your weekly pace';
+
+  @override
+  String get weeklyPaceChoices => 'Choose 2, 3 or 5 sessions.';
+
+  @override
+  String get weeklyGoalExplanation =>
+      'Choose a realistic pace. The counter restarts every Monday, with no pressure.';
+
+  @override
+  String get sessionsPerWeek => 'Sessions per week';
+
+  @override
+  String get sessionDuration => 'Session duration';
+
+  @override
+  String get prioritySubjectOptional => 'Priority subject (optional)';
+
+  @override
+  String get noneLabel => 'None';
+
+  @override
+  String get saveMyGoal => 'Save my goal';
+
+  @override
+  String get removeGoal => 'Remove goal';
+
+  @override
+  String get childOverviewTitle => 'Child overview';
+
+  @override
+  String get childNotFound => 'Child not found.';
+
+  @override
+  String get weeklyProgress => 'Weekly progress';
+
+  @override
+  String get progressChartComing =>
+      'The chart will appear after the first activities.';
+
+  @override
+  String get strongSubjects => 'Strong';
+
+  @override
+  String get needsImprovement => 'Needs improvement';
+
+  @override
+  String get viewDetailedProgress => 'View detailed progress';
+
+  @override
+  String get notMeasuredYet => 'Not measured yet';
+
+  @override
+  String get childProgressTitle => 'Child progress';
+
+  @override
+  String childSevenDayProgress(String name) {
+    return '$name — 7-day progress';
+  }
+
+  @override
+  String get todayStudy => 'Today’s study';
+
+  @override
+  String get dailyTrend => 'Daily trend';
+
+  @override
+  String get childrenLabel => 'Children';
+
+  @override
+  String get announcementsLabel => 'Announcements';
+
+  @override
+  String get subscriptionLabel => 'Subscription';
+
+  @override
+  String get parentSpace => 'Parent space';
+
+  @override
+  String get myChildren => 'My children';
+
+  @override
+  String get paymentsLabel => 'Payments';
+
+  @override
+  String get parentSpaceUnavailable => 'Parent space unavailable';
+
+  @override
+  String get parentSpaceDescription =>
+      'A clear, reassuring view of school progress.';
+
+  @override
+  String globalProgressPercent(int percent) {
+    return 'Overall progress $percent%';
+  }
+
+  @override
+  String get progressComingAfterActivities =>
+      'Progress will appear after the first activities.';
+
+  @override
+  String get activityChartComing => 'Activity chart coming';
+
+  @override
+  String childWeeklyProgressComing(String name) {
+    return '$name’s weekly progress will appear here after the first lessons and quizzes.';
+  }
+
+  @override
+  String get subjectsToImprove => 'Needs support';
+
+  @override
+  String get subjectStrengthsComing =>
+      'Strengths and subjects to improve will be identified after the first assessments.';
+
+  @override
+  String get schoolAnnouncements => 'School announcements';
+
+  @override
+  String get parentAccountActiveBody =>
+      'Your account is active. Linked children will appear here after the link is validated.';
+
+  @override
+  String get noChildLinked => 'No child linked';
+
+  @override
+  String get linkChildHelp =>
+      'Add a child code from the profile or ask the school to create the link.';
+
+  @override
+  String get overviewLabel => 'Overview';
+
+  @override
+  String get parentProfile => 'Parent profile';
+
+  @override
+  String get parentAccountActive => 'Parent account active';
+
+  @override
+  String get parentSettingsDescription =>
+      'Reading, notifications, data and privacy';
+
+  @override
+  String get toBeDetermined => 'To be determined';
+
+  @override
+  String get studyTimeComing =>
+      'Study time will be displayed once the measurement is available.';
+
+  @override
+  String get todayStudyTime => 'Today’s study time';
+
+  @override
+  String studyMinutesGoal(int done, int goal) {
+    return '$done min / $goal min goal';
+  }
+
+  @override
+  String get badgeUnlocked => 'Badge unlocked';
+
+  @override
+  String get discoverAnswer => 'Reveal answer';
+
+  @override
+  String get newLabel => 'NEW';
+
+  @override
+  String get flowEntryDescription => 'Learn by swiping,\none card at a time.';
+
+  @override
+  String get missingAnswerHint => 'Enter the missing word or number';
+
+  @override
+  String get submitMyAnswer => 'Submit my answer';
+
+  @override
+  String get checkOrder => 'Check order';
+
+  @override
+  String sessionVerifiedPoints(int count) {
+    return '$count points verified in this session';
+  }
+
+  @override
+  String get totalPendingShort => 'Total —';
+
+  @override
+  String totalPointsShort(int count) {
+    return '$count total';
+  }
+
+  @override
+  String get totalPendingValidation => 'Total awaiting server validation';
+
+  @override
+  String totalVerifiedPoints(int count) {
+    return '$count verified points in total';
+  }
+
+  @override
+  String pendingValidationShort(int count) {
+    return '$count pending';
+  }
+
+  @override
+  String offlineActivitiesToSync(int count) {
+    return '$count offline activities to sync';
+  }
+
+  @override
+  String get verifiedSession => 'Verified session';
+
+  @override
+  String get verifiedTotal => 'Verified total';
+
+  @override
+  String get pendingValidationLabel => 'Pending';
+
+  @override
+  String activeTab(String label) {
+    return 'Active tab: $label';
+  }
+
+  @override
+  String get startupInterrupted => 'Startup interrupted';
+
+  @override
+  String roleSpace(String role) {
+    return '$role space';
+  }
+
+  @override
+  String welcomeRoleSpace(String role) {
+    return 'Welcome to the $role space';
+  }
+
+  @override
+  String get roleOptionsBody => 'View the options available for your profile.';
+
+  @override
+  String get skipLabel => 'Skip';
+
+  @override
+  String get probatoireLevel => 'Probatoire';
+
+  @override
+  String get baccalaureateLevel => 'Baccalaureate';
+
+  @override
+  String chooseTutorA11y(String name) {
+    return 'Choose $name as your tutor';
+  }
+
+  @override
+  String get chooseYourTutor => 'Choose your tutor';
+
+  @override
+  String get tutorJourneyDescription =>
+      'Your tutor will support you throughout your journey';
+
+  @override
+  String get activationEyebrow => 'INTELLIA // AWAKENING';
+
+  @override
+  String get activationTitle => 'Knowledge is waiting for your signal.';
+
+  @override
+  String get knowledgeEyebrow => 'A WORLD OF KNOWLEDGE';
+
+  @override
+  String get knowledgeTitle => 'Every subject opens a new path.';
+
+  @override
+  String get knowledgeBody =>
+      'Mathematics, English, French and science: begin with the subject that draws you in.';
+
+  @override
+  String get challengeEyebrow => 'FIRST CHALLENGE';
+
+  @override
+  String get challengeTitle => 'Understanding matters more than guessing.';
+
+  @override
+  String get challengeBody =>
+      'Give it a try. If you hesitate, INTELLIA breaks down the reasoning with you.';
+
+  @override
+  String get companionsEyebrow => 'TWO ENERGIES';
+
+  @override
+  String get companionsTitle => 'Two personalities. One goal.';
+
+  @override
+  String get companionsBody =>
+      'Helping you progress with an explanation style that fits you.';
+
+  @override
+  String get journeyEyebrow => 'INTELLIA JOURNEY';
+
+  @override
+  String get journeyTitle => 'A challenge becomes mastery.';
+
+  @override
+  String get journeyBody =>
+      'INTELLIA237 connects lessons, practice and quizzes in one coherent journey.';
+
+  @override
+  String get portalEyebrow => 'YOUR SPACE TAKES SHAPE';
+
+  @override
+  String get portalTitle => 'Your journey begins now.';
+
+  @override
+  String get portalBody =>
+      'Find your subjects, challenges and companion in one experience.';
+
+  @override
+  String get holdToEnterIntellia => 'Press and hold to enter INTELLIA237';
+
+  @override
+  String get holdCenterToActivate => 'Hold the centre until activation';
+
+  @override
+  String answerChoiceA11y(String answer) {
+    return 'Answer $answer';
+  }
+
+  @override
+  String continueAfterDiscovering(String name) {
+    return 'Continue after discovering $name';
+  }
+
+  @override
+  String continueWithCompanion(String name) {
+    return 'Continue with $name';
+  }
+
+  @override
+  String discoverCompanionA11y(String name) {
+    return 'Discover $name';
+  }
+
+  @override
+  String get kiraOnboardingSignature => 'CALM • METHOD • CONFIDENCE';
+
+  @override
+  String get kiraOnboardingExample =>
+      'Let’s revisit the essential idea, then move forward together.';
+
+  @override
+  String get leoOnboardingSignature => 'CHALLENGE • ENERGY • GROWTH';
+
+  @override
+  String get leoOnboardingExample =>
+      'Ready for a challenge? I’ll give you the clue that unlocks it.';
+
+  @override
+  String get lessonNodeLabel => 'LESSON';
+
+  @override
+  String get trainingNodeLabel => 'PRACTICE';
+
+  @override
+  String get reachMasteryA11y => 'Reach mastery and open the portal';
+
+  @override
+  String get masteryNodeLabel => 'MASTERY';
+
+  @override
+  String get tapMasteryInstruction => 'Tap mastery to open your space';
+
+  @override
+  String get chooseSubject => 'Choose a subject';
+
+  @override
+  String get yourLearningSpace => 'Your learning space';
+
+  @override
+  String get journeyAtYourPace => 'A journey at your pace';
+
+  @override
+  String get nextLessonPreview => 'Next lesson';
+
+  @override
+  String get equationsPreview => 'Equations';
+
+  @override
+  String get dailyChallengePreview => 'Today’s challenge';
+
+  @override
+  String get quizFiveMinutesPreview => 'Quiz • 5 min';
+
+  @override
+  String get factorizedLabel => 'Factorised';
+
+  @override
+  String get whoWillBeYourCompanion => 'Who will be your learning companion?';
+
+  @override
+  String get learningDialogueA11y => 'Learning dialogue';
+
+  @override
+  String get firstNameWithArticle => 'First name';
+
+  @override
+  String get lastNameWithArticle => 'Last name';
+
+  @override
+  String get passwordMinEight => 'At least 8 characters';
+
+  @override
+  String get confirmPasswordLabel => 'Confirm password';
+
+  @override
+  String get confirmPasswordHint => 'Enter the password again';
+
+  @override
+  String get teacherRegistrationTitle => 'Create a Teacher account';
+
+  @override
+  String get teacherIdentityStep => 'Teacher identity';
+
+  @override
+  String get teachingStep => 'Teaching';
+
+  @override
+  String get teacherDetailsTitle => 'Teacher details';
+
+  @override
+  String get teacherDetailsSubtitle => 'Enter your sign-in details.';
+
+  @override
+  String get firstNameTeacherHint => 'E.g. Serge';
+
+  @override
+  String get lastNameTeacherHint => 'E.g. Mbarga';
+
+  @override
+  String get teacherEmailHint => 'teacher@example.com';
+
+  @override
+  String get teachingTitle => 'Your teaching';
+
+  @override
+  String get teachingSubtitle => 'Select the subjects and levels you teach.';
+
+  @override
+  String get taughtSubjectsTitle => 'Subjects taught';
+
+  @override
+  String get taughtSubjectsCaption => 'Select your main subjects.';
+
+  @override
+  String get taughtLevelsTitle => 'Levels taught';
+
+  @override
+  String get taughtLevelsCaption => 'Select the classes you cover.';
+
+  @override
+  String get teacherFinalSubtitle =>
+      'Review your information before confirming.';
+
+  @override
+  String get teacherValidationNotice =>
+      'Teacher account registration requires approval by an authorised team.';
+
+  @override
+  String get createTeacherAccount => 'Create my teacher account';
+
+  @override
+  String get adminRegistrationTitle => 'Create an Administration account';
+
+  @override
+  String get adminIdentityStep => 'Administrator identity';
+
+  @override
+  String get jobFunctionStep => 'Role';
+
+  @override
+  String get adminDetailsTitle => 'Administrator details';
+
+  @override
+  String get adminDetailsSubtitle =>
+      'Information about the school leader or administrator.';
+
+  @override
+  String get firstNameAdminHint => 'E.g. Nadine';
+
+  @override
+  String get lastNameAdminHint => 'E.g. Meka';
+
+  @override
+  String get adminEmailHint => 'administration@example.com';
+
+  @override
+  String get adminFunctionTitle => 'Your role';
+
+  @override
+  String get adminFunctionSubtitle =>
+      'Describe your role within the administration.';
+
+  @override
+  String get jobTitleLabel => 'Job title';
+
+  @override
+  String get jobTitleHint => 'E.g. Principal, Head teacher, Deputy head';
+
+  @override
+  String get minimumThreeCharacters => 'At least 3 characters';
+
+  @override
+  String get adminAccreditationNotice =>
+      'Your administration account will be reviewed by our team before activation.';
+
+  @override
+  String get adminFinalSubtitle =>
+      'Your request will be submitted for approval.';
+
+  @override
+  String get adminValidationNotice =>
+      'Once approved, you will receive an email inviting you to sign in to your administration console.';
+
+  @override
+  String get createAdminAccount => 'Submit my administration account';
+
+  @override
+  String get legalVersion => 'Version dated 16 July 2026';
+
+  @override
+  String get legalContactNotice =>
+      'For questions or data requests, contact your school or the Intellia237 team. Local legal review is still required before commercial release.';
+
+  @override
+  String get legalTermsTitle => 'Terms of use';
+
+  @override
+  String get legalServicePurposeTitle => 'Purpose of the service';
+
+  @override
+  String get legalServicePurposeBody =>
+      'Intellia237 provides educational resources, quizzes and a learning companion. It supports teaching and does not replace the school or teacher.';
+
+  @override
+  String get legalAccountSecurityTitle => 'Account and security';
+
+  @override
+  String get legalAccountSecurityBody =>
+      'The information provided must be accurate. Sign-in details are personal. Teacher and administrator accounts may require approval.';
+
+  @override
+  String get legalResponsibleUseTitle => 'Responsible use';
+
+  @override
+  String get legalResponsibleUseBody =>
+      'Users must not bypass assessment rules, extract other users’ data or use the companion to produce harmful content.';
+
+  @override
+  String get availabilityLabel => 'Availability';
+
+  @override
+  String get legalAvailabilityBody =>
+      'Some features require a connection. Maintenance and temporary outages are communicated as clearly as possible.';
+
+  @override
+  String get legalPrivacyTitle => 'Privacy policy';
+
+  @override
+  String get legalCollectedDataTitle => 'Data collected';
+
+  @override
+  String get legalCollectedDataBody =>
+      'Account, role, class, progress and attempts required by the service may be recorded. Requested data must remain limited to the educational purpose.';
+
+  @override
+  String get legalMinorsPrivacyTitle => 'Children and privacy';
+
+  @override
+  String get legalMinorsPrivacyBody =>
+      'Conversations, free-text answers, names and emails must never be sent to audience measurement tools. Anonymous diagnostics are disabled by default.';
+
+  @override
+  String get legalRetentionAccessTitle => 'Retention and access';
+
+  @override
+  String get legalRetentionAccessBody =>
+      'Data is accessible only to authorised people according to their role. Retention periods and access procedures must be approved before release.';
+
+  @override
+  String get legalYourRightsTitle => 'Your rights';
+
+  @override
+  String get legalYourRightsBody =>
+      'A user or their representative may request access to, correction of or deletion of their data from the school or Intellia237 team.';
+
+  @override
+  String get legalEducationalDataTitle => 'Educational data processing';
+
+  @override
+  String get legalPurposeTitle => 'Purpose';
+
+  @override
+  String get legalPurposeBody =>
+      'Answers, results and progress are used to suggest a next step, provide corrections and help an authorised teacher or parent support the student.';
+
+  @override
+  String get legalDecisionsTitle => 'Decisions';
+
+  @override
+  String get legalDecisionsBody =>
+      'An automated recommendation is not an official school decision. The teacher and school remain responsible for academic assessment.';
+
+  @override
+  String get legalCompanionTitle => 'Learning companion';
+
+  @override
+  String get legalCompanionBody =>
+      'Messages are sent to the service needed to generate a response. Students must not share sensitive personal information there.';
+
+  @override
+  String get readTerms => 'Read the terms';
+
+  @override
+  String get readPrivacy => 'Read the privacy policy';
+
+  @override
+  String get readEducationalData => 'Understand educational data';
+
+  @override
+  String get loadingOffer => 'Loading offer';
+
+  @override
+  String get serviceUnavailable => 'Service unavailable';
+
+  @override
+  String get subscriptionTitle => 'Subscription';
+
+  @override
+  String get mobileMoneyParentDescription =>
+      'Mobile Money payment declared and then manually verified by your school.';
+
+  @override
+  String get myPaymentRequests => 'My requests';
+
+  @override
+  String accessDaysAfterApproval(int days) {
+    return 'Access for $days days after approval';
+  }
+
+  @override
+  String get mobileMoneyStepTransfer => '1. Make the transfer';
+
+  @override
+  String get operatorLabel => 'Operator';
+
+  @override
+  String get recipientNumberConfigured => 'Configured recipient number';
+
+  @override
+  String get copyNumber => 'Copy number';
+
+  @override
+  String get numberCopied => 'Number copied.';
+
+  @override
+  String get mobileMoneyNoDebitNotice =>
+      'Intellia237 never initiates a debit. Make the transfer yourself in your operator’s app and check the number before confirming.';
+
+  @override
+  String get mobileMoneyStepProof => '2. Send proof of transfer';
+
+  @override
+  String get payerPhoneLabel => 'Number used to make the transfer';
+
+  @override
+  String get transactionReferenceLabel => 'Transaction reference';
+
+  @override
+  String get sendingLabel => 'Sending…';
+
+  @override
+  String get submitForReview => 'Submit for review';
+
+  @override
+  String get enterTransferDetails =>
+      'Enter the phone number and transfer reference.';
+
+  @override
+  String get confirmDeclarationTitle => 'Confirm declaration';
+
+  @override
+  String confirmTransferDeclaration(
+    String amount,
+    String operator,
+    String phone,
+  ) {
+    return 'You declare that you transferred $amount via $operator to $phone. Intellia237 will not debit any amount.';
+  }
+
+  @override
+  String get paymentRequestSubmitted =>
+      'Request submitted. Access will be activated only after verification.';
+
+  @override
+  String get noValidatedSchoolLinked =>
+      'No approved school is linked to this parent account yet.';
+
+  @override
+  String get multipleSchoolsLinked =>
+      'Several schools are linked. Contact support to choose which school will bill for access.';
+
+  @override
+  String get noActiveMobileMoneyOffer =>
+      'Your school has not published an active Mobile Money offer yet.';
+
+  @override
+  String get offerUnavailable => 'Offer unavailable';
+
+  @override
+  String referenceValue(String reference) {
+    return 'Reference $reference';
+  }
+
+  @override
+  String schoolNote(String note) {
+    return 'School note: $note';
+  }
+
+  @override
+  String get mobileMoneyReferenceAlreadySubmitted =>
+      'This reference has already been submitted. Check its status below.';
+
+  @override
+  String get mobileMoneyOfferNoLongerAvailable =>
+      'The offer or school link is no longer available.';
+
+  @override
+  String get mobileMoneyPermissionDenied =>
+      'Your account is not authorised to perform this operation.';
+
+  @override
+  String get mobileMoneyInvalidDetails =>
+      'Check the phone number and transaction reference.';
+
+  @override
+  String get mobileMoneyTemporarilyUnavailable =>
+      'The service is temporarily unavailable. Try again without repeating the transfer.';
+
+  @override
+  String get mobileMoneyGenericError =>
+      'This request cannot be processed at the moment.';
+
+  @override
+  String get paymentPendingReview => 'Under review';
+
+  @override
+  String get paymentApproved => 'Approved';
+
+  @override
+  String get paymentRejected => 'Rejected';
+
+  @override
+  String get loadingPayments => 'Loading payments';
+
+  @override
+  String get paymentQueueUnavailable => 'Queue unavailable';
+
+  @override
+  String get mobileMoneyApprovalTitle => 'Mobile Money approval';
+
+  @override
+  String get mobileMoneyAdminDescription =>
+      'Compare each reference with the operator portal before deciding. Intellia237 does not collect any payment.';
+
+  @override
+  String get noPendingPaymentRequest => 'No pending requests';
+
+  @override
+  String get payerPhoneShort => 'Payer phone';
+
+  @override
+  String get referenceLabel => 'Reference';
+
+  @override
+  String get rejectLabel => 'Reject';
+
+  @override
+  String get paymentVerifiedQuestion => 'Payment verified?';
+
+  @override
+  String paymentVerificationWarning(
+    String amount,
+    String reference,
+    String operator,
+  ) {
+    return 'Confirm only if $amount and reference $reference appear in the $operator portal. This action will activate access.';
+  }
+
+  @override
+  String get paymentVerifiedLabel => 'Payment verified';
+
+  @override
+  String get rejectPaymentRequest => 'Reject request';
+
+  @override
+  String get rejectionReasonOptional =>
+      'Reason visible to the parent (optional)';
+
+  @override
+  String get rejectionReasonHint => 'E.g. reference not found';
+
+  @override
+  String get confirmRejection => 'Confirm rejection';
+
+  @override
+  String get paymentApprovedAndActivated =>
+      'Payment approved and access activated.';
+
+  @override
+  String get paymentRequestRejected => 'Request rejected.';
+
+  @override
+  String get classesUnavailable => 'Classes unavailable';
+
+  @override
+  String get teacherAnalyticsTitle => 'Teacher analytics';
+
+  @override
+  String get teacherAnalyticsSubtitle =>
+      'An overview of your classes’ performance.';
+
+  @override
+  String get averageCompletionRate => 'Average completion rate';
+
+  @override
+  String activeClassesCount(int count) {
+    return '$count active classes';
+  }
+
+  @override
+  String get dailyEngagement => 'Daily engagement';
+
+  @override
+  String get metricComingSoon => 'Metric coming soon';
+
+  @override
+  String trackedStudentsCount(int count) {
+    return '$count students tracked';
+  }
+
+  @override
+  String get weeklyTrend => 'Weekly trend';
+
+  @override
+  String get weeklyTrendEmpty =>
+      'The trend will appear after your students’ first week of activity.';
+
+  @override
+  String get progressByClass => 'Progress by class';
+
+  @override
+  String get noDataAvailable => 'No data available.';
+
+  @override
+  String get classDetailTitle => 'Class details';
+
+  @override
+  String get publishAnnouncementShort => 'Post announcement';
+
+  @override
+  String get studentProgressTitle => 'Student progress';
+
+  @override
+  String get studentTrackingComing =>
+      'Individual tracking is coming: students in this class will appear here with their progress after their first activities.';
+
+  @override
+  String studyMinutesToday(int count) {
+    return '$count min today';
+  }
+
+  @override
+  String get publishAnnouncementTitle => 'Post an announcement';
+
+  @override
+  String get titleLabel => 'Title';
+
+  @override
+  String get messageLabel => 'Message';
+
+  @override
+  String get announcementPublished => 'Announcement posted.';
+
+  @override
+  String get publishLabel => 'Publish';
+
+  @override
+  String get myClasses => 'My classes';
+
+  @override
+  String get classesLabel => 'Classes';
+
+  @override
+  String studentsCount(int count) {
+    return '$count students';
+  }
+
+  @override
+  String averageProgressPercent(int percent) {
+    return 'Average progress $percent%';
+  }
+
+  @override
+  String pendingSubmissionsCount(int count) {
+    return '$count pending submissions';
+  }
+
+  @override
+  String get contentManagementTitle => 'Content management';
+
+  @override
+  String get publishContentTitle => 'Publish content';
+
+  @override
+  String get classSecondeA => 'Seconde A';
+
+  @override
+  String get classSecondeC => 'Seconde C';
+
+  @override
+  String get classPremiereD => 'Première D';
+
+  @override
+  String get subjectLabel => 'Subject';
+
+  @override
+  String get subjectPhysics => 'Physics';
+
+  @override
+  String get lessonTitleLabel => 'Lesson title';
+
+  @override
+  String get titleRequired => 'Title is required';
+
+  @override
+  String get chapterRequired => 'Chapter is required';
+
+  @override
+  String get summaryLabel => 'Summary';
+
+  @override
+  String get summaryRequired => 'Summary is required';
+
+  @override
+  String get publishingLabel => 'Publishing…';
+
+  @override
+  String get contentLabel => 'Content';
+
+  @override
+  String get contentPublishedSuccess => 'Content published successfully.';
+
+  @override
+  String get quizLabel => 'Quiz';
+
+  @override
+  String get statisticsLabel => 'Statistics';
+
+  @override
+  String get dashboardUnavailable => 'Dashboard unavailable';
+
+  @override
+  String get noClassesYet => 'No classes yet';
+
+  @override
+  String get noClassesYetBody =>
+      'Your classes will appear here once your school assigns them. You can already prepare quizzes from the Quiz tab.';
+
+  @override
+  String get activeClassesTitle => 'Active classes';
+
+  @override
+  String get recentAnnouncements => 'Recent announcements';
+
+  @override
+  String get noRecentAnnouncement => 'No recent announcements.';
+
+  @override
+  String get teacherSpaceTitle => 'Teacher space';
+
+  @override
+  String get teacherSpaceDescription =>
+      'Manage your classes, content and assessments from one dashboard.';
+
+  @override
+  String get studentsLabel => 'Students';
+
+  @override
+  String get completionLabel => 'Completion';
+
+  @override
+  String get dailyEngagementShort => 'Daily engagement';
+
+  @override
+  String get quizCreationTitle => 'Create a quiz';
+
+  @override
+  String get quizCreationSubtitle =>
+      'Create an assessment and publish it to your classes.';
+
+  @override
+  String get quizTitleLabel => 'Quiz title';
+
+  @override
+  String get questionsLabel => 'Questions';
+
+  @override
+  String get addQuestion => 'Add a question';
+
+  @override
+  String get publishQuiz => 'Publish quiz';
+
+  @override
+  String get selectClassRequired => 'Select a class.';
+
+  @override
+  String get addCompleteQuestion => 'Add at least one complete question.';
+
+  @override
+  String get quizPublishedSuccess => 'Quiz published successfully.';
+
+  @override
+  String questionNumber(int index) {
+    return 'Question $index';
+  }
+
+  @override
+  String get deleteLabel => 'Delete';
+
+  @override
+  String get questionPromptLabel => 'Question';
+
+  @override
+  String get questionPromptHint => 'Enter the question';
+
+  @override
+  String get expectedAnswerLabel => 'Expected answer';
+
+  @override
+  String get expectedAnswerHint => 'Enter the answer';
+
+  @override
+  String get subjectBiology => 'Biology';
+
+  @override
+  String get subjectEnglish => 'English';
+
+  @override
+  String get subjectHistory => 'History';
+
+  @override
+  String get administrationRole => 'Administration';
+
+  @override
+  String get pendingStatus => 'Pending';
+
+  @override
+  String get approvedStatus => 'Approved';
+
+  @override
+  String get hiddenStatus => 'Hidden';
+
+  @override
+  String get publishedStatus => 'Published';
+
+  @override
+  String get aiStatus => 'AI ✨';
+
+  @override
+  String get draftStatus => 'Draft';
+
+  @override
+  String get audienceWholeSchool => 'Whole school';
+
+  @override
+  String get beginnerDifficulty => 'Beginner';
+
+  @override
+  String get intermediateDifficulty => 'Intermediate';
+
+  @override
+  String get advancedDifficulty => 'Advanced';
+
+  @override
+  String get expertDifficulty => 'Expert';
+
+  @override
+  String get contentPluralLabel => 'Content';
+
+  @override
+  String get analyticsLabel => 'Analytics';
+
+  @override
+  String get usersLabel => 'Users';
+
+  @override
+  String get toolsLabel => 'Tools';
+
+  @override
+  String get teachersLabel => 'Teachers';
+
+  @override
+  String get parentsLabel => 'Parents';
+
+  @override
+  String get dailyActiveUsersShort => 'Daily active';
+
+  @override
+  String get pendingAccounts => 'Pending accounts';
+
+  @override
+  String get moderationTickets => 'Moderation tickets';
+
+  @override
+  String get adminSettingsDescription =>
+      'Accessibility, diagnostics and privacy';
+
+  @override
+  String get recentOfficialAnnouncements => 'Recent official announcements';
+
+  @override
+  String get moderationLabel => 'Moderation';
+
+  @override
+  String administrationAtSchool(String school) {
+    return 'Administration • $school';
+  }
+
+  @override
+  String helloUser(String name) {
+    return 'Hello, $name';
+  }
+
+  @override
+  String get adminHeroDescription =>
+      'Oversee platform usage and critical operations.';
+
+  @override
+  String get broadcastCenterTitle => 'Broadcast centre';
+
+  @override
+  String get broadcastCenterSubtitle =>
+      'Publish targeted official announcements.';
+
+  @override
+  String get audienceLabel => 'Audience';
+
+  @override
+  String get messageRequired => 'Message is required';
+
+  @override
+  String get recentHistory => 'Recent history';
+
+  @override
+  String audienceValue(String audience) {
+    return 'Audience: $audience';
+  }
+
+  @override
+  String get contentModerationTitle => 'Content moderation';
+
+  @override
+  String get contentModerationSubtitle => 'Approve or hide reported content.';
+
+  @override
+  String get noModerationTicket => 'No moderation tickets.';
+
+  @override
+  String contentReports(String type, int count) {
+    return '$type • $count report(s)';
+  }
+
+  @override
+  String get contentHidden => 'Content hidden.';
+
+  @override
+  String get hideLabel => 'Hide';
+
+  @override
+  String get contentApproved => 'Content approved.';
+
+  @override
+  String get schoolAnalyticsTitle => 'School analytics';
+
+  @override
+  String get activeUsersSevenDays => 'Active users (7 days)';
+
+  @override
+  String get studyMinutesSevenDays => 'Total study minutes (7 days)';
+
+  @override
+  String get averageProgressRate => 'Average progress rate';
+
+  @override
+  String get metricAvailableAfterActivities =>
+      'This metric will be available after students complete their first activities.';
+
+  @override
+  String get accountApprovalTitle => 'Account approvals';
+
+  @override
+  String pendingRequestsCount(int count) {
+    return '$count pending request(s)';
+  }
+
+  @override
+  String get noPendingRequest => 'No pending requests.';
+
+  @override
+  String get userManagementTitle => 'User management';
+
+  @override
+  String get accountRejected => 'Account rejected.';
+
+  @override
+  String get refuseLabel => 'Reject';
+
+  @override
+  String get accountApproved => 'Account approved.';
+
+  @override
+  String get unpublishLabel => 'Unpublish';
+
+  @override
+  String get addChapter => 'Add chapter';
+
+  @override
+  String get chaptersUnavailable => 'Chapters unavailable';
+
+  @override
+  String get noChapterAdmin => 'No chapters.\nTap + to begin.';
+
+  @override
+  String get newChapter => 'New chapter';
+
+  @override
+  String get chapterTitleLabel => 'Chapter title';
+
+  @override
+  String get shortDescriptionLabel => 'Short description';
+
+  @override
+  String get createLabel => 'Create';
+
+  @override
+  String lessonsCount(int count) {
+    return '$count lesson(s)';
+  }
+
+  @override
+  String get addLesson => 'Add lesson';
+
+  @override
+  String get lessonsUnavailable => 'Lessons unavailable';
+
+  @override
+  String get noLessonAdmin => 'No lessons.\nTap + to create one.';
+
+  @override
+  String get newLesson => 'New lesson';
+
+  @override
+  String get objectiveSummaryLabel => 'Objective / summary';
+
+  @override
+  String get estimatedDurationMinutes => 'Estimated duration (min)';
+
+  @override
+  String get lessonSaved => '✅ Lesson saved';
+
+  @override
+  String get lessonSaveFailed =>
+      'The lesson could not be saved. Check your connection and try again.';
+
+  @override
+  String get lessonPublished => '🚀 Lesson published!';
+
+  @override
+  String get publicationFailed =>
+      'Publishing failed. Check your connection and try again.';
+
+  @override
+  String get newSection => 'New section';
+
+  @override
+  String get courseContentLabel => 'Course content';
+
+  @override
+  String get lessonEditorTitle => 'Lesson editor';
+
+  @override
+  String get aiGeneratedReviewNotice =>
+      'AI-generated content — Review before publishing';
+
+  @override
+  String get informationLabel => 'Information';
+
+  @override
+  String get learningObjectiveLabel => 'Learning objective';
+
+  @override
+  String get estimatedDurationLabel => 'Estimated duration';
+
+  @override
+  String get aiGenerationTitle => 'AI generation';
+
+  @override
+  String get aiGenerationBackendOnly =>
+      'AI generation is no longer available on the client. The backend-only flow now runs through Cloud Functions and the LLM microservice.';
+
+  @override
+  String get aiGenerationBackendInstructions =>
+      'Write the lesson manually here, then use the secure backend flow to produce summaries and quizzes.';
+
+  @override
+  String courseSectionsCount(int count) {
+    return 'Course sections ($count)';
+  }
+
+  @override
+  String get noCourseSection => 'No sections.\nAdd one manually.';
+
+  @override
+  String miniQuizQuestionsCount(int count) {
+    return 'Mini quiz ($count questions)';
+  }
+
+  @override
+  String get noGeneratedQuestion =>
+      'No questions have been generated for this lesson.';
+
+  @override
+  String quizOptionsCorrectAnswer(int options, int answer) {
+    return '$options options • Answer: $answer';
+  }
+
+  @override
+  String get quizPublished => '🚀 Quiz published!';
+
+  @override
+  String get quizSaved => '✅ Quiz saved';
+
+  @override
+  String get quizSaveFailed =>
+      'The quiz could not be saved. Check your connection and try again.';
+
+  @override
+  String get newQuiz => 'New Quiz';
+
+  @override
+  String get editQuiz => 'Edit Quiz';
+
+  @override
+  String get quizInformation => 'Quiz information';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get difficultyLabel => 'Difficulty';
+
+  @override
+  String get durationSecondsLabel => 'Duration (sec)';
+
+  @override
+  String get trainingModeLabel => 'Practice';
+
+  @override
+  String get examModeLabel => 'Exam';
+
+  @override
+  String get trainingCorrectionDescription =>
+      'The correction is shown after each submitted answer.';
+
+  @override
+  String get examCorrectionDescription =>
+      'The full correction is revealed only after submission.';
+
+  @override
+  String get targetLevels => 'Target levels';
+
+  @override
+  String questionsCount(int count) {
+    return 'Questions ($count)';
+  }
+
+  @override
+  String get noQuestionAdmin => 'No questions.\nAdd one manually.';
+
+  @override
+  String get newQuestion => 'New question';
+
+  @override
+  String get trueFalseShort => 'T/F';
+
+  @override
+  String get answerLabel => 'Answer';
+
+  @override
+  String optionNumber(int number) {
+    return 'Option $number';
+  }
+
+  @override
+  String get selectCorrectAnswerInstruction =>
+      '• Select the correct answer using the radio button';
+
+  @override
+  String get correctAnswerColon => 'Correct answer:';
+
+  @override
+  String get acceptedAnswersLabel => 'Accepted answer(s) (separated by commas)';
+
+  @override
+  String get explanationLabel => 'Explanation';
+
+  @override
+  String get trueFalseLabel => 'True/False';
+
+  @override
+  String get shortAnswerLabel => 'Short answer';
+
+  @override
+  String get contentStudioTitle => 'Content Studio';
+
+  @override
+  String get subjectsAndCourses => 'Subjects & Courses';
+
+  @override
+  String noSubjectForClass(String classLevel) {
+    return 'No subjects for $classLevel.\nAdd one to begin.';
+  }
+
+  @override
+  String chaptersCount(int count) {
+    return '$count chapter(s)';
+  }
+
+  @override
+  String get noQuizForLevel => 'No quizzes for this level.';
+
+  @override
+  String quizQuestionsDifficulty(int count, String difficulty) {
+    return '$count questions • $difficulty';
+  }
+
+  @override
+  String get generatedByAi => 'Generated by AI';
 }

@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
+import '../../notifications/presentation/notification_app_bar_action.dart';
 import 'teacher_analytics_screen.dart';
 import 'teacher_classes_screen.dart';
 import 'teacher_content_manager_screen.dart';
@@ -23,29 +25,29 @@ class TeacherHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
-  static const _navItems = <IntelliaBottomNavItem>[
+  List<IntelliaBottomNavItem> _navItems(BuildContext context) => [
     IntelliaBottomNavItem(
-      label: 'Accueil',
+      label: context.l10n.homeLabel,
       icon: Icons.dashboard_outlined,
       activeIcon: Icons.dashboard_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Classes',
+      label: context.l10n.classesLabel,
       icon: Icons.groups_outlined,
       activeIcon: Icons.groups_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Contenu',
+      label: context.l10n.contentLabel,
       icon: Icons.library_books_outlined,
       activeIcon: Icons.library_books_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Quiz',
+      label: context.l10n.quizLabel,
       icon: Icons.quiz_outlined,
       activeIcon: Icons.quiz_rounded,
     ),
     IntelliaBottomNavItem(
-      label: 'Statistiques',
+      label: context.l10n.statisticsLabel,
       icon: Icons.insights_outlined,
       activeIcon: Icons.insights_rounded,
     ),
@@ -55,8 +57,13 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final navItems = _navItems(context);
     return Scaffold(
       extendBody: true,
+      appBar: AppBar(
+        title: Text(navItems[_index].label),
+        actions: const [NotificationAppBarAction()],
+      ),
       body: SafeArea(
         bottom: false,
         // Contrat de surface claire pour tout l'espace enseignant.
@@ -75,7 +82,7 @@ class _TeacherHomeScreenState extends ConsumerState<TeacherHomeScreen> {
         ),
       ),
       bottomNavigationBar: IntelliaBottomNavBar(
-        items: _navItems,
+        items: navItems,
         currentIndex: _index,
         onTap: (value) => setState(() => _index = value),
       ),
@@ -94,9 +101,9 @@ class _TeacherDashboardTab extends ConsumerWidget {
       loading: () => const IntelliaStateView(kind: IntelliaStateKind.loading),
       error: (error, stackTrace) => IntelliaStateView(
         kind: stateKindForError(error),
-        title: 'Tableau de bord indisponible',
-        message: stateMessageForKind(stateKindForError(error)),
-        primaryLabel: 'Réessayer',
+        title: context.l10n.dashboardUnavailable,
+        message: stateMessageForKind(context, stateKindForError(error)),
+        primaryLabel: context.l10n.retryLabel,
         onPrimary: () => ref.invalidate(teacherDashboardProvider),
       ),
       data: (dashboard) => ListView(
@@ -112,14 +119,11 @@ class _TeacherDashboardTab extends ConsumerWidget {
           _TeacherKpiGrid(kpi: dashboard.kpi),
           const SizedBox(height: IntelliaSpacing.md),
           if (dashboard.classes.isEmpty)
-            const IntelliaStateView(
+            IntelliaStateView(
               kind: IntelliaStateKind.empty,
               compact: true,
-              title: 'Aucune classe pour le moment',
-              message:
-                  'Vos classes apparaîtront ici dès que votre établissement '
-                  'vous les aura assignées. Vous pouvez déjà préparer des '
-                  'quiz depuis l\'onglet Quiz.',
+              title: context.l10n.noClassesYet,
+              message: context.l10n.noClassesYetBody,
             )
           else
             Card(
@@ -129,7 +133,7 @@ class _TeacherDashboardTab extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Classes actives',
+                      context.l10n.activeClassesTitle,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -151,7 +155,7 @@ class _TeacherDashboardTab extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Annonces récentes',
+                    context.l10n.recentAnnouncements,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -159,7 +163,7 @@ class _TeacherDashboardTab extends ConsumerWidget {
                   const SizedBox(height: IntelliaSpacing.sm),
                   if (dashboard.latestAnnouncements.isEmpty)
                     Text(
-                      'Aucune annonce récente.',
+                      context.l10n.noRecentAnnouncement,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   for (final ann in dashboard.latestAnnouncements.take(5)) ...[
@@ -183,10 +187,8 @@ class _TeacherDashboardTab extends ConsumerWidget {
           const SizedBox(height: IntelliaSpacing.md),
           ListTile(
             leading: const Icon(Icons.settings_outlined),
-            title: const Text('Paramètres'),
-            subtitle: const Text(
-              'Accessibilité, rappels, données et confidentialité',
-            ),
+            title: Text(context.l10n.settingsTitle),
+            subtitle: Text(context.l10n.settingsDescription),
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => context.push(AppRoutes.settings),
           ),
@@ -217,7 +219,7 @@ class _TeacherHeroCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Espace Enseignant',
+            context.l10n.teacherSpaceTitle,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w800,
@@ -233,7 +235,7 @@ class _TeacherHeroCard extends StatelessWidget {
           ),
           const SizedBox(height: IntelliaSpacing.xs),
           Text(
-            'Pilotez vos classes, contenus et évaluations depuis un tableau unique.',
+            context.l10n.teacherSpaceDescription,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.9),
             ),
@@ -256,22 +258,22 @@ class _TeacherKpiGrid extends StatelessWidget {
       runSpacing: IntelliaSpacing.sm,
       children: [
         _KpiTile(
-          label: 'Classes',
+          label: context.l10n.classesLabel,
           value: '${kpi.activeClasses}',
           icon: Icons.groups_rounded,
         ),
         _KpiTile(
-          label: 'Élèves',
+          label: context.l10n.studentsLabel,
           value: '${kpi.activeStudents}',
           icon: Icons.school_rounded,
         ),
         _KpiTile(
-          label: 'Complétion',
+          label: context.l10n.completionLabel,
           value: '${(kpi.averageCompletion * 100).round()}%',
           icon: Icons.trending_up_rounded,
         ),
         _KpiTile(
-          label: 'Engagement / jour',
+          label: context.l10n.dailyEngagementShort,
           // Tiret tant que la mesure n'existe pas (jamais de faux zero).
           value: kpi.dailyEngagementMinutes == null
               ? '\u2014'

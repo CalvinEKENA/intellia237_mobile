@@ -25,6 +25,7 @@ dependencies:
   cloud_functions: ^6.0.2
   firebase_storage: ^13.1.0
   firebase_app_check: ^0.4.7
+  firebase_messaging: ^16.1.1
 
   image_picker: ^1.1.2
   image_picker_android: ^0.8.13+14

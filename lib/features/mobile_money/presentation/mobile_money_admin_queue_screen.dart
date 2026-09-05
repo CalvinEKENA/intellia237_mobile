@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../application/mobile_money_providers.dart';
-import '../data/mobile_money_repository.dart';
 import '../domain/mobile_money_models.dart';
+import 'mobile_money_localization.dart';
 
 class MobileMoneyAdminQueueScreen extends ConsumerWidget {
   const MobileMoneyAdminQueueScreen({super.key});
@@ -14,17 +15,15 @@ class MobileMoneyAdminQueueScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final queue = ref.watch(adminMobileMoneyQueueProvider);
     return queue.when(
-      loading: () => const IntelliaStateView(
+      loading: () => IntelliaStateView(
         kind: IntelliaStateKind.loading,
-        title: 'Chargement des paiements',
+        title: context.l10n.loadingPayments,
       ),
       error: (error, stackTrace) => IntelliaStateView(
         kind: IntelliaStateKind.errorRetryable,
-        title: 'File indisponible',
-        message: error is MobileMoneyException
-            ? error.message
-            : 'Impossible de charger les demandes de paiement.',
-        primaryLabel: 'Réessayer',
+        title: context.l10n.paymentQueueUnavailable,
+        message: mobileMoneyErrorMessage(context, error),
+        primaryLabel: context.l10n.retryLabel,
         onPrimary: () => ref.invalidate(adminMobileMoneyQueueProvider),
       ),
       data: (requests) => RefreshIndicator(
@@ -40,15 +39,13 @@ class MobileMoneyAdminQueueScreen extends ConsumerWidget {
           ),
           children: [
             Text(
-              'Validation Mobile Money',
+              context.l10n.mobileMoneyApprovalTitle,
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: IntelliaSpacing.xs),
-            const Text(
-              'Comparez chaque référence avec le portail de l’opérateur avant toute décision. Intellia237 ne prélève aucune somme.',
-            ),
+            Text(context.l10n.mobileMoneyAdminDescription),
             const SizedBox(height: IntelliaSpacing.md),
             if (requests.isEmpty)
               const _EmptyQueueCard()
@@ -81,7 +78,7 @@ class _EmptyQueueCard extends StatelessWidget {
             ),
             const SizedBox(height: IntelliaSpacing.sm),
             Text(
-              'Aucune demande en attente',
+              context.l10n.noPendingPaymentRequest,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
@@ -136,10 +133,16 @@ class _PaymentReviewCardState extends ConsumerState<_PaymentReviewCard> {
             const SizedBox(height: IntelliaSpacing.xs),
             Text(request.offerTitle),
             const Divider(height: IntelliaSpacing.lg),
-            _DetailLine(label: 'Opérateur', value: request.operatorLabel),
-            _DetailLine(label: 'Téléphone payeur', value: request.payerPhone),
             _DetailLine(
-              label: 'Référence',
+              label: context.l10n.operatorLabel,
+              value: request.operatorLabel,
+            ),
+            _DetailLine(
+              label: context.l10n.payerPhoneShort,
+              value: request.payerPhone,
+            ),
+            _DetailLine(
+              label: context.l10n.referenceLabel,
               value: request.transactionReference,
               emphasize: true,
             ),
@@ -150,7 +153,7 @@ class _PaymentReviewCardState extends ConsumerState<_PaymentReviewCard> {
                   child: OutlinedButton.icon(
                     onPressed: _busy ? null : () => _reject(request),
                     icon: const Icon(Icons.close_rounded),
-                    label: const Text('Rejeter'),
+                    label: Text(context.l10n.rejectLabel),
                   ),
                 ),
                 const SizedBox(width: IntelliaSpacing.sm),
@@ -163,7 +166,7 @@ class _PaymentReviewCardState extends ConsumerState<_PaymentReviewCard> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.check_rounded),
-                    label: const Text('Valider'),
+                    label: Text(context.l10n.confirmLabel),
                   ),
                 ),
               ],
@@ -178,18 +181,22 @@ class _PaymentReviewCardState extends ConsumerState<_PaymentReviewCard> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Paiement vérifié ?'),
+        title: Text(context.l10n.paymentVerifiedQuestion),
         content: Text(
-          'Confirmez uniquement si ${formatXaf(request.amountXaf)} et la référence ${request.transactionReference} apparaissent dans le portail ${request.operatorLabel}. Cette action activera l’accès.',
+          context.l10n.paymentVerificationWarning(
+            formatXaf(request.amountXaf),
+            request.transactionReference,
+            request.operatorLabel,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.cancelLabel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Paiement vérifié'),
+            child: Text(context.l10n.paymentVerifiedLabel),
           ),
         ],
       ),
@@ -204,24 +211,24 @@ class _PaymentReviewCardState extends ConsumerState<_PaymentReviewCard> {
     final note = await showDialog<String?>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Rejeter la demande'),
+        title: Text(context.l10n.rejectPaymentRequest),
         content: TextField(
           controller: controller,
           maxLength: 280,
           maxLines: 3,
-          decoration: const InputDecoration(
-            labelText: 'Motif visible par le parent (facultatif)',
-            hintText: 'Ex. référence introuvable',
+          decoration: InputDecoration(
+            labelText: context.l10n.rejectionReasonOptional,
+            hintText: context.l10n.rejectionReasonHint,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.cancelLabel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, controller.text),
-            child: const Text('Confirmer le rejet'),
+            child: Text(context.l10n.confirmRejection),
           ),
         ],
       ),
@@ -250,20 +257,16 @@ class _PaymentReviewCardState extends ConsumerState<_PaymentReviewCard> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            approved ? 'Paiement validé et accès activé.' : 'Demande rejetée.',
+            approved
+                ? context.l10n.paymentApprovedAndActivated
+                : context.l10n.paymentRequestRejected,
           ),
         ),
       );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            error is MobileMoneyException
-                ? error.message
-                : 'Décision non enregistrée.',
-          ),
-        ),
+        SnackBar(content: Text(mobileMoneyErrorMessage(context, error))),
       );
     } finally {
       if (mounted) setState(() => _busy = false);

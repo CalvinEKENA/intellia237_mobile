@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../app/theme/design_tokens.dart';
+import '../../../../../core/localization/localization_extensions.dart';
 
 class OnboardingSlide2Visual extends StatefulWidget {
   const OnboardingSlide2Visual({super.key});
@@ -208,7 +209,7 @@ class _OnboardingSlide2VisualState extends State<OnboardingSlide2Visual> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Factorisé',
+                          context.l10n.factorizedLabel,
                           style: GoogleFonts.montserrat(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,

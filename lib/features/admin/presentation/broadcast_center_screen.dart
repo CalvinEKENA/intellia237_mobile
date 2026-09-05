@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
+import 'admin_presentation_localization.dart';
 
 class BroadcastCenterScreen extends ConsumerStatefulWidget {
   const BroadcastCenterScreen({super.key, this.embedded = false});
@@ -21,16 +23,8 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
-  String _audience = 'Tout l\'établissement';
+  String _audience = adminAudienceWholeSchool;
   bool _isSending = false;
-
-  static const _audiences = <String>[
-    'Tout l\'établissement',
-    'Élèves',
-    'Parents',
-    'Enseignants',
-    'Administration',
-  ];
 
   @override
   void dispose() {
@@ -46,8 +40,8 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => IntelliaStateView(
         kind: stateKindForError(error),
-        message: stateMessageForKind(stateKindForError(error)),
-        primaryLabel: 'Réessayer',
+        message: stateMessageForKind(context, stateKindForError(error)),
+        primaryLabel: context.l10n.retryLabel,
         onPrimary: () => ref.invalidate(adminDashboardProvider),
       ),
       data: (dashboard) => ListView(
@@ -59,14 +53,14 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
         ),
         children: [
           Text(
-            'Centre de diffusion',
+            context.l10n.broadcastCenterTitle,
             style: Theme.of(
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: IntelliaSpacing.xs),
           Text(
-            'Publiez des annonces officielles ciblées.',
+            context.l10n.broadcastCenterSubtitle,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: IntelliaSpacing.md),
@@ -80,19 +74,26 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                   children: [
                     TextFormField(
                       controller: _titleController,
-                      decoration: const InputDecoration(labelText: 'Titre'),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.titleLabel,
+                      ),
                       validator: (value) =>
                           (value == null || value.trim().isEmpty)
-                          ? 'Titre requis'
+                          ? context.l10n.titleRequired
                           : null,
                     ),
                     const SizedBox(height: IntelliaSpacing.sm),
                     DropdownButtonFormField<String>(
                       initialValue: _audience,
-                      decoration: const InputDecoration(labelText: 'Audience'),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.audienceLabel,
+                      ),
                       items: [
-                        for (final item in _audiences)
-                          DropdownMenuItem(value: item, child: Text(item)),
+                        for (final item in adminAudienceOptions)
+                          DropdownMenuItem(
+                            value: item,
+                            child: Text(adminAudienceLabel(context, item)),
+                          ),
                       ],
                       onChanged: (value) {
                         if (value != null) {
@@ -104,10 +105,12 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                     TextFormField(
                       controller: _messageController,
                       maxLines: 4,
-                      decoration: const InputDecoration(labelText: 'Message'),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.messageLabel,
+                      ),
                       validator: (value) =>
                           (value == null || value.trim().isEmpty)
-                          ? 'Message requis'
+                          ? context.l10n.messageRequired
                           : null,
                     ),
                     const SizedBox(height: IntelliaSpacing.md),
@@ -121,7 +124,9 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                             )
                           : const Icon(Icons.campaign_rounded),
                       label: Text(
-                        _isSending ? 'Publication…' : 'Publier l\'annonce',
+                        _isSending
+                            ? context.l10n.publishingLabel
+                            : context.l10n.publishAnnouncementTitle,
                       ),
                     ),
                   ],
@@ -131,7 +136,7 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
           ),
           const SizedBox(height: IntelliaSpacing.md),
           Text(
-            'Historique récent',
+            context.l10n.recentHistory,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -150,7 +155,7 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Centre de diffusion')),
+      appBar: AppBar(title: Text(context.l10n.broadcastCenterTitle)),
       body: body,
     );
   }
@@ -174,7 +179,7 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
     _messageController.clear();
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Annonce publiée.')));
+    ).showSnackBar(SnackBar(content: Text(context.l10n.announcementPublished)));
   }
 }
 
@@ -201,7 +206,9 @@ class _AnnouncementItem extends StatelessWidget {
             Text(announcement.message),
             const SizedBox(height: IntelliaSpacing.xs),
             Text(
-              'Audience: ${announcement.audience}',
+              context.l10n.audienceValue(
+                adminAudienceLabel(context, announcement.audience),
+              ),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/parent_providers.dart';
 import '../domain/parent_child_profile.dart';
 import 'widgets/progress_line_chart.dart';
@@ -18,18 +19,18 @@ class ChildProgressScreen extends ConsumerWidget {
     final childAsync = ref.watch(parentChildByIdProvider(childId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Progression enfant')),
+      appBar: AppBar(title: Text(context.l10n.childProgressTitle)),
       body: childAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => IntelliaStateView(
           kind: stateKindForError(error),
-          message: stateMessageForKind(stateKindForError(error)),
-          primaryLabel: 'Réessayer',
+          message: stateMessageForKind(context, stateKindForError(error)),
+          primaryLabel: context.l10n.retryLabel,
           onPrimary: () => ref.invalidate(parentChildByIdProvider(childId)),
         ),
         data: (child) {
           if (child == null) {
-            return const Center(child: Text('Enfant introuvable.'));
+            return Center(child: Text(context.l10n.childNotFound));
           }
           return _ProgressBody(child: child);
         },
@@ -60,7 +61,7 @@ class _ProgressBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${child.firstName} - progression 7 jours',
+                  context.l10n.childSevenDayProgress(child.firstName),
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
@@ -69,9 +70,7 @@ class _ProgressBody extends StatelessWidget {
                 if (child.weeklyProgress.isNotEmpty)
                   ProgressLineChart(values: child.weeklyProgress)
                 else
-                  const Text(
-                    'La courbe apparaîtra après les premières activités.',
-                  ),
+                  Text(context.l10n.progressChartComing),
               ],
             ),
           ),
@@ -81,7 +80,7 @@ class _ProgressBody extends StatelessWidget {
           children: [
             Expanded(
               child: _MetricCard(
-                title: 'Global',
+                title: context.l10n.globalLabel,
                 value: child.hasProgressData
                     ? '${(child.globalProgress * 100).round()}%'
                     : '—',
@@ -91,7 +90,7 @@ class _ProgressBody extends StatelessWidget {
             const SizedBox(width: IntelliaSpacing.sm),
             Expanded(
               child: _MetricCard(
-                title: 'Étude du jour',
+                title: context.l10n.todayStudy,
                 value: child.hasStudyTimeData
                     ? '${child.studyMinutesToday} min'
                     : '—',
@@ -161,7 +160,7 @@ class _DailyBars extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Tendance quotidienne',
+              context.l10n.dailyTrend,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),

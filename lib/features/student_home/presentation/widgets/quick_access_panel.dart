@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 
 class QuickAccessPanel extends StatelessWidget {
@@ -25,7 +26,7 @@ class QuickAccessPanel extends StatelessWidget {
           child: KeyedSubtree(
             key: quizKey,
             child: _QuickAccessTile(
-              label: 'Quiz rapide',
+              label: context.l10n.quickQuiz,
               icon: Icons.quiz_rounded,
               gradientColors: const [Color(0xFF1451E1), Color(0xFF0E2E86)],
               onTap: onQuizTap,
@@ -37,7 +38,7 @@ class QuickAccessPanel extends StatelessWidget {
           child: KeyedSubtree(
             key: aiKey,
             child: _QuickAccessTile(
-              label: 'Compagnon',
+              label: context.l10n.companionNavLabel,
               icon: Icons.school_rounded,
               gradientColors: const [Color(0xFF0F766E), Color(0xFF065F46)],
               onTap: onAiTap,

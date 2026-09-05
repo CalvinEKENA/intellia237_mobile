@@ -12,11 +12,13 @@ import '../core/widgets/network_status_banner.dart';
 import '../core/network/network_status.dart';
 import '../features/learn/application/learn_providers.dart';
 import '../features/auth/application/auth_controller.dart';
-import '../features/auth/application/auth_state.dart';
 import '../features/auth/domain/app_role.dart';
 import '../core/localization/app_locale_controller.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../core/system/intellia_system_bars.dart';
+import '../core/notifications/notification_navigation_bus.dart';
+import '../core/notifications/notification_push_service.dart';
+import 'router/app_routes.dart';
 
 class Intellia237App extends ConsumerWidget {
   const Intellia237App({super.key});
@@ -35,13 +37,24 @@ class Intellia237App extends ConsumerWidget {
     });
     ref.listen(authControllerProvider, (previous, auth) {
       final becameStudent =
-          auth.status == AuthStatus.authenticated &&
+          auth.isAuthenticated &&
           auth.role == AppRole.student &&
           (previous?.userId != auth.userId ||
-              previous?.status != AuthStatus.authenticated);
+              previous?.isAuthenticated != true);
       if (becameStudent && !ref.read(isOfflineProvider)) {
         unawaited(ref.read(learnActionsProvider).flushQueuedProgress());
       }
+      if (previous?.userId != auth.userId || previous?.status != auth.status) {
+        unawaited(NotificationPushService.syncForUser(auth.userId));
+      }
+    });
+    ref.listen<AsyncValue<String>>(notificationNavigationProvider, (
+      previous,
+      next,
+    ) {
+      final route = next.valueOrNull;
+      if (route == null || !AppRoutes.isSafeNotificationRoute(route)) return;
+      router.go(route);
     });
 
     return MaterialApp.router(

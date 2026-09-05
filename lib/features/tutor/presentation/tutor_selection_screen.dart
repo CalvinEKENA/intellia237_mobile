@@ -8,6 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../../../core/widgets/liquid_background.dart';
 import '../domain/tutor_persona.dart';
@@ -48,14 +49,10 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
   int _currentIndex = 0;
   int _selectedLevelIndex = 0; // 0=BEPC 1=Proba 2=Bac
 
-  static const _levels = [
-    ('bepc', 'BEPC'),
-    ('proba', 'Probatoire'),
-    ('bac', 'Baccalauréat'),
-  ];
+  static const _levelIds = ['bepc', 'proba', 'bac'];
 
   List<TutorPersona> get _currentTutors =>
-      TutorPersona.byLevel(_levels[_selectedLevelIndex].$1);
+      TutorPersona.byLevel(_levelIds[_selectedLevelIndex]);
 
   TutorPersona get _activeTutor => _currentTutors[_currentIndex];
 
@@ -65,7 +62,7 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
 
     // Verrouiller sur le niveau filtré si fourni.
     if (widget.filterLevel != null) {
-      final fi = _levels.indexWhere((l) => l.$1 == widget.filterLevel);
+      final fi = _levelIds.indexWhere((level) => level == widget.filterLevel);
       if (fi != -1) _selectedLevelIndex = fi;
     }
 
@@ -76,7 +73,9 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
       if (idx != -1) {
         final tutor = TutorPersona.all[idx];
         if (widget.filterLevel == null) {
-          final levelIndex = _levels.indexWhere((l) => l.$1 == tutor.level);
+          final levelIndex = _levelIds.indexWhere(
+            (level) => level == tutor.level,
+          );
           if (levelIndex != -1) _selectedLevelIndex = levelIndex;
         }
         _currentIndex = _currentTutors.indexWhere((t) => t.id == resolvedId);
@@ -135,7 +134,11 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
                 // Top bar
                 _TopBar(
                   selectedLevelIndex: _selectedLevelIndex,
-                  levels: _levels,
+                  levels: [
+                    ('bepc', 'BEPC'),
+                    ('proba', context.l10n.probatoireLevel),
+                    ('bac', context.l10n.baccalaureateLevel),
+                  ],
                   onLevelSelected: _switchLevel,
                   showTabs: false,
                   onSkip: widget.onSkip,
@@ -190,7 +193,9 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
                         ),
                         const SizedBox(width: IntelliaSpacing.xs),
                         Text(
-                          'Choisir ${tutor.name.split(' ').first} comme tuteur',
+                          context.l10n.chooseTutorA11y(
+                            tutor.name.split(' ').first,
+                          ),
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -245,7 +250,7 @@ class _TopBar extends StatelessWidget {
             children: [
               const SizedBox(width: 72),
               Text(
-                'Choisis ton tuteur',
+                context.l10n.chooseYourTutor,
                 style: GoogleFonts.playfairDisplay(
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
@@ -268,7 +273,7 @@ class _TopBar extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Passer',
+                      context.l10n.skipLabel,
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.white.withValues(alpha: 0.65),
@@ -283,7 +288,7 @@ class _TopBar extends StatelessWidget {
           ),
           const SizedBox(height: IntelliaSpacing.xs),
           Text(
-            'Il t\'accompagnera tout au long de ton parcours',
+            context.l10n.tutorJourneyDescription,
             style: TextStyle(
               fontSize: 13,
               color: Colors.white.withValues(alpha: 0.55),

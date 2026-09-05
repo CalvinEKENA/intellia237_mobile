@@ -116,7 +116,10 @@ class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
                 error: (error, stackTrace) => IntelliaStateView(
                   kind: stateKindForError(error),
                   title: context.l10n.lessonUnavailable,
-                  message: stateMessageForKind(stateKindForError(error)),
+                  message: stateMessageForKind(
+                    context,
+                    stateKindForError(error),
+                  ),
                   primaryLabel: context.l10n.retryLabel,
                   onPrimary: () =>
                       ref.invalidate(lessonDetailProvider(_request)),
@@ -274,10 +277,8 @@ class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
         SnackBar(
           content: Text(
             kind == IntelliaStateKind.offline
-                ? 'Hors ligne : ta progression sera à valider une fois '
-                      'reconnecté.'
-                : 'Impossible d\'enregistrer pour le moment. Réessaie dans '
-                      'un instant.',
+                ? context.l10n.lessonProgressQueuedOffline
+                : context.l10n.lessonProgressSaveFailed,
           ),
           behavior: SnackBarBehavior.floating,
         ),
@@ -430,7 +431,7 @@ class _LessonBody extends StatelessWidget {
                 Row(
                   children: [
                     IconButton(
-                      tooltip: 'Retour',
+                      tooltip: context.l10n.backLabel,
                       onPressed: () => Navigator.of(context).maybePop(),
                       icon: Icon(
                         Icons.arrow_back_rounded,
@@ -441,8 +442,8 @@ class _LessonBody extends StatelessWidget {
                     Semantics(
                       button: true,
                       label: lesson.isFavorite
-                          ? 'Retirer des favoris'
-                          : 'Ajouter aux favoris',
+                          ? context.l10n.removeFromFavorites
+                          : context.l10n.addToFavorites,
                       child: IconButton(
                         onPressed: onToggleFavorite,
                         icon: Icon(
@@ -643,7 +644,7 @@ class _LessonHeader extends StatelessWidget {
             Icon(Icons.schedule_rounded, size: 14, color: s.numberAccent),
             const SizedBox(width: 4),
             Text(
-              '${lesson.estimatedMinutes} min de lecture',
+              context.l10n.lessonReadingMinutes(lesson.estimatedMinutes),
               style: TextStyle(
                 fontSize: 12,
                 color: s.numberAccent,
@@ -903,8 +904,15 @@ class _MiniQuizSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(IntelliaRadii.small),
                 ),
                 child: Text(
-                  'Score : $score/${questions.length}'
-                  '${score / questions.length >= 0.7 ? ' — bien joué !' : ' — relis la leçon et réessaie.'}',
+                  score / questions.length >= 0.7
+                      ? context.l10n.miniQuizScoreSuccess(
+                          score,
+                          questions.length,
+                        )
+                      : context.l10n.miniQuizScoreReview(
+                          score,
+                          questions.length,
+                        ),
                   style: TextStyle(
                     color: s.accent,
                     fontSize: 15,
@@ -917,8 +925,8 @@ class _MiniQuizSection extends StatelessWidget {
             Semantics(
               button: true,
               label: allAnswered
-                  ? 'Valider le mini quiz'
-                  : 'Réponds à toutes les questions pour valider',
+                  ? context.l10n.submitMiniQuiz
+                  : context.l10n.answerAllBeforeSubmit,
               child: IntelliaPressable(
                 onTap: allAnswered ? onSubmit : null,
                 child: Container(
@@ -931,8 +939,8 @@ class _MiniQuizSection extends StatelessWidget {
                   child: Center(
                     child: Text(
                       allAnswered
-                          ? 'Valider le mini quiz'
-                          : 'Réponds à toutes les questions',
+                          ? context.l10n.submitMiniQuiz
+                          : context.l10n.answerAllQuestions,
                       style: TextStyle(
                         color: allAnswered ? Colors.white : s.textDisabled,
                         fontSize: 14,
@@ -996,8 +1004,8 @@ class _QuizOptionTile extends StatelessWidget {
       button: enabled,
       selected: selected,
       label: switch (verdict) {
-        _OptionVerdict.correct => 'Bonne réponse : $label',
-        _OptionVerdict.incorrect => 'Ta réponse, incorrecte : $label',
+        _OptionVerdict.correct => context.l10n.correctAnswerA11y(label),
+        _OptionVerdict.incorrect => context.l10n.incorrectAnswerA11y(label),
         _OptionVerdict.none => label,
       },
       child: GestureDetector(

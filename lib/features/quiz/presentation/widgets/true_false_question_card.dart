@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/quiz_question.dart';
 import 'question_card_shell.dart';
 
@@ -20,12 +21,12 @@ class TrueFalseQuestionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return QuestionCardShell(
       title: question.prompt,
-      subtitle: 'Vrai ou faux',
+      subtitle: context.l10n.trueOrFalse,
       child: Row(
         children: [
           Expanded(
             child: _ChoiceButton(
-              label: 'Vrai',
+              label: context.l10n.trueLabel,
               selected: selectedValue == true,
               onTap: () => onSelected(true),
               color: const Color(0xFF16A34A),
@@ -34,7 +35,7 @@ class TrueFalseQuestionCard extends StatelessWidget {
           const SizedBox(width: IntelliaSpacing.sm),
           Expanded(
             child: _ChoiceButton(
-              label: 'Faux',
+              label: context.l10n.falseLabel,
               selected: selectedValue == false,
               onTap: () => onSelected(false),
               color: const Color(0xFFDC2626),

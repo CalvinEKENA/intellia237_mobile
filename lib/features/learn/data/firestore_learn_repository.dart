@@ -30,6 +30,7 @@ class FirestoreLearnRepository implements LearnRepository {
   final FirebaseFunctions _functions;
   final LearnCatalogCache _catalogCache;
   final Random _random = Random.secure();
+  final Map<String, String> _resolvedCatalogKeys = <String, String>{};
 
   // ───── Helpers ─────────────────────────────────────────────
 
@@ -51,6 +52,27 @@ class FirestoreLearnRepository implements LearnRepository {
       .collection('student_profiles')
       .doc(userId)
       .collection('lessonProgress');
+
+  /// `Premiere` est l'identifiant d'écriture stable. Le chemin accentué a été
+  /// créé historiquement en production à partir d'un libellé UI; il reste lu
+  /// en compatibilité tant qu'aucune migration explicite n'est autorisée.
+  Future<String> _resolveCatalogReadKey(String requested) async {
+    final cached = _resolvedCatalogKeys[requested];
+    if (cached != null) return cached;
+    if (requested != 'Premiere') {
+      _resolvedCatalogKeys[requested] = requested;
+      return requested;
+    }
+    final canonical = await _subjects('Premiere').limit(1).get();
+    if (canonical.docs.isNotEmpty) {
+      _resolvedCatalogKeys[requested] = 'Premiere';
+      return 'Premiere';
+    }
+    final legacy = await _subjects('Première').limit(1).get();
+    final resolved = legacy.docs.isNotEmpty ? 'Première' : 'Premiere';
+    _resolvedCatalogKeys[requested] = resolved;
+    return resolved;
+  }
 
   // Le catalogue change peu pendant une session. On met uniquement les
   // documents pédagogiques en cache mémoire ; la progression reste relue à
@@ -168,9 +190,10 @@ class FirestoreLearnRepository implements LearnRepository {
     required String classLevel,
     required String? series,
   }) async {
+    final catalogClassLevel = await _resolveCatalogReadKey(classLevel);
     // Ces deux lectures sont indépendantes et démarrent en parallèle.
     final progressFuture = _progress(userId).get();
-    final subjectsFuture = _publishedSubjectsCatalog(classLevel);
+    final subjectsFuture = _publishedSubjectsCatalog(catalogClassLevel);
     final progressSnapshot = await progressFuture;
     final subjectDocuments = await subjectsFuture;
     final progress = _ProgressIndex({
@@ -197,7 +220,7 @@ class FirestoreLearnRepository implements LearnRepository {
         final subjectId = subject.id;
         final chapterDocuments =
             _embeddedChapterCatalog(sd) ??
-            await _chaptersCatalog(classLevel, subjectId);
+            await _chaptersCatalog(catalogClassLevel, subjectId);
 
         final chapterSummaries = chapterDocuments
             .map((chapter) {
@@ -240,9 +263,10 @@ class FirestoreLearnRepository implements LearnRepository {
     required String? series,
     required String subjectId,
   }) async {
+    final catalogClassLevel = await _resolveCatalogReadKey(classLevel);
     final prefix = '${subjectId}_';
-    final subjectFuture = _subjectCatalog(classLevel, subjectId);
-    final chaptersFuture = _chaptersCatalog(classLevel, subjectId);
+    final subjectFuture = _subjectCatalog(catalogClassLevel, subjectId);
+    final chaptersFuture = _chaptersCatalog(catalogClassLevel, subjectId);
     final progressFuture = _progress(userId)
         .where(FieldPath.documentId, isGreaterThanOrEqualTo: prefix)
         .where(FieldPath.documentId, isLessThanOrEqualTo: '$prefix\uf8ff')
@@ -265,7 +289,11 @@ class FirestoreLearnRepository implements LearnRepository {
         final chapterId = chapter.id;
         final lessonDocuments =
             _embeddedLessonCatalog(cd) ??
-            await _publishedLessonsCatalog(classLevel, subjectId, chapterId);
+            await _publishedLessonsCatalog(
+              catalogClassLevel,
+              subjectId,
+              chapterId,
+            );
         final lessons = lessonDocuments
             .map((lesson) {
               final ld = lesson.data;
@@ -319,8 +347,13 @@ class FirestoreLearnRepository implements LearnRepository {
     required String subjectId,
     required String chapterId,
   }) async {
+    final catalogClassLevel = await _resolveCatalogReadKey(classLevel);
     final prefix = '${subjectId}_${chapterId}_';
-    final chapterFuture = _chapterCatalog(classLevel, subjectId, chapterId);
+    final chapterFuture = _chapterCatalog(
+      catalogClassLevel,
+      subjectId,
+      chapterId,
+    );
     final progressFuture = _progress(userId)
         .where(FieldPath.documentId, isGreaterThanOrEqualTo: prefix)
         .where(FieldPath.documentId, isLessThanOrEqualTo: '$prefix\uf8ff')
@@ -331,7 +364,7 @@ class FirestoreLearnRepository implements LearnRepository {
     final progressSnapshot = await progressFuture;
     final lessonDocuments =
         _embeddedLessonCatalog(chapter.data) ??
-        await _publishedLessonsCatalog(classLevel, subjectId, chapterId);
+        await _publishedLessonsCatalog(catalogClassLevel, subjectId, chapterId);
     final progress = _ProgressIndex({
       for (final doc in progressSnapshot.docs) doc.id: doc.data(),
     });
@@ -375,9 +408,10 @@ class FirestoreLearnRepository implements LearnRepository {
     required String chapterId,
     required String lessonId,
   }) async {
+    final catalogClassLevel = await _resolveCatalogReadKey(classLevel);
     final key = '${subjectId}_${chapterId}_$lessonId';
     final lessonFuture = _lessonCatalog(
-      classLevel,
+      catalogClassLevel,
       subjectId,
       chapterId,
       lessonId,

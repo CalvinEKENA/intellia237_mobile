@@ -24,15 +24,17 @@ const kSeriesByClass = <String, List<String>>{
   'Terminale': ['A', 'C', 'D', 'TI'],
 };
 
-/// Libellé destiné à l’interface, sans modifier la clé de stockage historique.
-String adminClassLevelLabel(String value) => switch (value) {
-  '6eme' => '6e',
-  '5eme' => '5e',
-  '4eme' => '4e',
-  '3eme' => '3e',
-  'Premiere' => 'Première',
-  _ => value,
-};
+/// Valeurs historiques persistées. L’interface les traduit avant affichage.
+const adminDifficultyBeginner = 'Débutant';
+const adminDifficultyIntermediate = 'Intermédiaire';
+const adminDifficultyAdvanced = 'Avancé';
+const adminDifficultyExpert = 'Expert';
+const kAdminQuizDifficultyOptions = <String>[
+  adminDifficultyBeginner,
+  adminDifficultyIntermediate,
+  adminDifficultyAdvanced,
+  adminDifficultyExpert,
+];
 
 /// Icônes disponibles pour les matières (clé → IconData)
 const kSubjectIconOptions = <String, IconData>{

@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
+
+import 'notification_navigation_bus.dart';
 
 abstract final class LearningReminderService {
   static const _notificationId = 237;
@@ -24,12 +27,63 @@ abstract final class LearningReminderService {
         requestSoundPermission: false,
       ),
     );
-    await _plugin.initialize(settings: settings);
+    await _plugin.initialize(
+      settings: settings,
+      onDidReceiveNotificationResponse: (response) {
+        NotificationNavigationBus.open(response.payload);
+      },
+    );
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(
+            const AndroidNotificationChannel(
+              'intellia_updates',
+              'Actualités Intellia 237',
+              description:
+                  'Alertes scolaires, nouveaux contenus et informations du compte.',
+              importance: Importance.high,
+            ),
+          );
+    }
     tz_data.initializeTimeZones();
     // Intellia237 cible d'abord le Cameroun. Utiliser explicitement Douala
     // évite qu'un appareil mal configuré programme le rappel en UTC.
     tz.setLocalLocation(tz.getLocation('Africa/Douala'));
     _initialized = true;
+  }
+
+  static Future<void> showRemoteMessage(RemoteMessage message) async {
+    if (kIsWeb) return;
+    await initialize();
+    final notification = message.notification;
+    final title = notification?.title ?? message.data['title']?.toString();
+    final body = notification?.body ?? message.data['body']?.toString();
+    if (title == null || title.isEmpty) return;
+
+    const details = NotificationDetails(
+      android: AndroidNotificationDetails(
+        'intellia_updates',
+        'Actualités Intellia 237',
+        channelDescription:
+            'Alertes scolaires, nouveaux contenus et informations du compte.',
+        importance: Importance.high,
+        priority: Priority.high,
+      ),
+      iOS: DarwinNotificationDetails(),
+      macOS: DarwinNotificationDetails(),
+    );
+    await _plugin.show(
+      id:
+          message.messageId?.hashCode ??
+          DateTime.now().millisecondsSinceEpoch.remainder(1 << 31),
+      title: title,
+      body: body,
+      notificationDetails: details,
+      payload: message.data['route']?.toString() ?? '/notifications',
+    );
   }
 
   static Future<bool> enableDailyReminder({

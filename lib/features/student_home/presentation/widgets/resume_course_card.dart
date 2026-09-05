@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/student_home_snapshot.dart';
 
 /// Carte « Reprendre » : n'existe que si une vraie leçon a été ouverte
@@ -21,9 +22,7 @@ class ResumeCourseCard extends StatelessWidget {
     final percent = (resume.progress * 100).round();
 
     return Semantics(
-      label:
-          'Reprendre la leçon ${resume.lessonTitle}, avancée à $percent pour '
-          'cent.',
+      label: context.l10n.resumeLessonA11y(resume.lessonTitle, percent),
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(IntelliaSpacing.md),
@@ -31,7 +30,7 @@ class ResumeCourseCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Reprendre le dernier cours',
+                context.l10n.resumeLastLesson,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -45,7 +44,7 @@ class ResumeCourseCard extends StatelessWidget {
               ),
               const SizedBox(height: IntelliaSpacing.xxs),
               Text(
-                resume.subjectTitle ?? 'Reprends où tu t\'étais arrêté',
+                resume.subjectTitle ?? context.l10n.resumeWhereLeftOff,
                 style: theme.textTheme.bodySmall,
               ),
               const SizedBox(height: IntelliaSpacing.sm),
@@ -62,7 +61,7 @@ class ResumeCourseCard extends StatelessWidget {
                 child: FilledButton.icon(
                   onPressed: onResume,
                   icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Continuer'),
+                  label: Text(context.l10n.continueLabel),
                 ),
               ),
             ],

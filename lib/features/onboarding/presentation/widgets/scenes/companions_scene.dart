@@ -5,7 +5,6 @@ import '../../../../../app/theme/design_tokens.dart';
 import '../../../../../core/assets/intellia_assets.dart';
 import '../../../../../core/localization/localization_extensions.dart';
 import '../../../../../core/widgets/intellia_pressable.dart';
-import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_journey_state.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
@@ -27,9 +26,13 @@ class CompanionsScene extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final persona = _personaFor(focus);
+    final persona = _personaFor(context, focus);
     return OnboardingSceneFrame(
-      narrative: OnboardingNarratives.forAct(OnboardingAct.companions),
+      narrative: OnboardingNarrative(
+        eyebrow: context.l10n.companionsEyebrow,
+        title: context.l10n.companionsTitle,
+        body: context.l10n.companionsBody,
+      ),
       visualHeight: 390,
       visual: RepaintBoundary(
         child: GestureDetector(
@@ -132,7 +135,7 @@ class CompanionsScene extends StatelessWidget {
           const SizedBox(height: 9),
           Semantics(
             button: true,
-            label: 'Continuer après avoir découvert ${persona.name}',
+            label: context.l10n.continueAfterDiscovering(persona.name),
             child: IntelliaPressable(
               key: const ValueKey('companion-continue'),
               onTap: onContinue,
@@ -155,7 +158,7 @@ class CompanionsScene extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Continuer avec ${persona.name}',
+                        context.l10n.continueWithCompanion(persona.name),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13.5,
@@ -210,7 +213,7 @@ class _FullBodyCompanion extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: 'Découvrir $label',
+      label: context.l10n.discoverCompanionA11y(label),
       child: IntelliaPressable(
         onTap: onTap,
         enableHaptic: false,
@@ -369,18 +372,20 @@ class _CompanionPersona {
   final String example;
 }
 
-_CompanionPersona _personaFor(OnboardingCompanionFocus focus) =>
-    switch (focus) {
-      OnboardingCompanionFocus.kira => const _CompanionPersona(
-        name: 'Kira',
-        accent: IntelliaColors.kiraLight,
-        signature: 'CALME • MÉTHODE • CONFIANCE',
-        example: 'On reprend l’idée essentielle, puis on avance ensemble.',
-      ),
-      OnboardingCompanionFocus.leo => const _CompanionPersona(
-        name: 'Léo',
-        accent: IntelliaColors.leoLight,
-        signature: 'DÉFI • ÉNERGIE • DÉPASSEMENT',
-        example: 'Prêt pour un défi ? Je te donne l’indice qui débloque tout.',
-      ),
-    };
+_CompanionPersona _personaFor(
+  BuildContext context,
+  OnboardingCompanionFocus focus,
+) => switch (focus) {
+  OnboardingCompanionFocus.kira => _CompanionPersona(
+    name: 'Kira',
+    accent: IntelliaColors.kiraLight,
+    signature: context.l10n.kiraOnboardingSignature,
+    example: context.l10n.kiraOnboardingExample,
+  ),
+  OnboardingCompanionFocus.leo => _CompanionPersona(
+    name: 'Léo',
+    accent: IntelliaColors.leoLight,
+    signature: context.l10n.leoOnboardingSignature,
+    example: context.l10n.leoOnboardingExample,
+  ),
+};

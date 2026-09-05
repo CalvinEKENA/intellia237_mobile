@@ -34,7 +34,7 @@ vi.mock("../config/env", () => ({
       process.env.GOOGLE_CLOUD_PROJECT?.trim() ||
       process.env.GCLOUD_PROJECT?.trim(),
     VERTEX_AI_LOCATION: process.env.VERTEX_AI_LOCATION ?? "global",
-    GEMINI_MODEL: process.env.GEMINI_MODEL ?? "gemini-3.7-flash",
+    GEMINI_MODEL: process.env.GEMINI_MODEL ?? "gemini-3.8-flash",
     GEMINI_TUTOR_THINKING_LEVEL:
       process.env.GEMINI_TUTOR_THINKING_LEVEL ?? "LOW",
     GEMINI_STRUCTURED_THINKING_LEVEL:
@@ -58,7 +58,7 @@ describe("LLM client logging", () => {
       ...originalEnv,
       VERTEX_AI_PROJECT_ID: "project-test",
       VERTEX_AI_LOCATION: "global",
-      GEMINI_MODEL: "gemini-3.7-flash",
+      GEMINI_MODEL: "gemini-3.8-flash",
       GEMINI_TUTOR_THINKING_LEVEL: "LOW",
       GEMINI_STRUCTURED_THINKING_LEVEL: "MEDIUM",
       LLM_SERVICE_TIMEOUT_MS: "1000"
@@ -97,7 +97,7 @@ describe("LLM client logging", () => {
       event: "ai_request",
       operation: "askTutor",
       provider: "vertex-ai",
-      model: "gemini-3.7-flash",
+      model: "gemini-3.8-flash",
       correlationId: "trace-logging",
       success: false,
       httpStatusCategory: "4xx",

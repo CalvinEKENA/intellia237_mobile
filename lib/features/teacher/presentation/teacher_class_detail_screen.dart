@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
 import '../../../core/widgets/intellia_async_states.dart';
@@ -17,13 +18,13 @@ class TeacherClassDetailScreen extends ConsumerWidget {
     final detailAsync = ref.watch(teacherClassDetailProvider(classId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Détail de la classe')),
+      appBar: AppBar(title: Text(context.l10n.classDetailTitle)),
       body: detailAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => IntelliaStateView(
           kind: stateKindForError(error),
-          message: stateMessageForKind(stateKindForError(error)),
-          primaryLabel: 'Réessayer',
+          message: stateMessageForKind(context, stateKindForError(error)),
+          primaryLabel: context.l10n.retryLabel,
           onPrimary: () => ref.invalidate(teacherClassDetailProvider(classId)),
         ),
         data: (detail) => _ClassDetailBody(detail: detail),
@@ -31,7 +32,7 @@ class TeacherClassDetailScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAnnouncementDialog(context, ref, classId),
         icon: const Icon(Icons.campaign_rounded),
-        label: const Text('Publier annonce'),
+        label: Text(context.l10n.publishAnnouncementShort),
       ),
     );
   }
@@ -85,7 +86,7 @@ class _ClassDetailBody extends StatelessWidget {
           children: [
             Expanded(
               child: _SubjectSummaryCard(
-                title: 'Forts',
+                title: context.l10n.strongSubjects,
                 color: const Color(0xFF16A34A),
                 items: detail.strongSubjects,
               ),
@@ -93,7 +94,7 @@ class _ClassDetailBody extends StatelessWidget {
             const SizedBox(width: IntelliaSpacing.sm),
             Expanded(
               child: _SubjectSummaryCard(
-                title: 'À renforcer',
+                title: context.l10n.subjectsToImprove,
                 color: const Color(0xFFDC2626),
                 items: detail.weakSubjects,
               ),
@@ -102,7 +103,7 @@ class _ClassDetailBody extends StatelessWidget {
         ),
         const SizedBox(height: IntelliaSpacing.md),
         Text(
-          'Progression élèves',
+          context.l10n.studentProgressTitle,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -113,9 +114,7 @@ class _ClassDetailBody extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(IntelliaSpacing.md),
               child: Text(
-                'Le suivi individuel arrive : les élèves de cette classe '
-                'apparaîtront ici avec leur progression dès leurs premières '
-                'activités.',
+                context.l10n.studentTrackingComing,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
@@ -190,7 +189,9 @@ class _StudentProgressTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: IntelliaSpacing.xxs),
-                  Text('${student.studyMinutesToday} min aujourd\'hui'),
+                  Text(
+                    context.l10n.studyMinutesToday(student.studyMinutesToday),
+                  ),
                 ],
               ),
             ),
@@ -225,7 +226,7 @@ Future<void> _showAnnouncementDialog(
     context: context,
     builder: (dialogContext) {
       return AlertDialog(
-        title: const Text('Publier une annonce'),
+        title: Text(context.l10n.publishAnnouncementTitle),
         content: SizedBox(
           width: 460,
           child: Column(
@@ -233,13 +234,15 @@ Future<void> _showAnnouncementDialog(
             children: [
               TextField(
                 controller: titleController,
-                decoration: const InputDecoration(labelText: 'Titre'),
+                decoration: InputDecoration(labelText: context.l10n.titleLabel),
               ),
               const SizedBox(height: IntelliaSpacing.sm),
               TextField(
                 controller: messageController,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Message'),
+                decoration: InputDecoration(
+                  labelText: context.l10n.messageLabel,
+                ),
               ),
             ],
           ),
@@ -247,7 +250,7 @@ Future<void> _showAnnouncementDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.cancelLabel),
           ),
           FilledButton(
             onPressed: () async {
@@ -263,11 +266,11 @@ Future<void> _showAnnouncementDialog(
               }
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Annonce publiée.')),
+                  SnackBar(content: Text(context.l10n.announcementPublished)),
                 );
               }
             },
-            child: const Text('Publier'),
+            child: Text(context.l10n.publishLabel),
           ),
         ],
       );

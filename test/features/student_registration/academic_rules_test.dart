@@ -58,6 +58,9 @@ void main() {
       );
       expect(SchoolClassX.fromStoredValue('1ère'), SchoolClass.premiere);
       expect(SchoolClassX.fromStoredValue('Premiere'), SchoolClass.premiere);
+      expect(SchoolClassX.fromStoredValue('Première'), SchoolClass.premiere);
+      expect(SchoolClass.premiere.catalogKey, 'Premiere');
+      expect(SchoolClass.premiere.label, '1ère');
     });
 
     test(

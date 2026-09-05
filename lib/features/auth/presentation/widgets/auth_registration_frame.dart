@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import 'auth_choices.dart';
 import 'auth_controls.dart';
 import 'auth_experience_scaffold.dart';
@@ -78,7 +79,7 @@ class AuthRegistrationFrame extends StatelessWidget {
                     child: Row(
                       children: [
                         IconButton(
-                          tooltip: 'Retour',
+                          tooltip: context.l10n.backLabel,
                           onPressed: onBack,
                           icon: const Icon(Icons.arrow_back_rounded),
                         ),

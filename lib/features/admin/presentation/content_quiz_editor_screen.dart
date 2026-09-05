@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../quiz/domain/quiz_question.dart';
 import '../../quiz/domain/quiz_mode.dart';
 import '../../quiz/domain/quiz_type.dart';
 import '../application/admin_content_providers.dart';
 import '../domain/admin_content_models.dart';
+import 'admin_presentation_localization.dart';
 
 /// Éditeur de quiz pour la création manuelle et la revue du contenu backend.
 class ContentQuizEditorScreen extends ConsumerStatefulWidget {
@@ -39,13 +41,6 @@ class _ContentQuizEditorScreenState
   int? _timerSeconds;
   bool _isSaving = false;
 
-  static const _difficultyOptions = [
-    'Débutant',
-    'Intermédiaire',
-    'Avancé',
-    'Expert',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -54,7 +49,7 @@ class _ContentQuizEditorScreenState
     _descCtrl = TextEditingController(text: q?.description ?? '');
     _subjectId = q?.subjectId ?? '';
     _subjectLabel = q?.subjectLabel ?? '';
-    _difficulty = q?.difficultyLabel ?? 'Intermédiaire';
+    _difficulty = q?.difficultyLabel ?? kAdminQuizDifficultyOptions[1];
     _classLevels = List.of(q?.classLevels ?? [widget.classLevel]);
     _questions = List.of(q?.questions ?? []);
     _status = q?.status ?? 'draft';
@@ -92,20 +87,18 @@ class _ContentQuizEditorScreenState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(publish ? '🚀 Quiz publié !' : '✅ Quiz sauvegardé'),
+            content: Text(
+              publish ? context.l10n.quizPublished : context.l10n.quizSaved,
+            ),
           ),
         );
         if (publish) Navigator.pop(context);
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Le quiz n’a pas pu être enregistré. Vérifie la connexion et réessaie.',
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.quizSaveFailed)));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -117,18 +110,18 @@ class _ContentQuizEditorScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.quiz == null ? 'Nouveau Quiz' : 'Modifier Quiz',
+          widget.quiz == null ? context.l10n.newQuiz : context.l10n.editQuiz,
           style: GoogleFonts.manrope(fontWeight: FontWeight.w800),
         ),
         actions: [
           TextButton(
             onPressed: _isSaving ? null : () => _save(),
-            child: const Text('Enregistrer'),
+            child: Text(context.l10n.saveLabel),
           ),
           FilledButton.icon(
             onPressed: _isSaving ? null : () => _save(publish: true),
             icon: const Icon(Icons.publish_rounded, size: 18),
-            label: const Text('Publier'),
+            label: Text(context.l10n.publishLabel),
           ),
           const SizedBox(width: IntelliaSpacing.xs),
         ],
@@ -146,24 +139,27 @@ class _ContentQuizEditorScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _label('Informations du quiz'),
+                _label(context.l10n.quizInformation),
                 const SizedBox(height: IntelliaSpacing.sm),
-                _f(_titleCtrl, 'Titre du quiz'),
+                _f(_titleCtrl, context.l10n.quizTitleLabel),
                 const SizedBox(height: IntelliaSpacing.sm),
-                _f(_descCtrl, 'Description', maxLines: 2),
+                _f(_descCtrl, context.l10n.descriptionLabel, maxLines: 2),
                 const SizedBox(height: IntelliaSpacing.sm),
                 Row(
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         initialValue: _difficulty,
-                        decoration: const InputDecoration(
-                          labelText: 'Difficulté',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: context.l10n.difficultyLabel,
+                          border: const OutlineInputBorder(),
                         ),
-                        items: _difficultyOptions
+                        items: kAdminQuizDifficultyOptions
                             .map(
-                              (d) => DropdownMenuItem(value: d, child: Text(d)),
+                              (d) => DropdownMenuItem(
+                                value: d,
+                                child: Text(adminDifficultyLabel(context, d)),
+                              ),
                             )
                             .toList(),
                         onChanged: (v) =>
@@ -175,9 +171,9 @@ class _ContentQuizEditorScreenState
                       child: TextFormField(
                         initialValue: _timerSeconds?.toString() ?? '',
                         keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Durée (sec)',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: context.l10n.durationSecondsLabel,
+                          border: const OutlineInputBorder(),
                           suffixText: 's',
                         ),
                         onChanged: (v) => _timerSeconds = int.tryParse(v),
@@ -187,16 +183,16 @@ class _ContentQuizEditorScreenState
                 ),
                 const SizedBox(height: IntelliaSpacing.sm),
                 SegmentedButton<QuizMode>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: QuizMode.training,
-                      icon: Icon(Icons.school_rounded),
-                      label: Text('Entraînement'),
+                      icon: const Icon(Icons.school_rounded),
+                      label: Text(context.l10n.trainingModeLabel),
                     ),
                     ButtonSegment(
                       value: QuizMode.exam,
-                      icon: Icon(Icons.assignment_rounded),
-                      label: Text('Examen'),
+                      icon: const Icon(Icons.assignment_rounded),
+                      label: Text(context.l10n.examModeLabel),
                     ),
                   ],
                   selected: {_mode},
@@ -206,8 +202,8 @@ class _ContentQuizEditorScreenState
                 const SizedBox(height: IntelliaSpacing.xs),
                 Text(
                   _mode == QuizMode.training
-                      ? 'La correction est affichée après chaque réponse validée.'
-                      : 'La correction complète est révélée uniquement après la soumission.',
+                      ? context.l10n.trainingCorrectionDescription
+                      : context.l10n.examCorrectionDescription,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -220,7 +216,7 @@ class _ContentQuizEditorScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _label('Niveaux cibles'),
+                _label(context.l10n.targetLevels),
                 const SizedBox(height: IntelliaSpacing.xs),
                 Wrap(
                   spacing: IntelliaSpacing.xs,
@@ -228,7 +224,7 @@ class _ContentQuizEditorScreenState
                   children: kAllClassLevels.map((cls) {
                     final selected = _classLevels.contains(cls);
                     return FilterChip(
-                      label: Text(adminClassLevelLabel(cls)),
+                      label: Text(adminClassLevelDisplay(context, cls)),
                       selected: selected,
                       onSelected: (_) {
                         setState(() {
@@ -254,22 +250,28 @@ class _ContentQuizEditorScreenState
               children: [
                 Row(
                   children: [
-                    Expanded(child: _label('Questions (${_questions.length})')),
+                    Expanded(
+                      child: _label(
+                        context.l10n.questionsCount(_questions.length),
+                      ),
+                    ),
                     TextButton.icon(
                       onPressed: _addQuestionDialog,
                       icon: const Icon(Icons.add, size: 16),
-                      label: const Text('Ajouter'),
+                      label: Text(context.l10n.addLabel),
                     ),
                   ],
                 ),
                 if (_questions.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: IntelliaSpacing.md,
+                    ),
                     child: Center(
                       child: Text(
-                        'Aucune question.\nAjoutez-en manuellement.',
+                        context.l10n.noQuestionAdmin,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13),
+                        style: const TextStyle(fontSize: 13),
                       ),
                     ),
                   )
@@ -318,7 +320,7 @@ class _ContentQuizEditorScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Nouvelle question',
+                  context.l10n.newQuestion,
                   style: GoogleFonts.manrope(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -327,18 +329,18 @@ class _ContentQuizEditorScreenState
                 const SizedBox(height: IntelliaSpacing.sm),
                 // Type selector
                 SegmentedButton<QuizQuestionType>(
-                  segments: const [
-                    ButtonSegment(
+                  segments: [
+                    const ButtonSegment(
                       value: QuizQuestionType.qcm,
                       label: Text('QCM'),
                     ),
                     ButtonSegment(
                       value: QuizQuestionType.trueFalse,
-                      label: Text('V/F'),
+                      label: Text(context.l10n.trueFalseShort),
                     ),
                     ButtonSegment(
                       value: QuizQuestionType.shortAnswer,
-                      label: Text('Réponse'),
+                      label: Text(context.l10n.answerLabel),
                     ),
                   ],
                   selected: {type},
@@ -348,9 +350,9 @@ class _ContentQuizEditorScreenState
                 const SizedBox(height: IntelliaSpacing.sm),
                 TextField(
                   controller: promptCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Question',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.questionPromptLabel,
+                    border: const OutlineInputBorder(),
                   ),
                   maxLines: 2,
                 ),
@@ -377,7 +379,7 @@ class _ContentQuizEditorScreenState
                             child: TextField(
                               controller: opts[i],
                               decoration: InputDecoration(
-                                labelText: 'Option ${i + 1}',
+                                labelText: context.l10n.optionNumber(i + 1),
                                 border: const OutlineInputBorder(),
                               ),
                             ),
@@ -385,24 +387,24 @@ class _ContentQuizEditorScreenState
                         ],
                       ),
                     ),
-                  const Text(
-                    '• Sélectionnez la bonne réponse avec le bouton radio',
-                    style: TextStyle(fontSize: 11),
+                  Text(
+                    context.l10n.selectCorrectAnswerInstruction,
+                    style: const TextStyle(fontSize: 11),
                   ),
                 ] else if (type == QuizQuestionType.trueFalse) ...[
                   Row(
                     children: [
-                      const Text('Réponse correcte :'),
+                      Text(context.l10n.correctAnswerColon),
                       const SizedBox(width: IntelliaSpacing.sm),
                       ChoiceChip(
-                        label: const Text('Vrai'),
+                        label: Text(context.l10n.trueLabel),
                         selected: boolAnswer == true,
                         onSelected: (_) =>
                             setSheetState(() => boolAnswer = true),
                       ),
                       const SizedBox(width: IntelliaSpacing.xs),
                       ChoiceChip(
-                        label: const Text('Faux'),
+                        label: Text(context.l10n.falseLabel),
                         selected: boolAnswer == false,
                         onSelected: (_) =>
                             setSheetState(() => boolAnswer = false),
@@ -412,18 +414,18 @@ class _ContentQuizEditorScreenState
                 ] else ...[
                   TextField(
                     controller: shortAnswerCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Réponse(s) acceptée(s) (séparées par ,)',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.acceptedAnswersLabel,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ],
                 const SizedBox(height: IntelliaSpacing.sm),
                 TextField(
                   controller: explanationCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Explication',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.explanationLabel,
+                    border: const OutlineInputBorder(),
                   ),
                   maxLines: 2,
                 ),
@@ -461,7 +463,7 @@ class _ContentQuizEditorScreenState
                       setState(() => _questions.add(q));
                       Navigator.pop(ctx);
                     },
-                    child: const Text('Ajouter la question'),
+                    child: Text(context.l10n.addQuestion),
                   ),
                 ),
               ],
@@ -548,8 +550,8 @@ class _QuestionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final typeLabel = switch (question.type) {
       QuizQuestionType.qcm => 'QCM',
-      QuizQuestionType.trueFalse => 'Vrai/Faux',
-      QuizQuestionType.shortAnswer => 'Réponse courte',
+      QuizQuestionType.trueFalse => context.l10n.trueFalseLabel,
+      QuizQuestionType.shortAnswer => context.l10n.shortAnswerLabel,
     };
 
     return Container(

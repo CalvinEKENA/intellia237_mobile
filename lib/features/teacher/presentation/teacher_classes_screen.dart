@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/teacher_providers.dart';
 import '../domain/teacher_models.dart';
 import '../../../core/widgets/intellia_async_states.dart';
@@ -21,8 +22,8 @@ class TeacherClassesScreen extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => IntelliaStateView(
         kind: stateKindForError(error),
-        message: stateMessageForKind(stateKindForError(error)),
-        primaryLabel: 'Réessayer',
+        message: stateMessageForKind(context, stateKindForError(error)),
+        primaryLabel: context.l10n.retryLabel,
         onPrimary: () => ref.invalidate(teacherClassesProvider),
       ),
       data: (classes) => ListView(
@@ -35,7 +36,7 @@ class TeacherClassesScreen extends ConsumerWidget {
         children: [
           if (!embedded) ...[
             Text(
-              'Mes classes',
+              context.l10n.myClasses,
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
@@ -55,7 +56,7 @@ class TeacherClassesScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Classes')),
+      appBar: AppBar(title: Text(context.l10n.classesLabel)),
       body: content,
     );
   }
@@ -87,7 +88,11 @@ class _ClassCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Chip(label: Text('${classItem.studentCount} élèves')),
+                  Chip(
+                    label: Text(
+                      context.l10n.studentsCount(classItem.studentCount),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: IntelliaSpacing.xxs),
@@ -101,13 +106,21 @@ class _ClassCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: IntelliaSpacing.xs),
-              Row(
+              Wrap(
+                spacing: IntelliaSpacing.md,
+                runSpacing: IntelliaSpacing.xxs,
+                alignment: WrapAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Moyenne progression ${(classItem.averageProgress * 100).round()}%',
+                    context.l10n.averageProgressPercent(
+                      (classItem.averageProgress * 100).round(),
+                    ),
                   ),
-                  const Spacer(),
-                  Text('${classItem.pendingSubmissions} remises en attente'),
+                  Text(
+                    context.l10n.pendingSubmissionsCount(
+                      classItem.pendingSubmissions,
+                    ),
+                  ),
                 ],
               ),
             ],

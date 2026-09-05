@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
+import '../../../../../core/localization/localization_extensions.dart';
 import '../../../../../core/widgets/intellia_pressable.dart';
-import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
 
@@ -15,7 +15,11 @@ class JourneyScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OnboardingSceneFrame(
-      narrative: OnboardingNarratives.forAct(OnboardingAct.journey),
+      narrative: OnboardingNarrative(
+        eyebrow: context.l10n.journeyEyebrow,
+        title: context.l10n.journeyTitle,
+        body: context.l10n.journeyBody,
+      ),
       visualHeight: 350,
       visual: LayoutBuilder(
         builder: (context, constraints) {
@@ -26,13 +30,13 @@ class JourneyScene extends StatelessWidget {
               ),
               _node(
                 const Alignment(-0.66, -0.72),
-                label: 'LEÇON',
+                label: context.l10n.lessonNodeLabel,
                 icon: Icons.menu_book_rounded,
                 color: IntelliaColors.brandBlue,
               ),
               _node(
                 const Alignment(0.58, -0.25),
-                label: 'ENTRAÎNEMENT',
+                label: context.l10n.trainingNodeLabel,
                 icon: Icons.fitness_center_rounded,
                 color: IntelliaColors.brandIndigo,
               ),
@@ -46,15 +50,15 @@ class JourneyScene extends StatelessWidget {
                 alignment: const Alignment(0.52, 0.78),
                 child: Semantics(
                   button: true,
-                  label: 'Atteindre la maîtrise et ouvrir le portail',
+                  label: context.l10n.reachMasteryA11y,
                   child: IntelliaPressable(
                     key: const ValueKey('journey-mastery'),
                     onTap: () {
                       HapticFeedback.lightImpact();
                       onMasteryReached();
                     },
-                    child: const _JourneyNode(
-                      label: 'MAÎTRISE',
+                    child: _JourneyNode(
+                      label: context.l10n.masteryNodeLabel,
                       icon: Icons.workspace_premium_rounded,
                       color: IntelliaColors.pointsGold,
                       emphasized: true,
@@ -66,7 +70,7 @@ class JourneyScene extends StatelessWidget {
                 alignment: const Alignment(0.24, -0.96),
                 child: IgnorePointer(
                   child: Text(
-                    'Touche la maîtrise pour ouvrir ton espace',
+                    context.l10n.tapMasteryInstruction,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.58),

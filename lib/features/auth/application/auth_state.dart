@@ -1,6 +1,13 @@
 import '../domain/app_role.dart';
 
-enum AuthStatus { bootstrapping, unauthenticated, authenticated }
+enum AuthStatus {
+  bootstrapping,
+  unauthenticated,
+  needsOnboarding,
+  authenticated,
+  retryableProfileFailure,
+  legacyProfileRecovery,
+}
 
 class AuthState {
   const AuthState._({
@@ -11,24 +18,79 @@ class AuthState {
     this.firstName,
     this.isLoading = false,
     this.error,
+    this.profileCompleted = true,
   });
 
   const AuthState.bootstrapping() : this._(status: AuthStatus.bootstrapping);
 
   const AuthState.unauthenticated({String? error})
-    : this._(status: AuthStatus.unauthenticated, error: error);
+    : this._(
+        status: AuthStatus.unauthenticated,
+        error: error,
+        profileCompleted: false,
+      );
 
   const AuthState.authenticated({
     required AppRole role,
     required String userId,
     String? email,
     String? firstName,
+    bool profileCompleted = true,
   }) : this._(
          status: AuthStatus.authenticated,
          role: role,
          userId: userId,
          email: email,
          firstName: firstName,
+         profileCompleted: profileCompleted,
+       );
+
+  const AuthState.needsOnboarding({
+    required String userId,
+    String? email,
+    String? firstName,
+    AppRole? recoveredRole,
+  }) : this._(
+         status: AuthStatus.needsOnboarding,
+         userId: userId,
+         email: email,
+         firstName: firstName,
+         role: recoveredRole,
+         profileCompleted: false,
+       );
+
+  const AuthState.retryableProfileFailure({
+    String? userId,
+    String? email,
+    String? firstName,
+    AppRole? cachedRole,
+    bool cachedProfileCompleted = false,
+    String? error,
+  }) : this._(
+         status: AuthStatus.retryableProfileFailure,
+         userId: userId,
+         email: email,
+         firstName: firstName,
+         role: cachedRole,
+         profileCompleted: cachedProfileCompleted,
+         error: error,
+       );
+
+  const AuthState.legacyProfileRecovery({
+    required String userId,
+    String? email,
+    String? firstName,
+    AppRole? recoveredRole,
+    bool profileCompleted = false,
+    String? error,
+  }) : this._(
+         status: AuthStatus.legacyProfileRecovery,
+         userId: userId,
+         email: email,
+         firstName: firstName,
+         role: recoveredRole,
+         profileCompleted: profileCompleted,
+         error: error,
        );
 
   final AuthStatus status;
@@ -36,10 +98,20 @@ class AuthState {
   final String? userId;
   final String? email;
   final String? firstName;
+  final bool profileCompleted;
   final bool isLoading;
   final String? error;
 
-  bool get isAuthenticated => status == AuthStatus.authenticated;
+  bool get hasFirebaseSession =>
+      status != AuthStatus.bootstrapping &&
+      status != AuthStatus.unauthenticated;
+
+  bool get isAuthenticated =>
+      status == AuthStatus.authenticated ||
+      ((status == AuthStatus.retryableProfileFailure ||
+              status == AuthStatus.legacyProfileRecovery) &&
+          role != null &&
+          profileCompleted);
 
   AuthState copyWith({
     AuthStatus? status,
@@ -49,6 +121,7 @@ class AuthState {
     String? firstName,
     bool? isLoading,
     String? error,
+    bool? profileCompleted,
   }) {
     return AuthState._(
       status: status ?? this.status,
@@ -58,6 +131,7 @@ class AuthState {
       firstName: firstName ?? this.firstName,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      profileCompleted: profileCompleted ?? this.profileCompleted,
     );
   }
 }

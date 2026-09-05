@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import '../../../../core/widgets/tab_presentation.dart';
 
@@ -33,9 +34,11 @@ class ProgressOverviewCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label:
-          'Ma progression : ${(globalProgress * 100).round()} % global, '
-          'niveau $level, $currentPoints points. Ouvrir le profil.',
+      label: context.l10n.progressOverviewA11y(
+        (globalProgress * 100).round(),
+        level,
+        currentPoints,
+      ),
       child: IntelliaPressable(
         onTap: onTap,
         child: Container(
@@ -54,7 +57,7 @@ class ProgressOverviewCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Ma progression',
+                      context.l10n.myProgress,
                       style: GoogleFonts.manrope(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -74,7 +77,7 @@ class ProgressOverviewCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(99),
                     ),
                     child: Text(
-                      'Niv. $level',
+                      context.l10n.levelShort(level),
                       style: TextStyle(
                         color: s.numberAccent,
                         fontSize: 12,
@@ -102,20 +105,20 @@ class ProgressOverviewCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _MetricRow(
-                          label: 'Progression',
+                          label: context.l10n.progressLabel,
                           value: '${(globalProgress * 100).round()}%',
                           color: s.numberAccent,
                         ),
                         const SizedBox(height: IntelliaSpacing.sm),
                         _MetricRow(
-                          label: 'Points',
+                          label: context.l10n.pointsLabel,
                           value: '$currentPoints',
                           color: s.success,
                         ),
                         const SizedBox(height: IntelliaSpacing.sm),
                         _MetricRow(
-                          label: 'Niveau actuel',
-                          value: 'Niveau $level',
+                          label: context.l10n.currentLevel,
+                          value: context.l10n.levelValue(level),
                           color: s.accent,
                         ),
                       ],
@@ -254,7 +257,7 @@ class _ProgressRingState extends State<_ProgressRing>
                 ),
               ),
               Text(
-                'global',
+                context.l10n.globalLabel,
                 style: TextStyle(fontSize: 10, color: s.textTertiary),
               ),
             ],

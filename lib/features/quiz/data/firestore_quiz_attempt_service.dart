@@ -26,26 +26,16 @@ class FirestoreQuizAttemptService {
 }
 
 class QuizSubmissionException implements Exception {
-  const QuizSubmissionException(this.message);
+  const QuizSubmissionException(this.code);
 
-  final String message;
+  final String code;
 
   factory QuizSubmissionException.fromFunctions(
     FirebaseFunctionsException error,
   ) {
-    final message = switch (error.code) {
-      'not-found' => 'Quiz introuvable ou indisponible.',
-      'failed-precondition' => 'Ce quiz ne peut pas encore être soumis.',
-      'already-exists' => 'Cette tentative a déjà été utilisée.',
-      'permission-denied' => 'Vous ne pouvez pas soumettre ce quiz.',
-      'invalid-argument' => 'La tentative contient des reponses invalides.',
-      'unauthenticated' => 'Connectez-vous pour valider le quiz.',
-      _ => 'Impossible de valider le quiz pour le moment.',
-    };
-
-    return QuizSubmissionException(message);
+    return QuizSubmissionException(error.code);
   }
 
   @override
-  String toString() => message;
+  String toString() => 'QuizSubmissionException($code)';
 }

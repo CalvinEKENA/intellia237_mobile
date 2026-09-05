@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
-import '../../auth/application/auth_state.dart';
 import '../../auth/application/auth_user_id.dart';
 import '../../learn/application/learn_providers.dart';
 import '../../learn/data/student_academic_profile_source.dart';
@@ -49,9 +48,7 @@ final quizAttemptHistoryProvider = FutureProvider<List<QuizAttemptSummary>>((
 ) async {
   final auth = ref.watch(authControllerProvider);
   final studentId = auth.userId;
-  if (auth.status != AuthStatus.authenticated ||
-      studentId == null ||
-      studentId.trim().isEmpty) {
+  if (!auth.isAuthenticated || studentId == null || studentId.trim().isEmpty) {
     return const [];
   }
 

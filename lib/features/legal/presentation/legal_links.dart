@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
+import '../../../core/localization/localization_extensions.dart';
 
 class LegalLinks extends StatelessWidget {
   const LegalLinks({this.showEducationalData = false, super.key});
@@ -16,16 +17,16 @@ class LegalLinks extends StatelessWidget {
       children: [
         TextButton(
           onPressed: () => context.push(AppRoutes.legalTerms),
-          child: const Text('Lire les conditions'),
+          child: Text(context.l10n.readTerms),
         ),
         TextButton(
           onPressed: () => context.push(AppRoutes.legalPrivacy),
-          child: const Text('Lire la confidentialité'),
+          child: Text(context.l10n.readPrivacy),
         ),
         if (showEducationalData)
           TextButton(
             onPressed: () => context.push(AppRoutes.legalEducationalData),
-            child: const Text('Comprendre les données pédagogiques'),
+            child: Text(context.l10n.readEducationalData),
           ),
       ],
     );

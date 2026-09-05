@@ -4,7 +4,6 @@ import '../../../../../app/theme/design_tokens.dart';
 import '../../../../../core/assets/intellia_assets.dart';
 import '../../../../../core/widgets/intellia_buttons.dart';
 import '../../../../../core/widgets/intellia_companion_avatar.dart';
-import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_journey_state.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
@@ -23,7 +22,11 @@ class PortalScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OnboardingSceneFrame(
-      narrative: OnboardingNarratives.forAct(OnboardingAct.portal),
+      narrative: OnboardingNarrative(
+        eyebrow: context.l10n.portalEyebrow,
+        title: context.l10n.portalTitle,
+        body: context.l10n.portalBody,
+      ),
       visualHeight: 330,
       visual: Center(
         child: Container(
@@ -63,23 +66,23 @@ class PortalScene extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Ton espace d’apprentissage',
+                          context.l10n.yourLearningSpace,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: IntelliaColors.textPrimary,
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
                         Text(
-                          'Une trajectoire, à ton rythme',
-                          style: TextStyle(
+                          context.l10n.journeyAtYourPace,
+                          style: const TextStyle(
                             color: IntelliaColors.textSecondary,
                             fontSize: 10.5,
                             fontWeight: FontWeight.w600,
@@ -103,8 +106,8 @@ class PortalScene extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _InterfacePanel(
-                        title: 'Prochaine leçon',
-                        value: 'Équations',
+                        title: context.l10n.nextLessonPreview,
+                        value: context.l10n.equationsPreview,
                         icon: Icons.play_arrow_rounded,
                         color: IntelliaColors.brandIndigo,
                       ),
@@ -112,8 +115,8 @@ class PortalScene extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: _InterfacePanel(
-                        title: 'Défi du jour',
-                        value: 'Quiz • 5 min',
+                        title: context.l10n.dailyChallengePreview,
+                        value: context.l10n.quizFiveMinutesPreview,
                         icon: Icons.bolt_rounded,
                         color: IntelliaColors.warning,
                       ),
@@ -130,22 +133,25 @@ class PortalScene extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: const Color(0xFFEAE6DB)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _MiniDestination(
                       icon: Icons.home_rounded,
-                      label: 'Accueil',
+                      label: context.l10n.homeLabel,
                       active: true,
                     ),
                     _MiniDestination(
                       icon: Icons.school_rounded,
-                      label: 'Apprendre',
+                      label: context.l10n.learnTitle,
                     ),
-                    _MiniDestination(icon: Icons.quiz_rounded, label: 'Quiz'),
+                    _MiniDestination(
+                      icon: Icons.quiz_rounded,
+                      label: context.l10n.quizTitle,
+                    ),
                     _MiniDestination(
                       icon: Icons.forum_outlined,
-                      label: 'Compagnon',
+                      label: context.l10n.companionNavLabel,
                     ),
                   ],
                 ),

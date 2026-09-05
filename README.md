@@ -2,7 +2,7 @@
 
 Application mobile Flutter/Firebase pour INTELLIA237.
 
-Le depot contient l'application Flutter, les Cloud Functions Firebase, les regles Firestore/Storage, les tests de securite et la documentation technique de rebranding. Le backend actif est Firebase Functions et les usages IA (quiz, resumes, tuteur) passent cote serveur par Vertex AI avec `gemini-3.7-flash`. Aucune cle Gemini n'est embarquee dans Flutter.
+Le depot contient l'application Flutter, les Cloud Functions Firebase, les regles Firestore/Storage, les tests de securite et la documentation technique de rebranding. Le backend actif est Firebase Functions et les usages IA (quiz, resumes, tuteur) passent cote serveur par Vertex AI avec `gemini-3.8-flash`. Aucune cle Gemini n'est embarquee dans Flutter.
 
 ## Environnements
 
@@ -48,9 +48,9 @@ npm run test:rules
 
 La CI bloque uniquement les vulnerabilites npm hautes ou critiques via `npm audit --audit-level=high`.
 
-## IA - Gemini 3.7 Flash sur Vertex AI
+## IA - Gemini 3.8 Flash sur Vertex AI
 
-Le client LLM appelle l'API Vertex AI `generateContent` avec le modele stable `gemini-3.7-flash`.
+Le client LLM appelle l'API Vertex AI `generateContent` avec le modele `gemini-3.8-flash`, vérifié dans le projet de production avant activation.
 
 - authentification : Application Default Credentials (ADC) du runtime Cloud Functions ;
 - projet : `VERTEX_AI_PROJECT_ID`, avec repli automatique sur `GOOGLE_CLOUD_PROJECT` puis `GCLOUD_PROJECT` ;

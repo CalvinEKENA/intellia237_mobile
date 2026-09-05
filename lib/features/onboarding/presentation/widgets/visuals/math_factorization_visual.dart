@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
+import '../../../../../core/localization/localization_extensions.dart';
 import '../onboarding_motion.dart';
 
 /// Slide 2 — « Chaque matière devient plus claire ».
@@ -153,7 +154,7 @@ class _MathFactorizationVisualState extends State<MathFactorizationVisual> {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'Factorisé',
+                                context.l10n.factorizedLabel,
                                 style: GoogleFonts.montserrat(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,

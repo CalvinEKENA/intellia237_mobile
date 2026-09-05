@@ -1,17 +1,28 @@
 import { z } from "zod";
 
 const thinkingLevelSchema = z.enum(["LOW", "MEDIUM", "HIGH"]);
+const booleanEnvironmentSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== "string") return value;
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true") return true;
+    if (normalized === "false") return false;
+    return value;
+  },
+  z.boolean(),
+);
 const localStorageBucket = "intellia237-local.firebasestorage.app";
 const productionProjectId = "edunova-aabd1";
 const stagingProjectId = "intellia237-staging";
 
 const envSchema = z.object({
   FUNCTIONS_REGION: z.string().min(1).default("europe-west1"),
+  ENFORCE_APP_CHECK: booleanEnvironmentSchema.default(false),
   APP_STORAGE_BUCKET: z.string().trim().min(1).default(localStorageBucket),
   LLM_SERVICE_TIMEOUT_MS: z.coerce.number().int().min(1000).max(120000).default(45000),
   VERTEX_AI_PROJECT_ID: z.string().trim().min(1).optional(),
   VERTEX_AI_LOCATION: z.string().trim().min(1).default("global"),
-  GEMINI_MODEL: z.string().trim().min(1).default("gemini-3.7-flash"),
+  GEMINI_MODEL: z.string().trim().min(1).default("gemini-3.8-flash"),
   GEMINI_TUTOR_THINKING_LEVEL: thinkingLevelSchema.default("LOW"),
   GEMINI_STRUCTURED_THINKING_LEVEL: thinkingLevelSchema.default("MEDIUM"),
   MAX_COURSE_IMAGES: z.coerce.number().int().min(0).max(20).default(8),

@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { logger } from "firebase-functions";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
 
 import { getEnv } from "./config/env";
 import {
@@ -34,16 +35,41 @@ import {
   reviewMobileMoneyPaymentHandler,
   submitMobileMoneyPaymentHandler,
 } from "./services/mobileMoneyCallables";
+import { deliverNotificationPushHandler } from "./services/notificationDelivery";
+import { fanoutAnnouncementHandler } from "./services/announcementNotificationFanout";
 
 const env = getEnv();
 setGlobalOptions({
   region: env.FUNCTIONS_REGION,
   maxInstances: 20,
+  // Rollout contrôlé : false permet d'observer les jetons App Check avant de
+  // basculer toutes les callables sur un refus strict dans un déploiement dédié.
+  enforceAppCheck: env.ENFORCE_APP_CHECK,
 });
 
 const generateQuizUseCase = new GenerateQuizUseCase();
 const generateSummaryUseCase = new GenerateSummaryUseCase();
 const askTutorUseCase = new AskTutorUseCase();
+
+export const deliverNotificationPush = onDocumentCreated(
+  {
+    region: env.FUNCTIONS_REGION,
+    document: "notifications/{notificationId}",
+    retry: true,
+  },
+  deliverNotificationPushHandler,
+);
+
+export const fanoutAnnouncementNotifications = onDocumentCreated(
+  {
+    region: env.FUNCTIONS_REGION,
+    document: "announcements/{announcementId}",
+    retry: true,
+    timeoutSeconds: 300,
+    memory: "512MiB",
+  },
+  fanoutAnnouncementHandler,
+);
 
 export const generateQuiz = onCall(
   {

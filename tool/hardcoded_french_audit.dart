@@ -1,9 +1,14 @@
 import 'dart:io';
 
-const _allowedLiterals = <String>{'Léo', 'Français', 'Mathématiques'};
+const _allowedLiterals = <String>{
+  'Léo',
+  'Français',
+  'Mathématiques',
+  'Extrême-Nord',
+};
 
 final _frenchMarker = RegExp(
-  r'[àâçéèêëîïôùûüœ]|\b(?:aucun|annuler|chapitre|classe|compte|continuer|élève|envoyer|étape|leçon|matière|paramètres|précédent|réessayer|réponse|suivant|vérifier|votre)\b',
+  r'[àâçéèêëîïôùûüœ]|\b(?:activer|adresse|alerte|annonce|apprendre|aucun|annuler|chapitre|classe|compte|continuer|cours|créer|déconnexion|défi|disponible|élève|enregistrer|enseignant|établissement|envoyer|étape|examen|fermer|leçon|matière|modifier|nom|paramètres|précédent|profil|progression|quitter|réessayer|réponse|retour|révision|scolaire|séance|suivant|téléphone|terminer|tout|vérifier|votre)\b',
   caseSensitive: false,
 );
 
@@ -12,6 +17,9 @@ final _singleLineLiteral = RegExp(r'''(['"])(.*?)(?<!\\)\1''');
 List<String> findFrenchLiteralsInLine(String line) {
   final trimmed = line.trimLeft();
   if (trimmed.startsWith('//') || trimmed.startsWith('*')) {
+    return const <String>[];
+  }
+  if (RegExp(r'\b(?:debugPrint|developer\.log)\s*\(').hasMatch(line)) {
     return const <String>[];
   }
   return <String>[

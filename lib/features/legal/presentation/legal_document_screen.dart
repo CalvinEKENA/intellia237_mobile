@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 
 enum LegalDocumentType { terms, privacy, educationalData }
 
@@ -11,7 +12,7 @@ class LegalDocumentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final document = _LegalDocument.forType(type);
+    final document = _LegalDocument.forType(type, context);
     return Scaffold(
       backgroundColor: IntelliaColors.backgroundPrimary,
       appBar: AppBar(title: Text(document.title)),
@@ -27,7 +28,7 @@ class LegalDocumentScreen extends StatelessWidget {
             ),
             const SizedBox(height: IntelliaSpacing.xs),
             Text(
-              'Version du 16 juillet 2026',
+              context.l10n.legalVersion,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: IntelliaSpacing.lg),
@@ -53,9 +54,7 @@ class LegalDocumentScreen extends StatelessWidget {
                 color: IntelliaColors.brandIndigo.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(IntelliaRadii.large),
               ),
-              child: const Text(
-                'Pour toute question ou demande liée aux données, contacte ton établissement ou l’équipe Intellia237. Une validation juridique locale reste requise avant la mise en production commerciale.',
-              ),
+              child: Text(context.l10n.legalContactNotice),
             ),
           ],
         ),
@@ -70,64 +69,52 @@ class _LegalDocument {
   final String title;
   final List<(String, String)> sections;
 
-  static _LegalDocument forType(LegalDocumentType type) => switch (type) {
-    LegalDocumentType.terms => const _LegalDocument(
-      title: 'Conditions d’utilisation',
+  static _LegalDocument forType(
+    LegalDocumentType type,
+    BuildContext context,
+  ) => switch (type) {
+    LegalDocumentType.terms => _LegalDocument(
+      title: context.l10n.legalTermsTitle,
       sections: [
         (
-          'Objet du service',
-          'Intellia237 fournit des ressources pédagogiques, des quiz et un compagnon d’apprentissage. Le service complète l’enseignement et ne remplace ni l’établissement ni l’enseignant.',
+          context.l10n.legalServicePurposeTitle,
+          context.l10n.legalServicePurposeBody,
         ),
         (
-          'Compte et sécurité',
-          'Les informations fournies doivent être exactes. Les identifiants restent personnels. Les comptes enseignants et administrateurs peuvent nécessiter une validation.',
+          context.l10n.legalAccountSecurityTitle,
+          context.l10n.legalAccountSecurityBody,
         ),
         (
-          'Usage responsable',
-          'Il est interdit de contourner les règles des évaluations, d’extraire des données d’autres utilisateurs ou d’utiliser le compagnon pour produire un contenu nuisible.',
+          context.l10n.legalResponsibleUseTitle,
+          context.l10n.legalResponsibleUseBody,
         ),
-        (
-          'Disponibilité',
-          'Certaines fonctions exigent une connexion. Les maintenances et indisponibilités temporaires sont signalées aussi clairement que possible.',
-        ),
+        (context.l10n.availabilityLabel, context.l10n.legalAvailabilityBody),
       ],
     ),
-    LegalDocumentType.privacy => const _LegalDocument(
-      title: 'Politique de confidentialité',
+    LegalDocumentType.privacy => _LegalDocument(
+      title: context.l10n.legalPrivacyTitle,
       sections: [
         (
-          'Données collectées',
-          'Le compte, le rôle, la classe, la progression et les tentatives nécessaires au service peuvent être enregistrés. Les données demandées doivent rester limitées à la finalité pédagogique.',
+          context.l10n.legalCollectedDataTitle,
+          context.l10n.legalCollectedDataBody,
         ),
         (
-          'Mineurs et confidentialité',
-          'Les conversations, réponses libres, noms et e-mails ne doivent jamais être envoyés aux outils de mesure d’audience. Les diagnostics anonymes sont désactivés par défaut.',
+          context.l10n.legalMinorsPrivacyTitle,
+          context.l10n.legalMinorsPrivacyBody,
         ),
         (
-          'Conservation et accès',
-          'Les données sont accessibles uniquement aux personnes autorisées selon leur rôle. Les durées de conservation et procédures d’accès doivent être validées avant mise en production.',
+          context.l10n.legalRetentionAccessTitle,
+          context.l10n.legalRetentionAccessBody,
         ),
-        (
-          'Vos droits',
-          'L’utilisateur ou son représentant peut demander l’accès, la correction ou la suppression de ses données auprès de l’établissement ou de l’équipe Intellia237.',
-        ),
+        (context.l10n.legalYourRightsTitle, context.l10n.legalYourRightsBody),
       ],
     ),
-    LegalDocumentType.educationalData => const _LegalDocument(
-      title: 'Traitement pédagogique des données',
+    LegalDocumentType.educationalData => _LegalDocument(
+      title: context.l10n.legalEducationalDataTitle,
       sections: [
-        (
-          'Finalité',
-          'Les réponses, résultats et progressions servent à proposer une prochaine étape, présenter une correction et aider l’enseignant ou le parent autorisé à accompagner l’élève.',
-        ),
-        (
-          'Décisions',
-          'Une recommandation automatisée ne constitue pas une décision scolaire officielle. L’enseignant et l’établissement restent responsables de l’évaluation scolaire.',
-        ),
-        (
-          'Compagnon pédagogique',
-          'Les messages sont transmis au service nécessaire pour générer une réponse. L’élève ne doit pas y communiquer d’information personnelle sensible.',
-        ),
+        (context.l10n.legalPurposeTitle, context.l10n.legalPurposeBody),
+        (context.l10n.legalDecisionsTitle, context.l10n.legalDecisionsBody),
+        (context.l10n.legalCompanionTitle, context.l10n.legalCompanionBody),
       ],
     ),
   };

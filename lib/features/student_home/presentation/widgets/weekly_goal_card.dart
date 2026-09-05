@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import '../../../../core/widgets/tab_presentation.dart';
 import '../../application/personal_goal_providers.dart';
@@ -44,10 +45,11 @@ class WeeklyGoalCard extends ConsumerWidget {
 
     return Semantics(
       container: true,
-      label:
-          'Mon objectif de la semaine : $done séance${done > 1 ? 's' : ''} '
-          'sur ${goal.sessionsPerWeek}.'
-          '${progress.achieved ? ' Objectif atteint.' : ''}',
+      label: context.l10n.weeklyGoalProgressA11y(
+        done,
+        goal.sessionsPerWeek,
+        progress.achieved ? context.l10n.goalAchievedA11y : '',
+      ),
       child: Container(
         padding: const EdgeInsets.all(IntelliaSpacing.md),
         decoration: BoxDecoration(
@@ -67,7 +69,7 @@ class WeeklyGoalCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Mon objectif de la semaine',
+                    context.l10n.myWeeklyGoal,
                     style: GoogleFonts.manrope(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -77,7 +79,7 @@ class WeeklyGoalCard extends ConsumerWidget {
                 ),
                 Semantics(
                   button: true,
-                  label: 'Modifier mon objectif',
+                  label: context.l10n.editMyGoal,
                   child: IntelliaPressable(
                     onTap: () =>
                         showPersonalGoalSheet(context, ref, subjects: subjects),
@@ -122,10 +124,12 @@ class WeeklyGoalCard extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     progress.achieved
-                        ? 'Objectif atteint — belle semaine !'
-                        : '$done/${goal.sessionsPerWeek} séance'
-                              '${goal.sessionsPerWeek > 1 ? 's' : ''} · '
-                              '~${goal.minutesPerSession} min chacune',
+                        ? context.l10n.goalAchievedMessage
+                        : context.l10n.weeklyGoalProgressSummary(
+                            done,
+                            goal.sessionsPerWeek,
+                            goal.minutesPerSession,
+                          ),
                     style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
@@ -142,9 +146,9 @@ class WeeklyGoalCard extends ConsumerWidget {
               const SizedBox(height: IntelliaSpacing.sm),
               Semantics(
                 button: true,
-                label:
-                    'Ouvrir ma matière prioritaire : '
-                    '${prioritySubject.title}',
+                label: context.l10n.openPrioritySubjectA11y(
+                  prioritySubject.title,
+                ),
                 child: IntelliaPressable(
                   onTap: () => onOpenSubject!(prioritySubject),
                   child: Container(
@@ -163,7 +167,7 @@ class WeeklyGoalCard extends ConsumerWidget {
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
-                            'Priorité : ${prioritySubject.title}',
+                            context.l10n.prioritySubject(prioritySubject.title),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -212,7 +216,7 @@ class _GoalInvitation extends StatelessWidget {
     final s = TabSurface.of(context);
     return Semantics(
       button: true,
-      label: 'Fixer mon rythme de la semaine',
+      label: context.l10n.setWeeklyPace,
       child: IntelliaPressable(
         onTap: onTap,
         child: Container(
@@ -239,7 +243,7 @@ class _GoalInvitation extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Fixe ton rythme de la semaine',
+                      context.l10n.setYourWeeklyPace,
                       style: GoogleFonts.manrope(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -248,7 +252,7 @@ class _GoalInvitation extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '2, 3 ou 5 séances : c\'est toi qui choisis.',
+                      context.l10n.weeklyPaceChoices,
                       style: TextStyle(fontSize: 12, color: s.textSecondary),
                     ),
                   ],
@@ -348,7 +352,7 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Mon objectif de la semaine',
+                context.l10n.myWeeklyGoal,
                 style: GoogleFonts.playfairDisplay(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -357,8 +361,7 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
               ),
               const SizedBox(height: IntelliaSpacing.xxs),
               Text(
-                'Un rythme réaliste que tu choisis. Le compteur repart '
-                'chaque lundi, sans pression.',
+                context.l10n.weeklyGoalExplanation,
                 style: TextStyle(
                   fontSize: 13,
                   height: 1.45,
@@ -368,7 +371,7 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
               const SizedBox(height: IntelliaSpacing.lg),
 
               _ChoiceRow<int>(
-                label: 'Séances par semaine',
+                label: context.l10n.sessionsPerWeek,
                 values: PersonalGoal.allowedSessions,
                 selected: _sessions,
                 display: (v) => '$v',
@@ -376,7 +379,7 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
               ),
               const SizedBox(height: IntelliaSpacing.md),
               _ChoiceRow<int>(
-                label: 'Durée d\'une séance',
+                label: context.l10n.sessionDuration,
                 values: PersonalGoal.allowedMinutes,
                 selected: _minutes,
                 display: (v) => '$v min',
@@ -386,7 +389,7 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
               if (widget.subjects.isNotEmpty) ...[
                 const SizedBox(height: IntelliaSpacing.md),
                 Text(
-                  'Matière prioritaire (optionnel)',
+                  context.l10n.prioritySubjectOptional,
                   style: GoogleFonts.manrope(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -399,7 +402,7 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
                   runSpacing: IntelliaSpacing.xs,
                   children: [
                     _ChoicePill(
-                      label: 'Aucune',
+                      label: context.l10n.noneLabel,
                       selected: _prioritySubjectId == null,
                       onTap: () => setState(() => _prioritySubjectId = null),
                     ),
@@ -417,7 +420,7 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
               const SizedBox(height: IntelliaSpacing.lg),
               Semantics(
                 button: true,
-                label: 'Enregistrer mon objectif',
+                label: context.l10n.saveMyGoal,
                 child: IntelliaPressable(
                   onTap: _save,
                   child: Container(
@@ -426,10 +429,10 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
                       gradient: IntelliaGradients.brand,
                       borderRadius: BorderRadius.circular(IntelliaRadii.full),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        'Enregistrer mon objectif',
-                        style: TextStyle(
+                        context.l10n.saveMyGoal,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -442,7 +445,7 @@ class _GoalSheetState extends ConsumerState<_GoalSheet> {
               if (_hadGoal)
                 TextButton(
                   onPressed: _remove,
-                  child: const Text('Supprimer l\'objectif'),
+                  child: Text(context.l10n.removeGoal),
                 ),
             ],
           ),

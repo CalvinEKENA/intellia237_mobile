@@ -53,7 +53,10 @@ class ChapterDetailScreen extends ConsumerWidget {
                   child: IntelliaStateView(
                     kind: stateKindForError(error),
                     title: context.l10n.chapterUnavailable,
-                    message: stateMessageForKind(stateKindForError(error)),
+                    message: stateMessageForKind(
+                      context,
+                      stateKindForError(error),
+                    ),
                     primaryLabel: context.l10n.retryLabel,
                     onPrimary: () =>
                         ref.invalidate(chapterDetailProvider(request)),
@@ -491,7 +494,7 @@ class _ChapterBackBar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            tooltip: 'Retour',
+            tooltip: context.l10n.backLabel,
             onPressed: () => Navigator.of(context).maybePop(),
             icon: Icon(Icons.arrow_back_rounded, color: s.iconPrimary),
           ),
@@ -566,10 +569,14 @@ class _LessonTile extends ConsumerWidget {
 
     return Semantics(
       button: true,
-      label:
-          'Leçon ${index + 1} : ${lesson.title}, '
-          '${completed ? 'terminée' : '$percent % complétée'}'
-          '${isNext ? ', à suivre' : ''}',
+      label: context.l10n.lessonTileA11y(
+        index + 1,
+        lesson.title,
+        completed
+            ? context.l10n.completedLabel
+            : context.l10n.completionPercent(percent),
+        isNext ? context.l10n.nextUpA11y : '',
+      ),
       child:
           IntelliaPressable(
                 onTap: () => context.push(

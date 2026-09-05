@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../../auth/application/auth_controller.dart';
-import '../../auth/application/auth_state.dart';
 import '../data/profile_repository.dart';
 import '../widgets/avatar_picker_widget.dart';
 
@@ -15,10 +15,8 @@ final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
 
 final editableProfileProvider = FutureProvider<EditableProfile>((ref) async {
   final auth = ref.watch(authControllerProvider);
-  if (auth.status != AuthStatus.authenticated || auth.userId == null) {
-    throw const ProfileUpdateException(
-      'Connecte-toi pour modifier ton profil.',
-    );
+  if (!auth.isAuthenticated || auth.userId == null) {
+    throw const ProfileUpdateException('auth-required');
   }
   return ref.watch(profileRepositoryProvider).fetch(auth.userId!);
 });
@@ -48,19 +46,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final profileAsync = ref.watch(editableProfileProvider);
     return Scaffold(
       backgroundColor: IntelliaColors.backgroundPrimary,
-      appBar: AppBar(title: const Text('Modifier mon profil')),
+      appBar: AppBar(title: Text(l10n.editProfileTitle)),
       body: profileAsync.when(
         loading: () => const IntelliaStateView(kind: IntelliaStateKind.loading),
         error: (error, stackTrace) => IntelliaStateView(
           kind: stateKindForError(error),
-          title: 'Profil indisponible',
-          message: error is ProfileUpdateException
-              ? error.message
-              : stateMessageForKind(stateKindForError(error)),
-          primaryLabel: 'Réessayer',
+          title: l10n.profileUnavailable,
+          message: l10n.profileUnavailableBody,
+          primaryLabel: l10n.retryLabel,
           onPrimary: () => ref.invalidate(editableProfileProvider),
         ),
         data: (profile) {
@@ -81,31 +78,31 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   controller: _firstName,
                   textCapitalization: TextCapitalization.words,
                   autofillHints: const [AutofillHints.givenName],
-                  decoration: const InputDecoration(
-                    labelText: 'Prénom',
-                    prefixIcon: Icon(Icons.person_outline_rounded),
+                  decoration: InputDecoration(
+                    labelText: l10n.firstNameLabel,
+                    prefixIcon: const Icon(Icons.person_outline_rounded),
                   ),
-                  validator: (value) => _nameError(value, 'prénom'),
+                  validator: (value) => _nameError(value, l10n.firstNameLabel),
                 ),
                 const SizedBox(height: IntelliaSpacing.md),
                 TextFormField(
                   controller: _lastName,
                   textCapitalization: TextCapitalization.words,
                   autofillHints: const [AutofillHints.familyName],
-                  decoration: const InputDecoration(
-                    labelText: 'Nom',
-                    prefixIcon: Icon(Icons.badge_outlined),
+                  decoration: InputDecoration(
+                    labelText: l10n.lastNameLabel,
+                    prefixIcon: const Icon(Icons.badge_outlined),
                   ),
-                  validator: (value) => _nameError(value, 'nom'),
+                  validator: (value) => _nameError(value, l10n.lastNameLabel),
                 ),
                 const SizedBox(height: IntelliaSpacing.md),
                 TextFormField(
                   initialValue: profile.email,
                   enabled: false,
-                  decoration: const InputDecoration(
-                    labelText: 'Adresse e-mail',
-                    prefixIcon: Icon(Icons.mail_outline_rounded),
-                    helperText: 'L’adresse de connexion ne se modifie pas ici.',
+                  decoration: InputDecoration(
+                    labelText: l10n.emailLabel,
+                    prefixIcon: const Icon(Icons.mail_outline_rounded),
+                    helperText: l10n.loginEmailImmutable,
                   ),
                 ),
                 const SizedBox(height: IntelliaSpacing.md),
@@ -113,10 +110,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   controller: _phone,
                   keyboardType: TextInputType.phone,
                   autofillHints: const [AutofillHints.telephoneNumber],
-                  decoration: const InputDecoration(
-                    labelText: 'Téléphone (facultatif)',
+                  decoration: InputDecoration(
+                    labelText: l10n.phoneOptionalLabel,
                     hintText: '6 99 00 00 00',
-                    prefixIcon: Icon(Icons.phone_outlined),
+                    prefixIcon: const Icon(Icons.phone_outlined),
                   ),
                   validator: (value) {
                     final phone = normalizeCameroonPhone(value ?? '');
@@ -124,7 +121,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         RegExp(r'^\+2376\d{8}$').hasMatch(phone)) {
                       return null;
                     }
-                    return 'Numéro camerounais invalide.';
+                    return l10n.invalidCameroonPhone;
                   },
                 ),
                 const SizedBox(height: IntelliaSpacing.xl),
@@ -136,13 +133,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.save_outlined),
-                  label: Text(_saving ? 'Enregistrement…' : 'Enregistrer'),
+                  label: Text(_saving ? l10n.savingLabel : l10n.saveLabel),
                 ),
                 const SizedBox(height: IntelliaSpacing.md),
-                const Text(
-                  'La classe, le rôle et l’établissement ne peuvent être modifiés que par un responsable autorisé.',
+                Text(
+                  l10n.profileRestrictedFields,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: IntelliaColors.textSecondary,
                     fontSize: 12,
                     height: 1.4,
@@ -167,7 +164,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String? _nameError(String? value, String label) {
     final length = value?.trim().length ?? 0;
     if (length < 2 || length > 60) {
-      return 'Le $label doit contenir entre 2 et 60 caractères.';
+      return context.l10n.profileNameLengthError(label);
     }
     return null;
   }
@@ -193,8 +190,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ref.invalidate(editableProfileProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profil mis à jour.'),
+        SnackBar(
+          content: Text(context.l10n.profileUpdated),
           behavior: SnackBarBehavior.floating,
         ),
       );

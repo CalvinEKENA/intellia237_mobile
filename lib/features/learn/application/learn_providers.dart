@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/network_status.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
 import '../../auth/application/auth_controller.dart';
-import '../../auth/application/auth_state.dart';
 import '../../auth/application/auth_user_id.dart';
 import '../../auth/domain/app_role.dart';
 import '../../student_registration/domain/academic_level_identity.dart';
@@ -30,7 +29,7 @@ final studentAcademicContextProvider = FutureProvider<LearnAcademicContext>((
 ) async {
   final auth = ref.watch(authControllerProvider);
 
-  if (auth.status != AuthStatus.authenticated ||
+  if (!auth.isAuthenticated ||
       auth.role != AppRole.student ||
       auth.userId == null) {
     throw const AcademicProfileException(
@@ -273,7 +272,7 @@ class LearnActions {
     }
 
     final auth = _ref.read(authControllerProvider);
-    if (auth.status != AuthStatus.authenticated ||
+    if (!auth.isAuthenticated ||
         auth.role != AppRole.student ||
         auth.userId == null) {
       return const OfflineProgressSyncResult(

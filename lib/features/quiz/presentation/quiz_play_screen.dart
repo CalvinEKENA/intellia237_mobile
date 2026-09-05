@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/network/network_status.dart';
 import '../../../core/widgets/gradient_button.dart';
 import '../application/quiz_providers.dart';
@@ -116,23 +117,19 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
             backgroundColor: Colors.transparent,
             foregroundColor: Colors.white,
             leading: IconButton(
-              tooltip: 'Retour',
+              tooltip: context.l10n.backLabel,
               onPressed: _requestExit,
               icon: const Icon(Icons.arrow_back_rounded),
             ),
           ),
           body: IntelliaStateView(
             kind: IntelliaStateKind.offline,
-            title: 'Quiz indisponible hors connexion',
-            message:
-                'Le contenu, la correction et l’envoi sont vérifiés par le '
-                'serveur. Intellia237 ne conserve ni tes réponses ni les '
-                'corrigés hors ligne. Reconnecte-toi, ou poursuis une activité '
-                'déjà disponible sur cet appareil.',
+            title: context.l10n.quizPlayOfflineTitle,
+            message: context.l10n.quizPlayOfflineBody,
             palette: const TabPalette(TabPresentationMode.standaloneDark),
-            primaryLabel: 'Ouvrir le Flow hors ligne',
+            primaryLabel: context.l10n.openOfflineFlow,
             onPrimary: () => context.push(AppRoutes.flow),
-            secondaryLabel: 'Voir mes leçons téléchargées',
+            secondaryLabel: context.l10n.viewDownloadedLessons,
             onSecondary: () => context.push(AppRoutes.learnHub),
           ),
         ),
@@ -154,19 +151,18 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
           ),
           error: (error, stackTrace) => IntelliaStateView(
             kind: stateKindForError(error),
-            message: stateMessageForKind(stateKindForError(error)),
+            message: stateMessageForKind(context, stateKindForError(error)),
             palette: const TabPalette(TabPresentationMode.standaloneDark),
-            primaryLabel: 'Réessayer',
+            primaryLabel: context.l10n.retryLabel,
             onPrimary: () => ref.invalidate(quizByIdProvider(widget.quizId)),
           ),
           data: (quiz) {
             if (quiz.questions.isEmpty) {
-              return const IntelliaStateView(
+              return IntelliaStateView(
                 kind: IntelliaStateKind.comingSoon,
-                title: 'Questions en préparation',
-                message:
-                    'Ce quiz est publié, mais ses questions ne sont pas encore disponibles.',
-                palette: TabPalette(TabPresentationMode.standaloneDark),
+                title: context.l10n.quizQuestionsComingTitle,
+                message: context.l10n.quizQuestionsComingBody,
+                palette: const TabPalette(TabPresentationMode.standaloneDark),
               );
             }
             _trackQuizOpened(quiz);
@@ -252,10 +248,10 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
                 size: 38,
               ),
               const SizedBox(height: IntelliaSpacing.md),
-              const Text(
-                'Quitter ce quiz ?',
+              Text(
+                context.l10n.leaveQuizTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -263,7 +259,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
               ),
               const SizedBox(height: IntelliaSpacing.xs),
               Text(
-                'Tes réponses de cette tentative seront perdues.',
+                context.l10n.leaveQuizBody,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.72),
@@ -273,11 +269,11 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
               const SizedBox(height: IntelliaSpacing.xl),
               FilledButton(
                 onPressed: () => Navigator.pop(sheetContext, false),
-                child: const Text('Continuer le quiz'),
+                child: Text(context.l10n.continueQuiz),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(sheetContext, true),
-                child: const Text('Quitter et perdre mes réponses'),
+                child: Text(context.l10n.leaveAndDiscardAnswers),
               ),
             ],
           ),
@@ -400,10 +396,10 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
       answer: answer,
       checkedAnswer: _checkedAnswers[question.id],
     );
-    if (needsCheck) return 'Vérifier';
+    if (needsCheck) return context.l10n.checkAnswerAction;
     return _displayedIndex == quiz.questions.length - 1
-        ? 'Terminer'
-        : 'Suivant';
+        ? context.l10n.finishLabel
+        : context.l10n.nextLabel;
   }
 
   Future<bool> _checkTrainingAnswer({
@@ -444,10 +440,10 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
                   size: 36,
                 ),
                 const SizedBox(height: IntelliaSpacing.sm),
-                const Text(
-                  'Correction indisponible',
+                Text(
+                  context.l10n.guidedCorrectionUnavailableTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -455,8 +451,9 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
                 ),
                 const SizedBox(height: IntelliaSpacing.xs),
                 Text(
-                  '${_trainingCheckErrorMessage(error)}\nTa réponse reste '
-                  'saisie sur cet écran et n’est pas mise en cache.',
+                  context.l10n.guidedCorrectionFailureBody(
+                    _trainingCheckErrorMessage(context, error),
+                  ),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.72),
@@ -466,11 +463,11 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
                 const SizedBox(height: IntelliaSpacing.lg),
                 FilledButton(
                   onPressed: () => Navigator.pop(sheetContext, false),
-                  child: const Text('Réessayer'),
+                  child: Text(context.l10n.retryLabel),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(sheetContext, true),
-                  child: const Text('Continuer sans correction'),
+                  child: Text(context.l10n.continueWithoutCorrection),
                 ),
               ],
             ),
@@ -507,7 +504,9 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
               ),
               const SizedBox(height: IntelliaSpacing.sm),
               Text(
-                correction.isCorrect ? 'Bonne réponse !' : 'À retenir',
+                correction.isCorrect
+                    ? context.l10n.correctAnswerTitle
+                    : context.l10n.keyTakeawayTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: color,
@@ -518,7 +517,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
               if (!correction.isCorrect) ...[
                 const SizedBox(height: IntelliaSpacing.sm),
                 Text(
-                  'Réponse attendue : ${correction.correctAnswer}',
+                  context.l10n.expectedAnswer(correction.correctAnswer),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Colors.white,
@@ -540,7 +539,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
               const SizedBox(height: IntelliaSpacing.lg),
               FilledButton(
                 onPressed: () => Navigator.pop(sheetContext),
-                child: const Text('Continuer'),
+                child: Text(context.l10n.continueLabel),
               ),
             ],
           ),
@@ -560,7 +559,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              '$count question${count > 1 ? 's' : ''} sans réponse',
+              context.l10n.unansweredQuestionCount(count),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -569,7 +568,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
             ),
             const SizedBox(height: IntelliaSpacing.xs),
             Text(
-              'Tu peux revenir à la première question incomplète ou envoyer maintenant.',
+              context.l10n.incompleteQuizBody,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.72),
                 height: 1.4,
@@ -578,11 +577,11 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
             const SizedBox(height: IntelliaSpacing.lg),
             FilledButton(
               onPressed: () => Navigator.pop(sheetContext, false),
-              child: const Text('Compléter mes réponses'),
+              child: Text(context.l10n.completeMyAnswers),
             ),
             TextButton(
               onPressed: () => Navigator.pop(sheetContext, true),
-              child: const Text('Envoyer quand même'),
+              child: Text(context.l10n.submitAnyway),
             ),
           ],
         ),
@@ -616,9 +615,9 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${_submissionErrorMessage(error)} Tes réponses restent saisies '
-            'sur cet écran : réessaie sans les ressaisir. Aucune copie hors '
-            'ligne n’est créée.',
+            context.l10n.quizSubmissionFailureBody(
+              _submissionErrorMessage(context, error),
+            ),
           ),
         ),
       );
@@ -667,24 +666,31 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
   }
 }
 
-String _trainingCheckErrorMessage(Object error) {
+String _trainingCheckErrorMessage(BuildContext context, Object error) {
   if (error is QuizContentException) {
     return switch (error.operation) {
-      QuizOperation.network =>
-        'La connexion est trop faible pour vérifier cette réponse. Réessaie '
-            'quand le réseau revient.',
+      QuizOperation.network => context.l10n.quizAnswerCheckNetworkError,
       QuizOperation.callableUnavailable =>
-        'La correction guidée est indisponible pour le moment.',
-      _ => 'Cette réponse ne peut pas être vérifiée pour le moment.',
+        context.l10n.quizAnswerCheckUnavailable,
+      _ => context.l10n.quizAnswerCheckFailed,
     };
   }
-  return 'La correction guidée ne répond pas pour le moment. Vérifie ta '
-      'connexion, puis réessaie.';
+  return context.l10n.quizAnswerCheckGenericError;
 }
 
-String _submissionErrorMessage(Object error) {
-  if (error is QuizSubmissionException) return error.message;
-  return 'Le serveur n’a pas pu valider cette tentative pour le moment.';
+String _submissionErrorMessage(BuildContext context, Object error) {
+  if (error is QuizSubmissionException) {
+    return switch (error.code) {
+      'not-found' => context.l10n.quizSubmissionNotFound,
+      'failed-precondition' => context.l10n.quizSubmissionPrecondition,
+      'already-exists' => context.l10n.quizSubmissionAlreadyExists,
+      'permission-denied' => context.l10n.quizSubmissionDenied,
+      'invalid-argument' => context.l10n.quizSubmissionInvalid,
+      'unauthenticated' => context.l10n.quizSubmissionUnauthenticated,
+      _ => context.l10n.quizSubmissionUnavailable,
+    };
+  }
+  return context.l10n.quizSubmissionUnavailable;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -938,12 +944,12 @@ class _QuizBottomNav extends StatelessWidget {
                       borderRadius: BorderRadius.circular(IntelliaRadii.small),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.arrow_back_rounded, size: 18),
-                      SizedBox(width: 4),
-                      Text('Précédent'),
+                      const Icon(Icons.arrow_back_rounded, size: 18),
+                      const SizedBox(width: 4),
+                      Text(context.l10n.previousLabel),
                     ],
                   ),
                 ),

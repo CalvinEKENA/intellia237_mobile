@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/assets/intellia_assets.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import '../../../../core/widgets/intellia_text_wordmark.dart';
@@ -289,7 +290,7 @@ class _BackButton extends StatelessWidget {
       child: IntelliaPressable(
         onTap: onTap,
         child: Tooltip(
-          message: 'Retour',
+          message: context.l10n.backLabel,
           child: Container(
             width: 42,
             height: 42,

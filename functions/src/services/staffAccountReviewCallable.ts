@@ -15,7 +15,7 @@ import {
 } from "../utils/validation";
 
 type ReviewableStaffRole = "teacher" | "admin";
-type ReviewerRole = "admin" | "superAdmin";
+type ReviewerRole = "admin" | "superAdmin" | "super_admin";
 type StaffReviewStatus = "approved" | "rejected";
 
 export interface StaffAccountReviewResult {
@@ -144,7 +144,11 @@ export function authorizeStaffReview({
   targetData: DocumentData | undefined;
 }): AuthorizedStaffReview {
   const reviewerRole = normalizedString(reviewerData?.role);
-  if (reviewerRole !== "admin" && reviewerRole !== "superAdmin") {
+  if (
+    reviewerRole !== "admin" &&
+    reviewerRole !== "superAdmin" &&
+    reviewerRole !== "super_admin"
+  ) {
     throw new AppError("permission-denied", "Only an administrator can review staff accounts.");
   }
   const reviewerStatus = normalizedString(reviewerData?.accountStatus);

@@ -7,10 +7,17 @@ describe("Functions runtime environment isolation", () => {
     vi.resetModules();
     process.env = { ...originalEnv };
     delete process.env.APP_STORAGE_BUCKET;
+    delete process.env.ENFORCE_APP_CHECK;
     delete process.env.FIREBASE_CONFIG;
     delete process.env.VERTEX_AI_PROJECT_ID;
     delete process.env.GOOGLE_CLOUD_PROJECT;
     delete process.env.GCLOUD_PROJECT;
+    delete process.env.GEMINI_MODEL;
+  });
+
+  it("keeps App Check in monitor mode until rollout is explicitly enabled", async () => {
+    const { getEnv } = await import("../config/env");
+    expect(getEnv().ENFORCE_APP_CHECK).toBe(false);
   });
 
   afterEach(() => {
@@ -27,6 +34,15 @@ describe("Functions runtime environment isolation", () => {
     expect(env.APP_STORAGE_BUCKET).toBe(
       "intellia237-staging.firebasestorage.app",
     );
+  });
+
+  it("uses the verified Gemini 3.8 Flash production model by default", async () => {
+    process.env.GOOGLE_CLOUD_PROJECT = "edunova-aabd1";
+
+    const { getEnv } = await import("../config/env");
+
+    expect(getEnv().VERTEX_AI_LOCATION).toBe("global");
+    expect(getEnv().GEMINI_MODEL).toBe("gemini-3.8-flash");
   });
 
   it("supports GCLOUD_PROJECT as the legacy runtime fallback", async () => {

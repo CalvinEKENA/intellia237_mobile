@@ -39,7 +39,7 @@ class FirebaseMobileMoneyRepository implements MobileMoneyRepository {
           .call<Map<String, dynamic>>();
       return MobileMoneyOverview.fromMap(result.data);
     } on FirebaseFunctionsException catch (error) {
-      throw MobileMoneyException(_messageFor(error));
+      throw MobileMoneyException(error.code);
     }
   }
 
@@ -60,7 +60,7 @@ class FirebaseMobileMoneyRepository implements MobileMoneyRepository {
         'clientRequestId': clientRequestId,
       });
     } on FirebaseFunctionsException catch (error) {
-      throw MobileMoneyException(_messageFor(error));
+      throw MobileMoneyException(error.code);
     }
   }
 
@@ -78,7 +78,7 @@ class FirebaseMobileMoneyRepository implements MobileMoneyRepository {
             AdminPaymentRequest.fromMap(Map<String, dynamic>.from(item)),
       ];
     } on FirebaseFunctionsException catch (error) {
-      throw MobileMoneyException(_messageFor(error));
+      throw MobileMoneyException(error.code);
     }
   }
 
@@ -96,32 +96,18 @@ class FirebaseMobileMoneyRepository implements MobileMoneyRepository {
           'reviewNote': reviewNote.trim(),
       });
     } on FirebaseFunctionsException catch (error) {
-      throw MobileMoneyException(_messageFor(error));
+      throw MobileMoneyException(error.code);
     }
   }
-
-  String _messageFor(FirebaseFunctionsException error) => switch (error.code) {
-    'already-exists' =>
-      'Cette référence a déjà été transmise. Consultez son statut ci-dessous.',
-    'failed-precondition' =>
-      'L’offre ou le rattachement à l’établissement n’est plus disponible.',
-    'permission-denied' =>
-      'Votre compte n’est pas autorisé à effectuer cette opération.',
-    'invalid-argument' =>
-      'Vérifiez le numéro de téléphone et la référence de transaction.',
-    'unavailable' || 'deadline-exceeded' =>
-      'Le service est momentanément indisponible. Réessayez sans refaire le transfert.',
-    _ => 'Impossible de traiter cette demande pour le moment.',
-  };
 }
 
 class MobileMoneyException implements Exception {
-  const MobileMoneyException(this.message);
+  const MobileMoneyException(this.code);
 
-  final String message;
+  final String code;
 
   @override
-  String toString() => message;
+  String toString() => code;
 }
 
 String newMobileMoneyRequestId() {

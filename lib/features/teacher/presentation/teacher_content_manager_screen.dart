@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/teacher_providers.dart';
 
 class TeacherContentManagerScreen extends ConsumerStatefulWidget {
@@ -44,7 +45,7 @@ class _TeacherContentManagerScreenState
       children: [
         if (!widget.embedded) ...[
           Text(
-            'Gestion de contenus',
+            context.l10n.contentManagementTitle,
             style: Theme.of(
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
@@ -60,7 +61,7 @@ class _TeacherContentManagerScreenState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Publier un contenu',
+                    context.l10n.publishContentTitle,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -68,19 +69,21 @@ class _TeacherContentManagerScreenState
                   const SizedBox(height: IntelliaSpacing.sm),
                   DropdownButtonFormField<String>(
                     initialValue: _selectedClass,
-                    decoration: const InputDecoration(labelText: 'Classe'),
-                    items: const [
+                    decoration: InputDecoration(
+                      labelText: context.l10n.classLabel,
+                    ),
+                    items: [
                       DropdownMenuItem(
                         value: 'sec_a',
-                        child: Text('Seconde A'),
+                        child: Text(context.l10n.classSecondeA),
                       ),
                       DropdownMenuItem(
                         value: 'sec_c',
-                        child: Text('Seconde C'),
+                        child: Text(context.l10n.classSecondeC),
                       ),
                       DropdownMenuItem(
                         value: 'prem_d',
-                        child: Text('Première D'),
+                        child: Text(context.l10n.classPremiereD),
                       ),
                     ],
                     onChanged: (value) =>
@@ -89,19 +92,21 @@ class _TeacherContentManagerScreenState
                   const SizedBox(height: IntelliaSpacing.sm),
                   DropdownButtonFormField<String>(
                     initialValue: _selectedSubject,
-                    decoration: const InputDecoration(labelText: 'Matière'),
-                    items: const [
+                    decoration: InputDecoration(
+                      labelText: context.l10n.subjectLabel,
+                    ),
+                    items: [
                       DropdownMenuItem(
                         value: 'Mathematiques',
-                        child: Text('Mathématiques'),
+                        child: Text(context.l10n.subjectMathematics),
                       ),
                       DropdownMenuItem(
                         value: 'Physique',
-                        child: Text('Physique'),
+                        child: Text(context.l10n.subjectPhysics),
                       ),
                       DropdownMenuItem(
                         value: 'Francais',
-                        child: Text('Français'),
+                        child: Text(context.l10n.subjectFrench),
                       ),
                     ],
                     onChanged: (value) =>
@@ -110,31 +115,35 @@ class _TeacherContentManagerScreenState
                   const SizedBox(height: IntelliaSpacing.sm),
                   TextFormField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Titre de la leçon',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.lessonTitleLabel,
                     ),
                     validator: (value) =>
                         (value == null || value.trim().isEmpty)
-                        ? 'Titre requis'
+                        ? context.l10n.titleRequired
                         : null,
                   ),
                   const SizedBox(height: IntelliaSpacing.sm),
                   TextFormField(
                     controller: _chapterController,
-                    decoration: const InputDecoration(labelText: 'Chapitre'),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.chapterLabel,
+                    ),
                     validator: (value) =>
                         (value == null || value.trim().isEmpty)
-                        ? 'Chapitre requis'
+                        ? context.l10n.chapterRequired
                         : null,
                   ),
                   const SizedBox(height: IntelliaSpacing.sm),
                   TextFormField(
                     controller: _summaryController,
                     maxLines: 5,
-                    decoration: const InputDecoration(labelText: 'Résumé'),
+                    decoration: InputDecoration(
+                      labelText: context.l10n.summaryLabel,
+                    ),
                     validator: (value) =>
                         (value == null || value.trim().isEmpty)
-                        ? 'Résumé requis'
+                        ? context.l10n.summaryRequired
                         : null,
                   ),
                   const SizedBox(height: IntelliaSpacing.md),
@@ -147,7 +156,11 @@ class _TeacherContentManagerScreenState
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.publish_rounded),
-                    label: Text(_isPublishing ? 'Publication…' : 'Publier'),
+                    label: Text(
+                      _isPublishing
+                          ? context.l10n.publishingLabel
+                          : context.l10n.publishLabel,
+                    ),
                   ),
                 ],
               ),
@@ -162,7 +175,7 @@ class _TeacherContentManagerScreenState
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Contenus')),
+      appBar: AppBar(title: Text(context.l10n.contentLabel)),
       body: body,
     );
   }
@@ -184,7 +197,7 @@ class _TeacherContentManagerScreenState
     if (!mounted) return;
     setState(() => _isPublishing = false);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Contenu publié avec succès.')),
+      SnackBar(content: Text(context.l10n.contentPublishedSuccess)),
     );
     _titleController.clear();
     _chapterController.clear();

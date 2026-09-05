@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/app_role.dart';
 
 /// Sélecteur de rôle visuel pour l'inscription
@@ -20,7 +21,7 @@ class RoleSelector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Je suis...',
+          context.l10n.chooseRolePrompt,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
             fontWeight: FontWeight.w600,
             color: Theme.of(
@@ -68,13 +69,6 @@ class _RoleTile extends StatelessWidget {
     AppRole.admin => Icons.admin_panel_settings_rounded,
   };
 
-  String get _label => switch (role) {
-    AppRole.student => 'Élève',
-    AppRole.parent => 'Parent',
-    AppRole.teacher => 'Enseignant',
-    AppRole.admin => 'Administration',
-  };
-
   @override
   Widget build(BuildContext context) {
     final color = AppRoleColors.byRole(role);
@@ -112,7 +106,12 @@ class _RoleTile extends StatelessWidget {
                 ),
                 const SizedBox(height: IntelliaSpacing.xs),
                 Text(
-                  _label,
+                  switch (role) {
+                    AppRole.student => context.l10n.studentRole,
+                    AppRole.parent => context.l10n.parentRole,
+                    AppRole.teacher => context.l10n.teacherRole,
+                    AppRole.admin => context.l10n.adminRole,
+                  },
                   style: theme.textTheme.labelLarge?.copyWith(
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     color: isSelected ? color : theme.colorScheme.onSurface,

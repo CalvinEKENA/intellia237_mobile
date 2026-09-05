@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/tab_presentation.dart';
 import '../../domain/student_home_snapshot.dart';
 
@@ -25,7 +26,7 @@ class SubjectsCarousel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Matières',
+          context.l10n.subjectsTitle,
           style: GoogleFonts.manrope(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -75,8 +76,10 @@ class _SubjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
           button: true,
-          label:
-              '${subject.title}, ${(subject.progress * 100).round()} % complété',
+          label: context.l10n.subjectProgressA11y(
+            subject.title,
+            (subject.progress * 100).round(),
+          ),
           child: SizedBox(
             width: 160,
             child: Material(

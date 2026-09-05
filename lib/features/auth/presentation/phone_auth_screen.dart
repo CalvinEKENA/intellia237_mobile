@@ -35,6 +35,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
   final _phoneFocus = FocusNode();
   final _codeFocus = FocusNode();
   bool _completionHandled = false;
+  bool _profileChoiceRequired = false;
 
   @override
   void dispose() {
@@ -64,7 +65,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
           previous?.stage != PhoneAuthStage.success &&
           !_completionHandled) {
         _completionHandled = true;
-        unawaited(_finishAuthentication(controller));
+        unawaited(_finishAuthentication());
       }
     });
 
@@ -134,6 +135,11 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                 PhoneAuthStage.success => _PhoneSuccess(
                   key: const ValueKey('phone-success-stage'),
                   linking: widget.linkCurrentUser,
+                  profileChoiceRequired: _profileChoiceRequired,
+                  onCreateStudentProfile: () =>
+                      context.go(AppRoutes.studentRegistration),
+                  onCreateParentProfile: () =>
+                      context.go(AppRoutes.parentRegistration),
                 ),
               },
             ),
@@ -161,7 +167,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     );
   }
 
-  Future<void> _finishAuthentication(PhoneAuthController controller) async {
+  Future<void> _finishAuthentication() async {
     await Future<void>.delayed(const Duration(milliseconds: 350));
     if (!mounted) return;
 
@@ -184,8 +190,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     if (route != null) {
       context.go(route);
     } else {
-      _completionHandled = false;
-      controller.showProfileMissing();
+      setState(() => _profileChoiceRequired = true);
     }
   }
 }
@@ -411,9 +416,18 @@ class _CodeEntry extends StatelessWidget {
 }
 
 class _PhoneSuccess extends StatelessWidget {
-  const _PhoneSuccess({required this.linking, super.key});
+  const _PhoneSuccess({
+    required this.linking,
+    required this.profileChoiceRequired,
+    required this.onCreateStudentProfile,
+    required this.onCreateParentProfile,
+    super.key,
+  });
 
   final bool linking;
+  final bool profileChoiceRequired;
+  final VoidCallback onCreateStudentProfile;
+  final VoidCallback onCreateParentProfile;
 
   @override
   Widget build(BuildContext context) {
@@ -448,6 +462,31 @@ class _PhoneSuccess extends StatelessWidget {
               height: 1.45,
             ),
           ),
+          if (profileChoiceRequired) ...[
+            const SizedBox(height: 20),
+            Text(
+              l10n.phoneProfileChoicePrompt,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AuthExperienceColors.textPrimary,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 14),
+            AuthPrimaryButton(
+              key: const ValueKey('create-student-profile-after-otp'),
+              label: l10n.phoneCreateStudentProfile,
+              icon: Icons.school_rounded,
+              onTap: onCreateStudentProfile,
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              key: const ValueKey('create-parent-profile-after-otp'),
+              onPressed: onCreateParentProfile,
+              icon: const Icon(Icons.family_restroom_rounded),
+              label: Text(l10n.phoneCreateParentProfile),
+            ),
+          ],
         ],
       ),
     );

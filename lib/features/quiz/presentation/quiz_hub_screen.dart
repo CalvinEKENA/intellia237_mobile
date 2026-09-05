@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/network/network_status.dart';
 import '../../../core/widgets/tab_section_header.dart';
 import '../application/quiz_providers.dart';
@@ -61,32 +62,26 @@ class _QuizFailureState extends StatelessWidget {
         ? error as QuizContentException
         : null;
     final message = switch (failure?.operation) {
-      QuizOperation.profileMissing || QuizOperation.classMapping =>
-        'Ton profil scolaire doit être complété ou resynchronisé avant de '
-            'choisir les quiz de ton niveau.',
-      QuizOperation.firestorePermission =>
-        'L’accès au catalogue n’a pas été autorisé pour ce profil. Tu peux '
-            'continuer avec tes cours pendant la vérification.',
+      QuizOperation.profileMissing ||
+      QuizOperation.classMapping => context.l10n.quizProfileIncompleteBody,
+      QuizOperation.firestorePermission => context.l10n.quizCatalogDeniedBody,
       QuizOperation.callableUnavailable =>
-        'Le catalogue validé est momentanément inaccessible. Aucun contenu '
-            'n’est inventé : poursuis avec le Flow ou tes cours.',
-      QuizOperation.invalidResponse || QuizOperation.subjectMapping =>
-        'Le catalogue reçu est incomplet. Il n’est pas affiché afin de ne pas '
-            'te proposer un contenu incorrect.',
-      QuizOperation.appCheck || QuizOperation.network =>
-        'La connexion au catalogue est interrompue. Tes cours et le Flow '
-            'restent disponibles.',
+        context.l10n.quizCatalogUnavailableBody,
+      QuizOperation.invalidResponse ||
+      QuizOperation.subjectMapping => context.l10n.quizCatalogInvalidBody,
+      QuizOperation.appCheck ||
+      QuizOperation.network => context.l10n.quizCatalogNetworkBody,
       QuizOperation.unknown ||
-      null => stateMessageForKind(stateKindForError(error)),
+      null => stateMessageForKind(context, stateKindForError(error)),
     };
 
     return IntelliaStateView(
       kind: stateKindForError(error),
-      title: 'Impossible de charger les quiz pour le moment.',
+      title: context.l10n.quizLoadErrorTitle,
       message: message,
-      primaryLabel: 'Réessayer',
+      primaryLabel: context.l10n.retryLabel,
       onPrimary: onRetry,
-      secondaryLabel: 'Continuer avec le Flow',
+      secondaryLabel: context.l10n.continueWithFlow,
       onSecondary: () => context.push(AppRoutes.flow),
     );
   }
@@ -99,14 +94,11 @@ class _OfflineQuizHubState extends StatelessWidget {
   Widget build(BuildContext context) {
     return IntelliaStateView(
       kind: IntelliaStateKind.offline,
-      title: 'Les quiz attendent le réseau',
-      message:
-          'Aucun quiz n’est lancé sans connexion : le serveur protège la '
-          'correction et valide l’envoi, sans conserver tes réponses hors '
-          'ligne. Tu peux continuer avec le Flow ou une leçon téléchargée.',
-      primaryLabel: 'Ouvrir le Flow hors ligne',
+      title: context.l10n.quizOfflineTitle,
+      message: context.l10n.quizOfflineBody,
+      primaryLabel: context.l10n.openOfflineFlow,
       onPrimary: () => context.push(AppRoutes.flow),
-      secondaryLabel: 'Voir mes leçons téléchargées',
+      secondaryLabel: context.l10n.viewDownloadedLessons,
       onSecondary: () => context.push(AppRoutes.learnHub),
     );
   }
@@ -115,10 +107,10 @@ class _OfflineQuizHubState extends StatelessWidget {
 enum _QuizHubFilter { all, training, exam }
 
 extension on _QuizHubFilter {
-  String get label => switch (this) {
-    _QuizHubFilter.all => 'Tous',
-    _QuizHubFilter.training => 'Entraînement',
-    _QuizHubFilter.exam => 'Évaluation / examen blanc',
+  String label(BuildContext context) => switch (this) {
+    _QuizHubFilter.all => context.l10n.allLabel,
+    _QuizHubFilter.training => context.l10n.quizModeTraining,
+    _QuizHubFilter.exam => context.l10n.quizModeExam,
   };
 }
 
@@ -144,143 +136,140 @@ class _QuizHubBodyState extends State<_QuizHubBody> {
         .where((quiz) => quiz.mode == QuizMode.exam)
         .toList(growable: false);
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        IntelliaSpacing.lg,
-        IntelliaSpacing.lg,
-        IntelliaSpacing.lg,
-        132,
+    final sections = <Widget>[
+      Text(
+        context.l10n.quizHubIntro,
+        style: Theme.of(context).textTheme.bodyMedium,
       ),
-      children: [
-        const TabSectionHeader(
-          eyebrow: 'Espace élève',
-          title: 'Quiz',
-          subtitle:
-              'Entraîne-toi avec des corrections guidées ou évalue-toi '
-              'dans les conditions d’un examen blanc.',
-        ),
-        const SizedBox(height: IntelliaSpacing.md),
-        _QuizResultsPanel(quizzes: widget.quizzes),
-        const SizedBox(height: IntelliaSpacing.md),
-        // Focal : carte d'appel (fond sombre → texte blanc à contraste garanti).
-        Container(
-          padding: const EdgeInsets.all(IntelliaSpacing.lg),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(IntelliaRadii.large),
-            // Assombri (#0369A1) pour garantir un contraste ≥ 4.5:1 du texte
-            // blanc sur toute la surface du banner.
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF0369A1), Color(0xFF1D4ED8)],
-            ),
-            boxShadow: IntelliaShadows.glow(
-              const Color(0xFF1D4ED8),
-              intensity: 0.22,
-            ),
+      const SizedBox(height: IntelliaSpacing.md),
+      _QuizResultsPanel(quizzes: widget.quizzes),
+      const SizedBox(height: IntelliaSpacing.md),
+      // Focal : carte d'appel (fond sombre → texte blanc à contraste garanti).
+      Container(
+        padding: const EdgeInsets.all(IntelliaSpacing.lg),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(IntelliaRadii.large),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0369A1), Color(0xFF1D4ED8)],
           ),
-          child: Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Choisis ton mode de révision',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    height: 1.2,
-                  ),
+          boxShadow: IntelliaShadows.glow(
+            const Color(0xFF1D4ED8),
+            intensity: 0.22,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                context.l10n.chooseRevisionMode,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
                 ),
               ),
-              const SizedBox(width: IntelliaSpacing.sm),
-              Icon(
-                Icons.bolt_rounded,
-                color: Colors.white.withValues(alpha: 0.9),
-                size: 30,
-              ),
+            ),
+            const SizedBox(width: IntelliaSpacing.sm),
+            Icon(
+              Icons.bolt_rounded,
+              color: Colors.white.withValues(alpha: 0.9),
+              size: 30,
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: IntelliaSpacing.md),
+      if (widget.offline) ...[
+        IntelliaStateView(
+          kind: IntelliaStateKind.offline,
+          compact: true,
+          title: context.l10n.quizPausedOfflineTitle,
+          message: context.l10n.quizPausedOfflineBody,
+          primaryLabel: context.l10n.openOfflineFlow,
+          onPrimary: () => context.push(AppRoutes.flow),
+          secondaryLabel: context.l10n.viewDownloadedLessons,
+          onSecondary: () => context.push(AppRoutes.learnHub),
+        ),
+        const SizedBox(height: IntelliaSpacing.md),
+      ],
+      const _QuizModeGuide(),
+      const SizedBox(height: IntelliaSpacing.md),
+      if (widget.quizzes.isNotEmpty) ...[
+        Text(
+          context.l10n.displayLabel,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: IntelliaSpacing.xs),
+        Semantics(
+          container: true,
+          label: context.l10n.filterQuizByModeA11y,
+          child: Wrap(
+            spacing: IntelliaSpacing.xs,
+            runSpacing: IntelliaSpacing.xs,
+            children: [
+              for (final filter in _QuizHubFilter.values)
+                FilterChip(
+                  label: Text(filter.label(context)),
+                  selected: _filter == filter,
+                  onSelected: (_) => setState(() => _filter = filter),
+                ),
             ],
           ),
         ),
-        const SizedBox(height: IntelliaSpacing.md),
-        if (widget.offline) ...[
-          IntelliaStateView(
-            kind: IntelliaStateKind.offline,
-            compact: true,
-            title: 'Quiz en pause hors connexion',
-            message:
-                'Les corrections et l’envoi sont vérifiés par le serveur. '
-                'Pour protéger l’évaluation, aucune réponse ni aucun corrigé '
-                'n’est conservé hors ligne.',
-            primaryLabel: 'Ouvrir le Flow hors ligne',
-            onPrimary: () => context.push(AppRoutes.flow),
-            secondaryLabel: 'Voir mes leçons téléchargées',
-            onSecondary: () => context.push(AppRoutes.learnHub),
+        const SizedBox(height: IntelliaSpacing.lg),
+      ],
+      if (widget.quizzes.isEmpty)
+        IntelliaStateView(
+          kind: IntelliaStateKind.comingSoon,
+          compact: true,
+          title: context.l10n.quizComingTitle,
+          message: context.l10n.quizComingBody,
+        ),
+      if (_filter != _QuizHubFilter.exam && training.isNotEmpty)
+        _QuizModeSection(
+          title: context.l10n.quizTrainingAction,
+          subtitle: context.l10n.quizTrainingDescription,
+          icon: Icons.school_rounded,
+          quizzes: training,
+          startingIndex: 0,
+          offline: widget.offline,
+        ),
+      if (_filter == _QuizHubFilter.all &&
+          training.isNotEmpty &&
+          exams.isNotEmpty)
+        const SizedBox(height: IntelliaSpacing.lg),
+      if (_filter != _QuizHubFilter.training && exams.isNotEmpty)
+        _QuizModeSection(
+          title: context.l10n.quizExamAction,
+          subtitle: context.l10n.quizExamDescription,
+          icon: Icons.assignment_turned_in_rounded,
+          quizzes: exams,
+          startingIndex: training.length,
+          offline: widget.offline,
+        ),
+    ];
+
+    return CustomScrollView(
+      slivers: [
+        StickyTabSectionHeader(
+          key: ValueKey('quiz-sticky-header'),
+          eyebrow: context.l10n.studentSpace,
+          title: context.l10n.quizTitle,
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            IntelliaSpacing.lg,
+            IntelliaSpacing.md,
+            IntelliaSpacing.lg,
+            132,
           ),
-          const SizedBox(height: IntelliaSpacing.md),
-        ],
-        const _QuizModeGuide(),
-        const SizedBox(height: IntelliaSpacing.md),
-        if (widget.quizzes.isNotEmpty) ...[
-          Text(
-            'Afficher',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: IntelliaSpacing.xs),
-          Semantics(
-            container: true,
-            label: 'Filtrer les quiz par mode',
-            child: Wrap(
-              spacing: IntelliaSpacing.xs,
-              runSpacing: IntelliaSpacing.xs,
-              children: [
-                for (final filter in _QuizHubFilter.values)
-                  FilterChip(
-                    label: Text(filter.label),
-                    selected: _filter == filter,
-                    onSelected: (_) => setState(() => _filter = filter),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: IntelliaSpacing.lg),
-        ],
-        if (widget.quizzes.isEmpty)
-          const IntelliaStateView(
-            kind: IntelliaStateKind.comingSoon,
-            compact: true,
-            title: 'Les quiz de ta classe arrivent',
-            message:
-                'De nouveaux quiz sont en préparation pour ton niveau. '
-                'En attendant, révise une leçon ou lance le Flow depuis '
-                'l\'accueil.',
-          ),
-        if (_filter != _QuizHubFilter.exam && training.isNotEmpty)
-          _QuizModeSection(
-            title: 'S’entraîner',
-            subtitle:
-                'Une correction guidée t’aide à comprendre avant de continuer.',
-            icon: Icons.school_rounded,
-            quizzes: training,
-            startingIndex: 0,
-            offline: widget.offline,
-          ),
-        if (_filter == _QuizHubFilter.all &&
-            training.isNotEmpty &&
-            exams.isNotEmpty)
-          const SizedBox(height: IntelliaSpacing.lg),
-        if (_filter != _QuizHubFilter.training && exams.isNotEmpty)
-          _QuizModeSection(
-            title: 'S’évaluer',
-            subtitle:
-                'Les réponses sont corrigées à la fin. Ces quiz préparent aux '
-                'épreuves, sans remplacer un examen officiel.',
-            icon: Icons.assignment_turned_in_rounded,
-            quizzes: exams,
-            startingIndex: training.length,
-            offline: widget.offline,
-          ),
+          sliver: SliverList.list(children: sections),
+        ),
       ],
     );
   }
@@ -296,11 +285,11 @@ class _QuizResultsPanel extends ConsumerWidget {
     final history = ref.watch(quizAttemptHistoryProvider);
     final modeByQuizId = {for (final quiz in quizzes) quiz.id: quiz.mode};
     final subtitle = history.when(
-      loading: () => 'Chargement des tentatives validées…',
-      error: (error, stackTrace) => 'Historique indisponible pour le moment.',
+      loading: () => context.l10n.quizHistoryLoading,
+      error: (error, stackTrace) => context.l10n.quizHistoryUnavailable,
       data: (attempts) => attempts.isEmpty
-          ? 'Aucune tentative validée pour le moment.'
-          : 'Dernier score : ${_scoreLabel(attempts.first)}',
+          ? context.l10n.quizNoValidatedAttempt
+          : context.l10n.lastScore(_scoreLabel(context, attempts.first)),
     );
 
     return Card(
@@ -310,9 +299,9 @@ class _QuizResultsPanel extends ConsumerWidget {
           Icons.insights_rounded,
           color: IntelliaColors.brandIndigo,
         ),
-        title: const Text(
-          'Mes résultats',
-          style: TextStyle(fontWeight: FontWeight.w900),
+        title: Text(
+          context.l10n.myResults,
+          style: const TextStyle(fontWeight: FontWeight.w900),
         ),
         subtitle: Text(subtitle),
         childrenPadding: const EdgeInsets.fromLTRB(
@@ -329,24 +318,24 @@ class _QuizResultsPanel extends ConsumerWidget {
             ),
             error: (error, stackTrace) => Column(
               children: [
-                const Text(
-                  'Impossible de récupérer les résultats validés. Tes quiz '
-                  'restent accessibles.',
+                Text(
+                  context.l10n.quizResultsLoadFailed,
                   textAlign: TextAlign.center,
                 ),
                 TextButton.icon(
                   onPressed: () => ref.invalidate(quizAttemptHistoryProvider),
                   icon: const Icon(Icons.refresh_rounded),
-                  label: const Text('Réessayer'),
+                  label: Text(context.l10n.retryLabel),
                 ),
               ],
             ),
             data: (attempts) => attempts.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: IntelliaSpacing.md,
+                    ),
                     child: Text(
-                      'Aucun résultat inventé ici : ta première tentative '
-                      'apparaîtra après sa validation par le serveur.',
+                      context.l10n.quizFirstResultBody,
                       textAlign: TextAlign.center,
                     ),
                   )
@@ -360,11 +349,9 @@ class _QuizResultsPanel extends ConsumerWidget {
                         if (i < attempts.length - 1) const Divider(height: 1),
                       ],
                       const SizedBox(height: IntelliaSpacing.sm),
-                      const Text(
-                        'La maîtrise par thème n’est pas affichée : les '
-                        'tentatives actuelles n’enregistrent pas encore de '
-                        'compétences pédagogiques validées.',
-                        style: TextStyle(fontSize: 12),
+                      Text(
+                        context.l10n.quizMasteryUnavailable,
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
@@ -384,16 +371,16 @@ class _QuizAttemptRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final date = attempt.submittedAt == null
-        ? 'Date non disponible'
+        ? context.l10n.dateUnavailable
         : MaterialLocalizations.of(
             context,
           ).formatShortDate(attempt.submittedAt!.toLocal());
     final modeLabel = switch (mode) {
-      QuizMode.training => 'Entraînement',
-      QuizMode.exam => 'Évaluation / examen blanc',
-      null => 'Mode non précisé',
+      QuizMode.training => context.l10n.quizModeTraining,
+      QuizMode.exam => context.l10n.quizModeExam,
+      null => context.l10n.quizModeUnspecified,
     };
-    final score = _scoreLabel(attempt);
+    final score = _scoreLabel(context, attempt);
 
     return Semantics(
       container: true,
@@ -431,7 +418,7 @@ class _QuizAttemptRow extends StatelessWidget {
                     ),
                   ),
                   if (attempt.pointsAwarded > 0)
-                    Text('+${attempt.pointsAwarded} points'),
+                    Text(context.l10n.pointsEarned(attempt.pointsAwarded)),
                 ],
               ),
             ],
@@ -442,8 +429,8 @@ class _QuizAttemptRow extends StatelessWidget {
   }
 }
 
-String _scoreLabel(QuizAttemptSummary attempt) {
-  if (attempt.maxScore <= 0) return 'Score non disponible';
+String _scoreLabel(BuildContext context, QuizAttemptSummary attempt) {
+  if (attempt.maxScore <= 0) return context.l10n.scoreUnavailable;
   final percentage = (attempt.score / attempt.maxScore * 100).round();
   return '${attempt.score}/${attempt.maxScore} ($percentage %)';
 }
@@ -460,21 +447,21 @@ class _QuizModeGuide extends StatelessWidget {
         borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
-      child: const Padding(
-        padding: EdgeInsets.all(IntelliaSpacing.md),
+      child: Padding(
+        padding: const EdgeInsets.all(IntelliaSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _ModeExplanation(
               icon: Icons.lightbulb_rounded,
-              title: 'Entraînement',
-              description: 'Correction guidée pendant le quiz.',
+              title: context.l10n.quizModeTraining,
+              description: context.l10n.quizTrainingGuide,
             ),
             SizedBox(height: IntelliaSpacing.sm),
             _ModeExplanation(
               icon: Icons.timer_rounded,
-              title: 'Évaluation / examen blanc',
-              description: 'Correction complète après l’envoi.',
+              title: context.l10n.quizModeExam,
+              description: context.l10n.quizExamGuide,
             ),
           ],
         ),
@@ -588,14 +575,14 @@ class _QuizCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final modeLabel = quiz.mode == QuizMode.training
-        ? 'Entraînement'
-        : 'Évaluation / examen blanc';
+        ? context.l10n.quizModeTraining
+        : context.l10n.quizModeExam;
     return Semantics(
       button: true,
       label:
           '$modeLabel. ${quiz.title}. ${quiz.subjectLabel}. '
-          '${quiz.questionCount} questions.'
-          '${offline ? ' Indisponible hors connexion.' : ''}',
+          '${context.l10n.questionCount(quiz.questionCount)}.'
+          '${offline ? context.l10n.unavailableOfflineA11y : ''}',
       child: ExcludeSemantics(
         child: Card(
           child:
@@ -726,17 +713,15 @@ Future<void> _showOfflineQuizHelp(BuildContext context) {
             const Icon(Icons.cloud_off_rounded, size: 40),
             const SizedBox(height: IntelliaSpacing.sm),
             Text(
-              'Ce quiz a besoin du réseau',
+              context.l10n.quizNeedsNetworkTitle,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: IntelliaSpacing.xs),
-            const Text(
-              'Le serveur protège la correction et valide l’envoi. Intellia237 '
-              'ne met ni tes réponses ni les corrigés en cache. Reconnecte-toi '
-              'pour commencer, ou poursuis une activité disponible hors ligne.',
+            Text(
+              context.l10n.quizNeedsNetworkBody,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: IntelliaSpacing.lg),
@@ -746,7 +731,7 @@ Future<void> _showOfflineQuizHelp(BuildContext context) {
                 context.push(AppRoutes.flow);
               },
               icon: const Icon(Icons.bolt_rounded),
-              label: const Text('Ouvrir le Flow hors ligne'),
+              label: Text(context.l10n.openOfflineFlow),
             ),
             const SizedBox(height: IntelliaSpacing.xs),
             OutlinedButton.icon(
@@ -755,11 +740,11 @@ Future<void> _showOfflineQuizHelp(BuildContext context) {
                 context.push(AppRoutes.learnHub);
               },
               icon: const Icon(Icons.download_done_rounded),
-              label: const Text('Voir mes leçons téléchargées'),
+              label: Text(context.l10n.viewDownloadedLessons),
             ),
             TextButton(
               onPressed: () => Navigator.pop(sheetContext),
-              child: const Text('Fermer'),
+              child: Text(context.l10n.closeLabel),
             ),
           ],
         ),

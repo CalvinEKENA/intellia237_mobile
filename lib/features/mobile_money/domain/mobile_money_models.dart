@@ -22,12 +22,6 @@ enum MobileMoneyPaymentStatus {
     'rejected' => rejected,
     _ => pending,
   };
-
-  String get label => switch (this) {
-    pending => 'En vérification',
-    approved => 'Validé',
-    rejected => 'Rejeté',
-  };
 }
 
 class MobileMoneyOperator {

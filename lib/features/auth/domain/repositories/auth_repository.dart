@@ -9,6 +9,7 @@ class AuthUserData {
     required this.firstName,
     required this.lastName,
     required this.profileCompleted,
+    this.legacyProfile = false,
   });
 
   final String uid;
@@ -17,6 +18,31 @@ class AuthUserData {
   final String firstName;
   final String lastName;
   final bool profileCompleted;
+  final bool legacyProfile;
+}
+
+enum AuthSessionResolutionKind {
+  unauthenticated,
+  needsOnboarding,
+  authenticated,
+  retryableProfileFailure,
+  legacyProfileRecovery,
+}
+
+class AuthSessionResolution {
+  const AuthSessionResolution({
+    required this.kind,
+    this.firebaseUid,
+    this.firebaseEmail,
+    this.user,
+    this.errorCode,
+  });
+
+  final AuthSessionResolutionKind kind;
+  final String? firebaseUid;
+  final String? firebaseEmail;
+  final AuthUserData? user;
+  final String? errorCode;
 }
 
 /// Interface du repository d'authentification
@@ -44,4 +70,11 @@ abstract class AuthRepository {
 
   /// Déconnexion
   Future<void> signOut();
+}
+
+/// Capacité spécialisée des repositories qui savent distinguer Firebase Auth
+/// de la résolution Firestore. Elle reste séparée du contrat historique afin
+/// de ne pas forcer les doubles de tests et intégrations externes à mentir.
+abstract interface class AuthSessionResolver {
+  Future<AuthSessionResolution> resolveCurrentSession();
 }

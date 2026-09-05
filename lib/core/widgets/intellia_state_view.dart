@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../app/theme/design_tokens.dart';
+import '../localization/localization_extensions.dart';
 import 'intellia_pressable.dart';
 import 'tab_presentation.dart';
 
@@ -63,19 +64,6 @@ class IntelliaStateView extends StatelessWidget {
   /// centré plein écran.
   final bool compact;
 
-  String get _defaultTitle => switch (kind) {
-    IntelliaStateKind.loading => 'Chargement…',
-    IntelliaStateKind.empty => 'Rien ici pour le moment',
-    IntelliaStateKind.noResults => 'Aucun résultat',
-    IntelliaStateKind.comingSoon => 'Contenu bientôt disponible',
-    IntelliaStateKind.errorRetryable => 'Un problème est survenu',
-    IntelliaStateKind.errorFatal => 'Une erreur inattendue est survenue',
-    IntelliaStateKind.offline => 'Tu es hors ligne',
-    IntelliaStateKind.accessDenied => 'Accès non autorisé',
-    IntelliaStateKind.locked => 'Contenu verrouillé',
-    IntelliaStateKind.success => 'C\'est fait !',
-  };
-
   IconData get _defaultIcon => switch (kind) {
     IntelliaStateKind.loading => Icons.hourglass_top_rounded,
     IntelliaStateKind.empty => Icons.inbox_rounded,
@@ -110,7 +98,21 @@ class IntelliaStateView extends StatelessWidget {
         TabSurface.maybeOf(context) ??
         TabPalette.forBrightness(Theme.of(context).brightness);
     final tint = _tint(s);
-    final resolvedTitle = title ?? _defaultTitle;
+    final resolvedTitle =
+        title ??
+        switch (kind) {
+          IntelliaStateKind.loading => context.l10n.stateLoadingTitle,
+          IntelliaStateKind.empty => context.l10n.stateEmptyTitle,
+          IntelliaStateKind.noResults => context.l10n.stateNoResultsTitle,
+          IntelliaStateKind.comingSoon => context.l10n.stateComingSoonTitle,
+          IntelliaStateKind.errorRetryable =>
+            context.l10n.stateRetryableErrorTitle,
+          IntelliaStateKind.errorFatal => context.l10n.stateFatalErrorTitle,
+          IntelliaStateKind.offline => context.l10n.stateOfflineTitle,
+          IntelliaStateKind.accessDenied => context.l10n.stateAccessDeniedTitle,
+          IntelliaStateKind.locked => context.l10n.stateLockedTitle,
+          IntelliaStateKind.success => context.l10n.stateSuccessTitle,
+        };
 
     if (kind == IntelliaStateKind.loading) {
       return _wrap(

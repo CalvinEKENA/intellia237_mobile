@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../application/flow_controller.dart';
 import '../../domain/flow_card.dart';
 import 'flow_card_scaffold.dart';
@@ -143,7 +144,9 @@ class _FlowFillBlankCardViewState extends ConsumerState<FlowFillBlankCardView> {
               explanation: widget.card.explanation,
               correction: _correct!
                   ? null
-                  : 'Réponse attendue : ${widget.card.acceptedAnswers.first}',
+                  : context.l10n.expectedAnswer(
+                      widget.card.acceptedAnswers.first,
+                    ),
             )
           : null,
       child: SingleChildScrollView(
@@ -170,8 +173,8 @@ class _FlowFillBlankCardViewState extends ConsumerState<FlowFillBlankCardView> {
               autocorrect: false,
               onSubmitted: (_) => _submit(),
               decoration: InputDecoration(
-                labelText: 'Ta réponse',
-                hintText: 'Écris le mot ou le nombre manquant',
+                labelText: context.l10n.yourAnswerLabel,
+                hintText: context.l10n.missingAnswerHint,
                 prefixIcon: const Icon(Icons.edit_rounded),
                 suffixIcon: locked
                     ? Icon(
@@ -191,7 +194,7 @@ class _FlowFillBlankCardViewState extends ConsumerState<FlowFillBlankCardView> {
               child: FilledButton.icon(
                 onPressed: locked ? null : _submit,
                 icon: const Icon(Icons.check_rounded),
-                label: const Text('Valider ma réponse'),
+                label: Text(context.l10n.submitMyAnswer),
               ),
             ),
           ],
@@ -293,7 +296,7 @@ class _FlowOrderingCardViewState extends ConsumerState<FlowOrderingCardView> {
             child: FilledButton.icon(
               onPressed: locked ? null : _submit,
               icon: const Icon(Icons.rule_rounded),
-              label: const Text('Vérifier l’ordre'),
+              label: Text(context.l10n.checkOrder),
             ),
           ),
         ],

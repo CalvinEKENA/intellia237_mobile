@@ -3,10 +3,10 @@
 The following section is ready to paste into the PR description after explicit
 authorization to edit the PR.
 
-## Gemini 3.7 Flash / Vertex AI migration
+## Gemini 3.8 Flash / Vertex AI migration
 
 - Migrated the server-side tutor, quiz and summary generation paths to Gemini
-  3.7 Flash through Google Vertex AI at the `global` location.
+  3.8 Flash through Google Vertex AI at the `global` location.
 - Authentication uses Application Default Credentials from the Cloud Functions
   runtime. No Gemini, GLM or Z.ai API key is embedded in Flutter or committed.
 - Project resolution supports `VERTEX_AI_PROJECT_ID`, then

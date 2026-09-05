@@ -25,24 +25,16 @@ class TutorPreferenceRepository {
         'updatedAt': FieldValue.serverTimestamp(),
       });
     } on FirebaseException catch (error) {
-      throw TutorPreferenceException(_messageForCode(error.code));
+      throw TutorPreferenceException(error.code);
     }
   }
-
-  static String _messageForCode(String code) => switch (code) {
-    'permission-denied' =>
-      'Ce compagnon ne peut pas être enregistré sur votre profil.',
-    'unavailable' || 'deadline-exceeded' =>
-      'Le réseau est indisponible. Réessayez dans un instant.',
-    _ => 'Le compagnon n’a pas pu être enregistré pour le moment.',
-  };
 }
 
 class TutorPreferenceException implements Exception {
-  const TutorPreferenceException(this.message);
+  const TutorPreferenceException(this.code);
 
-  final String message;
+  final String code;
 
   @override
-  String toString() => message;
+  String toString() => 'TutorPreferenceException($code)';
 }

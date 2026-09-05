@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
+import '../../../../../core/localization/localization_extensions.dart';
 import '../../../../../core/widgets/intellia_pressable.dart';
-import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
 import '../visuals/cards_fan_visual.dart';
@@ -20,7 +20,11 @@ class KnowledgeScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OnboardingSceneFrame(
-      narrative: OnboardingNarratives.forAct(OnboardingAct.knowledge),
+      narrative: OnboardingNarrative(
+        eyebrow: context.l10n.knowledgeEyebrow,
+        title: context.l10n.knowledgeTitle,
+        body: context.l10n.knowledgeBody,
+      ),
       visualHeight: 320,
       visual: ClipRect(
         child: LayoutBuilder(
@@ -96,9 +100,9 @@ class KnowledgeScene extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.12),
                       ),
                     ),
-                    child: const Text(
-                      'Choisis une matière',
-                      style: TextStyle(
+                    child: Text(
+                      context.l10n.chooseSubject,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,

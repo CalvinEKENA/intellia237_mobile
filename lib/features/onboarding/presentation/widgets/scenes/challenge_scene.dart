@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import '../../../../../app/theme/design_tokens.dart';
 import '../../../../../core/localization/localization_extensions.dart';
 import '../../../../../core/widgets/intellia_pressable.dart';
-import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_journey_state.dart';
 import '../../../domain/onboarding_micro_challenge.dart';
 import '../../../domain/onboarding_narrative.dart';
@@ -60,7 +59,11 @@ class _ChallengeSceneState extends State<ChallengeScene> {
   Widget build(BuildContext context) {
     final challenge = _challenge;
     return OnboardingSceneFrame(
-      narrative: OnboardingNarratives.forAct(OnboardingAct.challenge),
+      narrative: OnboardingNarrative(
+        eyebrow: context.l10n.challengeEyebrow,
+        title: context.l10n.challengeTitle,
+        body: context.l10n.challengeBody,
+      ),
       visualHeight: 430,
       visual: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
@@ -213,7 +216,7 @@ class _AnswerOption extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      label: 'Réponse $label',
+      label: context.l10n.answerChoiceA11y(label),
       child: IntelliaPressable(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(

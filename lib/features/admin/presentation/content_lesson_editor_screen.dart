@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../features/learn/domain/learn_lesson.dart';
 import '../application/admin_content_providers.dart';
 import '../domain/admin_content_models.dart';
@@ -73,17 +74,13 @@ class _ContentLessonEditorScreenState
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('✅ Leçon sauvegardée')));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.lessonSaved)));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'La leçon n’a pas pu être enregistrée. Vérifie la connexion et réessaie.',
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.lessonSaveFailed)));
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -97,18 +94,14 @@ class _ContentLessonEditorScreenState
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('🚀 Leçon publiée !')));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.lessonPublished)));
         Navigator.pop(context);
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'La publication n’a pas abouti. Vérifie la connexion et réessaie.',
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.publicationFailed)));
       }
     }
   }
@@ -130,23 +123,23 @@ class _ContentLessonEditorScreenState
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Nouvelle section'),
+        title: Text(context.l10n.newSection),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Titre',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.titleLabel,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: IntelliaSpacing.sm),
             TextField(
               controller: bodyCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Contenu du cours',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: context.l10n.courseContentLabel,
+                border: const OutlineInputBorder(),
               ),
               maxLines: 5,
             ),
@@ -155,7 +148,7 @@ class _ContentLessonEditorScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text(context.l10n.cancelLabel),
           ),
           FilledButton(
             onPressed: () {
@@ -170,7 +163,7 @@ class _ContentLessonEditorScreenState
               });
               Navigator.pop(ctx);
             },
-            child: const Text('Ajouter'),
+            child: Text(context.l10n.addLabel),
           ),
         ],
       ),
@@ -186,7 +179,9 @@ class _ContentLessonEditorScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _lesson.title.isEmpty ? 'Éditeur de leçon' : _lesson.title,
+          _lesson.title.isEmpty
+              ? context.l10n.lessonEditorTitle
+              : _lesson.title,
           style: GoogleFonts.manrope(fontWeight: FontWeight.w800),
           overflow: TextOverflow.ellipsis,
         ),
@@ -200,12 +195,12 @@ class _ContentLessonEditorScreenState
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Enregistrer'),
+                  : Text(context.l10n.saveLabel),
             ),
           FilledButton.icon(
             onPressed: _isSaving ? null : _publish,
             icon: const Icon(Icons.publish_rounded, size: 18),
-            label: const Text('Publier'),
+            label: Text(context.l10n.publishLabel),
           ),
           const SizedBox(width: IntelliaSpacing.xs),
         ],
@@ -232,17 +227,17 @@ class _ContentLessonEditorScreenState
                   color: IntelliaColors.warning.withValues(alpha: 0.3),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.library_add_rounded,
                     color: IntelliaColors.warning,
                     size: 16,
                   ),
-                  SizedBox(width: IntelliaSpacing.xs),
+                  const SizedBox(width: IntelliaSpacing.xs),
                   Text(
-                    'Contenu généré par l\'IA — Relisez avant publication',
-                    style: TextStyle(
+                    context.l10n.aiGeneratedReviewNotice,
+                    style: const TextStyle(
                       fontSize: 12,
                       color: IntelliaColors.warning,
                     ),
@@ -254,16 +249,20 @@ class _ContentLessonEditorScreenState
 
           // Metadata
           _Card(
-            title: 'Informations',
+            title: context.l10n.informationLabel,
             child: Column(
               children: [
-                _field(_titleCtrl, 'Titre de la leçon'),
+                _field(_titleCtrl, context.l10n.lessonTitleLabel),
                 const SizedBox(height: IntelliaSpacing.sm),
-                _field(_summaryCtrl, 'Objectif pédagogique', maxLines: 3),
+                _field(
+                  _summaryCtrl,
+                  context.l10n.learningObjectiveLabel,
+                  maxLines: 3,
+                ),
                 const SizedBox(height: IntelliaSpacing.sm),
                 _field(
                   _durationCtrl,
-                  'Durée estimée',
+                  context.l10n.estimatedDurationLabel,
                   suffix: 'min',
                   keyboardType: TextInputType.number,
                 ),
@@ -274,7 +273,7 @@ class _ContentLessonEditorScreenState
 
           // Backend-only AI notice
           _Card(
-            title: 'Génération IA',
+            title: context.l10n.aiGenerationTitle,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -288,9 +287,7 @@ class _ContentLessonEditorScreenState
                     const SizedBox(width: IntelliaSpacing.sm),
                     Expanded(
                       child: Text(
-                        'La génération IA n\'est plus disponible côté client. '
-                        'Le flux backend-only passe désormais par Cloud Functions '
-                        'et le microservice LLM.',
+                        context.l10n.aiGenerationBackendOnly,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
@@ -298,8 +295,7 @@ class _ContentLessonEditorScreenState
                 ),
                 const SizedBox(height: IntelliaSpacing.sm),
                 Text(
-                  'Rédigez la leçon manuellement ici, puis utilisez le parcours '
-                  'backend sécurisé pour produire résumés et quiz.',
+                  context.l10n.aiGenerationBackendInstructions,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.outline,
                   ),
@@ -311,20 +307,24 @@ class _ContentLessonEditorScreenState
 
           // Content sections
           _Card(
-            title: 'Sections du cours (${_lesson.contentSections.length})',
+            title: context.l10n.courseSectionsCount(
+              _lesson.contentSections.length,
+            ),
             trailing: TextButton.icon(
               onPressed: _addSection,
               icon: const Icon(Icons.add, size: 16),
-              label: const Text('Ajouter'),
+              label: Text(context.l10n.addLabel),
             ),
             child: _lesson.contentSections.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: IntelliaSpacing.md,
+                    ),
                     child: Center(
                       child: Text(
-                        'Aucune section.\nAjoutez-en manuellement.',
+                        context.l10n.noCourseSection,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13),
+                        style: const TextStyle(fontSize: 13),
                       ),
                     ),
                   )
@@ -343,15 +343,17 @@ class _ContentLessonEditorScreenState
 
           // Mini quiz
           _Card(
-            title: 'Mini-quiz (${_lesson.miniQuiz.length} questions)',
+            title: context.l10n.miniQuizQuestionsCount(_lesson.miniQuiz.length),
             child: _lesson.miniQuiz.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.symmetric(vertical: IntelliaSpacing.sm),
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: IntelliaSpacing.sm,
+                    ),
                     child: Center(
                       child: Text(
-                        'Aucune question générée pour cette leçon.',
+                        context.l10n.noGeneratedQuestion,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 13),
+                        style: const TextStyle(fontSize: 13),
                       ),
                     ),
                   )
@@ -375,7 +377,10 @@ class _ContentLessonEditorScreenState
                             ),
                           ),
                           subtitle: Text(
-                            '${_lesson.miniQuiz[i].options.length} options • Réponse: ${_lesson.miniQuiz[i].correctIndex + 1}',
+                            context.l10n.quizOptionsCorrectAnswer(
+                              _lesson.miniQuiz[i].options.length,
+                              _lesson.miniQuiz[i].correctIndex + 1,
+                            ),
                             style: const TextStyle(fontSize: 11),
                           ),
                         ),

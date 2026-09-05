@@ -12,6 +12,7 @@ import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/phone_auth_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/profile_recovery_screen.dart';
 import '../../features/admin/presentation/admin_home_screen.dart';
 import '../../features/tutor/domain/tutor_persona.dart';
 import '../../features/tutor/presentation/tutor_selection_screen.dart';
@@ -38,6 +39,7 @@ import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/student_home/presentation/student_home_screen.dart';
 import '../../features/student_registration/presentation/student_registration_flow_screen.dart';
+import '../../features/notifications/presentation/student_notifications_screen.dart';
 import '../../features/teacher_registration/presentation/teacher_registration_screen.dart';
 import '../../features/teacher/presentation/teacher_class_detail_screen.dart';
 import '../../features/teacher/presentation/teacher_home_screen.dart';
@@ -133,6 +135,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: AppRoutes.authProfileRecovery,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const ProfileRecoveryScreen(),
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.legalTerms,
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
@@ -161,6 +170,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           state: state,
           transitionBackground: const IntelliaLoadingSurface(),
           child: const StudentHomeScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.studentNotifications,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const StudentNotificationsScreen(),
         ),
       ),
       GoRoute(
@@ -467,29 +483,64 @@ String? resolveAppRedirect({
       }
       return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
 
+    case AuthStatus.needsOnboarding:
+      if (location == AppRoutes.phoneAuth ||
+          location == AppRoutes.studentRegistration ||
+          location == AppRoutes.parentRegistration ||
+          location == AppRoutes.authProfileRecovery) {
+        return null;
+      }
+      if (auth.role == AppRole.student) return AppRoutes.studentRegistration;
+      if (auth.role == AppRole.parent) return AppRoutes.parentRegistration;
+      return AppRoutes.authProfileRecovery;
+
+    case AuthStatus.retryableProfileFailure:
+      if (auth.isAuthenticated && auth.role != null) {
+        return _resolveAuthenticatedRoleRedirect(auth, location);
+      }
+      return location == AppRoutes.authProfileRecovery
+          ? null
+          : AppRoutes.authProfileRecovery;
+
+    case AuthStatus.legacyProfileRecovery:
+      if (auth.isAuthenticated && auth.role != null) {
+        return _resolveAuthenticatedRoleRedirect(auth, location);
+      }
+      return location == AppRoutes.authProfileRecovery
+          ? null
+          : AppRoutes.authProfileRecovery;
+
     case AuthStatus.authenticated:
-      final role = auth.role;
-      if (role == null) return AppRoutes.login;
-
-      final expectedHome = role.homePath;
-      if (location.startsWith(AppRoutes.tutorSelection)) {
-        return role == AppRole.student ? null : expectedHome;
-      }
-      if (location == AppRoutes.phoneAuth) return null;
-
-      final isPreAuthFlow = AppRoutes.preAuthRoutes.contains(location);
-      final isInvalidRolePath =
-          AppRoutes.roleHomes.contains(location) && location != expectedHome;
-
-      if (isPreAuthFlow || isInvalidRolePath) {
-        return expectedHome;
-      }
-      if (role != AppRole.student && AppRoutes.isStudentPath(location)) {
-        return expectedHome;
-      }
-      if (role != AppRole.parent && AppRoutes.isParentPath(location)) {
-        return expectedHome;
-      }
-      return null;
+      return _resolveAuthenticatedRoleRedirect(auth, location);
   }
+}
+
+String? _resolveAuthenticatedRoleRedirect(AuthState auth, String location) {
+  final role = auth.role;
+  if (role == null) return AppRoutes.authProfileRecovery;
+
+  if (role == AppRole.student && !auth.profileCompleted) {
+    return location == AppRoutes.studentRegistration
+        ? null
+        : AppRoutes.studentRegistration;
+  }
+
+  final expectedHome = role.homePath;
+  if (location.startsWith(AppRoutes.tutorSelection)) {
+    return role == AppRole.student ? null : expectedHome;
+  }
+  if (location == AppRoutes.phoneAuth) return null;
+
+  final isPreAuthFlow = AppRoutes.preAuthRoutes.contains(location);
+  final isInvalidRolePath =
+      AppRoutes.roleHomes.contains(location) && location != expectedHome;
+
+  if (isPreAuthFlow || isInvalidRolePath) return expectedHome;
+  if (role != AppRole.student && AppRoutes.isStudentPath(location)) {
+    return expectedHome;
+  }
+  if (role != AppRole.parent && AppRoutes.isParentPath(location)) {
+    return expectedHome;
+  }
+  return null;
 }

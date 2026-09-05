@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/quiz_question.dart';
 
 class QcmQuestionCard extends StatelessWidget {
@@ -56,9 +57,9 @@ class QcmQuestionCard extends StatelessWidget {
                       color: IntelliaColors.brandIndigo.withValues(alpha: 0.20),
                       borderRadius: BorderRadius.circular(99),
                     ),
-                    child: const Text(
-                      'QCM — Une seule bonne réponse',
-                      style: TextStyle(
+                    child: Text(
+                      context.l10n.singleAnswerQcm,
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: IntelliaColors.brandIndigo,
@@ -124,7 +125,11 @@ class _GlassPillOption extends StatelessWidget {
           button: true,
           selected: selected,
           excludeSemantics: true,
-          label: 'Réponse $letter : $label${selected ? ', sélectionnée' : ''}',
+          label: context.l10n.quizOptionA11y(
+            letter,
+            label,
+            selected ? context.l10n.selectedA11y : '',
+          ),
           child: GestureDetector(
             onTap: onTap,
             child: AnimatedContainer(

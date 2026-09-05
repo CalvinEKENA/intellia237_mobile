@@ -1,12 +1,12 @@
 # Gemini Vertex AI rollback procedure
 
 This runbook applies to the server-side migration of `askTutor`, `generateQuiz`
-and `generateSummary` from GLM/Z.ai to Gemini 3.7 Flash on Vertex AI.
+and `generateSummary` from GLM/Z.ai to Gemini 3.8 Flash on Vertex AI.
 
 ## Current architecture
 
 - provider: Vertex AI REST `generateContent`;
-- model: `gemini-3.7-flash`;
+- model: `gemini-3.8-flash`;
 - location: `global`;
 - authentication: Application Default Credentials from the Functions runtime;
 - tutor thinking: `LOW`;

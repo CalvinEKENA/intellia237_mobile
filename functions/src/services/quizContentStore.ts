@@ -26,7 +26,7 @@ export class FirestoreQuizContentStore implements QuizContentStore {
     const snapshot = await this.firestore
       .collection("quizzes")
       .where("status", "==", "published")
-      .where("classLevels", "array-contains", input.classLevel)
+      .where("classLevels", "array-contains-any", classLevelReadAliases(input.classLevel))
       .limit(40)
       .get();
 
@@ -93,6 +93,14 @@ export class FirestoreQuizContentStore implements QuizContentStore {
     });
     return result.corrections[0];
   }
+}
+
+export function classLevelReadAliases(value: string): string[] {
+  const normalized = value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  return normalized === "premiere" ? ["Premiere", "Première"] : [value];
 }
 
 function isAllowedForSeries(

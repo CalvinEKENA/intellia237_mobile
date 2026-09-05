@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 import '../../../../core/widgets/tab_presentation.dart';
 import '../../domain/student_home_snapshot.dart';
@@ -71,7 +72,7 @@ class _DailyChallengeSectionState extends State<DailyChallengesSection> {
           children: [
             Expanded(
               child: Text(
-                'Défis du jour',
+                context.l10n.dailyChallenges,
                 style: GoogleFonts.manrope(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -82,8 +83,9 @@ class _DailyChallengeSectionState extends State<DailyChallengesSection> {
             const SizedBox(width: IntelliaSpacing.sm),
             // Countdown pill — or profond lisible sur la surface courante.
             Semantics(
-              label:
-                  'Les défis se renouvellent dans ${_formatDuration(_remaining)}',
+              label: context.l10n.challengesRenewIn(
+                _formatDuration(_remaining),
+              ),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: IntelliaSpacing.sm,
@@ -157,8 +159,8 @@ class _ChallengeCard extends StatelessWidget {
     return Semantics(
       button: !completed,
       label: completed
-          ? 'Défi terminé : ${item.title}'
-          : 'Défi : ${item.title}, récompense ${item.rewardPoints} points',
+          ? context.l10n.challengeCompletedA11y(item.title)
+          : context.l10n.challengeRewardA11y(item.title, item.rewardPoints),
       child: IntelliaPressable(
         onTap: completed ? null : onTap,
         disabledOpacity: 1,

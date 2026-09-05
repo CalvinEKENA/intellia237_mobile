@@ -18,8 +18,13 @@ import 'package:intellia237/features/student_registration/data/student_registrat
 import 'package:intellia237/features/student_registration/domain/academic_rules.dart';
 import 'package:intellia237/features/student_registration/domain/student_registration_payload.dart';
 import 'package:intellia237/features/student_registration/domain/student_registration_result.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() => SharedPreferences.setMockInitialValues(const {}));
+
   test(
     'student registration persists its payload and authenticates the student',
     () async {

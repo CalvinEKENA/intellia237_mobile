@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import '../../../../../app/theme/design_tokens.dart';
 import '../../../../../core/assets/intellia_assets.dart';
 import '../../../../../core/localization/localization_extensions.dart';
-import '../../../domain/onboarding_act.dart';
 import '../../../domain/onboarding_narrative.dart';
 import '../onboarding_scene_frame.dart';
 
@@ -101,8 +100,8 @@ class _ActivationSceneState extends State<ActivationScene>
   Widget build(BuildContext context) {
     return OnboardingSceneFrame(
       narrative: OnboardingNarrative(
-        eyebrow: OnboardingNarratives.forAct(OnboardingAct.activation).eyebrow,
-        title: OnboardingNarratives.forAct(OnboardingAct.activation).title,
+        eyebrow: context.l10n.activationEyebrow,
+        title: context.l10n.activationTitle,
         body: context.l10n.onboardingOpeningBody,
       ),
       visualHeight: 330,
@@ -177,8 +176,8 @@ class _ActivationSceneState extends State<ActivationScene>
               const SizedBox(height: 10),
               Semantics(
                 button: true,
-                label: 'Maintiens pour entrer dans INTELLIA237',
-                hint: 'Maintenir le centre jusqu’à activation',
+                label: context.l10n.holdToEnterIntellia,
+                hint: context.l10n.holdCenterToActivate,
                 onTap: _finish,
                 child: GestureDetector(
                   key: const ValueKey('activation-hold'),

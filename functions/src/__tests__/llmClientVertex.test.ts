@@ -33,7 +33,7 @@ vi.mock("../config/env", () => ({
       process.env.GOOGLE_CLOUD_PROJECT?.trim() ||
       process.env.GCLOUD_PROJECT?.trim(),
     VERTEX_AI_LOCATION: process.env.VERTEX_AI_LOCATION ?? "global",
-    GEMINI_MODEL: process.env.GEMINI_MODEL ?? "gemini-3.7-flash",
+    GEMINI_MODEL: process.env.GEMINI_MODEL ?? "gemini-3.8-flash",
     GEMINI_TUTOR_THINKING_LEVEL:
       process.env.GEMINI_TUTOR_THINKING_LEVEL ?? "LOW",
     GEMINI_STRUCTURED_THINKING_LEVEL:
@@ -59,7 +59,7 @@ describe("Vertex AI Gemini LLM client", () => {
       ...originalEnv,
       VERTEX_AI_PROJECT_ID: "intellia-test-project",
       VERTEX_AI_LOCATION: "global",
-      GEMINI_MODEL: "gemini-3.7-flash",
+      GEMINI_MODEL: "gemini-3.8-flash",
       GEMINI_TUTOR_THINKING_LEVEL: "LOW",
       GEMINI_STRUCTURED_THINKING_LEVEL: "MEDIUM",
       LLM_SERVICE_TIMEOUT_MS: "1000"
@@ -98,7 +98,7 @@ describe("Vertex AI Gemini LLM client", () => {
 
     const [url, payload, config] = axiosMock.post.mock.calls[0];
     expect(url).toBe(
-      "https://aiplatform.googleapis.com/v1/projects/intellia-test-project/locations/global/publishers/google/models/gemini-3.7-flash:generateContent"
+      "https://aiplatform.googleapis.com/v1/projects/intellia-test-project/locations/global/publishers/google/models/gemini-3.8-flash:generateContent"
     );
     expect(payload).toEqual({
       systemInstruction: {

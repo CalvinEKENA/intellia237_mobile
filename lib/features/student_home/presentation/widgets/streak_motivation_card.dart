@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 
 /// Carte de série (streak) — îlot sombre volontaire sur l'accueil clair :
 /// c'est un moment de fierté, le contraste blanc/or sur navy est garanti.
@@ -19,7 +20,7 @@ class StreakMotivationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Série de $streakDays jour${streakDays > 1 ? 's' : ''}. $message',
+      label: context.l10n.streakA11y(streakDays, message),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(IntelliaRadii.medium),
         child: CustomPaint(
@@ -69,7 +70,7 @@ class StreakMotivationCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'jour${streakDays > 1 ? 's' : ''} de série',
+                        context.l10n.streakDayCount(streakDays),
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,

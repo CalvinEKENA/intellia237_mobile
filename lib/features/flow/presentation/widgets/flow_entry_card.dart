@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
 
 /// Point d'entrée vers le Flow, posé sur l'accueil élève.
@@ -42,7 +43,7 @@ class FlowEntryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(IntelliaRadii.full),
                     ),
                     child: Text(
-                      'NOUVEAU',
+                      context.l10n.newLabel,
                       style: GoogleFonts.montserrat(
                         fontSize: 9.5,
                         fontWeight: FontWeight.w800,
@@ -62,7 +63,7 @@ class FlowEntryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Apprends en glissant,\nune carte à la fois.',
+                    context.l10n.flowEntryDescription,
                     style: GoogleFonts.montserrat(
                       fontSize: 13.5,
                       height: 1.4,

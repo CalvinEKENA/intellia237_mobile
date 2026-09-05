@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -6,7 +8,7 @@ import '../../domain/app_role.dart';
 import '../../domain/firebase_error_mapper.dart';
 import '../../domain/repositories/auth_repository.dart';
 
-class AuthRepositoryImpl implements AuthRepository {
+class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
   AuthRepositoryImpl({FirebaseAuth? auth, FirebaseFirestore? firestore})
     : _auth = auth ?? FirebaseAuth.instance,
       _firestore = firestore ?? FirebaseFirestore.instance;
@@ -123,11 +125,69 @@ class AuthRepositoryImpl implements AuthRepository {
     if (currentUser == null) {
       return null;
     }
+    return _fetchUserData(currentUser.uid);
+  }
 
+  @override
+  Future<AuthSessionResolution> resolveCurrentSession() async {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      return const AuthSessionResolution(
+        kind: AuthSessionResolutionKind.unauthenticated,
+      );
+    }
+
+    final uid = currentUser.uid;
+    final email = currentUser.email ?? '';
     try {
-      return await _fetchUserData(currentUser.uid);
-    } catch (_) {
-      return null;
+      final user = await _fetchUserData(uid);
+      final kind = user.legacyProfile
+          ? AuthSessionResolutionKind.legacyProfileRecovery
+          : user.profileCompleted
+          ? AuthSessionResolutionKind.authenticated
+          : AuthSessionResolutionKind.needsOnboarding;
+      return AuthSessionResolution(
+        kind: kind,
+        firebaseUid: uid,
+        firebaseEmail: email,
+        user: user,
+      );
+    } on AuthError catch (error) {
+      if (error.code == 'user-profile-not-found') {
+        return AuthSessionResolution(
+          kind: AuthSessionResolutionKind.needsOnboarding,
+          firebaseUid: uid,
+          firebaseEmail: email,
+          errorCode: error.code,
+        );
+      }
+      if (error.code == 'user-role-invalid') {
+        developer.log(
+          'Unknown stored account role; Firebase session retained for recovery.',
+          name: 'intellia237.auth',
+          error: error.code,
+        );
+        return AuthSessionResolution(
+          kind: AuthSessionResolutionKind.legacyProfileRecovery,
+          firebaseUid: uid,
+          firebaseEmail: email,
+          errorCode: error.code,
+        );
+      }
+      rethrow;
+    } on FirebaseException catch (error, stackTrace) {
+      _debugLog(
+        'resolve-profile',
+        error.code,
+        'Firestore profile resolution failed.',
+        stackTrace,
+      );
+      return AuthSessionResolution(
+        kind: AuthSessionResolutionKind.retryableProfileFailure,
+        firebaseUid: uid,
+        firebaseEmail: email,
+        errorCode: FirebaseErrorMapper.normalizeCode(error.code, error.message),
+      );
     }
   }
 
@@ -150,20 +210,34 @@ class AuthRepositoryImpl implements AuthRepository {
 
     final roleString = (data['role'] as String? ?? '').trim();
 
+    final parsedRole = parseStoredAppRole(roleString);
+    final role = parsedRole.role;
+    if (role == null) {
+      throw const AuthError(
+        message: 'Le rôle de ce compte est manquant ou invalide.',
+        code: 'user-role-invalid',
+      );
+    }
+    var profileCompleted = data['profileCompleted'] as bool? ?? false;
+    if (role == AppRole.student) {
+      final studentProfile = await _firestore
+          .collection('student_profiles')
+          .doc(uid)
+          .get();
+      final classLevel =
+          (studentProfile.data()?['classLevel'] as String?)?.trim() ?? '';
+      profileCompleted =
+          profileCompleted && studentProfile.exists && classLevel.isNotEmpty;
+    }
+
     return AuthUserData(
       uid: uid,
       email: (data['email'] as String? ?? '').trim(),
-      role: _parseRole(roleString),
+      role: role,
       firstName: (data['firstName'] as String? ?? '').trim(),
       lastName: (data['lastName'] as String? ?? '').trim(),
-      profileCompleted: data['profileCompleted'] as bool? ?? false,
-    );
-  }
-
-  AppRole _parseRole(String role) {
-    return AppRole.values.firstWhere(
-      (value) => value.name == role,
-      orElse: () => AppRole.student,
+      profileCompleted: profileCompleted,
+      legacyProfile: parsedRole.isLegacy,
     );
   }
 

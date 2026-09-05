@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../auth/application/auth_controller.dart';
-import '../../auth/application/auth_state.dart';
 import '../../auth/domain/app_role.dart';
 import '../data/firestore_tour_guide_repository.dart';
 import '../domain/tour_guide_step_data.dart';
@@ -16,7 +16,7 @@ Future<void> maybeShowContextualTourGuide({
   required List<TourGuideStepData> steps,
 }) async {
   final authState = ref.read(authControllerProvider);
-  if (authState.status != AuthStatus.authenticated) {
+  if (!authState.isAuthenticated) {
     return;
   }
 
@@ -188,15 +188,15 @@ class _TourGuideOverlayState extends State<_TourGuideOverlay> {
                       children: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Passer'),
+                          child: Text(context.l10n.skipLabel),
                         ),
                         const Spacer(),
                         FilledButton(
                           onPressed: _onNext,
                           child: Text(
                             _index == widget.steps.length - 1
-                                ? 'Terminer'
-                                : 'Suivant',
+                                ? context.l10n.finishLabel
+                                : context.l10n.nextLabel,
                           ),
                         ),
                       ],

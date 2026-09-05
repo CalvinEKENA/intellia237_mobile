@@ -45,7 +45,7 @@ class SubjectDetailScreen extends ConsumerWidget {
         body: IntelliaStateView(
           kind: stateKindForError(error),
           title: context.l10n.subjectUnavailable,
-          message: stateMessageForKind(stateKindForError(error)),
+          message: stateMessageForKind(context, stateKindForError(error)),
           primaryLabel: context.l10n.retryLabel,
           onPrimary: () => ref.invalidate(subjectDetailProvider(subjectId)),
         ),

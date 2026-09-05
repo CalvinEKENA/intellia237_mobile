@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 
+import '../localization/localization_extensions.dart';
 import 'intellia_state_view.dart';
 
 /// Traduit une exception en état de la doctrine commune.
@@ -32,14 +34,10 @@ IntelliaStateKind stateKindForError(Object error) {
 }
 
 /// Message court par défaut associé à un état d'erreur.
-String stateMessageForKind(IntelliaStateKind kind) => switch (kind) {
-  IntelliaStateKind.offline =>
-    'Vérifie ta connexion puis réessaie. Tes contenus déjà consultés '
-        'restent disponibles.',
-  IntelliaStateKind.accessDenied =>
-    'Ton compte n\'a pas accès à ce contenu. Reconnecte-toi ou contacte '
-        'ton établissement.',
-  IntelliaStateKind.errorRetryable =>
-    'Ce n\'est pas de ton côté. Réessaie dans un instant.',
-  _ => '',
-};
+String stateMessageForKind(BuildContext context, IntelliaStateKind kind) =>
+    switch (kind) {
+      IntelliaStateKind.offline => context.l10n.stateOfflineBody,
+      IntelliaStateKind.accessDenied => context.l10n.stateAccessDeniedBody,
+      IntelliaStateKind.errorRetryable => context.l10n.stateRetryableErrorBody,
+      _ => '',
+    };

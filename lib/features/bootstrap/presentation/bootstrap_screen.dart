@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/assets/intellia_assets.dart';
 import '../../auth/application/auth_controller.dart';
 
@@ -308,7 +309,7 @@ class _BootstrapError extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          'Démarrage interrompu',
+          context.l10n.startupInterrupted,
           style: GoogleFonts.montserrat(
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -319,7 +320,7 @@ class _BootstrapError extends StatelessWidget {
         TextButton.icon(
           onPressed: onRetry,
           icon: const Icon(Icons.refresh_rounded, size: 18),
-          label: const Text('Réessayer'),
+          label: Text(context.l10n.retryLabel),
           style: TextButton.styleFrom(
             foregroundColor: IntelliaColors.brandIndigo,
           ),

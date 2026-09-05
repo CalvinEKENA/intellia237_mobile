@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/student_home_snapshot.dart';
 
 class RecommendationsSection extends StatelessWidget {
@@ -21,7 +22,7 @@ class RecommendationsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Recommandations personnalisées',
+          context.l10n.personalizedRecommendations,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w700,
           ),
@@ -33,15 +34,18 @@ class RecommendationsSection extends StatelessWidget {
               onTap: () => onItemTap(item),
               leading: const Icon(Icons.menu_book_outlined),
               title: Text(item.title),
-              subtitle: Text(item.subtitle),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${item.estimatedMinutes} min'),
-                  const SizedBox(width: 6),
-                  const Icon(Icons.chevron_right_rounded),
+                  Text(item.subtitle),
+                  const SizedBox(height: 2),
+                  Text(
+                    context.l10n.lessonReadingMinutes(item.estimatedMinutes),
+                    style: theme.textTheme.labelSmall,
+                  ),
                 ],
               ),
+              trailing: const Icon(Icons.chevron_right_rounded),
             ),
           ),
           const SizedBox(height: IntelliaSpacing.xs),

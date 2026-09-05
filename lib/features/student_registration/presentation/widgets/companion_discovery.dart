@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../../../core/widgets/intellia_pressable.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../application/student_registration_controller.dart';
 
 /// Découverte cinématique des compagnons (Problème B).
@@ -122,15 +123,15 @@ class _CompanionDiscoveryState extends ConsumerState<CompanionDiscovery> {
                       name: 'Kira',
                       asset: 'assets/companions/kira.png',
                       accent: AuthExperienceColors.purple,
-                      phrases: const [
-                        'Elle prend le temps de t’expliquer.',
-                        'Elle avance avec méthode et douceur.',
-                        'Elle t’aide à comprendre sans pression.',
+                      phrases: [
+                        context.l10n.kiraDiscoveryPhraseOne,
+                        context.l10n.kiraDiscoveryPhraseTwo,
+                        context.l10n.kiraDiscoveryPhraseThree,
                       ],
                       isSelected: selected == _kira,
                       onRevealComplete: () => _markDiscovered(_kira),
                       trailing: _DiscoverArrow(
-                        label: 'Découvrir Léo',
+                        label: context.l10n.discoverLeo,
                         onTap: () => _goToPage(1),
                       ),
                     ),
@@ -140,15 +141,15 @@ class _CompanionDiscoveryState extends ConsumerState<CompanionDiscovery> {
                       name: 'Léo',
                       asset: 'assets/companions/leo.png',
                       accent: AuthExperienceColors.blue,
-                      phrases: const [
-                        'Il transforme chaque notion en défi.',
-                        'Il te pousse à aller un peu plus loin.',
-                        'Il célèbre chaque progrès avec toi.',
+                      phrases: [
+                        context.l10n.leoDiscoveryPhraseOne,
+                        context.l10n.leoDiscoveryPhraseTwo,
+                        context.l10n.leoDiscoveryPhraseThree,
                       ],
                       isSelected: selected == _leo,
                       onRevealComplete: () => _markDiscovered(_leo),
                       trailing: _DiscoverArrow(
-                        label: 'Revenir vers Kira',
+                        label: context.l10n.returnToKira,
                         reversed: true,
                         onTap: () => _goToPage(0),
                       ),
@@ -518,7 +519,7 @@ class _ChooseBar extends StatelessWidget {
         background: Colors.white.withValues(alpha: 0.05),
         border: Colors.white.withValues(alpha: 0.12),
         child: Text(
-          'Découvre $currentName pour pouvoir le choisir',
+          context.l10n.discoverCompanionBeforeChoice(currentName),
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.6),
             fontSize: 13.5,
@@ -531,7 +532,9 @@ class _ChooseBar extends StatelessWidget {
     return Semantics(
       button: true,
       selected: isChosen,
-      label: isChosen ? '$currentName choisi' : 'Choisir $currentName',
+      label: isChosen
+          ? context.l10n.companionChosenA11y(currentName)
+          : context.l10n.chooseCompanionA11y(currentName),
       child: IntelliaPressable(
         onTap: () => onChoose(currentId),
         child: _shell(
@@ -554,8 +557,8 @@ class _ChooseBar extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 isChosen
-                    ? '$currentName, ton compagnon'
-                    : 'Choisir $currentName',
+                    ? context.l10n.currentCompanionLabel(currentName)
+                    : context.l10n.chooseCompanionA11y(currentName),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14.5,

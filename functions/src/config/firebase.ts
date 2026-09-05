@@ -1,6 +1,7 @@
 import { getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
+import { getMessaging } from "firebase-admin/messaging";
 
 import { getEnv } from "./env";
 
@@ -19,3 +20,4 @@ ensureFirebaseApp();
 
 export const db = getFirestore();
 export const bucket = getStorage().bucket(getEnv().APP_STORAGE_BUCKET);
+export const messaging = getMessaging();

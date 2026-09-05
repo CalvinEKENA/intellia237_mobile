@@ -4,11 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../application/admin_content_providers.dart';
 import '../domain/admin_content_models.dart';
 import 'content_chapter_screen.dart';
 import 'content_quiz_editor_screen.dart';
+import 'admin_presentation_localization.dart';
 
 /// Studio de Contenu — vue principale : sélecteur de classe + liste des matières
 class ContentStudioScreen extends ConsumerStatefulWidget {
@@ -49,7 +51,7 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
             pinned: true,
             floating: true,
             title: Text(
-              'Studio de Contenu',
+              context.l10n.contentStudioTitle,
               style: GoogleFonts.manrope(fontWeight: FontWeight.w800),
             ),
             bottom: PreferredSize(
@@ -71,7 +73,7 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
                         final cls = kAllClassLevels[i];
                         final active = cls == selectedClass;
                         return FilterChip(
-                          label: Text(adminClassLevelLabel(cls)),
+                          label: Text(adminClassLevelDisplay(context, cls)),
                           selected: active,
                           onSelected: (_) =>
                               ref
@@ -85,9 +87,9 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
                   // Tabs: Matières / Quiz
                   TabBar(
                     controller: _tabs,
-                    tabs: const [
-                      Tab(text: 'Matières & Cours'),
-                      Tab(text: 'Quiz'),
+                    tabs: [
+                      Tab(text: context.l10n.subjectsAndCourses),
+                      Tab(text: context.l10n.quizLabel),
                     ],
                   ),
                 ],
@@ -123,7 +125,7 @@ class _SubjectsTab extends ConsumerWidget {
     return subjectsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => _ErrorView(
-        message: stateMessageForKind(stateKindForError(error)),
+        message: stateMessageForKind(context, stateKindForError(error)),
         onRetry: () => ref.invalidate(adminSubjectsProvider(classLevel)),
       ),
       data: (subjects) => RefreshIndicator(
@@ -142,9 +144,9 @@ class _SubjectsTab extends ConsumerWidget {
                   ? SliverFillRemaining(
                       child: _EmptyState(
                         icon: Icons.auto_stories_outlined,
-                        message:
-                            'Aucune matière pour ${adminClassLevelLabel(classLevel)}.\n'
-                            'Ajoutez-en une pour commencer.',
+                        message: context.l10n.noSubjectForClass(
+                          adminClassLevelDisplay(context, classLevel),
+                        ),
                       ),
                     )
                   : SliverList.separated(
@@ -217,7 +219,7 @@ class _SubjectCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${subject.chapterCount} chapitre(s)',
+                      context.l10n.chaptersCount(subject.chapterCount),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -248,7 +250,7 @@ class _QuizzesTab extends ConsumerWidget {
     return quizzesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => _ErrorView(
-        message: stateMessageForKind(stateKindForError(error)),
+        message: stateMessageForKind(context, stateKindForError(error)),
         onRetry: () => ref.invalidate(adminQuizzesProvider(classLevel)),
       ),
       data: (quizzes) => Stack(
@@ -257,10 +259,10 @@ class _QuizzesTab extends ConsumerWidget {
             onRefresh: () async =>
                 ref.invalidate(adminQuizzesProvider(classLevel)),
             child: quizzes.isEmpty
-                ? const Center(
+                ? Center(
                     child: _EmptyState(
                       icon: Icons.quiz_outlined,
-                      message: 'Aucun quiz pour ce niveau.',
+                      message: context.l10n.noQuizForLevel,
                     ),
                   )
                 : ListView.separated(
@@ -288,15 +290,21 @@ class _QuizzesTab extends ConsumerWidget {
                             style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
                           subtitle: Text(
-                            '${quiz.questions.length} questions • ${quiz.difficultyLabel}',
+                            context.l10n.quizQuestionsDifficulty(
+                              quiz.questions.length,
+                              adminDifficultyLabel(
+                                context,
+                                quiz.difficultyLabel,
+                              ),
+                            ),
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (quiz.aiGenerated)
-                                const Tooltip(
-                                  message: 'Généré par l\'IA',
-                                  child: Icon(
+                                Tooltip(
+                                  message: context.l10n.generatedByAi,
+                                  child: const Icon(
                                     Icons.edit_note_rounded,
                                     size: 16,
                                     color: IntelliaColors.warning,
@@ -332,7 +340,7 @@ class _QuizzesTab extends ConsumerWidget {
                 ),
               ),
               icon: const Icon(Icons.add_rounded),
-              label: const Text('Nouveau Quiz'),
+              label: Text(context.l10n.newQuiz),
             ),
           ),
         ],
@@ -352,10 +360,11 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = switch (status) {
-      'published' => ('Publié', IntelliaColors.success),
-      'ai_generated' => ('IA', IntelliaColors.warning),
-      _ => ('Brouillon', Colors.grey),
+    final label = adminContentStatusLabel(context, status);
+    final color = switch (status) {
+      'published' => IntelliaColors.success,
+      'ai_generated' => IntelliaColors.warning,
+      _ => Colors.grey,
     };
 
     return Container(
@@ -428,7 +437,7 @@ class _ErrorView extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Réessayer'),
+              label: Text(context.l10n.retryLabel),
             ),
           ],
         ),

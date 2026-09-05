@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 
 class SubjectMultiSelector extends StatelessWidget {
   const SubjectMultiSelector({
@@ -45,7 +46,7 @@ class SubjectMultiSelector extends StatelessWidget {
           children: [
             for (final subject in options)
               FilterChip(
-                label: Text(_displayOption(subject)),
+                label: Text(_displayOption(context, subject)),
                 selected: selected.contains(subject),
                 onSelected: (_) => onToggle(subject),
               ),
@@ -55,11 +56,12 @@ class SubjectMultiSelector extends StatelessWidget {
     );
   }
 
-  String _displayOption(String option) => switch (option) {
-    'Mathematiques' => 'Mathématiques',
-    'Francais' => 'Français',
-    'Geographie' => 'Géographie',
-    'Premiere' => 'Première',
-    _ => option,
-  };
+  String _displayOption(BuildContext context, String option) =>
+      switch (option) {
+        'Mathematiques' => context.l10n.subjectMathematics,
+        'Francais' => context.l10n.subjectFrench,
+        'Geographie' => context.l10n.subjectGeography,
+        'Premiere' => context.l10n.classPremiereDisplay,
+        _ => option,
+      };
 }

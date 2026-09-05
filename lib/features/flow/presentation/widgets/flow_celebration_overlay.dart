@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../application/flow_controller.dart';
 
 /// Célébration discrète d'une récompense (points, badge).
@@ -115,7 +116,7 @@ class _FlowCelebrationOverlayState extends State<FlowCelebrationOverlay> {
               ),
               const SizedBox(height: IntelliaSpacing.sm),
               Text(
-                'Badge débloqué',
+                context.l10n.badgeUnlocked,
                 style: GoogleFonts.montserrat(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
