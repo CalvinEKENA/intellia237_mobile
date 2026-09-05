@@ -1,13 +1,12 @@
-import 'dart:convert';
-
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../auth/application/auth_controller.dart';
 import '../data/flow_demo_content.dart';
 import '../../student_home/application/personal_goal_providers.dart';
 import '../data/flow_points_gateway.dart';
+import '../data/flow_progress_store.dart';
 import '../domain/flow_badge.dart';
 import '../domain/flow_card.dart';
 import '../domain/flow_progress_state.dart';
@@ -46,79 +45,52 @@ final flowControllerProvider =
     NotifierProvider<FlowController, FlowProgressState>(FlowController.new);
 
 class FlowController extends Notifier<FlowProgressState> {
-  static const _storageKey = 'intellia_flow_progress_v2';
-  static const _legacyStorageKey = 'intellia_flow_progress_v1';
-
   late FlowPointsGateway _gateway;
+
+  /// Élève auquel appartient l'état courant. `null` tant qu'aucune session
+  /// authentifiée n'est établie : dans ce cas rien n'est lu ni écrit en local.
+  String? _learnerUid;
   bool _dirty = false;
   Future<void> _persistTail = Future<void>.value();
 
   @override
   FlowProgressState build() {
     _gateway = ref.read(flowPointsGatewayProvider);
+    // La progression FLOW suit l'identité de l'élève : tout changement d'UID
+    // reconstruit le contrôleur et repart d'un état vierge, qui sera rempli
+    // depuis l'espace de stockage du nouvel élève et de lui seul.
+    _learnerUid = ref.watch(
+      authControllerProvider.select((auth) => auth.userId),
+    );
+    _dirty = false;
     Future<void>.microtask(_restoreAndSync);
     return const FlowProgressState();
   }
 
   Future<void> _restoreAndSync() async {
-    final prefs = await SharedPreferences.getInstance();
-    final currentRaw = prefs.getString(_storageKey);
-    final raw = currentRaw ?? prefs.getString(_legacyStorageKey);
-    final isLegacyState = currentRaw == null && raw != null;
-    if (raw != null && !_dirty) {
-      try {
-        final json = jsonDecode(raw) as Map<String, dynamic>;
-        state = FlowProgressState(
-          // Les anciens champs `points`/`xp` étaient calculés par le client :
-          // ils ne sont volontairement jamais restaurés comme points vérifiés.
-          verifiedTotalPoints: (json['verifiedTotalPoints'] as num?)?.toInt(),
-          streakDays: (json['streakDays'] as num?)?.toInt() ?? 0,
-          seenCardIds: Set<String>.from(
-            json['seenCardIds'] as List? ?? const [],
-          ),
-          completedCardIds: Set<String>.from(
-            isLegacyState
-                ? const []
-                : json['completedCardIds'] as List? ?? const [],
-          ),
-          subjectsSeen: Set<String>.from(
-            json['subjectsSeen'] as List? ?? const [],
-          ),
-          correctQuizCount:
-              (json['verifiedCorrectQuizCount'] as num?)?.toInt() ?? 0,
-          unlockedBadgeIds: Set<String>.from(
-            json['verifiedUnlockedBadgeIds'] as List? ?? const [],
-          ),
-          verifiedCardIds: Set<String>.from(
-            json['verifiedCardIds'] as List? ?? const [],
-          ),
-          verifiedSubjectIds: Set<String>.from(
-            json['verifiedSubjectIds'] as List? ?? const [],
-          ),
-          creditedEventIds: Set<String>.from(
-            json['creditedEventIds'] as List? ?? const [],
-          ),
-        );
-      } catch (_) {
-        // Une préférence corrompue ne doit jamais bloquer FLOW.
+    final store = await FlowProgressStore.open();
+    // Traité une seule fois, indépendamment de la session en cours : la
+    // propriété de l'état hérité ne dépend pas de qui est connecté maintenant.
+    await store.resolveLegacy();
+
+    final learnerUid = _learnerUid;
+    if (learnerUid != null && !_dirty) {
+      final restored = store.read(learnerUid);
+      // L'identité a pu changer pendant la lecture asynchrone : on n'applique
+      // jamais un état à un autre élève que celui pour lequel il a été lu.
+      if (restored != null && _learnerUid == learnerUid && !_dirty) {
+        state = restored;
       }
     }
     await retryPending();
   }
 
   Future<void> _persist() async {
-    final encoded = jsonEncode({
-      'verifiedTotalPoints': state.verifiedTotalPoints,
-      'streakDays': state.streakDays,
-      'seenCardIds': state.seenCardIds.toList(),
-      'completedCardIds': state.completedCardIds.toList(),
-      'subjectsSeen': state.subjectsSeen.toList(),
-      'verifiedCorrectQuizCount': state.correctQuizCount,
-      'verifiedUnlockedBadgeIds': state.unlockedBadgeIds.toList(),
-      'verifiedCardIds': state.verifiedCardIds.toList(),
-      'verifiedSubjectIds': state.verifiedSubjectIds.toList(),
-      'creditedEventIds': state.creditedEventIds.toList(),
-    });
+    final learnerUid = _learnerUid;
+    // Sans élève authentifié, la progression n'appartient à personne : elle
+    // n'est jamais écrite dans un espace global de repli.
+    if (learnerUid == null) return;
+    final snapshot = state;
     final previous = _persistTail;
     _persistTail = () async {
       try {
@@ -126,8 +98,11 @@ class FlowController extends Notifier<FlowProgressState> {
       } catch (_) {
         // Une écriture locale échouée ne condamne pas les suivantes.
       }
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_storageKey, encoded);
+      // L'identifiant et l'instantané ont été capturés ensemble : cette
+      // écriture reste correcte même si l'élève actif a changé entre-temps,
+      // puisqu'elle vise l'espace de stockage de son auteur et de lui seul.
+      final store = await FlowProgressStore.open();
+      await store.write(learnerUid, snapshot);
     }();
     await _persistTail;
   }
