@@ -14,6 +14,7 @@ import '../../features/auth/presentation/phone_auth_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/profile_recovery_screen.dart';
 import '../../features/admin/presentation/admin_home_screen.dart';
+import '../../features/campus/presentation/screens/campus_root_screen.dart';
 import '../../features/tutor/domain/tutor_persona.dart';
 import '../../features/tutor/presentation/tutor_selection_screen.dart';
 import '../../features/admin_registration/presentation/admin_registration_screen.dart';
@@ -379,6 +380,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
           child: const AdminHomeScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.campus,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const CampusRootScreen(),
         ),
       ),
       GoRoute(

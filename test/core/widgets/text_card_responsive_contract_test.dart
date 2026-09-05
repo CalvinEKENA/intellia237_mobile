@@ -22,6 +22,7 @@ import 'package:intellia237/features/student_home/presentation/widgets/progress_
 import 'package:intellia237/features/student_home/presentation/widgets/recommendations_section.dart';
 import 'package:intellia237/features/student_home/presentation/widgets/resume_course_card.dart';
 import 'package:intellia237/features/student_home/presentation/widgets/streak_motivation_card.dart';
+import 'package:intellia237/features/campus/presentation/widgets/campus_kpi_card.dart';
 import 'package:intellia237/features/student_home/presentation/widgets/subjects_carousel.dart';
 
 const _viewport = Size(360, 1200);
@@ -43,8 +44,10 @@ const _coveredPublicCardTypes = {
   'WeeklyGoalCard',
   'ChapterOfflineActionCard',
   'StudentProfileTutorCard',
-  // Dedicated FR/EN matrix: test/features/mastery/mastery_widget_test.dart.
+<<<<<<< HEAD
+  //   // Dedicated FR/EN matrix: test/features/mastery/mastery_widget_test.dart.
   'MasterySubjectCard',
+  'CampusKpiCard',
 };
 
 const _longQuestion = QuizQuestion(
@@ -233,6 +236,15 @@ void main() {
         onLearnerSelected: _ignoreLearner,
         onAddLearner: _noop,
         onOpenParentArea: _noop,
+      ),
+    ),
+    (
+      name: 'CampusKpiCard',
+      child: const CampusKpiCard(
+        category: 'Programme',
+        metric: '78 %',
+        label: 'Taux d’avancement',
+        subtitle: 'Synthèse déterministe',
       ),
     ),
   ];

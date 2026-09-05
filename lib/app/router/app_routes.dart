@@ -39,6 +39,7 @@ abstract final class AppRoutes {
   static const teacherHome = '/teacher';
   static const teacherClassRoute = '/teacher/class/:classId';
   static const adminHome = '/admin';
+  static const campus = '/campus';
   static const tutorSelection = '/tutor-selection';
 
   static const roleHomes = <String>{
