@@ -41,7 +41,10 @@ class MasterySubjectCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Text(subject.title, style: MasteryStyle.title),
+                    child: Text(
+                      subject.title,
+                      style: MasteryStyle.heading(context),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   const ExcludeSemantics(

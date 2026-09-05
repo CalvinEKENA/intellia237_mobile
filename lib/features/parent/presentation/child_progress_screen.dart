@@ -19,7 +19,10 @@ class ChildProgressScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: MasteryStyle.paper,
-      appBar: AppBar(title: Text(context.l10n.childProgressTitle)),
+      appBar: AppBar(
+        toolbarHeight: MediaQuery.textScalerOf(context).scale(56),
+        title: Text(context.l10n.childProgressTitle, maxLines: 3),
+      ),
       body: childAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => IntelliaStateView(

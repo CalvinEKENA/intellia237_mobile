@@ -112,8 +112,9 @@ final parentMasteryProvider = Provider.autoDispose
       if (dashboard.hasError) {
         return AsyncError(dashboard.error!, dashboard.stackTrace!);
       }
-      if (dashboard.isLoading || !dashboard.hasValue)
+      if (dashboard.isLoading || !dashboard.hasValue) {
         return const AsyncLoading();
+      }
       if (!dashboard.requireValue.children.any(
         (child) => child.id == childId,
       )) {

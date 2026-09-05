@@ -50,7 +50,7 @@ class MasterySubjectDetail extends ConsumerWidget {
             children: [
               Text(
                 subject.title,
-                style: MasteryStyle.title.copyWith(fontSize: 28),
+                style: MasteryStyle.heading(context, size: 28),
               ),
               const SizedBox(height: 20),
               MasteryPaper(
@@ -123,7 +123,10 @@ class MasterySubjectDetail extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              Text(copy.masteryRecentActivity, style: MasteryStyle.title),
+              Text(
+                copy.masteryRecentActivity,
+                style: MasteryStyle.heading(context),
+              ),
               const SizedBox(height: 8),
               Text(copy.masteryRecentLimits, style: MasteryStyle.caption),
               const SizedBox(height: 8),

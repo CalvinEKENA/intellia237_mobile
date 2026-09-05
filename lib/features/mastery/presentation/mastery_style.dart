@@ -16,6 +16,15 @@ abstract final class MasteryStyle {
   static final rule = Color.lerp(paper, secondary, 0.24)!;
 
   static TextStyle get title => IntelliaTypography.title2();
+  static TextStyle heading(BuildContext context, {double size = 22}) {
+    final compactLargeText =
+        MediaQuery.sizeOf(context).width <= 360 &&
+        MediaQuery.textScalerOf(context).scale(1) >= 1.5;
+    // Keep long subject/section words readable on compact phones. The user's
+    // text scaler still applies in full (18 logical px becomes 36 at 200%).
+    return title.copyWith(fontSize: compactLargeText ? 18 : size);
+  }
+
   static const body = TextStyle(fontSize: 14, height: 1.5, color: graphite);
   static const caption = TextStyle(fontSize: 12, height: 1.5, color: secondary);
   static const label = TextStyle(

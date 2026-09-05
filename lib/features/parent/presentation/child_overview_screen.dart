@@ -19,7 +19,10 @@ class ChildOverviewScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: MasteryStyle.paper,
-      appBar: AppBar(title: Text(context.l10n.childOverviewTitle)),
+      appBar: AppBar(
+        toolbarHeight: MediaQuery.textScalerOf(context).scale(56),
+        title: Text(context.l10n.childOverviewTitle, maxLines: 3),
+      ),
       body: childAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stackTrace) => IntelliaStateView(

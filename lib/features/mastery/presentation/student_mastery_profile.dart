@@ -74,7 +74,7 @@ class StudentMasterySummary extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(copy.masteryTitle, style: MasteryStyle.title),
+          Text(copy.masteryTitle, style: MasteryStyle.heading(context)),
           const SizedBox(height: 10),
           Text(
             copy.studentSummary(LearningSummary.from(profile.estimates.values)),
@@ -111,7 +111,7 @@ class StudentSubjectMastery extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(copy.masteryBySubject, style: MasteryStyle.title),
+        Text(copy.masteryBySubject, style: MasteryStyle.heading(context)),
         const SizedBox(height: 8),
         Text(copy.masteryScopeNote, style: MasteryStyle.caption),
         const SizedBox(height: 16),

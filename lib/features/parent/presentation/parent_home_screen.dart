@@ -61,7 +61,8 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
-        title: Text(_tabTitles(context)[_tabIndex]),
+        toolbarHeight: MediaQuery.textScalerOf(context).scale(56),
+        title: Text(_tabTitles(context)[_tabIndex], maxLines: 3),
         actions: const [NotificationAppBarAction()],
       ),
       body: TabSurface(
