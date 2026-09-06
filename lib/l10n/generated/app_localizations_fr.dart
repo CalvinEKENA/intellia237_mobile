@@ -1812,6 +1812,12 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get authGatewayTitle => 'Bienvenue sur INTELLIA237';
+
+  @override
+  String get authGatewaySubtitle => 'Quel espace veux-tu ouvrir ?';
+
+  @override
   String get todayEyebrow => 'Aujourd’hui';
 
   @override

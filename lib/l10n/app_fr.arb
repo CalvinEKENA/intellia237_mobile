@@ -562,6 +562,8 @@
   "companionNewConversation": "Nouvelle conversation",
   "companionSaveDeferred": "{name} est ton compagnon. La synchronisation avec ton profil se fera d’elle-même.",
   "@companionSaveDeferred": {"placeholders": {"name": {"type": "String"}}},
+  "authGatewayTitle": "Bienvenue sur INTELLIA237",
+  "authGatewaySubtitle": "Quel espace veux-tu ouvrir ?",
   "todayEyebrow": "Aujourd’hui",
   "firstSessionEyebrow": "Pour commencer",
   "firstSessionTitle": "Choisis ta première activité",

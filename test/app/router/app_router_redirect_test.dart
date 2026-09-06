@@ -60,16 +60,32 @@ void main() {
       );
     });
 
-    test('6. signed-out student opens login', () {
-      expect(_returningRedirect(AppRoutes.studentHome), AppRoutes.login);
+    // Une déconnexion ne présuppose aucun rôle : l'appareil est souvent
+    // partagé, et renvoyer vers l'authentification élève enfermait le parent
+    // ou l'enseignant dans l'espace de quelqu'un d'autre.
+    test('6. signed-out student opens the neutral gateway', () {
+      expect(_returningRedirect(AppRoutes.studentHome), AppRoutes.authGateway);
     });
 
-    test('7. signed-out parent opens login', () {
-      expect(_returningRedirect(AppRoutes.parentHome), AppRoutes.login);
+    test('7. signed-out parent opens the neutral gateway', () {
+      expect(_returningRedirect(AppRoutes.parentHome), AppRoutes.authGateway);
     });
 
-    test('8. expired returning session opens login', () {
-      expect(_returningRedirect(AppRoutes.bootstrap), AppRoutes.login);
+    test('8. expired returning session opens the neutral gateway', () {
+      expect(_returningRedirect(AppRoutes.bootstrap), AppRoutes.authGateway);
+    });
+
+    test('9. the gateway itself is reachable while signed out', () {
+      expect(_returningRedirect(AppRoutes.authGateway), isNull);
+    });
+
+    test('10. each role entry stays reachable from the gateway', () {
+      // Aucun nouveau mécanisme d'authentification : chaque rôle rejoint le
+      // parcours qui existait déjà.
+      expect(_returningRedirect(AppRoutes.login), isNull);
+      expect(_returningRedirect(AppRoutes.phoneAuth), isNull);
+      expect(_returningRedirect(AppRoutes.emailLogin), isNull);
+      expect(_returningRedirect(AppRoutes.register), isNull);
     });
 
     test('keeps student Flow and protects it from other roles', () {

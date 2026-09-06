@@ -3,6 +3,9 @@ import '../../features/auth/domain/app_role.dart';
 abstract final class AppRoutes {
   static const bootstrap = '/bootstrap';
   static const onboarding = '/onboarding';
+
+  /// Porte d'entrée neutre : aucun rôle n'y est présupposé.
+  static const authGateway = '/auth';
   static const login = '/login';
   static const emailLogin = '/login/email';
   static const phoneAuth = '/auth/phone';
@@ -53,6 +56,7 @@ abstract final class AppRoutes {
   static const preAuthRoutes = <String>{
     bootstrap,
     onboarding,
+    authGateway,
     login,
     emailLogin,
     phoneAuth,

@@ -11,6 +11,7 @@ import '../../features/auth/data/auth_entry_preferences.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/phone_auth_screen.dart';
+import '../../features/auth/presentation/auth_gateway_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/profile_recovery_screen.dart';
 import '../../features/admin/presentation/admin_home_screen.dart';
@@ -66,6 +67,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
           child: const OnboardingScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.authGateway,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const AuthGatewayScreen(),
         ),
       ),
       GoRoute(
@@ -483,18 +491,26 @@ String? resolveAppRedirect({
     case AuthStatus.unauthenticated:
       if (location == AppRoutes.bootstrap) {
         if (!hasSeenOnboarding) return AppRoutes.onboarding;
-        return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
+        return hasAuthenticatedBefore
+            ? AppRoutes.authGateway
+            : AppRoutes.register;
       }
       if (!hasSeenOnboarding) {
         return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
       }
       if (location == AppRoutes.onboarding) {
-        return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
+        return hasAuthenticatedBefore
+            ? AppRoutes.authGateway
+            : AppRoutes.register;
       }
       if (AppRoutes.preAuthRoutes.contains(location)) {
         return null;
       }
-      return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
+      // Après une déconnexion, la porte ne présuppose aucun rôle : un parent
+      // ou un enseignant partageant l'appareil doit pouvoir ouvrir le sien.
+      return hasAuthenticatedBefore
+          ? AppRoutes.authGateway
+          : AppRoutes.register;
 
     case AuthStatus.needsOnboarding:
       if (location == AppRoutes.phoneAuth ||

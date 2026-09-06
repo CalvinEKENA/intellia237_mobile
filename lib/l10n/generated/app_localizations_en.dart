@@ -1799,6 +1799,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get authGatewayTitle => 'Welcome to INTELLIA237';
+
+  @override
+  String get authGatewaySubtitle => 'Which space would you like to open?';
+
+  @override
   String get todayEyebrow => 'Today';
 
   @override

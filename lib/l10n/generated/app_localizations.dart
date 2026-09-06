@@ -3182,6 +3182,18 @@ abstract class AppLocalizations {
   /// **'{name} est ton compagnon. La synchronisation avec ton profil se fera d’elle-même.'**
   String companionSaveDeferred(String name);
 
+  /// No description provided for @authGatewayTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue sur INTELLIA237'**
+  String get authGatewayTitle;
+
+  /// No description provided for @authGatewaySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel espace veux-tu ouvrir ?'**
+  String get authGatewaySubtitle;
+
   /// No description provided for @todayEyebrow.
   ///
   /// In fr, this message translates to:
