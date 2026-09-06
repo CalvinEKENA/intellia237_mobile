@@ -27,6 +27,11 @@ dependencies:
   firebase_app_check: ^0.4.7
   firebase_messaging: ^16.1.1
 
+  # Dictée et lecture à voix haute : tout se fait sur l'appareil. Aucun audio
+  # n'est téléversé, ni pour transcrire, ni pour lire une réponse.
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.0
+
   image_picker: ^1.1.2
   image_picker_android: ^0.8.13+14
   image_picker_platform_interface: ^2.11.1

@@ -3086,6 +3086,96 @@ abstract class AppLocalizations {
   /// **'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.'**
   String get flowDailyCapReached;
 
+  /// No description provided for @companionSpeak.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parler'**
+  String get companionSpeak;
+
+  /// No description provided for @companionSend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get companionSend;
+
+  /// No description provided for @companionMicRationale.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} a besoin du micro pour t’écouter. Rien n’est enregistré sans que tu envoies.'**
+  String companionMicRationale(String name);
+
+  /// No description provided for @companionMicDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le micro est refusé. Tu peux l’autoriser dans les réglages, ou écrire ta question.'**
+  String get companionMicDenied;
+
+  /// No description provided for @companionMicUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'La dictée n’est pas disponible sur cet appareil. Tu peux écrire ta question.'**
+  String get companionMicUnavailable;
+
+  /// No description provided for @companionListening.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je t’écoute'**
+  String get companionListening;
+
+  /// No description provided for @companionDictationCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get companionDictationCancel;
+
+  /// No description provided for @companionDictationStop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter'**
+  String get companionDictationStop;
+
+  /// No description provided for @companionDictationNearEnd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientôt la fin'**
+  String get companionDictationNearEnd;
+
+  /// No description provided for @companionDictationFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n’ai pas bien entendu. Tu peux réessayer ou écrire.'**
+  String get companionDictationFailed;
+
+  /// No description provided for @companionListen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écouter'**
+  String get companionListen;
+
+  /// No description provided for @companionPauseListening.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pause'**
+  String get companionPauseListening;
+
+  /// No description provided for @companionHistoryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes conversations'**
+  String get companionHistoryTitle;
+
+  /// No description provided for @companionHistoryEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes conversations apparaîtront ici.'**
+  String get companionHistoryEmpty;
+
+  /// No description provided for @companionNewConversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle conversation'**
+  String get companionNewConversation;
+
   /// No description provided for @todayEyebrow.
   ///
   /// In fr, this message translates to:

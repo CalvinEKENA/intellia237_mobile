@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -13,6 +14,8 @@ import '../../../core/localization/localization_extensions.dart';
 import '../application/ai_companion_controller.dart';
 import '../domain/ai_companion_reply.dart';
 import 'widgets/chat_bubble.dart';
+import '../application/listen_controller.dart';
+import 'widgets/companion_composer.dart';
 
 class AICompanionScreen extends ConsumerStatefulWidget {
   const AICompanionScreen({super.key, this.embedded = false, this.topic});
@@ -130,10 +133,11 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
         const SizedBox(height: IntelliaSpacing.sm),
 
         // ── Composer ─────────────────────────────────────────
-        _GlassComposer(
+        CompanionComposer(
           controller: _controller,
           onSubmit: _sendCurrentInput,
           enabled: !state.isSending,
+          companionName: state.tutor.name,
           accentColor: state.tutor.accentColor,
         ),
       ],
@@ -196,6 +200,9 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     final message = _controller.text.trim();
     if (message.isEmpty) return;
     _controller.clear();
+    // Un nouvel envoi interrompt proprement la lecture en cours ; elle ne
+    // reprend jamais d'elle-même.
+    unawaited(ref.read(listenControllerProvider.notifier).stop());
     ref.read(aiCompanionControllerProvider.notifier).send(message);
   }
 
@@ -616,100 +623,3 @@ class _QuickPromptChips extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────
 // Glass pill composer — text field + gradient send button
 // ─────────────────────────────────────────────────────────────
-
-class _GlassComposer extends StatelessWidget {
-  const _GlassComposer({
-    required this.controller,
-    required this.onSubmit,
-    required this.enabled,
-    required this.accentColor,
-  });
-
-  final TextEditingController controller;
-  final VoidCallback onSubmit;
-  final bool enabled;
-  final Color accentColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
-
-    final field = Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: IntelliaSpacing.md,
-        vertical: IntelliaSpacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: s.useGlass ? Colors.white.withValues(alpha: 0.08) : s.fieldFill,
-        borderRadius: BorderRadius.circular(IntelliaRadii.large),
-        border: Border.all(color: s.surfaceBorder),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              enabled: enabled,
-              minLines: 1,
-              maxLines: 4,
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) => onSubmit(),
-              style: TextStyle(color: s.textPrimary, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: context.l10n.writeQuestionHint,
-                hintStyle: TextStyle(color: s.textTertiary, fontSize: 14),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              ),
-            ),
-          ),
-          const SizedBox(width: IntelliaSpacing.sm),
-          // Send button — gradient circle
-          GestureDetector(
-            onTap: enabled
-                ? () {
-                    HapticFeedback.lightImpact();
-                    onSubmit();
-                  }
-                : null,
-            child: AnimatedContainer(
-              duration: IntelliaMotion.fast,
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: enabled
-                    ? LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [accentColor, IntelliaColors.brandIndigo],
-                      )
-                    : null,
-                color: enabled ? null : s.surfaceMuted,
-                shape: BoxShape.circle,
-                boxShadow: enabled
-                    ? AppShadows.glow(accentColor, intensity: 0.40)
-                    : null,
-              ),
-              child: Icon(
-                Icons.send_rounded,
-                size: 18,
-                color: enabled ? Colors.white : s.textTertiary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (!s.useGlass) return field;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(IntelliaRadii.large),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: field,
-      ),
-    );
-  }
-}

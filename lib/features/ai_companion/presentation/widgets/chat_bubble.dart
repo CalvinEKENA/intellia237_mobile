@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
+import '../../application/listen_controller.dart';
 import '../../../../core/widgets/tab_presentation.dart';
 import '../../../tutor/domain/tutor_persona.dart';
 import '../../domain/ai_message.dart';
@@ -117,7 +120,7 @@ class _StudentTurn extends StatelessWidget {
   }
 }
 
-class _CompanionTurn extends StatelessWidget {
+class _CompanionTurn extends ConsumerWidget {
   const _CompanionTurn({
     required this.message,
     required this.author,
@@ -129,8 +132,9 @@ class _CompanionTurn extends StatelessWidget {
   final bool showTimestamp;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final s = TabSurface.of(context);
+    final listen = ref.watch(listenControllerProvider);
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,11 +163,75 @@ class _CompanionTurn extends StatelessWidget {
                     height: 1.62,
                   ),
                 ),
-                if (showTimestamp) _Timestamp(moment: message.createdAt),
+                Row(
+                  children: [
+                    // « Écouter » est disponible pour tous les paliers : la
+                    // lecture à voix haute n'est pas une fonction premium.
+                    _ListenAction(
+                      speaking: listen.isSpeaking(message.id),
+                      accent: author.accentColor,
+                      onTap: () => ref
+                          .read(listenControllerProvider.notifier)
+                          .toggle(message.id, message.text),
+                    ),
+                    const Spacer(),
+                    if (showTimestamp) _Timestamp(moment: message.createdAt),
+                  ],
+                ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Bouton « Écouter » / « Pause » d'une réponse.
+class _ListenAction extends StatelessWidget {
+  const _ListenAction({
+    required this.speaking,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final bool speaking;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = speaking
+        ? context.l10n.companionPauseListening
+        : context.l10n.companionListen;
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(99),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                speaking ? Icons.pause_rounded : Icons.volume_up_rounded,
+                size: 15,
+                color: accent,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                label,
+                style: TextStyle(
+                  color: accent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

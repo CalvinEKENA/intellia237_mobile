@@ -1757,6 +1757,56 @@ class AppLocalizationsFr extends AppLocalizations {
       'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.';
 
   @override
+  String get companionSpeak => 'Parler';
+
+  @override
+  String get companionSend => 'Envoyer';
+
+  @override
+  String companionMicRationale(String name) {
+    return '$name a besoin du micro pour t’écouter. Rien n’est enregistré sans que tu envoies.';
+  }
+
+  @override
+  String get companionMicDenied =>
+      'Le micro est refusé. Tu peux l’autoriser dans les réglages, ou écrire ta question.';
+
+  @override
+  String get companionMicUnavailable =>
+      'La dictée n’est pas disponible sur cet appareil. Tu peux écrire ta question.';
+
+  @override
+  String get companionListening => 'Je t’écoute';
+
+  @override
+  String get companionDictationCancel => 'Annuler';
+
+  @override
+  String get companionDictationStop => 'Arrêter';
+
+  @override
+  String get companionDictationNearEnd => 'Bientôt la fin';
+
+  @override
+  String get companionDictationFailed =>
+      'Je n’ai pas bien entendu. Tu peux réessayer ou écrire.';
+
+  @override
+  String get companionListen => 'Écouter';
+
+  @override
+  String get companionPauseListening => 'Pause';
+
+  @override
+  String get companionHistoryTitle => 'Tes conversations';
+
+  @override
+  String get companionHistoryEmpty => 'Tes conversations apparaîtront ici.';
+
+  @override
+  String get companionNewConversation => 'Nouvelle conversation';
+
+  @override
   String get todayEyebrow => 'Aujourd’hui';
 
   @override
