@@ -53,6 +53,12 @@ import 'widgets/student_home_header.dart';
 import 'widgets/student_home_skeleton.dart';
 import 'widgets/subjects_carousel.dart';
 
+/// Compteur de taps de navigation : outil de diagnostic de terrain.
+///
+/// Actif en debug comme auparavant, mais désactivable — les captures de
+/// présentation ne doivent pas exposer d'incrustation de mise au point.
+bool debugShowNavTapCounter = kDebugMode;
+
 class StudentHomeScreen extends ConsumerStatefulWidget {
   const StudentHomeScreen({super.key});
 
@@ -132,7 +138,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final snapshotAsync = ref.watch(studentHomeControllerProvider);
-    final showTapDiagnostics = kDebugMode;
+    final showTapDiagnostics = debugShowNavTapCounter;
     final unreadNotifications = ref.watch(unreadNotificationCountProvider);
     _scheduleTourGuideIfNeeded(snapshotAsync);
 
