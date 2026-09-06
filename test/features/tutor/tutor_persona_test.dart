@@ -45,7 +45,7 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     expect(container.read(selectedTutorIdProvider), 'leo');
 
-    await container.read(selectedTutorIdProvider.notifier).select('Grace');
+    await container.read(tutorPreferenceProvider.notifier).select('Grace');
     expect(container.read(selectedTutorIdProvider), 'kira');
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('selected_tutor_id'), 'kira');

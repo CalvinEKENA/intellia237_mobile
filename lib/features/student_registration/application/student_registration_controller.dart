@@ -246,7 +246,7 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
     if (result == null || !state.isCompleted) return;
     final tutorId = state.selectedTutorId;
     if (tutorId != null) {
-      unawaited(ref.read(selectedTutorIdProvider.notifier).select(tutorId));
+      unawaited(ref.read(tutorPreferenceProvider.notifier).select(tutorId));
     }
     ref
         .read(authControllerProvider.notifier)

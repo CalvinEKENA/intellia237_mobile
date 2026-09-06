@@ -169,7 +169,7 @@ class AuthController extends Notifier<AuthState> {
     } catch (_) {
       // On déconnecte localement même si Firebase échoue
     }
-    await ref.read(selectedTutorIdProvider.notifier).clear();
+    await ref.read(tutorPreferenceProvider.notifier).clear();
     final preferences = await SharedPreferences.getInstance();
     await preferences.remove(_lastValidSessionKey);
     // La purge de l'état élève n'est volontairement pas déclenchée ici : un

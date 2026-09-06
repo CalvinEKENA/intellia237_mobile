@@ -1008,6 +1008,18 @@ class _TutorSection extends ConsumerWidget {
     );
   }
 
+  /// Applique le nouveau compagnon, puis tente de l'écrire au profil.
+  ///
+  /// Registre de décisions : le choix de l'élève ne dépend pas de la réussite
+  /// d'une écriture serveur. L'ancienne version annulait la sélection au
+  /// moindre refus, si bien qu'un profil dont les règles déployées
+  /// n'autorisaient pas encore `tutorId` rendait tout changement de compagnon
+  /// impossible — l'élève ne pouvait sortir qu'en passant l'étape.
+  ///
+  /// Le changement est donc appliqué localement d'abord et conservé même si la
+  /// synchronisation échoue ; il repartira à la prochaine occasion. Aucun
+  /// message existant n'est réattribué : chacun garde le compagnon qui l'a
+  /// écrit.
   Future<void> _persistTutorSelection(
     BuildContext context,
     WidgetRef ref,
@@ -1017,43 +1029,27 @@ class _TutorSection extends ConsumerWidget {
     final userId = ref.read(authControllerProvider).userId;
     if (userId == null) return;
 
+    // Le choix prend effet immédiatement, en attente de confirmation.
+    await ref
+        .read(tutorPreferenceProvider.notifier)
+        .select(chosen.id, pendingSync: true);
+
     try {
       await ref
           .read(tutorPreferenceRepositoryProvider)
           .save(userId: userId, tutorId: chosen.id);
-      await ref.read(selectedTutorIdProvider.notifier).select(chosen.id);
+      await ref.read(tutorPreferenceProvider.notifier).markSynced();
       ref.invalidate(studentAcademicContextProvider);
       if (context.mounted) context.pop();
-    } on TutorPreferenceException catch (error) {
-      if (current != null) {
-        await ref.read(selectedTutorIdProvider.notifier).select(current.id);
-      }
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              error.code == 'permission-denied'
-                  ? context.l10n.companionSaveDenied
-                  : error.code == 'unavailable' ||
-                        error.code == 'deadline-exceeded'
-                  ? context.l10n.companionSaveNetworkError
-                  : context.l10n.companionSaveFailed,
-            ),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
     } catch (_) {
-      if (current != null) {
-        await ref.read(selectedTutorIdProvider.notifier).select(current.id);
-      }
+      // Le compagnon reste changé : seule la synchronisation a échoué.
       if (!context.mounted) return;
+      context.pop();
       ScaffoldMessenger.of(context)
         ..clearSnackBars()
         ..showSnackBar(
           SnackBar(
-            content: Text(context.l10n.companionSaveFailed),
+            content: Text(context.l10n.companionSaveDeferred(chosen.name)),
             behavior: SnackBarBehavior.floating,
           ),
         );

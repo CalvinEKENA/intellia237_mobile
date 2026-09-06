@@ -159,11 +159,14 @@ class AICompanionController extends Notifier<AICompanionState> {
       final context = next.valueOrNull;
       if (context != null) {
         final profileTutorId = context.tutorId?.trim();
+        // Un changement local non encore synchronisé ne doit pas être écrasé
+        // par la valeur que le profil porte toujours.
         if (profileTutorId != null &&
             profileTutorId.isNotEmpty &&
+            !ref.read(tutorSelectionPendingProvider) &&
             ref.read(selectedTutorIdProvider) != profileTutorId) {
           unawaited(
-            ref.read(selectedTutorIdProvider.notifier).select(profileTutorId),
+            ref.read(tutorPreferenceProvider.notifier).select(profileTutorId),
           );
         }
         if (state.classLevel != context.classLevel ||
@@ -205,9 +208,10 @@ class AICompanionController extends Notifier<AICompanionState> {
     final currentTutorId = currentContext?.tutorId?.trim();
     if (currentTutorId != null &&
         currentTutorId.isNotEmpty &&
+        !ref.read(tutorSelectionPendingProvider) &&
         ref.read(selectedTutorIdProvider) != currentTutorId) {
       Future<void>.microtask(
-        () => ref.read(selectedTutorIdProvider.notifier).select(currentTutorId),
+        () => ref.read(tutorPreferenceProvider.notifier).select(currentTutorId),
       );
     }
 

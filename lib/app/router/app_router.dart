@@ -398,7 +398,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final onConfirm = extra is ValueChanged<TutorPersona>
               ? extra
               : (TutorPersona tutor) => GoRouter.of(context).pop();
-          final onSkip = filterLevel != null
+          // « Passer » n'a de sens qu'à la découverte initiale. Ouvert depuis
+          // le profil — le seul chemin existant aujourd'hui — l'écran sert à
+          // *changer* de compagnon : proposer une échappatoire y laissait
+          // croire que le changement avait échoué. Le mode est donc explicite
+          // et ne dépend plus de la présence d'un filtre de niveau.
+          final onSkip = state.uri.queryParameters['mode'] == 'onboarding'
               ? () => GoRouter.of(context).pop()
               : null;
           return buildAppTransitionPage(

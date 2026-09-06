@@ -3176,6 +3176,12 @@ abstract class AppLocalizations {
   /// **'Nouvelle conversation'**
   String get companionNewConversation;
 
+  /// No description provided for @companionSaveDeferred.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} est ton compagnon. La synchronisation avec ton profil se fera d’elle-même.'**
+  String companionSaveDeferred(String name);
+
   /// No description provided for @todayEyebrow.
   ///
   /// In fr, this message translates to:

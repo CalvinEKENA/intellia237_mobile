@@ -1807,6 +1807,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get companionNewConversation => 'Nouvelle conversation';
 
   @override
+  String companionSaveDeferred(String name) {
+    return '$name est ton compagnon. La synchronisation avec ton profil se fera d’elle-même.';
+  }
+
+  @override
   String get todayEyebrow => 'Aujourd’hui';
 
   @override

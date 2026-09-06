@@ -560,6 +560,8 @@
   "companionHistoryTitle": "Your conversations",
   "companionHistoryEmpty": "Your conversations will appear here.",
   "companionNewConversation": "New conversation",
+  "companionSaveDeferred": "{name} is your companion. Syncing with your profile will happen on its own.",
+  "@companionSaveDeferred": {"placeholders": {"name": {"type": "String"}}},
   "todayEyebrow": "Today",
   "firstSessionEyebrow": "To begin",
   "firstSessionTitle": "Choose your first activity",
