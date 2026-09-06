@@ -1,0 +1,6 @@
+tags:
+  # Génération de captures de rendu. Inerte sans
+  # --dart-define=INTELLIA_SCREENSHOTS=true, et lente : elle peint chaque écran
+  # puis encode un PNG, ce qui n'a pas sa place dans la suite courante.
+  screenshots:
+    description: Captures de rendu pour les revues appareil.
