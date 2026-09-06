@@ -83,6 +83,11 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
   bool _closed = false;
 
   Future<void> sendCode(String rawPhone) async {
+    // Le clavier (`onFieldSubmitted`) et le bouton déclenchent le même geste.
+    // Sans garde, un seul envoi voulu par l'élève pouvait produire deux
+    // `verifyPhoneNumber`, donc consommer deux fois le quota Firebase et
+    // provoquer le throttling « trop de tentatives ».
+    if (state.isLoading) return;
     String phone;
     try {
       phone = CameroonPhoneNumber.normalize(rawPhone);
@@ -115,6 +120,9 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
   }
 
   Future<void> confirmCode(String code) async {
+    // La saisie du sixième chiffre valide déjà automatiquement : le
+    // « terminé » du clavier ne doit pas soumettre le code une seconde fois.
+    if (state.isLoading) return;
     final verificationId = state.verificationId;
     final normalizedCode = code.replaceAll(RegExp(r'\D'), '');
     if (verificationId == null || normalizedCode.length != 6) {

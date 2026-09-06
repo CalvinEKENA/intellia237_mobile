@@ -436,7 +436,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneErrorTooManyRequests =>
-      'Trop de tentatives. Patientez quelques minutes avant de réessayer.';
+      'Trop de tentatives ont été effectuées. Attends quelques minutes avant de demander un nouveau code.';
 
   @override
   String get phoneErrorQuota =>

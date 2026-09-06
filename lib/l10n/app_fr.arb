@@ -137,7 +137,7 @@
   "phoneLinkSuccessBody": "Votre numéro est maintenant lié à ce même compte.",
   "phoneErrorInvalidNumber": "Saisissez un numéro mobile camerounais valide à 9 chiffres.",
   "phoneErrorInvalidCode": "Le code saisi est incorrect ou a expiré.",
-  "phoneErrorTooManyRequests": "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
+  "phoneErrorTooManyRequests": "Trop de tentatives ont été effectuées. Attends quelques minutes avant de demander un nouveau code.",
   "phoneErrorQuota": "L’envoi de SMS est momentanément indisponible. Réessayez plus tard.",
   "phoneErrorNetwork": "La connexion est interrompue. Vérifiez Internet puis réessayez.",
   "phoneErrorDisabled": "La connexion par téléphone doit être activée dans Firebase Authentication.",

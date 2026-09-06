@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../domain/firebase_error_mapper.dart';
 import '../../domain/repositories/phone_auth_repository.dart';
 
 final phoneAuthRepositoryProvider = Provider<PhoneAuthRepository>(
@@ -37,11 +38,13 @@ class FirebasePhoneAuthRepository implements PhoneAuthRepository {
               ),
             );
           } on FirebaseAuthException catch (error) {
-            onFailed(PhoneAuthFailure(_normalizeCode(error.code)));
+            onFailed(
+              PhoneAuthFailure(_normalizeCode(error.code, error.message)),
+            );
           }
         },
         verificationFailed: (error) {
-          onFailed(PhoneAuthFailure(_normalizeCode(error.code)));
+          onFailed(PhoneAuthFailure(_normalizeCode(error.code, error.message)));
         },
         codeSent: (verificationId, resendToken) {
           onCodeSent(
@@ -54,7 +57,7 @@ class FirebasePhoneAuthRepository implements PhoneAuthRepository {
         codeAutoRetrievalTimeout: onAutoRetrievalTimeout,
       );
     } on FirebaseAuthException catch (error) {
-      throw PhoneAuthFailure(_normalizeCode(error.code));
+      throw PhoneAuthFailure(_normalizeCode(error.code, error.message));
     }
   }
 
@@ -74,7 +77,7 @@ class FirebasePhoneAuthRepository implements PhoneAuthRepository {
         linkCurrentUser: linkCurrentUser,
       );
     } on FirebaseAuthException catch (error) {
-      throw PhoneAuthFailure(_normalizeCode(error.code));
+      throw PhoneAuthFailure(_normalizeCode(error.code, error.message));
     }
   }
 
@@ -105,6 +108,8 @@ class FirebasePhoneAuthRepository implements PhoneAuthRepository {
     );
   }
 
-  static String _normalizeCode(String code) =>
-      code.toLowerCase().replaceAll('_', '-');
+  /// Le code seul ne suffit pas : le motif réel d'un refus Android est
+  /// souvent porté par le message technique.
+  static String _normalizeCode(String code, [String? technicalMessage]) =>
+      FirebaseErrorMapper.normalizeCode(code, technicalMessage);
 }

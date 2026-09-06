@@ -863,7 +863,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneErrorTooManyRequests.
   ///
   /// In fr, this message translates to:
-  /// **'Trop de tentatives. Patientez quelques minutes avant de réessayer.'**
+  /// **'Trop de tentatives ont été effectuées. Attends quelques minutes avant de demander un nouveau code.'**
   String get phoneErrorTooManyRequests;
 
   /// No description provided for @phoneErrorQuota.

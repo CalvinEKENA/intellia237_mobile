@@ -137,7 +137,7 @@
   "phoneLinkSuccessBody": "Your number is now linked to this same account.",
   "phoneErrorInvalidNumber": "Enter a valid 9-digit Cameroon mobile number.",
   "phoneErrorInvalidCode": "The code is incorrect or has expired.",
-  "phoneErrorTooManyRequests": "Too many attempts. Wait a few minutes before trying again.",
+  "phoneErrorTooManyRequests": "Too many attempts have been made. Wait a few minutes before requesting a new code.",
   "phoneErrorQuota": "SMS delivery is temporarily unavailable. Try again later.",
   "phoneErrorNetwork": "The connection was interrupted. Check your internet connection and try again.",
   "phoneErrorDisabled": "Phone sign-in must be enabled in Firebase Authentication.",

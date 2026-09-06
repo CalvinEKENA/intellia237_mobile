@@ -5,6 +5,17 @@ abstract final class FirebaseErrorMapper {
         source.contains('configuration-not-found')) {
       return 'configuration-not-found';
     }
+    // Le SDK Android signale fréquemment la limitation sous un code générique
+    // (`unknown`, `internal-error`), le motif réel n'apparaissant que dans le
+    // message. Sans cette lecture, un throttling s'affichait « La vérification
+    // n'a pas abouti », invitant l'élève à réessayer immédiatement — ce qui
+    // prolonge précisément le blocage.
+    if (source.contains('too_many_requests') ||
+        source.contains('too-many-requests') ||
+        source.contains('blocked all requests') ||
+        source.contains('unusual activity')) {
+      return 'too-many-requests';
+    }
     return (code ?? 'unknown-error').toLowerCase().replaceAll('_', '-');
   }
 

@@ -12,6 +12,7 @@ class TeacherRegistrationState {
     this.levels = const <String>[],
     this.acceptedTerms = false,
     this.acceptedPrivacy = false,
+    this.awaitsValidation = false,
   });
 
   final int currentStep;
@@ -27,6 +28,13 @@ class TeacherRegistrationState {
   final List<String> levels;
   final bool acceptedTerms;
   final bool acceptedPrivacy;
+
+  /// La demande a bien été enregistrée et attend une validation humaine.
+  ///
+  /// `submitStaffRegistration` renvoie `pending_validation` : c'est un succès,
+  /// pas un échec. Sans ce drapeau, une demande acceptée était indiscernable
+  /// d'un compte immédiatement actif.
+  final bool awaitsValidation;
 
   bool get isFirstStep => currentStep == 0;
   bool get isLastStep => currentStep == 2;
@@ -45,6 +53,7 @@ class TeacherRegistrationState {
     List<String>? levels,
     bool? acceptedTerms,
     bool? acceptedPrivacy,
+    bool? awaitsValidation,
   }) {
     return TeacherRegistrationState(
       currentStep: currentStep ?? this.currentStep,
@@ -59,6 +68,7 @@ class TeacherRegistrationState {
       levels: levels ?? this.levels,
       acceptedTerms: acceptedTerms ?? this.acceptedTerms,
       acceptedPrivacy: acceptedPrivacy ?? this.acceptedPrivacy,
+      awaitsValidation: awaitsValidation ?? this.awaitsValidation,
     );
   }
 }
