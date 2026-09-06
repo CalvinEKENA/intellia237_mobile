@@ -4,6 +4,8 @@ import 'package:intellia237/features/ai_companion/application/dictation_controll
 import 'package:intellia237/features/ai_companion/application/listen_controller.dart';
 import 'package:intellia237/features/ai_companion/data/speech_services.dart';
 import 'package:intellia237/features/ai_companion/domain/dictation_session.dart';
+import 'package:intellia237/features/ai_companion/domain/voice_profile.dart';
+import 'package:intellia237/features/ai_companion/domain/spoken_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// « Parler » est une autre manière d'écrire, pas une conversation vocale :
@@ -217,6 +219,24 @@ void main() {
 
       expect(speaker.spoken, isEmpty);
     });
+
+    test('Kira et Léo n’obtiennent pas le même profil vocal', () async {
+      final listen = container.read(listenControllerProvider.notifier);
+
+      await listen.speak('m1', 'Bonjour', companionId: 'kira');
+      await listen.speak('m2', 'Bonjour', companionId: 'leo');
+
+      expect(speaker.profiles, [VoiceProfile.feminine, VoiceProfile.masculine]);
+    });
+
+    test('les emojis n’atteignent jamais le moteur', () async {
+      final listen = container.read(listenControllerProvider.notifier);
+
+      await listen.speak('m1', '🚀 Bravo 🔥', companionId: 'leo');
+
+      expect(speaker.spoken.join(), isNot(contains('🚀')));
+      expect(speaker.spoken.join(), contains('Bravo'));
+    });
   });
 }
 
@@ -264,6 +284,8 @@ class _FakeRecognizer implements SpeechRecognizer {
 
 class _FakeSpeaker implements SpeechSpeaker {
   final spoken = <String>[];
+  final profiles = <VoiceProfile>[];
+  final languages = <String>[];
   var pauseCalls = 0;
   var stopCalls = 0;
 
@@ -271,12 +293,16 @@ class _FakeSpeaker implements SpeechSpeaker {
   set onComplete(void Function()? handler) {}
 
   @override
-  Future<void> speak(
-    String text, {
-    required String languageCode,
+  Future<void> speakSegments(
+    List<SpokenSegment> segments, {
+    required VoiceProfile profile,
     double rate = 0.5,
   }) async {
-    spoken.add(text);
+    profiles.add(profile);
+    for (final segment in segments) {
+      spoken.add(segment.text);
+      languages.add(segment.languageCode);
+    }
   }
 
   @override

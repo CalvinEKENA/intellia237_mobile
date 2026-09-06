@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/app_locale_controller.dart';
+import '../../tutor/domain/tutor_persona.dart';
+import '../domain/spoken_text.dart';
+import '../domain/voice_profile.dart';
 import '../data/speech_services.dart';
-import '../domain/rich_text_document.dart';
 
 enum ListenStatus { idle, speaking, paused }
 
@@ -57,7 +59,11 @@ class ListenController extends Notifier<ListenState> {
 
   SpeechSpeaker get _speaker => ref.read(speechSpeakerProvider);
 
-  Future<void> toggle(String messageId, String text) async {
+  Future<void> toggle(
+    String messageId,
+    String text, {
+    String? companionId,
+  }) async {
     if (state.isSpeaking(messageId)) {
       await _speaker.pause();
       state = ListenState(
@@ -67,25 +73,41 @@ class ListenController extends Notifier<ListenState> {
       );
       return;
     }
-    await speak(messageId, text);
+    await speak(messageId, text, companionId: companionId);
   }
 
-  Future<void> speak(String messageId, String text) async {
-    final spoken = spokenForm(text);
-    if (spoken.isEmpty) return;
+  Future<void> speak(
+    String messageId,
+    String text, {
+    String? companionId,
+  }) async {
+    // Le texte affiché n'est pas le texte parlé : balisage, emojis et
+    // notation mathématique sont traduits avant d'atteindre le moteur.
+    final segments = SpokenText.from(
+      text,
+      baseLanguage: ref.read(appLocaleProvider).languageCode,
+    );
+    if (segments.isEmpty) return;
+
     await _speaker.stop();
     state = ListenState(
       status: ListenStatus.speaking,
       messageId: messageId,
       rate: state.rate,
     );
-    await _speaker.speak(
-      spoken,
-      languageCode: ref.read(appLocaleProvider).languageCode,
+    await _speaker.speakSegments(
+      segments,
+      profile: profileFor(companionId),
       // Le moteur natif considère 0,5 comme une vitesse normale.
       rate: 0.5 * state.rate,
     );
   }
+
+  /// Profil vocal du compagnon : Kira et Léo ne doivent pas partager une voix.
+  static VoiceProfile profileFor(String? companionId) =>
+      TutorPersona.resolveId(companionId) == 'leo'
+      ? VoiceProfile.masculine
+      : VoiceProfile.feminine;
 
   /// Interrompt la lecture, sans reprise automatique.
   Future<void> stop() async {
@@ -102,38 +124,7 @@ class ListenController extends Notifier<ListenState> {
     );
   }
 
-  /// Texte réellement prononcé.
-  ///
-  /// La forme écrite et la forme parlée diffèrent : le balisage n'a rien à
-  /// dire à voix haute, et « x² » lu caractère par caractère n'a aucun sens.
-  static String spokenForm(String source) {
-    final plain = RichTextDocument.parse(
-      source,
-    ).map((block) => block.plainText).join('. ');
-    return _mathToSpeech(plain).trim();
-  }
-
-  static String _mathToSpeech(String value) {
-    // Traduction volontairement minimale : seules les notations réellement
-    // produites par le compagnon sont couvertes. Rien n'est deviné.
-    const replacements = <String, String>{
-      '²': ' au carré ',
-      '³': ' au cube ',
-      '≤': ' inférieur ou égal à ',
-      '≥': ' supérieur ou égal à ',
-      '≠': ' différent de ',
-      '×': ' fois ',
-      '÷': ' divisé par ',
-      '−': ' moins ',
-      '√': ' racine carrée de ',
-      'Δ': ' delta ',
-      'π': ' pi ',
-      '∞': ' infini ',
-    };
-    var spoken = value;
-    replacements.forEach((symbol, words) {
-      spoken = spoken.replaceAll(symbol, words);
-    });
-    return spoken.replaceAll(RegExp(r'\s+'), ' ');
-  }
+  /// Texte réellement prononcé, exposé pour les tests et le diagnostic.
+  static String spokenForm(String source, {String baseLanguage = 'fr'}) =>
+      SpokenText.plain(source, baseLanguage: baseLanguage);
 }

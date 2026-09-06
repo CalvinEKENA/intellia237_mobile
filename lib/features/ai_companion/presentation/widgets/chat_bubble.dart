@@ -175,7 +175,14 @@ class _CompanionTurn extends ConsumerWidget {
                         accent: author.accentColor,
                         onTap: () => ref
                             .read(listenControllerProvider.notifier)
-                            .toggle(message.id, message.text),
+                            .toggle(
+                              message.id,
+                              message.text,
+                              // La voix suit l'auteur du message, pas la
+                              // persona courante : un ancien message de Kira
+                              // reste lu par Kira.
+                              companionId: author.id,
+                            ),
                       ),
                     ),
                     const SizedBox(width: IntelliaSpacing.sm),

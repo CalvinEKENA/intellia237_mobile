@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/tab_presentation.dart';
 import '../../application/dictation_controller.dart';
+import '../../application/listen_controller.dart';
 import '../../domain/dictation_session.dart';
 
 /// Composeur du compagnon : **écrire ou parler**.
@@ -61,6 +63,9 @@ class _CompanionComposerState extends ConsumerState<CompanionComposer> {
 
   Future<void> _onSpeak() async {
     HapticFeedback.selectionClick();
+    // Dicter et écouter ne peuvent pas coexister : la lecture s'arrête avant
+    // que le micro ne s'ouvre.
+    unawaited(ref.read(listenControllerProvider.notifier).stop());
     final notifier = ref.read(dictationControllerProvider.notifier);
     await notifier.start();
   }

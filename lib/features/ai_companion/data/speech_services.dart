@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import '../domain/voice_profile.dart';
+
+import '../domain/spoken_text.dart';
 
 /// Reconnaissance vocale sur l'appareil.
 ///
@@ -84,7 +87,16 @@ class PlatformSpeechRecognizer implements SpeechRecognizer {
 /// « Écouter » est disponible pour tous les paliers : ce n'est pas une
 /// fonction premium.
 abstract interface class SpeechSpeaker {
-  Future<void> speak(String text, {required String languageCode, double rate});
+  /// Prononce des fragments successifs, chacun dans sa langue.
+  ///
+  /// La langue suit le contenu : une phrase anglaise dans une explication
+  /// française doit être dite par une voix anglaise, sinon « I » se prononce
+  /// comme la lettre française.
+  Future<void> speakSegments(
+    List<SpokenSegment> segments, {
+    required VoiceProfile profile,
+    double rate,
+  });
 
   Future<void> pause();
 
@@ -96,32 +108,110 @@ abstract interface class SpeechSpeaker {
 
 class PlatformSpeechSpeaker implements SpeechSpeaker {
   PlatformSpeechSpeaker([FlutterTts? tts]) : _tts = tts ?? FlutterTts() {
-    _tts.setCompletionHandler(() => _onComplete?.call());
-    _tts.setCancelHandler(() => _onComplete?.call());
+    _tts.setCompletionHandler(_onSegmentDone);
+    _tts.setCancelHandler(_onCancelled);
   }
 
   final FlutterTts _tts;
   void Function()? _onComplete;
 
+  /// Voix retenues par (langue, profil). L'inspection du moteur est coûteuse
+  /// et son résultat ne change pas pendant la session.
+  final _voiceCache = <String, DeviceVoice?>{};
+  List<DeviceVoice>? _voices;
+
+  /// Jeton de lecture : une lecture annulée ne doit pas poursuivre ses
+  /// fragments suivants.
+  int _utterance = 0;
+  Completer<void>? _segmentDone;
+
   @override
   set onComplete(void Function()? handler) => _onComplete = handler;
 
+  void _onSegmentDone() {
+    final pending = _segmentDone;
+    _segmentDone = null;
+    if (pending != null && !pending.isCompleted) pending.complete();
+  }
+
+  void _onCancelled() {
+    _onSegmentDone();
+    _onComplete?.call();
+  }
+
+  Future<List<DeviceVoice>> _availableVoices() async {
+    final cached = _voices;
+    if (cached != null) return cached;
+    try {
+      final raw = await _tts.getVoices as List<dynamic>?;
+      _voices = [
+        for (final entry in raw ?? const [])
+          if (entry is Map)
+            DeviceVoice(
+              name: '${entry['name'] ?? ''}',
+              locale: '${entry['locale'] ?? ''}',
+            ),
+      ];
+    } catch (_) {
+      // Un moteur qui n'expose pas ses voix reste utilisable : on retombe
+      // simplement sur sa voix par défaut pour la langue demandée.
+      _voices = const [];
+    }
+    return _voices!;
+  }
+
+  Future<void> _applyVoice(String languageCode, VoiceProfile profile) async {
+    final locale = languageCode == 'en' ? 'en-US' : 'fr-FR';
+    await _tts.setLanguage(locale);
+
+    final key = '$languageCode/${profile.name}';
+    if (!_voiceCache.containsKey(key)) {
+      _voiceCache[key] = VoiceSelection.select(
+        voices: await _availableVoices(),
+        languageCode: languageCode,
+        profile: profile,
+      );
+    }
+    final voice = _voiceCache[key];
+    if (voice == null) return;
+    try {
+      await _tts.setVoice({'name': voice.name, 'locale': voice.locale});
+    } catch (_) {
+      // La voix a disparu entre l'inspection et la lecture : le moteur garde
+      // sa voix par défaut pour cette langue.
+    }
+  }
+
   @override
-  Future<void> speak(
-    String text, {
-    required String languageCode,
+  Future<void> speakSegments(
+    List<SpokenSegment> segments, {
+    required VoiceProfile profile,
     double rate = 0.5,
   }) async {
-    await _tts.setLanguage(languageCode.startsWith('en') ? 'en-US' : 'fr-FR');
-    await _tts.setSpeechRate(rate);
-    await _tts.speak(text);
+    if (segments.isEmpty) return;
+    final token = ++_utterance;
+    await _tts.awaitSpeakCompletion(true);
+
+    for (final segment in segments) {
+      if (token != _utterance) return; // lecture remplacée ou arrêtée
+      await _applyVoice(segment.languageCode, profile);
+      await _tts.setSpeechRate(rate);
+      _segmentDone = Completer<void>();
+      await _tts.speak(segment.text);
+      await _segmentDone?.future;
+    }
+    if (token == _utterance) _onComplete?.call();
   }
 
   @override
   Future<void> pause() => _tts.pause();
 
   @override
-  Future<void> stop() => _tts.stop();
+  Future<void> stop() async {
+    _utterance++;
+    _onSegmentDone();
+    await _tts.stop();
+  }
 }
 
 final speechRecognizerProvider = Provider<SpeechRecognizer>(
