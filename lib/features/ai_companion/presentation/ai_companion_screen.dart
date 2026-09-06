@@ -75,14 +75,16 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
       }
     });
 
-    final content = Column(
+    // La bande de suggestions est un confort : elle s'efface quand la hauteur
+    // restante ne suffit plus à la conversation et au composeur.
+    Widget buildContent({required bool compact}) => Column(
       children: [
         // ── Chat area ────────────────────────────────────────
         Expanded(
           child: _GlassChatContainer(
             scrollController: _scrollController,
             state: state,
-            quickPromptsVisible: _quickPromptsVisible,
+            quickPromptsVisible: _quickPromptsVisible && !compact,
             quickPrompts: quickPrompts,
             onQuickPrompt: (prompt) {
               ref.read(aiCompanionControllerProvider.notifier).send(prompt);
@@ -145,20 +147,47 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     );
 
     if (widget.embedded) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(
-          IntelliaSpacing.lg,
-          IntelliaSpacing.lg,
-          IntelliaSpacing.lg,
-          112,
-        ),
-        child: Column(
-          children: [
-            _CompanionHeader(state: state),
-            const SizedBox(height: IntelliaSpacing.md),
-            Expanded(child: content),
-          ],
-        ),
+      // La réserve du bas dégage la barre de navigation. Elle ne peut pas être
+      // une constante : à l'ouverture du clavier la coquille rétrécit déjà le
+      // corps — et en absorbe l'encoche, donc `viewInsets` y vaut zéro — si
+      // bien qu'exiger malgré tout 112 points faisait réclamer à la colonne
+      // plus de hauteur qu'il n'en restait. C'est le débordement observé.
+      //
+      // La conversation passe donc avant la réserve : celle-ci n'est servie
+      // que sur ce qui excède une hauteur de travail décente.
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          const navReserve = 112.0;
+          // En dessous de cette hauteur, l'écran ne peut plus porter à la fois
+          // le portrait, les suggestions, la conversation et le composeur.
+          const roomForEverything = 520.0;
+          final available = constraints.maxHeight;
+          final compact = available.isFinite && available < roomForEverything;
+
+          // Quand la place manque, la réserve de navigation et le portrait
+          // s'effacent : ce sont des agréments, alors que la conversation et
+          // le composeur sont la fonction même de l'écran. Tout revient dès
+          // que le clavier se referme.
+          final reserve = compact ? IntelliaSpacing.sm : navReserve;
+
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              IntelliaSpacing.lg,
+              compact ? IntelliaSpacing.sm : IntelliaSpacing.lg,
+              IntelliaSpacing.lg,
+              reserve,
+            ),
+            child: Column(
+              children: [
+                if (!compact) ...[
+                  _CompanionHeader(state: state),
+                  const SizedBox(height: IntelliaSpacing.md),
+                ],
+                Expanded(child: buildContent(compact: compact)),
+              ],
+            ),
+          );
+        },
       );
     }
 
@@ -187,7 +216,7 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
                     IntelliaSpacing.lg,
                     IntelliaSpacing.lg,
                   ),
-                  child: content,
+                  child: buildContent(compact: false),
                 ),
               ),
             ],
@@ -486,16 +515,22 @@ class _GlassChatContainer extends StatelessWidget {
           duration: IntelliaMotion.medium,
           curve: IntelliaMotion.emphasizedDecelerate,
           child: quickPromptsVisible
-              ? Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    IntelliaSpacing.md,
-                    IntelliaSpacing.md,
-                    IntelliaSpacing.md,
-                    0,
-                  ),
-                  child: _QuickPromptChips(
-                    prompts: quickPrompts,
-                    onTap: onQuickPrompt,
+              ? ConstrainedBox(
+                  // À très grande échelle de texte, la bande de suggestions
+                  // pourrait à elle seule dépasser la conversation : elle
+                  // défile plutôt que de pousser la colonne.
+                  constraints: const BoxConstraints(maxHeight: 132),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(
+                      IntelliaSpacing.md,
+                      IntelliaSpacing.md,
+                      IntelliaSpacing.md,
+                      0,
+                    ),
+                    child: _QuickPromptChips(
+                      prompts: quickPrompts,
+                      onTap: onQuickPrompt,
+                    ),
                   ),
                 )
               : const SizedBox.shrink(),

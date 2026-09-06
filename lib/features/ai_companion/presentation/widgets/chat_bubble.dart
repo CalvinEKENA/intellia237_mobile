@@ -167,14 +167,18 @@ class _CompanionTurn extends ConsumerWidget {
                   children: [
                     // « Écouter » est disponible pour tous les paliers : la
                     // lecture à voix haute n'est pas une fonction premium.
-                    _ListenAction(
-                      speaking: listen.isSpeaking(message.id),
-                      accent: author.accentColor,
-                      onTap: () => ref
-                          .read(listenControllerProvider.notifier)
-                          .toggle(message.id, message.text),
+                    // À grande échelle de texte, l'action et l'heure doivent
+                    // pouvoir se comprimer plutôt que déborder de la bulle.
+                    Flexible(
+                      child: _ListenAction(
+                        speaking: listen.isSpeaking(message.id),
+                        accent: author.accentColor,
+                        onTap: () => ref
+                            .read(listenControllerProvider.notifier)
+                            .toggle(message.id, message.text),
+                      ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: IntelliaSpacing.sm),
                     if (showTimestamp) _Timestamp(moment: message.createdAt),
                   ],
                 ),
@@ -221,12 +225,16 @@ class _ListenAction extends StatelessWidget {
                 color: accent,
               ),
               const SizedBox(width: 5),
-              Text(
-                label,
-                style: TextStyle(
-                  color: accent,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: accent,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
