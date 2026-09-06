@@ -64,6 +64,7 @@ class AICompanionState {
           role: AIMessageRole.assistant,
           text: welcomeText,
           createdAt: DateTime.now(),
+          companionId: tutor.id,
         ),
       ],
       isSending: false,
@@ -261,6 +262,7 @@ class AICompanionController extends Notifier<AICompanionState> {
           role: AIMessageRole.assistant,
           text: greeting.text,
           createdAt: DateTime.now(),
+          companionId: tutor.id,
         ),
       ],
     );
@@ -289,6 +291,9 @@ class AICompanionController extends Notifier<AICompanionState> {
           createdAt:
               DateTime.tryParse(row['createdAt'] as String? ?? '') ??
               DateTime.now(),
+          // Absent de l'historique antérieur : la persona courante sert alors
+          // de repli à l'affichage, sans réécrire ce qui est stocké.
+          companionId: row['companionId'] as String?,
         );
       }).toList();
       if (restored.isNotEmpty) state = state.copyWith(messages: restored);
@@ -317,6 +322,8 @@ class AICompanionController extends Notifier<AICompanionState> {
               'role': message.role.name,
               'text': message.text,
               'createdAt': message.createdAt.toIso8601String(),
+              if (message.companionId != null)
+                'companionId': message.companionId,
             },
         ]),
       );
@@ -380,7 +387,10 @@ class AICompanionController extends Notifier<AICompanionState> {
       );
 
       state = state.copyWith(
-        messages: [...nextMessages, reply.message],
+        messages: [
+          ...nextMessages,
+          reply.message.copyWith(companionId: state.tutor.id),
+        ],
         isSending: false,
         dailyQuestionLimit: reply.quota.limit,
         remainingQuestions: reply.quota.remaining,
