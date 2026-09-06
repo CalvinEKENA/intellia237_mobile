@@ -28,7 +28,7 @@ class FlowAward {
     this.correct,
     this.pendingValidation = false,
     this.dailyCapReached = false,
-    this.message,
+    this.issue,
   });
 
   final int pointsGained;
@@ -36,7 +36,9 @@ class FlowAward {
   final bool? correct;
   final bool pendingValidation;
   final bool dailyCapReached;
-  final String? message;
+
+  /// Catégorie réelle d'un échec de validation, localisée à l'affichage.
+  final FlowSyncIssue? issue;
 
   bool get hasCelebration => pointsGained > 0 || newBadges.isNotEmpty;
 }
@@ -178,23 +180,19 @@ class FlowController extends Notifier<FlowProgressState> {
         return FlowAward(
           correct: localCorrect,
           pendingValidation: true,
-          message:
-              'Réponse enregistrée hors ligne. Les points seront validés à la prochaine synchronisation.',
+          issue: FlowSyncIssue.network,
         );
       }
       return _applyVerified(card, result);
     } on FirebaseFunctionsException catch (error) {
       return FlowAward(
         correct: localCorrect,
-        message: FlowPointsException.fromFunctions(error).message,
+        issue: FlowPointsException.fromFunctions(error).issue,
       );
     } on FlowPointsException catch (error) {
-      return FlowAward(correct: localCorrect, message: error.message);
+      return FlowAward(correct: localCorrect, issue: error.issue);
     } catch (_) {
-      return FlowAward(
-        correct: localCorrect,
-        message: 'Impossible de valider les points FLOW pour le moment.',
-      );
+      return FlowAward(correct: localCorrect, issue: FlowSyncIssue.unknown);
     }
   }
 
@@ -245,10 +243,8 @@ class FlowController extends Notifier<FlowProgressState> {
       pointsGained: gained,
       newBadges: wasCredited ? const [] : newBadges,
       correct: result.correct,
+      // Le plafond quotidien est un drapeau : l'écran le localise.
       dailyCapReached: result.dailyCapReached,
-      message: result.dailyCapReached
-          ? 'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.'
-          : null,
     );
   }
 

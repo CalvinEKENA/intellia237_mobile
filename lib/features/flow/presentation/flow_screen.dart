@@ -9,8 +9,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/localization/localization_extensions.dart';
 import '../application/flow_controller.dart';
 import '../domain/flow_card.dart';
+import '../data/flow_points_gateway.dart';
 import 'widgets/flow_card_view.dart';
 import 'widgets/flow_celebration_overlay.dart';
 import 'widgets/flow_hud.dart';
@@ -87,11 +89,35 @@ class _FlowScreenState extends ConsumerState<FlowScreen> {
   void _handleAward(FlowAward award) {
     if (!mounted) return;
     if (award.hasCelebration) _showCelebration(award);
-    if (award.message != null) {
+    final notice = _awardNotice(award);
+    if (notice != null) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(award.message!)));
+        ..showSnackBar(SnackBar(content: Text(notice)));
     }
+  }
+
+  /// Traduit la catégorie réelle de l'échec.
+  ///
+  /// Seul [FlowSyncIssue.signedOut] — c'est-à-dire l'absence effective de
+  /// session Firebase — invite à se connecter. Un refus serveur sur une
+  /// session valide reste une panne de synchronisation : la réponse de
+  /// l'élève est conservée et il n'est pas déclaré déconnecté.
+  String? _awardNotice(FlowAward award) {
+    final l10n = context.l10n;
+    if (award.issue == null) {
+      return award.dailyCapReached ? l10n.flowDailyCapReached : null;
+    }
+    return switch (award.issue!) {
+      FlowSyncIssue.signedOut => l10n.flowSyncSignedOut,
+      FlowSyncIssue.syncUnavailable => l10n.flowSyncUnavailable,
+      FlowSyncIssue.network => l10n.flowSyncQueued,
+      FlowSyncIssue.notEligible => l10n.flowSyncNotEligible,
+      FlowSyncIssue.contentNotValidated => l10n.flowSyncContentNotValidated,
+      FlowSyncIssue.duplicateEvent => l10n.flowSyncDuplicate,
+      FlowSyncIssue.invalidAnswer => l10n.flowSyncInvalidAnswer,
+      FlowSyncIssue.unknown => l10n.flowSyncUnknown,
+    };
   }
 
   void _showCelebration(FlowAward award) {

@@ -250,9 +250,7 @@ class FirebaseFlowPointsGateway implements FlowPointsGateway {
   String _requireUserId() {
     final userId = _auth.currentUser?.uid;
     if (userId == null || userId.isEmpty) {
-      throw const FlowPointsException(
-        'Connecte-toi pour faire valider tes points FLOW.',
-      );
+      throw const FlowPointsException(FlowSyncIssue.signedOut);
     }
     return userId;
   }
@@ -275,26 +273,60 @@ class FirebaseFlowPointsGateway implements FlowPointsGateway {
   }
 }
 
+/// Catégorie réelle d'un échec de validation FLOW.
+///
+/// Registre de décisions : une panne de synchronisation ne doit jamais être
+/// présentée comme une déconnexion. L'écran affichait « Connecte-toi » à des
+/// élèves authentifiés parce que toute erreur d'autorisation serveur était
+/// traduite par une invitation à se connecter.
+enum FlowSyncIssue {
+  /// Aucune session Firebase : l'invitation à se connecter est légitime.
+  signedOut,
+
+  /// La session existe mais le serveur n'a pas validé l'envoi (jeton refusé,
+  /// App Check, service momentanément indisponible).
+  syncUnavailable,
+
+  /// Réseau absent : la réponse part en file d'attente locale.
+  network,
+
+  /// Le compte n'est pas un profil élève éligible aux points.
+  notEligible,
+
+  /// L'activité n'existe pas dans le catalogue validé côté serveur.
+  contentNotValidated,
+
+  /// Le jeton d'idempotence a déjà servi pour une autre activité.
+  duplicateEvent,
+
+  /// La réponse envoyée est refusée par la validation serveur.
+  invalidAnswer,
+
+  unknown,
+}
+
 class FlowPointsException implements Exception {
-  const FlowPointsException(this.message);
+  const FlowPointsException(this.issue);
 
-  final String message;
+  final FlowSyncIssue issue;
 
+  /// Traduit un échec de callable en catégorie produit.
+  ///
+  /// `unauthenticated` n'est volontairement **pas** traité comme une
+  /// déconnexion : l'appel n'a lieu qu'avec un identifiant local présent, donc
+  /// un refus serveur signale un jeton non accepté, pas une session absente.
   factory FlowPointsException.fromFunctions(FirebaseFunctionsException error) {
-    final message = switch (error.code) {
-      'unauthenticated' => 'Connecte-toi pour faire valider tes points FLOW.',
-      'permission-denied' =>
-        'La validation des points FLOW est réservée aux profils élèves.',
-      'not-found' =>
-        'Cette activité FLOW n’est pas encore validée par le serveur.',
-      'already-exists' =>
-        'Cette validation a déjà été utilisée pour une autre activité.',
-      'invalid-argument' => 'La réponse FLOW envoyée est invalide.',
-      _ => 'Impossible de valider les points FLOW pour le moment.',
-    };
-    return FlowPointsException(message);
+    return FlowPointsException(switch (error.code) {
+      'unauthenticated' => FlowSyncIssue.syncUnavailable,
+      'permission-denied' => FlowSyncIssue.notEligible,
+      'not-found' => FlowSyncIssue.contentNotValidated,
+      'already-exists' => FlowSyncIssue.duplicateEvent,
+      'invalid-argument' => FlowSyncIssue.invalidAnswer,
+      'unavailable' || 'deadline-exceeded' => FlowSyncIssue.network,
+      _ => FlowSyncIssue.unknown,
+    });
   }
 
   @override
-  String toString() => message;
+  String toString() => 'FlowPointsException(${issue.name})';
 }

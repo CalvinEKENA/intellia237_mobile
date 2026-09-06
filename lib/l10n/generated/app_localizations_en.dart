@@ -1710,6 +1710,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeLoadError => 'Unable to load the home screen';
 
   @override
+  String get flowSyncSignedOut => 'Sign in to have your FLOW points validated.';
+
+  @override
+  String get flowSyncUnavailable =>
+      'Your points could not be validated right now. Your answer is kept.';
+
+  @override
+  String get flowSyncQueued =>
+      'Answer saved offline. Points will be validated at the next sync.';
+
+  @override
+  String get flowSyncNotEligible =>
+      'FLOW point validation is reserved for student profiles.';
+
+  @override
+  String get flowSyncContentNotValidated =>
+      'This FLOW activity is not validated by the server yet.';
+
+  @override
+  String get flowSyncDuplicate =>
+      'This validation has already been used for another activity.';
+
+  @override
+  String get flowSyncInvalidAnswer => 'The FLOW answer sent is invalid.';
+
+  @override
+  String get flowSyncUnknown =>
+      'FLOW points cannot be validated at the moment.';
+
+  @override
+  String get flowDailyCapReached =>
+      'Daily cap reached: come back tomorrow to earn more points.';
+
+  @override
   String get todayEyebrow => 'Today';
 
   @override

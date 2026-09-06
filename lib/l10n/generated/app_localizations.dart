@@ -3032,6 +3032,60 @@ abstract class AppLocalizations {
   /// **'Impossible de charger l’accueil'**
   String get homeLoadError;
 
+  /// No description provided for @flowSyncSignedOut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecte-toi pour faire valider tes points FLOW.'**
+  String get flowSyncSignedOut;
+
+  /// No description provided for @flowSyncUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes points n’ont pas pu être validés pour le moment. Ta réponse est conservée.'**
+  String get flowSyncUnavailable;
+
+  /// No description provided for @flowSyncQueued.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse enregistrée hors ligne. Les points seront validés à la prochaine synchronisation.'**
+  String get flowSyncQueued;
+
+  /// No description provided for @flowSyncNotEligible.
+  ///
+  /// In fr, this message translates to:
+  /// **'La validation des points FLOW est réservée aux profils élèves.'**
+  String get flowSyncNotEligible;
+
+  /// No description provided for @flowSyncContentNotValidated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette activité FLOW n’est pas encore validée par le serveur.'**
+  String get flowSyncContentNotValidated;
+
+  /// No description provided for @flowSyncDuplicate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette validation a déjà été utilisée pour une autre activité.'**
+  String get flowSyncDuplicate;
+
+  /// No description provided for @flowSyncInvalidAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'La réponse FLOW envoyée est invalide.'**
+  String get flowSyncInvalidAnswer;
+
+  /// No description provided for @flowSyncUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de valider les points FLOW pour le moment.'**
+  String get flowSyncUnknown;
+
+  /// No description provided for @flowDailyCapReached.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.'**
+  String get flowDailyCapReached;
+
   /// No description provided for @todayEyebrow.
   ///
   /// In fr, this message translates to:

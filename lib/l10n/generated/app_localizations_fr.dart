@@ -1722,6 +1722,41 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeLoadError => 'Impossible de charger l’accueil';
 
   @override
+  String get flowSyncSignedOut =>
+      'Connecte-toi pour faire valider tes points FLOW.';
+
+  @override
+  String get flowSyncUnavailable =>
+      'Tes points n’ont pas pu être validés pour le moment. Ta réponse est conservée.';
+
+  @override
+  String get flowSyncQueued =>
+      'Réponse enregistrée hors ligne. Les points seront validés à la prochaine synchronisation.';
+
+  @override
+  String get flowSyncNotEligible =>
+      'La validation des points FLOW est réservée aux profils élèves.';
+
+  @override
+  String get flowSyncContentNotValidated =>
+      'Cette activité FLOW n’est pas encore validée par le serveur.';
+
+  @override
+  String get flowSyncDuplicate =>
+      'Cette validation a déjà été utilisée pour une autre activité.';
+
+  @override
+  String get flowSyncInvalidAnswer => 'La réponse FLOW envoyée est invalide.';
+
+  @override
+  String get flowSyncUnknown =>
+      'Impossible de valider les points FLOW pour le moment.';
+
+  @override
+  String get flowDailyCapReached =>
+      'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.';
+
+  @override
   String get todayEyebrow => 'Aujourd’hui';
 
   @override
