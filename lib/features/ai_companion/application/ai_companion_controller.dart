@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer' as developer;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../auth/application/auth_controller.dart';
 import '../../learn/application/learn_providers.dart';
@@ -17,8 +15,10 @@ import '../../tutor/domain/tutor_persona.dart';
 import '../data/ai_repository.dart';
 import '../data/ai_service.dart';
 import '../data/cloud_ai_repository.dart';
+import '../data/companion_history_repository.dart';
 import '../domain/ai_message.dart';
 import '../domain/ai_companion_reply.dart';
+import '../domain/companion_conversation.dart';
 
 final aiRepositoryProvider = Provider<AIRepository>((ref) {
   return CloudAIRepository();
@@ -131,9 +131,9 @@ class AICompanionState {
 }
 
 class AICompanionController extends Notifier<AICompanionState> {
-  static const _legacyHistoryKey = 'intellia_companion_history_v1';
   bool _historyChanged = false;
   String? _activeUserId;
+  CompanionConversation? _conversation;
   AIService get _service => ref.read(aiServiceProvider);
 
   @override
@@ -146,8 +146,10 @@ class AICompanionController extends Notifier<AICompanionState> {
     final firstName = ref.watch(authControllerProvider).firstName;
     final languageCode = ref.watch(appLocaleProvider).languageCode;
     if (_activeUserId != userId) {
+      // Changement d'élève : le fil courant ne doit jamais suivre.
       _activeUserId = userId;
       _historyChanged = false;
+      _conversation = null;
     }
 
     // Listen to academic context changes
@@ -268,67 +270,73 @@ class AICompanionController extends Notifier<AICompanionState> {
     );
   }
 
+  /// Reprend le fil courant de l'élève, en récupérant au passage l'ancien
+  /// historique unique s'il en reste un.
   Future<void> _restoreHistory(String? userId) async {
-    final prefs = await SharedPreferences.getInstance();
-    // The former global key could expose one account's conversation to another
-    // account using the same device. It is deleted and never migrated.
-    await prefs.remove(_legacyHistoryKey);
-    final historyKey = companionHistoryKeyForUser(userId);
-    if (historyKey == null) return;
-    final raw = prefs.getString(historyKey);
-    if (raw == null) return;
-    if (_historyChanged) return;
+    if (userId == null || userId.trim().isEmpty) return;
+    final repository = await ref.read(
+      companionHistoryRepositoryProvider.future,
+    );
+    await repository.migrateLegacyThread(userId);
     if (ref.read(authControllerProvider).userId != userId) return;
-    try {
-      final rows = jsonDecode(raw) as List<dynamic>;
-      final restored = rows.whereType<Map<String, dynamic>>().map((row) {
-        return AIMessage(
-          id: row['id'] as String,
-          role: row['role'] == 'user'
-              ? AIMessageRole.user
-              : AIMessageRole.assistant,
-          text: row['text'] as String,
-          createdAt:
-              DateTime.tryParse(row['createdAt'] as String? ?? '') ??
-              DateTime.now(),
-          // Absent de l'historique antérieur : la persona courante sert alors
-          // de repli à l'affichage, sans réécrire ce qui est stocké.
-          companionId: row['companionId'] as String?,
-        );
-      }).toList();
-      if (restored.isNotEmpty) state = state.copyWith(messages: restored);
-    } catch (_) {
-      // Un historique local illisible ne bloque jamais le compagnon.
-    }
+    if (_historyChanged) return;
+
+    final conversations = repository.listConversations(userId);
+    if (conversations.isEmpty) return;
+    final latest = conversations.first;
+    final messages = repository.readMessages(userId, latest.id);
+    if (messages.isEmpty) return;
+    _conversation = latest;
+    state = state.copyWith(messages: messages);
+  }
+
+  /// Ouvre un fil existant depuis l'historique.
+  Future<void> openConversation(CompanionConversation conversation) async {
+    final userId = ref.read(authControllerProvider).userId;
+    final repository = await ref.read(
+      companionHistoryRepositoryProvider.future,
+    );
+    final messages = repository.readMessages(userId, conversation.id);
+    if (messages.isEmpty) return;
+    _historyChanged = true;
+    _conversation = conversation;
+    state = state.copyWith(
+      messages: messages,
+      errorMessage: null,
+      lastFailedMessage: null,
+      errorKind: null,
+      normalizedErrorCode: null,
+      diagnosticId: null,
+    );
+  }
+
+  /// Démarre un fil neuf sans effacer les précédents.
+  void startNewConversation() {
+    _conversation = null;
+    _historyChanged = false;
+    ref.invalidateSelf();
   }
 
   Future<void> _persistHistory() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_legacyHistoryKey);
-      final historyKey = companionHistoryKeyForUser(
-        ref.read(authControllerProvider).userId,
+      final userId = ref.read(authControllerProvider).userId;
+      if (userId == null || userId.trim().isEmpty) return;
+      final repository = await ref.read(
+        companionHistoryRepositoryProvider.future,
       );
-      if (historyKey == null) return;
-      final recent = state.messages.length > 60
-          ? state.messages.sublist(state.messages.length - 60)
-          : state.messages;
-      await prefs.setString(
-        historyKey,
-        jsonEncode([
-          for (final message in recent)
-            {
-              'id': message.id,
-              'role': message.role.name,
-              'text': message.text,
-              'createdAt': message.createdAt.toIso8601String(),
-              if (message.companionId != null)
-                'companionId': message.companionId,
-            },
-        ]),
+      final conversation = _conversation ??= CompanionConversation(
+        id: 'c${DateTime.now().microsecondsSinceEpoch}',
+        learnerId: userId,
+        createdAt: DateTime.now(),
+        lastActivityAt: DateTime.now(),
+      );
+      await repository.saveConversation(
+        learnerId: userId,
+        conversation: conversation,
+        messages: state.messages,
       );
     } catch (_) {
-      // A local history-cache failure must never hide a successful AI reply.
+      // Un échec d'écriture locale ne doit jamais masquer une réponse reçue.
     }
   }
 
@@ -542,11 +550,4 @@ class AICompanionController extends Notifier<AICompanionState> {
     );
     await send(message);
   }
-}
-
-String? companionHistoryKeyForUser(String? userId) {
-  final normalized = userId?.trim();
-  if (normalized == null || normalized.isEmpty) return null;
-  final encoded = base64UrlEncode(utf8.encode(normalized)).replaceAll('=', '');
-  return 'intellia_companion_history_v2_$encoded';
 }

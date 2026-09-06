@@ -16,6 +16,7 @@ import '../domain/ai_companion_reply.dart';
 import 'widgets/chat_bubble.dart';
 import '../application/listen_controller.dart';
 import 'widgets/companion_composer.dart';
+import 'widgets/companion_history_sheet.dart';
 
 class AICompanionScreen extends ConsumerStatefulWidget {
   const AICompanionScreen({super.key, this.embedded = false, this.topic});
@@ -418,20 +419,13 @@ class _CompanionHeader extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: tutor.gradientColors),
-              borderRadius: BorderRadius.circular(99),
-            ),
-            child: Text(
-              tutor.levelLabel,
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-              ),
-            ),
+          // Accès à l'historique : les fils précédents doivent être
+          // retrouvables sans passer par un menu caché.
+          IconButton(
+            key: const ValueKey('companion-history-button'),
+            onPressed: () => CompanionHistorySheet.show(context),
+            tooltip: context.l10n.companionHistoryTitle,
+            icon: Icon(Icons.history_rounded, color: s.textSecondary, size: 22),
           ),
         ],
       ),

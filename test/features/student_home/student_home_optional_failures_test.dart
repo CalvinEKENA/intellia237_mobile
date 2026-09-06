@@ -90,7 +90,9 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-3')));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.enterText(find.byType(TextField), 'Aide-moi');
-      await tester.tap(find.byIcon(Icons.send_rounded));
+      await tester.pump();
+      // « Parler » devient « Envoyer » dès qu'un caractère utile est saisi.
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
       await tester.pump(const Duration(milliseconds: 100));
       expect(repository.calls, 1);
       expect(find.textContaining('cours et exercices'), findsOneWidget);
