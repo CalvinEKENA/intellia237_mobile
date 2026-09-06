@@ -11,6 +11,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intellia237/core/widgets/tab_presentation.dart';
 import 'package:intellia237/features/ai_companion/data/speech_services.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
 import 'package:intellia237/features/ai_companion/presentation/widgets/chat_bubble.dart';
@@ -62,6 +63,15 @@ Future<void> _loadProjectFonts() async {
     }
     await loader.load();
   }
+
+  // Sans cette police, chaque icône se dessine en carré vide.
+  const iconFont =
+      r'C:\flutter\bin\cache\artifacts\material_fonts\materialicons-regular.otf';
+  if (File(iconFont).existsSync()) {
+    final icons = FontLoader('MaterialIcons')
+      ..addFont(File(iconFont).readAsBytes().then(ByteData.sublistView));
+    await icons.load();
+  }
 }
 
 void main() {
@@ -109,7 +119,14 @@ void main() {
           theme: ThemeData(useMaterial3: true, fontFamily: 'Manrope'),
           home: MediaQuery(
             data: MediaQueryData(size: size, disableAnimations: true),
-            child: RepaintBoundary(key: boundaryKey, child: child),
+            // La coquille d'onglets de production fournit ce contrat une
+            // seule fois. Sans lui, tout widget lisant TabSurface.of()
+            // retombe sur le défaut sombre et la capture montrerait du texte
+            // blanc que l'élève ne voit jamais.
+            child: TabSurface(
+              palette: const TabPalette(TabPresentationMode.embeddedLight),
+              child: RepaintBoundary(key: boundaryKey, child: child),
+            ),
           ),
         ),
       ),
