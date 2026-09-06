@@ -30,6 +30,9 @@ class FlowScreen extends ConsumerStatefulWidget {
 }
 
 class _FlowScreenState extends ConsumerState<FlowScreen> {
+  /// Annonces déjà présentées, pour qu'une reconstruction ne les rejoue pas.
+  final _consumedNotices = <String>{};
+
   final _pageController = PageController();
   late final List<FlowCard> _cards;
 
@@ -89,12 +92,26 @@ class _FlowScreenState extends ConsumerState<FlowScreen> {
   void _handleAward(FlowAward award) {
     if (!mounted) return;
     if (award.hasCelebration) _showCelebration(award);
-    final notice = _awardNotice(award);
-    if (notice != null) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(notice)));
+
+    // Le plafond quotidien reste une information ponctuelle.
+    if (award.issue == null && award.dailyCapReached) {
+      _show(context.l10n.flowDailyCapReached);
+      return;
     }
+
+    // Les échecs de synchronisation n'arrivent ici qu'une fois par catégorie :
+    // le contrôleur a déjà écarté les répétitions. On se garde tout de même
+    // de rejouer une annonce déjà consommée.
+    final notice = award.notice;
+    if (notice == null || _consumedNotices.contains(notice.id)) return;
+    _consumedNotices.add(notice.id);
+    _show(_messageFor(notice.issue));
+  }
+
+  void _show(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   /// Traduit la catégorie réelle de l'échec.
@@ -103,12 +120,9 @@ class _FlowScreenState extends ConsumerState<FlowScreen> {
   /// session Firebase — invite à se connecter. Un refus serveur sur une
   /// session valide reste une panne de synchronisation : la réponse de
   /// l'élève est conservée et il n'est pas déclaré déconnecté.
-  String? _awardNotice(FlowAward award) {
+  String _messageFor(FlowSyncIssue issue) {
     final l10n = context.l10n;
-    if (award.issue == null) {
-      return award.dailyCapReached ? l10n.flowDailyCapReached : null;
-    }
-    return switch (award.issue!) {
+    return switch (issue) {
       FlowSyncIssue.signedOut => l10n.flowSyncSignedOut,
       FlowSyncIssue.syncUnavailable => l10n.flowSyncUnavailable,
       FlowSyncIssue.network => l10n.flowSyncQueued,

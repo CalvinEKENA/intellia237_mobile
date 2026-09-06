@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,6 +22,17 @@ final flowPointsGatewayProvider = Provider<FlowPointsGateway>(
 
 /// Résultat présenté à l'élève. Les points non nuls proviennent toujours du
 /// résultat signé logiquement par la Cloud Function, jamais de la carte locale.
+/// Annonce à usage unique, portée par un identifiant pour que l'écran puisse
+/// la consommer sans risquer de la rejouer à chaque reconstruction.
+@immutable
+class FlowNotice {
+  FlowNotice(this.issue)
+    : id = '${issue.name}-${DateTime.now().microsecondsSinceEpoch}';
+
+  final FlowSyncIssue issue;
+  final String id;
+}
+
 class FlowAward {
   const FlowAward({
     this.pointsGained = 0,
@@ -29,6 +41,7 @@ class FlowAward {
     this.pendingValidation = false,
     this.dailyCapReached = false,
     this.issue,
+    this.notice,
   });
 
   final int pointsGained;
@@ -40,6 +53,20 @@ class FlowAward {
   /// Catégorie réelle d'un échec de validation, localisée à l'affichage.
   final FlowSyncIssue? issue;
 
+  /// Annonce à présenter **une seule fois**, ou null si cette catégorie a
+  /// déjà été signalée pendant la session.
+  final FlowNotice? notice;
+
+  FlowAward copyWith({FlowNotice? notice}) => FlowAward(
+    pointsGained: pointsGained,
+    newBadges: newBadges,
+    correct: correct,
+    pendingValidation: pendingValidation,
+    dailyCapReached: dailyCapReached,
+    issue: issue,
+    notice: notice ?? this.notice,
+  );
+
   bool get hasCelebration => pointsGained > 0 || newBadges.isNotEmpty;
 }
 
@@ -47,6 +74,9 @@ final flowControllerProvider =
     NotifierProvider<FlowController, FlowProgressState>(FlowController.new);
 
 class FlowController extends Notifier<FlowProgressState> {
+  /// Catégories déjà annoncées pendant cette session Flow.
+  final _announcedIssues = <FlowSyncIssue>{};
+
   late FlowPointsGateway _gateway;
 
   /// Élève auquel appartient l'état courant. `null` tant qu'aucune session
@@ -177,23 +207,45 @@ class FlowController extends Notifier<FlowProgressState> {
       final result = await _gateway.submit(command);
       if (result.pendingValidation) {
         _markPending(card);
-        return FlowAward(
-          correct: localCorrect,
-          pendingValidation: true,
-          issue: FlowSyncIssue.network,
+        return _withNotice(
+          FlowAward(
+            correct: localCorrect,
+            pendingValidation: true,
+            issue: FlowSyncIssue.network,
+          ),
         );
       }
       return _applyVerified(card, result);
     } on FirebaseFunctionsException catch (error) {
-      return FlowAward(
-        correct: localCorrect,
-        issue: FlowPointsException.fromFunctions(error).issue,
+      return _withNotice(
+        FlowAward(
+          correct: localCorrect,
+          issue: FlowPointsException.fromFunctions(error).issue,
+        ),
       );
     } on FlowPointsException catch (error) {
-      return FlowAward(correct: localCorrect, issue: error.issue);
+      return _withNotice(FlowAward(correct: localCorrect, issue: error.issue));
     } catch (_) {
-      return FlowAward(correct: localCorrect, issue: FlowSyncIssue.unknown);
+      return _withNotice(
+        FlowAward(correct: localCorrect, issue: FlowSyncIssue.unknown),
+      );
     }
+  }
+
+  /// Décide si cet échec mérite une annonce.
+  ///
+  /// Registre de décisions : une panne de synchronisation dure. Chaque carte
+  /// de contenu se valide toute seule après lecture, si bien qu'annoncer
+  /// l'échec à chaque validation revenait à répéter le même message sur
+  /// pratiquement chaque écran. Une catégorie n'est donc annoncée qu'une fois
+  /// par session ; le compteur « à valider » de l'en-tête porte ensuite
+  /// l'information de façon passive.
+  FlowAward _withNotice(FlowAward award) {
+    final issue = award.issue;
+    if (issue == null) return award;
+    if (_announcedIssues.contains(issue)) return award;
+    _announcedIssues.add(issue);
+    return award.copyWith(notice: FlowNotice(issue));
   }
 
   void _markPending(FlowCard card) {
