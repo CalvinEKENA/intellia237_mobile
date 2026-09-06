@@ -9,6 +9,7 @@ typedef GreetingRequest = ({
   String? firstName,
   String? classLevel,
   bool hasProgress,
+  DateTime? lastActivityAt,
 });
 
 final localGreetingProvider = FutureProvider.family
@@ -21,6 +22,7 @@ final localGreetingProvider = FutureProvider.family
           firstName: request.firstName,
           classLevel: request.classLevel,
           hasProgress: request.hasProgress,
+          lastActivityAt: request.lastActivityAt,
         ),
       );
     });

@@ -1713,6 +1713,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayEyebrow => 'Today';
 
   @override
+  String get firstSessionEyebrow => 'To begin';
+
+  @override
+  String get firstSessionTitle => 'Choose your first activity';
+
+  @override
   String get resumeWhereLeftOff => 'Pick up where you left off';
 
   @override

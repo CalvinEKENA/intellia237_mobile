@@ -536,6 +536,8 @@
   "profileNavLabel": "Profil",
   "homeLoadError": "Impossible de charger l’accueil",
   "todayEyebrow": "Aujourd’hui",
+  "firstSessionEyebrow": "Pour commencer",
+  "firstSessionTitle": "Choisis ta première activité",
   "resumeWhereLeftOff": "Reprends là où tu t’es arrêté",
   "keepMomentum": "Continue sur ta lancée.",
   "exploreEyebrow": "Explorer",

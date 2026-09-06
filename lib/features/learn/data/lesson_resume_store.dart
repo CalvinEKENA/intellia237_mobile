@@ -38,6 +38,9 @@ class LessonResumeStore {
         lessonTitle: map['lessonTitle'] as String? ?? 'Ta dernière leçon',
         subjectTitle: map['subjectTitle'] as String?,
         progress: ((map['progress'] as num?) ?? 0).toDouble().clamp(0.0, 1.0),
+        updatedAt: DateTime.tryParse(
+          map['updatedAt'] as String? ?? '',
+        )?.toLocal(),
       );
     } catch (_) {
       return null;

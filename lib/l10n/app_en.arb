@@ -536,6 +536,8 @@
   "profileNavLabel": "Profile",
   "homeLoadError": "Unable to load the home screen",
   "todayEyebrow": "Today",
+  "firstSessionEyebrow": "To begin",
+  "firstSessionTitle": "Choose your first activity",
   "resumeWhereLeftOff": "Pick up where you left off",
   "keepMomentum": "Keep up the momentum.",
   "exploreEyebrow": "Explore",

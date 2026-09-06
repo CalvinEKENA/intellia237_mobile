@@ -40,6 +40,7 @@ import '../../mastery/presentation/student_mastery_profile.dart';
 import '../../mastery/presentation/mastery_style.dart';
 import '../application/student_home_controller.dart';
 import '../domain/student_home_snapshot.dart';
+import '../domain/learner_activity.dart';
 import 'widgets/daily_challenges_section.dart';
 import 'widgets/weekly_goal_card.dart';
 import 'widgets/fade_slide_entrance.dart';
@@ -394,13 +395,22 @@ class _StudentHomeTab extends ConsumerWidget {
         final academic = ref.watch(studentAcademicContextProvider).valueOrNull;
         final tutor = ref.watch(selectedTutorProvider);
         final language = ref.watch(appLocaleProvider).languageCode;
+        // `globalProgress` vaut 0 dès qu'une matière existe : ce n'est pas
+        // une preuve de travail. Le statut vient donc des traces réelles.
+        //
+        // Les cartes Flow ne sont pas relues ici : `submitFlowActivity` écrit
+        // déjà les points gagnés dans `student_profiles`, que l'instantané
+        // charge. Observer le contrôleur Flow n'ajouterait aucune preuve et
+        // ferait dépendre le rendu de l'accueil d'une passerelle Firebase.
+        final activity = LearnerActivity.fromSnapshot(snapshot);
         final greetingContext = GreetingContext(
           learnerId: auth.userId ?? 'anonymous',
           companionId: tutor?.id ?? 'kira',
           languageCode: language,
           firstName: snapshot.firstName,
           classLevel: academic?.displayClassLevel ?? academic?.classLevel,
-          hasProgress: snapshot.globalProgress != null,
+          hasProgress: activity.hasLearningEvidence,
+          lastActivityAt: activity.lastActivityAt,
         );
         final greeting = ref
             .watch(
@@ -411,6 +421,7 @@ class _StudentHomeTab extends ConsumerWidget {
                 firstName: greetingContext.firstName,
                 classLevel: greetingContext.classLevel,
                 hasProgress: greetingContext.hasProgress,
+                lastActivityAt: greetingContext.lastActivityAt,
               )),
             )
             .valueOrNull
@@ -422,8 +433,12 @@ class _StudentHomeTab extends ConsumerWidget {
         final sections = <Widget>[
           if (snapshot.isDemoData) const _DemoDataBanner(),
           _HomeSectionLabel(
-            eyebrow: context.l10n.todayEyebrow,
-            title: context.l10n.resumeWhereLeftOff,
+            eyebrow: activity.isFirstSession
+                ? context.l10n.firstSessionEyebrow
+                : context.l10n.todayEyebrow,
+            title: activity.isFirstSession
+                ? context.l10n.firstSessionTitle
+                : context.l10n.resumeWhereLeftOff,
           ),
           if (snapshot.resume != null)
             KeyedSubtree(

@@ -25,6 +25,7 @@ class GreetingContext {
     this.classLevel,
     this.event,
     this.hasProgress = false,
+    this.lastActivityAt,
   });
 
   final String learnerId;
@@ -33,7 +34,17 @@ class GreetingContext {
   final String? firstName;
   final String? classLevel;
   final GreetingEvent? event;
+
+  /// Vrai uniquement si l'élève possède une **preuve d'apprentissage réelle**.
+  ///
+  /// Ce n'est pas « le catalogue de matières est chargé » : la moyenne de
+  /// complétion vaut 0 dès qu'une matière existe. Confondre les deux faisait
+  /// annoncer « Belle régularité » à un élève venant de créer son compte.
   final bool hasProgress;
+
+  /// Dernière activité d'apprentissage datée, si une source fiable existe.
+  /// Sans elle, aucune formulation de reprise récente n'est autorisée.
+  final DateTime? lastActivityAt;
 }
 
 class LocalGreeting {
@@ -90,9 +101,15 @@ abstract final class LocalGreetingEngine {
   static String fallback(GreetingContext context, {DateTime? now}) {
     final english = context.languageCode.toLowerCase().startsWith('en');
     final name = _cleanName(context.firstName);
-    final prefix = english
-        ? (name == null ? 'Welcome back.' : 'Welcome back, $name.')
-        : (name == null ? 'Bon retour.' : 'Bon retour, $name.');
+    // « Bon retour » suppose un premier passage. Sans preuve d'apprentissage,
+    // le compagnon accueille au lieu de prétendre revoir l'élève.
+    final prefix = context.hasProgress
+        ? (english
+              ? (name == null ? 'Welcome back.' : 'Welcome back, $name.')
+              : (name == null ? 'Bon retour.' : 'Bon retour, $name.'))
+        : (english
+              ? (name == null ? 'Welcome.' : 'Welcome, $name.')
+              : (name == null ? 'Bienvenue.' : 'Bienvenue $name.'));
     final companion = context.companionId == 'leo'
         ? (english
               ? 'We can start with one concrete step.'
@@ -109,13 +126,32 @@ abstract final class LocalGreetingEngine {
     SharedPreferences preferences,
   ) {
     final raw = preferences.getString(_lastSeenKey(context.learnerId));
-    final previous = raw == null ? null : DateTime.tryParse(raw)?.toLocal();
-    if (previous == null) return GreetingEvent.beginningSession;
-    final elapsed = now.difference(previous);
-    if (elapsed.inDays >= 3) return GreetingEvent.returnAfterSeveralDays;
-    if (elapsed.inHours < 12 && context.hasProgress) {
-      return GreetingEvent.returnAfterRecentStudy;
+    final seenBefore = raw != null && DateTime.tryParse(raw) != null;
+
+    // Sans aucune trace d'apprentissage, l'élève n'a rien à reprendre. Le
+    // repère mémorisé ici date d'un *affichage de salutation*, pas d'une
+    // séance de travail : l'utiliser comme preuve de régularité faisait
+    // féliciter un élève qui n'avait encore rien commencé.
+    if (!context.hasProgress) {
+      return seenBefore ? _timeOfDay(now) : GreetingEvent.beginningSession;
     }
+    if (!seenBefore) return GreetingEvent.beginningSession;
+
+    // Une reprise ne s'annonce que sur une activité réellement datée.
+    final lastActivity = context.lastActivityAt;
+    if (lastActivity != null) {
+      final sinceActivity = now.difference(lastActivity);
+      if (sinceActivity.inDays >= 3) {
+        return GreetingEvent.returnAfterSeveralDays;
+      }
+      if (!sinceActivity.isNegative && sinceActivity.inHours < 12) {
+        return GreetingEvent.returnAfterRecentStudy;
+      }
+    }
+    return _timeOfDay(now);
+  }
+
+  static GreetingEvent _timeOfDay(DateTime now) {
     if (now.hour >= 5 && now.hour < 11) return GreetingEvent.morning;
     if (now.hour >= 11 && now.hour < 14) return GreetingEvent.midday;
     if (now.hour >= 14 && now.hour < 18) return GreetingEvent.afternoon;

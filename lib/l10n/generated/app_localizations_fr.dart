@@ -1725,6 +1725,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get todayEyebrow => 'Aujourd’hui';
 
   @override
+  String get firstSessionEyebrow => 'Pour commencer';
+
+  @override
+  String get firstSessionTitle => 'Choisis ta première activité';
+
+  @override
   String get resumeWhereLeftOff => 'Reprends là où tu t’es arrêté';
 
   @override

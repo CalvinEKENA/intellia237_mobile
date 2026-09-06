@@ -58,6 +58,7 @@ class ResumeTarget {
     required this.lessonTitle,
     required this.progress,
     this.subjectTitle,
+    this.updatedAt,
   });
 
   final String subjectId;
@@ -66,6 +67,11 @@ class ResumeTarget {
   final String lessonTitle;
   final double progress;
   final String? subjectTitle;
+
+  /// Horodatage réel de la dernière ouverture de leçon. Seule preuve datée
+  /// d'activité disponible hors ligne : elle autorise — ou interdit — les
+  /// formulations de reprise récente.
+  final DateTime? updatedAt;
 }
 
 /// Statistiques de progression (points, niveau, série) — présentes uniquement quand une

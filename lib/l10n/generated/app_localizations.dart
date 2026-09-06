@@ -3038,6 +3038,18 @@ abstract class AppLocalizations {
   /// **'Aujourd’hui'**
   String get todayEyebrow;
 
+  /// No description provided for @firstSessionEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour commencer'**
+  String get firstSessionEyebrow;
+
+  /// No description provided for @firstSessionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ta première activité'**
+  String get firstSessionTitle;
+
   /// No description provided for @resumeWhereLeftOff.
   ///
   /// In fr, this message translates to:
