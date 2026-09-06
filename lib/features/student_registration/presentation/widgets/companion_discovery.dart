@@ -332,7 +332,7 @@ class _CompanionSceneState extends State<_CompanionScene>
                 child: Text(
                   widget.name,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AuthExperienceColors.textPrimary,
                     fontSize: 26,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 8 - 6.5 * nameT,
@@ -382,7 +382,7 @@ class _CinematicLine extends StatelessWidget {
             text,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.92),
+              color: AuthExperienceColors.textSecondary,
               fontSize: 15,
               height: 1.35,
               fontWeight: FontWeight.w500,
@@ -419,13 +419,13 @@ class _DiscoverArrow extends StatelessWidget {
     final arrow = Icon(
       reversed ? Icons.west_rounded : Icons.east_rounded,
       size: 18,
-      color: Colors.white.withValues(alpha: 0.92),
+      color: AuthExperienceColors.indigo,
     );
     final row = Row(
       mainAxisSize: MainAxisSize.min,
       children: reversed
-          ? [arrow, const SizedBox(width: 8), _text(label)]
-          : [_text(label), const SizedBox(width: 8), arrow],
+          ? [arrow, const SizedBox(width: 8), Flexible(child: _text(label))]
+          : [Flexible(child: _text(label)), const SizedBox(width: 8), arrow],
     );
 
     final animated = reduce
@@ -444,9 +444,9 @@ class _DiscoverArrow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: AuthExperienceColors.surface,
           borderRadius: BorderRadius.circular(99),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+          border: Border.all(color: AuthExperienceColors.border),
         ),
         child: animated,
       ),
@@ -456,7 +456,7 @@ class _DiscoverArrow extends StatelessWidget {
   Widget _text(String label) => Text(
     label,
     style: const TextStyle(
-      color: Colors.white,
+      color: AuthExperienceColors.indigo,
       fontSize: 13,
       fontWeight: FontWeight.w700,
     ),
@@ -483,7 +483,7 @@ class _PageDots extends StatelessWidget {
           decoration: BoxDecoration(
             color: active
                 ? AuthExperienceColors.indigo
-                : Colors.white.withValues(alpha: 0.22),
+                : AuthExperienceColors.border,
             borderRadius: BorderRadius.circular(4),
           ),
         );
@@ -516,12 +516,13 @@ class _ChooseBar extends StatelessWidget {
 
     if (!canChoose) {
       return _shell(
-        background: Colors.white.withValues(alpha: 0.05),
-        border: Colors.white.withValues(alpha: 0.12),
+        background: AuthExperienceColors.surfaceSoft,
+        border: AuthExperienceColors.border,
         child: Text(
           context.l10n.discoverCompanionBeforeChoice(currentName),
-          style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.6),
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: AuthExperienceColors.textSecondary,
             fontSize: 13.5,
             fontWeight: FontWeight.w600,
           ),
@@ -539,12 +540,12 @@ class _ChooseBar extends StatelessWidget {
         onTap: () => onChoose(currentId),
         child: _shell(
           gradient: isChosen
-              ? LinearGradient(colors: [accent, accent.withValues(alpha: 0.75)])
+              ? LinearGradient(
+                  colors: [accent, Color.lerp(accent, Colors.black, 0.18)!],
+                )
               : null,
-          background: isChosen ? null : Colors.white.withValues(alpha: 0.06),
-          border: isChosen
-              ? Colors.white.withValues(alpha: 0.6)
-              : accent.withValues(alpha: 0.5),
+          background: isChosen ? null : AuthExperienceColors.surface,
+          border: isChosen ? Color.lerp(accent, Colors.black, 0.28)! : accent,
           glow: isChosen ? accent : null,
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -552,17 +553,20 @@ class _ChooseBar extends StatelessWidget {
               Icon(
                 isChosen ? Icons.check_circle_rounded : Icons.favorite_rounded,
                 size: 18,
-                color: Colors.white,
+                color: isChosen ? Colors.white : accent,
               ),
               const SizedBox(width: 8),
-              Text(
-                isChosen
-                    ? context.l10n.currentCompanionLabel(currentName)
-                    : context.l10n.chooseCompanionA11y(currentName),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w800,
+              Flexible(
+                child: Text(
+                  isChosen
+                      ? context.l10n.currentCompanionLabel(currentName)
+                      : context.l10n.chooseCompanionA11y(currentName),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isChosen ? Colors.white : accent,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ],
@@ -581,7 +585,8 @@ class _ChooseBar extends StatelessWidget {
   }) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
-      height: 54,
+      constraints: const BoxConstraints(minHeight: 54),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: background,
