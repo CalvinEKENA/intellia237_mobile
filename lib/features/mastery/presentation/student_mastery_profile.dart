@@ -11,6 +11,7 @@ import '../domain/mastery_policy.dart';
 import 'mastery_copy.dart';
 import 'mastery_motion.dart';
 import 'mastery_style.dart';
+import '../application/learner_subject_catalog.dart';
 import 'mastery_subject_card.dart';
 
 class StudentLearningIdentity extends ConsumerWidget {
@@ -104,10 +105,13 @@ class StudentSubjectMastery extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hub = ref.watch(learnHubProvider);
+    // Le catalogue vient du programme de l'élève, pas des seules matières
+    // publiées : une matière sans cours reste visible et affiche honnêtement
+    // qu'elle manque d'éléments, au lieu de disparaître du profil.
+    final catalog = ref.watch(learnerSubjectCatalogProvider);
     final mastery = ref.watch(studentMasteryProvider);
     final copy = context.l10n;
-    final subjects = hub.valueOrNull?.subjects;
+    final subjects = catalog.valueOrNull;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -117,7 +121,7 @@ class StudentSubjectMastery extends ConsumerWidget {
         const SizedBox(height: 16),
         if (subjects == null)
           Text(
-            hub.hasError
+            catalog.hasError
                 ? copy.masterySubjectsUnavailable
                 : copy.stateLoadingTitle,
             style: MasteryStyle.body,
@@ -137,15 +141,15 @@ class StudentSubjectMastery extends ConsumerWidget {
                 spacing: 16,
                 runSpacing: 16,
                 children: [
-                  for (final subject in subjects)
+                  for (final entry in subjects)
                     SizedBox(
                       width: width,
                       child: MasterySubjectCard(
-                        key: ValueKey('mastery-subject-${subject.id}'),
-                        subject: subject,
+                        key: ValueKey('mastery-subject-${entry.subject.id}'),
+                        subject: entry.subject,
                         estimate:
                             (mastery.valueOrNull ?? const MasteryProfile())
-                                .forSubject(subject.id),
+                                .forSubject(entry.subject.id),
                         unavailable: mastery.hasError,
                         loading: mastery.isLoading,
                       ),
