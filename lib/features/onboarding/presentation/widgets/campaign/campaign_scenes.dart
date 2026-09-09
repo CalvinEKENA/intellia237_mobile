@@ -8,6 +8,7 @@ import '../../../../../core/assets/intellia_assets.dart';
 import '../../../domain/onboarding_journey_state.dart';
 import '../../../domain/onboarding_micro_challenge.dart';
 import 'campaign_design.dart';
+import 'campaign_signature.dart';
 
 class CampaignOpening extends StatelessWidget {
   const CampaignOpening({
@@ -624,13 +625,17 @@ class CampaignFinale extends StatelessWidget {
     required this.animation,
     required this.focus,
     required this.subject,
-    required this.onEnter,
+    required this.onSigned,
+    required this.reduceMotion,
     super.key,
   });
   final Animation<double> animation;
   final OnboardingCompanionFocus focus;
   final String subject;
-  final VoidCallback? onEnter;
+
+  /// Carries the centre of the signature pad, in window coordinates.
+  final void Function(Offset origin)? onSigned;
+  final bool reduceMotion;
 
   @override
   Widget build(BuildContext context) => CampaignPage(
@@ -691,10 +696,15 @@ class CampaignFinale extends StatelessWidget {
                 ),
             ],
           ),
-          SizedBox(height: math.max(110, height * 0.26)),
+          SizedBox(height: math.max(44, height * 0.12)),
           AnimatedBuilder(
             animation: animation,
-            child: _PassCard(focus: focus, subject: subject, onEnter: onEnter),
+            child: _PassCard(
+              focus: focus,
+              subject: subject,
+              onSigned: onSigned,
+              reduceMotion: reduceMotion,
+            ),
             builder: (context, child) {
               final t = Curves.easeOutCubic.transform(
                 ((animation.value - 0.15) / 0.85).clamp(0.0, 1.0),
@@ -735,11 +745,13 @@ class _PassCard extends StatelessWidget {
   const _PassCard({
     required this.focus,
     required this.subject,
-    required this.onEnter,
+    required this.onSigned,
+    required this.reduceMotion,
   });
   final OnboardingCompanionFocus focus;
   final String subject;
-  final VoidCallback? onEnter;
+  final void Function(Offset origin)? onSigned;
+  final bool reduceMotion;
 
   @override
   Widget build(BuildContext context) {
@@ -837,16 +849,13 @@ class _PassCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          CampaignButton(
+          const SizedBox(height: 16),
+          // A pass is not tapped into existence: it is signed.
+          CampaignSignature(
             key: const ValueKey('onboarding-enter'),
-            label: campaignText(
-              context,
-              'Créer mon INTELLIA PASS',
-              'Create my INTELLIA PASS',
-            ),
-            onTap: onEnter,
-            color: CampaignColors.violet,
+            enabled: onSigned != null,
+            reduceMotion: reduceMotion,
+            onSigned: onSigned ?? (_) {},
           ),
         ],
       ),

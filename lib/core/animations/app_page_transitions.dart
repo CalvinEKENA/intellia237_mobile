@@ -7,12 +7,15 @@ CustomTransitionPage<void> buildAppTransitionPage({
   required GoRouterState state,
   required Widget child,
   Widget? transitionBackground,
+  // Zero when the route hands its own pixels to something else on the way
+  // out, so the screen is never drawn twice.
+  Duration? reverseDuration,
 }) {
   return CustomTransitionPage<void>(
     key: state.pageKey,
     child: child,
     transitionDuration: IntelliaMotion.medium,
-    reverseTransitionDuration: IntelliaMotion.fast,
+    reverseTransitionDuration: reverseDuration ?? IntelliaMotion.fast,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       return buildAppTransitionFrame(
         animation: animation,

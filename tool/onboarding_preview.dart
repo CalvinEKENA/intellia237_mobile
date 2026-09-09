@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/core/animations/app_page_transitions.dart';
+import 'package:intellia237/core/animations/screen_shatter.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
@@ -19,7 +20,11 @@ void main() {
     routes: [
       GoRoute(
         path: AppRoutes.onboarding,
-        builder: (_, _) => const OnboardingScreen(),
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          reverseDuration: Duration.zero,
+          child: const OnboardingScreen(),
+        ),
       ),
       // The stand-in wears the real registration canvas, so the passage out
       // of the onboarding can be reviewed exactly as it lands in the app.
@@ -62,6 +67,8 @@ void main() {
         ],
         theme: ThemeData(useMaterial3: true, fontFamily: 'CampaignBody'),
         routerConfig: router,
+        builder: (context, child) =>
+            ScreenShatterLayer(child: child ?? const SizedBox.shrink()),
       ),
     ),
   );

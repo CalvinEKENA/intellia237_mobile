@@ -15,6 +15,7 @@ import '../features/auth/application/auth_controller.dart';
 import '../features/auth/domain/app_role.dart';
 import '../core/localization/app_locale_controller.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../core/animations/screen_shatter.dart';
 import '../core/system/intellia_system_bars.dart';
 import '../core/notifications/notification_navigation_bus.dart';
 import '../core/notifications/notification_push_service.dart';
@@ -93,7 +94,9 @@ class Intellia237App extends ConsumerWidget {
         final location = router.routeInformationProvider.value.uri.path;
         final surfaced = IntelliaSystemBars(
           tone: IntelliaSystemBarPolicy.toneForLocation(location),
-          child: app,
+          // Debris from a screen that is already gone has to paint above the
+          // navigator, over the route that replaced it.
+          child: ScreenShatterLayer(child: app),
         );
         if (!config.isStaging) return surfaced;
 

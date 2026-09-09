@@ -63,8 +63,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.onboarding,
+        // The last act hands its own pixels to the shatter layer before it
+        // leaves, so the route itself must vanish in the same frame.
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
+          reverseDuration: Duration.zero,
           child: const OnboardingScreen(),
         ),
       ),

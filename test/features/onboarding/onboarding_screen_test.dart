@@ -6,11 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intellia237/app/router/app_routes.dart';
+import 'package:intellia237/core/animations/app_page_transitions.dart';
+import 'package:intellia237/core/animations/screen_shatter.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_act.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_micro_challenge.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
-import 'package:intellia237/features/onboarding/presentation/widgets/campaign/ascension_architecture.dart';
-import 'package:intellia237/features/onboarding/presentation/widgets/campaign/ascension_passage.dart';
+import 'package:intellia237/features/onboarding/presentation/widgets/campaign/campaign_signature.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -79,8 +80,7 @@ void main() {
   testWidgets('opening presents its promise and waits for explicit entry', (
     tester,
   ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
+    await _pumpOnboarding(tester);
 
     expect(find.text('TU PEUX'), findsOneWidget);
     expect(find.text('COMPRENDRE.'), findsOneWidget);
@@ -106,7 +106,7 @@ void main() {
     };
 
     for (final entry in subjects.entries) {
-      final router = await _pumpOnboarding(tester);
+      await _pumpOnboarding(tester);
       await _tapVisible(tester, const ValueKey('activation-enter'));
       await _tapVisible(tester, ValueKey(entry.key));
 
@@ -119,8 +119,6 @@ void main() {
       }
       expect(find.byKey(const ValueKey('companion-kira')), findsNothing);
       _expectNoLayoutException(tester, '${entry.value} challenge');
-      await tester.pumpWidget(const SizedBox.shrink());
-      router.dispose();
     }
   });
 
@@ -131,8 +129,7 @@ void main() {
     testWidgets(
       'a ${answer.description} answer allows the complete five-act journey',
       (tester) async {
-        final router = await _pumpOnboarding(tester);
-        addTearDown(router.dispose);
+        final harness = await _pumpOnboarding(tester);
         await _reachChallenge(tester);
 
         await _tapVisible(tester, ValueKey('challenge-answer-${answer.index}'));
@@ -166,10 +163,10 @@ void main() {
         );
         _expectNotCompleted(await SharedPreferences.getInstance());
 
-        await _tapVisible(tester, const ValueKey('onboarding-enter'));
+        await _signPass(tester);
         expect(find.text('Inscription prête'), findsOneWidget);
         expect(
-          router.routeInformationProvider.value.uri.path,
+          harness.router.routeInformationProvider.value.uri.path,
           AppRoutes.register,
         );
         final preferences = await SharedPreferences.getInstance();
@@ -185,8 +182,7 @@ void main() {
   testWidgets('returning keeps the selected subject, answer and companion', (
     tester,
   ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
+    await _pumpOnboarding(tester);
     await _reachChallenge(tester, subjectKey: 'subject-french');
     await _tapVisible(tester, const ValueKey('challenge-answer-0'));
     await _tapVisible(tester, const ValueKey('challenge-continue'));
@@ -218,8 +214,7 @@ void main() {
   testWidgets('a horizontal swipe switches the companion in either direction', (
     tester,
   ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
+    await _pumpOnboarding(tester);
     await _reachChallenge(tester);
     await _tapVisible(tester, const ValueKey('challenge-answer-2'));
     await _tapVisible(tester, const ValueKey('challenge-continue'));
@@ -244,8 +239,7 @@ void main() {
   testWidgets('animations never advance a scene or bypass its interaction', (
     tester,
   ) async {
-    final router = await _pumpOnboarding(tester, reduceMotion: false);
-    addTearDown(router.dispose);
+    await _pumpOnboarding(tester, reduceMotion: false);
 
     await _expectWaiting(tester, 'activation-enter');
     await _tapVisible(tester, const ValueKey('activation-enter'));
@@ -266,8 +260,7 @@ void main() {
   testWidgets(
     'English presents localized entry, continuation and final action',
     (tester) async {
-      final router = await _pumpOnboarding(tester, locale: const Locale('en'));
-      addTearDown(router.dispose);
+      await _pumpOnboarding(tester, locale: const Locale('en'));
 
       expect(find.text('YOU CAN'), findsOneWidget);
       expect(find.text('UNDERSTAND.'), findsOneWidget);
@@ -279,7 +272,7 @@ void main() {
       await _tapVisible(tester, const ValueKey('companion-leo'));
       _expectSelected(tester, 'companion-leo');
       await _tapVisible(tester, const ValueKey('companion-continue'));
-      expect(find.text('Create my INTELLIA PASS'), findsOneWidget);
+      expect(find.text('Hold your thumb to sign.'), findsOneWidget);
       _expectNoLayoutException(tester, 'English journey');
     },
   );
@@ -297,7 +290,7 @@ void main() {
 
     for (final configuration in configurations) {
       final label = '${configuration.size} at ${configuration.scale}x';
-      final router = await _pumpOnboarding(
+      await _pumpOnboarding(
         tester,
         size: configuration.size,
         textScale: configuration.scale,
@@ -318,111 +311,144 @@ void main() {
       await _tapVisible(tester, const ValueKey('companion-continue'));
       _expectNoLayoutException(tester, '$label final act');
       expect(find.byKey(const ValueKey('onboarding-enter')), findsOneWidget);
-      await _tapVisible(tester, const ValueKey('onboarding-enter'));
+      await _signPass(tester);
       expect(find.text('Inscription prête'), findsOneWidget);
       _expectNoLayoutException(tester, '$label completion');
-
-      await tester.pumpWidget(const SizedBox.shrink());
-      router.dispose();
     }
   });
 
-  test('the passage opens the doorway that the building actually draws', () {
-    for (final size in const [Size(390, 844), Size(320, 568), Size(844, 390)]) {
-      final corners = ascensionPassageQuad(size);
-      expect(corners, hasLength(4), reason: '$size');
-      for (final corner in corners) {
-        expect(corner.dx, inInclusiveRange(0, size.width), reason: '$size');
-        expect(corner.dy, inInclusiveRange(0, size.height), reason: '$size');
-      }
-      // A real opening, and only an opening: the light has somewhere to grow
-      // from, and the gateway around it stays visible.
-      final bounds = Rect.fromPoints(corners.first, corners[2]);
-      expect(bounds.width, greaterThan(48), reason: '$size');
-      expect(bounds.height, greaterThan(32), reason: '$size');
-      expect(bounds.width, lessThan(size.width * 0.7), reason: '$size');
-      // The gateway stands above the stairs, never at the foot of the screen.
-      expect(bounds.center.dy, lessThan(size.height * 0.75), reason: '$size');
-
-      final alignment = ascensionPassageAlignment(size);
-      expect(alignment.x, inInclusiveRange(-1, 1), reason: '$size');
-      expect(alignment.y, inInclusiveRange(-1, 1), reason: '$size');
-    }
-    expect(ascensionPassageAlignment(Size.zero), Alignment.center);
-  });
-
-  test('the interface leaves before the doorway swallows it', () {
-    expect(AscensionPassageMotion.aperture(0), 0);
-    // The route is only exchanged once the aperture fills the stage.
-    expect(AscensionPassageMotion.aperture(AscensionPassageMotion.covered), 1);
-    expect(AscensionPassageMotion.contentOpacity(0), 1);
-    expect(AscensionPassageMotion.contentScale(0), 1);
-    expect(AscensionPassageMotion.stageScale(0), 1);
-    // Nothing legible is left when the light starts to travel.
-    expect(AscensionPassageMotion.contentOpacity(0.42), 0);
-    expect(AscensionPassageMotion.aperture(0.42), lessThan(0.2));
+  test('the signature inks from nothing to signed, and only forwards', () {
+    expect(CampaignSignatureMotion.inked(0), 0);
+    expect(CampaignSignatureMotion.inked(1), 1);
+    expect(CampaignSignatureMotion.frame(0), 0);
+    expect(CampaignSignatureMotion.frame(1), 1);
 
     var previous = -1.0;
     for (var step = 0; step <= 20; step++) {
-      final opening = AscensionPassageMotion.aperture(step / 20);
-      expect(opening, greaterThanOrEqualTo(previous));
-      previous = opening;
+      final value = CampaignSignatureMotion.inked(step / 20);
+      expect(value, greaterThanOrEqualTo(previous));
+      previous = value;
     }
   });
 
-  testWidgets('the last act opens onto registration through the passage', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester, reduceMotion: false);
-    addTearDown(router.dispose);
-    await _reachAscension(tester);
-
-    await _tapFinal(tester);
-    expect(find.byType(AscensionPassage), findsOneWidget);
-    expect(find.text('Inscription prête'), findsNothing);
-
-    // Half way through, the last act is still on screen: the route is never
-    // exchanged over an empty one.
-    await tester.pump(const Duration(milliseconds: 340));
-    expect(find.byType(AscensionPassage), findsOneWidget);
-    expect(find.text('Inscription prête'), findsNothing);
-
-    // A second press during the passage cannot start a second hand-over.
-    await tester.tap(
-      find.byKey(const ValueKey('onboarding-enter')),
-      warnIfMissed: false,
-    );
-
-    await tester.pump(AscensionPassageMotion.duration);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 600));
-
-    expect(find.text('Inscription prête'), findsOneWidget);
-    expect(find.byType(AscensionPassage), findsNothing);
+  test('the break trembles, travels outwards, and clears', () {
+    expect(ScreenShatterMotion.tremor(0), isNot(Offset.zero));
     expect(
-      (await SharedPreferences.getInstance()).getBool('has_seen_onboarding'),
-      isTrue,
+      ScreenShatterMotion.tremor(ScreenShatterMotion.tremorEnd),
+      Offset.zero,
     );
-    _expectNoLayoutException(tester, 'passage to registration');
+    expect(ScreenShatterMotion.tremor(0.9), Offset.zero);
+
+    // Nothing gives way until the surface has trembled.
+    expect(
+      ScreenShatterMotion.tileProgress(ScreenShatterMotion.breakStart, 0),
+      0,
+    );
+    expect(ScreenShatterMotion.tileDelay(0, 400), 0);
+    expect(ScreenShatterMotion.tileDelay(400, 400), closeTo(0.42, 0.0001));
+    // Even the furthest tile has time to leave before the end.
+    expect(
+      ScreenShatterMotion.tileProgress(
+        1,
+        ScreenShatterMotion.tileDelay(400, 400),
+      ),
+      1,
+    );
+    expect(ScreenShatterMotion.tileOpacity(0), 1);
+    expect(ScreenShatterMotion.tileOpacity(1), 0);
+    expect(ScreenShatterMotion.tileScale(0), 1);
+
+    // The debris pattern is stable: one screen always breaks the same way.
+    List<double> sample() => [
+      for (var i = 0; i < 40; i++) ScreenShatterMotion.jitter(i, i * 3),
+    ];
+    expect(sample(), sample());
+    for (final value in sample()) {
+      expect(value, inInclusiveRange(-1, 1));
+    }
+    expect(sample().toSet(), hasLength(greaterThan(30)));
   });
 
-  testWidgets('reduced motion hands over immediately, without the passage', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
+  testWidgets('a thumb lifted early does not sign the pass', (tester) async {
+    await _pumpOnboarding(tester);
     await _reachAscension(tester);
 
-    await _tapFinal(tester);
+    final finder = find.byKey(const ValueKey('onboarding-enter'));
+    await tester.ensureVisible(finder);
     await tester.pump();
+    expect(find.text('Maintiens ton pouce pour signer.'), findsOneWidget);
 
-    expect(find.byType(AscensionPassage), findsNothing);
+    final thumb = await tester.startGesture(tester.getCenter(finder));
+    // The first frame only starts the reading; the second advances it.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 150));
+    expect(find.text('Ne bouge pas…'), findsOneWidget);
+    await thumb.up();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('Inscription prête'), findsNothing);
+    expect(find.text('Reste appuyé jusqu’au bout.'), findsOneWidget);
+    _expectNotCompleted(await SharedPreferences.getInstance());
+  });
+
+  testWidgets(
+    'holding signs the pass and breaks the screen onto registration',
+    (tester) async {
+      final harness = await _pumpOnboarding(tester, reduceMotion: false);
+      await _reachAscension(tester);
+      await _signPass(tester);
+
+      expect(find.text('Inscription prête'), findsOneWidget);
+      // The screen the learner just left is still on top of it, breaking apart.
+      expect(harness.providers.read(screenShatterProvider).request, isNotNull);
+      expect(
+        (await SharedPreferences.getInstance()).getBool('has_seen_onboarding'),
+        isTrue,
+      );
+
+      await tester.pump(ScreenShatterMotion.duration);
+      await tester.pump();
+      expect(harness.providers.read(screenShatterProvider).request, isNull);
+      _expectNoLayoutException(tester, 'signature hand-over');
+    },
+  );
+
+  testWidgets('reduced motion signs the pass without breaking the screen', (
+    tester,
+  ) async {
+    final harness = await _pumpOnboarding(tester);
+    await _reachAscension(tester);
+    await _signPass(tester);
+
     expect(find.text('Inscription prête'), findsOneWidget);
+    expect(harness.providers.read(screenShatterProvider).request, isNull);
     _expectNoLayoutException(tester, 'reduced motion hand-over');
+  });
+
+  testWidgets('assistive activation signs the pass in one action', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await _pumpOnboarding(tester);
+    await _reachAscension(tester);
+
+    final finder = find.byKey(const ValueKey('onboarding-enter'));
+    await tester.ensureVisible(finder);
+    await tester.pump();
+    // The pad is reachable and actionable by its accessible name alone.
+    tester.semantics.tap(find.semantics.byLabel('Signer mon INTELLIA PASS'));
+    await tester.pump();
+    await tester.pump(CampaignSignatureMotion.recognition);
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Inscription prête'), findsOneWidget);
+    semantics.dispose();
   });
 }
 
-Future<GoRouter> _pumpOnboarding(
+typedef _Harness = ({GoRouter router, ProviderContainer providers});
+
+Future<_Harness> _pumpOnboarding(
   WidgetTester tester, {
   bool reduceMotion = true,
   Size size = const Size(390, 844),
@@ -437,7 +463,11 @@ Future<GoRouter> _pumpOnboarding(
     routes: [
       GoRoute(
         path: AppRoutes.onboarding,
-        builder: (_, _) => const OnboardingScreen(),
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          reverseDuration: Duration.zero,
+          child: const OnboardingScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.register,
@@ -445,8 +475,11 @@ Future<GoRouter> _pumpOnboarding(
       ),
     ],
   );
+  final container = ProviderContainer();
+  addTearDown(container.dispose);
   await tester.pumpWidget(
-    ProviderScope(
+    UncontrolledProviderScope(
+      container: container,
       child: MaterialApp.router(
         locale: locale,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -457,19 +490,21 @@ Future<GoRouter> _pumpOnboarding(
           GlobalCupertinoLocalizations.delegate,
         ],
         routerConfig: router,
+        // Debris outlives the route it came from here too, exactly as in the
+        // application shell.
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(
             disableAnimations: reduceMotion,
             textScaler: TextScaler.linear(textScale),
           ),
-          child: child!,
+          child: ScreenShatterLayer(child: child!),
         ),
       ),
     ),
   );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 1400));
-  return router;
+  return (router: router, providers: container);
 }
 
 Future<void> _reachChallenge(
@@ -487,13 +522,22 @@ Future<void> _reachAscension(WidgetTester tester) async {
   await _tapVisible(tester, const ValueKey('companion-continue'));
 }
 
-/// The final action, pumped one frame only, so the hand-over can be observed.
-Future<void> _tapFinal(WidgetTester tester) async {
+/// A pass is signed by holding a thumb on it, never by tapping.
+Future<void> _signPass(WidgetTester tester) async {
   final finder = find.byKey(const ValueKey('onboarding-enter'));
   await tester.ensureVisible(finder);
   await tester.pump();
-  await tester.tap(finder);
+  final thumb = await tester.startGesture(tester.getCenter(finder));
+  // The first frame only starts the reading, and the controller reports it
+  // complete one frame after its nominal duration.
   await tester.pump();
+  await tester.pump(CampaignSignatureMotion.read);
+  await tester.pump(const Duration(milliseconds: 40));
+  await thumb.up();
+  // The recognition is held a beat before the screen gives way.
+  await tester.pump(CampaignSignatureMotion.recognition);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
 }
 
 Future<void> _tapVisible(WidgetTester tester, ValueKey<String> key) async {

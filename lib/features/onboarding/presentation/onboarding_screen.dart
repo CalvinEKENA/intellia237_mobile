@@ -1,18 +1,19 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/router/app_routes.dart';
+import '../../../core/animations/screen_shatter.dart';
 import '../../../core/assets/intellia_assets.dart';
-import '../../../core/system/intellia_system_bars.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
 import '../data/onboarding_preferences.dart';
 import '../domain/onboarding_act.dart';
 import '../domain/onboarding_journey_state.dart';
 import 'widgets/campaign/ascension_architecture.dart';
-import 'widgets/campaign/ascension_passage.dart';
 import 'widgets/campaign/campaign_challenge.dart';
 import 'widgets/campaign/campaign_design.dart';
 import 'widgets/campaign/campaign_scenes.dart';
@@ -28,14 +29,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _entrance;
   late final AnimationController _camera;
-  late final AnimationController _handoff;
   final _pointer = ValueNotifier<Offset>(Offset.zero);
   final _stageKey = GlobalKey();
+  final _captureKey = GlobalKey();
   OnboardingJourneyState _journey = const OnboardingJourneyState();
   double _cameraFrom = 0;
   double _cameraTo = 0;
   Rect? _subjectOrigin;
-  Alignment _passage = Alignment.center;
   Color _subjectColor = CampaignColors.violet;
   bool _initialized = false;
   bool _reduced = false;
@@ -62,10 +62,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       vsync: this,
       duration: const Duration(milliseconds: 950),
       value: 1,
-    );
-    _handoff = AnimationController(
-      vsync: this,
-      duration: AscensionPassageMotion.duration,
     );
   }
 
@@ -159,26 +155,58 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     );
   }
 
-  /// The last act does not cut to registration: the gateway the learner has
-  /// been climbing towards opens, and the next screen is already behind it.
-  Future<void> _complete() async {
+  /// The signed pass gives way. The screen is captured as it stands, the
+  /// route is exchanged underneath it, and the capture breaks apart above the
+  /// registration screen: the learner sees one continuous surface tearing
+  /// open, never a cut between two screens.
+  Future<void> _sign(Offset origin) async {
     if (_completing || _moving) return;
-    final stage = _stageKey.currentContext?.findRenderObject() as RenderBox?;
-    setState(() {
-      _completing = true;
-      _passage = stage == null || !stage.hasSize
-          ? Alignment.center
-          : ascensionPassageAlignment(stage.size);
-    });
-    HapticFeedback.mediumImpact();
+    setState(() => _completing = true);
     _pointer.value = Offset.zero;
-    // The journey counts as seen the moment the passage opens, whatever
+    // The journey counts as seen the moment the pass is signed, whatever
     // becomes of the animation afterwards.
     final persistence = markOnboardingSeen(ref);
     unawaited(IntelliaTelemetry.onboardingCompleted());
-    if (!_reduced) await _handoff.forward();
-    if (mounted) context.go(AppRoutes.register);
-    await persistence;
+
+    // Captured synchronously: the debris, the route change and the first
+    // frame of the break all belong to the same frame.
+    final ratio = MediaQuery.devicePixelRatioOf(context);
+    final debris = _reduced ? null : _capture(ratio);
+    Future<void>? breaking;
+    if (debris != null) {
+      _shudder();
+      breaking = ref
+          .read(screenShatterProvider)
+          .play(image: debris, pixelRatio: ratio, origin: origin);
+    }
+    context.go(AppRoutes.register);
+    await Future.wait([persistence, ?breaking]);
+  }
+
+  /// Two impacts a breath apart read as a surface cracking, where one reads
+  /// as a button.
+  void _shudder() {
+    unawaited(HapticFeedback.heavyImpact());
+    unawaited(
+      Future<void>.delayed(
+        const Duration(milliseconds: 90),
+        HapticFeedback.heavyImpact,
+      ),
+    );
+  }
+
+  ui.Image? _capture(double ratio) {
+    final boundary =
+        _captureKey.currentContext?.findRenderObject()
+            as RenderRepaintBoundary?;
+    if (boundary == null || !boundary.hasSize) return null;
+    try {
+      return boundary.toImageSync(pixelRatio: ratio);
+    } catch (_) {
+      // A capture that fails must never strand the learner on the last act;
+      // the hand-over simply becomes a plain one.
+      return null;
+    }
   }
 
   @override
@@ -186,7 +214,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     WidgetsBinding.instance.removeObserver(this);
     _entrance.dispose();
     _camera.dispose();
-    _handoff.dispose();
     _pointer.dispose();
     super.dispose();
   }
@@ -195,40 +222,39 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   Widget build(BuildContext context) {
     final dark = _act == OnboardingAct.ascension;
     final theme = Theme.of(context);
-    return AnimatedBuilder(
-      animation: _handoff,
-      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
-        value: _overlayStyle(dark),
-        child: child!,
-      ),
-      child: Theme(
-        data: theme.copyWith(
-          textTheme: theme.textTheme.apply(
-            fontFamily: 'CampaignBody',
-            bodyColor: CampaignColors.ink,
-            displayColor: CampaignColors.ink,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: (dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark)
+          .copyWith(
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: dark
+                ? CampaignColors.ink
+                : CampaignColors.paper,
+            systemNavigationBarDividerColor: dark
+                ? CampaignColors.ink
+                : CampaignColors.paper,
+            systemNavigationBarContrastEnforced: false,
+            systemStatusBarContrastEnforced: false,
           ),
-        ),
-        child: PopScope<Object?>(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, _) {
-            if (!didPop) _previous();
-          },
-          child: Scaffold(
-            backgroundColor: dark ? CampaignColors.ink : CampaignColors.paper,
-            // Wide windows letterbox the stage. The margin travels with the
-            // passage, so the light reaches the edges of the screen too.
-            body: AnimatedBuilder(
-              animation: _handoff,
-              builder: (context, child) => ColoredBox(
-                color: Color.lerp(
-                  dark ? CampaignColors.ink : CampaignColors.paper,
-                  AscensionPassage.canvas,
-                  AscensionPassageMotion.aperture(_handoff.value),
-                )!,
-                child: child,
-              ),
-              child: Center(
+      // The whole screen is captured from here the moment the pass is signed,
+      // so the debris is the screen itself and not a copy of it.
+      child: RepaintBoundary(
+        key: _captureKey,
+        child: Theme(
+          data: theme.copyWith(
+            textTheme: theme.textTheme.apply(
+              fontFamily: 'CampaignBody',
+              bodyColor: CampaignColors.ink,
+              displayColor: CampaignColors.ink,
+            ),
+          ),
+          child: PopScope<Object?>(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, _) {
+              if (!didPop) _previous();
+            },
+            child: Scaffold(
+              backgroundColor: dark ? CampaignColors.ink : CampaignColors.paper,
+              body: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 560),
                   child: ClipRect(
@@ -251,36 +277,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                                 _camera,
                                 _entrance,
                                 _pointer,
-                                _handoff,
                               ]),
                               builder: (context, _) => Opacity(
                                 opacity: _architectureOpacity(_cameraPosition),
-                                // The building passes the camera while the
-                                // gateway opens; it is still otherwise.
-                                child: Transform.scale(
-                                  scale: AscensionPassageMotion.stageScale(
-                                    _handoff.value,
-                                  ),
-                                  alignment: _passage,
-                                  child: AscensionArchitecture(
-                                    progress: _cameraPosition,
-                                    reveal: _act == OnboardingAct.activation
-                                        ? _entrance.value
-                                        : 1,
-                                    pointer: _pointer.value,
-                                    dark: dark,
-                                    accent: _subjectColor,
-                                  ),
+                                child: AscensionArchitecture(
+                                  progress: _cameraPosition,
+                                  reveal: _act == OnboardingAct.activation
+                                      ? _entrance.value
+                                      : 1,
+                                  pointer: _pointer.value,
+                                  dark: dark,
+                                  accent: _subjectColor,
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        AnimatedBuilder(
-                          animation: _handoff,
-                          builder: _departing,
-                          child: _stageContent(dark),
-                        ),
+                        _stageContent(dark),
                         if (_subjectOrigin != null && !_reduced)
                           Positioned.fill(
                             child: IgnorePointer(
@@ -289,10 +302,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                                 builder: (context, _) => _subjectTransition(),
                               ),
                             ),
-                          ),
-                        if (_completing && !_reduced)
-                          Positioned.fill(
-                            child: AscensionPassage(animation: _handoff),
                           ),
                       ],
                     ),
@@ -305,37 +314,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       ),
     );
   }
-
-  /// Once the passage covers the stage, the registration canvas is already on
-  /// screen: the system bars take that screen's tone before the route does.
-  SystemUiOverlayStyle _overlayStyle(bool dark) {
-    if (_handoff.value >= AscensionPassageMotion.covered) {
-      return IntelliaSystemBarPolicy.styleFor(SystemSurfaceTone.light);
-    }
-    return (dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark)
-        .copyWith(
-          statusBarColor: Colors.transparent,
-          systemNavigationBarColor: dark
-              ? CampaignColors.ink
-              : CampaignColors.paper,
-          systemNavigationBarDividerColor: dark
-              ? CampaignColors.ink
-              : CampaignColors.paper,
-          systemNavigationBarContrastEnforced: false,
-          systemStatusBarContrastEnforced: false,
-        );
-  }
-
-  /// The interface is left behind as the gateway opens: it recedes with the
-  /// building instead of being cut away from it.
-  Widget _departing(BuildContext context, Widget? child) => Opacity(
-    opacity: AscensionPassageMotion.contentOpacity(_handoff.value),
-    child: Transform.scale(
-      scale: AscensionPassageMotion.contentScale(_handoff.value),
-      alignment: _passage,
-      child: child,
-    ),
-  );
 
   Widget _stageContent(bool dark) => SafeArea(
     child: Column(
@@ -529,7 +507,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       animation: _entrance,
       focus: _journey.companionFocus,
       subject: _journey.selectedSubject ?? 'Mathématiques',
-      onEnter: _completing ? null : _complete,
+      reduceMotion: _reduced,
+      onSigned: _completing ? null : _sign,
     ),
   };
 }

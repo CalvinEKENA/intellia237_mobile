@@ -48,62 +48,6 @@ class AscensionArchitecture extends StatelessWidget {
   }
 }
 
-/// The open passage beyond the gateway, in the building's own coordinates.
-/// The registration hand-off opens this exact aperture, so the light comes
-/// from the doorway the learner has been climbing towards.
-const _passageLeft = -95.0;
-const _passageRight = 95.0;
-const _passageFloor = 178.0;
-const _passageLintel = 295.0;
-const _passageDepth = 236.0;
-
-/// Screen corners of the passage — top-left, top-right, bottom-right,
-/// bottom-left — under the framing [progress] describes.
-///
-/// The quadrilateral is not a rectangle: it carries the perspective of the
-/// scene, so an animation growing from it reads as walking through the door.
-List<Offset> ascensionPassageQuad(
-  Size size, {
-  double progress = 4,
-  Offset pointer = Offset.zero,
-}) {
-  final camera = _cameraFor(
-    size: size,
-    progress: progress.clamp(0.0, 4.0),
-    pointer: pointer,
-    reveal: 1,
-  );
-  return [
-    camera.project(_passageLeft, _passageLintel, _passageDepth),
-    camera.project(_passageRight, _passageLintel, _passageDepth),
-    camera.project(_passageRight, _passageFloor, _passageDepth),
-    camera.project(_passageLeft, _passageFloor, _passageDepth),
-  ];
-}
-
-/// The centre of the passage, expressed for [Transform] and [Align].
-Alignment ascensionPassageAlignment(
-  Size size, {
-  double progress = 4,
-  Offset pointer = Offset.zero,
-}) {
-  if (size.isEmpty) return Alignment.center;
-  final corners = ascensionPassageQuad(
-    size,
-    progress: progress,
-    pointer: pointer,
-  );
-  var centre = Offset.zero;
-  for (final corner in corners) {
-    centre += corner;
-  }
-  centre = centre / corners.length.toDouble();
-  return Alignment(
-    (centre.dx / size.width * 2 - 1).clamp(-1.0, 1.0),
-    (centre.dy / size.height * 2 - 1).clamp(-1.0, 1.0),
-  );
-}
-
 double _frame(double progress, List<double> values) {
   final index = progress.floor().clamp(0, values.length - 1);
   final next = math.min(index + 1, values.length - 1);
@@ -111,8 +55,8 @@ double _frame(double progress, List<double> values) {
   return lerpDouble(values[index], values[next], fraction)!;
 }
 
-/// One framing of the building. The painter and the passage geometry share it,
-/// so the doorway an animation opens is the doorway that is drawn.
+/// One framing of the building, shared by everything that has to agree on
+/// where the stairs and the gateway are.
 _ArchitectureCamera _cameraFor({
   required Size size,
   required double progress,
