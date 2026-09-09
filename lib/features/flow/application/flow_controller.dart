@@ -12,8 +12,29 @@ import '../domain/flow_badge.dart';
 import '../domain/flow_card.dart';
 import '../domain/flow_progress_state.dart';
 
+/// Cartes servies à l'élève, et leur provenance.
+///
+/// Registre de décisions : FLOW n'a pas encore de contenu publié — la
+/// collection Firestore et le composeur d'administration restent à écrire.
+/// D'ici là, les cartes viennent d'un jeu de démonstration. Elles sont
+/// pédagogiquement justes, mais ce ne sont pas des contenus validés par
+/// l'établissement : l'élève doit le savoir, comme l'accueil le lui dit déjà
+/// pour ses propres données de démonstration.
+///
+/// [isDemo] disparaîtra le jour où ces cartes viendront de Firestore.
+class FlowCatalog {
+  const FlowCatalog({required this.cards, required this.isDemo});
+
+  final List<FlowCard> cards;
+  final bool isDemo;
+}
+
+final flowCatalogProvider = Provider<FlowCatalog>(
+  (ref) => FlowCatalog(cards: FlowDemoContent.build(), isDemo: true),
+);
+
 final flowCardsProvider = Provider<List<FlowCard>>(
-  (ref) => FlowDemoContent.build(),
+  (ref) => ref.watch(flowCatalogProvider).cards,
 );
 
 final flowPointsGatewayProvider = Provider<FlowPointsGateway>(
