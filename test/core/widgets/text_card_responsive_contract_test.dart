@@ -24,6 +24,8 @@ import 'package:intellia237/features/student_home/presentation/widgets/resume_co
 import 'package:intellia237/features/student_home/presentation/widgets/streak_motivation_card.dart';
 import 'package:intellia237/features/campus/presentation/widgets/campus_kpi_card.dart';
 import 'package:intellia237/features/student_home/presentation/widgets/subjects_carousel.dart';
+import 'package:intellia237/features/learn/domain/interactive_component.dart';
+import 'package:intellia237/features/learn/presentation/widgets/interactive/interactive_block_view.dart';
 
 const _viewport = Size(360, 1200);
 const _textScale = 1.5;
@@ -38,6 +40,7 @@ const _coveredPublicCardTypes = {
   'TrueFalseQuestionCard',
   'ShortAnswerQuestionCard',
   'FlowEntryCard',
+  'InteractiveFallbackCard',
   'ProgressOverviewCard',
   'ResumeCourseCard',
   'StreakMotivationCard',
@@ -149,6 +152,19 @@ void main() {
       ),
     ),
     (name: 'FlowEntryCard', child: FlowEntryCard(onTap: _noop)),
+    (
+      name: 'InteractiveFallbackCard',
+      child: InteractiveFallbackCard(
+        spec: InteractiveComponentSpec(
+          componentKey: 'chute_libre_v3',
+          summary:
+              'Comprendre la chute libre en faisant varier la hauteur de '
+              'lâcher et en observant la durée de chute.',
+        ),
+        reason:
+            "Cette activité demande une version plus récente de l'application.",
+      ),
+    ),
     (
       name: 'ProgressOverviewCard',
       child: ProgressOverviewCard(
