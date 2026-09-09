@@ -127,6 +127,63 @@ void main() {
       );
     });
 
+    test('le SVG est refusé', () {
+      // Un SVG est un document actif, porteur de script, et rien dans le
+      // pipeline ne l'assainit : il n'entre pas comme image.
+      expect(
+        EducationalMediaPolicy.acceptsMimeType(
+          MediaType.image,
+          'image/svg+xml',
+        ),
+        isFalse,
+      );
+      expect(
+        EducationalMediaPolicy.rejectionReason(
+          type: MediaType.image,
+          mimeType: 'image/svg+xml',
+          sizeBytes: 1024,
+        ),
+        isNotNull,
+      );
+    });
+
+    test('les plafonds suivent la nature du média', () {
+      // Ils doivent rester identiques à ceux des règles Storage : un client
+      // plus permissif ferait payer un téléversement voué au refus.
+      const mo = 1024 * 1024;
+      expect(EducationalMediaPolicy.maxBytes(MediaType.image), 10 * mo);
+      expect(EducationalMediaPolicy.maxBytes(MediaType.audio), 50 * mo);
+      expect(EducationalMediaPolicy.maxBytes(MediaType.video), 150 * mo);
+      expect(EducationalMediaPolicy.maxBytes(MediaType.pdf), 25 * mo);
+    });
+
+    test('une image de taille vidéo est refusée', () {
+      // C'est précisément ce que l'ancien plafond unique laissait passer.
+      expect(
+        EducationalMediaPolicy.rejectionReason(
+          type: MediaType.image,
+          mimeType: 'image/png',
+          sizeBytes: 120 * 1024 * 1024,
+        ),
+        contains('volumineux'),
+      );
+    });
+
+    test('les formats audio du pipeline sont tous acceptés', () {
+      for (final mime in const [
+        'audio/mpeg',
+        'audio/mp4',
+        'audio/m4a',
+        'audio/aac',
+      ]) {
+        expect(
+          EducationalMediaPolicy.acceptsMimeType(MediaType.audio, mime),
+          isTrue,
+          reason: mime,
+        );
+      }
+    });
+
     test('un exécutable déguisé est refusé', () {
       expect(
         EducationalMediaPolicy.rejectionReason(

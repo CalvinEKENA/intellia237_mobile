@@ -93,22 +93,55 @@ service firebase.storage {
             || userEstablishment() == scopeId);
     }
 
-    function isAllowedEducationalAsset() {
-      return request.resource != null
-        && request.resource.size <= 300 * 1024 * 1024
-        && request.resource.contentType in [
-          'image/jpeg',
-          'image/png',
-          'image/webp',
-          'image/svg+xml',
+    // Chaque nature de media porte son propre plafond. Un seul plafond
+    // global au niveau de la video laissait passer une image de 300 Mo :
+    // une erreur d'export aurait pu remplir le bucket sans qu'aucune regle
+    // ne s'y oppose.
+
+    function assetContentType() {
+      return request.resource.contentType;
+    }
+
+    function assetSize() {
+      return request.resource.size;
+    }
+
+    function isAllowedImage() {
+      // Le SVG reste refuse : c'est un document actif, porteur de script,
+      // et rien dans le pipeline ne l'assainit aujourd'hui.
+      return assetContentType() in ['image/jpeg', 'image/png', 'image/webp']
+        && assetSize() <= 10 * 1024 * 1024;
+    }
+
+    function isAllowedAudio() {
+      // MP3 et le conteneur M4A/AAC, les seuls formats que l'import et le
+      // lecteur savent traiter.
+      return assetContentType() in [
           'audio/mpeg',
           'audio/mp4',
           'audio/m4a',
-          'audio/aac',
-          'video/mp4',
-          'video/webm',
-          'application/pdf'
-        ];
+          'audio/aac'
+        ]
+        && assetSize() <= 50 * 1024 * 1024;
+    }
+
+    function isAllowedVideo() {
+      return assetContentType() in ['video/mp4', 'video/webm']
+        && assetSize() <= 150 * 1024 * 1024;
+    }
+
+    function isAllowedPdf() {
+      return assetContentType() == 'application/pdf'
+        && assetSize() <= 25 * 1024 * 1024;
+    }
+
+    function isAllowedEducationalAsset() {
+      return request.resource != null
+        && assetSize() > 0
+        && (isAllowedImage()
+            || isAllowedAudio()
+            || isAllowedVideo()
+            || isAllowedPdf());
     }
 
     match /educational_assets/{scopeId}/{allPaths=**} {

@@ -75,15 +75,22 @@ abstract final class EducationalAssetPath {
 /// appliquent les mêmes plafonds côté serveur, et une vérification locale
 /// évite à l'élève comme à l'enseignant un téléversement voué à l'échec.
 abstract final class EducationalMediaPolicy {
+  /// Plafonds par nature de média.
+  ///
+  /// Ils reprennent exactement ceux des règles Storage : un client plus
+  /// permissif enverrait des fichiers que le serveur refuserait, et ferait
+  /// payer la bande passante à l'auteur pour rien.
   static const maxBytesByType = <MediaType, int>{
-    MediaType.image: 8 * 1024 * 1024,
-    MediaType.audio: 60 * 1024 * 1024,
-    MediaType.video: 300 * 1024 * 1024,
-    MediaType.pdf: 40 * 1024 * 1024,
+    MediaType.image: 10 * 1024 * 1024,
+    MediaType.audio: 50 * 1024 * 1024,
+    MediaType.video: 150 * 1024 * 1024,
+    MediaType.pdf: 25 * 1024 * 1024,
   };
 
   static const mimeTypesByType = <MediaType, Set<String>>{
-    MediaType.image: {'image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'},
+    // Le SVG est écarté : c'est un document actif, porteur de script, et
+    // rien dans le pipeline ne l'assainit aujourd'hui.
+    MediaType.image: {'image/jpeg', 'image/png', 'image/webp'},
     MediaType.audio: {'audio/mpeg', 'audio/mp4', 'audio/m4a', 'audio/aac'},
     MediaType.video: {'video/mp4', 'video/webm'},
     MediaType.pdf: {'application/pdf'},
