@@ -128,9 +128,13 @@ class AuthAmbientBackground extends StatelessWidget {
               width: double.infinity,
               height: 330,
               decoration: BoxDecoration(
+                // The bloom has to reach transparency inside its own band:
+                // stopping it at the band's edge leaves a hard line across
+                // every authentication screen.
                 gradient: RadialGradient(
                   center: const Alignment(0.2, -0.8),
                   radius: 1.2,
+                  stops: const [0, 0.35, 0.7],
                   colors: [
                     const Color(0xFFFFFDF8).withValues(alpha: 0.82),
                     AuthExperienceColors.champagne.withValues(alpha: 0.24),
