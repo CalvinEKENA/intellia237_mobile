@@ -22,6 +22,7 @@ import '../application/learn_providers.dart';
 import '../data/lesson_resume_store.dart';
 import '../domain/learn_lesson.dart';
 import '../domain/learn_route_requests.dart';
+import 'widgets/content_block_view.dart';
 
 /// Lecteur de leçon — mode lecture clair, chrome minimal.
 ///
@@ -466,11 +467,12 @@ class _LessonBody extends StatelessWidget {
                 _AskAiBanner(onTap: onAskAi, tutor: tutor),
                 const SizedBox(height: IntelliaSpacing.lg),
 
-                // Sections de contenu — la structure supporte des blocs
-                // riches futurs (images, formules, encadrés) via le modèle
-                // LessonContentSection sans changer cette liste.
-                for (final section in lesson.contentSections) ...[
-                  _ContentSection(section: section),
+                // Contenu de la leçon. `effectiveBlocks` promeut les sections
+                // d'une leçon V1 en blocs de texte : le lecteur ne connaît
+                // donc qu'un seul flux, et une leçon ancienne reste rendue
+                // exactement comme avant.
+                for (final block in lesson.effectiveBlocks) ...[
+                  ContentBlockView(block: block),
                   const SizedBox(height: IntelliaSpacing.lg),
                 ],
 
@@ -736,50 +738,6 @@ class _AskAiBanner extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────
 // Section de contenu (lecture)
 // ─────────────────────────────────────────────────────────────
-
-class _ContentSection extends StatelessWidget {
-  const _ContentSection({required this.section});
-
-  final LessonContentSection section;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          section.title,
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 21,
-            fontWeight: FontWeight.w700,
-            color: s.accent,
-            height: 1.25,
-          ),
-        ),
-        const SizedBox(height: IntelliaSpacing.xs),
-        Container(
-          height: 2,
-          width: 40,
-          decoration: BoxDecoration(
-            gradient: IntelliaGradients.brand,
-            borderRadius: BorderRadius.circular(1),
-          ),
-        ),
-        const SizedBox(height: IntelliaSpacing.sm),
-        Text(
-          section.body,
-          style: GoogleFonts.manrope(
-            fontSize: 16,
-            height: 1.7,
-            color: s.textPrimary,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────
 // Mini quiz de fin de leçon

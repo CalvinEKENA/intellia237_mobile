@@ -26,6 +26,7 @@ import 'package:intellia237/features/campus/presentation/widgets/campus_kpi_card
 import 'package:intellia237/features/student_home/presentation/widgets/subjects_carousel.dart';
 import 'package:intellia237/features/learn/domain/interactive_component.dart';
 import 'package:intellia237/features/learn/presentation/widgets/interactive/interactive_block_view.dart';
+import 'package:intellia237/features/learn/presentation/widgets/content_block_view.dart';
 
 const _viewport = Size(360, 1200);
 const _textScale = 1.5;
@@ -40,6 +41,7 @@ const _coveredPublicCardTypes = {
   'TrueFalseQuestionCard',
   'ShortAnswerQuestionCard',
   'FlowEntryCard',
+  'ContentBlockFallbackCard',
   'InteractiveFallbackCard',
   'ProgressOverviewCard',
   'ResumeCourseCard',
@@ -152,6 +154,14 @@ void main() {
       ),
     ),
     (name: 'FlowEntryCard', child: FlowEntryCard(onTap: _noop)),
+    (
+      name: 'ContentBlockFallbackCard',
+      child: ContentBlockFallbackCard(
+        reason:
+            'Cette ressource pédagogique n’est plus disponible : elle a été '
+            'retirée du catalogue ou remplacée par une version plus récente.',
+      ),
+    ),
     (
       name: 'InteractiveFallbackCard',
       child: InteractiveFallbackCard(

@@ -8,6 +8,7 @@ import '../../../core/localization/localization_extensions.dart';
 import '../../../features/learn/domain/learn_lesson.dart';
 import '../application/admin_content_providers.dart';
 import '../domain/admin_content_models.dart';
+import 'widgets/lesson_blocks_editor.dart';
 
 /// Éditeur complet d'une leçon, avec flux IA déplacé côté backend.
 class ContentLessonEditorScreen extends ConsumerStatefulWidget {
@@ -338,6 +339,23 @@ class _ContentLessonEditorScreenState
                         ),
                     ],
                   ),
+          ),
+          const SizedBox(height: IntelliaSpacing.md),
+
+          // Blocs V2 — texte enrichi, médias, quiz, activités interactives.
+          _Card(
+            title: 'Blocs de contenu',
+            child: LessonBlocksEditor(
+              blocks: _lesson.contentBlocks,
+              onChanged: (blocks) => setState(() {
+                // Passer en V2 dès qu'un bloc existe : la projection texte
+                // continue d'alimenter les anciennes versions.
+                _lesson = _lesson.copyWith(
+                  contentBlocks: blocks,
+                  schemaVersion: blocks.isEmpty ? 1 : 2,
+                );
+              }),
+            ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
 
