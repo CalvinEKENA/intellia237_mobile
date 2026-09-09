@@ -7,8 +7,9 @@ import {
   initializeTestEnvironment
 } from "@firebase/rules-unit-testing";
 import { doc, setDoc } from "firebase/firestore";
-import { ref, uploadBytes } from "firebase/storage";
+import { getBytes, ref, uploadBytes } from "firebase/storage";
 import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
+import { resolveEmulatorAddress } from "./emulator-address";
 
 /**
  * Règles des ressources pédagogiques.
@@ -22,35 +23,45 @@ import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
  */
 const projectId = "demo-intellia237";
 
-let testEnv: RulesTestEnvironment;
+function readRules(fileName: string): string {
+  return readFileSync(join(process.cwd(), `../${fileName}`), "utf8");
+}
+
+let testEnv: RulesTestEnvironment | undefined;
 
 beforeAll(async () => {
   testEnv = await initializeTestEnvironment({
     projectId,
     firestore: {
-      host: "127.0.0.1",
-      port: 8080,
-      rules: readFileSync(join(process.cwd(), "../firestore.rules"), "utf8")
+      ...resolveEmulatorAddress("firestore", "FIRESTORE_EMULATOR_HOST"),
+      rules: readRules("firestore.rules")
     },
     storage: {
-      host: "127.0.0.1",
-      port: 9200,
-      rules: readFileSync(join(process.cwd(), "../storage.rules"), "utf8")
+      ...resolveEmulatorAddress("storage", "FIREBASE_STORAGE_EMULATOR_HOST"),
+      rules: readRules("storage.rules")
     }
   });
 });
 
+/** Le harnais ne doit pas ajouter sa propre panne à celle qu'il révèle. */
+function env(): RulesTestEnvironment {
+  if (!testEnv) {
+    throw new Error("L'environnement de test n'a pas pu être initialisé.");
+  }
+  return testEnv;
+}
+
 afterEach(async () => {
-  await testEnv.clearStorage();
+  await testEnv?.clearStorage();
 });
 
 afterAll(async () => {
-  await testEnv.cleanup();
+  await testEnv?.cleanup();
 });
 
 /** Les règles lisent `users/{uid}` : chaque acteur doit y exister. */
 async function seedActors() {
-  await testEnv.withSecurityRulesDisabled(async (context) => {
+  await env().withSecurityRulesDisabled(async (context) => {
     const db = context.firestore();
     await setDoc(doc(db, "users/admin-a"), {
       uid: "admin-a",
@@ -81,8 +92,8 @@ async function seedActors() {
 
 function storageFor(uid?: string) {
   return uid
-    ? testEnv.authenticatedContext(uid).storage()
-    : testEnv.unauthenticatedContext().storage();
+    ? env().authenticatedContext(uid).storage()
+    : env().unauthenticatedContext().storage();
 }
 
 function assetPath(scopeId: string, fileName: string) {
@@ -261,7 +272,7 @@ describe("Educational asset rules", () => {
 
   describe("lecture", () => {
     it("keeps establishment content inside its walls", async () => {
-      await testEnv.withSecurityRulesDisabled(async (context) => {
+      await env().withSecurityRulesDisabled(async (context) => {
         await uploadBytes(
           ref(context.storage(), assetPath("lycee-a", "schema.png")),
           bytes(1024),
@@ -269,7 +280,6 @@ describe("Educational asset rules", () => {
         );
       });
 
-      const { getBytes } = await import("firebase/storage");
       await assertFails(
         getBytes(ref(storageFor("teacher-b"), assetPath("lycee-a", "schema.png")))
       );
