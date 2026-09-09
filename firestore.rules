@@ -355,11 +355,59 @@ service cloud.firestore {
     // =============================================
     // LESSONS
     // =============================================
+    // Le perimetre vit dans le document. Les lecons anterieures au Content
+    // Studio n'en portent pas : elles relevent du programme national, donc
+    // du perimetre global.
+    function contentScopeIdOf(data) {
+      return ('scope' in data && data.scope.type == 'establishment')
+        ? data.scope.establishmentId
+        : 'global';
+    }
+
+    // Le programme national n'appartient a personne en particulier : seule
+    // l'administration y ecrit. Un contenu d'etablissement n'est modifiable
+    // que par le personnel de cet etablissement.
+    function mayWriteContentScope(scopeId) {
+      return scopeId == 'global'
+        ? isAdmin()
+        : ((isTeacher() || isAdmin()) && getUserEstablishment() == scopeId);
+    }
+
+    function editorialStatusOf(data) {
+      return ('workflow' in data && 'status' in data.workflow)
+        ? data.workflow.status
+        : 'draft';
+    }
+
+    // Rendre un contenu visible aux eleves, le programmer ou l'archiver
+    // releve de l'administration, jamais d'un auteur.
+    function isPublicationTransition(nextStatus) {
+      return nextStatus in ['approved', 'scheduled', 'published', 'archived'];
+    }
+
+    function isAllowedEditorialTransition() {
+      let current = editorialStatusOf(resource.data);
+      let next = editorialStatusOf(request.resource.data);
+      // Un contenu en ligne ne redevient jamais un brouillon en place : il
+      // s'archive, ou une revision distincte nait a cote.
+      return !(current == 'published' && next == 'draft')
+        && (current == next || !isPublicationTransition(next) || isAdmin());
+    }
+
     match /{path=**}/lessons/{lessonId} {
       allow read: if isAuthenticated();
-      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
-      allow update: if isTeacher() || isAdmin() || isSuperAdmin();
-      allow delete: if isAdmin() || isSuperAdmin();
+      allow create: if mayWriteContentScope(
+                         contentScopeIdOf(request.resource.data));
+      // Le perimetre est verifie avant et apres : on ne deplace pas un
+      // contenu d'un etablissement vers un autre par une simple mise a jour.
+      allow update: if mayWriteContentScope(contentScopeIdOf(resource.data))
+                    && mayWriteContentScope(
+                         contentScopeIdOf(request.resource.data))
+                    && isAllowedEditorialTransition();
+      allow delete: if isSuperAdmin()
+                    || (isAdmin()
+                        && mayWriteContentScope(
+                             contentScopeIdOf(resource.data)));
     }
 
     // =============================================
