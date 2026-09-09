@@ -411,6 +411,31 @@ service cloud.firestore {
     }
 
     // =============================================
+    // FLOW ITEMS — publications du fil pedagogique
+    // =============================================
+    // L'eleve ne lit que ce qui est reellement publie : le filtrage n'est pas
+    // laisse au client. Le personnel voit aussi les brouillons de son
+    // perimetre, sans quoi il ne pourrait pas relire son propre travail.
+    match /flow_items/{itemId} {
+      allow read: if isAuthenticated()
+                  && (resource.data.status == 'published'
+                      || (isStaff()
+                          && mayWriteContentScope(
+                               contentScopeIdOf(resource.data))));
+      allow create: if mayWriteContentScope(
+                         contentScopeIdOf(request.resource.data))
+                    && request.resource.data.status in ['draft', 'inReview'];
+      allow update: if mayWriteContentScope(contentScopeIdOf(resource.data))
+                    && mayWriteContentScope(
+                         contentScopeIdOf(request.resource.data))
+                    && isAllowedEditorialTransition();
+      allow delete: if isSuperAdmin()
+                    || (isAdmin()
+                        && mayWriteContentScope(
+                             contentScopeIdOf(resource.data)));
+    }
+
+    // =============================================
     // COURSES FOR STRUCTURED AI GENERATION
     // =============================================
     match /courses/{courseId} {

@@ -31,7 +31,7 @@ class FlowCardScaffold extends ConsumerWidget {
     final accent = subject.accent;
     // La provenance se lit ici plutôt que de traverser les dix vues de
     // cartes : le bandeau suit le catalogue, pas chaque appelant.
-    final isDemo = ref.watch(flowCatalogProvider).isDemo;
+    final isDemo = ref.watch(flowCatalogProvider).valueOrNull?.isDemo ?? false;
 
     return Stack(
       fit: StackFit.expand,

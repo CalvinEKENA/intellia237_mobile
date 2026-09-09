@@ -1,5 +1,7 @@
 import '../domain/flow_card.dart';
 import '../domain/flow_subject.dart';
+import 'package:flutter/foundation.dart';
+import '../../../app/config/app_config.dart';
 
 /// Feed de démonstration du Flow.
 ///
@@ -9,7 +11,28 @@ import '../domain/flow_subject.dart';
 /// Structuré pour être remplacé plus tard par un vrai repository sans changer
 /// la présentation.
 abstract final class FlowDemoContent {
-  static List<FlowCard> build() => const <FlowCard>[
+  /// Vrai seulement là où un contenu de démonstration a sa place.
+  ///
+  /// Registre de décisions : ces cartes ne sont pas des contenus validés. Les
+  /// servir à un élève de production reviendrait à lui présenter une maquette
+  /// comme un cours. Elles restent donc réservées au débogage et aux
+  /// environnements de démonstration explicites — `enableDebugTools`, faux en
+  /// production.
+  static bool isPermittedIn(AppConfig config) =>
+      kDebugMode || config.enableDebugTools;
+
+  static List<FlowCard> build() {
+    // Filet de sécurité : une build release qui appellerait ce jeu de cartes
+    // signale une erreur de câblage plutôt que de la servir en silence.
+    assert(
+      kDebugMode,
+      'FlowDemoContent est réservé au débogage et aux environnements de '
+      'démonstration. En production, le fil vient de Firestore.',
+    );
+    return _cards;
+  }
+
+  static const _cards = <FlowCard>[
     FlowNotionCard(
       id: 'm-pythagore',
       subject: FlowSubjects.maths,

@@ -80,4 +80,29 @@ abstract final class FlowSubjects {
       colors: [Color(0xFF5856D6), Color(0xFF8E8DF2)],
     ),
   );
+
+  /// Toutes les matières servies par le Flow.
+  static const all = <FlowSubject>[
+    maths,
+    pc,
+    svt,
+    francais,
+    anglais,
+    histoireGeo,
+    philo,
+  ];
+
+  /// Retrouve une matière par son identifiant stocké.
+  ///
+  /// Renvoie null pour un identifiant inconnu : une publication rattachée à
+  /// une matière que l'application ne connaît pas est écartée du fil plutôt
+  /// que rendue sans repère visuel.
+  static FlowSubject? byId(String? id) {
+    if (id == null) return null;
+    final normalized = id.trim().toLowerCase();
+    for (final subject in all) {
+      if (subject.id == normalized) return subject;
+    }
+    return null;
+  }
 }

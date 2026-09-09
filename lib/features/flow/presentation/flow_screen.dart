@@ -16,20 +16,53 @@ import '../data/flow_points_gateway.dart';
 import 'widgets/flow_card_view.dart';
 import 'widgets/flow_celebration_overlay.dart';
 import 'widgets/flow_hud.dart';
+import 'widgets/flow_empty_view.dart';
 
 /// L'expérience Flow : un feed vertical plein écran de cartes-leçons.
 ///
 /// Scroll vertical uniquement. On ne revient jamais à une liste : la carte
 /// suivante se découvre naturellement. Points, séries et badges récompensent la
 /// progression au fil des cartes.
-class FlowScreen extends ConsumerStatefulWidget {
+class FlowScreen extends ConsumerWidget {
   const FlowScreen({super.key});
 
   @override
-  ConsumerState<FlowScreen> createState() => _FlowScreenState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final catalog = ref.watch(flowCatalogProvider);
+
+    return catalog.when(
+      loading: () => const _FlowLoading(),
+      // Une panne de lecture n'est pas différente d'un fil vide du point de
+      // vue de l'élève : dans les deux cas il n'y a rien à parcourir, et le
+      // dépôt a déjà tenté le cache local avant d'en arriver là.
+      error: (_, _) => const FlowEmptyView(),
+      data: (data) => data.cards.isEmpty
+          ? const FlowEmptyView()
+          : _FlowPager(cards: data.cards),
+    );
+  }
 }
 
-class _FlowScreenState extends ConsumerState<FlowScreen> {
+class _FlowLoading extends StatelessWidget {
+  const _FlowLoading();
+
+  @override
+  Widget build(BuildContext context) => const Scaffold(
+    backgroundColor: IntelliaColors.backgroundPrimary,
+    body: Center(child: CircularProgressIndicator()),
+  );
+}
+
+class _FlowPager extends ConsumerStatefulWidget {
+  const _FlowPager({required this.cards});
+
+  final List<FlowCard> cards;
+
+  @override
+  ConsumerState<_FlowPager> createState() => _FlowScreenState();
+}
+
+class _FlowScreenState extends ConsumerState<_FlowPager> {
   /// Annonces déjà présentées, pour qu'une reconstruction ne les rejoue pas.
   final _consumedNotices = <String>{};
 
@@ -43,7 +76,7 @@ class _FlowScreenState extends ConsumerState<FlowScreen> {
   @override
   void initState() {
     super.initState();
-    final catalog = ref.read(flowCardsProvider);
+    final catalog = widget.cards;
     final completed = ref.read(flowControllerProvider).completedCardIds;
     // Les cartes non terminées passent devant : une reprise ne rejoue donc pas
     // immédiatement les mêmes exercices. L'ordre éditorial reste stable dans

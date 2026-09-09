@@ -11,30 +11,109 @@ import '../data/flow_progress_store.dart';
 import '../domain/flow_badge.dart';
 import '../domain/flow_card.dart';
 import '../domain/flow_progress_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../app/config/app_config.dart';
+import '../../learn/application/learn_providers.dart';
+import '../data/flow_feed_repository.dart';
+import '../domain/flow_feed_strategy.dart';
+import '../domain/flow_item_mapper.dart';
 
-/// Cartes servies à l'élève, et leur provenance.
-///
-/// Registre de décisions : FLOW n'a pas encore de contenu publié — la
-/// collection Firestore et le composeur d'administration restent à écrire.
-/// D'ici là, les cartes viennent d'un jeu de démonstration. Elles sont
-/// pédagogiquement justes, mais ce ne sont pas des contenus validés par
-/// l'établissement : l'élève doit le savoir, comme l'accueil le lui dit déjà
-/// pour ses propres données de démonstration.
-///
-/// [isDemo] disparaîtra le jour où ces cartes viendront de Firestore.
-class FlowCatalog {
-  const FlowCatalog({required this.cards, required this.isDemo});
+/// D'où viennent les cartes servies à l'élève.
+enum FlowCatalogOrigin {
+  /// Publications lues dans Firestore.
+  live,
 
-  final List<FlowCard> cards;
-  final bool isDemo;
+  /// Dernier fil valide conservé sur l'appareil.
+  cache,
+
+  /// Jeu de démonstration, réservé au débogage et aux environnements de
+  /// démonstration explicites.
+  demo,
 }
 
-final flowCatalogProvider = Provider<FlowCatalog>(
-  (ref) => FlowCatalog(cards: FlowDemoContent.build(), isDemo: true),
-);
+/// Cartes servies à l'élève, et leur provenance.
+class FlowCatalog {
+  const FlowCatalog({required this.cards, required this.origin});
 
+  final List<FlowCard> cards;
+  final FlowCatalogOrigin origin;
+
+  /// N'est vrai que dans un environnement de démonstration réel.
+  bool get isDemo => origin == FlowCatalogOrigin.demo;
+
+  static const empty = FlowCatalog(
+    cards: <FlowCard>[],
+    origin: FlowCatalogOrigin.live,
+  );
+}
+
+/// Compose le fil : Firestore d'abord, cache local ensuite, rien enfin.
+///
+/// Registre de décisions : le contenu de démonstration n'est plus un recours.
+/// Servir des cartes non validées à un élève de production revenait à lui
+/// présenter comme un cours ce qui n'était qu'une maquette. Hors ligne, il
+/// retrouve son dernier fil ; à défaut, un écran vide qui se dit.
+final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
+  final config = ref.watch(appConfigProvider);
+
+  if (FlowDemoContent.isPermittedIn(config)) {
+    return FlowCatalog(
+      cards: FlowDemoContent.build(),
+      origin: FlowCatalogOrigin.demo,
+    );
+  }
+
+  final classLevel = ref
+      .watch(studentAcademicContextProvider)
+      .valueOrNull
+      ?.classLevel;
+  if (classLevel == null || classLevel.trim().isEmpty) {
+    return FlowCatalog.empty;
+  }
+
+  final repository = ref.watch(flowFeedRepositoryProvider);
+  final prefs = await SharedPreferences.getInstance();
+  final cache = FlowFeedCache(prefs);
+  final learner = await ref.watch(flowLearnerContextProvider.future);
+  const strategy = DeterministicFlowFeedStrategy();
+
+  try {
+    final page = await repository.fetchPage(classLevel: classLevel);
+    if (page.items.isNotEmpty) {
+      // Le cache ne retient que ce qui a été réellement servi.
+      await cache.save(classLevel, page.items);
+      return FlowCatalog(
+        cards: FlowItemMapper.toCards(strategy.order(page.items, learner)),
+        origin: FlowCatalogOrigin.live,
+      );
+    }
+  } catch (_) {
+    // Réseau absent ou lecture refusée : le cache prend le relais.
+  }
+
+  final cached = cache.read(classLevel);
+  if (cached.isEmpty) return FlowCatalog.empty;
+  return FlowCatalog(
+    cards: FlowItemMapper.toCards(strategy.order(cached, learner)),
+    origin: FlowCatalogOrigin.cache,
+  );
+});
+
+/// Ce que l'application sait de l'élève au moment de composer son fil.
+final flowLearnerContextProvider = FutureProvider<FlowLearnerContext>((
+  ref,
+) async {
+  final context = ref.watch(studentAcademicContextProvider).valueOrNull;
+  final seen = ref.watch(flowControllerProvider).seenCardIds;
+  return FlowLearnerContext(
+    classLevel: context?.classLevel ?? '',
+    seenItemIds: seen,
+  );
+});
+
+/// Cartes du fil, ou une liste vide tant qu'elles n'ont pas été lues.
 final flowCardsProvider = Provider<List<FlowCard>>(
-  (ref) => ref.watch(flowCatalogProvider).cards,
+  (ref) => ref.watch(flowCatalogProvider).valueOrNull?.cards ?? const [],
 );
 
 final flowPointsGatewayProvider = Provider<FlowPointsGateway>(
