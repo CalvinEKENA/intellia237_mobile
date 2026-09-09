@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../learn/domain/content_block.dart';
 import '../../learn/domain/learn_lesson.dart';
 import '../../quiz/domain/quiz_question.dart';
 import '../../quiz/domain/quiz_mode.dart';
 import '../../quiz/domain/quiz_type.dart';
+import 'content_origin.dart';
+import 'content_scope.dart';
+import 'editorial_workflow.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constantes globales
@@ -188,6 +192,11 @@ class AdminLessonModel {
     required this.contentSections,
     required this.miniQuiz,
     this.aiGenerated = false,
+    this.contentBlocks = const [],
+    this.schemaVersion = 1,
+    this.scope = ContentScope.global,
+    this.origin = ContentOrigin.manual,
+    this.editorialWorkflow = EditorialWorkflowMetadata.draft,
   });
 
   final String id;
@@ -203,32 +212,67 @@ class AdminLessonModel {
   final List<LessonMiniQuizQuestion> miniQuiz;
   final bool aiGenerated;
 
+  // ── V2 Content Studio fields ──────────────────────────────
+  final List<ContentBlock> contentBlocks;
+  final int schemaVersion;
+  final ContentScope scope;
+  final ContentOrigin origin;
+  final EditorialWorkflowMetadata editorialWorkflow;
+
   bool get isPublished => status == 'published';
   bool get isDraft => status == 'draft';
   bool get isAiGenerated => status == 'ai_generated' || aiGenerated;
+  bool get isV2 => schemaVersion >= 2;
 
-  Map<String, dynamic> toFirestore() => <String, dynamic>{
-    'title': title,
-    'summary': summary,
-    'estimatedMinutes': estimatedMinutes,
-    'order': order,
-    'status': status,
-    'aiGenerated': aiGenerated,
-    'contentSections': contentSections
-        .map((s) => {'title': s.title, 'body': s.body})
-        .toList(),
-    'miniQuiz': miniQuiz
-        .map(
-          (q) => {
-            'id': q.id,
-            'prompt': q.prompt,
-            'options': q.options,
-            'correctIndex': q.correctIndex,
-            'explanation': q.explanation,
-          },
-        )
-        .toList(),
-  };
+  /// Returns effective content blocks:
+  /// Uses [contentBlocks] if populated; otherwise dynamically projects legacy
+  /// [contentSections] into [TextBlock]s.
+  List<ContentBlock> get effectiveBlocks {
+    if (contentBlocks.isNotEmpty) return contentBlocks;
+    return ContentBlockAdapter.sectionsToBlocks(contentSections);
+  }
+
+  /// Dual-write Firestore serialization.
+  /// Always writes both `contentBlocks` (V2) and `contentSections` (V1 projection
+  /// of text-only blocks) so older clients never crash or see fake media text.
+  Map<String, dynamic> toFirestore() {
+    final effectiveContentBlocks = effectiveBlocks;
+    final projectedSections = ContentBlockAdapter.blocksToSections(
+      effectiveContentBlocks,
+    );
+
+    return <String, dynamic>{
+      'title': title,
+      'summary': summary,
+      'estimatedMinutes': estimatedMinutes,
+      'order': order,
+      'status': status,
+      'aiGenerated': aiGenerated,
+      'schemaVersion': effectiveContentBlocks.isNotEmpty ? 2 : schemaVersion,
+      // V2 blocks
+      'contentBlocks': effectiveContentBlocks
+          .map((b) => b.toFirestore())
+          .toList(),
+      // V1 legacy dual-write (text-only projection)
+      'contentSections': projectedSections
+          .map((s) => {'title': s.title, 'body': s.body})
+          .toList(),
+      'miniQuiz': miniQuiz
+          .map(
+            (q) => {
+              'id': q.id,
+              'prompt': q.prompt,
+              'options': q.options,
+              'correctIndex': q.correctIndex,
+              'explanation': q.explanation,
+            },
+          )
+          .toList(),
+      'scope': scope.toFirestore(),
+      'origin': origin.toFirestore(),
+      'editorialWorkflow': editorialWorkflow.toFirestore(),
+    };
+  }
 
   factory AdminLessonModel.fromFirestore(
     String id,
@@ -256,6 +300,14 @@ class AdminLessonModel {
       );
     }).toList();
 
+    // V2 content blocks
+    final rawBlocks = data['contentBlocks'] as List<dynamic>? ?? [];
+    final contentBlocks = rawBlocks.map((b) {
+      return ContentBlock.fromFirestore(Map<String, dynamic>.from(b as Map));
+    }).toList();
+
+    final schemaVersion = (data['schemaVersion'] as num?)?.toInt() ?? 1;
+
     return AdminLessonModel(
       id: id,
       subjectId: subjectId,
@@ -269,6 +321,14 @@ class AdminLessonModel {
       contentSections: sections,
       miniQuiz: miniQuiz,
       aiGenerated: data['aiGenerated'] as bool? ?? false,
+      contentBlocks: contentBlocks,
+      schemaVersion: schemaVersion,
+      scope: ContentScope.fromFirestore(data['scope']),
+      origin: ContentOrigin.fromFirestore(data['origin']),
+      editorialWorkflow: EditorialWorkflowMetadata.fromFirestore(
+        data['editorialWorkflow'],
+        legacyStatus: data['status'] as String?,
+      ),
     );
   }
 
@@ -280,6 +340,11 @@ class AdminLessonModel {
     List<LessonContentSection>? contentSections,
     List<LessonMiniQuizQuestion>? miniQuiz,
     bool? aiGenerated,
+    List<ContentBlock>? contentBlocks,
+    int? schemaVersion,
+    ContentScope? scope,
+    ContentOrigin? origin,
+    EditorialWorkflowMetadata? editorialWorkflow,
   }) => AdminLessonModel(
     id: id,
     subjectId: subjectId,
@@ -293,6 +358,11 @@ class AdminLessonModel {
     contentSections: contentSections ?? this.contentSections,
     miniQuiz: miniQuiz ?? this.miniQuiz,
     aiGenerated: aiGenerated ?? this.aiGenerated,
+    contentBlocks: contentBlocks ?? this.contentBlocks,
+    schemaVersion: schemaVersion ?? this.schemaVersion,
+    scope: scope ?? this.scope,
+    origin: origin ?? this.origin,
+    editorialWorkflow: editorialWorkflow ?? this.editorialWorkflow,
   );
 }
 

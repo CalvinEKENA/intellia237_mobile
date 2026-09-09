@@ -1,3 +1,5 @@
+import 'content_block.dart';
+
 class LessonContentSection {
   const LessonContentSection({required this.title, required this.body});
 
@@ -51,8 +53,52 @@ class LearnLesson extends LearnLessonPreview {
     required super.isFavorite,
     required this.contentSections,
     required this.miniQuiz,
+    this.contentBlocks = const [],
+    this.schemaVersion = 1,
   });
 
+  /// Legacy text sections (maintained for backward compatibility and offline fallback).
   final List<LessonContentSection> contentSections;
+
+  /// Legacy mini quiz questions (maintained for backward compatibility).
   final List<LessonMiniQuizQuestion> miniQuiz;
+
+  /// Polymorphic V2 content blocks (text, media, quiz, interactive).
+  final List<ContentBlock> contentBlocks;
+
+  /// Schema version: 1 for legacy, 2 for Content Studio V2.
+  final int schemaVersion;
+
+  /// Returns effective content blocks:
+  /// Uses [contentBlocks] if populated; otherwise dynamically projects legacy
+  /// [contentSections] into [TextBlock]s so learners get a unified block stream.
+  List<ContentBlock> get effectiveBlocks {
+    if (contentBlocks.isNotEmpty) return contentBlocks;
+    return ContentBlockAdapter.sectionsToBlocks(contentSections);
+  }
+
+  LearnLesson copyWith({
+    String? title,
+    String? summary,
+    int? estimatedMinutes,
+    double? progress,
+    bool? isFavorite,
+    List<LessonContentSection>? contentSections,
+    List<LessonMiniQuizQuestion>? miniQuiz,
+    List<ContentBlock>? contentBlocks,
+    int? schemaVersion,
+  }) {
+    return LearnLesson(
+      id: id,
+      title: title ?? this.title,
+      summary: summary ?? this.summary,
+      estimatedMinutes: estimatedMinutes ?? this.estimatedMinutes,
+      progress: progress ?? this.progress,
+      isFavorite: isFavorite ?? this.isFavorite,
+      contentSections: contentSections ?? this.contentSections,
+      miniQuiz: miniQuiz ?? this.miniQuiz,
+      contentBlocks: contentBlocks ?? this.contentBlocks,
+      schemaVersion: schemaVersion ?? this.schemaVersion,
+    );
+  }
 }
