@@ -1,351 +1,613 @@
 import 'dart:async';
-
+import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../app/router/app_routes.dart';
-import '../../../app/theme/design_tokens.dart';
+import '../../../core/assets/intellia_assets.dart';
+import '../../../core/system/intellia_system_bars.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
-import '../../../core/widgets/intellia_pressable.dart';
-import '../../../core/localization/localization_extensions.dart';
 import '../data/onboarding_preferences.dart';
 import '../domain/onboarding_act.dart';
 import '../domain/onboarding_journey_state.dart';
-import 'widgets/intellia_thread.dart';
-import 'widgets/scenes/activation_scene.dart';
-import 'widgets/scenes/ascension_scene.dart';
-import 'widgets/scenes/challenge_scene.dart';
-import 'widgets/scenes/companions_scene.dart';
-import 'widgets/scenes/journey_scene.dart';
-import 'widgets/scenes/knowledge_scene.dart';
-import 'widgets/scenes/portal_scene.dart';
+import 'widgets/campaign/ascension_architecture.dart';
+import 'widgets/campaign/ascension_passage.dart';
+import 'widgets/campaign/campaign_challenge.dart';
+import 'widgets/campaign/campaign_design.dart';
+import 'widgets/campaign/campaign_scenes.dart';
 
-/// INTELLIA // L'ÉVEIL
-///
-/// Une expérience de premier lancement continue, pilotée par sept actes et un
-/// motif visuel unique. Aucun acte ne progresse automatiquement : chaque
-/// transition résulte d'une interaction qui démontre une capacité du produit.
+/// Five user-driven sequences sharing one architectural scene and camera.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
-
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  late final AnimationController _ambient;
-  final _activationCharge = ValueNotifier<double>(0);
-
+    with TickerProviderStateMixin, WidgetsBindingObserver {
+  late final AnimationController _entrance;
+  late final AnimationController _camera;
+  late final AnimationController _handoff;
+  final _pointer = ValueNotifier<Offset>(Offset.zero);
+  final _stageKey = GlobalKey();
   OnboardingJourneyState _journey = const OnboardingJourneyState();
-  bool _appActive = true;
+  double _cameraFrom = 0;
+  double _cameraTo = 0;
+  Rect? _subjectOrigin;
+  Alignment _passage = Alignment.center;
+  Color _subjectColor = CampaignColors.violet;
+  bool _initialized = false;
+  bool _reduced = false;
+  bool _active = true;
   bool _completing = false;
 
   OnboardingAct get _act => _journey.act;
+  bool get _moving => _camera.isAnimating;
+  double get _cameraPosition => lerpDouble(
+    _cameraFrom,
+    _cameraTo,
+    Curves.easeInOutCubic.transform(_camera.value),
+  )!;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _ambient = AnimationController(
+    _entrance = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 14),
+      duration: const Duration(milliseconds: 1100),
+    );
+    _camera = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 950),
+      value: 1,
+    );
+    _handoff = AnimationController(
+      vsync: this,
+      duration: AscensionPassageMotion.duration,
     );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _syncAmbientMotion();
+    final reduce = MediaQuery.disableAnimationsOf(context);
+    if (!_initialized) {
+      _initialized = true;
+      _reduced = reduce;
+      if (reduce) {
+        _entrance.value = 1;
+      } else {
+        _entrance.forward();
+      }
+      for (final asset in [
+        IntelliaCompanionAssets.kiraOnboardingFullBody,
+        IntelliaCompanionAssets.leoOnboardingFullBody,
+        IntelliaCompanionAssets.kiraPortrait,
+        IntelliaCompanionAssets.leoPortrait,
+      ]) {
+        unawaited(precacheImage(AssetImage(asset), context));
+      }
+    } else if (reduce != _reduced) {
+      _reduced = reduce;
+      if (reduce) {
+        _entrance.value = 1;
+        _camera.value = 1;
+        _pointer.value = Offset.zero;
+      }
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final active = state == AppLifecycleState.resumed;
-    if (_appActive == active) return;
-    setState(() => _appActive = active);
-    _syncAmbientMotion();
-  }
-
-  void _syncAmbientMotion() {
-    final reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    if (!_appActive || reduceMotion) {
-      _ambient.stop();
-      return;
+    if (_active == active) return;
+    setState(() => _active = active);
+    if (!active) {
+      _entrance.stop();
+      _camera.stop();
+      _pointer.value = Offset.zero;
+    } else if (!_reduced) {
+      if (!_entrance.isCompleted) _entrance.forward();
+      if (!_camera.isCompleted) _camera.forward();
     }
-    if (!_ambient.isAnimating) _ambient.repeat();
   }
 
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _activationCharge.dispose();
-    _ambient.dispose();
-    super.dispose();
-  }
-
-  void _goTo(OnboardingAct target) {
-    if (target == _act) return;
-    if (target == OnboardingAct.activation) _activationCharge.value = 0;
-    setState(() => _journey = _journey.copyWith(act: target));
+  void _goTo(OnboardingAct target, {Rect? subjectOrigin}) {
+    if (target == _act || _moving || _completing) return;
+    final previousPosition = _cameraPosition;
+    setState(() {
+      _cameraFrom = previousPosition;
+      _cameraTo = target.index.toDouble();
+      _subjectOrigin = subjectOrigin;
+      _journey = _journey.copyWith(act: target);
+      _pointer.value = Offset.zero;
+    });
+    if (_reduced) {
+      _camera.value = 1;
+      _entrance.value = 1;
+    } else {
+      _camera.forward(from: 0);
+      _entrance.forward(from: 0);
+    }
   }
 
   void _previous() {
-    final previous = _act.previous;
-    if (previous == null) return;
-    HapticFeedback.selectionClick();
-    _goTo(previous);
+    if (_act.previous case final previous?) {
+      HapticFeedback.selectionClick();
+      _goTo(previous);
+    }
   }
 
+  void _selectSubject(String subject, Rect rect, Color color) {
+    if (_moving) return;
+    final box = _stageKey.currentContext!.findRenderObject()! as RenderBox;
+    final changed = subject != _journey.selectedSubject;
+    setState(() {
+      _subjectColor = color;
+      _journey = _journey.copyWith(
+        selectedSubject: subject,
+        challengeOutcome: changed
+            ? OnboardingChallengeOutcome.unanswered
+            : _journey.challengeOutcome,
+      );
+    });
+    _goTo(
+      OnboardingAct.challenge,
+      subjectOrigin: rect.shift(-box.localToGlobal(Offset.zero)),
+    );
+  }
+
+  /// The last act does not cut to registration: the gateway the learner has
+  /// been climbing towards opens, and the next screen is already behind it.
   Future<void> _complete() async {
-    if (_completing) return;
-    _completing = true;
+    if (_completing || _moving) return;
+    final stage = _stageKey.currentContext?.findRenderObject() as RenderBox?;
+    setState(() {
+      _completing = true;
+      _passage = stage == null || !stage.hasSize
+          ? Alignment.center
+          : ascensionPassageAlignment(stage.size);
+    });
     HapticFeedback.mediumImpact();
+    _pointer.value = Offset.zero;
+    // The journey counts as seen the moment the passage opens, whatever
+    // becomes of the animation afterwards.
     final persistence = markOnboardingSeen(ref);
     unawaited(IntelliaTelemetry.onboardingCompleted());
+    if (!_reduced) await _handoff.forward();
     if (mounted) context.go(AppRoutes.register);
     await persistence;
   }
 
   @override
-  Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
-    final motionEnabled = _appActive && !reduceMotion;
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _entrance.dispose();
+    _camera.dispose();
+    _handoff.dispose();
+    _pointer.dispose();
+    super.dispose();
+  }
 
-    return PopScope<Object?>(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) _previous();
-      },
-      child: Scaffold(
-        backgroundColor: const Color(0xFF030817),
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            _backgroundLayer(),
-            AnimatedBuilder(
-              animation: Listenable.merge([_ambient, _activationCharge]),
-              builder: (context, _) => IntelliaThread(
-                act: _act,
-                animation: _ambient,
-                activationCharge: _activationCharge.value,
-                challengeOutcome: _journey.challengeOutcome,
-                companionFocus: _journey.companionFocus,
+  @override
+  Widget build(BuildContext context) {
+    final dark = _act == OnboardingAct.ascension;
+    final theme = Theme.of(context);
+    return AnimatedBuilder(
+      animation: _handoff,
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: _overlayStyle(dark),
+        child: child!,
+      ),
+      child: Theme(
+        data: theme.copyWith(
+          textTheme: theme.textTheme.apply(
+            fontFamily: 'CampaignBody',
+            bodyColor: CampaignColors.ink,
+            displayColor: CampaignColors.ink,
+          ),
+        ),
+        child: PopScope<Object?>(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) _previous();
+          },
+          child: Scaffold(
+            backgroundColor: dark ? CampaignColors.ink : CampaignColors.paper,
+            // Wide windows letterbox the stage. The margin travels with the
+            // passage, so the light reaches the edges of the screen too.
+            body: AnimatedBuilder(
+              animation: _handoff,
+              builder: (context, child) => ColoredBox(
+                color: Color.lerp(
+                  dark ? CampaignColors.ink : CampaignColors.paper,
+                  AscensionPassage.canvas,
+                  AscensionPassageMotion.aperture(_handoff.value),
+                )!,
+                child: child,
               ),
-            ),
-            SafeArea(
-              child: Column(
-                children: [
-                  _ExperienceHeader(
-                    canGoBack: _act.previous != null,
-                    onBack: _previous,
-                  ),
-                  Expanded(
-                    child: ClipRect(
-                      child: Semantics(
-                        liveRegion: true,
-                        label: _act == OnboardingAct.ascension
-                            ? context.l10n.ascensionSemanticLabel
-                            : _act.semanticLabel,
-                        child: AnimatedSwitcher(
-                          duration: reduceMotion
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 560),
+                  child: ClipRect(
+                    child: Stack(
+                      key: _stageKey,
+                      fit: StackFit.expand,
+                      children: [
+                        AnimatedContainer(
+                          duration: _reduced
                               ? Duration.zero
-                              : const Duration(milliseconds: 620),
-                          switchInCurve: Curves.easeOutCubic,
-                          switchOutCurve: Curves.easeInCubic,
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: ScaleTransition(
-                                scale: Tween<double>(
-                                  begin: 1.045,
-                                  end: 1,
-                                ).animate(animation),
-                                child: SlideTransition(
-                                  position: Tween<Offset>(
-                                    begin: const Offset(0, 0.025),
-                                    end: Offset.zero,
-                                  ).animate(animation),
-                                  child: child,
+                              : const Duration(milliseconds: 850),
+                          color: dark
+                              ? CampaignColors.ink
+                              : CampaignColors.paper,
+                        ),
+                        Positioned.fill(
+                          child: RepaintBoundary(
+                            child: AnimatedBuilder(
+                              animation: Listenable.merge([
+                                _camera,
+                                _entrance,
+                                _pointer,
+                                _handoff,
+                              ]),
+                              builder: (context, _) => Opacity(
+                                opacity: _architectureOpacity(_cameraPosition),
+                                // The building passes the camera while the
+                                // gateway opens; it is still otherwise.
+                                child: Transform.scale(
+                                  scale: AscensionPassageMotion.stageScale(
+                                    _handoff.value,
+                                  ),
+                                  alignment: _passage,
+                                  child: AscensionArchitecture(
+                                    progress: _cameraPosition,
+                                    reveal: _act == OnboardingAct.activation
+                                        ? _entrance.value
+                                        : 1,
+                                    pointer: _pointer.value,
+                                    dark: dark,
+                                    accent: _subjectColor,
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          child: KeyedSubtree(
-                            key: ValueKey(_act),
-                            child: TickerMode(
-                              enabled: motionEnabled,
-                              child: _scene(
-                                reduceMotion: reduceMotion,
-                                motionEnabled: motionEnabled,
                               ),
                             ),
                           ),
                         ),
-                      ),
+                        AnimatedBuilder(
+                          animation: _handoff,
+                          builder: _departing,
+                          child: _stageContent(dark),
+                        ),
+                        if (_subjectOrigin != null && !_reduced)
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: AnimatedBuilder(
+                                animation: _camera,
+                                builder: (context, _) => _subjectTransition(),
+                              ),
+                            ),
+                          ),
+                        if (_completing && !_reduced)
+                          Positioned.fill(
+                            child: AscensionPassage(animation: _handoff),
+                          ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _backgroundLayer() {
-    final color = switch (_act) {
-      OnboardingAct.activation => const Color(0xFFF6F0E4),
-      OnboardingAct.knowledge => IntelliaColors.brandBlue,
-      OnboardingAct.challenge =>
-        _journey.challengeOutcome == OnboardingChallengeOutcome.needsHelp
-            ? IntelliaColors.warning
-            : _journey.challengeOutcome == OnboardingChallengeOutcome.solved
-            ? IntelliaColors.success
-            : IntelliaColors.brandIndigo,
-      OnboardingAct.companions =>
-        _journey.companionFocus == OnboardingCompanionFocus.kira
-            ? IntelliaColors.kiraDark
-            : IntelliaColors.leoDark,
-      OnboardingAct.journey => IntelliaColors.success,
-      OnboardingAct.portal => IntelliaColors.pointsGold,
-      OnboardingAct.ascension => IntelliaColors.pointsGold,
-    };
-
-    return RepaintBoundary(
-      child: AnimatedContainer(
-        duration: IntelliaMotion.cinematic,
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: const Alignment(0, -0.10),
-            radius: 1.12,
-            colors: [
-              color.withValues(alpha: 0.16),
-              const Color(0xFF071534).withValues(alpha: 0.94),
-              const Color(0xFF030817),
-            ],
-            stops: const [0, 0.48, 1],
           ),
         ),
       ),
     );
   }
 
-  Widget _scene({required bool reduceMotion, required bool motionEnabled}) {
-    return switch (_act) {
-      OnboardingAct.activation => ActivationScene(
-        motionEnabled: motionEnabled,
-        reduceMotion: reduceMotion,
-        onChargeChanged: (value) => _activationCharge.value = value,
-        onActivated: () => _goTo(OnboardingAct.knowledge),
-      ),
-      OnboardingAct.knowledge => KnowledgeScene(
-        motionEnabled: motionEnabled,
-        onSubjectSelected: (subject) {
-          setState(() {
-            _journey = _journey.copyWith(
-              selectedSubject: subject,
-              challengeOutcome: OnboardingChallengeOutcome.unanswered,
-              act: OnboardingAct.challenge,
-            );
-          });
-        },
-      ),
-      OnboardingAct.challenge => ChallengeScene(
-        subject: _journey.selectedSubject ?? 'Mathématiques',
-        outcome: _journey.challengeOutcome,
-        reduceMotion: reduceMotion,
-        onOutcomeChanged: (outcome) {
-          setState(() {
-            _journey = _journey.copyWith(challengeOutcome: outcome);
-          });
-        },
-        onContinue: () => _goTo(OnboardingAct.companions),
-      ),
-      OnboardingAct.companions => CompanionsScene(
-        focus: _journey.companionFocus,
-        reduceMotion: reduceMotion,
-        onFocusChanged: (focus) {
-          setState(() {
-            _journey = _journey.copyWith(companionFocus: focus);
-          });
-        },
-        onContinue: () => _goTo(OnboardingAct.journey),
-      ),
-      OnboardingAct.journey => JourneyScene(
-        onMasteryReached: () => _goTo(OnboardingAct.portal),
-      ),
-      OnboardingAct.portal => PortalScene(
-        companionFocus: _journey.companionFocus,
-        onEnter: () => _goTo(OnboardingAct.ascension),
-      ),
-      OnboardingAct.ascension => AscensionScene(
-        animation: _ambient,
-        reduceMotion: reduceMotion,
-        onEnter: _complete,
-      ),
-    };
+  /// Once the passage covers the stage, the registration canvas is already on
+  /// screen: the system bars take that screen's tone before the route does.
+  SystemUiOverlayStyle _overlayStyle(bool dark) {
+    if (_handoff.value >= AscensionPassageMotion.covered) {
+      return IntelliaSystemBarPolicy.styleFor(SystemSurfaceTone.light);
+    }
+    return (dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark)
+        .copyWith(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: dark
+              ? CampaignColors.ink
+              : CampaignColors.paper,
+          systemNavigationBarDividerColor: dark
+              ? CampaignColors.ink
+              : CampaignColors.paper,
+          systemNavigationBarContrastEnforced: false,
+          systemStatusBarContrastEnforced: false,
+        );
   }
-}
 
-class _ExperienceHeader extends StatelessWidget {
-  const _ExperienceHeader({required this.canGoBack, required this.onBack});
+  /// The interface is left behind as the gateway opens: it recedes with the
+  /// building instead of being cut away from it.
+  Widget _departing(BuildContext context, Widget? child) => Opacity(
+    opacity: AscensionPassageMotion.contentOpacity(_handoff.value),
+    child: Transform.scale(
+      scale: AscensionPassageMotion.contentScale(_handoff.value),
+      alignment: _passage,
+      child: child,
+    ),
+  );
 
-  final bool canGoBack;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      child: SizedBox(
-        height: 44,
-        child: Row(
-          children: [
-            SizedBox(
-              width: 48,
-              height: 44,
-              child: canGoBack
-                  ? Semantics(
-                      button: true,
-                      label: context.l10n.backToPreviousAct,
-                      child: IntelliaPressable(
-                        key: const ValueKey('onboarding-back'),
-                        onTap: onBack,
-                        child: const Icon(
-                          Icons.arrow_back_rounded,
-                          color: Colors.white70,
-                          size: 21,
-                        ),
-                      ),
-                    )
-                  : const Center(
-                      child: Icon(
-                        Icons.menu_book_rounded,
-                        color: IntelliaColors.pointsGold,
-                        size: 18,
-                      ),
-                    ),
-            ),
-            Expanded(
-              child: Text(
-                'INTELLIA237',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.58),
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 2.1,
+  Widget _stageContent(bool dark) => SafeArea(
+    child: Column(
+      children: [
+        _CampaignHeader(act: _act, onBack: _previous, dark: dark),
+        Expanded(
+          child: MouseRegion(
+            onHover: (event) => _updatePointer(event.localPosition),
+            onExit: (_) => _pointer.value = Offset.zero,
+            child: Listener(
+              onPointerMove: (event) => _updatePointer(event.localPosition),
+              onPointerUp: (_) => _pointer.value = Offset.zero,
+              onPointerCancel: (_) => _pointer.value = Offset.zero,
+              child: AnimatedBuilder(
+                animation: _camera,
+                builder: (context, child) => IgnorePointer(
+                  ignoring: _moving || !_active || _completing,
+                  child: child,
+                ),
+                child: TickerMode(
+                  enabled: _active,
+                  child: AnimatedSwitcher(
+                    duration: _reduced
+                        ? Duration.zero
+                        : const Duration(milliseconds: 800),
+                    switchInCurve: Curves.linear,
+                    switchOutCurve: Curves.linear,
+                    transitionBuilder: _sceneTransition,
+                    child: KeyedSubtree(key: ValueKey(_act), child: _scene()),
+                  ),
                 ),
               ),
             ),
-            SizedBox(width: 48, child: const SizedBox.shrink()),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  void _updatePointer(Offset position) {
+    if (_reduced || !_active || _moving || _completing) return;
+    final size =
+        (_stageKey.currentContext!.findRenderObject()! as RenderBox).size;
+    _pointer.value = Offset(
+      (position.dx / size.width * 2 - 1).clamp(-1.0, 1.0),
+      (position.dy / size.height * 2 - 1).clamp(-1.0, 1.0),
+    );
+  }
+
+  double _architectureOpacity(double position) {
+    const opacity = [1.0, 0.18, 0.18, 0.0, 1.0];
+    final index = position.floor().clamp(0, 3);
+    return lerpDouble(opacity[index], opacity[index + 1], position - index)!;
+  }
+
+  Widget _sceneTransition(Widget child, Animation<double> animation) {
+    final act = (child.key! as ValueKey<OnboardingAct>).value;
+    final offset = switch (act) {
+      OnboardingAct.activation => const Offset(-0.20, 0),
+      OnboardingAct.knowledge => const Offset(0.18, 0.04),
+      OnboardingAct.challenge => const Offset(0, 0.10),
+      OnboardingAct.companions => const Offset(-0.18, 0),
+      OnboardingAct.ascension => const Offset(0, 0.18),
+    };
+    // Clear the outgoing type before revealing the next composition. The
+    // architecture stays visible during the handover; headlines never ghost.
+    return AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) {
+        final entering = act == _act;
+        final opacity = entering
+            ? Curves.easeOut.transform(
+                ((animation.value - 0.28) / 0.72).clamp(0.0, 1.0),
+              )
+            : ((animation.value - 0.80) / 0.20).clamp(0.0, 1.0);
+        final travel = 1 - Curves.easeOutCubic.transform(animation.value);
+        return ClipRect(
+          child: Opacity(
+            opacity: opacity,
+            child: FractionalTranslation(
+              translation: offset * travel,
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _subjectTransition() {
+    final t = _camera.value;
+    if (t >= 1) return const SizedBox.shrink();
+    final size =
+        (_stageKey.currentContext!.findRenderObject()! as RenderBox).size;
+    final expansion = Curves.easeInOutCubic.transform(
+      (t / 0.68).clamp(0.0, 1.0),
+    );
+    final rect = Rect.lerp(_subjectOrigin, Offset.zero & size, expansion)!;
+    final opacity =
+        1 - Curves.easeInCubic.transform(((t - 0.62) / 0.38).clamp(0.0, 1.0));
+    return Stack(
+      children: [
+        Positioned.fromRect(
+          rect: rect,
+          child: Opacity(
+            opacity: opacity,
+            child: Container(
+              decoration: BoxDecoration(
+                color: _subjectColor,
+                borderRadius: BorderRadius.circular(8 * (1 - expansion)),
+              ),
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.all(24),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  (_journey.selectedSubject ?? '').toUpperCase(),
+                  style: campaignDisplay(
+                    size: 48 + expansion * 42,
+                    color:
+                        _subjectColor == CampaignColors.violet ||
+                            _subjectColor == CampaignColors.ink
+                        ? CampaignColors.paper
+                        : CampaignColors.ink,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _scene() => switch (_act) {
+    OnboardingAct.activation => CampaignOpening(
+      animation: _entrance,
+      pointer: _pointer,
+      onEnter: () => _goTo(OnboardingAct.knowledge),
+    ),
+    OnboardingAct.knowledge => CampaignSubjects(
+      animation: _entrance,
+      onSelect: _selectSubject,
+    ),
+    OnboardingAct.challenge => CampaignPage(
+      builder: (context, height, width) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 18, 24, 26),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CampaignEyebrow(
+              campaignText(
+                context,
+                'TON PREMIER DÉCLIC',
+                'YOUR FIRST DISCOVERY',
+              ),
+            ),
+            CampaignHeadline(
+              lines: [
+                campaignText(context, 'ÇA PREND', 'IT MAKES'),
+                campaignText(context, 'SENS.', 'SENSE.'),
+              ],
+              animation: _entrance,
+              size: 104,
+              accentLine: 1,
+            ),
+            const SizedBox(height: 22),
+            CampaignChallenge(
+              subject: _journey.selectedSubject ?? 'Mathématiques',
+              reduceMotion: _reduced,
+              outcome: _journey.challengeOutcome,
+              onOutcomeChanged: (outcome) => setState(
+                () => _journey = _journey.copyWith(challengeOutcome: outcome),
+              ),
+              onContinue: () => _goTo(OnboardingAct.companions),
+            ),
           ],
         ),
+      ),
+    ),
+    OnboardingAct.companions => CampaignCompanions(
+      animation: _entrance,
+      focus: _journey.companionFocus,
+      reduceMotion: _reduced,
+      onFocusChanged: (focus) =>
+          setState(() => _journey = _journey.copyWith(companionFocus: focus)),
+      onContinue: () => _goTo(OnboardingAct.ascension),
+    ),
+    OnboardingAct.ascension => CampaignFinale(
+      animation: _entrance,
+      focus: _journey.companionFocus,
+      subject: _journey.selectedSubject ?? 'Mathématiques',
+      onEnter: _completing ? null : _complete,
+    ),
+  };
+}
+
+class _CampaignHeader extends StatelessWidget {
+  const _CampaignHeader({
+    required this.act,
+    required this.onBack,
+    required this.dark,
+  });
+  final OnboardingAct act;
+  final VoidCallback onBack;
+  final bool dark;
+  @override
+  Widget build(BuildContext context) {
+    final color = dark ? CampaignColors.paper : CampaignColors.ink;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 5, 24, 2),
+      child: Row(
+        children: [
+          if (act.previous != null)
+            IconButton(
+              key: const ValueKey('onboarding-back'),
+              onPressed: onBack,
+              tooltip: campaignText(
+                context,
+                'Revenir à l’étape précédente',
+                'Back to the previous step',
+              ),
+              icon: Icon(Icons.arrow_back_rounded, color: color, size: 21),
+            )
+          else
+            SizedBox(
+              width: 48,
+              height: 48,
+              child: Icon(Icons.north_east_rounded, color: color, size: 23),
+            ),
+          Expanded(
+            child: Text(
+              'INTELLIA 237',
+              style: campaignBody(
+                size: 11,
+                color: color,
+                weight: FontWeight.w800,
+              ).copyWith(letterSpacing: 1.4),
+            ),
+          ),
+          Semantics(
+            label: campaignText(
+              context,
+              'Étape ${act.index + 1} sur 5',
+              'Step ${act.index + 1} of 5',
+            ),
+            excludeSemantics: true,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                for (var i = 0; i < 5; i++)
+                  AnimatedContainer(
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 350),
+                    margin: const EdgeInsets.only(left: 3),
+                    width: 6,
+                    height: 6.0 + i * 3,
+                    color: i <= act.index
+                        ? (dark ? CampaignColors.lilac : CampaignColors.violet)
+                        : color.withValues(alpha: 0.14),
+                  ),
+                const SizedBox(width: 10),
+                Text(
+                  '0${act.index + 1} / 05',
+                  style: campaignBody(size: 10, color: color),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -12,6 +12,7 @@ class OnboardingMicroChallenge {
     required this.answers,
     required this.correctAnswerIndex,
     required this.explanation,
+    this.isNumberPattern = false,
   });
 
   final String subject;
@@ -23,6 +24,7 @@ class OnboardingMicroChallenge {
   final List<String> answers;
   final int correctAnswerIndex;
   final String explanation;
+  final bool isNumberPattern;
 }
 
 abstract final class OnboardingMicroChallenges {
@@ -30,63 +32,88 @@ abstract final class OnboardingMicroChallenges {
     required String subject,
     String? academicLevel,
     String? subsystem,
+    String languageCode = 'fr',
   }) {
     final normalized = subject.toLowerCase();
-    if (normalized.contains('fran')) {
+    final english = languageCode == 'en';
+    if (normalized.contains('fran') || normalized.contains('french')) {
       return OnboardingMicroChallenge(
-        subject: 'Français',
+        subject: english ? 'French' : 'Français',
         academicLevel: academicLevel,
         subsystem: subsystem,
         icon: Icons.menu_book_rounded,
-        instruction: 'Choisis la phrase bien accordée',
-        prompt: 'Laquelle est correcte ?',
+        instruction: english
+            ? 'Find the sentence with the correct agreement'
+            : 'Choisis la phrase bien accordée',
+        prompt: english
+            ? 'Which sentence is correct?'
+            : 'Laquelle est correcte ?',
         answers: const [
           'Les élèves avance.',
           'Les élèves avancent.',
           'Les élève avancent.',
         ],
         correctAnswerIndex: 1,
-        explanation:
-            'Le sujet « les élèves » est pluriel : le verbe devient « avancent ».',
+        explanation: english
+            ? '“Les élèves” is plural, so the verb takes the plural form “avancent”.'
+            : 'Le sujet « les élèves » est pluriel : le verbe devient « avancent ».',
       );
     }
     if (normalized.contains('english') || normalized.contains('anglais')) {
       return OnboardingMicroChallenge(
-        subject: 'Anglais',
+        subject: english ? 'English' : 'Anglais',
         academicLevel: academicLevel,
         subsystem: subsystem,
         icon: Icons.translate_rounded,
-        instruction: 'Relie le mot à son sens',
+        instruction: english
+            ? 'Match the word to its meaning'
+            : 'Relie le mot à son sens',
         prompt: 'What does “careful” mean?',
-        answers: const ['Rapide', 'Prudent', 'Bruyant'],
+        answers: english
+            ? const ['Fast', 'Cautious', 'Noisy']
+            : const ['Rapide', 'Prudent', 'Bruyant'],
         correctAnswerIndex: 1,
-        explanation: '“Careful” signifie « prudent » ou « attentif ».',
+        explanation: english
+            ? '“Careful” means being cautious and paying attention.'
+            : '“Careful” signifie « prudent » ou « attentif ».',
       );
     }
     if (normalized.contains('science')) {
       return OnboardingMicroChallenge(
-        subject: 'Sciences',
+        subject: english ? 'Science' : 'Sciences',
         academicLevel: academicLevel,
         subsystem: subsystem,
         icon: Icons.science_rounded,
-        instruction: 'Observe une transformation',
-        prompt: 'Quand l’eau liquide devient vapeur, elle…',
-        answers: const ['se condense', 's’évapore', 'se solidifie'],
+        instruction: english
+            ? 'Observe a transformation'
+            : 'Observe une transformation',
+        prompt: english
+            ? 'When liquid water becomes vapour, it…'
+            : 'Quand l’eau liquide devient vapeur, elle…',
+        answers: english
+            ? const ['condenses', 'evaporates', 'solidifies']
+            : const ['se condense', 's’évapore', 'se solidifie'],
         correctAnswerIndex: 1,
-        explanation:
-            'Le passage de l’état liquide à l’état gazeux s’appelle l’évaporation.',
+        explanation: english
+            ? 'The change from a liquid to a gas is called evaporation.'
+            : 'Le passage de l’état liquide à l’état gazeux s’appelle l’évaporation.',
       );
     }
     return OnboardingMicroChallenge(
-      subject: 'Mathématiques',
+      subject: english ? 'Mathematics' : 'Mathématiques',
       academicLevel: academicLevel,
       subsystem: subsystem,
       icon: Icons.functions_rounded,
-      instruction: 'Repère la logique',
-      prompt: 'Quel nombre complète : 2, 4, 8, … ?',
+      instruction: english ? 'Find the pattern' : 'Repère la logique',
+      prompt: english
+          ? 'Which number comes next: 2, 4, 8, …?'
+          : 'Quel nombre complète : 2, 4, 8, … ?',
       answers: const ['10', '12', '16'],
       correctAnswerIndex: 2,
-      explanation: 'Chaque nombre est multiplié par 2 : après 8 vient 16.',
+      isNumberPattern: true,
+      explanation: english
+          ? 'Multiply each number by 2: after 8 comes 16.'
+          : 'Chaque nombre est multiplié par 2 : après 8 vient 16.',
     );
   }
 }

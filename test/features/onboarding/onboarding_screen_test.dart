@@ -1,31 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intellia237/app/router/app_routes.dart';
-import 'package:intellia237/core/assets/intellia_assets.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_act.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_micro_challenge.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
-import 'package:intellia237/features/onboarding/presentation/widgets/onboarding_motion.dart';
-import 'package:intellia237/features/onboarding/presentation/widgets/scenes/ascension_scene.dart';
+import 'package:intellia237/features/onboarding/presentation/widgets/campaign/ascension_architecture.dart';
+import 'package:intellia237/features/onboarding/presentation/widgets/campaign/ascension_passage.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  test('INTELLIA L’Éveil is modeled as seven continuous acts', () {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    GoogleFonts.config.allowRuntimeFetching = false;
+    // Use the bundled faces so layout checks exercise real font metrics.
+    for (final family in const {
+      'BarlowCondensed': [
+        'BarlowCondensed-ExtraBold.ttf',
+        'BarlowCondensed-Black.ttf',
+      ],
+      'CampaignBody': [
+        'Manrope-400.ttf',
+        'Manrope-600.ttf',
+        'Manrope-700.ttf',
+        'Manrope-800.ttf',
+      ],
+    }.entries) {
+      final loader = FontLoader(family.key);
+      for (final asset in family.value) {
+        loader.addFont(rootBundle.load('assets/fonts/$asset'));
+      }
+      await loader.load();
+    }
+  });
+
+  test('the five acts form a reversible journey ending at ascension', () {
     expect(OnboardingAct.values, const [
       OnboardingAct.activation,
       OnboardingAct.knowledge,
       OnboardingAct.challenge,
       OnboardingAct.companions,
-      OnboardingAct.journey,
-      OnboardingAct.portal,
       OnboardingAct.ascension,
     ]);
     expect(OnboardingAct.activation.previous, isNull);
-    expect(OnboardingAct.portal.next, OnboardingAct.ascension);
+    expect(OnboardingAct.companions.next, OnboardingAct.ascension);
+    expect(OnboardingAct.ascension.previous, OnboardingAct.companions);
     expect(OnboardingAct.ascension.next, isNull);
   });
 
@@ -46,432 +71,355 @@ void main() {
       expect(challenge.academicLevel, 'secondary-wide');
       expect(challenge.subsystem, 'francophone');
       expect(challenge.answers, hasLength(3));
+      expect(challenge.correctAnswerIndex, inInclusiveRange(0, 2));
+      expect(challenge.explanation, isNotEmpty);
     }
   });
 
-  testWidgets('typewriter can be completed immediately by touch', (
+  testWidgets('opening presents its promise and waits for explicit entry', (
     tester,
   ) async {
-    const text = 'Une explication humaine, calme et claire.';
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: OnboardingTypewriterText(text: text, reduceMotion: false),
-        ),
-      ),
-    );
-    await tester.pump(const Duration(milliseconds: 80));
-    expect(find.text(text), findsNothing);
-
-    await tester.tap(find.byKey(const ValueKey('companion-typewriter')));
-    await tester.pump();
-    expect(find.text(text), findsOneWidget);
-  });
-
-  testWidgets('poster uses subtle camera motion when animations are enabled', (
-    tester,
-  ) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-    await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('fr'),
-        supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        home: Scaffold(
-          body: AscensionScene(
-            animation: const AlwaysStoppedAnimation<double>(0.5),
-            reduceMotion: false,
-            onEnter: _noop,
-          ),
-        ),
-      ),
-    );
-    await tester.pump();
-
-    final camera = tester.widget<Transform>(
-      find.byKey(const ValueKey('ascension-camera-motion')),
-    );
-    expect(camera.transform.getTranslation().x, closeTo(2.5, 0.01));
-    expect(camera.transform.getTranslation().y, closeTo(-2.5, 0.01));
-  });
-
-  testWidgets('onboarding starts in the activation act', (tester) async {
     final router = await _pumpOnboarding(tester);
     addTearDown(router.dispose);
 
-    expect(find.text('Le savoir attend ton signal.'), findsOneWidget);
+    expect(find.text('TU PEUX'), findsOneWidget);
+    expect(find.text('COMPRENDRE.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('activation-enter')), findsOneWidget);
+    expect(find.byKey(const ValueKey('subject-mathematics')), findsNothing);
+    _expectNoSkip();
+
+    await _tapVisible(tester, const ValueKey('activation-enter'));
+    expect(find.byKey(const ValueKey('subject-mathematics')), findsOneWidget);
+    expect(find.byKey(const ValueKey('subject-french')), findsOneWidget);
+    expect(find.byKey(const ValueKey('subject-english')), findsOneWidget);
+    expect(find.byKey(const ValueKey('subject-sciences')), findsOneWidget);
+  });
+
+  testWidgets('all four subject choices open their own challenge', (
+    tester,
+  ) async {
+    const subjects = {
+      'subject-mathematics': 'Mathématiques',
+      'subject-french': 'Français',
+      'subject-english': 'English',
+      'subject-sciences': 'Sciences',
+    };
+
+    for (final entry in subjects.entries) {
+      final router = await _pumpOnboarding(tester);
+      await _tapVisible(tester, const ValueKey('activation-enter'));
+      await _tapVisible(tester, ValueKey(entry.key));
+
+      final challenge = OnboardingMicroChallenges.forContext(
+        subject: entry.value,
+      );
+      expect(find.text(challenge.instruction), findsOneWidget);
+      for (var index = 0; index < 3; index++) {
+        expect(find.byKey(ValueKey('challenge-answer-$index')), findsOneWidget);
+      }
+      expect(find.byKey(const ValueKey('companion-kira')), findsNothing);
+      _expectNoLayoutException(tester, '${entry.value} challenge');
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
+  for (final answer in const [
+    (index: 2, description: 'correct'),
+    (index: 0, description: 'incorrect'),
+  ]) {
+    testWidgets(
+      'a ${answer.description} answer allows the complete five-act journey',
+      (tester) async {
+        final router = await _pumpOnboarding(tester);
+        addTearDown(router.dispose);
+        await _reachChallenge(tester);
+
+        await _tapVisible(tester, ValueKey('challenge-answer-${answer.index}'));
+        _expectNoLayoutException(
+          tester,
+          '${answer.description} answer feedback',
+        );
+        expect(
+          find.text('Chaque nombre est multiplié par 2 : après 8 vient 16.'),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const ValueKey('challenge-continue')),
+          findsOneWidget,
+        );
+        expect(find.byKey(const ValueKey('companion-kira')), findsNothing);
+        _expectNotCompleted(await SharedPreferences.getInstance());
+
+        await _tapVisible(tester, const ValueKey('challenge-continue'));
+        expect(find.byKey(const ValueKey('companion-kira')), findsOneWidget);
+        expect(find.byKey(const ValueKey('companion-leo')), findsOneWidget);
+        await _tapVisible(tester, const ValueKey('companion-leo'));
+        await _tapVisible(tester, const ValueKey('companion-continue'));
+
+        expect(find.byKey(const ValueKey('onboarding-enter')), findsOneWidget);
+        expect(find.byKey(const ValueKey('journey-mastery')), findsNothing);
+        expect(find.byKey(const ValueKey('portal-continue')), findsNothing);
+        expect(
+          _imageAssets(tester).any((asset) => asset.endsWith('affiche.jpg')),
+          isFalse,
+        );
+        _expectNotCompleted(await SharedPreferences.getInstance());
+
+        await _tapVisible(tester, const ValueKey('onboarding-enter'));
+        expect(find.text('Inscription prête'), findsOneWidget);
+        expect(
+          router.routeInformationProvider.value.uri.path,
+          AppRoutes.register,
+        );
+        final preferences = await SharedPreferences.getInstance();
+        expect(preferences.getBool('has_seen_onboarding'), isTrue);
+        _expectNoLayoutException(
+          tester,
+          '${answer.description} answer journey',
+        );
+      },
+    );
+  }
+
+  testWidgets('returning keeps the selected subject, answer and companion', (
+    tester,
+  ) async {
+    final router = await _pumpOnboarding(tester);
+    addTearDown(router.dispose);
+    await _reachChallenge(tester, subjectKey: 'subject-french');
+    await _tapVisible(tester, const ValueKey('challenge-answer-0'));
+    await _tapVisible(tester, const ValueKey('challenge-continue'));
+    await _tapVisible(tester, const ValueKey('companion-leo'));
+
+    await _tapVisible(tester, const ValueKey('onboarding-back'));
+    expect(find.text('Laquelle est correcte ?'), findsOneWidget);
     expect(
       find.text(
-        'Une expérience d’apprentissage pour mieux comprendre, pratiquer et progresser.',
+        'Le sujet « les élèves » est pluriel : le verbe devient « avancent ».',
       ),
       findsOneWidget,
     );
-    expect(find.text('Maintiens pour entrer'), findsOneWidget);
-    expect(find.text('Passer l’expérience'), findsNothing);
-    expect(find.byKey(const ValueKey('skip')), findsNothing);
-    expect(find.text('Suivant'), findsNothing);
-    expect(find.byKey(const ValueKey('activation-hold')), findsOneWidget);
-    expect(_imageAssets(tester), contains(IntelliaBrandAssets.identityMaster));
-    expect(
-      _imageAssets(tester),
-      isNot(contains('assets/branding/intellia237_app_icon.png')),
-    );
+    expect(find.byKey(const ValueKey('challenge-continue')), findsOneWidget);
+
+    await _tapVisible(tester, const ValueKey('onboarding-back'));
+    await _tapVisible(tester, const ValueKey('subject-french'));
+    expect(find.text('Laquelle est correcte ?'), findsOneWidget);
+    expect(find.byKey(const ValueKey('challenge-continue')), findsOneWidget);
+
+    await _tapVisible(tester, const ValueKey('challenge-continue'));
+    _expectSelected(tester, 'companion-leo');
+    await _tapVisible(tester, const ValueKey('companion-continue'));
+    await _tapVisible(tester, const ValueKey('onboarding-back'));
+    _expectSelected(tester, 'companion-leo');
+    _expectNotCompleted(await SharedPreferences.getInstance());
   });
 
-  testWidgets('holding the INTELLIA element opens the knowledge universe', (
+  testWidgets('a horizontal swipe switches the companion in either direction', (
+    tester,
+  ) async {
+    final router = await _pumpOnboarding(tester);
+    addTearDown(router.dispose);
+    await _reachChallenge(tester);
+    await _tapVisible(tester, const ValueKey('challenge-answer-2'));
+    await _tapVisible(tester, const ValueKey('challenge-continue'));
+    _expectSelected(tester, 'companion-kira');
+
+    final kira = find.byKey(const ValueKey('companion-kira'));
+    await tester.ensureVisible(kira);
+    await tester.drag(kira, const Offset(-150, 0));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1400));
+    _expectSelected(tester, 'companion-leo');
+
+    final leo = find.byKey(const ValueKey('companion-leo'));
+    await tester.ensureVisible(leo);
+    await tester.drag(leo, const Offset(150, 0));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1400));
+    _expectSelected(tester, 'companion-kira');
+    _expectNoLayoutException(tester, 'companion swipes');
+  });
+
+  testWidgets('animations never advance a scene or bypass its interaction', (
     tester,
   ) async {
     final router = await _pumpOnboarding(tester, reduceMotion: false);
     addTearDown(router.dispose);
 
-    final target = find.byKey(const ValueKey('activation-hold'));
-    final gesture = await tester.startGesture(tester.getCenter(target));
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.pump(const Duration(milliseconds: 1300));
-    await gesture.up();
-    await tester.pump(const Duration(milliseconds: 650));
-
-    expect(find.text('Chaque matière ouvre une trajectoire.'), findsOneWidget);
-    expect(find.byKey(const ValueKey('subject-mathematics')), findsOneWidget);
-  });
-
-  testWidgets('the selected subject really drives the next challenge', (
-    tester,
-  ) async {
-    const cases = {
-      'subject-mathematics': 'Quel nombre complète : 2, 4, 8, … ?',
-      'subject-french': 'Laquelle est correcte ?',
-      'subject-english': 'What does “careful” mean?',
-      'subject-sciences': 'Quand l’eau liquide devient vapeur, elle…',
-    };
-
-    for (final entry in cases.entries) {
-      final router = await _pumpOnboarding(tester);
-      await _activateReducedMotion(tester);
-      await _tapVisible(tester, ValueKey(entry.key));
-      expect(find.text(entry.value), findsOneWidget);
-      await tester.pumpWidget(const SizedBox.shrink());
-      router.dispose();
-    }
-  });
-
-  testWidgets('an incorrect challenge answer remains calm and recoverable', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-    await _reachChallenge(tester);
-
-    await _tapVisible(tester, const ValueKey('challenge-answer-0'));
-    expect(find.text('On apprend aussi en essayant.'), findsOneWidget);
-    expect(find.text('Comprendre compte plus que deviner.'), findsOneWidget);
-    expect(find.text('Appuie pour continuer'), findsOneWidget);
-    expect(
-      find.byKey(const ValueKey('challenge-continue-arrow')),
-      findsOneWidget,
-    );
-
-    await _tapVisible(tester, const ValueKey('challenge-continue'));
-    expect(find.text('Deux personnalités. Un même objectif.'), findsOneWidget);
-  });
-
-  testWidgets('a correct challenge answer advances to the companions', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-    await _reachChallenge(tester);
-
+    await _expectWaiting(tester, 'activation-enter');
+    await _tapVisible(tester, const ValueKey('activation-enter'));
+    await _expectWaiting(tester, 'subject-mathematics');
+    await _tapVisible(tester, const ValueKey('subject-mathematics'));
+    await _expectWaiting(tester, 'challenge-answer-2');
+    expect(find.byKey(const ValueKey('companion-kira')), findsNothing);
     await _tapVisible(tester, const ValueKey('challenge-answer-2'));
-    expect(find.text('Appuie pour continuer'), findsOneWidget);
+    await _expectWaiting(tester, 'challenge-continue');
     await _tapVisible(tester, const ValueKey('challenge-continue'));
-
-    expect(find.text('Deux personnalités. Un même objectif.'), findsOneWidget);
-    expect(find.byKey(const ValueKey('companion-kira')), findsOneWidget);
-    expect(find.byKey(const ValueKey('companion-leo')), findsOneWidget);
-    expect(
-      _imageAssets(tester),
-      containsAll([
-        IntelliaCompanionAssets.kiraOnboardingFullBody,
-        IntelliaCompanionAssets.leoOnboardingFullBody,
-      ]),
-    );
-    final fullBodyImages = tester
-        .widgetList<Image>(find.byType(Image))
-        .where(
-          (image) => {
-            IntelliaCompanionAssets.kiraOnboardingFullBody,
-            IntelliaCompanionAssets.leoOnboardingFullBody,
-          }.contains(_assetName(image.image)),
-        );
-    expect(fullBodyImages, hasLength(2));
-    for (final image in fullBodyImages) {
-      expect(image.fit, BoxFit.contain);
-      expect(image.image, isA<ResizeImage>());
-      expect((image.image as ResizeImage).height, 700);
-    }
-  });
-
-  testWidgets('companion focus moves between Kira and Léo without locking it', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-    await _reachCompanions(tester);
-
-    expect(find.text('CALME • MÉTHODE • CONFIANCE'), findsOneWidget);
-    expect(
-      find.textContaining('Tu pourras changer plus tard.'),
-      findsOneWidget,
-    );
-    expect(find.byKey(const ValueKey('companion-typewriter')), findsOneWidget);
-    expect(
-      find.text('« On reprend l’idée essentielle, puis on avance ensemble. »'),
-      findsOneWidget,
-    );
-    expect(
-      _imageAssets(tester),
-      containsAll([
-        IntelliaCompanionAssets.kiraOnboardingFullBody,
-        IntelliaCompanionAssets.leoOnboardingFullBody,
-      ]),
-    );
-    await _tapVisible(tester, const ValueKey('companion-leo'));
-    expect(find.text('DÉFI • ÉNERGIE • DÉPASSEMENT'), findsOneWidget);
-    expect(
-      find.text(
-        '« Prêt pour un défi ? Je te donne l’indice qui débloque tout. »',
-      ),
-      findsOneWidget,
-    );
-
-    await _tapVisible(tester, const ValueKey('companion-kira'));
-    expect(find.text('CALME • MÉTHODE • CONFIANCE'), findsOneWidget);
-  });
-
-  testWidgets('choosing Léo persists into the following portal scene', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-    await _reachCompanions(tester);
-
-    await _tapVisible(tester, const ValueKey('companion-leo'));
+    await _expectWaiting(tester, 'companion-continue');
     await _tapVisible(tester, const ValueKey('companion-continue'));
-    await _tapVisible(tester, const ValueKey('journey-mastery'));
-
-    expect(find.byKey(const ValueKey('portal-companion-leo')), findsOneWidget);
-    expect(find.byKey(const ValueKey('portal-companion-kira')), findsNothing);
+    await _expectWaiting(tester, 'onboarding-enter');
+    _expectNotCompleted(await SharedPreferences.getInstance());
+    _expectNoLayoutException(tester, 'motion-enabled journey');
   });
 
-  testWidgets('choosing Kira persists into the following portal scene', (
+  testWidgets(
+    'English presents localized entry, continuation and final action',
+    (tester) async {
+      final router = await _pumpOnboarding(tester, locale: const Locale('en'));
+      addTearDown(router.dispose);
+
+      expect(find.text('YOU CAN'), findsOneWidget);
+      expect(find.text('UNDERSTAND.'), findsOneWidget);
+      expect(find.text('TU PEUX'), findsNothing);
+      await _reachChallenge(tester);
+      await _tapVisible(tester, const ValueKey('challenge-answer-0'));
+      expect(find.text('Continue the ascent'), findsOneWidget);
+      await _tapVisible(tester, const ValueKey('challenge-continue'));
+      await _tapVisible(tester, const ValueKey('companion-leo'));
+      _expectSelected(tester, 'companion-leo');
+      await _tapVisible(tester, const ValueKey('companion-continue'));
+      expect(find.text('Create my INTELLIA PASS'), findsOneWidget);
+      _expectNoLayoutException(tester, 'English journey');
+    },
+  );
+
+  testWidgets('reduced motion remains usable at small and accessible sizes', (
     tester,
   ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-    await _reachCompanions(tester);
-
-    await _tapVisible(tester, const ValueKey('companion-kira'));
-    await _tapVisible(tester, const ValueKey('companion-continue'));
-    await _tapVisible(tester, const ValueKey('journey-mastery'));
-
-    expect(find.byKey(const ValueKey('portal-companion-kira')), findsOneWidget);
-    expect(find.byKey(const ValueKey('portal-companion-leo')), findsNothing);
-  });
-
-  testWidgets('portal opens Act VI, whose CTA persists and opens Pass', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-    await _reachPortal(tester);
-
-    expect(find.text('Découvrir la suite'), findsOneWidget);
-    expect(_imageAssets(tester), contains(IntelliaBrandAssets.appIcon));
-    await _tapVisible(tester, const ValueKey('portal-continue'));
-
-    expect(
-      find.text('Ton avenir se construit, marche après marche.'),
-      findsOneWidget,
-    );
-    expect(_imageAssets(tester), contains(IntelliaBrandAssets.ascensionPoster));
-    final reducedCamera = tester.widget<Transform>(
-      find.byKey(const ValueKey('ascension-camera-motion')),
-    );
-    expect(reducedCamera.transform.getTranslation().x, 0);
-    expect(reducedCamera.transform.getTranslation().y, 0);
-    final poster = tester.widget<Image>(
-      find.byKey(const ValueKey('ascension-poster')),
-    );
-    expect(poster.fit, BoxFit.contain);
-    expect(poster.image, isA<ResizeImage>());
-    expect((poster.image as ResizeImage).width, 768);
-    expect(find.text('Créer mon INTELLIA PASS'), findsOneWidget);
-    await tester.ensureVisible(find.byKey(const ValueKey('onboarding-enter')));
-    await tester.tap(find.byKey(const ValueKey('onboarding-enter')));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
-    expect(find.text('Inscription prête'), findsOneWidget);
-    final preferences = await SharedPreferences.getInstance();
-    expect(preferences.getBool('has_seen_onboarding'), isTrue);
-  });
-
-  testWidgets('Act VI copy and final CTA are localized in English', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester, locale: const Locale('en'));
-    addTearDown(router.dispose);
-    await _reachPortal(tester);
-    await _tapVisible(tester, const ValueKey('portal-continue'));
-
-    expect(find.text('ACT VI — THE ASCENT'), findsOneWidget);
-    expect(find.text('Build your future, one step at a time.'), findsOneWidget);
-    expect(find.text('Create my INTELLIA PASS'), findsOneWidget);
-  });
-
-  testWidgets('opening and continuation copy are localized in English', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester, locale: const Locale('en'));
-    addTearDown(router.dispose);
-
-    expect(
-      find.text(
-        'A learning experience designed to help you understand, practise and progress.',
-      ),
-      findsOneWidget,
-    );
-    await _reachChallenge(tester);
-    await _tapVisible(tester, const ValueKey('challenge-answer-0'));
-    expect(find.text('Tap to continue'), findsOneWidget);
-  });
-
-  testWidgets('back from Act VI returns to the portal without completing', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-    await _reachPortal(tester);
-    await _tapVisible(tester, const ValueKey('portal-continue'));
-    await tester.tap(find.byKey(const ValueKey('onboarding-back')));
-    await tester.pump();
-
-    expect(find.text('Découvrir la suite'), findsOneWidget);
-    final preferences = await SharedPreferences.getInstance();
-    expect(preferences.getBool('has_seen_onboarding'), isNot(true));
-  });
-
-  testWidgets('visible skip is completely absent from every onboarding act', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-
-    expect(find.byKey(const ValueKey('skip')), findsNothing);
-    await _activateReducedMotion(tester);
-    expect(find.byKey(const ValueKey('skip')), findsNothing);
-    final preferences = await SharedPreferences.getInstance();
-    expect(preferences.getBool('has_seen_onboarding'), isNot(true));
-  });
-
-  testWidgets('reverse navigation preserves challenge and companion state', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-    await _reachCompanions(tester);
-
-    await _tapVisible(tester, const ValueKey('companion-leo'));
-    await tester.tap(find.byKey(const ValueKey('onboarding-back')));
-    await tester.pump();
-    expect(
-      find.text('Bien vu. Ton raisonnement est en place.'),
-      findsOneWidget,
-    );
-
-    await _tapVisible(tester, const ValueKey('challenge-continue'));
-    expect(find.text('DÉFI • ÉNERGIE • DÉPASSEMENT'), findsOneWidget);
-  });
-
-  testWidgets('reduced motion keeps meaning, control, and no auto-advance', (
-    tester,
-  ) async {
-    final router = await _pumpOnboarding(tester);
-    addTearDown(router.dispose);
-
-    await tester.pump(const Duration(seconds: 20));
-    expect(find.text('Le savoir attend ton signal.'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-
-    await tester.tap(find.byKey(const ValueKey('activation-hold')));
-    await tester.pump();
-    expect(find.text('Chaque matière ouvre une trajectoire.'), findsOneWidget);
-  });
-
-  testWidgets('all acts remain overflow-free across target viewports', (
-    tester,
-  ) async {
-    const portraitSizes = <Size>[
-      Size(360, 640),
-      Size(360, 800),
-      Size(390, 844),
-      Size(412, 915),
-    ];
-    const textScales = <double>[1, 1.3, 1.5];
-    final configurations = <({Size size, double scale})>[
-      for (final size in portraitSizes)
-        for (final scale in textScales) (size: size, scale: scale),
-      (size: Size(800, 360), scale: 1.3),
+    const configurations = <({Size size, double scale})>[
+      (size: Size(320, 568), scale: 1),
+      (size: Size(320, 568), scale: 1.6),
+      (size: Size(390, 844), scale: 1.6),
+      (size: Size(844, 390), scale: 1),
+      (size: Size(844, 390), scale: 1.6),
     ];
 
     for (final configuration in configurations) {
+      final label = '${configuration.size} at ${configuration.scale}x';
       final router = await _pumpOnboarding(
         tester,
         size: configuration.size,
         textScale: configuration.scale,
       );
-      _expectNoLayoutException(tester, configuration);
+      _expectNoLayoutException(tester, '$label opening');
+      await tester.pump(const Duration(seconds: 20));
+      expect(find.byKey(const ValueKey('activation-enter')), findsOneWidget);
 
-      await _activateReducedMotion(tester);
-      _expectNoLayoutException(tester, configuration);
-      await _tapVisible(tester, const ValueKey('subject-mathematics'));
-      _expectNoLayoutException(tester, configuration);
-      await _tapVisible(tester, const ValueKey('challenge-answer-2'));
-      await tester.pump();
-      _expectNoLayoutException(tester, configuration);
+      await _tapVisible(tester, const ValueKey('activation-enter'));
+      _expectNoLayoutException(tester, '$label subjects');
+      await _tapVisible(tester, const ValueKey('subject-sciences'));
+      _expectNoLayoutException(tester, '$label question');
+      await _tapVisible(tester, const ValueKey('challenge-answer-0'));
+      _expectNoLayoutException(tester, '$label explanation');
       await _tapVisible(tester, const ValueKey('challenge-continue'));
+      _expectNoLayoutException(tester, '$label companions');
+      await _tapVisible(tester, const ValueKey('companion-leo'));
       await _tapVisible(tester, const ValueKey('companion-continue'));
-      _expectNoLayoutException(tester, configuration);
-      await _tapVisible(tester, const ValueKey('journey-mastery'));
-      _expectNoLayoutException(tester, configuration);
+      _expectNoLayoutException(tester, '$label final act');
+      expect(find.byKey(const ValueKey('onboarding-enter')), findsOneWidget);
+      await _tapVisible(tester, const ValueKey('onboarding-enter'));
+      expect(find.text('Inscription prête'), findsOneWidget);
+      _expectNoLayoutException(tester, '$label completion');
 
-      expect(find.text('Découvrir la suite'), findsOneWidget);
-      await _tapVisible(tester, const ValueKey('portal-continue'));
-      _expectNoLayoutException(tester, configuration);
-      expect(find.text('Créer mon INTELLIA PASS'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
       router.dispose();
     }
   });
-}
 
-Set<String> _imageAssets(WidgetTester tester) => tester
-    .widgetList<Image>(find.byType(Image))
-    .map((image) => image.image)
-    .map(_assetName)
-    .whereType<String>()
-    .toSet();
+  test('the passage opens the doorway that the building actually draws', () {
+    for (final size in const [Size(390, 844), Size(320, 568), Size(844, 390)]) {
+      final corners = ascensionPassageQuad(size);
+      expect(corners, hasLength(4), reason: '$size');
+      for (final corner in corners) {
+        expect(corner.dx, inInclusiveRange(0, size.width), reason: '$size');
+        expect(corner.dy, inInclusiveRange(0, size.height), reason: '$size');
+      }
+      // A real opening, and only an opening: the light has somewhere to grow
+      // from, and the gateway around it stays visible.
+      final bounds = Rect.fromPoints(corners.first, corners[2]);
+      expect(bounds.width, greaterThan(48), reason: '$size');
+      expect(bounds.height, greaterThan(32), reason: '$size');
+      expect(bounds.width, lessThan(size.width * 0.7), reason: '$size');
+      // The gateway stands above the stairs, never at the foot of the screen.
+      expect(bounds.center.dy, lessThan(size.height * 0.75), reason: '$size');
 
-String? _assetName(ImageProvider<Object> provider) {
-  if (provider is AssetImage) return provider.assetName;
-  if (provider is ResizeImage) return _assetName(provider.imageProvider);
-  return null;
+      final alignment = ascensionPassageAlignment(size);
+      expect(alignment.x, inInclusiveRange(-1, 1), reason: '$size');
+      expect(alignment.y, inInclusiveRange(-1, 1), reason: '$size');
+    }
+    expect(ascensionPassageAlignment(Size.zero), Alignment.center);
+  });
+
+  test('the interface leaves before the doorway swallows it', () {
+    expect(AscensionPassageMotion.aperture(0), 0);
+    // The route is only exchanged once the aperture fills the stage.
+    expect(AscensionPassageMotion.aperture(AscensionPassageMotion.covered), 1);
+    expect(AscensionPassageMotion.contentOpacity(0), 1);
+    expect(AscensionPassageMotion.contentScale(0), 1);
+    expect(AscensionPassageMotion.stageScale(0), 1);
+    // Nothing legible is left when the light starts to travel.
+    expect(AscensionPassageMotion.contentOpacity(0.42), 0);
+    expect(AscensionPassageMotion.aperture(0.42), lessThan(0.2));
+
+    var previous = -1.0;
+    for (var step = 0; step <= 20; step++) {
+      final opening = AscensionPassageMotion.aperture(step / 20);
+      expect(opening, greaterThanOrEqualTo(previous));
+      previous = opening;
+    }
+  });
+
+  testWidgets('the last act opens onto registration through the passage', (
+    tester,
+  ) async {
+    final router = await _pumpOnboarding(tester, reduceMotion: false);
+    addTearDown(router.dispose);
+    await _reachAscension(tester);
+
+    await _tapFinal(tester);
+    expect(find.byType(AscensionPassage), findsOneWidget);
+    expect(find.text('Inscription prête'), findsNothing);
+
+    // Half way through, the last act is still on screen: the route is never
+    // exchanged over an empty one.
+    await tester.pump(const Duration(milliseconds: 340));
+    expect(find.byType(AscensionPassage), findsOneWidget);
+    expect(find.text('Inscription prête'), findsNothing);
+
+    // A second press during the passage cannot start a second hand-over.
+    await tester.tap(
+      find.byKey(const ValueKey('onboarding-enter')),
+      warnIfMissed: false,
+    );
+
+    await tester.pump(AscensionPassageMotion.duration);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+
+    expect(find.text('Inscription prête'), findsOneWidget);
+    expect(find.byType(AscensionPassage), findsNothing);
+    expect(
+      (await SharedPreferences.getInstance()).getBool('has_seen_onboarding'),
+      isTrue,
+    );
+    _expectNoLayoutException(tester, 'passage to registration');
+  });
+
+  testWidgets('reduced motion hands over immediately, without the passage', (
+    tester,
+  ) async {
+    final router = await _pumpOnboarding(tester);
+    addTearDown(router.dispose);
+    await _reachAscension(tester);
+
+    await _tapFinal(tester);
+    await tester.pump();
+
+    expect(find.byType(AscensionPassage), findsNothing);
+    expect(find.text('Inscription prête'), findsOneWidget);
+    _expectNoLayoutException(tester, 'reduced motion hand-over');
+  });
 }
 
 Future<GoRouter> _pumpOnboarding(
@@ -483,6 +431,7 @@ Future<GoRouter> _pumpOnboarding(
 }) async {
   SharedPreferences.setMockInitialValues({});
   await tester.binding.setSurfaceSize(size);
+  addTearDown(() => tester.binding.setSurfaceSize(null));
   final router = GoRouter(
     initialLocation: AppRoutes.onboarding,
     routes: [
@@ -519,28 +468,32 @@ Future<GoRouter> _pumpOnboarding(
     ),
   );
   await tester.pump();
+  await tester.pump(const Duration(milliseconds: 1400));
   return router;
 }
 
-Future<void> _activateReducedMotion(WidgetTester tester) async {
-  await _tapVisible(tester, const ValueKey('activation-hold'));
+Future<void> _reachChallenge(
+  WidgetTester tester, {
+  String subjectKey = 'subject-mathematics',
+}) async {
+  await _tapVisible(tester, const ValueKey('activation-enter'));
+  await _tapVisible(tester, ValueKey(subjectKey));
 }
 
-Future<void> _reachChallenge(WidgetTester tester) async {
-  await _activateReducedMotion(tester);
-  await _tapVisible(tester, const ValueKey('subject-mathematics'));
-}
-
-Future<void> _reachCompanions(WidgetTester tester) async {
+Future<void> _reachAscension(WidgetTester tester) async {
   await _reachChallenge(tester);
-  await _tapVisible(tester, const ValueKey('challenge-answer-2'));
+  await _tapVisible(tester, const ValueKey('challenge-answer-0'));
   await _tapVisible(tester, const ValueKey('challenge-continue'));
+  await _tapVisible(tester, const ValueKey('companion-continue'));
 }
 
-Future<void> _reachPortal(WidgetTester tester) async {
-  await _reachCompanions(tester);
-  await _tapVisible(tester, const ValueKey('companion-continue'));
-  await _tapVisible(tester, const ValueKey('journey-mastery'));
+/// The final action, pumped one frame only, so the hand-over can be observed.
+Future<void> _tapFinal(WidgetTester tester) async {
+  final finder = find.byKey(const ValueKey('onboarding-enter'));
+  await tester.ensureVisible(finder);
+  await tester.pump();
+  await tester.tap(finder);
+  await tester.pump();
 }
 
 Future<void> _tapVisible(WidgetTester tester, ValueKey<String> key) async {
@@ -548,20 +501,54 @@ Future<void> _tapVisible(WidgetTester tester, ValueKey<String> key) async {
   await tester.ensureVisible(finder);
   await tester.pump();
   await tester.tap(finder);
-  await tester.pump(const Duration(milliseconds: 1));
+  await tester.pump();
+  // Finite pumping also works while decorative animations keep ticking.
+  await tester.pump(const Duration(milliseconds: 1400));
 }
 
-void _expectNoLayoutException(
-  WidgetTester tester,
-  ({Size size, double scale}) configuration,
-) {
-  final error = tester.takeException();
+Future<void> _expectWaiting(WidgetTester tester, String key) async {
+  await tester.pump(const Duration(seconds: 20));
+  expect(find.byKey(ValueKey(key)), findsOneWidget);
+  _expectNoSkip();
+}
+
+void _expectSelected(WidgetTester tester, String key) {
+  final target = find.byKey(ValueKey(key));
+  final widget = tester.widget(target);
+  final semantics = widget is Semantics
+      ? [widget]
+      : tester.widgetList<Semantics>(
+          find.descendant(of: target, matching: find.byType(Semantics)),
+        );
   expect(
-    error,
-    isNull,
-    reason:
-        'Unexpected layout error at ${configuration.size} and ${configuration.scale}x',
+    semantics.any((item) => item.properties.selected == true),
+    isTrue,
+    reason: '$key must remain selected after navigation',
   );
 }
 
-void _noop() {}
+void _expectNoSkip() {
+  expect(find.byKey(const ValueKey('skip')), findsNothing);
+  expect(find.byKey(const ValueKey('onboarding-skip')), findsNothing);
+  expect(find.text('Passer l’expérience'), findsNothing);
+  expect(find.text('Skip'), findsNothing);
+}
+
+void _expectNotCompleted(SharedPreferences preferences) =>
+    expect(preferences.getBool('has_seen_onboarding'), isNot(true));
+
+void _expectNoLayoutException(WidgetTester tester, String context) {
+  expect(tester.takeException(), isNull, reason: context);
+}
+
+Set<String> _imageAssets(WidgetTester tester) => tester
+    .widgetList<Image>(find.byType(Image))
+    .map((image) => _assetName(image.image))
+    .whereType<String>()
+    .toSet();
+
+String? _assetName(ImageProvider<Object> provider) {
+  if (provider is AssetImage) return provider.assetName;
+  if (provider is ResizeImage) return _assetName(provider.imageProvider);
+  return null;
+}

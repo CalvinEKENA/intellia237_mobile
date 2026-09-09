@@ -12,6 +12,7 @@ import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/phone_auth_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
+import '../../features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../features/auth/presentation/profile_recovery_screen.dart';
 import '../../features/admin/presentation/admin_home_screen.dart';
 import '../../features/tutor/domain/tutor_persona.dart';
@@ -96,8 +97,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.register,
-        pageBuilder: (context, state) =>
-            buildAppTransitionPage(state: state, child: const RegisterScreen()),
+        // The registration canvas is painted from the first frame, so the
+        // onboarding passage hands over onto this exact surface: the two
+        // screens are never separated by an empty one.
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          transitionBackground: const AuthAmbientBackground(),
+          child: const RegisterScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.studentRegistration,
