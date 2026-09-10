@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../../app/theme/design_tokens.dart';
+
 abstract final class CampaignColors {
   static const paper = Color(0xFFF4EFE5);
   static const ink = Color(0xFF25233E);
@@ -202,6 +204,45 @@ class CampaignPage extends StatelessWidget {
       );
     },
   );
+}
+
+/// « INTELLIA 237 » : le pays porte le drapeau, sur le papier comme sur l'encre.
+///
+/// Le nom reste dans l'encre de la surface ; seuls les trois chiffres changent
+/// de couleur. Le lecteur d'écran, lui, n'entend qu'un seul mot.
+class CampaignWordmark extends StatelessWidget {
+  const CampaignWordmark({required this.dark, this.size = 11, super.key});
+
+  final bool dark;
+  final double size;
+
+  static const _country = '237';
+
+  @override
+  Widget build(BuildContext context) {
+    final digits = IntelliaFlag.digits(onInk: dark);
+    return Semantics(
+      label: 'INTELLIA $_country',
+      excludeSemantics: true,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            const TextSpan(text: 'INTELLIA '),
+            for (var index = 0; index < _country.length; index++)
+              TextSpan(
+                text: _country[index],
+                style: TextStyle(color: digits[index]),
+              ),
+          ],
+        ),
+        style: campaignBody(
+          size: size,
+          color: dark ? CampaignColors.paper : CampaignColors.ink,
+          weight: FontWeight.w800,
+        ).copyWith(letterSpacing: 1.4),
+      ),
+    );
+  }
 }
 
 class CampaignEyebrow extends StatelessWidget {

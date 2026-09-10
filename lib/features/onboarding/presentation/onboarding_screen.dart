@@ -546,16 +546,7 @@ class _CampaignHeader extends StatelessWidget {
               height: 48,
               child: Icon(Icons.north_east_rounded, color: color, size: 23),
             ),
-          Expanded(
-            child: Text(
-              'INTELLIA 237',
-              style: campaignBody(
-                size: 11,
-                color: color,
-                weight: FontWeight.w800,
-              ).copyWith(letterSpacing: 1.4),
-            ),
-          ),
+          Expanded(child: CampaignWordmark(dark: dark)),
           Semantics(
             label: campaignText(
               context,

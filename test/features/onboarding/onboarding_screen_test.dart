@@ -6,11 +6,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intellia237/app/router/app_routes.dart';
+import 'package:intellia237/app/theme/design_tokens.dart';
 import 'package:intellia237/core/animations/app_page_transitions.dart';
 import 'package:intellia237/core/animations/screen_shatter.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_act.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_micro_challenge.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:intellia237/features/onboarding/presentation/widgets/campaign/campaign_design.dart';
 import 'package:intellia237/features/onboarding/presentation/widgets/campaign/campaign_signature.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -369,6 +371,19 @@ void main() {
     expect(sample().toSet(), hasLength(greaterThan(30)));
   });
 
+  testWidgets('the wordmark flies the flag on paper and on ink', (
+    tester,
+  ) async {
+    await _pumpOnboarding(tester);
+
+    // Le premier acte est sur papier.
+    _expectFlag(tester, onInk: false);
+
+    // Le dernier acte est sur encre : les mêmes teintes y disparaîtraient.
+    await _reachAscension(tester);
+    _expectFlag(tester, onInk: true);
+  });
+
   testWidgets('a thumb lifted early does not sign the pass', (tester) async {
     await _pumpOnboarding(tester);
     await _reachAscension(tester);
@@ -444,6 +459,34 @@ void main() {
     expect(find.text('Inscription prête'), findsOneWidget);
     semantics.dispose();
   });
+}
+
+/// Le nom reste dans l'encre de la surface ; seuls les trois chiffres portent
+/// le drapeau, et leurs teintes changent avec le fond.
+void _expectFlag(WidgetTester tester, {required bool onInk}) {
+  final wordmark = tester.widget<Text>(
+    find.descendant(
+      of: find.byType(CampaignWordmark),
+      matching: find.byType(Text),
+    ),
+  );
+  final spans = <InlineSpan>[];
+  wordmark.textSpan!.visitChildren((span) {
+    spans.add(span);
+    return true;
+  });
+  final written = [
+    for (final span in spans)
+      if (span is TextSpan && span.text != null)
+        (span.text!, span.style?.color),
+  ];
+  final flag = IntelliaFlag.digits(onInk: onInk);
+  expect(written, [
+    ('INTELLIA ', null),
+    ('2', flag[0]),
+    ('3', flag[1]),
+    ('7', flag[2]),
+  ]);
 }
 
 typedef _Harness = ({GoRouter router, ProviderContainer providers});
