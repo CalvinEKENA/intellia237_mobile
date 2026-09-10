@@ -11,10 +11,12 @@ import '../../features/auth/data/auth_entry_preferences.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/phone_auth_screen.dart';
+import '../../features/auth/presentation/auth_gateway_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../features/auth/presentation/profile_recovery_screen.dart';
 import '../../features/admin/presentation/admin_home_screen.dart';
+import '../../features/campus/presentation/screens/campus_root_screen.dart';
 import '../../features/tutor/domain/tutor_persona.dart';
 import '../../features/tutor/presentation/tutor_selection_screen.dart';
 import '../../features/admin_registration/presentation/admin_registration_screen.dart';
@@ -69,6 +71,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           state: state,
           reverseDuration: Duration.zero,
           child: const OnboardingScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.authGateway,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const AuthGatewayScreen(),
         ),
       ),
       GoRoute(
@@ -392,6 +401,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: AppRoutes.campus,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const CampusRootScreen(),
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.tutorSelection,
         pageBuilder: (context, state) {
           final initialId = state.uri.queryParameters['tutorId'];
@@ -400,7 +416,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final onConfirm = extra is ValueChanged<TutorPersona>
               ? extra
               : (TutorPersona tutor) => GoRouter.of(context).pop();
-          final onSkip = filterLevel != null
+          // « Passer » n'a de sens qu'à la découverte initiale. Ouvert depuis
+          // le profil — le seul chemin existant aujourd'hui — l'écran sert à
+          // *changer* de compagnon : proposer une échappatoire y laissait
+          // croire que le changement avait échoué. Le mode est donc explicite
+          // et ne dépend plus de la présence d'un filtre de niveau.
+          final onSkip = state.uri.queryParameters['mode'] == 'onboarding'
               ? () => GoRouter.of(context).pop()
               : null;
           return buildAppTransitionPage(
@@ -480,18 +501,26 @@ String? resolveAppRedirect({
     case AuthStatus.unauthenticated:
       if (location == AppRoutes.bootstrap) {
         if (!hasSeenOnboarding) return AppRoutes.onboarding;
-        return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
+        return hasAuthenticatedBefore
+            ? AppRoutes.authGateway
+            : AppRoutes.register;
       }
       if (!hasSeenOnboarding) {
         return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
       }
       if (location == AppRoutes.onboarding) {
-        return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
+        return hasAuthenticatedBefore
+            ? AppRoutes.authGateway
+            : AppRoutes.register;
       }
       if (AppRoutes.preAuthRoutes.contains(location)) {
         return null;
       }
-      return hasAuthenticatedBefore ? AppRoutes.login : AppRoutes.register;
+      // Après une déconnexion, la porte ne présuppose aucun rôle : un parent
+      // ou un enseignant partageant l'appareil doit pouvoir ouvrir le sien.
+      return hasAuthenticatedBefore
+          ? AppRoutes.authGateway
+          : AppRoutes.register;
 
     case AuthStatus.needsOnboarding:
       if (location == AppRoutes.phoneAuth ||

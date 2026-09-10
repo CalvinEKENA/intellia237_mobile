@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,17 +17,14 @@ import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
-import '../../../core/widgets/tab_section_header.dart';
 import '../../ai_companion/presentation/ai_companion_screen.dart';
 import '../../auth/application/auth_controller.dart';
-import '../../auth/application/auth_state.dart';
 import '../../auth/domain/app_role.dart';
 import '../../flow/presentation/widgets/flow_entry_card.dart';
 import '../../greetings/application/greeting_provider.dart';
 import '../../greetings/domain/local_greeting_engine.dart';
 import '../../learn/application/learn_providers.dart';
 import '../../../core/localization/app_locale_controller.dart';
-import '../../learn/domain/learn_academic_context.dart';
 import '../../learn/presentation/learn_hub_screen.dart';
 import '../../quiz/presentation/quiz_hub_screen.dart';
 import '../../notifications/data/notification_repository.dart';
@@ -39,8 +35,12 @@ import '../../student_registration/domain/academic_rules.dart';
 import '../../tutor/application/tutor_preference_provider.dart';
 import '../../tutor/data/tutor_preference_repository.dart';
 import '../../tutor/domain/tutor_persona.dart';
+import '../../mastery/application/mastery_providers.dart';
+import '../../mastery/presentation/student_mastery_profile.dart';
+import '../../mastery/presentation/mastery_style.dart';
 import '../application/student_home_controller.dart';
 import '../domain/student_home_snapshot.dart';
+import '../domain/learner_activity.dart';
 import 'widgets/daily_challenges_section.dart';
 import 'widgets/weekly_goal_card.dart';
 import 'widgets/fade_slide_entrance.dart';
@@ -52,6 +52,12 @@ import 'widgets/streak_motivation_card.dart';
 import 'widgets/student_home_header.dart';
 import 'widgets/student_home_skeleton.dart';
 import 'widgets/subjects_carousel.dart';
+
+/// Compteur de taps de navigation : outil de diagnostic de terrain.
+///
+/// Actif en debug comme auparavant, mais désactivable — les captures de
+/// présentation ne doivent pas exposer d'incrustation de mise au point.
+bool debugShowNavTapCounter = kDebugMode;
 
 class StudentHomeScreen extends ConsumerStatefulWidget {
   const StudentHomeScreen({super.key});
@@ -132,7 +138,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final snapshotAsync = ref.watch(studentHomeControllerProvider);
-    final showTapDiagnostics = kDebugMode;
+    final showTapDiagnostics = debugShowNavTapCounter;
     final unreadNotifications = ref.watch(unreadNotificationCountProvider);
     _scheduleTourGuideIfNeeded(snapshotAsync);
 
@@ -206,7 +212,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
                     ),
                     const KeyedSubtree(
                       key: ValueKey('student-tab-profile'),
-                      child: _ProfileTab(),
+                      child: StudentProfileTab(),
                     ),
                   ],
                 ),
@@ -395,13 +401,22 @@ class _StudentHomeTab extends ConsumerWidget {
         final academic = ref.watch(studentAcademicContextProvider).valueOrNull;
         final tutor = ref.watch(selectedTutorProvider);
         final language = ref.watch(appLocaleProvider).languageCode;
+        // `globalProgress` vaut 0 dès qu'une matière existe : ce n'est pas
+        // une preuve de travail. Le statut vient donc des traces réelles.
+        //
+        // Les cartes Flow ne sont pas relues ici : `submitFlowActivity` écrit
+        // déjà les points gagnés dans `student_profiles`, que l'instantané
+        // charge. Observer le contrôleur Flow n'ajouterait aucune preuve et
+        // ferait dépendre le rendu de l'accueil d'une passerelle Firebase.
+        final activity = LearnerActivity.fromSnapshot(snapshot);
         final greetingContext = GreetingContext(
           learnerId: auth.userId ?? 'anonymous',
           companionId: tutor?.id ?? 'kira',
           languageCode: language,
           firstName: snapshot.firstName,
           classLevel: academic?.displayClassLevel ?? academic?.classLevel,
-          hasProgress: snapshot.globalProgress != null,
+          hasProgress: activity.hasLearningEvidence,
+          lastActivityAt: activity.lastActivityAt,
         );
         final greeting = ref
             .watch(
@@ -412,6 +427,7 @@ class _StudentHomeTab extends ConsumerWidget {
                 firstName: greetingContext.firstName,
                 classLevel: greetingContext.classLevel,
                 hasProgress: greetingContext.hasProgress,
+                lastActivityAt: greetingContext.lastActivityAt,
               )),
             )
             .valueOrNull
@@ -423,8 +439,12 @@ class _StudentHomeTab extends ConsumerWidget {
         final sections = <Widget>[
           if (snapshot.isDemoData) const _DemoDataBanner(),
           _HomeSectionLabel(
-            eyebrow: context.l10n.todayEyebrow,
-            title: context.l10n.resumeWhereLeftOff,
+            eyebrow: activity.isFirstSession
+                ? context.l10n.firstSessionEyebrow
+                : context.l10n.todayEyebrow,
+            title: activity.isFirstSession
+                ? context.l10n.firstSessionTitle
+                : context.l10n.resumeWhereLeftOff,
           ),
           if (snapshot.resume != null)
             KeyedSubtree(
@@ -781,30 +801,27 @@ class _ExclusiveTab extends StatelessWidget {
   }
 }
 
-class _ProfileTab extends ConsumerWidget {
-  const _ProfileTab();
+class StudentProfileTab extends ConsumerWidget {
+  const StudentProfileTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authControllerProvider);
     final academicAsync = ref.watch(studentAcademicContextProvider);
-    final homeAsync = ref.watch(studentHomeControllerProvider);
-    final theme = Theme.of(context);
     final showBuildIdentity = kDebugMode;
 
     final sections = <Widget>[
-      // Carte d'identité principale
-      _ProfileIdentityCard(auth: auth, theme: theme),
-      const SizedBox(height: IntelliaSpacing.md),
-      // Section Académique
-      _AcademicSection(academicAsync: academicAsync, theme: theme),
-      const SizedBox(height: IntelliaSpacing.md),
-      // Section Compagnon pédagogique
+      const StudentLearningIdentity(),
+      const SizedBox(height: 12),
       _TutorSection(classLevel: academicAsync.valueOrNull?.classLevel),
-      const SizedBox(height: IntelliaSpacing.md),
-      // Section Statistiques
-      _StatsSection(homeAsync: homeAsync, theme: theme),
-      const SizedBox(height: IntelliaSpacing.md),
+      const SizedBox(height: 24),
+      const StudentMasterySummary(),
+      const SizedBox(height: 28),
+      const StudentSubjectMastery(),
+      const SizedBox(height: 24),
+      const StudentLearningContinuity(),
+      const SizedBox(height: 16),
+      const OfficialRecordNotice(),
+      const SizedBox(height: 20),
       ListTile(
         onTap: () => context.push(AppRoutes.settings),
         leading: const Icon(Icons.settings_outlined),
@@ -852,24 +869,48 @@ class _ProfileTab extends ConsumerWidget {
       ],
     ];
 
-    return _ResponsiveBody(
-      child: CustomScrollView(
-        slivers: [
-          StickyTabSectionHeader(
-            key: ValueKey('profile-sticky-header'),
-            eyebrow: context.l10n.studentSpace,
-            title: context.l10n.myProfileTitle,
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(
-              IntelliaSpacing.lg,
-              IntelliaSpacing.lg,
-              IntelliaSpacing.lg,
-              132,
+    return Material(
+      color: MasteryStyle.paper,
+      child: _ResponsiveBody(
+        child: CustomScrollView(
+          slivers: [
+            PinnedHeaderSliver(
+              key: const ValueKey('profile-sticky-header'),
+              child: Material(
+                color: MasteryStyle.paper,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.l10n.studentSpace,
+                        style: MasteryStyle.caption,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.l10n.myProfileTitle,
+                        style: MasteryStyle.title,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            sliver: SliverList.list(children: sections),
-          ),
-        ],
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                IntelliaSpacing.lg,
+                IntelliaSpacing.lg,
+                IntelliaSpacing.lg,
+                132,
+              ),
+              sliver: SliverList.list(children: sections),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -902,295 +943,6 @@ class _BuildIdentityLabel extends StatelessWidget {
   }
 }
 
-class _ProfileIdentityCard extends StatelessWidget {
-  const _ProfileIdentityCard({required this.auth, required this.theme});
-
-  final AuthState auth;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(IntelliaSpacing.md),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: theme.colorScheme.primaryContainer,
-              child: Text(
-                (auth.firstName?.isNotEmpty == true ? auth.firstName![0] : 'E')
-                    .toUpperCase(),
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  color: theme.colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            const SizedBox(width: IntelliaSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    auth.firstName?.isNotEmpty == true
-                        ? auth.firstName!
-                        : context.l10n.intelliaUser,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    auth.email ?? 'email@intellia237.app',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                  const SizedBox(height: IntelliaSpacing.xs),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(99),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.workspace_premium_rounded,
-                          size: 14,
-                          color: theme.colorScheme.primary,
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            context.l10n.studentAccount,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _AcademicSection extends StatelessWidget {
-  const _AcademicSection({required this.academicAsync, required this.theme});
-
-  final AsyncValue<LearnAcademicContext> academicAsync;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          context.l10n.academicJourney,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: IntelliaSpacing.sm),
-        Card(
-          child: academicAsync.when(
-            loading: () =>
-                ListTile(title: Text(context.l10n.stateLoadingTitle)),
-            error: (_, _) => ListTile(title: Text(context.l10n.loadErrorLabel)),
-            data: (academic) => Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.school_rounded),
-                  title: Text(context.l10n.classLabel),
-                  trailing: Text(
-                    academic.classLevel,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                if (academic.series != null)
-                  ListTile(
-                    leading: const Icon(Icons.category_rounded),
-                    title: Text(context.l10n.seriesLabel),
-                    trailing: Text(
-                      academic.series!,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatsSection extends StatelessWidget {
-  const _StatsSection({required this.homeAsync, required this.theme});
-
-  final AsyncValue<StudentHomeSnapshot> homeAsync;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    final textScale = MediaQuery.textScalerOf(context).scale(1);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          context.l10n.statisticsAndProgress,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: IntelliaSpacing.sm),
-        homeAsync.when(
-          loading: () => const IntelliaStateView(
-            kind: IntelliaStateKind.loading,
-            compact: true,
-          ),
-          error: (error, _) => IntelliaStateView(
-            kind: stateKindForError(error),
-            compact: true,
-            title: context.l10n.statisticsUnavailable,
-            message: stateMessageForKind(context, stateKindForError(error)),
-          ),
-          data: (snapshot) {
-            final gamification = snapshot.gamification;
-            final tiles = <_StatTile>[
-              if (gamification != null) ...[
-                _StatTile(
-                  icon: Icons.bolt_rounded,
-                  label: context.l10n.pointsLabel,
-                  value: gamification.currentPoints.toString(),
-                  color: Colors.orange,
-                ),
-                _StatTile(
-                  icon: Icons.workspace_premium_rounded,
-                  label: context.l10n.levelLabel,
-                  value: gamification.level.toString(),
-                  color: Colors.blue,
-                ),
-                if (gamification.streakDays != null)
-                  _StatTile(
-                    icon: Icons.local_fire_department_rounded,
-                    label: context.l10n.currentStreak,
-                    value: context.l10n.dayCount(gamification.streakDays!),
-                    color: Colors.red,
-                  ),
-              ],
-              if (snapshot.globalProgress != null)
-                _StatTile(
-                  icon: Icons.auto_graph_rounded,
-                  label: context.l10n.progressLabel,
-                  value: '${(snapshot.globalProgress! * 100).round()}%',
-                  color: Colors.green,
-                ),
-            ];
-
-            if (tiles.isEmpty) {
-              // Aucun agrégat réel : on l'explique — jamais de chiffres
-              // inventés pour meubler le tableau de bord.
-              return IntelliaStateView(
-                kind: IntelliaStateKind.empty,
-                compact: true,
-                title: context.l10n.statisticsComingTitle,
-                message: context.l10n.statisticsComingBody,
-              );
-            }
-
-            return GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: IntelliaSpacing.sm,
-              crossAxisSpacing: IntelliaSpacing.sm,
-              mainAxisExtent: 92 + (textScale - 1).clamp(0, 0.5) * 60,
-              children: tiles,
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class _StatTile extends StatelessWidget {
-  const _StatTile({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(IntelliaSpacing.sm),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(IntelliaRadii.small),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(width: IntelliaSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-                Text(
-                  label,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tutor section — affiche le tuteur actif + bouton changer
-// ─────────────────────────────────────────────────────────────
-
 class _TutorSection extends ConsumerWidget {
   const _TutorSection({this.classLevel});
 
@@ -1200,54 +952,37 @@ class _TutorSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tutor = ref.watch(selectedTutorProvider);
-    final s = TabSurface.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          context.l10n.selectedCompanionEyebrow,
-          style: GoogleFonts.manrope(
-            fontSize: 12,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.2,
-            color: s.textPrimary,
+    final tutor = ref.watch(profileCompanionProvider).valueOrNull;
+    return Semantics(
+      button: true,
+      label: tutor == null
+          ? context.l10n.noCompanionSelected
+          : context.l10n.changeCompanion,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _openTutorSelection(context, ref, tutor, classLevel),
+          borderRadius: BorderRadius.circular(IntelliaRadii.small),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: tutor != null
+                  ? Row(
+                      children: [
+                        Expanded(child: StudentProfileTutorCard(tutor: tutor)),
+                        const SizedBox(width: 8),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: MasteryStyle.secondary,
+                        ),
+                      ],
+                    )
+                  : _NoTutorPlaceholder(),
+            ),
           ),
         ),
-        const SizedBox(height: IntelliaSpacing.sm),
-        GestureDetector(
-          onTap: () => _openTutorSelection(context, ref, tutor, classLevel),
-          child: AnimatedContainer(
-            duration: IntelliaMotion.medium,
-            curve: IntelliaMotion.emphasizedDecelerate,
-            padding: const EdgeInsets.all(IntelliaSpacing.md),
-            decoration: BoxDecoration(
-              color: s.surface,
-              borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-              border: Border.all(
-                color: tutor != null
-                    ? tutor.accentColor.withValues(alpha: 0.35)
-                    : s.surfaceBorder,
-                width: tutor != null ? 1.4 : 1.0,
-              ),
-              boxShadow: IntelliaShadows.card(Colors.black),
-            ),
-            child: tutor != null
-                ? StudentProfileTutorCard(tutor: tutor)
-                : _NoTutorPlaceholder(),
-          ),
-        ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.04, end: 0),
-        if (tutor != null) ...[
-          const SizedBox(height: IntelliaSpacing.sm),
-          OutlinedButton.icon(
-            onPressed: () =>
-                _openTutorSelection(context, ref, tutor, classLevel),
-            icon: const Icon(Icons.swap_horiz_rounded),
-            label: Text(context.l10n.changeCompanion),
-          ),
-        ],
-      ],
+      ),
     );
   }
 
@@ -1273,6 +1008,18 @@ class _TutorSection extends ConsumerWidget {
     );
   }
 
+  /// Applique le nouveau compagnon, puis tente de l'écrire au profil.
+  ///
+  /// Registre de décisions : le choix de l'élève ne dépend pas de la réussite
+  /// d'une écriture serveur. L'ancienne version annulait la sélection au
+  /// moindre refus, si bien qu'un profil dont les règles déployées
+  /// n'autorisaient pas encore `tutorId` rendait tout changement de compagnon
+  /// impossible — l'élève ne pouvait sortir qu'en passant l'étape.
+  ///
+  /// Le changement est donc appliqué localement d'abord et conservé même si la
+  /// synchronisation échoue ; il repartira à la prochaine occasion. Aucun
+  /// message existant n'est réattribué : chacun garde le compagnon qui l'a
+  /// écrit.
   Future<void> _persistTutorSelection(
     BuildContext context,
     WidgetRef ref,
@@ -1282,43 +1029,27 @@ class _TutorSection extends ConsumerWidget {
     final userId = ref.read(authControllerProvider).userId;
     if (userId == null) return;
 
+    // Le choix prend effet immédiatement, en attente de confirmation.
+    await ref
+        .read(tutorPreferenceProvider.notifier)
+        .select(chosen.id, pendingSync: true);
+
     try {
       await ref
           .read(tutorPreferenceRepositoryProvider)
           .save(userId: userId, tutorId: chosen.id);
-      await ref.read(selectedTutorIdProvider.notifier).select(chosen.id);
+      await ref.read(tutorPreferenceProvider.notifier).markSynced();
       ref.invalidate(studentAcademicContextProvider);
       if (context.mounted) context.pop();
-    } on TutorPreferenceException catch (error) {
-      if (current != null) {
-        await ref.read(selectedTutorIdProvider.notifier).select(current.id);
-      }
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              error.code == 'permission-denied'
-                  ? context.l10n.companionSaveDenied
-                  : error.code == 'unavailable' ||
-                        error.code == 'deadline-exceeded'
-                  ? context.l10n.companionSaveNetworkError
-                  : context.l10n.companionSaveFailed,
-            ),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
     } catch (_) {
-      if (current != null) {
-        await ref.read(selectedTutorIdProvider.notifier).select(current.id);
-      }
+      // Le compagnon reste changé : seule la synchronisation a échoué.
       if (!context.mounted) return;
+      context.pop();
       ScaffoldMessenger.of(context)
         ..clearSnackBars()
         ..showSnackBar(
           SnackBar(
-            content: Text(context.l10n.companionSaveFailed),
+            content: Text(context.l10n.companionSaveDeferred(chosen.name)),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -1326,132 +1057,53 @@ class _TutorSection extends ConsumerWidget {
   }
 }
 
-class StudentProfileTutorCard extends StatefulWidget {
+class StudentProfileTutorCard extends StatelessWidget {
   const StudentProfileTutorCard({required this.tutor, super.key});
-
   final TutorPersona tutor;
 
   @override
-  State<StudentProfileTutorCard> createState() =>
-      _StudentProfileTutorCardState();
-}
-
-class _StudentProfileTutorCardState extends State<StudentProfileTutorCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _floatCtrl;
-  late final Animation<double> _floatAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _floatCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    );
-
-    _floatAnim = Tween<double>(
-      begin: -3.0,
-      end: 3.0,
-    ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOutSine));
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final disabled = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    if (disabled) {
-      _floatCtrl.stop();
-      _floatCtrl.value = 0.5;
-    } else if (!_floatCtrl.isAnimating) {
-      _floatCtrl.repeat(reverse: true);
-    }
-  }
-
-  @override
-  void dispose() {
-    _floatCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tutor = widget.tutor;
-    final s = TabSurface.of(context);
-    final tagline = tutor.id == 'leo'
-        ? context.l10n.leoProfileTagline
-        : context.l10n.kiraProfileTagline;
-
-    return Row(
-      children: [
-        // Portrait (Animated floating)
-        AnimatedBuilder(
-          animation: _floatAnim,
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(0, _floatAnim.value),
-              child: child,
-            );
-          },
-          child: Container(
-            width: 82,
-            height: 82,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(IntelliaRadii.small),
-              boxShadow: AppShadows.glow(tutor.accentColor, intensity: 0.30),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(IntelliaRadii.small),
-              child: Image.asset(
-                tutor.imagePath,
-                key: ValueKey('student-profile-tutor-image-${tutor.id}'),
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: tutor.gradientColors),
-                    borderRadius: BorderRadius.circular(IntelliaRadii.small),
-                  ),
-                  child: Icon(
-                    Icons.person_rounded,
-                    color: Colors.white.withValues(alpha: 0.80),
-                    size: 28,
-                  ),
-                ),
-              ),
+  Widget build(BuildContext context) => Row(
+    children: [
+      Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: tutor.accentColor.withValues(alpha: 0.35)),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(9),
+          child: Image.asset(
+            tutor.imagePath,
+            key: ValueKey('student-profile-tutor-image-${tutor.id}'),
+            fit: BoxFit.cover,
+            excludeFromSemantics: true,
+            errorBuilder: (_, _, _) => const Icon(
+              Icons.person_outline_rounded,
+              color: MasteryStyle.graphite,
             ),
           ),
         ),
-        const SizedBox(width: IntelliaSpacing.md),
-
-        // Info
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                tutor.name,
-                key: ValueKey('student-profile-tutor-name-${tutor.id}'),
-                style: GoogleFonts.manrope(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: s.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                tagline,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  color: tutor.accentColor,
-                  fontWeight: FontWeight.w700,
-                  height: 1.35,
-                ),
-              ),
-            ],
-          ),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              tutor.name,
+              key: ValueKey('student-profile-tutor-name-${tutor.id}'),
+              style: MasteryStyle.label.copyWith(fontSize: 14),
+            ),
+            Text(
+              context.l10n.selectedCompanionEyebrow,
+              style: MasteryStyle.caption,
+            ),
+          ],
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
 }
 
 class _NoTutorPlaceholder extends StatelessWidget {

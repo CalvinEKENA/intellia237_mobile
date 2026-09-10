@@ -22,7 +22,11 @@ import 'package:intellia237/features/student_home/presentation/widgets/progress_
 import 'package:intellia237/features/student_home/presentation/widgets/recommendations_section.dart';
 import 'package:intellia237/features/student_home/presentation/widgets/resume_course_card.dart';
 import 'package:intellia237/features/student_home/presentation/widgets/streak_motivation_card.dart';
+import 'package:intellia237/features/campus/presentation/widgets/campus_kpi_card.dart';
 import 'package:intellia237/features/student_home/presentation/widgets/subjects_carousel.dart';
+import 'package:intellia237/features/learn/domain/interactive_component.dart';
+import 'package:intellia237/features/learn/presentation/widgets/interactive/interactive_block_view.dart';
+import 'package:intellia237/features/learn/presentation/widgets/content_block_view.dart';
 
 const _viewport = Size(360, 1200);
 const _textScale = 1.5;
@@ -37,12 +41,17 @@ const _coveredPublicCardTypes = {
   'TrueFalseQuestionCard',
   'ShortAnswerQuestionCard',
   'FlowEntryCard',
+  'ContentBlockFallbackCard',
+  'InteractiveFallbackCard',
   'ProgressOverviewCard',
   'ResumeCourseCard',
   'StreakMotivationCard',
   'WeeklyGoalCard',
   'ChapterOfflineActionCard',
   'StudentProfileTutorCard',
+  // Dedicated FR/EN matrix: test/features/mastery/mastery_widget_test.dart.
+  'MasterySubjectCard',
+  'CampusKpiCard',
 };
 
 const _longQuestion = QuizQuestion(
@@ -146,6 +155,27 @@ void main() {
     ),
     (name: 'FlowEntryCard', child: FlowEntryCard(onTap: _noop)),
     (
+      name: 'ContentBlockFallbackCard',
+      child: ContentBlockFallbackCard(
+        reason:
+            'Cette ressource pédagogique n’est plus disponible : elle a été '
+            'retirée du catalogue ou remplacée par une version plus récente.',
+      ),
+    ),
+    (
+      name: 'InteractiveFallbackCard',
+      child: InteractiveFallbackCard(
+        spec: InteractiveComponentSpec(
+          componentKey: 'chute_libre_v3',
+          summary:
+              'Comprendre la chute libre en faisant varier la hauteur de '
+              'lâcher et en observant la durée de chute.',
+        ),
+        reason:
+            "Cette activité demande une version plus récente de l'application.",
+      ),
+    ),
+    (
       name: 'ProgressOverviewCard',
       child: ProgressOverviewCard(
         globalProgress: 0.64,
@@ -231,6 +261,15 @@ void main() {
         onLearnerSelected: _ignoreLearner,
         onAddLearner: _noop,
         onOpenParentArea: _noop,
+      ),
+    ),
+    (
+      name: 'CampusKpiCard',
+      child: const CampusKpiCard(
+        category: 'Programme',
+        metric: '78 %',
+        label: 'Taux d’avancement',
+        subtitle: 'Synthèse déterministe',
       ),
     ),
   ];

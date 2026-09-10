@@ -49,7 +49,10 @@ void main() {
     expect(_hasAvatar(tester, 'assets/companions/kira.png'), isTrue);
 
     await tester.enterText(find.byType(TextField), 'Explique les fractions');
-    await tester.tap(find.byIcon(Icons.send_rounded));
+    await tester.pump();
+    // Le composeur ne porte qu'un seul verbe : « Parler » devient « Envoyer »
+    // dès qu'un caractère utile est saisi.
+    await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 

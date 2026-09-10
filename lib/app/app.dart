@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'config/app_config.dart';
 import 'router/app_router.dart';
+import 'session/learner_session.dart';
 import 'theme/app_theme.dart';
 import '../features/profile/application/user_preferences_controller.dart';
 import '../core/widgets/network_status_banner.dart';
@@ -36,6 +37,10 @@ class Intellia237App extends ConsumerWidget {
         unawaited(ref.read(learnActionsProvider).flushQueuedProgress());
       }
     });
+    // Frontière de session apprenant : maintenue en vie pour toute la durée de
+    // l'application, elle purge l'état élève à chaque changement d'identité.
+    ref.watch(learnerSessionBoundaryProvider);
+
     ref.listen(authControllerProvider, (previous, auth) {
       final becameStudent =
           auth.isAuthenticated &&

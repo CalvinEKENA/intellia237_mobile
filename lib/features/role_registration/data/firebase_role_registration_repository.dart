@@ -181,12 +181,24 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
     UserCredential? credential;
 
     try {
-      credential = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
+      // Une tentative précédente a pu créer le compte puis échouer sur la
+      // callable sans que rien ne prouve l'absence d'écriture. Le compte est
+      // alors conservé et l'élève reste connecté : on le réutilise au lieu de
+      // buter sur « email-already-in-use » à chaque nouvel essai.
+      final signedIn = _auth.currentUser;
+      final User? user;
+      if (signedIn != null &&
+          (signedIn.email?.trim().toLowerCase() ?? '') ==
+              email.trim().toLowerCase()) {
+        user = signedIn;
+      } else {
+        credential = await _auth.createUserWithEmailAndPassword(
+          email: email.trim(),
+          password: password,
+        );
+        user = credential.user;
+      }
 
-      final user = credential.user;
       if (user == null) {
         throw const RoleRegistrationException(
           message: 'Impossible de créer le compte utilisateur.',
@@ -208,6 +220,7 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
         email: (data['email'] as String?) ?? email.trim(),
         firstName: (data['firstName'] as String?) ?? firstName.trim(),
         lastName: (data['lastName'] as String?) ?? lastName.trim(),
+        accountStatus: data['accountStatus'] as String?,
       );
     } on FirebaseAuthException catch (error, stackTrace) {
       _debugLog('register-staff-auth', error.code, error.message, stackTrace);
@@ -225,7 +238,13 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
         error.message,
         stackTrace,
       );
-      await _rollbackAuthUser(credential);
+      // Un échec réseau ou un dépassement de délai ne prouve pas que la
+      // transaction serveur a échoué : elle a pu être committée avant que la
+      // réponse ne se perde. Supprimer le compte dans ce cas détruit une
+      // demande réellement enregistrée et affiche un faux échec.
+      if (_provesNothingWasWritten(error.code)) {
+        await _rollbackAuthUser(credential);
+      }
       throw RoleRegistrationException(
         message: FirebaseErrorMapper.serviceMessage(
           code: error.code,
@@ -244,6 +263,16 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
       );
     }
   }
+
+  /// Vrai seulement si le code d'erreur garantit qu'aucune écriture n'a eu
+  /// lieu côté serveur. Tout le reste est ambigu et doit préserver le compte.
+  static bool _provesNothingWasWritten(String code) => const {
+    'invalid-argument',
+    'unauthenticated',
+    'permission-denied',
+    'failed-precondition',
+    'not-found',
+  }.contains(FirebaseErrorMapper.normalizeCode(code));
 
   Future<void> _sendVerificationBestEffort(User user) async {
     if (user.emailVerified) return;

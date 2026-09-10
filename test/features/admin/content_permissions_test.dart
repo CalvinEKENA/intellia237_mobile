@@ -1,0 +1,228 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:intellia237/features/admin/domain/content_permissions.dart';
+import 'package:intellia237/features/admin/domain/content_scope.dart';
+import 'package:intellia237/features/admin/domain/editorial_workflow.dart';
+import 'package:intellia237/features/auth/domain/app_role.dart';
+
+/// Le cloisonnement et la barrière éditoriale sont les deux garanties du
+/// Studio : un établissement ne touche pas au travail d'un autre, et rien ne
+/// devient visible aux élèves sans passage par l'administration.
+void main() {
+  const leclerc = ContentScope(
+    type: ContentScopeType.establishment,
+    establishmentId: 'lycee-leclerc',
+  );
+  const voisin = ContentScope(
+    type: ContentScopeType.establishment,
+    establishmentId: 'lycee-voisin',
+  );
+  const global = ContentScope.global;
+
+  const profLeclerc = ContentActor(
+    uid: 'prof-1',
+    role: AppRole.teacher,
+    establishmentId: 'lycee-leclerc',
+  );
+  const adminLeclerc = ContentActor(
+    uid: 'admin-1',
+    role: AppRole.admin,
+    establishmentId: 'lycee-leclerc',
+  );
+  const eleve = ContentActor(uid: 'eleve-1', role: AppRole.student);
+
+  group('cloisonnement par établissement', () {
+    test('un enseignant écrit dans son établissement', () {
+      expect(profLeclerc.canWriteInScope(leclerc), isTrue);
+    });
+
+    test('il ne touche pas à l’établissement voisin', () {
+      expect(profLeclerc.canWriteInScope(voisin), isFalse);
+    });
+
+    test('il ne touche pas au programme national', () {
+      // Le programme officiel n'appartient à personne en particulier.
+      expect(profLeclerc.canWriteInScope(global), isFalse);
+    });
+
+    test('l’administration écrit au national', () {
+      expect(adminLeclerc.canWriteInScope(global), isTrue);
+    });
+
+    test('un enseignant sans établissement n’écrit nulle part', () {
+      const orphelin = ContentActor(uid: 'p', role: AppRole.teacher);
+      expect(orphelin.canWriteInScope(leclerc), isFalse);
+      expect(orphelin.canWriteInScope(global), isFalse);
+    });
+
+    test('un élève n’écrit jamais', () {
+      expect(eleve.canWriteInScope(global), isFalse);
+      expect(eleve.canWriteInScope(leclerc), isFalse);
+    });
+
+    test('le contenu national est lisible par tous', () {
+      expect(eleve.canReadScope(global), isTrue);
+    });
+
+    test('le contenu d’un établissement ne sort pas de ses murs', () {
+      expect(profLeclerc.canReadScope(voisin), isFalse);
+      expect(profLeclerc.canReadScope(leclerc), isTrue);
+    });
+  });
+
+  group('barrière éditoriale', () {
+    const draft = EditorialWorkflowMetadata.draft;
+    const inReview = EditorialWorkflowMetadata(
+      status: EditorialStatus.inReview,
+    );
+    const published = EditorialWorkflowMetadata(
+      status: EditorialStatus.published,
+    );
+
+    test('l’auteur soumet son brouillon à la relecture', () {
+      expect(
+        ContentPermissions.canTransition(
+          actor: profLeclerc,
+          scope: leclerc,
+          metadata: draft,
+          next: EditorialStatus.inReview,
+          authorUid: 'prof-1',
+        ),
+        isTrue,
+      );
+    });
+
+    test('un enseignant ne publie pas lui-même', () {
+      // Rendre visible aux élèves relève de l'administration.
+      expect(
+        ContentPermissions.canTransition(
+          actor: profLeclerc,
+          scope: leclerc,
+          metadata: inReview,
+          next: EditorialStatus.published,
+          authorUid: 'prof-1',
+        ),
+        isFalse,
+      );
+    });
+
+    test('l’administration approuve puis publie', () {
+      expect(
+        ContentPermissions.canTransition(
+          actor: adminLeclerc,
+          scope: leclerc,
+          metadata: inReview,
+          next: EditorialStatus.approved,
+        ),
+        isTrue,
+      );
+      expect(
+        ContentPermissions.canTransition(
+          actor: adminLeclerc,
+          scope: leclerc,
+          metadata: inReview,
+          next: EditorialStatus.published,
+        ),
+        isTrue,
+      );
+    });
+
+    test(
+      'publié ne redevient jamais brouillon, même pour l’administration',
+      () {
+        expect(
+          ContentPermissions.canTransition(
+            actor: adminLeclerc,
+            scope: leclerc,
+            metadata: published,
+            next: EditorialStatus.draft,
+          ),
+          isFalse,
+        );
+      },
+    );
+
+    test('publié s’archive', () {
+      expect(
+        ContentPermissions.canTransition(
+          actor: adminLeclerc,
+          scope: leclerc,
+          metadata: published,
+          next: EditorialStatus.archived,
+        ),
+        isTrue,
+      );
+    });
+
+    test('le périmètre prime sur le rôle', () {
+      // Administrateur, mais d'un autre établissement : aucun geste possible.
+      expect(
+        ContentPermissions.canTransition(
+          actor: adminLeclerc,
+          scope: voisin,
+          metadata: inReview,
+          next: EditorialStatus.published,
+        ),
+        isFalse,
+      );
+    });
+
+    test('modifier un contenu publié impose une révision', () {
+      expect(ContentPermissions.requiresRevisionToEdit(published), isTrue);
+      expect(ContentPermissions.requiresRevisionToEdit(draft), isFalse);
+    });
+  });
+
+  group('gestes proposés à l’interface', () {
+    test('l’enseignant ne se voit offrir que la soumission', () {
+      final gestes = ContentPermissions.availableTransitions(
+        actor: profLeclerc,
+        scope: leclerc,
+        metadata: EditorialWorkflowMetadata.draft,
+        authorUid: 'prof-1',
+      );
+
+      expect(gestes, [EditorialStatus.inReview]);
+    });
+
+    test('l’administration dispose des gestes de publication', () {
+      final gestes = ContentPermissions.availableTransitions(
+        actor: adminLeclerc,
+        scope: leclerc,
+        metadata: const EditorialWorkflowMetadata(
+          status: EditorialStatus.inReview,
+        ),
+      );
+
+      expect(
+        gestes,
+        containsAll(<EditorialStatus>[
+          EditorialStatus.approved,
+          EditorialStatus.rejected,
+          EditorialStatus.published,
+        ]),
+      );
+    });
+
+    test('un contenu publié n’offre que l’archivage', () {
+      final gestes = ContentPermissions.availableTransitions(
+        actor: adminLeclerc,
+        scope: leclerc,
+        metadata: const EditorialWorkflowMetadata(
+          status: EditorialStatus.published,
+        ),
+      );
+
+      expect(gestes, [EditorialStatus.archived]);
+    });
+
+    test('hors périmètre, aucun geste', () {
+      final gestes = ContentPermissions.availableTransitions(
+        actor: profLeclerc,
+        scope: voisin,
+        metadata: EditorialWorkflowMetadata.draft,
+      );
+
+      expect(gestes, isEmpty);
+    });
+  });
+}

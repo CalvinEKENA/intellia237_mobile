@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -13,6 +14,9 @@ import '../../../core/localization/localization_extensions.dart';
 import '../application/ai_companion_controller.dart';
 import '../domain/ai_companion_reply.dart';
 import 'widgets/chat_bubble.dart';
+import '../application/listen_controller.dart';
+import 'widgets/companion_composer.dart';
+import 'widgets/companion_history_sheet.dart';
 
 class AICompanionScreen extends ConsumerStatefulWidget {
   const AICompanionScreen({super.key, this.embedded = false, this.topic});
@@ -71,14 +75,16 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
       }
     });
 
-    final content = Column(
+    // La bande de suggestions est un confort : elle s'efface quand la hauteur
+    // restante ne suffit plus à la conversation et au composeur.
+    Widget buildContent({required bool compact}) => Column(
       children: [
         // ── Chat area ────────────────────────────────────────
         Expanded(
           child: _GlassChatContainer(
             scrollController: _scrollController,
             state: state,
-            quickPromptsVisible: _quickPromptsVisible,
+            quickPromptsVisible: _quickPromptsVisible && !compact,
             quickPrompts: quickPrompts,
             onQuickPrompt: (prompt) {
               ref.read(aiCompanionControllerProvider.notifier).send(prompt);
@@ -130,30 +136,58 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
         const SizedBox(height: IntelliaSpacing.sm),
 
         // ── Composer ─────────────────────────────────────────
-        _GlassComposer(
+        CompanionComposer(
           controller: _controller,
           onSubmit: _sendCurrentInput,
           enabled: !state.isSending,
+          companionName: state.tutor.name,
           accentColor: state.tutor.accentColor,
         ),
       ],
     );
 
     if (widget.embedded) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(
-          IntelliaSpacing.lg,
-          IntelliaSpacing.lg,
-          IntelliaSpacing.lg,
-          112,
-        ),
-        child: Column(
-          children: [
-            _CompanionHeader(state: state),
-            const SizedBox(height: IntelliaSpacing.md),
-            Expanded(child: content),
-          ],
-        ),
+      // La réserve du bas dégage la barre de navigation. Elle ne peut pas être
+      // une constante : à l'ouverture du clavier la coquille rétrécit déjà le
+      // corps — et en absorbe l'encoche, donc `viewInsets` y vaut zéro — si
+      // bien qu'exiger malgré tout 112 points faisait réclamer à la colonne
+      // plus de hauteur qu'il n'en restait. C'est le débordement observé.
+      //
+      // La conversation passe donc avant la réserve : celle-ci n'est servie
+      // que sur ce qui excède une hauteur de travail décente.
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          const navReserve = 112.0;
+          // En dessous de cette hauteur, l'écran ne peut plus porter à la fois
+          // le portrait, les suggestions, la conversation et le composeur.
+          const roomForEverything = 520.0;
+          final available = constraints.maxHeight;
+          final compact = available.isFinite && available < roomForEverything;
+
+          // Quand la place manque, la réserve de navigation et le portrait
+          // s'effacent : ce sont des agréments, alors que la conversation et
+          // le composeur sont la fonction même de l'écran. Tout revient dès
+          // que le clavier se referme.
+          final reserve = compact ? IntelliaSpacing.sm : navReserve;
+
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              IntelliaSpacing.lg,
+              compact ? IntelliaSpacing.sm : IntelliaSpacing.lg,
+              IntelliaSpacing.lg,
+              reserve,
+            ),
+            child: Column(
+              children: [
+                if (!compact) ...[
+                  _CompanionHeader(state: state),
+                  const SizedBox(height: IntelliaSpacing.md),
+                ],
+                Expanded(child: buildContent(compact: compact)),
+              ],
+            ),
+          );
+        },
       );
     }
 
@@ -182,7 +216,7 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
                     IntelliaSpacing.lg,
                     IntelliaSpacing.lg,
                   ),
-                  child: content,
+                  child: buildContent(compact: false),
                 ),
               ),
             ],
@@ -196,6 +230,9 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     final message = _controller.text.trim();
     if (message.isEmpty) return;
     _controller.clear();
+    // Un nouvel envoi interrompt proprement la lecture en cours ; elle ne
+    // reprend jamais d'elle-même.
+    unawaited(ref.read(listenControllerProvider.notifier).stop());
     ref.read(aiCompanionControllerProvider.notifier).send(message);
   }
 
@@ -411,20 +448,13 @@ class _CompanionHeader extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: tutor.gradientColors),
-              borderRadius: BorderRadius.circular(99),
-            ),
-            child: Text(
-              tutor.levelLabel,
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-              ),
-            ),
+          // Accès à l'historique : les fils précédents doivent être
+          // retrouvables sans passer par un menu caché.
+          IconButton(
+            key: const ValueKey('companion-history-button'),
+            onPressed: () => CompanionHistorySheet.show(context),
+            tooltip: context.l10n.companionHistoryTitle,
+            icon: Icon(Icons.history_rounded, color: s.textSecondary, size: 22),
           ),
         ],
       ),
@@ -485,16 +515,22 @@ class _GlassChatContainer extends StatelessWidget {
           duration: IntelliaMotion.medium,
           curve: IntelliaMotion.emphasizedDecelerate,
           child: quickPromptsVisible
-              ? Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    IntelliaSpacing.md,
-                    IntelliaSpacing.md,
-                    IntelliaSpacing.md,
-                    0,
-                  ),
-                  child: _QuickPromptChips(
-                    prompts: quickPrompts,
-                    onTap: onQuickPrompt,
+              ? ConstrainedBox(
+                  // À très grande échelle de texte, la bande de suggestions
+                  // pourrait à elle seule dépasser la conversation : elle
+                  // défile plutôt que de pousser la colonne.
+                  constraints: const BoxConstraints(maxHeight: 132),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(
+                      IntelliaSpacing.md,
+                      IntelliaSpacing.md,
+                      IntelliaSpacing.md,
+                      0,
+                    ),
+                    child: _QuickPromptChips(
+                      prompts: quickPrompts,
+                      onTap: onQuickPrompt,
+                    ),
                   ),
                 )
               : const SizedBox.shrink(),
@@ -616,100 +652,3 @@ class _QuickPromptChips extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────
 // Glass pill composer — text field + gradient send button
 // ─────────────────────────────────────────────────────────────
-
-class _GlassComposer extends StatelessWidget {
-  const _GlassComposer({
-    required this.controller,
-    required this.onSubmit,
-    required this.enabled,
-    required this.accentColor,
-  });
-
-  final TextEditingController controller;
-  final VoidCallback onSubmit;
-  final bool enabled;
-  final Color accentColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
-
-    final field = Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: IntelliaSpacing.md,
-        vertical: IntelliaSpacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: s.useGlass ? Colors.white.withValues(alpha: 0.08) : s.fieldFill,
-        borderRadius: BorderRadius.circular(IntelliaRadii.large),
-        border: Border.all(color: s.surfaceBorder),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: TextField(
-              controller: controller,
-              enabled: enabled,
-              minLines: 1,
-              maxLines: 4,
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) => onSubmit(),
-              style: TextStyle(color: s.textPrimary, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: context.l10n.writeQuestionHint,
-                hintStyle: TextStyle(color: s.textTertiary, fontSize: 14),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              ),
-            ),
-          ),
-          const SizedBox(width: IntelliaSpacing.sm),
-          // Send button — gradient circle
-          GestureDetector(
-            onTap: enabled
-                ? () {
-                    HapticFeedback.lightImpact();
-                    onSubmit();
-                  }
-                : null,
-            child: AnimatedContainer(
-              duration: IntelliaMotion.fast,
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: enabled
-                    ? LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [accentColor, IntelliaColors.brandIndigo],
-                      )
-                    : null,
-                color: enabled ? null : s.surfaceMuted,
-                shape: BoxShape.circle,
-                boxShadow: enabled
-                    ? AppShadows.glow(accentColor, intensity: 0.40)
-                    : null,
-              ),
-              child: Icon(
-                Icons.send_rounded,
-                size: 18,
-                color: enabled ? Colors.white : s.textTertiary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (!s.useGlass) return field;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(IntelliaRadii.large),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: field,
-      ),
-    );
-  }
-}

@@ -32,6 +32,125 @@ service firebase.storage {
       allow write: if false;
     }
 
+    // ── Ressources pédagogiques d'INTELLIA Content Studio ──────────────
+    //
+    // Le premier segment est le périmètre : « global » pour le programme
+    // national, sinon l'identifiant de l'établissement propriétaire. C'est
+    // lui qui cloisonne : un enseignant de l'établissement A ne peut ni
+    // écrire ni effacer sous le périmètre de l'établissement B.
+    //
+    // Les documents `users` portent le rôle et l'établissement ; ce sont les
+    // mêmes que ceux dont dépendent les règles Firestore.
+
+    function userDoc() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function userRole() {
+      return isAuthenticated() ? userDoc().role : '';
+    }
+
+    function userEstablishment() {
+      return isAuthenticated() ? userDoc().establishmentId : '';
+    }
+
+    function isSuperAdmin() {
+      return userRole() in ['superAdmin', 'super_admin'];
+    }
+
+    function isAdmin() {
+      return userRole() == 'admin' || isSuperAdmin();
+    }
+
+    function isTeacher() {
+      return userRole() == 'teacher';
+    }
+
+    // Le programme national n'est modifiable que par l'administration.
+    function mayWriteGlobalScope() {
+      return isAdmin();
+    }
+
+    // Un contenu d'établissement n'est modifiable que par son personnel.
+    function mayWriteEstablishmentScope(scopeId) {
+      return (isTeacher() || isAdmin())
+        && userEstablishment() == scopeId
+        && scopeId != 'global';
+    }
+
+    function mayWriteScope(scopeId) {
+      return scopeId == 'global'
+        ? mayWriteGlobalScope()
+        : mayWriteEstablishmentScope(scopeId);
+    }
+
+    // Le contenu national est lisible par tout compte authentifié ; le
+    // contenu d'un établissement ne l'est que par ses membres.
+    function mayReadScope(scopeId) {
+      return isAuthenticated()
+        && (scopeId == 'global'
+            || isSuperAdmin()
+            || userEstablishment() == scopeId);
+    }
+
+    // Chaque nature de media porte son propre plafond. Un seul plafond
+    // global au niveau de la video laissait passer une image de 300 Mo :
+    // une erreur d'export aurait pu remplir le bucket sans qu'aucune regle
+    // ne s'y oppose.
+
+    function assetContentType() {
+      return request.resource.contentType;
+    }
+
+    function assetSize() {
+      return request.resource.size;
+    }
+
+    function isAllowedImage() {
+      // Le SVG reste refuse : c'est un document actif, porteur de script,
+      // et rien dans le pipeline ne l'assainit aujourd'hui.
+      return assetContentType() in ['image/jpeg', 'image/png', 'image/webp']
+        && assetSize() <= 10 * 1024 * 1024;
+    }
+
+    function isAllowedAudio() {
+      // MP3 et le conteneur M4A/AAC, les seuls formats que l'import et le
+      // lecteur savent traiter.
+      return assetContentType() in [
+          'audio/mpeg',
+          'audio/mp4',
+          'audio/m4a',
+          'audio/aac'
+        ]
+        && assetSize() <= 50 * 1024 * 1024;
+    }
+
+    function isAllowedVideo() {
+      return assetContentType() in ['video/mp4', 'video/webm']
+        && assetSize() <= 150 * 1024 * 1024;
+    }
+
+    function isAllowedPdf() {
+      return assetContentType() == 'application/pdf'
+        && assetSize() <= 25 * 1024 * 1024;
+    }
+
+    function isAllowedEducationalAsset() {
+      return request.resource != null
+        && assetSize() > 0
+        && (isAllowedImage()
+            || isAllowedAudio()
+            || isAllowedVideo()
+            || isAllowedPdf());
+    }
+
+    match /educational_assets/{scopeId}/{allPaths=**} {
+      allow read: if mayReadScope(scopeId);
+      allow create, update: if mayWriteScope(scopeId)
+                            && isAllowedEducationalAsset();
+      allow delete: if mayWriteScope(scopeId);
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }

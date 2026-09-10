@@ -1,172 +1,258 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
+import '../../application/listen_controller.dart';
 import '../../../../core/widgets/tab_presentation.dart';
 import '../../../tutor/domain/tutor_persona.dart';
 import '../../domain/ai_message.dart';
+import 'companion_rich_text.dart';
 
+/// Un tour de conversation, dans la direction « Cahier · Ligne ».
+///
+/// Registre de décisions : la réponse du compagnon n'est plus enfermée dans une
+/// bulle de verre à dégradé, et son portrait ne se répète plus à chaque
+/// message — il reste dans l'en-tête. Le texte est posé sur le fond, tenu par
+/// un simple fil d'encre vertical à la couleur de la persona. L'élève, lui,
+/// garde une bulle discrète à droite.
 class ChatBubble extends StatelessWidget {
-  const ChatBubble({required this.message, required this.tutor, super.key});
+  const ChatBubble({
+    required this.message,
+    required this.tutor,
+    this.showTimestamp = true,
+    super.key,
+  });
 
   final AIMessage message;
+
+  /// Compagnon courant, utilisé seulement quand le message n'en porte pas.
   final TutorPersona tutor;
+
+  final bool showTimestamp;
 
   @override
   Widget build(BuildContext context) {
     final isUser = message.role == AIMessageRole.user;
+    // Un message garde le compagnon qui l'a écrit : changer de persona ne
+    // réécrit pas les réponses passées.
+    final author = isUser
+        ? tutor
+        : TutorPersona.resolve(message.companionId, fallback: tutor);
 
     return Align(
-          alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 480),
-            margin: const EdgeInsets.symmetric(vertical: IntelliaSpacing.xs),
-            child: isUser
-                ? _UserBubble(text: message.text)
-                : _AiBubble(text: message.text, tutor: tutor),
-          ),
-        )
-        .animate()
-        .slideY(
-          begin: 0.3,
-          end: 0,
-          duration: IntelliaMotion.medium,
-          curve: IntelliaMotion.emphasizedDecelerate,
-        )
-        .fadeIn(duration: IntelliaMotion.medium);
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-// User bubble — gradient pill (brand → accent), right-aligned
-// ─────────────────────────────────────────────────────────────
-
-class _UserBubble extends StatelessWidget {
-  const _UserBubble({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: IntelliaSpacing.md,
-        vertical: IntelliaSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [IntelliaColors.brandIndigo, IntelliaColors.success],
-        ),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(4),
-        ),
-        boxShadow: AppShadows.glow(IntelliaColors.brandIndigo, intensity: 0.20),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5),
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 560),
+        margin: const EdgeInsets.symmetric(vertical: IntelliaSpacing.sm),
+        child: isUser
+            ? _StudentTurn(message: message, showTimestamp: showTimestamp)
+            : _CompanionTurn(
+                message: message,
+                author: author,
+                showTimestamp: showTimestamp,
+              ),
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// AI bubble — glass panel with tutor avatar, left-aligned
-// ─────────────────────────────────────────────────────────────
+/// Horodatage discret, lisible sans dominer la ligne.
+class _Timestamp extends StatelessWidget {
+  const _Timestamp({required this.moment});
 
-class _AiBubble extends StatelessWidget {
-  const _AiBubble({required this.text, required this.tutor});
-
-  final String text;
-  final TutorPersona tutor;
+  final DateTime moment;
 
   @override
   Widget build(BuildContext context) {
     final s = TabSurface.of(context);
-    const radius = BorderRadius.only(
-      topLeft: Radius.circular(4),
-      topRight: Radius.circular(24),
-      bottomLeft: Radius.circular(24),
-      bottomRight: Radius.circular(24),
+    final local = moment.toLocal();
+    final text =
+        '${local.hour.toString().padLeft(2, '0')}:'
+        '${local.minute.toString().padLeft(2, '0')}';
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        text,
+        style: TextStyle(color: s.textTertiary, fontSize: 11, height: 1.2),
+      ),
     );
+  }
+}
 
-    final row = Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+class _StudentTurn extends StatelessWidget {
+  const _StudentTurn({required this.message, required this.showTimestamp});
+
+  final AIMessage message;
+  final bool showTimestamp;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = TabSurface.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // Tutor Avatar
         Container(
-          width: 32,
-          height: 32,
-          margin: const EdgeInsets.only(right: IntelliaSpacing.sm, top: 2),
+          padding: const EdgeInsets.symmetric(
+            horizontal: IntelliaSpacing.md,
+            vertical: IntelliaSpacing.sm,
+          ),
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: tutor.accentColor.withValues(alpha: 0.5),
-              width: 1.2,
+            // Bulle discrète : une teinte d'encre, pas un dégradé de marque.
+            color: s.fieldFill,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(4),
             ),
-            image: DecorationImage(
-              image: AssetImage(tutor.imagePath),
-              fit: BoxFit.cover,
-            ),
+            border: Border.all(color: s.surfaceBorder),
           ),
-        ),
-        Expanded(
           child: Text(
-            text,
-            style: TextStyle(color: s.textPrimary, fontSize: 14, height: 1.6),
+            message.text,
+            style: TextStyle(color: s.textPrimary, fontSize: 14, height: 1.5),
           ),
         ),
+        if (showTimestamp) _Timestamp(moment: message.createdAt),
       ],
     );
+  }
+}
 
-    // Embedded clair : surface opaque + texte sombre. Autonome sombre : glass.
-    if (!s.useGlass) {
-      return Container(
-        padding: const EdgeInsets.all(IntelliaSpacing.md),
-        decoration: BoxDecoration(
-          color: s.surface,
-          borderRadius: radius,
-          border: Border.all(color: s.surfaceBorder),
-          boxShadow: IntelliaShadows.card(Colors.black),
-        ),
-        child: row,
-      );
-    }
-    return ClipRRect(
-      borderRadius: radius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          padding: const EdgeInsets.all(IntelliaSpacing.md),
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0x1EFFFFFF), Color(0x0CFFFFFF)],
-            ),
-            borderRadius: radius,
-            border: Border.fromBorderSide(
-              BorderSide(color: IntelliaColors.glassBorder),
+class _CompanionTurn extends ConsumerWidget {
+  const _CompanionTurn({
+    required this.message,
+    required this.author,
+    required this.showTimestamp,
+  });
+
+  final AIMessage message;
+  final TutorPersona author;
+  final bool showTimestamp;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = TabSurface.of(context);
+    final listen = ref.watch(listenControllerProvider);
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Fil d'encre : la seule marque de la persona dans le fil.
+          Container(
+            width: 2,
+            decoration: BoxDecoration(
+              color: author.accentColor.withValues(alpha: 0.55),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
-          child: row,
+          const SizedBox(width: IntelliaSpacing.md),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CompanionRichText(
+                  text: message.text,
+                  accentColor: author.accentColor,
+                  baseStyle: TextStyle(
+                    color: s.textPrimary,
+                    fontSize: 14.5,
+                    height: 1.62,
+                  ),
+                ),
+                Row(
+                  children: [
+                    // « Écouter » est disponible pour tous les paliers : la
+                    // lecture à voix haute n'est pas une fonction premium.
+                    // À grande échelle de texte, l'action et l'heure doivent
+                    // pouvoir se comprimer plutôt que déborder de la bulle.
+                    Flexible(
+                      child: _ListenAction(
+                        speaking: listen.isSpeaking(message.id),
+                        accent: author.accentColor,
+                        onTap: () => ref
+                            .read(listenControllerProvider.notifier)
+                            .toggle(
+                              message.id,
+                              message.text,
+                              // La voix suit l'auteur du message, pas la
+                              // persona courante : un ancien message de Kira
+                              // reste lu par Kira.
+                              companionId: author.id,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(width: IntelliaSpacing.sm),
+                    if (showTimestamp) _Timestamp(moment: message.createdAt),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Bouton « Écouter » / « Pause » d'une réponse.
+class _ListenAction extends StatelessWidget {
+  const _ListenAction({
+    required this.speaking,
+    required this.accent,
+    required this.onTap,
+  });
+
+  final bool speaking;
+  final Color accent;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = speaking
+        ? context.l10n.companionPauseListening
+        : context.l10n.companionListen;
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(99),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                speaking ? Icons.pause_rounded : Icons.volume_up_rounded,
+                size: 15,
+                color: accent,
+              ),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: accent,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// Typing indicator — 3 bouncing dots with tutor accent
-// ─────────────────────────────────────────────────────────────
-
+/// Attente de réponse : trois points sur le fil d'encre, sans bulle.
 class TypingIndicatorBubble extends StatefulWidget {
   const TypingIndicatorBubble({required this.tutor, super.key});
 
@@ -177,96 +263,88 @@ class TypingIndicatorBubble extends StatefulWidget {
 }
 
 class _TypingIndicatorBubbleState extends State<TypingIndicatorBubble>
-    with TickerProviderStateMixin {
-  late final List<AnimationController> _ctrls;
-  late final List<Animation<double>> _anims;
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _ctrls = List.generate(
-      3,
-      (i) => AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 500),
-      ),
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1100),
     );
-    _anims = _ctrls
-        .map(
-          (c) => Tween<double>(
-            begin: 0,
-            end: -8,
-          ).animate(CurvedAnimation(parent: c, curve: Curves.easeInOut)),
-        )
-        .toList();
-
-    _startBouncing();
   }
 
-  void _startBouncing() async {
-    while (mounted) {
-      for (int i = 0; i < 3; i++) {
-        if (!mounted) return;
-        _ctrls[i].forward(from: 0).then((_) => _ctrls[i].reverse());
-        await Future.delayed(const Duration(milliseconds: 150));
-      }
-      await Future.delayed(const Duration(milliseconds: 400));
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Une animation infinie ne doit pas tourner quand l'utilisateur a demandé
+    // la réduction des mouvements.
+    final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (reduce) {
+      _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
     }
   }
 
   @override
   void dispose() {
-    for (final c in _ctrls) {
-      c.dispose();
-    }
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
     return Align(
       alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: IntelliaSpacing.xs),
-        padding: const EdgeInsets.symmetric(
-          horizontal: IntelliaSpacing.md,
-          vertical: IntelliaSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: s.useGlass ? Colors.white.withValues(alpha: 0.08) : s.surface,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(4),
-            topRight: Radius.circular(20),
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-          border: Border.all(color: s.surfaceBorder),
-        ),
+      child: IntrinsicHeight(
         child: Row(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (int i = 0; i < 3; i++) ...[
-              AnimatedBuilder(
-                animation: _anims[i],
-                builder: (context, child) => Transform.translate(
-                  offset: Offset(0, _anims[i].value),
-                  child: child,
-                ),
-                child: Container(
-                  width: 7,
-                  height: 7,
-                  decoration: BoxDecoration(
-                    color: widget.tutor.accentColor,
-                    shape: BoxShape.circle,
-                  ),
+            Container(
+              width: 2,
+              decoration: BoxDecoration(
+                color: widget.tutor.accentColor.withValues(alpha: 0.55),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: IntelliaSpacing.md),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: IntelliaSpacing.sm),
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) => Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < 3; i++) ...[
+                      Opacity(
+                        opacity: _dotOpacity(i),
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: widget.tutor.accentColor,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                      if (i < 2) const SizedBox(width: 5),
+                    ],
+                  ],
                 ),
               ),
-              if (i < 2) const SizedBox(width: 5),
-            ],
+            ),
           ],
         ),
       ),
-    ).animate().fadeIn(duration: IntelliaMotion.fast);
+    );
+  }
+
+  double _dotOpacity(int index) {
+    if (!_controller.isAnimating) return 0.6;
+    final phase = (_controller.value * 3 - index).clamp(0.0, 1.0);
+    return 0.35 + 0.65 * (1 - (phase - 0.5).abs() * 2).clamp(0.0, 1.0);
   }
 }

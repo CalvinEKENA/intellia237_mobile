@@ -147,7 +147,11 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
             firstName: result.firstName,
           );
 
-      state = state.copyWith(isSubmitting: false, clearError: true);
+      state = state.copyWith(
+        isSubmitting: false,
+        clearError: true,
+        awaitsValidation: result.awaitsValidation,
+      );
       await IntelliaTelemetry.registrationCompleted(role: 'teacher');
       return true;
     } on RoleRegistrationException catch (error) {

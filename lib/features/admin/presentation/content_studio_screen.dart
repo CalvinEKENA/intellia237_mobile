@@ -11,6 +11,7 @@ import '../domain/admin_content_models.dart';
 import 'content_chapter_screen.dart';
 import 'content_quiz_editor_screen.dart';
 import 'admin_presentation_localization.dart';
+import 'flow_publications_tab.dart';
 
 /// Studio de Contenu — vue principale : sélecteur de classe + liste des matières
 class ContentStudioScreen extends ConsumerStatefulWidget {
@@ -30,7 +31,7 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 2, vsync: this);
+    _tabs = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -84,12 +85,17 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
                       },
                     ),
                   ),
-                  // Tabs: Matières / Quiz
+                  // Tabs: Matières / Quiz / Publications Flow
                   TabBar(
                     controller: _tabs,
+                    isScrollable: true,
                     tabs: [
                       Tab(text: context.l10n.subjectsAndCourses),
                       Tab(text: context.l10n.quizLabel),
+                      const Tab(
+                        key: ValueKey('studio-tab-flow'),
+                        text: 'Publications Flow',
+                      ),
                     ],
                   ),
                 ],
@@ -102,6 +108,7 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
           children: [
             _SubjectsTab(classLevel: selectedClass),
             _QuizzesTab(classLevel: selectedClass),
+            FlowPublicationsTab(classLevel: selectedClass),
           ],
         ),
       ),

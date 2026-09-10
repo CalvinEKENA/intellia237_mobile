@@ -21,7 +21,8 @@ import '../../legal/presentation/legal_links.dart';
 import '../../mobile_money/presentation/mobile_money_parent_tab.dart';
 import '../../notifications/presentation/notification_app_bar_action.dart';
 import 'widgets/parent_premium_nav_bar.dart';
-import 'widgets/progress_line_chart.dart';
+import 'widgets/parent_learning_overview.dart';
+import '../../mastery/presentation/mastery_style.dart';
 
 class ParentHomeScreen extends ConsumerStatefulWidget {
   const ParentHomeScreen({super.key});
@@ -60,7 +61,8 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
-        title: Text(_tabTitles(context)[_tabIndex]),
+        toolbarHeight: MediaQuery.textScalerOf(context).scale(56),
+        title: Text(_tabTitles(context)[_tabIndex], maxLines: 3),
         actions: const [NotificationAppBarAction()],
       ),
       body: TabSurface(
@@ -179,195 +181,56 @@ class _ParentHomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final studyRatio =
-        !selectedChild.hasStudyTimeData || selectedChild.studyMinutesTarget == 0
-        ? 0.0
-        : (selectedChild.studyMinutesToday / selectedChild.studyMinutesTarget)
-              .clamp(0, 1)
-              .toDouble();
-
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        IntelliaSpacing.lg,
-        IntelliaSpacing.lg,
-        IntelliaSpacing.lg,
-        132,
-      ),
-      children: [
-        KeyedSubtree(
-          key: heroKey,
-          child: Container(
-            padding: const EdgeInsets.all(IntelliaSpacing.lg),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF0F766E), Color(0xFF16A34A)],
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.parentSpace,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: IntelliaSpacing.xs),
-                Text(
-                  context.l10n.parentSpaceDescription,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.9),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: IntelliaSpacing.md),
-        KeyedSubtree(
-          key: switcherKey,
-          child: SizedBox(
-            height: 38,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                final child = dashboard.children[index];
-                final selected = child.id == selectedChild.id;
-                return ChoiceChip(
-                  label: Text(child.firstName),
-                  selected: selected,
-                  onSelected: (_) => onSelectChild(child.id),
-                );
-              },
-              separatorBuilder: (context, index) =>
-                  const SizedBox(width: IntelliaSpacing.xs),
-              itemCount: dashboard.children.length,
-            ),
-          ),
-        ),
-        const SizedBox(height: IntelliaSpacing.md),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(IntelliaSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${selectedChild.firstName} • ${selectedChild.classLabel}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: IntelliaSpacing.xs),
-                if (selectedChild.hasProgressData) ...[
-                  Text(
-                    context.l10n.globalProgressPercent(
-                      (selectedChild.globalProgress * 100).round(),
-                    ),
-                  ),
-                  const SizedBox(height: IntelliaSpacing.sm),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: LinearProgressIndicator(
-                      value: selectedChild.globalProgress,
-                      minHeight: 9,
-                    ),
-                  ),
-                ] else
-                  Text(context.l10n.progressComingAfterActivities),
-                const SizedBox(height: IntelliaSpacing.md),
-                // Jamais de courbe plate factice : la courbe n'apparaît que
-                // si l'agrégat hebdomadaire existe réellement.
-                if (selectedChild.weeklyProgress.any((v) => v > 0))
-                  ProgressLineChart(values: selectedChild.weeklyProgress)
-                else
-                  IntelliaStateView(
-                    kind: IntelliaStateKind.empty,
-                    compact: true,
-                    title: context.l10n.activityChartComing,
-                    message: context.l10n.childWeeklyProgressComing(
-                      selectedChild.firstName,
-                    ),
-                  ),
-                const SizedBox(height: IntelliaSpacing.md),
-                if (selectedChild.strongSubjects.isNotEmpty ||
-                    selectedChild.weakSubjects.isNotEmpty)
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _SubjectTagCard(
-                          title: context.l10n.strongSubjects,
-                          subjects: selectedChild.strongSubjects,
-                          color: const Color(0xFF16A34A),
-                        ),
-                      ),
-                      const SizedBox(width: IntelliaSpacing.sm),
-                      Expanded(
-                        child: _SubjectTagCard(
-                          title: context.l10n.subjectsToImprove,
-                          subjects: selectedChild.weakSubjects,
-                          color: const Color(0xFFDC2626),
-                        ),
-                      ),
-                    ],
-                  )
-                else
-                  Text(
-                    context.l10n.subjectStrengthsComing,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                const SizedBox(height: IntelliaSpacing.md),
-                _StudyIndicator(
-                  ratio: studyRatio,
-                  studyMinutesToday: selectedChild.studyMinutesToday,
-                  studyMinutesTarget: selectedChild.studyMinutesTarget,
-                  measured: selectedChild.hasStudyTimeData,
-                ),
-                const SizedBox(height: IntelliaSpacing.md),
-                Row(
+    return ColoredBox(
+      color: MasteryStyle.paper,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 768),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 132),
+            children: [
+              KeyedSubtree(
+                key: switcherKey,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => context.push(
-                          AppRoutes.childOverview(selectedChild.id),
-                        ),
-                        icon: const Icon(Icons.visibility_rounded),
-                        label: Text(context.l10n.childOverviewTitle),
+                    for (final child in dashboard.children)
+                      ChoiceChip(
+                        label: Text(child.firstName),
+                        selected: child.id == selectedChild.id,
+                        onSelected: (_) => onSelectChild(child.id),
                       ),
-                    ),
-                    const SizedBox(width: IntelliaSpacing.sm),
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: () => context.push(
-                          AppRoutes.childProgress(selectedChild.id),
-                        ),
-                        icon: const Icon(Icons.show_chart_rounded),
-                        label: Text(context.l10n.progressLabel),
-                      ),
-                    ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 24),
+              KeyedSubtree(
+                key: heroKey,
+                child: ParentLearningOverview(
+                  key: ValueKey('parent-learning-${selectedChild.id}'),
+                  child: selectedChild,
+                ),
+              ),
+              const SizedBox(height: 20),
+              OutlinedButton.icon(
+                onPressed: () =>
+                    context.push(AppRoutes.childProgress(selectedChild.id)),
+                icon: const Icon(Icons.auto_stories_outlined),
+                label: Text(context.l10n.viewDetailedProgress),
+              ),
+              const SizedBox(height: 24),
+              Text(context.l10n.schoolAnnouncements, style: MasteryStyle.title),
+              const SizedBox(height: 12),
+              for (final announcement in dashboard.announcements.take(3)) ...[
+                _AnnouncementCard(announcement: announcement),
+                const SizedBox(height: 8),
               ],
-            ),
+            ],
           ),
         ),
-        const SizedBox(height: IntelliaSpacing.md),
-        Text(
-          context.l10n.schoolAnnouncements,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: IntelliaSpacing.sm),
-        for (final ann in dashboard.announcements.take(3)) ...[
-          _AnnouncementCard(announcement: ann),
-          const SizedBox(height: IntelliaSpacing.xs),
-        ],
-      ],
+      ),
     );
   }
 }
@@ -608,125 +471,6 @@ class _ProfileTab extends StatelessWidget {
           label: Text(context.l10n.signOutTitle),
         ),
       ],
-    );
-  }
-}
-
-class _SubjectTagCard extends StatelessWidget {
-  const _SubjectTagCard({
-    required this.title,
-    required this.subjects,
-    required this.color,
-  });
-
-  final String title;
-  final List<String> subjects;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(IntelliaSpacing.sm),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        color: color.withValues(alpha: 0.1),
-        border: Border.all(color: color.withValues(alpha: 0.22)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: IntelliaSpacing.xs),
-          Text(
-            subjects.isEmpty
-                ? context.l10n.toBeDetermined
-                : subjects.join(', '),
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StudyIndicator extends StatelessWidget {
-  const _StudyIndicator({
-    required this.ratio,
-    required this.studyMinutesToday,
-    required this.studyMinutesTarget,
-    required this.measured,
-  });
-
-  final double ratio;
-  final int studyMinutesToday;
-  final int studyMinutesTarget;
-  final bool measured;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!measured) {
-      return Text(
-        context.l10n.studyTimeComing,
-        style: Theme.of(context).textTheme.bodySmall,
-      );
-    }
-    return Container(
-      padding: const EdgeInsets.all(IntelliaSpacing.md),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 64,
-            height: 64,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                CircularProgressIndicator(value: ratio, strokeWidth: 6),
-                Center(
-                  child: Text(
-                    '${(ratio * 100).round()}%',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: IntelliaSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.todayStudyTime,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: IntelliaSpacing.xxs),
-                Text(
-                  context.l10n.studyMinutesGoal(
-                    studyMinutesToday,
-                    studyMinutesTarget,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

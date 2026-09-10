@@ -24,15 +24,28 @@ void main() {
   });
 
   test('launcher configuration uses only the official application icon', () {
+    // Une seule déclaration : le mécanisme ne vise plus que les plateformes
+    // mobiles, afin de ne pas régénérer les ressources web déjà versionnées.
     expect(
       RegExp(
         r'image_path: assets/branding/icone\.png',
       ).allMatches(pubspec).length,
-      4,
+      1,
     );
+    expect(pubspec, contains('android: true'));
+    expect(pubspec, contains('ios: true'));
+    // Le premier plan adaptatif est une variante technique dérivée de l'icône
+    // officielle, jamais un autre visuel.
     expect(
       pubspec,
-      contains('adaptive_icon_foreground: assets/branding/icone.png'),
+      contains(
+        'adaptive_icon_foreground: '
+        'assets/branding/icone_adaptive_foreground.png',
+      ),
+    );
+    expect(
+      File('assets/branding/icone_adaptive_foreground.png').lengthSync(),
+      greaterThan(0),
     );
     expect(pubspec, contains('adaptive_icon_foreground_inset: 0'));
     expect(pubspec, contains('remove_alpha_ios: true'));
@@ -85,9 +98,11 @@ void main() {
     ).readAsStringSync();
     expect(adaptiveXml, contains('@drawable/ic_launcher_foreground'));
     expect(adaptiveXml, contains('android:inset="0%"'));
+    // Le fond adaptatif reprend la teinte de la carte du visuel validé : un
+    // fond sombre ferait apparaître une bordure autour du logo.
     expect(
       File('android/app/src/main/res/values/colors.xml').readAsStringSync(),
-      contains('#041025'),
+      contains('#FEFEFE'),
     );
 
     final iosIcon = File(

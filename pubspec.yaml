@@ -1,7 +1,7 @@
 name: intellia237
 description: "Application e-learning Intellia 237."
 publish_to: "none"
-version: 3.0.0+22
+version: 3.1.0+23
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
@@ -27,6 +27,11 @@ dependencies:
   firebase_app_check: ^0.4.7
   firebase_messaging: ^16.1.1
 
+  # Dictée et lecture à voix haute : tout se fait sur l'appareil. Aucun audio
+  # n'est téléversé, ni pour transcrire, ni pour lire une réponse.
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.0
+
   image_picker: ^1.1.2
   image_picker_android: ^0.8.13+14
   image_picker_platform_interface: ^2.11.1
@@ -41,6 +46,8 @@ dependencies:
   connectivity_plus: ^7.3.0
   flutter_local_notifications: ^22.0.1
   timezone: ^0.11.1
+  just_audio: ^0.10.6
+  file_picker: ^12.2.0
 
 dev_dependencies:
   flutter_test:
@@ -75,27 +82,32 @@ flutter:
     - assets/branding/
     - assets/companions/
 
+# Icône de lancement uniquement. Les plateformes non mobiles restent hors de
+# ce mécanisme : leurs ressources déjà versionnées, dont le favicon web, ne
+# doivent pas être régénérées par cette configuration.
 flutter_launcher_icons:
   android: true
   ios: true
   web:
-    generate: true
-    image_path: assets/branding/icone.png
-    background_color: "#041025"
-    theme_color: "#071B3D"
+    generate: false
   windows:
-    generate: true
-    image_path: assets/branding/icone.png
+    generate: false
   macos:
-    generate: true
-    image_path: assets/branding/icone.png
+    generate: false
   image_path: assets/branding/icone.png
   min_sdk_android: 21
-  adaptive_icon_background: "#041025"
-  adaptive_icon_foreground: assets/branding/icone.png
+  # Le visuel validé est posé sur une carte quasi blanche : le fond adaptatif
+  # reprend exactement sa teinte dominante pour ne créer aucune bordure.
+  adaptive_icon_background: "#FEFEFE"
+  # Variante technique dérivée, jamais un redessin : le logo est détouré de sa
+  # carte puis remis à l'échelle pour tenir entièrement dans la zone qu'Android
+  # garantit visible sous tous les masques. Sans elle, « INTELLIA 237 » est
+  # rogné par le masque circulaire.
+  adaptive_icon_foreground: assets/branding/icone_adaptive_foreground.png
   adaptive_icon_foreground_inset: 0
   remove_alpha_ios: true
-  background_color_ios: "#041025"
+  # iOS interdit l'alpha : tout aplatissement se fait sur le fond du visuel.
+  background_color_ios: "#FEFEFE"
 
 # Splash natif — couche A. Couleur de fond identique au premier frame du
 # splash Flutter (web : #FAFAFD) pour éliminer toute frame blanche au cold start.

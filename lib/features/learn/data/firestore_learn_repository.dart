@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../domain/content_block.dart';
 import '../domain/learn_chapter.dart';
 import '../domain/learn_lesson.dart';
 import '../domain/learn_subject.dart';
@@ -444,6 +445,13 @@ class FirestoreLearnRepository implements LearnRepository {
       );
     }).toList();
 
+    // V2 content blocks
+    final rawBlocks = data['contentBlocks'] as List<dynamic>? ?? [];
+    final contentBlocks = rawBlocks.map((b) {
+      return ContentBlock.fromFirestore(Map<String, dynamic>.from(b as Map));
+    }).toList();
+    final schemaVersion = (data['schemaVersion'] as num?)?.toInt() ?? 1;
+
     return LearnLesson(
       id: lessonId,
       title: data['title'] as String? ?? '',
@@ -453,6 +461,8 @@ class FirestoreLearnRepository implements LearnRepository {
       isFavorite: p?['isFavorite'] as bool? ?? false,
       contentSections: sections,
       miniQuiz: miniQuiz,
+      contentBlocks: contentBlocks,
+      schemaVersion: schemaVersion,
     );
   }
 

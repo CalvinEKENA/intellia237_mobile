@@ -329,14 +329,27 @@ class _AnimatedNavItemState extends State<_AnimatedNavItem>
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 200),
                         curve: Curves.easeOut,
-                        style: TextStyle(
-                          fontSize: widget.isSelected ? 10.5 : 10,
-                          fontWeight: widget.isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          color: labelColor,
-                          letterSpacing: widget.isSelected ? 0.1 : 0,
-                        ),
+                        // `AnimatedDefaultTextStyle` remplace le style hérité
+                        // au lieu de le compléter : sans famille explicite,
+                        // ces cinq libellés étaient les seuls textes de
+                        // l'application rendus dans la police système.
+                        style:
+                            Theme.of(context).textTheme.labelSmall?.copyWith(
+                              fontSize: widget.isSelected ? 10.5 : 10,
+                              fontWeight: widget.isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: labelColor,
+                              letterSpacing: widget.isSelected ? 0.1 : 0,
+                            ) ??
+                            TextStyle(
+                              fontSize: widget.isSelected ? 10.5 : 10,
+                              fontWeight: widget.isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: labelColor,
+                              letterSpacing: widget.isSelected ? 0.1 : 0,
+                            ),
                         child: Text(
                           widget.item.label,
                           maxLines: 1,

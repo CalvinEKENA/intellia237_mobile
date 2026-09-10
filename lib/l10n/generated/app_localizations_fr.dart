@@ -436,7 +436,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneErrorTooManyRequests =>
-      'Trop de tentatives. Patientez quelques minutes avant de réessayer.';
+      'Trop de tentatives ont été effectuées. Attends quelques minutes avant de demander un nouveau code.';
 
   @override
   String get phoneErrorQuota =>
@@ -1722,7 +1722,109 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeLoadError => 'Impossible de charger l’accueil';
 
   @override
+  String get flowSyncSignedOut =>
+      'Connecte-toi pour faire valider tes points FLOW.';
+
+  @override
+  String get flowSyncUnavailable =>
+      'Tes points n’ont pas pu être validés pour le moment. Ta réponse est conservée.';
+
+  @override
+  String get flowSyncQueued =>
+      'Réponse enregistrée hors ligne. Les points seront validés à la prochaine synchronisation.';
+
+  @override
+  String get flowSyncNotEligible =>
+      'La validation des points FLOW est réservée aux profils élèves.';
+
+  @override
+  String get flowSyncContentNotValidated =>
+      'Cette activité FLOW n’est pas encore validée par le serveur.';
+
+  @override
+  String get flowSyncDuplicate =>
+      'Cette validation a déjà été utilisée pour une autre activité.';
+
+  @override
+  String get flowSyncInvalidAnswer => 'La réponse FLOW envoyée est invalide.';
+
+  @override
+  String get flowSyncUnknown =>
+      'Impossible de valider les points FLOW pour le moment.';
+
+  @override
+  String get flowDailyCapReached =>
+      'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.';
+
+  @override
+  String get companionSpeak => 'Parler';
+
+  @override
+  String get companionSend => 'Envoyer';
+
+  @override
+  String companionMicRationale(String name) {
+    return '$name a besoin du micro pour t’écouter. Rien n’est enregistré sans que tu envoies.';
+  }
+
+  @override
+  String get companionMicDenied =>
+      'Le micro est refusé. Tu peux l’autoriser dans les réglages, ou écrire ta question.';
+
+  @override
+  String get companionMicUnavailable =>
+      'La dictée n’est pas disponible sur cet appareil. Tu peux écrire ta question.';
+
+  @override
+  String get companionListening => 'Je t’écoute';
+
+  @override
+  String get companionDictationCancel => 'Annuler';
+
+  @override
+  String get companionDictationStop => 'Arrêter';
+
+  @override
+  String get companionDictationNearEnd => 'Bientôt la fin';
+
+  @override
+  String get companionDictationFailed =>
+      'Je n’ai pas bien entendu. Tu peux réessayer ou écrire.';
+
+  @override
+  String get companionListen => 'Écouter';
+
+  @override
+  String get companionPauseListening => 'Pause';
+
+  @override
+  String get companionHistoryTitle => 'Tes conversations';
+
+  @override
+  String get companionHistoryEmpty => 'Tes conversations apparaîtront ici.';
+
+  @override
+  String get companionNewConversation => 'Nouvelle conversation';
+
+  @override
+  String companionSaveDeferred(String name) {
+    return '$name est ton compagnon. La synchronisation avec ton profil se fera d’elle-même.';
+  }
+
+  @override
+  String get authGatewayTitle => 'Bienvenue sur INTELLIA237';
+
+  @override
+  String get authGatewaySubtitle => 'Quel espace veux-tu ouvrir ?';
+
+  @override
   String get todayEyebrow => 'Aujourd’hui';
+
+  @override
+  String get firstSessionEyebrow => 'Pour commencer';
+
+  @override
+  String get firstSessionTitle => 'Choisis ta première activité';
 
   @override
   String get resumeWhereLeftOff => 'Reprends là où tu t’es arrêté';
@@ -3446,4 +3548,259 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get generatedByAi => 'Généré par l’IA';
+
+  @override
+  String get masteryTitle => 'Ton apprentissage';
+
+  @override
+  String get masteryBySubject => 'Matière par matière';
+
+  @override
+  String get masteryDimension => 'Maîtrise';
+
+  @override
+  String get masteryCoverage => 'Parcours';
+
+  @override
+  String get masteryContinuity => 'Régularité';
+
+  @override
+  String get masteryNoEvidence => 'Pas encore assez d’éléments';
+
+  @override
+  String get masteryExploring => 'À explorer';
+
+  @override
+  String get masteryBuilding => 'En construction';
+
+  @override
+  String get masteryUnderstood => 'Bien compris';
+
+  @override
+  String get masterySolid => 'Solide';
+
+  @override
+  String get masteryConfidenceInsufficient => 'Données insuffisantes';
+
+  @override
+  String get masteryConfidenceLimited => 'Estimation prudente';
+
+  @override
+  String get masteryConfidenceSupported => 'Confiance étayée';
+
+  @override
+  String get masteryTrendProgressing => 'Estimation en progression';
+
+  @override
+  String get masteryTrendSteady => 'Estimation stable';
+
+  @override
+  String get masteryTrendDeclining => 'Estimation à réexaminer';
+
+  @override
+  String get masteryConsolidate => 'À consolider';
+
+  @override
+  String get masteryRevisit => 'À revoir';
+
+  @override
+  String get masteryNoEvidenceHint =>
+      'Les réponses aux quiz aideront à construire cette lecture.';
+
+  @override
+  String get masteryScopeNote =>
+      'Une estimation issue des quiz, distincte du parcours et des notes scolaires.';
+
+  @override
+  String get masterySourceLimits =>
+      'Les résultats disponibles ne précisent pas les conditions de passation. Cette lecture reste prudente : « Bien compris » et « Solide » nécessitent des preuves plus complètes.';
+
+  @override
+  String get masteryLoading => 'Les repères d’apprentissage se chargent.';
+
+  @override
+  String get masteryUnavailable =>
+      'La lecture de maîtrise est momentanément indisponible.';
+
+  @override
+  String get masterySubjectsUnavailable =>
+      'Les matières ne sont pas disponibles pour le moment.';
+
+  @override
+  String get masterySubjectsEmpty =>
+      'Les matières apparaîtront ici quand le programme sera disponible.';
+
+  @override
+  String get masteryStudentCollecting =>
+      'INTELLIA237 commence à construire ton profil d’apprentissage. Continue à travailler et à répondre aux exercices.';
+
+  @override
+  String get masteryStudentFirst =>
+      'Tes réponses aux quiz donnent de premiers repères. Cette lecture reste prudente et se précisera avec de nouvelles preuves.';
+
+  @override
+  String get masteryStudentProgress =>
+      'Une estimation a évolué avec de nouveaux résultats de quiz. Retrouve ce changement dans les matières ci-dessous.';
+
+  @override
+  String get masteryParentCollecting =>
+      'Il n’y a pas encore assez d’éléments pour lire ses acquis. Vous pouvez déjà l’encourager à expliquer ce qu’il apprend.';
+
+  @override
+  String get masteryParentFirst =>
+      'Les quiz donnent de premiers repères sur son apprentissage. Les estimations restent prudentes.';
+
+  @override
+  String get masteryParentProgress =>
+      'De nouveaux résultats de quiz font évoluer une estimation. Cette comparaison porte seulement sur les observations disponibles.';
+
+  @override
+  String get masteryParentTitle => 'Comment avance son apprentissage ?';
+
+  @override
+  String get masteryParentEvolving => 'Ce qui évolue';
+
+  @override
+  String get masteryParentNoComparison =>
+      'Pas encore de comparaison suffisamment étayée.';
+
+  @override
+  String get masteryParentSupport => 'À accompagner';
+
+  @override
+  String get masteryParentSupportBody =>
+      'Poursuivre les exercices aidera à préciser cette lecture.';
+
+  @override
+  String get masteryParentContinuity => 'Continuité du parcours';
+
+  @override
+  String get masteryParentNoPattern =>
+      'Les données disponibles ne permettent pas encore de décrire une régularité.';
+
+  @override
+  String get masteryParentHelp => 'Comment l’aider';
+
+  @override
+  String get masteryParentHelpBody =>
+      'Vous pouvez lui demander quelle notion lui a semblé difficile et l’inviter à l’expliquer avec ses mots.';
+
+  @override
+  String get masteryCoverageNote =>
+      'Explorer un cours ne prouve pas encore qu’il est compris.';
+
+  @override
+  String get masteryCoverageUnavailable =>
+      'Le parcours n’est pas disponible pour le moment.';
+
+  @override
+  String get masteryChapterDetailPending =>
+      'Le détail des acquis par chapitre viendra avec des preuves rattachées aux chapitres. Aucune maîtrise de chapitre n’est déduite de la lecture.';
+
+  @override
+  String get masteryRecentActivity => 'Résultats de quiz disponibles';
+
+  @override
+  String get masteryRecentLimits =>
+      'Seul le dernier résultat de chaque quiz est conservé dans cette lecture. Ce n’est pas l’historique de toutes les tentatives.';
+
+  @override
+  String get masteryRecordedQuiz => 'Quiz corrigé';
+
+  @override
+  String get masteryOpenCourse => 'Retrouver le cours';
+
+  @override
+  String get masteryScaleLegend =>
+      'L’étendue de l’encre indique l’état, sa densité la confiance. Un tracé apparaît seulement lorsqu’une estimation antérieure a réellement été observée.';
+
+  @override
+  String get masteryOfficialRecord => 'Carnet officiel';
+
+  @override
+  String get masteryOfficialRecordBody =>
+      'Les notes scolaires restent des résultats officiels de l’établissement. Elles ne sont pas calculées à partir de cette estimation.';
+
+  @override
+  String get masteryOfficialRecordUnavailable =>
+      'Aucun carnet de notes scolaires n’est relié à cette vue pour le moment.';
+
+  @override
+  String get masteryRefresh => 'Actualiser les repères';
+
+  @override
+  String masteryEvidenceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count quiz distincts pris en compte',
+      one: '1 quiz distinct pris en compte',
+      zero: 'Aucun résultat exploitable',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String masteryExploredChapters(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapitres explorés',
+      one: '1 chapitre exploré',
+      zero: 'Aucun chapitre exploré',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String masteryExploredLessons(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count leçons explorées enregistrées',
+      one: '1 leçon explorée enregistrée',
+      zero: 'Aucune leçon explorée enregistrée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get masteryPartialCoverage =>
+      'Ce parcours porte sur une partie des leçons enregistrées.';
+
+  @override
+  String masteryRecordedStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Série d’activité enregistrée : $count jours',
+      one: 'Série d’activité enregistrée : 1 jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String masteryPreviousState(String state) {
+    return 'Tracé précédent : $state';
+  }
+
+  @override
+  String masteryLastEvidence(String date) {
+    return 'Dernier résultat enregistré : $date';
+  }
+
+  @override
+  String masteryDeclaredSchool(String name) {
+    return 'Établissement déclaré : $name';
+  }
+
+  @override
+  String masteryWithCompanion(String name) {
+    return 'Avec $name';
+  }
+
+  @override
+  String masteryEvidenceWindow(int days) {
+    return 'Résultats des $days derniers jours.';
+  }
 }
