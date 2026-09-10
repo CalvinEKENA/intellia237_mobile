@@ -7,6 +7,26 @@ import '../../features/auth/domain/app_role.dart';
 // NEW INTELLIA DESIGN TOKENS
 // ─────────────────────────────────────────────────────────────
 
+/// Le drapeau camerounais, décliné pour les deux surfaces de l'application.
+///
+/// Les valeurs officielles sont #007A5E, #CE1126 et #FCD116. Le jaune officiel
+/// disparaît sur un papier crème et le vert s'éteint sur l'encre : chaque
+/// surface a donc sa déclinaison, de même teinte, à luminosité corrigée.
+abstract final class IntelliaFlag {
+  static const Color green = Color(0xFF007A5E);
+  static const Color red = Color(0xFFCE1126);
+  static const Color yellow = Color(0xFFE3A81C);
+
+  static const Color greenOnInk = Color(0xFF19A97D);
+  static const Color redOnInk = Color(0xFFE8536A);
+  static const Color yellowOnInk = Color(0xFFF3C33F);
+
+  /// Les trois couleurs de « 237 », dans l'ordre des chiffres.
+  static List<Color> digits({required bool onInk}) => onInk
+      ? const [greenOnInk, redOnInk, yellowOnInk]
+      : const [green, red, yellow];
+}
+
 abstract final class IntelliaColors {
   // Brand Colors
   static const Color brandIndigo = Color(0xFF5856D6);

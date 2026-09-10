@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icône de splash volontairement vide : sur Android 12+ le système impose
+     une icône au lancement. Le nom s'écrit côté Flutter, lettre après lettre ;
+     un logo ici le précéderait et le contredirait.
+     Attention : `flutter_native_splash:create` réécrit values-v31/styles.xml
+     et efface la référence à ce fichier. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@android:color/transparent"/>
+    <size android:width="1dp" android:height="1dp"/>
+</shape>

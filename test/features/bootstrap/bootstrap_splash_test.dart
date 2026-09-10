@@ -5,75 +5,143 @@ import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
 import 'package:intellia237/features/bootstrap/presentation/bootstrap_screen.dart';
-import 'package:intellia237/core/assets/intellia_assets.dart';
+import 'package:intellia237/features/bootstrap/presentation/widgets/intellia_typewriter.dart';
 
 void main() {
-  Future<void> pumpSplash(WidgetTester tester) async {
+  test('le nom s’écrit lettre à lettre, puis le pays après une pause', () {
+    expect(SplashMotion.lettersAt(Duration.zero), 1);
+    expect(SplashMotion.lettersAt(SplashMotion.letter * 3), 4);
+    expect(
+      SplashMotion.lettersAt(SplashMotion.letter * 40),
+      SplashMotion.name.length,
+    );
+
+    // Rien du pays tant que la pause n’est pas passée : c’est elle qui sépare
+    // le nom du drapeau.
+    final lastLetter = SplashMotion.letter * SplashMotion.name.length;
+    expect(SplashMotion.digitsAt(lastLetter), 0);
+    expect(
+      SplashMotion.digitsAt(lastLetter + SplashMotion.breath ~/ 2),
+      0,
+      reason: 'la pause doit rester silencieuse',
+    );
+    expect(SplashMotion.digitsAt(SplashMotion.numberStart), 1);
+    expect(
+      SplashMotion.digitsAt(SplashMotion.typed),
+      SplashMotion.number.length,
+    );
+
+    // Le curseur accompagne la frappe et disparaît avec elle.
+    expect(SplashMotion.caretAt(Duration.zero), isTrue);
+    expect(SplashMotion.caretAt(SplashMotion.typed), isFalse);
+    expect(SplashMotion.caretAt(SplashMotion.total), isFalse);
+
+    // La sortie ne commence qu’après le temps de lecture.
+    expect(SplashMotion.exitAt(SplashMotion.typed), 0);
+    expect(SplashMotion.exitAt(SplashMotion.total), 1);
+  });
+
+  testWidgets('le pays porte les trois couleurs du drapeau', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: IntelliaTypewriter(elapsed: Duration.zero, reduceMotion: true),
+        ),
+      ),
+    );
+
+    final spans = <InlineSpan>[];
+    _wordmark(tester).textSpan!.visitChildren((span) {
+      spans.add(span);
+      return true;
+    });
+    final coloured = [
+      for (final span in spans)
+        if (span is TextSpan && span.text != null)
+          (span.text!, span.style?.color),
+    ];
+
+    expect(coloured.first.$1, SplashMotion.name);
+    expect(coloured.first.$2, isNull, reason: 'le nom garde l’encre du titre');
+    expect(coloured.sublist(1), [
+      ('2', SplashPalette.green),
+      ('3', SplashPalette.red),
+      ('7', SplashPalette.yellow),
+    ]);
+  });
+
+  testWidgets('le splash tient le papier de l’onboarding, sans logo', (
+    tester,
+  ) async {
+    await pumpSplash(tester);
+
+    final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+    expect(scaffold.backgroundColor, kSplashBackground);
+    expect(scaffold.backgroundColor, const Color(0xFFF4EFE5));
+    expect(scaffold.backgroundColor, isNot(const Color(0xFFFFFFFF)));
+
+    // Plus aucune image : le nom est écrit, pas dessiné.
+    expect(find.byType(Image), findsNothing);
+    expect(find.text('by TECH MOTION'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('en mouvement réduit, le nom est là d’emblée', (tester) async {
+    await pumpSplash(tester);
+
+    expect(_wordmark(tester).textSpan!.toPlainText(), 'INTELLIA237');
+  });
+
+  testWidgets('la frappe se déroule avant que la route ne change', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
         ],
-        child: const MaterialApp(
-          home: MediaQuery(
-            data: MediaQueryData(disableAnimations: true),
-            child: BootstrapScreen(),
-          ),
-        ),
+        child: const MaterialApp(home: BootstrapScreen()),
       ),
     );
     await tester.pump();
-  }
+    await tester.pump(const Duration(milliseconds: 16));
 
-  Set<String> imageAssets(WidgetTester tester) => tester
-      .widgetList<Image>(find.byType(Image))
-      .map((image) => image.image)
-      .map(_assetName)
-      .whereType<String>()
-      .toSet();
+    String written() => _wordmark(tester).textSpan!.toPlainText();
 
-  testWidgets(
-    'le splash démarre sur le fond non blanc (aucune frame blanche)',
-    (tester) async {
-      await pumpSplash(tester);
+    expect(written().length, lessThan('INTELLIA237'.length));
+    expect(written(), startsWith('I'));
 
-      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-      expect(scaffold.backgroundColor, kSplashBackground);
-      expect(scaffold.backgroundColor, isNot(const Color(0xFFFFFFFF)));
-    },
-  );
+    await tester.pump(SplashMotion.letter * SplashMotion.name.length);
+    expect(written(), SplashMotion.name);
 
-  testWidgets(
-    'le splash affiche le logo officiel, la tagline et la signature',
-    (tester) async {
-      await pumpSplash(tester);
+    await tester.pump(SplashMotion.breath + SplashMotion.digit * 3);
+    expect(written(), 'INTELLIA237');
 
-      expect(imageAssets(tester), contains(IntelliaBrandAssets.identityMaster));
-      expect(
-        find.text('Apprends avec quelqu’un qui te comprend.'),
-        findsOneWidget,
-      );
-      expect(find.text('by TECH MOTION'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets('le splash n’utilise que le logo officiel', (tester) async {
-    await pumpSplash(tester);
-
-    final activeAssets = imageAssets(tester);
-    expect(activeAssets, contains(IntelliaBrandAssets.identityMaster));
-    expect(
-      activeAssets.where((asset) => asset.startsWith('assets/icons/')),
-      isEmpty,
-    );
+    await tester.pump(SplashMotion.hold + SplashMotion.exit);
+    expect(tester.takeException(), isNull);
   });
 }
 
-String? _assetName(ImageProvider<Object> provider) {
-  if (provider is AssetImage) return provider.assetName;
-  if (provider is ResizeImage) return _assetName(provider.imageProvider);
-  return null;
+/// Le gabarit invisible porte lui aussi un Text : seul le mot visible est
+/// identifié.
+Text _wordmark(WidgetTester tester) =>
+    tester.widget<Text>(find.byKey(const ValueKey('splash-wordmark')));
+
+Future<void> pumpSplash(WidgetTester tester) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+      ],
+      child: const MaterialApp(
+        home: MediaQuery(
+          data: MediaQueryData(disableAnimations: true),
+          child: BootstrapScreen(),
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
 }
 
 class _FakeAuthRepository implements AuthRepository {

@@ -52,11 +52,27 @@ void main() {
     expect(pubspec, isNot(contains('assets/icons/icone_final.png')));
   });
 
-  test('native splash uses the official presentation identity', () {
-    expect(pubspec, contains('image: assets/branding/identity_master.png'));
-    expect(pubspec, contains('image: assets/branding/icone.png'));
+  test('the native splash shows nothing but the paper', () {
+    // Le nom s'écrit côté Flutter, lettre après lettre. Toute image ici la
+    // précéderait d'un logo — précisément ce que le premier écran refuse.
+    final splash = pubspec.substring(pubspec.indexOf('flutter_native_splash:'));
+    expect(splash, contains('color: "#F4EFE5"'));
+    expect(splash, isNot(contains('image:')));
     expect(pubspec, isNot(contains('assets/icons/logo_splash.png')));
     expect(pubspec, isNot(contains('assets/icons/logo_android12.png')));
+
+    final launch = File(
+      'android/app/src/main/res/drawable/launch_background.xml',
+    ).readAsStringSync();
+    expect(launch, contains('@drawable/background'));
+    expect(launch, isNot(contains('@drawable/splash')));
+
+    // Android 12 impose une icône : on lui en donne une vide.
+    final android12 = File(
+      'android/app/src/main/res/values-v31/styles.xml',
+    ).readAsStringSync();
+    expect(android12, contains('#F4EFE5'));
+    expect(android12, contains('@drawable/splash_none'));
   });
 
   test('INTELLIA PASS cannot reintroduce the legacy header asset', () {
@@ -78,14 +94,11 @@ void main() {
     const generatedAssets = [
       'android/app/src/main/res/mipmap-mdpi/ic_launcher.png',
       'android/app/src/main/res/drawable-mdpi/ic_launcher_foreground.png',
-      'android/app/src/main/res/drawable-mdpi/splash.png',
-      'android/app/src/main/res/drawable-mdpi/android12splash.png',
       'ios/Runner/Assets.xcassets/AppIcon.appiconset/'
           'Icon-App-1024x1024@1x.png',
       'ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png',
       'web/favicon.png',
       'web/icons/Icon-maskable-512.png',
-      'web/splash/img/light-4x.png',
       'windows/runner/resources/app_icon.ico',
       'macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png',
     ];

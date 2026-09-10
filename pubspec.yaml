@@ -110,14 +110,13 @@ flutter_launcher_icons:
   background_color_ios: "#FEFEFE"
 
 # Splash natif — couche A. Couleur de fond identique au premier frame du
-# splash Flutter (web : #FAFAFD) pour éliminer toute frame blanche au cold start.
-# Logo officiel INTELLIA237 (jamais un ancien logo hérité).
+# Le splash natif ne montre plus rien : il tient seulement le papier de
+# l'onboarding pendant que le moteur démarre. Le nom s'écrit ensuite côté
+# Flutter, lettre après lettre. Toute image ici réintroduirait le logo.
 flutter_native_splash:
-  color: "#FAFAFD"
-  image: assets/branding/identity_master.png
+  color: "#F4EFE5"
   android: true
   ios: true
   web: true
   android_12:
-    color: "#FAFAFD"
-    image: assets/branding/icone.png
+    color: "#F4EFE5"
