@@ -3783,4 +3783,129 @@ class AppLocalizationsEn extends AppLocalizations {
   String masteryEvidenceWindow(int days) {
     return 'Results from the past $days days.';
   }
+
+  @override
+  String get passWelcomeBack => 'WELCOME BACK';
+
+  @override
+  String get passSignIn => 'SIGN IN';
+
+  @override
+  String get passGoodToSeeYouAgain => 'Good to see you again.';
+
+  @override
+  String get passLinkSent => 'LINK SENT';
+
+  @override
+  String get passRecoverMyAccess => 'RECOVER MY ACCESS';
+
+  @override
+  String get passForgotPassword => 'FORGOT PASSWORD';
+
+  @override
+  String get passOneLinkThenYouReBack => 'One link.\nThen you’re back.';
+
+  @override
+  String get passFindYourWayBack => 'Find your\nway back.';
+
+  @override
+  String get passTheNextStepIsWaitingIn =>
+      'The next step is waiting in your inbox.';
+
+  @override
+  String get passEmailAccess => 'EMAIL ACCESS';
+
+  @override
+  String get passYourNextChapterAwaits => 'Your next chapter\nawaits.';
+
+  @override
+  String get passReturnToYourSpaceWithYour =>
+      'Return to your space with your email and password.';
+
+  @override
+  String get passChooseAnotherWayIn => 'Choose another way in';
+
+  @override
+  String get passYourNumber => 'YOUR NUMBER';
+
+  @override
+  String get passVerificationInProgress => 'VERIFICATION IN PROGRESS';
+
+  @override
+  String get passNumberVerified => 'NUMBER VERIFIED';
+
+  @override
+  String get passPhoneAccess => 'PHONE ACCESS';
+
+  @override
+  String get passSixDigitsThenWeContinue => 'Six digits.\nThen we continue.';
+
+  @override
+  String get passYourNumberIsConfirmed => 'Your number\nis confirmed.';
+
+  @override
+  String get passYourNumberYourAccess => 'Your number.\nYour access.';
+
+  @override
+  String get passChooseYourSpace => '01 / CHOOSE YOUR SPACE';
+
+  @override
+  String get passCreateAnAccount => 'CREATE AN ACCOUNT';
+
+  @override
+  String get passYourPlaceStartsHere => 'Your place starts here.';
+
+  @override
+  String get passChooseYourSpaceYourPassTakes =>
+      'Choose your space. Your Pass takes shape with you.';
+
+  @override
+  String get passRegistrationComplete => 'REGISTRATION COMPLETE';
+
+  @override
+  String get passYourPlaceIsReady => 'YOUR PLACE\nIS READY.';
+
+  @override
+  String get passYourSpace => 'Your space';
+
+  @override
+  String get passPassReady => 'PASS READY';
+
+  @override
+  String get passTakingShape => 'TAKING SHAPE';
+
+  @override
+  String get passAPlaceForYou => 'A place for you.';
+
+  @override
+  String get passYourFamilySpace => 'Your family space';
+
+  @override
+  String get passYourTeachingSpace => 'Your teaching space';
+
+  @override
+  String get passValidationPending => 'Validation pending';
+
+  @override
+  String get passAccountCreated => 'ACCOUNT CREATED.';
+
+  @override
+  String passChildIdentifiersAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count identifiers added',
+      one: '1 identifier added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String passWithCompanion(String companion) {
+    return 'With $companion';
+  }
+
+  @override
+  String get authorSignature =>
+      'App designed by Calvin EKENA · +237 699 98 90 99';
 }

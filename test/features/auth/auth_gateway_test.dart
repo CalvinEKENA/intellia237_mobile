@@ -6,11 +6,15 @@ import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
+import '../../support/intellia_fonts.dart';
 
 /// Se déconnecter renvoyait droit à l'authentification téléphone de l'élève.
 /// Sur un appareil partagé, un parent ou un enseignant se retrouvait donc
 /// devant l'espace de quelqu'un d'autre sans moyen d'ouvrir le sien.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(loadIntelliaFonts);
+
   Future<String?> tapRole(WidgetTester tester, String key) async {
     String? pushed;
     final router = GoRouter(
@@ -124,7 +128,12 @@ void main() {
     expect(find.byKey(const ValueKey('gateway-role-student')), findsOneWidget);
     expect(find.byKey(const ValueKey('gateway-role-parent')), findsOneWidget);
     expect(find.byKey(const ValueKey('gateway-role-teacher')), findsOneWidget);
-    expect(find.text('Bienvenue sur INTELLIA237'), findsOneWidget);
-    expect(find.text('Quel espace veux-tu ouvrir ?'), findsOneWidget);
+    // La copie appartient aux fichiers de traduction : ce test garde qu'un
+    // titre et un sous-titre sont bien présentés, pas leur formulation.
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(AuthGatewayScreen)),
+    );
+    expect(find.text(l10n.passGoodToSeeYouAgain), findsOneWidget);
+    expect(find.text(l10n.authGatewaySubtitle), findsOneWidget);
   });
 }

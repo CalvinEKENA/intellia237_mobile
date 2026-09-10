@@ -6,6 +6,7 @@ import '../../../core/localization/localization_extensions.dart';
 import '../domain/app_role.dart';
 import 'widgets/auth_choices.dart';
 import 'widgets/auth_experience_scaffold.dart';
+import 'widgets/living_pass.dart';
 
 /// Porte d'entrée neutre après une déconnexion.
 ///
@@ -25,12 +26,17 @@ class AuthGatewayScreen extends StatelessWidget {
 
     return AuthExperienceScaffold(
       showBackButton: false,
+      pass: LivingPass(
+        phase: context.l10n.passWelcomeBack,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 12),
           AuthHeader(
-            title: l10n.authGatewayTitle,
+            showBrand: false,
+            eyebrow: context.l10n.passSignIn,
+            title: context.l10n.passGoodToSeeYouAgain,
             subtitle: l10n.authGatewaySubtitle,
           ),
           const SizedBox(height: 26),

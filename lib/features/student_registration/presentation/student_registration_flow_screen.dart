@@ -1,16 +1,17 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../auth/domain/auth_input_validators.dart';
+import '../../auth/domain/app_role.dart';
 import '../../auth/presentation/widgets/auth_choices.dart';
 import '../../auth/presentation/widgets/auth_controls.dart';
 import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/presentation/widgets/auth_selection_pill.dart';
 import '../../auth/presentation/widgets/auth_success_screen.dart';
+import '../../auth/presentation/widgets/living_pass.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../application/student_registration_controller.dart';
@@ -40,6 +41,9 @@ class _StudentRegistrationFlowScreenState
   @override
   void initState() {
     super.initState();
+    final draft = ref.read(studentRegistrationControllerProvider);
+    _firstNameController.text = draft.firstName;
+    _lastNameController.text = draft.lastName;
     _firstNameController.addListener(
       () => ref
           .read(studentRegistrationControllerProvider.notifier)
@@ -65,6 +69,12 @@ class _StudentRegistrationFlowScreenState
     final controller = ref.read(studentRegistrationControllerProvider.notifier);
     final companion = TutorPersona.resolve(state.selectedTutorId);
     final l10n = context.l10n;
+    final labels = [
+      l10n.stepIdentity,
+      l10n.stepClass,
+      l10n.stepCompanion,
+      l10n.stepSecurity,
+    ];
 
     if (state.isCompleted) {
       return AuthSuccessScreen(
@@ -76,6 +86,20 @@ class _StudentRegistrationFlowScreenState
     }
 
     return AuthExperienceScaffold(
+      pass: LivingPass(
+        key: const ValueKey('student-living-pass'),
+        role: AppRole.student,
+        name: state.firstName.trim(),
+        detail: [
+          if (state.schoolClass != null) state.schoolClass!.label,
+          if (state.schoolSeries != null) state.schoolSeries!.label,
+        ].join(' · '),
+        companionAsset: state.selectedTutorId == null
+            ? null
+            : companion.imagePath,
+        phase: labels[state.currentStep],
+        progress: 0.42 + state.currentStep * 0.15,
+      ),
       onBack: state.isFirstStep
           ? () => context.pop()
           : () {
@@ -89,24 +113,12 @@ class _StudentRegistrationFlowScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AuthHeader(
-            eyebrow: l10n.studentSpaceEyebrow,
-            title: l10n.studentRegistrationTitle,
-            subtitle: l10n.studentRegistrationSubtitle,
-          ),
-          const SizedBox(height: 24),
-          AuthStepIndicator(
-            currentStep: state.currentStep,
-            labels: [
-              l10n.stepIdentity,
-              l10n.stepClass,
-              l10n.stepCompanion,
-              l10n.stepSecurity,
-            ],
-          ),
+          AuthStepIndicator(currentStep: state.currentStep, labels: labels),
           const SizedBox(height: 18),
           PageTransitionSwitcher(
-            duration: const Duration(milliseconds: 400),
+            duration: MediaQuery.of(context).disableAnimations
+                ? Duration.zero
+                : const Duration(milliseconds: 400),
             reverse: state.currentStep < _previousStep,
             transitionBuilder: (child, primary, secondary) {
               return SharedAxisTransition(
@@ -614,14 +626,7 @@ class _StepHeading extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: AuthExperienceColors.textPrimary,
-            fontSize: 21,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
+        Text(title.toUpperCase(), style: passDisplay(size: 34)),
         const SizedBox(height: 6),
         Text(
           subtitle,
@@ -632,7 +637,7 @@ class _StepHeading extends StatelessWidget {
           ),
         ),
       ],
-    ).animate().fadeIn(duration: 280.ms).slideY(begin: 0.04, end: 0);
+    );
   }
 }
 

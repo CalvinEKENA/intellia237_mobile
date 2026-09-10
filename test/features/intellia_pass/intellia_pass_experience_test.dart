@@ -5,22 +5,31 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/core/localization/app_locale_controller.dart';
-import 'package:intellia237/core/assets/intellia_assets.dart';
 import 'package:intellia237/core/widgets/intellia_text_wordmark.dart';
 import 'package:intellia237/features/auth/presentation/register_screen.dart';
 import 'package:intellia237/features/intellia_pass/domain/household_profile.dart';
 import 'package:intellia237/features/intellia_pass/presentation/widgets/household_learner_selector.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../support/intellia_fonts.dart';
+import 'package:intellia237/app/theme/design_tokens.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(loadIntelliaFonts);
+
   testWidgets('Pass prioritizes student and parent and never exposes admin', (
     tester,
   ) async {
     final router = await _pumpPass(tester);
     addTearDown(router.dispose);
 
-    expect(find.text('Qui utilise INTELLIA237 ?'), findsOneWidget);
+    // La copie vit dans les fichiers de traduction : ce test garde que le
+    // Pass présente bien un titre, pas sa formulation du jour.
+    final l10n = AppLocalizations.of(
+      tester.element(find.byType(RegisterScreen)),
+    );
+    expect(find.text(l10n.passYourPlaceStartsHere), findsOneWidget);
     expect(
       find.byKey(const ValueKey('pass-cameroon-wordmark')),
       findsOneWidget,
@@ -37,12 +46,37 @@ void main() {
         .whereType<AssetImage>()
         .map((asset) => asset.assetName)
         .toSet();
-    expect(imageAssets, contains(IntelliaBrandAssets.appIcon));
+    // L'identité du Pass est typographique : le wordmark tient lieu d'en-tête
+    // et aucune image de marque n'est posée. Ce que ce test garde, c'est
+    // qu'aucun ancien visuel ne puisse y revenir par la bande.
     expect(imageAssets, isNot(contains('assets/branding/icon-192.png')));
-    final wordmark = tester.widget<Intellia237TextWordmark>(
-      find.byKey(const ValueKey('pass-cameroon-wordmark')),
+    expect(
+      imageAssets.where((asset) => asset.startsWith('assets/icons/')),
+      isEmpty,
     );
-    expect(wordmark.wordmarkColor, isNotNull);
+    // Le pays porte le drapeau, et il porte le même que le splash et le
+    // bandeau de l'onboarding : un seul jeu de teintes pour toute l'identité.
+    expect(Intellia237TextWordmark.green, IntelliaFlag.green);
+    expect(Intellia237TextWordmark.red, IntelliaFlag.red);
+    expect(Intellia237TextWordmark.yellow, IntelliaFlag.yellow);
+    final spans = <String, Color?>{};
+    tester
+        .widget<Text>(
+          find.descendant(
+            of: find.byKey(const ValueKey('pass-cameroon-wordmark')),
+            matching: find.byType(Text),
+          ),
+        )
+        .textSpan!
+        .visitChildren((span) {
+          if (span is TextSpan && span.text != null) {
+            spans[span.text!] = span.style?.color;
+          }
+          return true;
+        });
+    expect(spans['2'], IntelliaFlag.green);
+    expect(spans['3'], IntelliaFlag.red);
+    expect(spans['7'], IntelliaFlag.yellow);
     await _disposeAnimatedSurface(tester);
   });
 
@@ -67,7 +101,11 @@ void main() {
 
     await tester.tap(find.text('EN'));
     await tester.pumpAndSettle();
-    expect(find.text('Who is using INTELLIA237?'), findsOneWidget);
+    final english = AppLocalizations.of(
+      tester.element(find.byType(RegisterScreen)),
+    );
+    expect(english.localeName, 'en');
+    expect(find.text(english.passYourPlaceStartsHere), findsOneWidget);
     expect(find.text('Parent or guardian'), findsOneWidget);
     await _disposeAnimatedSurface(tester);
   });

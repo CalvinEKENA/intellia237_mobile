@@ -130,72 +130,45 @@ class AuthPrimaryButton extends StatelessWidget {
   final IconData icon;
 
   @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      enabled: onTap != null && !isLoading,
-      label: label,
-      child: IntelliaPressable(
-        onTap: isLoading ? null : onTap,
-        scaleFactor: 0.97,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          constraints: const BoxConstraints(minHeight: 54),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(IntelliaRadii.small),
-            gradient: onTap == null
-                ? LinearGradient(colors: [Color(0xFFD9DEE5), Color(0xFFC9D0D9)])
-                : const LinearGradient(
-                    colors: [
-                      AuthExperienceColors.indigo,
-                      AuthExperienceColors.purple,
-                    ],
-                  ),
-            boxShadow: onTap == null
-                ? null
-                : [
-                    BoxShadow(
-                      color: AuthExperienceColors.purple.withValues(alpha: 0.3),
-                      blurRadius: 24,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-          child: Center(
-            child: isLoading
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      color: Colors.white,
-                    ),
-                  )
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          label,
-                          maxLines: 2,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Icon(icon, color: Colors.white, size: 20),
-                    ],
-                  ),
-          ),
-        ),
+  Widget build(BuildContext context) => FilledButton(
+    onPressed: isLoading
+        ? null
+        : onTap == null
+        ? null
+        : () {
+            HapticFeedback.selectionClick();
+            onTap!();
+          },
+    style: FilledButton.styleFrom(
+      backgroundColor: AuthExperienceColors.indigo,
+      foregroundColor: AuthExperienceColors.surface,
+      disabledBackgroundColor: AuthExperienceColors.border,
+      disabledForegroundColor: AuthExperienceColors.textSecondary,
+      minimumSize: const Size.fromHeight(56),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 17),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 0,
+      textStyle: const TextStyle(
+        fontFamily: 'CampaignBody',
+        fontSize: 14,
+        fontWeight: FontWeight.w800,
       ),
-    );
-  }
+    ),
+    child: Row(
+      children: [
+        Expanded(child: Text(label)),
+        const SizedBox(width: 12),
+        if (isLoading)
+          const SizedBox(
+            width: 19,
+            height: 19,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else
+          Icon(icon, size: 21),
+      ],
+    ),
+  );
 }
 
 class AuthConsentTile extends StatelessWidget {

@@ -76,10 +76,14 @@ void main() {
   });
 
   test('INTELLIA PASS cannot reintroduce the legacy header asset', () {
+    // L'identité de l'authentification est désormais typographique : le Pass
+    // et le nom écrit tiennent lieu d'en-tête. Aucune image de marque n'y est
+    // posée, donc aucune ne peut y redevenir l'ancienne.
     final authSurface = File(
       'lib/features/auth/presentation/widgets/auth_experience_scaffold.dart',
     ).readAsStringSync();
-    expect(authSurface, contains('IntelliaBrandAssets.appIcon'));
+    expect(authSurface, isNot(contains('Image.asset')));
+    expect(authSurface, isNot(contains('AssetImage')));
     expect(authSurface, isNot(contains('assets/branding/icon-192.png')));
     final allProductDart = Directory('lib')
         .listSync(recursive: true)

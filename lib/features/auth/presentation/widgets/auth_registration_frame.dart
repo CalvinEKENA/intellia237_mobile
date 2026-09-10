@@ -14,6 +14,7 @@ class AuthRegistrationFrame extends StatelessWidget {
     required this.content,
     required this.actions,
     required this.onBack,
+    this.pass,
     this.errorMessage,
     this.onRetry,
     this.onDismissError,
@@ -26,6 +27,7 @@ class AuthRegistrationFrame extends StatelessWidget {
   final Widget content;
   final Widget actions;
   final VoidCallback onBack;
+  final Widget? pass;
   final String? errorMessage;
   final VoidCallback? onRetry;
   final VoidCallback? onDismissError;
@@ -61,6 +63,45 @@ class AuthRegistrationFrame extends StatelessWidget {
         ),
       ),
     );
+
+    if (pass != null) {
+      // The PASS, form and actions share one scroll position. A keyboard or
+      // large type therefore never steals the form's remaining fixed height.
+      return Theme(
+        data: lightTheme.copyWith(
+          textTheme: Theme.of(context).textTheme.apply(
+            bodyColor: AuthExperienceColors.textPrimary,
+            displayColor: AuthExperienceColors.textPrimary,
+          ),
+        ),
+        child: Semantics(
+          label: title,
+          container: true,
+          child: AuthExperienceScaffold(
+            onBack: onBack,
+            pass: pass,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AuthStepIndicator(currentStep: currentStep, labels: labels),
+                const SizedBox(height: 22),
+                content,
+                if (errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  AuthErrorBanner(
+                    message: errorMessage!,
+                    onRetry: onRetry,
+                    onDismiss: onDismissError,
+                  ),
+                ],
+                const SizedBox(height: 20),
+                actions,
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Theme(
       data: lightTheme,

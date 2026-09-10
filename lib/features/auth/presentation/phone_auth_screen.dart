@@ -10,10 +10,13 @@ import '../../../core/localization/app_locale_controller.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../application/auth_controller.dart';
+import '../application/auth_state.dart';
 import '../application/phone_auth_controller.dart';
 import '../domain/app_role.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
+import 'widgets/living_pass.dart';
+import 'widgets/pass_otp_field.dart';
 
 class PhoneAuthScreen extends ConsumerStatefulWidget {
   const PhoneAuthScreen({
@@ -53,6 +56,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     final controller = ref.read(provider.notifier);
     final l10n = context.l10n;
     final selectedLanguage = ref.watch(appLocaleProvider).languageCode;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     ref.listen<PhoneAuthState>(provider, (previous, next) {
       if (next.stage == PhoneAuthStage.codeEntry &&
@@ -71,46 +75,72 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
 
     return AuthExperienceScaffold(
       showBackButton: widget.linkCurrentUser || widget.registrationRole != null,
+      topBar: Align(
+        alignment: Alignment.centerRight,
+        child: SegmentedButton<String>(
+          key: const ValueKey('phone-auth-language-selector'),
+          showSelectedIcon: false,
+          segments: const [
+            ButtonSegment(value: 'fr', label: Text('FR')),
+            ButtonSegment(value: 'en', label: Text('EN')),
+          ],
+          selected: {selectedLanguage},
+          onSelectionChanged: (selection) {
+            unawaited(
+              ref.read(appLocaleProvider.notifier).setLanguage(selection.first),
+            );
+          },
+        ),
+      ),
+      pass: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: _phoneController,
+        builder: (context, value, _) => LivingPass(
+          role: widget.registrationRole,
+          detail: state.stage == PhoneAuthStage.phoneEntry
+              ? (value.text.trim().isEmpty ? null : value.text.trim())
+              : state.phoneNumber,
+          phase: switch (state.stage) {
+            PhoneAuthStage.phoneEntry => context.l10n.passYourNumber,
+            PhoneAuthStage.codeEntry => context.l10n.passVerificationInProgress,
+            PhoneAuthStage.success => context.l10n.passNumberVerified,
+          },
+          progress: switch (state.stage) {
+            PhoneAuthStage.phoneEntry => .16,
+            PhoneAuthStage.codeEntry => .38,
+            PhoneAuthStage.success => .56,
+          },
+          verified: state.stage == PhoneAuthStage.success,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: SegmentedButton<String>(
-              key: const ValueKey('phone-auth-language-selector'),
-              showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(value: 'fr', label: Text('FR')),
-                ButtonSegment(value: 'en', label: Text('EN')),
-              ],
-              selected: {selectedLanguage},
-              onSelectionChanged: (selection) {
-                unawaited(
-                  ref
-                      .read(appLocaleProvider.notifier)
-                      .setLanguage(selection.first),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 12),
           AuthHeader(
-            eyebrow: l10n.phoneAuthEyebrow,
+            showBrand: false,
+            eyebrow: widget.registrationRole == null
+                ? context.l10n.passPhoneAccess
+                : passRoleLabel(context, widget.registrationRole!),
             title: widget.linkCurrentUser
                 ? l10n.phoneLinkTitle
                 : state.stage == PhoneAuthStage.codeEntry
-                ? l10n.phoneCodeTitle
-                : l10n.phoneAuthTitle,
+                ? context.l10n.passSixDigitsThenWeContinue
+                : state.stage == PhoneAuthStage.success
+                ? context.l10n.passYourNumberIsConfirmed
+                : context.l10n.passYourNumberYourAccess,
             subtitle: widget.linkCurrentUser
                 ? l10n.phoneLinkSubtitle
                 : state.stage == PhoneAuthStage.codeEntry
                 ? l10n.phoneCodeSubtitle(state.phoneNumber)
+                : state.stage == PhoneAuthStage.success
+                ? l10n.phoneVerificationSuccessBody
                 : l10n.phoneAuthSubtitle,
           ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 24),
           AuthGlassPanel(
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 220),
+              duration: reduceMotion
+                  ? Duration.zero
+                  : const Duration(milliseconds: 220),
               child: switch (state.stage) {
                 PhoneAuthStage.phoneEntry => _PhoneEntry(
                   key: const ValueKey('phone-entry-stage'),
@@ -124,12 +154,21 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                   controller: _codeController,
                   focusNode: _codeFocus,
                   state: state,
-                  onSubmit: () => controller.confirmCode(_codeController.text),
+                  onSubmit: () {
+                    if (ref.read(provider).stage != PhoneAuthStage.codeEntry ||
+                        ref.read(provider).isLoading) {
+                      return;
+                    }
+                    controller.confirmCode(_codeController.text);
+                  },
                   onResend: controller.resendCode,
                   onChangePhone: () {
                     _completionHandled = false;
                     _codeController.clear();
                     controller.changePhoneNumber();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) _phoneFocus.requestFocus();
+                    });
                   },
                 ),
                 PhoneAuthStage.success => _PhoneSuccess(
@@ -160,6 +199,16 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                   : () => context.push(AppRoutes.emailLogin),
               child: Text(l10n.useEmailCompatibility),
             ),
+            TextButton.icon(
+              key: const ValueKey('phone-change-access'),
+              onPressed: state.isLoading
+                  ? null
+                  : () => context.go(AppRoutes.authGateway),
+              icon: const Icon(Icons.arrow_back_rounded, size: 16),
+              label: Text(
+                context.l10n.passChooseAnotherWayIn,
+              ),
+            ),
           ],
           const SizedBox(height: 20),
         ],
@@ -179,7 +228,29 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     final restored = await ref
         .read(authControllerProvider.notifier)
         .adoptCurrentFirebaseSession();
-    if (!mounted || restored) return;
+    if (!mounted) return;
+
+    final auth = ref.read(authControllerProvider);
+    final recoveredRole = auth.role;
+    if (restored && recoveredRole != null && auth.profileCompleted) {
+      context.go(recoveredRole.homePath);
+      return;
+    }
+    if (auth.status == AuthStatus.retryableProfileFailure ||
+        auth.status == AuthStatus.legacyProfileRecovery) {
+      context.go(AppRoutes.authProfileRecovery);
+      return;
+    }
+    // A real recovered role always wins over the entrance selected on a
+    // shared device. An incomplete existing profile resumes its own setup.
+    if (recoveredRole != null) {
+      context.go(switch (recoveredRole) {
+        AppRole.student => AppRoutes.studentRegistration,
+        AppRole.parent => AppRoutes.parentRegistration,
+        AppRole.teacher || AppRole.admin => AppRoutes.authProfileRecovery,
+      });
+      return;
+    }
 
     final route = switch (widget.registrationRole) {
       AppRole.student => AppRoutes.studentRegistration,
@@ -253,7 +324,7 @@ class _PhoneEntry extends StatelessWidget {
                   controller: controller,
                   focusNode: focusNode,
                   enabled: !isLoading,
-                  autofocus: true,
+                  autofocus: false,
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.done,
                   autofillHints: const [AutofillHints.telephoneNumberNational],
@@ -263,6 +334,7 @@ class _PhoneEntry extends StatelessWidget {
                   ],
                   onFieldSubmitted: (_) => onSubmit(),
                   style: const TextStyle(
+                    fontFamily: 'CampaignBody',
                     color: AuthExperienceColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -327,46 +399,13 @@ class _CodeEntry extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextFormField(
-            key: const ValueKey('phone-otp-field'),
+          PassOtpField(
+            fieldKey: const ValueKey('phone-otp-field'),
             controller: controller,
             focusNode: focusNode,
             enabled: !state.isLoading,
-            keyboardType: TextInputType.number,
-            textInputAction: TextInputAction.done,
-            autofillHints: const [AutofillHints.oneTimeCode],
-            enableSuggestions: false,
-            autocorrect: false,
-            maxLength: 6,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            onChanged: (value) {
-              if (value.length == 6 && !state.isLoading) onSubmit();
-            },
-            onFieldSubmitted: (_) => onSubmit(),
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AuthExperienceColors.textPrimary,
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 10,
-            ),
-            decoration: InputDecoration(
-              labelText: l10n.verificationCodeLabel,
-              hintText: l10n.verificationCodeHint,
-              counterText: '',
-              filled: true,
-              fillColor: AuthExperienceColors.surface,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 18,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AuthExperienceColors.border,
-                ),
-              ),
-            ),
+            label: l10n.verificationCodeLabel,
+            onSubmit: onSubmit,
           ),
           if (state.autoRetrievalTimedOut) ...[
             const SizedBox(height: 10),

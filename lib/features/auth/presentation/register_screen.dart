@@ -12,6 +12,7 @@ import '../domain/app_role.dart';
 import 'widgets/auth_choices.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
+import 'widgets/living_pass.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -24,12 +25,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   AppRole? _selectedRole;
 
   void _continue() {
-    final role = _selectedRole;
-    final route = switch (role) {
-      AppRole.student || AppRole.parent => AppRoutes.phoneRegistration(role!),
+    final route = switch (_selectedRole) {
+      AppRole.student ||
+      AppRole.parent => AppRoutes.phoneRegistration(_selectedRole!),
       AppRole.teacher => AppRoutes.teacherRegistration,
-      // Administration remains an internal, authorised route. It is never
-      // proposed in the public INTELLIA PASS entry experience.
       AppRole.admin || null => null,
     };
     if (route != null) context.push(route);
@@ -39,145 +38,87 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final selectedLanguage = ref.watch(appLocaleProvider).languageCode;
-
     return AuthExperienceScaffold(
+      topBar: Row(
+        children: [
+          const Expanded(
+            child: Intellia237TextWordmark(
+              key: ValueKey('pass-cameroon-wordmark'),
+              style: TextStyle(
+                color: AuthExperienceColors.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          SegmentedButton<String>(
+            key: const ValueKey('pass-language-selector'),
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment(value: 'fr', label: Text('FR')),
+              ButtonSegment(value: 'en', label: Text('EN')),
+            ],
+            selected: {selectedLanguage},
+            onSelectionChanged: (selection) => unawaited(
+              ref.read(appLocaleProvider.notifier).setLanguage(selection.first),
+            ),
+            style: const ButtonStyle(visualDensity: VisualDensity.compact),
+          ),
+        ],
+      ),
+      pass: LivingPass(
+        role: _selectedRole,
+        phase: context.l10n.passChooseYourSpace,
+        progress: _selectedRole == null ? 0 : .12,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: SegmentedButton<String>(
-              key: const ValueKey('pass-language-selector'),
-              showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(value: 'fr', label: Text('FR')),
-                ButtonSegment(value: 'en', label: Text('EN')),
-              ],
-              selected: {selectedLanguage},
-              onSelectionChanged: (selection) {
-                unawaited(
-                  ref
-                      .read(appLocaleProvider.notifier)
-                      .setLanguage(selection.first),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 12),
           AuthHeader(
-            eyebrow: l10n.passEyebrow,
-            title: l10n.passTitle,
-            titleWidget: _PassTitle(title: l10n.passTitle),
-            subtitle: l10n.passSubtitle,
+            showBrand: false,
+            eyebrow: context.l10n.passCreateAnAccount,
+            title: context.l10n.passYourPlaceStartsHere,
+            subtitle: context.l10n.passChooseYourSpaceYourPassTakes,
           ),
-          const SizedBox(height: 26),
+          const SizedBox(height: 23),
           AuthChoiceCard(
             key: const ValueKey('pass-role-student'),
             title: l10n.studentRole,
             description: l10n.studentRoleDescription,
-            icon: Icons.school_rounded,
-            accent: AuthExperienceColors.indigo,
+            icon: Icons.school_outlined,
             isSelected: _selectedRole == AppRole.student,
             onTap: () => setState(() => _selectedRole = AppRole.student),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           AuthChoiceCard(
             key: const ValueKey('pass-role-parent'),
             title: l10n.parentRole,
             description: l10n.parentRoleDescription,
-            icon: Icons.family_restroom_rounded,
-            accent: AuthExperienceColors.purple,
+            icon: Icons.family_restroom_outlined,
             isSelected: _selectedRole == AppRole.parent,
             onTap: () => setState(() => _selectedRole = AppRole.parent),
           ),
-          const SizedBox(height: 18),
-          Text(
-            l10n.professionalAccess.toUpperCase(),
-            style: const TextStyle(
-              color: AuthExperienceColors.textSecondary,
-              fontSize: 10.5,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.4,
-            ),
-          ),
-          const SizedBox(height: 9),
-          Semantics(
-            label: l10n.chooseIdentityA11y(l10n.teacherRole),
-            button: true,
-            child: OutlinedButton.icon(
-              key: const ValueKey('pass-role-teacher'),
-              onPressed: () => setState(() => _selectedRole = AppRole.teacher),
-              icon: const Icon(Icons.menu_book_rounded),
-              label: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '${l10n.teacherRole} — ${l10n.teacherRoleDescription}',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: _selectedRole == AppRole.teacher
-                    ? AuthExperienceColors.gold
-                    : AuthExperienceColors.textPrimary,
-                side: BorderSide(
-                  color: _selectedRole == AppRole.teacher
-                      ? AuthExperienceColors.gold
-                      : AuthExperienceColors.border,
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 15,
-                ),
-              ),
-            ),
+          const SizedBox(height: 10),
+          AuthChoiceCard(
+            key: const ValueKey('pass-role-teacher'),
+            title: l10n.teacherRole,
+            description: l10n.teacherRoleDescription,
+            icon: Icons.menu_book_outlined,
+            isSelected: _selectedRole == AppRole.teacher,
+            onTap: () => setState(() => _selectedRole = AppRole.teacher),
           ),
           const SizedBox(height: 22),
           AuthPrimaryButton(
+            key: const ValueKey('pass-continue'),
             label: l10n.continueLabel,
             onTap: _selectedRole == null ? null : _continue,
           ),
-          const SizedBox(height: 22),
-          Center(
-            child: TextButton(
-              onPressed: () => context.go(AppRoutes.login),
-              style: TextButton.styleFrom(
-                foregroundColor: AuthExperienceColors.gold,
-              ),
-              child: Text(l10n.existingAccount),
-            ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => context.go(AppRoutes.authGateway),
+            child: Text(l10n.existingAccount),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PassTitle extends StatelessWidget {
-  const _PassTitle({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final parts = title.split('INTELLIA237');
-    return Semantics(
-      label: title,
-      header: true,
-      child: ExcludeSemantics(
-        child: Intellia237TextWordmark(
-          key: const ValueKey('pass-cameroon-wordmark'),
-          prefix: parts.first,
-          suffix: parts.length > 1 ? parts.last : '',
-          wordmarkColor: AuthExperienceColors.indigo,
-          maxLines: 2,
-          style: const TextStyle(
-            color: AuthExperienceColors.textPrimary,
-            fontSize: 30,
-            height: 1.12,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
       ),
     );
   }

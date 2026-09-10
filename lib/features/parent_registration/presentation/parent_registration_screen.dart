@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
-import '../../../core/widgets/intellia_buttons.dart';
-import '../../../core/widgets/intellia_text_field.dart';
+import '../../auth/domain/app_role.dart';
+import '../../auth/presentation/widgets/auth_controls.dart';
+import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/presentation/widgets/auth_registration_frame.dart';
+import '../../auth/presentation/widgets/living_pass.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../application/parent_registration_controller.dart';
 import '../../legal/presentation/legal_links.dart';
@@ -34,6 +35,9 @@ class _ParentRegistrationScreenState
   @override
   void initState() {
     super.initState();
+    final draft = ref.read(parentRegistrationControllerProvider);
+    _firstNameController.text = draft.firstName;
+    _lastNameController.text = draft.lastName;
     _firstNameController.addListener(() {
       ref
           .read(parentRegistrationControllerProvider.notifier)
@@ -59,18 +63,32 @@ class _ParentRegistrationScreenState
     final state = ref.watch(parentRegistrationControllerProvider);
     final controller = ref.read(parentRegistrationControllerProvider.notifier);
     final l10n = context.l10n;
+    final labels = [
+      l10n.parentStepIdentity,
+      l10n.parentStepChildren,
+      l10n.parentStepFinal,
+    ];
 
     return AuthRegistrationFrame(
       title: l10n.parentRegistrationTitle,
+      pass: LivingPass(
+        key: const ValueKey('parent-living-pass'),
+        role: AppRole.parent,
+        name: state.firstName.trim(),
+        detail: state.childIdentifiers.isEmpty
+            ? context.l10n.passYourFamilySpace
+            : context.l10n.passChildIdentifiersAdded(
+                state.childIdentifiers.length,
+              ),
+        phase: labels[state.currentStep],
+        progress: 0.42 + state.currentStep * 0.23,
+      ),
       currentStep: state.currentStep,
-      labels: [
-        l10n.parentStepIdentity,
-        l10n.parentStepChildren,
-        l10n.parentStepFinal,
-      ],
+      labels: labels,
       onBack: state.currentStep == 0
           ? () => context.pop()
           : () {
+              FocusManager.instance.primaryFocus?.unfocus();
               setState(() => _previousStep = state.currentStep);
               controller.previousStep();
             },
@@ -78,7 +96,9 @@ class _ParentRegistrationScreenState
       onDismissError: controller.clearError,
       onRetry: state.isLastStep ? () => controller.submit() : null,
       content: AnimatedSwitcher(
-        duration: IntelliaMotion.cinematic,
+        duration: MediaQuery.of(context).disableAnimations
+            ? Duration.zero
+            : IntelliaMotion.cinematic,
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeIn,
         transitionBuilder: (child, animation) {
@@ -94,18 +114,10 @@ class _ParentRegistrationScreenState
             ),
           );
         },
-        child: _GlassStepPanel(
+        child: AuthGlassPanel(
           key: ValueKey(state.currentStep),
-          child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.fromLTRB(
-              IntelliaSpacing.xl,
-              IntelliaSpacing.md,
-              IntelliaSpacing.xl,
-              IntelliaSpacing.xs,
-            ),
-            child: _buildStepContent(state),
-          ),
+          padding: const EdgeInsets.all(18),
+          child: _buildStepContent(state),
         ),
       ),
       actions: _buildBottomActions(state),
@@ -133,22 +145,26 @@ class _ParentRegistrationScreenState
             subtitle: l10n.parentDetailsSubtitle,
           ),
           const SizedBox(height: IntelliaSpacing.lg),
-          IntelliaTextField(
+          AuthAnimatedField(
             controller: _firstNameController,
             label: l10n.firstNameLabel,
             hint: l10n.firstNameHint,
-            prefixIcon: Icons.person_rounded,
+            icon: Icons.person_outline_rounded,
+            autofillHints: const [AutofillHints.givenName],
+            textInputAction: TextInputAction.next,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
               label: l10n.firstNameLabel,
             ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
-          IntelliaTextField(
+          AuthAnimatedField(
             controller: _lastNameController,
             label: l10n.lastNameLabel,
             hint: l10n.lastNameHint,
-            prefixIcon: Icons.badge_rounded,
+            icon: Icons.badge_outlined,
+            autofillHints: const [AutofillHints.familyName],
+            textInputAction: TextInputAction.done,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
               label: l10n.lastNameLabel,
@@ -163,8 +179,6 @@ class _ParentRegistrationScreenState
 
   Widget _buildChildrenLinkStep(ParentRegistrationState state) {
     final controller = ref.read(parentRegistrationControllerProvider.notifier);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final l10n = context.l10n;
 
     return Column(
@@ -175,20 +189,19 @@ class _ParentRegistrationScreenState
           subtitle: l10n.linkChildrenSubtitle,
         ),
         const SizedBox(height: IntelliaSpacing.lg),
-        IntelliaTextField(
+        AuthAnimatedField(
           key: const ValueKey('parent-child-identifier-field'),
           controller: _childCodeController,
           label: l10n.childIdentifierLabel,
           hint: l10n.childIdentifierHint,
-          prefixIcon: Icons.link_rounded,
+          icon: Icons.link_rounded,
         ),
         const SizedBox(height: IntelliaSpacing.sm),
         Align(
           alignment: Alignment.centerRight,
-          child: IntelliaOutlineButton(
+          child: OutlinedButton(
             key: const ValueKey('parent-add-child-action'),
-            expand: false,
-            onTap: () {
+            onPressed: () {
               if (_childCodeController.text.trim().isNotEmpty) {
                 controller.addChildIdentifier(_childCodeController.text.trim());
                 _childCodeController.clear();
@@ -204,11 +217,9 @@ class _ParentRegistrationScreenState
         if (state.childIdentifiers.isEmpty)
           Text(
             l10n.noLinkedChild,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
-              color: isDark
-                  ? IntelliaColors.textSecondaryDark
-                  : IntelliaColors.textSecondary,
+              color: AuthExperienceColors.textSecondary,
             ),
           )
         else
@@ -222,7 +233,7 @@ class _ParentRegistrationScreenState
                   selected: true,
                   onDeleted: () => controller.removeChildIdentifier(childId),
                   deleteIconColor: Colors.white,
-                  selectedColor: IntelliaColors.brandIndigo,
+                  selectedColor: AuthExperienceColors.indigo,
                   labelStyle: const TextStyle(color: Colors.white),
                   checkmarkColor: Colors.white,
                 ),
@@ -244,15 +255,15 @@ class _ParentRegistrationScreenState
           subtitle: l10n.finalReviewSubtitle,
         ),
         const SizedBox(height: IntelliaSpacing.lg),
-        _IntelliaCheckboxTile(
+        AuthConsentTile(
           value: state.acceptedTerms,
-          onChanged: (value) => controller.setAcceptedTerms(value ?? false),
+          onChanged: controller.setAcceptedTerms,
           label: l10n.acceptTerms,
         ),
         const SizedBox(height: IntelliaSpacing.sm),
-        _IntelliaCheckboxTile(
+        AuthConsentTile(
           value: state.acceptedPrivacy,
-          onChanged: (value) => controller.setAcceptedPrivacy(value ?? false),
+          onChanged: controller.setAcceptedPrivacy,
           label: l10n.acceptPrivacy,
         ),
         const LegalLinks(),
@@ -264,53 +275,41 @@ class _ParentRegistrationScreenState
 
   Widget _buildBottomActions(ParentRegistrationState state) {
     final controller = ref.read(parentRegistrationControllerProvider.notifier);
-    final l10n = context.l10n;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        IntelliaSpacing.xl,
-        IntelliaSpacing.sm,
-        IntelliaSpacing.xl,
-        IntelliaSpacing.xl,
-      ),
-      child: Row(
-        children: [
-          if (!state.isFirstStep)
-            Expanded(
-              child: IntelliaOutlineButton(
-                onTap: state.isSubmitting
-                    ? null
-                    : () {
-                        setState(() {
-                          _previousStep = state.currentStep;
-                        });
-                        controller.previousStep();
-                      },
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(l10n.previousLabel, maxLines: 1, softWrap: false),
-                ),
-              ),
-            )
-          else
-            const Spacer(),
-          const SizedBox(width: IntelliaSpacing.sm),
-          Expanded(
-            flex: 2,
-            child: IntelliaPrimaryButton(
-              onTap: state.isSubmitting ? null : () => _onPrimaryAction(state),
-              isLoading: state.isSubmitting,
-              child: Text(
-                state.isLastStep ? l10n.createParentAccount : l10n.nextLabel,
-              ),
+    return Row(
+      children: [
+        if (!state.isFirstStep) ...[
+          IconButton(
+            tooltip: context.l10n.previousLabel,
+            onPressed: state.isSubmitting
+                ? null
+                : () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    setState(() => _previousStep = state.currentStep);
+                    controller.previousStep();
+                  },
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: AuthExperienceColors.textSecondary,
             ),
           ),
+          const SizedBox(width: 10),
         ],
-      ),
-    ).animate().fadeIn(duration: IntelliaMotion.medium);
+        Expanded(
+          child: AuthPrimaryButton(
+            key: const ValueKey('registration-primary-action'),
+            onTap: state.isSubmitting ? null : () => _onPrimaryAction(state),
+            isLoading: state.isSubmitting,
+            label: state.isLastStep
+                ? context.l10n.createParentAccount
+                : context.l10n.nextLabel,
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _onPrimaryAction(ParentRegistrationState state) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final controller = ref.read(parentRegistrationControllerProvider.notifier);
 
     final isValidForm = switch (state.currentStep) {
@@ -349,35 +348,6 @@ class _ParentRegistrationScreenState
   }
 }
 
-class _GlassStepPanel extends StatelessWidget {
-  const _GlassStepPanel({required this.child, super.key});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark
-            ? IntelliaColors.surfaceSolidDark
-            : IntelliaColors.surfaceSolid,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(IntelliaRadii.large),
-        ),
-        border: Border(
-          top: BorderSide(color: theme.colorScheme.outline, width: 0.8),
-          left: BorderSide(color: theme.colorScheme.outline, width: 0.8),
-          right: BorderSide(color: theme.colorScheme.outline, width: 0.8),
-        ),
-      ),
-      child: child,
-    );
-  }
-}
-
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.title, required this.subtitle});
 
@@ -386,27 +356,17 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: IntelliaTypography.title2(
-            brightness: theme.brightness,
-          ).copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: IntelliaSpacing.xxs),
+        Text(title.toUpperCase(), style: passDisplay(size: 34)),
+        const SizedBox(height: 8),
         Text(
           subtitle,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 13,
-            color: isDark
-                ? IntelliaColors.textSecondaryDark
-                : IntelliaColors.textSecondary,
-            height: 1.4,
+            color: AuthExperienceColors.textSecondary,
+            height: 1.45,
           ),
         ),
       ],
@@ -421,90 +381,22 @@ class _InfoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(IntelliaSpacing.md),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(IntelliaRadii.small),
-        color: isDark
-            ? IntelliaColors.backgroundSecondaryDark
-            : IntelliaColors.backgroundSecondary,
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.1)
-              : Colors.black.withValues(alpha: 0.05),
+        color: AuthExperienceColors.surfaceSoft,
+        border: const Border(
+          left: BorderSide(color: AuthExperienceColors.gold, width: 2),
         ),
       ),
       child: Text(
         message,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 13,
-          color: isDark
-              ? IntelliaColors.textSecondaryDark
-              : IntelliaColors.textSecondary,
+          height: 1.45,
+          color: AuthExperienceColors.textSecondary,
         ),
-      ),
-    );
-  }
-}
-
-class _IntelliaCheckboxTile extends StatelessWidget {
-  const _IntelliaCheckboxTile({
-    required this.value,
-    required this.onChanged,
-    required this.label,
-  });
-
-  final bool value;
-  final ValueChanged<bool?> onChanged;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnimatedContainer(
-            duration: IntelliaMotion.fast,
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              gradient: value ? IntelliaGradients.brand : null,
-              color: value ? null : Colors.transparent,
-              border: Border.all(
-                color: value
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outline,
-                width: value ? 0 : 1.5,
-              ),
-            ),
-            child: value
-                ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
-                : null,
-          ),
-          const SizedBox(width: IntelliaSpacing.md),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                color: isDark
-                    ? IntelliaColors.textSecondaryDark
-                    : IntelliaColors.textSecondary,
-                height: 1.4,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

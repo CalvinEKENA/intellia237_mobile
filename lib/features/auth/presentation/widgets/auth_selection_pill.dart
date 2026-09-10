@@ -59,18 +59,6 @@ class AuthSelectionPill extends StatelessWidget {
               color: selected ? _selectedBorder : _idleBorder,
               width: selected ? 1.4 : 1,
             ),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: AuthExperienceColors.indigo.withValues(
-                        alpha: 0.45,
-                      ),
-                      blurRadius: 20,
-                      spreadRadius: -2,
-                      offset: const Offset(0, 8),
-                    ),
-                  ]
-                : null,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -89,13 +77,15 @@ class AuthSelectionPill extends StatelessWidget {
                       )
                     : const SizedBox.shrink(),
               ),
-              Text(
-                label,
-                style: TextStyle(
-                  // Toujours blanc lisible, jamais hérité du thème.
-                  color: selected ? Colors.white : _idleText,
-                  fontSize: 14.5,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    // Toujours blanc lisible, jamais hérité du thème.
+                    color: selected ? Colors.white : _idleText,
+                    fontSize: 14.5,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  ),
                 ),
               ),
             ],

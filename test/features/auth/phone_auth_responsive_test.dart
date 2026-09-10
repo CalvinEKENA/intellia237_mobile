@@ -17,7 +17,7 @@ void main() {
     SharedPreferences.setMockInitialValues(const <String, Object>{});
 
     for (final width in const [320.0, 360.0, 390.0, 412.0]) {
-      for (final textScale in const [1.0, 1.3, 1.5]) {
+      for (final textScale in const [1.0, 1.3, 1.6]) {
         tester.view.physicalSize = Size(width, 920);
         tester.view.devicePixelRatio = 1;
         final repository = _ResponsivePhoneRepository();
@@ -59,9 +59,13 @@ void main() {
           reason: 'phone stage at $width / $textScale',
         );
 
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('send-phone-code')),
+        );
         await tester.tap(find.byKey(const ValueKey('send-phone-code')));
         await tester.pump(const Duration(milliseconds: 250));
         expect(find.byKey(const ValueKey('phone-otp-field')), findsOneWidget);
+        expect(find.byType(TextFormField), findsOneWidget);
         expect(
           tester.takeException(),
           isNull,

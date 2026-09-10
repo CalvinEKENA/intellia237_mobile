@@ -25,7 +25,13 @@
   "continueLabel": "Continue",
   "existingAccount": "I already have an account",
   "chooseIdentityA11y": "Choose the {role} profile",
-  "@chooseIdentityA11y": {"placeholders": {"role": {"type": "String"}}},
+  "@chooseIdentityA11y": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "householdQuestion": "Who is learning today?",
   "householdSubtitle": "Choose a student profile. Switching profiles never bypasses parent authorisation.",
   "addLearner": "Add a child",
@@ -73,7 +79,13 @@
   "forgotSubtitle": "We will send a secure link to your account email address.",
   "emailSent": "Email sent",
   "checkEmail": "Check {email} and open the link you received.",
-  "@checkEmail": {"placeholders": {"email": {"type": "String"}}},
+  "@checkEmail": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "backToLogin": "Back to sign in",
   "sendLink": "Send link",
   "phonePrimary": "Cameroon phone number",
@@ -94,17 +106,53 @@
   "reclaimDevice": "Reclaim device",
   "preparingYourSpace": "Preparing your space…",
   "companionQuotaReached": "You have used all your questions for today. You can ask {name} again tomorrow.",
-  "@companionQuotaReached": {"placeholders": {"name": {"type": "String"}}},
+  "@companionQuotaReached": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companionProfileSync": "{name} needs to resync your profile before answering. Your lessons and exercises remain available.",
-  "@companionProfileSync": {"placeholders": {"name": {"type": "String"}}},
+  "@companionProfileSync": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companionInvalidRequest": "{name} cannot process that question. Try rephrasing it in a few words.",
-  "@companionInvalidRequest": {"placeholders": {"name": {"type": "String"}}},
+  "@companionInvalidRequest": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companionNetworkUnavailable": "{name} cannot connect right now. Check your connection; your lessons and exercises remain available.",
-  "@companionNetworkUnavailable": {"placeholders": {"name": {"type": "String"}}},
+  "@companionNetworkUnavailable": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companionServiceUnavailable": "{name} cannot answer right now. You can keep using your lessons and exercises.",
-  "@companionServiceUnavailable": {"placeholders": {"name": {"type": "String"}}},
+  "@companionServiceUnavailable": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companionInvalidResponse": "{name} received an incomplete response. You can try again in a moment.",
-  "@companionInvalidResponse": {"placeholders": {"name": {"type": "String"}}},
+  "@companionInvalidResponse": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companionStatusReady": "Ready to help",
   "companionStatusThinking": "thinking…",
   "companionStatusQuota": "daily limit reached",
@@ -123,14 +171,26 @@
   "useEmailCompatibility": "Use my email instead",
   "phoneCodeTitle": "Enter the 6 digits.",
   "phoneCodeSubtitle": "The code was sent to {phone}.",
-  "@phoneCodeSubtitle": {"placeholders": {"phone": {"type": "String"}}},
+  "@phoneCodeSubtitle": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
   "verificationCodeLabel": "Verification code",
   "verificationCodeHint": "000000",
   "verifyCode": "Verify code",
   "changePhoneNumber": "Change phone number",
   "resendCode": "Send code again",
   "resendCodeIn": "Send again in {seconds}s",
-  "@resendCodeIn": {"placeholders": {"seconds": {"type": "int"}}},
+  "@resendCodeIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "smsAutoRetrievalTimeout": "Automatic detection has ended. Enter the code you received or request another one.",
   "phoneVerificationSuccess": "Number verified",
   "phoneVerificationSuccessBody": "Your secure access is ready.",
@@ -222,7 +282,16 @@
   "weeklyGoalTitle": "My weekly goal",
   "weeklyGoalUnset": "Not set — choose your pace.",
   "weeklyGoalSummary": "{sessions} sessions per week · about {minutes} min",
-  "@weeklyGoalSummary": {"placeholders": {"sessions": {"type": "int"}, "minutes": {"type": "int"}}},
+  "@weeklyGoalSummary": {
+    "placeholders": {
+      "sessions": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "dataSaverLabel": "Data saver",
   "dataSaverDescription": "Prioritises lightweight content and limits costly effects.",
   "learningRemindersLabel": "Learning reminders",
@@ -256,7 +325,13 @@
   "resendLabel": "Send again",
   "emailVerificationSent": "Email sent. Open the link you received, then refresh this status.",
   "accountReadyWithCompanion": "Your account is ready. {name} is with you from now on.",
-  "@accountReadyWithCompanion": {"placeholders": {"name": {"type": "String"}}},
+  "@accountReadyWithCompanion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "discoverIntellia": "Discover Intellia 237",
   "learnTitle": "Learn",
   "learnSubtitle": "Your subjects, adapted to your level.",
@@ -275,7 +350,13 @@
   "chaptersComingTitle": "Chapters are being prepared",
   "chaptersComingBody": "This subject is being written for your class. Check back soon!",
   "lessonCount": "{count, plural, =0{No lessons} =1{1 lesson} other{{count} lessons}}",
-  "@lessonCount": {"placeholders": {"count": {"type": "int"}}},
+  "@lessonCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "lessonsTitle": "Lessons",
   "lessonsComingTitle": "Lessons are being prepared",
   "lessonsComingBody": "The lessons in this chapter are being written. Check back soon.",
@@ -283,7 +364,13 @@
   "availableOffline": "Available offline",
   "studyOffline": "Study offline",
   "offlineLessonPrepared": "{count, plural, =0{No lessons prepared on this device.} =1{1 lesson prepared on this device.} other{{count} lessons prepared on this device.}}",
-  "@offlineLessonPrepared": {"placeholders": {"count": {"type": "int"}}},
+  "@offlineLessonPrepared": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "prepareOfflineLessons": "Prepare all lessons for offline reading.",
   "chapterReadyOffline": "Chapter ready for offline reading.",
   "downloadFailed": "The download did not complete. Check your connection and try again.",
@@ -294,41 +381,98 @@
   "markComplete": "Mark as complete",
   "completedLabel": "Completed",
   "askTutorAboutLesson": "Ask {name} for help with this lesson",
-  "@askTutorAboutLesson": {"placeholders": {"name": {"type": "String"}}},
+  "@askTutorAboutLesson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "askTutorPrompt": "A question? Ask {name}",
-  "@askTutorPrompt": {"placeholders": {"name": {"type": "String"}}},
+  "@askTutorPrompt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "checkUnderstanding": "Check your understanding",
   "lessonCompletedCongrats": "Lesson completed — well done!",
   "startNextLesson": "Start the next lesson",
   "nextLesson": "Next lesson",
   "writeQuestionHint": "Write your question…",
   "stepProgressA11y": "Step {current} of {total}: {label}",
-  "@stepProgressA11y": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}, "label": {"type": "String"}}},
+  "@stepProgressA11y": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "networkOfflineBanner": "No network detected — previously loaded content remains available.",
   "welcomeName": "Welcome, {name}!",
-  "@welcomeName": {"placeholders": {"name": {"type": "String"}}},
+  "@welcomeName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "closeLabel": "Close",
   "companionPromptExplain": "Explain this concept",
   "companionPromptSummarize": "Summarise the key points",
   "companionPromptExample": "Give me a concrete example",
   "companionPromptQuestions": "Ask me 3 questions",
   "companionContext": "Context: {topic}",
-  "@companionContext": {"placeholders": {"topic": {"type": "String"}}},
+  "@companionContext": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
   "chapterLabel": "Chapter",
   "chapterUnavailable": "Chapter unavailable",
   "chapterEyebrow": "CHAPTER",
   "completedProgress": "{done}/{total} completed",
-  "@completedProgress": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "@completedProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "saveChapterOffline": "Save this chapter for offline reading",
   "reconnectToPrepareLessons": "Reconnect to prepare all lessons.",
   "prepareChapterLessons": "Prepare the {count} lessons in this chapter.",
-  "@prepareChapterLessons": {"placeholders": {"count": {"type": "int"}}},
+  "@prepareChapterLessons": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "prepareLabel": "Prepare",
   "backLabel": "Go back",
   "backToChapter": "Back to chapter",
   "lastLessonCompleted": "You completed the final lesson in this chapter.",
   "nextStepLesson": "Next step: “{title}”.",
-  "@nextStepLesson": {"placeholders": {"title": {"type": "String"}}},
+  "@nextStepLesson": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "phoneProfileChoicePrompt": "This number does not have a profile yet. Choose the account to create:",
   "phoneCreateStudentProfile": "Create my student profile",
   "phoneCreateParentProfile": "Create a parent profile",
@@ -358,7 +502,13 @@
   "saveLabel": "Save",
   "profileRestrictedFields": "Class, role and school can only be changed by an authorised person.",
   "profileNameLengthError": "{label} must contain between 2 and 60 characters.",
-  "@profileNameLengthError": {"placeholders": {"label": {"type": "String"}}},
+  "@profileNameLengthError": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "profileUpdated": "Profile updated.",
   "kiraDiscoveryPhraseOne": "She takes the time to explain things clearly.",
   "kiraDiscoveryPhraseTwo": "She moves forward with method and calm.",
@@ -369,13 +519,37 @@
   "discoverLeo": "Discover Léo",
   "returnToKira": "Return to Kira",
   "discoverCompanionBeforeChoice": "Discover {name} before choosing this companion",
-  "@discoverCompanionBeforeChoice": {"placeholders": {"name": {"type": "String"}}},
+  "@discoverCompanionBeforeChoice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companionChosenA11y": "{name} selected",
-  "@companionChosenA11y": {"placeholders": {"name": {"type": "String"}}},
+  "@companionChosenA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "chooseCompanionA11y": "Choose {name}",
-  "@chooseCompanionA11y": {"placeholders": {"name": {"type": "String"}}},
+  "@chooseCompanionA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "currentCompanionLabel": "{name}, your companion",
-  "@currentCompanionLabel": {"placeholders": {"name": {"type": "String"}}},
+  "@currentCompanionLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "subjectMathematics": "Mathematics",
   "subjectFrench": "French",
   "subjectGeography": "Geography",
@@ -394,29 +568,98 @@
   "stateAccessDeniedBody": "Your account cannot access this content. Sign in again or contact your school.",
   "stateRetryableErrorBody": "The problem is not on your side. Try again in a moment.",
   "completionPercent": "{percent}% completed",
-  "@completionPercent": {"placeholders": {"percent": {"type": "int"}}},
+  "@completionPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "nextUpA11y": ", next up",
   "lessonTileA11y": "Lesson {index}: {title}, {status}{next}",
-  "@lessonTileA11y": {"placeholders": {"index": {"type": "int"}, "title": {"type": "String"}, "status": {"type": "String"}, "next": {"type": "String"}}},
+  "@lessonTileA11y": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      },
+      "next": {
+        "type": "String"
+      }
+    }
+  },
   "subjectTileA11y": "{title}, {percent}% completed, {lessons}",
-  "@subjectTileA11y": {"placeholders": {"title": {"type": "String"}, "percent": {"type": "int"}, "lessons": {"type": "String"}}},
+  "@subjectTileA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      },
+      "lessons": {
+        "type": "String"
+      }
+    }
+  },
   "lessonProgressQueuedOffline": "Offline: your progress will be validated after reconnecting.",
   "lessonProgressSaveFailed": "Unable to save right now. Try again in a moment.",
   "removeFromFavorites": "Remove from favourites",
   "addToFavorites": "Add to favourites",
   "lessonReadingMinutes": "{count, plural, =0{Less than one minute to read} =1{1 min read} other{{count} min read}}",
-  "@lessonReadingMinutes": {"placeholders": {"count": {"type": "int"}}},
+  "@lessonReadingMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "miniQuizScoreSuccess": "Score: {score}/{total} — well done!",
-  "@miniQuizScoreSuccess": {"placeholders": {"score": {"type": "int"}, "total": {"type": "int"}}},
+  "@miniQuizScoreSuccess": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "miniQuizScoreReview": "Score: {score}/{total} — review the lesson and try again.",
-  "@miniQuizScoreReview": {"placeholders": {"score": {"type": "int"}, "total": {"type": "int"}}},
+  "@miniQuizScoreReview": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "submitMiniQuiz": "Submit mini quiz",
   "answerAllBeforeSubmit": "Answer every question before submitting",
   "answerAllQuestions": "Answer every question",
   "correctAnswerA11y": "Correct answer: {answer}",
-  "@correctAnswerA11y": {"placeholders": {"answer": {"type": "String"}}},
+  "@correctAnswerA11y": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
   "incorrectAnswerA11y": "Your answer is incorrect: {answer}",
-  "@incorrectAnswerA11y": {"placeholders": {"answer": {"type": "String"}}},
+  "@incorrectAnswerA11y": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
   "quizProfileIncompleteBody": "Complete or resync your school profile before choosing quizzes for your level.",
   "quizCatalogDeniedBody": "This profile is not authorised to access the catalogue. You can continue with your lessons while it is checked.",
   "quizCatalogUnavailableBody": "The verified catalogue is temporarily unavailable. No content is fabricated: continue with Flow or your lessons.",
@@ -449,19 +692,37 @@
   "quizHistoryUnavailable": "History is unavailable right now.",
   "quizNoValidatedAttempt": "No validated attempts yet.",
   "lastScore": "Latest score: {score}",
-  "@lastScore": {"placeholders": {"score": {"type": "String"}}},
+  "@lastScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
   "myResults": "My results",
   "quizResultsLoadFailed": "Unable to retrieve validated results. Your quizzes remain available.",
   "quizFirstResultBody": "No result is fabricated here: your first attempt will appear after the server validates it.",
   "quizMasteryUnavailable": "Mastery by topic is not shown because current attempts do not yet record validated learning skills.",
   "dateUnavailable": "Date unavailable",
   "pointsEarned": "+{count} points",
-  "@pointsEarned": {"placeholders": {"count": {"type": "int"}}},
+  "@pointsEarned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "scoreUnavailable": "Score unavailable",
   "quizTrainingGuide": "Guided feedback during the quiz.",
   "quizExamGuide": "Full correction after submission.",
   "questionCount": "{count, plural, =0{No questions} =1{1 question} other{{count} questions}}",
-  "@questionCount": {"placeholders": {"count": {"type": "int"}}},
+  "@questionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "unavailableOfflineA11y": " Unavailable offline.",
   "quizNeedsNetworkTitle": "This quiz needs a connection",
   "quizNeedsNetworkBody": "The server protects answer checking and validates submissions. Intellia237 does not cache your answers or corrections. Reconnect to begin, or continue with an activity already available offline.",
@@ -477,19 +738,43 @@
   "finishLabel": "Finish",
   "guidedCorrectionUnavailableTitle": "Feedback unavailable",
   "guidedCorrectionFailureBody": "{reason}\nYour answer remains on this screen and is not cached.",
-  "@guidedCorrectionFailureBody": {"placeholders": {"reason": {"type": "String"}}},
+  "@guidedCorrectionFailureBody": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "continueWithoutCorrection": "Continue without feedback",
   "correctAnswerTitle": "Correct answer!",
   "keyTakeawayTitle": "Key takeaway",
   "expectedAnswer": "Expected answer: {answer}",
-  "@expectedAnswer": {"placeholders": {"answer": {"type": "String"}}},
+  "@expectedAnswer": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
   "unansweredQuestionCount": "{count, plural, =0{No unanswered questions} =1{1 unanswered question} other{{count} unanswered questions}}",
-  "@unansweredQuestionCount": {"placeholders": {"count": {"type": "int"}}},
+  "@unansweredQuestionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "incompleteQuizBody": "You can return to the first incomplete question or submit now.",
   "completeMyAnswers": "Complete my answers",
   "submitAnyway": "Submit anyway",
   "quizSubmissionFailureBody": "{reason} Your answers remain on this screen: try again without re-entering them. No offline copy is created.",
-  "@quizSubmissionFailureBody": {"placeholders": {"reason": {"type": "String"}}},
+  "@quizSubmissionFailureBody": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "quizAnswerCheckNetworkError": "The connection is too weak to check this answer. Try again when the network returns.",
   "quizAnswerCheckUnavailable": "Guided feedback is unavailable right now.",
   "quizAnswerCheckFailed": "This answer cannot be checked right now.",
@@ -504,7 +789,19 @@
   "singleAnswerQcm": "Multiple choice — One correct answer",
   "selectedA11y": ", selected",
   "quizOptionA11y": "Answer {letter}: {answer}{selected}",
-  "@quizOptionA11y": {"placeholders": {"letter": {"type": "String"}, "answer": {"type": "String"}, "selected": {"type": "String"}}},
+  "@quizOptionA11y": {
+    "placeholders": {
+      "letter": {
+        "type": "String"
+      },
+      "answer": {
+        "type": "String"
+      },
+      "selected": {
+        "type": "String"
+      }
+    }
+  },
   "shortAnswerInstruction": "Answer in a few words",
   "yourAnswerHint": "Your answer…",
   "trueOrFalse": "True or false",
@@ -515,7 +812,16 @@
   "restartQuiz": "Start again",
   "detailedCorrection": "Detailed feedback",
   "mistakeProgress": "Mistake {current}/{total}",
-  "@mistakeProgress": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "@mistakeProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "mentalAnswerInstruction": "Answer mentally, then reveal the correction.",
   "revealAnswer": "Reveal answer",
   "finishReview": "Finish review",
@@ -527,9 +833,21 @@
   "yourAnswerLabel": "Your answer",
   "correctAnswerLabel": "Correct answer",
   "quizImprovement": "+{delta}% compared with your previous attempt",
-  "@quizImprovement": {"placeholders": {"delta": {"type": "int"}}},
+  "@quizImprovement": {
+    "placeholders": {
+      "delta": {
+        "type": "int"
+      }
+    }
+  },
   "quizImprovementA11y": "Score improved: {label}",
-  "@quizImprovementA11y": {"placeholders": {"label": {"type": "String"}}},
+  "@quizImprovementA11y": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "continueWithFlow": "Continue with Flow",
   "homeLabel": "Home",
   "companionNavLabel": "Companion",
@@ -547,7 +865,13 @@
   "companionSpeak": "Speak",
   "companionSend": "Send",
   "companionMicRationale": "{name} needs the microphone to listen to you. Nothing is recorded unless you send it.",
-  "@companionMicRationale": {"placeholders": {"name": {"type": "String"}}},
+  "@companionMicRationale": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "companionMicDenied": "The microphone is blocked. You can allow it in settings, or write your question.",
   "companionMicUnavailable": "Dictation is not available on this device. You can write your question.",
   "companionListening": "I am listening",
@@ -561,7 +885,13 @@
   "companionHistoryEmpty": "Your conversations will appear here.",
   "companionNewConversation": "New conversation",
   "companionSaveDeferred": "{name} is your companion. Syncing with your profile will happen on its own.",
-  "@companionSaveDeferred": {"placeholders": {"name": {"type": "String"}}},
+  "@companionSaveDeferred": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "authGatewayTitle": "Welcome to INTELLIA237",
   "authGatewaySubtitle": "Which space would you like to open?",
   "todayEyebrow": "Today",
@@ -594,7 +924,13 @@
   "levelLabel": "Level",
   "currentStreak": "Current streak",
   "dayCount": "{count, plural, =0{0 days} =1{1 day} other{{count} days}}",
-  "@dayCount": {"placeholders": {"count": {"type": "int"}}},
+  "@dayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "progressLabel": "Progress",
   "statisticsComingTitle": "Your statistics are coming",
   "statisticsComingBody": "Complete your first lesson or quiz to see your points and progress here.",
@@ -605,49 +941,169 @@
   "chooseCompanionToPersonalize": "Choose a companion to personalise your experience",
   "dailyChallenges": "Today’s challenges",
   "challengesRenewIn": "Challenges renew in {duration}",
-  "@challengesRenewIn": {"placeholders": {"duration": {"type": "String"}}},
+  "@challengesRenewIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
   "challengeCompletedA11y": "Challenge completed: {title}",
-  "@challengeCompletedA11y": {"placeholders": {"title": {"type": "String"}}},
+  "@challengeCompletedA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "challengeRewardA11y": "Challenge: {title}, reward {points} points",
-  "@challengeRewardA11y": {"placeholders": {"title": {"type": "String"}, "points": {"type": "int"}}},
+  "@challengeRewardA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
   "progressOverviewA11y": "My progress: {percent}% overall, level {level}, {points} points. Open profile.",
-  "@progressOverviewA11y": {"placeholders": {"percent": {"type": "int"}, "level": {"type": "int"}, "points": {"type": "int"}}},
+  "@progressOverviewA11y": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "level": {
+        "type": "int"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
   "myProgress": "My progress",
   "levelShort": "Lvl {level}",
-  "@levelShort": {"placeholders": {"level": {"type": "int"}}},
+  "@levelShort": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "currentLevel": "Current level",
   "levelValue": "Level {level}",
-  "@levelValue": {"placeholders": {"level": {"type": "int"}}},
+  "@levelValue": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
   "globalLabel": "overall",
   "quickQuiz": "Quick quiz",
   "personalizedRecommendations": "Personalised recommendations",
   "resumeLessonA11y": "Resume lesson {title}, {percent} percent complete.",
-  "@resumeLessonA11y": {"placeholders": {"title": {"type": "String"}, "percent": {"type": "int"}}},
+  "@resumeLessonA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "resumeLastLesson": "Resume last lesson",
   "streakA11y": "{count} day streak. {message}",
-  "@streakA11y": {"placeholders": {"count": {"type": "int"}, "message": {"type": "String"}}},
+  "@streakA11y": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "streakDayCount": "{count, plural, =0{0-day streak} =1{1-day streak} other{{count}-day streak}}",
-  "@streakDayCount": {"placeholders": {"count": {"type": "int"}}},
+  "@streakDayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "mySpace": "My space",
   "myLearningSpace": "My learning space",
   "openNotificationsA11y": "{count, plural, =0{Open notifications} =1{Open notifications, 1 unread} other{Open notifications, {count} unread}}",
-  "@openNotificationsA11y": {"placeholders": {"count": {"type": "int"}}},
+  "@openNotificationsA11y": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "openMyProfile": "Open my profile",
   "subjectsTitle": "Subjects",
   "subjectProgressA11y": "{title}, {percent}% completed",
-  "@subjectProgressA11y": {"placeholders": {"title": {"type": "String"}, "percent": {"type": "int"}}},
+  "@subjectProgressA11y": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "weeklyGoalProgressA11y": "My weekly goal: {done} of {total} sessions. {status}",
-  "@weeklyGoalProgressA11y": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}, "status": {"type": "String"}}},
+  "@weeklyGoalProgressA11y": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "goalAchievedA11y": "Goal achieved.",
   "myWeeklyGoal": "My weekly goal",
   "editMyGoal": "Edit my goal",
   "goalAchievedMessage": "Goal achieved — a great week!",
   "weeklyGoalProgressSummary": "{done}/{total} sessions · about {minutes} min each",
-  "@weeklyGoalProgressSummary": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}, "minutes": {"type": "int"}}},
+  "@weeklyGoalProgressSummary": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "openPrioritySubjectA11y": "Open my priority subject: {subject}",
-  "@openPrioritySubjectA11y": {"placeholders": {"subject": {"type": "String"}}},
+  "@openPrioritySubjectA11y": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
   "prioritySubject": "Priority: {subject}",
-  "@prioritySubject": {"placeholders": {"subject": {"type": "String"}}},
+  "@prioritySubject": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
   "setWeeklyPace": "Set my weekly pace",
   "setYourWeeklyPace": "Set your weekly pace",
   "weeklyPaceChoices": "Choose 2, 3 or 5 sessions.",
@@ -662,13 +1118,19 @@
   "childNotFound": "Child not found.",
   "weeklyProgress": "Weekly progress",
   "progressChartComing": "The chart will appear after the first activities.",
-  "strongSubjects": "Strong subjects",
+  "strongSubjects": "Strong",
   "needsImprovement": "Needs improvement",
   "viewDetailedProgress": "View detailed progress",
   "notMeasuredYet": "Not measured yet",
   "childProgressTitle": "Child progress",
   "childSevenDayProgress": "{name} — 7-day progress",
-  "@childSevenDayProgress": {"placeholders": {"name": {"type": "String"}}},
+  "@childSevenDayProgress": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "todayStudy": "Today’s study",
   "dailyTrend": "Daily trend",
   "childrenLabel": "Children",
@@ -680,12 +1142,24 @@
   "parentSpaceUnavailable": "Parent space unavailable",
   "parentSpaceDescription": "A clear, reassuring view of school progress.",
   "globalProgressPercent": "Overall progress {percent}%",
-  "@globalProgressPercent": {"placeholders": {"percent": {"type": "int"}}},
+  "@globalProgressPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "progressComingAfterActivities": "Progress will appear after the first activities.",
   "activityChartComing": "Activity chart coming",
   "childWeeklyProgressComing": "{name}’s weekly progress will appear here after the first lessons and quizzes.",
-  "@childWeeklyProgressComing": {"placeholders": {"name": {"type": "String"}}},
-  "subjectsToImprove": "Subjects to improve",
+  "@childWeeklyProgressComing": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "subjectsToImprove": "Needs support",
   "subjectStrengthsComing": "Strengths and subjects to improve will be identified after the first assessments.",
   "schoolAnnouncements": "School announcements",
   "parentAccountActiveBody": "Your account is active. Linked children will appear here after the link is validated.",
@@ -699,7 +1173,16 @@
   "studyTimeComing": "Study time will be displayed once the measurement is available.",
   "todayStudyTime": "Today’s study time",
   "studyMinutesGoal": "{done} min / {goal} min goal",
-  "@studyMinutesGoal": {"placeholders": {"done": {"type": "int"}, "goal": {"type": "int"}}},
+  "@studyMinutesGoal": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
   "badgeUnlocked": "Badge unlocked",
   "discoverAnswer": "Reveal answer",
   "newLabel": "NEW",
@@ -708,33 +1191,87 @@
   "submitMyAnswer": "Submit my answer",
   "checkOrder": "Check order",
   "sessionVerifiedPoints": "{count} points verified in this session",
-  "@sessionVerifiedPoints": {"placeholders": {"count": {"type": "int"}}},
+  "@sessionVerifiedPoints": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "totalPendingShort": "Total —",
   "totalPointsShort": "{count} total",
-  "@totalPointsShort": {"placeholders": {"count": {"type": "int"}}},
+  "@totalPointsShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "totalPendingValidation": "Total awaiting server validation",
   "totalVerifiedPoints": "{count} verified points in total",
-  "@totalVerifiedPoints": {"placeholders": {"count": {"type": "int"}}},
+  "@totalVerifiedPoints": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "pendingValidationShort": "{count} pending",
-  "@pendingValidationShort": {"placeholders": {"count": {"type": "int"}}},
+  "@pendingValidationShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "offlineActivitiesToSync": "{count} offline activities to sync",
-  "@offlineActivitiesToSync": {"placeholders": {"count": {"type": "int"}}},
+  "@offlineActivitiesToSync": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "verifiedSession": "Verified session",
   "verifiedTotal": "Verified total",
   "pendingValidationLabel": "Pending",
   "activeTab": "Active tab: {label}",
-  "@activeTab": {"placeholders": {"label": {"type": "String"}}},
+  "@activeTab": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "startupInterrupted": "Startup interrupted",
   "roleSpace": "{role} space",
-  "@roleSpace": {"placeholders": {"role": {"type": "String"}}},
+  "@roleSpace": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "welcomeRoleSpace": "Welcome to the {role} space",
-  "@welcomeRoleSpace": {"placeholders": {"role": {"type": "String"}}},
+  "@welcomeRoleSpace": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
   "roleOptionsBody": "View the options available for your profile.",
   "skipLabel": "Skip",
   "probatoireLevel": "Probatoire",
   "baccalaureateLevel": "Baccalaureate",
   "chooseTutorA11y": "Choose {name} as your tutor",
-  "@chooseTutorA11y": {"placeholders": {"name": {"type": "String"}}},
+  "@chooseTutorA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "chooseYourTutor": "Choose your tutor",
   "tutorJourneyDescription": "Your tutor will support you throughout your journey",
   "activationEyebrow": "INTELLIA // AWAKENING",
@@ -757,13 +1294,37 @@
   "holdToEnterIntellia": "Press and hold to enter INTELLIA237",
   "holdCenterToActivate": "Hold the centre until activation",
   "answerChoiceA11y": "Answer {answer}",
-  "@answerChoiceA11y": {"placeholders": {"answer": {"type": "String"}}},
+  "@answerChoiceA11y": {
+    "placeholders": {
+      "answer": {
+        "type": "String"
+      }
+    }
+  },
   "continueAfterDiscovering": "Continue after discovering {name}",
-  "@continueAfterDiscovering": {"placeholders": {"name": {"type": "String"}}},
+  "@continueAfterDiscovering": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "continueWithCompanion": "Continue with {name}",
-  "@continueWithCompanion": {"placeholders": {"name": {"type": "String"}}},
+  "@continueWithCompanion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "discoverCompanionA11y": "Discover {name}",
-  "@discoverCompanionA11y": {"placeholders": {"name": {"type": "String"}}},
+  "@discoverCompanionA11y": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "kiraOnboardingSignature": "CALM • METHOD • CONFIDENCE",
   "kiraOnboardingExample": "Let’s revisit the essential idea, then move forward together.",
   "leoOnboardingSignature": "CHALLENGE • ENERGY • GROWTH",
@@ -858,7 +1419,13 @@
   "mobileMoneyParentDescription": "Mobile Money payment declared and then manually verified by your school.",
   "myPaymentRequests": "My requests",
   "accessDaysAfterApproval": "Access for {days} days after approval",
-  "@accessDaysAfterApproval": {"placeholders": {"days": {"type": "int"}}},
+  "@accessDaysAfterApproval": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "mobileMoneyStepTransfer": "1. Make the transfer",
   "operatorLabel": "Operator",
   "recipientNumberConfigured": "Configured recipient number",
@@ -873,16 +1440,40 @@
   "enterTransferDetails": "Enter the phone number and transfer reference.",
   "confirmDeclarationTitle": "Confirm declaration",
   "confirmTransferDeclaration": "You declare that you transferred {amount} via {operator} to {phone}. Intellia237 will not debit any amount.",
-  "@confirmTransferDeclaration": {"placeholders": {"amount": {"type": "String"}, "operator": {"type": "String"}, "phone": {"type": "String"}}},
+  "@confirmTransferDeclaration": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "operator": {
+        "type": "String"
+      },
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
   "paymentRequestSubmitted": "Request submitted. Access will be activated only after verification.",
   "noValidatedSchoolLinked": "No approved school is linked to this parent account yet.",
   "multipleSchoolsLinked": "Several schools are linked. Contact support to choose which school will bill for access.",
   "noActiveMobileMoneyOffer": "Your school has not published an active Mobile Money offer yet.",
   "offerUnavailable": "Offer unavailable",
   "referenceValue": "Reference {reference}",
-  "@referenceValue": {"placeholders": {"reference": {"type": "String"}}},
+  "@referenceValue": {
+    "placeholders": {
+      "reference": {
+        "type": "String"
+      }
+    }
+  },
   "schoolNote": "School note: {note}",
-  "@schoolNote": {"placeholders": {"note": {"type": "String"}}},
+  "@schoolNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
   "mobileMoneyReferenceAlreadySubmitted": "This reference has already been submitted. Check its status below.",
   "mobileMoneyOfferNoLongerAvailable": "The offer or school link is no longer available.",
   "mobileMoneyPermissionDenied": "Your account is not authorised to perform this operation.",
@@ -902,7 +1493,19 @@
   "rejectLabel": "Reject",
   "paymentVerifiedQuestion": "Payment verified?",
   "paymentVerificationWarning": "Confirm only if {amount} and reference {reference} appear in the {operator} portal. This action will activate access.",
-  "@paymentVerificationWarning": {"placeholders": {"amount": {"type": "String"}, "reference": {"type": "String"}, "operator": {"type": "String"}}},
+  "@paymentVerificationWarning": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "reference": {
+        "type": "String"
+      },
+      "operator": {
+        "type": "String"
+      }
+    }
+  },
   "paymentVerifiedLabel": "Payment verified",
   "rejectPaymentRequest": "Reject request",
   "rejectionReasonOptional": "Reason visible to the parent (optional)",
@@ -915,23 +1518,39 @@
   "teacherAnalyticsSubtitle": "An overview of your classes’ performance.",
   "averageCompletionRate": "Average completion rate",
   "activeClassesCount": "{count} active classes",
-  "@activeClassesCount": {"placeholders": {"count": {"type": "int"}}},
+  "@activeClassesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "dailyEngagement": "Daily engagement",
   "metricComingSoon": "Metric coming soon",
   "trackedStudentsCount": "{count} students tracked",
-  "@trackedStudentsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@trackedStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "weeklyTrend": "Weekly trend",
   "weeklyTrendEmpty": "The trend will appear after your students’ first week of activity.",
   "progressByClass": "Progress by class",
   "noDataAvailable": "No data available.",
   "classDetailTitle": "Class details",
   "publishAnnouncementShort": "Post announcement",
-  "strongSubjects": "Strong",
-  "subjectsToImprove": "Needs support",
   "studentProgressTitle": "Student progress",
   "studentTrackingComing": "Individual tracking is coming: students in this class will appear here with their progress after their first activities.",
   "studyMinutesToday": "{count} min today",
-  "@studyMinutesToday": {"placeholders": {"count": {"type": "int"}}},
+  "@studyMinutesToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "publishAnnouncementTitle": "Post an announcement",
   "titleLabel": "Title",
   "messageLabel": "Message",
@@ -940,11 +1559,29 @@
   "myClasses": "My classes",
   "classesLabel": "Classes",
   "studentsCount": "{count} students",
-  "@studentsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@studentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "averageProgressPercent": "Average progress {percent}%",
-  "@averageProgressPercent": {"placeholders": {"percent": {"type": "int"}}},
+  "@averageProgressPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "pendingSubmissionsCount": "{count} pending submissions",
-  "@pendingSubmissionsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@pendingSubmissionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "contentManagementTitle": "Content management",
   "publishContentTitle": "Publish content",
   "classSecondeA": "Seconde A",
@@ -983,7 +1620,13 @@
   "addCompleteQuestion": "Add at least one complete question.",
   "quizPublishedSuccess": "Quiz published successfully.",
   "questionNumber": "Question {index}",
-  "@questionNumber": {"placeholders": {"index": {"type": "int"}}},
+  "@questionNumber": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
   "deleteLabel": "Delete",
   "questionPromptLabel": "Question",
   "questionPromptHint": "Enter the question",
@@ -1017,9 +1660,21 @@
   "recentOfficialAnnouncements": "Recent official announcements",
   "moderationLabel": "Moderation",
   "administrationAtSchool": "Administration • {school}",
-  "@administrationAtSchool": {"placeholders": {"school": {"type": "String"}}},
+  "@administrationAtSchool": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
   "helloUser": "Hello, {name}",
-  "@helloUser": {"placeholders": {"name": {"type": "String"}}},
+  "@helloUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "adminHeroDescription": "Oversee platform usage and critical operations.",
   "broadcastCenterTitle": "Broadcast centre",
   "broadcastCenterSubtitle": "Publish targeted official announcements.",
@@ -1027,12 +1682,27 @@
   "messageRequired": "Message is required",
   "recentHistory": "Recent history",
   "audienceValue": "Audience: {audience}",
-  "@audienceValue": {"placeholders": {"audience": {"type": "String"}}},
+  "@audienceValue": {
+    "placeholders": {
+      "audience": {
+        "type": "String"
+      }
+    }
+  },
   "contentModerationTitle": "Content moderation",
   "contentModerationSubtitle": "Approve or hide reported content.",
   "noModerationTicket": "No moderation tickets.",
   "contentReports": "{type} • {count} report(s)",
-  "@contentReports": {"placeholders": {"type": {"type": "String"}, "count": {"type": "int"}}},
+  "@contentReports": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "contentHidden": "Content hidden.",
   "hideLabel": "Hide",
   "contentApproved": "Content approved.",
@@ -1043,7 +1713,13 @@
   "metricAvailableAfterActivities": "This metric will be available after students complete their first activities.",
   "accountApprovalTitle": "Account approvals",
   "pendingRequestsCount": "{count} pending request(s)",
-  "@pendingRequestsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@pendingRequestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "noPendingRequest": "No pending requests.",
   "userManagementTitle": "User management",
   "accountRejected": "Account rejected.",
@@ -1058,7 +1734,13 @@
   "shortDescriptionLabel": "Short description",
   "createLabel": "Create",
   "lessonsCount": "{count} lesson(s)",
-  "@lessonsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@lessonsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "addLesson": "Add lesson",
   "lessonsUnavailable": "Lessons unavailable",
   "noLessonAdmin": "No lessons.\nTap + to create one.",
@@ -1080,13 +1762,34 @@
   "aiGenerationBackendOnly": "AI generation is no longer available on the client. The backend-only flow now runs through Cloud Functions and the LLM microservice.",
   "aiGenerationBackendInstructions": "Write the lesson manually here, then use the secure backend flow to produce summaries and quizzes.",
   "courseSectionsCount": "Course sections ({count})",
-  "@courseSectionsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@courseSectionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "noCourseSection": "No sections.\nAdd one manually.",
   "miniQuizQuestionsCount": "Mini quiz ({count} questions)",
-  "@miniQuizQuestionsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@miniQuizQuestionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "noGeneratedQuestion": "No questions have been generated for this lesson.",
   "quizOptionsCorrectAnswer": "{options} options • Answer: {answer}",
-  "@quizOptionsCorrectAnswer": {"placeholders": {"options": {"type": "int"}, "answer": {"type": "int"}}},
+  "@quizOptionsCorrectAnswer": {
+    "placeholders": {
+      "options": {
+        "type": "int"
+      },
+      "answer": {
+        "type": "int"
+      }
+    }
+  },
   "quizPublished": "🚀 Quiz published!",
   "quizSaved": "✅ Quiz saved",
   "quizSaveFailed": "The quiz could not be saved. Check your connection and try again.",
@@ -1102,13 +1805,25 @@
   "examCorrectionDescription": "The full correction is revealed only after submission.",
   "targetLevels": "Target levels",
   "questionsCount": "Questions ({count})",
-  "@questionsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@questionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "noQuestionAdmin": "No questions.\nAdd one manually.",
   "newQuestion": "New question",
   "trueFalseShort": "T/F",
   "answerLabel": "Answer",
   "optionNumber": "Option {number}",
-  "@optionNumber": {"placeholders": {"number": {"type": "int"}}},
+  "@optionNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "selectCorrectAnswerInstruction": "• Select the correct answer using the radio button",
   "correctAnswerColon": "Correct answer:",
   "acceptedAnswersLabel": "Accepted answer(s) (separated by commas)",
@@ -1118,12 +1833,33 @@
   "contentStudioTitle": "Content Studio",
   "subjectsAndCourses": "Subjects & Courses",
   "noSubjectForClass": "No subjects for {classLevel}.\nAdd one to begin.",
-  "@noSubjectForClass": {"placeholders": {"classLevel": {"type": "String"}}},
+  "@noSubjectForClass": {
+    "placeholders": {
+      "classLevel": {
+        "type": "String"
+      }
+    }
+  },
   "chaptersCount": "{count} chapter(s)",
-  "@chaptersCount": {"placeholders": {"count": {"type": "int"}}},
+  "@chaptersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "noQuizForLevel": "No quizzes for this level.",
   "quizQuestionsDifficulty": "{count} questions • {difficulty}",
-  "@quizQuestionsDifficulty": {"placeholders": {"count": {"type": "int"}, "difficulty": {"type": "String"}}},
+  "@quizQuestionsDifficulty": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "difficulty": {
+        "type": "String"
+      }
+    }
+  },
   "generatedByAi": "Generated by AI",
   "masteryTitle": "Your learning",
   "masteryBySubject": "Subject by subject",
@@ -1249,5 +1985,56 @@
         "type": "int"
       }
     }
-  }
+  },
+  "passWelcomeBack": "WELCOME BACK",
+  "passSignIn": "SIGN IN",
+  "passGoodToSeeYouAgain": "Good to see you again.",
+  "passLinkSent": "LINK SENT",
+  "passRecoverMyAccess": "RECOVER MY ACCESS",
+  "passForgotPassword": "FORGOT PASSWORD",
+  "passOneLinkThenYouReBack": "One link.\nThen you’re back.",
+  "passFindYourWayBack": "Find your\nway back.",
+  "passTheNextStepIsWaitingIn": "The next step is waiting in your inbox.",
+  "passEmailAccess": "EMAIL ACCESS",
+  "passYourNextChapterAwaits": "Your next chapter\nawaits.",
+  "passReturnToYourSpaceWithYour": "Return to your space with your email and password.",
+  "passChooseAnotherWayIn": "Choose another way in",
+  "passYourNumber": "YOUR NUMBER",
+  "passVerificationInProgress": "VERIFICATION IN PROGRESS",
+  "passNumberVerified": "NUMBER VERIFIED",
+  "passPhoneAccess": "PHONE ACCESS",
+  "passSixDigitsThenWeContinue": "Six digits.\nThen we continue.",
+  "passYourNumberIsConfirmed": "Your number\nis confirmed.",
+  "passYourNumberYourAccess": "Your number.\nYour access.",
+  "passChooseYourSpace": "01 / CHOOSE YOUR SPACE",
+  "passCreateAnAccount": "CREATE AN ACCOUNT",
+  "passYourPlaceStartsHere": "Your place starts here.",
+  "passChooseYourSpaceYourPassTakes": "Choose your space. Your Pass takes shape with you.",
+  "passRegistrationComplete": "REGISTRATION COMPLETE",
+  "passYourPlaceIsReady": "YOUR PLACE\nIS READY.",
+  "passYourSpace": "Your space",
+  "passPassReady": "PASS READY",
+  "passTakingShape": "TAKING SHAPE",
+  "passAPlaceForYou": "A place for you.",
+  "passYourFamilySpace": "Your family space",
+  "passYourTeachingSpace": "Your teaching space",
+  "passValidationPending": "Validation pending",
+  "passAccountCreated": "ACCOUNT CREATED.",
+  "passChildIdentifiersAdded": "{count, plural, =1{1 identifier added} other{{count} identifiers added}}",
+  "@passChildIdentifiersAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "passWithCompanion": "With {companion}",
+  "@passWithCompanion": {
+    "placeholders": {
+      "companion": {
+        "type": "String"
+      }
+    }
+  },
+  "authorSignature": "App designed by Calvin EKENA · +237 699 98 90 99"
 }

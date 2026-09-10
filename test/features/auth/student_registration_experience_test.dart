@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import 'package:intellia237/features/student_registration/application/student_registration_controller.dart';
 import 'package:intellia237/features/student_registration/domain/academic_rules.dart';
 import 'package:intellia237/features/student_registration/presentation/student_registration_flow_screen.dart';
@@ -146,7 +147,16 @@ void main() {
           ),
         );
         expect(field.decoration?.hintText, isNotEmpty);
-        expect(field.decoration?.hintStyle?.color, const Color(0xFF6F7B88));
+        expect(
+          field.decoration?.hintStyle?.color,
+          AuthExperienceColors.textTertiary,
+        );
+        final foreground = field.decoration!.hintStyle!.color!;
+        final background = field.decoration!.fillColor!;
+        final contrast =
+            (background.computeLuminance() + 0.05) /
+            (foreground.computeLuminance() + 0.05);
+        expect(contrast, greaterThanOrEqualTo(4.5));
         expect(find.text('Francophone'), findsOneWidget);
         expect(find.text('Anglophone'), findsOneWidget);
         expect(tester.takeException(), isNull);

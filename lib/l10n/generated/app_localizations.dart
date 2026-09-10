@@ -6573,6 +6573,228 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Résultats des {days} derniers jours.'**
   String masteryEvidenceWindow(int days);
+
+  /// No description provided for @passWelcomeBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'REPRENDRE SA PLACE'**
+  String get passWelcomeBack;
+
+  /// No description provided for @passSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'CONNEXION'**
+  String get passSignIn;
+
+  /// No description provided for @passGoodToSeeYouAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heureux de vous retrouver.'**
+  String get passGoodToSeeYouAgain;
+
+  /// No description provided for @passLinkSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'LIEN ENVOYÉ'**
+  String get passLinkSent;
+
+  /// No description provided for @passRecoverMyAccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'RÉCUPÉRER MON ACCÈS'**
+  String get passRecoverMyAccess;
+
+  /// No description provided for @passForgotPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'MOT DE PASSE OUBLIÉ'**
+  String get passForgotPassword;
+
+  /// No description provided for @passOneLinkThenYouReBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un lien.\nEt tu reprends.'**
+  String get passOneLinkThenYouReBack;
+
+  /// No description provided for @passFindYourWayBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouve\nton accès.'**
+  String get passFindYourWayBack;
+
+  /// No description provided for @passTheNextStepIsWaitingIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'La prochaine étape t’attend dans ta messagerie.'**
+  String get passTheNextStepIsWaitingIn;
+
+  /// No description provided for @passEmailAccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACCÈS PAR EMAIL'**
+  String get passEmailAccess;
+
+  /// No description provided for @passYourNextChapterAwaits.
+  ///
+  /// In fr, this message translates to:
+  /// **'La suite\nt’attend.'**
+  String get passYourNextChapterAwaits;
+
+  /// No description provided for @passReturnToYourSpaceWithYour.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouve ton espace avec ton email et ton mot de passe.'**
+  String get passReturnToYourSpaceWithYour;
+
+  /// No description provided for @passChooseAnotherWayIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir un autre accès'**
+  String get passChooseAnotherWayIn;
+
+  /// No description provided for @passYourNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'TON NUMÉRO'**
+  String get passYourNumber;
+
+  /// No description provided for @passVerificationInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'VÉRIFICATION EN COURS'**
+  String get passVerificationInProgress;
+
+  /// No description provided for @passNumberVerified.
+  ///
+  /// In fr, this message translates to:
+  /// **'NUMÉRO VÉRIFIÉ'**
+  String get passNumberVerified;
+
+  /// No description provided for @passPhoneAccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACCÈS PAR TÉLÉPHONE'**
+  String get passPhoneAccess;
+
+  /// No description provided for @passSixDigitsThenWeContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Six chiffres.\nEt on continue.'**
+  String get passSixDigitsThenWeContinue;
+
+  /// No description provided for @passYourNumberIsConfirmed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton numéro\nest confirmé.'**
+  String get passYourNumberIsConfirmed;
+
+  /// No description provided for @passYourNumberYourAccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton numéro.\nTon accès.'**
+  String get passYourNumberYourAccess;
+
+  /// No description provided for @passChooseYourSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'01 / CHOISIR SON ESPACE'**
+  String get passChooseYourSpace;
+
+  /// No description provided for @passCreateAnAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'CRÉER UN COMPTE'**
+  String get passCreateAnAccount;
+
+  /// No description provided for @passYourPlaceStartsHere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre place commence ici.'**
+  String get passYourPlaceStartsHere;
+
+  /// No description provided for @passChooseYourSpaceYourPassTakes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre espace. Votre Pass prend forme avec vous.'**
+  String get passChooseYourSpaceYourPassTakes;
+
+  /// No description provided for @passRegistrationComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'INSCRIPTION TERMINÉE'**
+  String get passRegistrationComplete;
+
+  /// No description provided for @passYourPlaceIsReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'TA PLACE\nEST PRÊTE.'**
+  String get passYourPlaceIsReady;
+
+  /// No description provided for @passYourSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre espace'**
+  String get passYourSpace;
+
+  /// No description provided for @passPassReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'PASS PRÊT'**
+  String get passPassReady;
+
+  /// No description provided for @passTakingShape.
+  ///
+  /// In fr, this message translates to:
+  /// **'EN CONSTRUCTION'**
+  String get passTakingShape;
+
+  /// No description provided for @passAPlaceForYou.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une place pour vous.'**
+  String get passAPlaceForYou;
+
+  /// No description provided for @passYourFamilySpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre espace famille'**
+  String get passYourFamilySpace;
+
+  /// No description provided for @passYourTeachingSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre espace enseignant'**
+  String get passYourTeachingSpace;
+
+  /// No description provided for @passValidationPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Validation en attente'**
+  String get passValidationPending;
+
+  /// No description provided for @passAccountCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'COMPTE CRÉÉ.'**
+  String get passAccountCreated;
+
+  /// No description provided for @passChildIdentifiersAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 identifiant ajouté} other{{count} identifiants ajoutés}}'**
+  String passChildIdentifiersAdded(int count);
+
+  /// No description provided for @passWithCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec {companion}'**
+  String passWithCompanion(String companion);
+
+  /// No description provided for @authorSignature.
+  ///
+  /// In fr, this message translates to:
+  /// **'Application conçue par Calvin EKENA · +237 699 98 90 99'**
+  String get authorSignature;
 }
 
 class _AppLocalizationsDelegate

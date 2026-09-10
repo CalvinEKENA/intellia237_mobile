@@ -7,6 +7,7 @@ import '../../../core/localization/localization_extensions.dart';
 import '../domain/auth_input_validators.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
+import 'widgets/living_pass.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -28,6 +29,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   }
 
   Future<void> _submit() async {
+    if (ref.read(authControllerProvider).isLoading || _emailSent) return;
     FocusManager.instance.primaryFocus?.unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final success = await ref
@@ -42,20 +44,37 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final controller = ref.read(authControllerProvider.notifier);
     final l10n = context.l10n;
     return AuthExperienceScaffold(
+      pass: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: _emailController,
+        builder: (context, value, _) => LivingPass(
+          detail: value.text.trim().isEmpty ? null : value.text.trim(),
+          phase: _emailSent
+              ? context.l10n.passLinkSent
+              : context.l10n.passRecoverMyAccess,
+          progress: _emailSent ? .65 : .35,
+        ),
+      ),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             AuthHeader(
-              eyebrow: l10n.forgotEyebrow,
-              title: l10n.forgotTitle,
-              subtitle: l10n.forgotSubtitle,
+              showBrand: false,
+              eyebrow: context.l10n.passForgotPassword,
+              title: _emailSent
+                  ? context.l10n.passOneLinkThenYouReBack
+                  : context.l10n.passFindYourWayBack,
+              subtitle: _emailSent
+                  ? context.l10n.passTheNextStepIsWaitingIn
+                  : l10n.forgotSubtitle,
             ),
             const SizedBox(height: 28),
             AuthGlassPanel(
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 280),
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : const Duration(milliseconds: 280),
                 child: _emailSent
                     ? Column(
                         key: const ValueKey('sent'),
@@ -69,7 +88,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           Text(
                             l10n.emailSent,
                             style: const TextStyle(
-                              color: Colors.white,
+                              fontFamily: 'CampaignBody',
+                              color: AuthExperienceColors.textPrimary,
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
                             ),
@@ -96,7 +116,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           AuthAnimatedField(
+                            key: const ValueKey('reset-email-field'),
                             controller: _emailController,
+                            enabled: !auth.isLoading,
                             label: l10n.emailLabel,
                             hint: l10n.emailHint,
                             icon: Icons.alternate_email_rounded,
@@ -117,6 +139,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           ],
                           const SizedBox(height: 18),
                           AuthPrimaryButton(
+                            key: const ValueKey('reset-submit'),
                             label: l10n.sendLink,
                             onTap: auth.isLoading ? null : _submit,
                             isLoading: auth.isLoading,

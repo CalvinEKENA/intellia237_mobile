@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
-import '../../../core/widgets/intellia_buttons.dart';
-import '../../../core/widgets/intellia_text_field.dart';
+import '../../auth/domain/app_role.dart';
+import '../../auth/presentation/widgets/auth_controls.dart';
+import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../../auth/presentation/widgets/auth_registration_frame.dart';
+import '../../auth/presentation/widgets/living_pass.dart';
 import '../../role_registration/domain/teacher_catalogs.dart';
 import '../../student_registration/presentation/widgets/subject_multi_selector.dart';
 import '../application/teacher_registration_controller.dart';
@@ -38,6 +39,12 @@ class _TeacherRegistrationScreenState
   @override
   void initState() {
     super.initState();
+    final draft = ref.read(teacherRegistrationControllerProvider);
+    _firstNameController.text = draft.firstName;
+    _lastNameController.text = draft.lastName;
+    _emailController.text = draft.email;
+    _passwordController.text = draft.password;
+    _confirmPasswordController.text = draft.confirmPassword;
     _firstNameController.addListener(() {
       ref
           .read(teacherRegistrationControllerProvider.notifier)
@@ -80,18 +87,59 @@ class _TeacherRegistrationScreenState
     final state = ref.watch(teacherRegistrationControllerProvider);
     final controller = ref.read(teacherRegistrationControllerProvider.notifier);
     final l10n = context.l10n;
+    final labels = [
+      l10n.teacherIdentityStep,
+      l10n.teachingStep,
+      l10n.finalReviewTitle,
+    ];
+    final pass = LivingPass(
+      key: const ValueKey('teacher-living-pass'),
+      role: AppRole.teacher,
+      name: state.firstName.trim(),
+      detail: state.subjects.isEmpty
+          ? context.l10n.passYourTeachingSpace
+          : [
+              state.subjects.join(' · '),
+              if (state.levels.isNotEmpty) state.levels.join(' · '),
+            ].join(' / '),
+      phase: state.awaitsValidation
+          ? context.l10n.passValidationPending
+          : labels[state.currentStep],
+      progress: state.awaitsValidation ? 0.94 : 0.20 + state.currentStep * 0.34,
+    );
+
+    if (state.awaitsValidation) {
+      // The router still opens the teacher's actual space immediately. This
+      // truthful frame also covers the instant between saving and redirecting.
+      return AuthExperienceScaffold(
+        showBackButton: false,
+        pass: pass,
+        child: Semantics(
+          liveRegion: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                context.l10n.passAccountCreated,
+                style: passDisplay(size: 48),
+              ),
+              const SizedBox(height: 16),
+              _InfoBanner(message: l10n.teacherValidationNotice),
+            ],
+          ),
+        ),
+      );
+    }
 
     return AuthRegistrationFrame(
       title: l10n.teacherRegistrationTitle,
+      pass: pass,
       currentStep: state.currentStep,
-      labels: [
-        l10n.teacherIdentityStep,
-        l10n.teachingStep,
-        l10n.finalReviewTitle,
-      ],
+      labels: labels,
       onBack: state.currentStep == 0
           ? () => context.pop()
           : () {
+              FocusManager.instance.primaryFocus?.unfocus();
               setState(() => _previousStep = state.currentStep);
               controller.previousStep();
             },
@@ -99,7 +147,9 @@ class _TeacherRegistrationScreenState
       onDismissError: controller.clearError,
       onRetry: state.isLastStep ? () => controller.submit() : null,
       content: AnimatedSwitcher(
-        duration: IntelliaMotion.cinematic,
+        duration: MediaQuery.of(context).disableAnimations
+            ? Duration.zero
+            : IntelliaMotion.cinematic,
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeIn,
         transitionBuilder: (child, animation) {
@@ -115,18 +165,10 @@ class _TeacherRegistrationScreenState
             ),
           );
         },
-        child: _GlassStepPanel(
+        child: AuthGlassPanel(
           key: ValueKey(state.currentStep),
-          child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.fromLTRB(
-              IntelliaSpacing.xl,
-              IntelliaSpacing.md,
-              IntelliaSpacing.xl,
-              IntelliaSpacing.xs,
-            ),
-            child: _buildStepContent(state),
-          ),
+          padding: const EdgeInsets.all(18),
+          child: _buildStepContent(state),
         ),
       ),
       actions: _buildBottomActions(state),
@@ -153,48 +195,61 @@ class _TeacherRegistrationScreenState
             subtitle: context.l10n.teacherDetailsSubtitle,
           ),
           const SizedBox(height: IntelliaSpacing.lg),
-          IntelliaTextField(
+          AuthAnimatedField(
             controller: _firstNameController,
             label: context.l10n.firstNameLabel,
             hint: context.l10n.firstNameTeacherHint,
-            prefixIcon: Icons.person_rounded,
+            icon: Icons.person_outline_rounded,
+            autofillHints: const [AutofillHints.givenName],
+            textInputAction: TextInputAction.next,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
               label: context.l10n.firstNameWithArticle,
             ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
-          IntelliaTextField(
+          AuthAnimatedField(
             controller: _lastNameController,
             label: context.l10n.lastNameLabel,
             hint: context.l10n.lastNameTeacherHint,
-            prefixIcon: Icons.badge_rounded,
+            icon: Icons.badge_outlined,
+            autofillHints: const [AutofillHints.familyName],
+            textInputAction: TextInputAction.next,
             validator: (value) => AuthInputValidators.displayName(
               value ?? '',
               label: context.l10n.lastNameWithArticle,
             ),
           ),
           const SizedBox(height: IntelliaSpacing.md),
-          IntelliaTextField(
+          AuthAnimatedField(
             controller: _emailController,
             label: context.l10n.emailLabel,
             hint: context.l10n.teacherEmailHint,
             keyboardType: TextInputType.emailAddress,
-            prefixIcon: Icons.email_rounded,
+            icon: Icons.email_outlined,
+            autofillHints: const [AutofillHints.email],
+            textInputAction: TextInputAction.next,
             validator: (value) => AuthInputValidators.email(value ?? ''),
           ),
           const SizedBox(height: IntelliaSpacing.md),
-          IntelliaPasswordField(
+          AuthAnimatedField(
             controller: _passwordController,
             label: context.l10n.passwordLabel,
             hint: context.l10n.passwordMinEight,
+            icon: Icons.lock_outline_rounded,
+            isPassword: true,
+            autofillHints: const [AutofillHints.newPassword],
+            textInputAction: TextInputAction.next,
             validator: (value) => AuthInputValidators.password(value ?? ''),
           ),
           const SizedBox(height: IntelliaSpacing.md),
-          IntelliaPasswordField(
+          AuthAnimatedField(
             controller: _confirmPasswordController,
             label: context.l10n.confirmPasswordLabel,
             hint: context.l10n.confirmPasswordHint,
+            icon: Icons.lock_outline_rounded,
+            isPassword: true,
+            textInputAction: TextInputAction.done,
             validator: (value) => AuthInputValidators.confirmPassword(
               password: _passwordController.text,
               confirmation: value ?? '',
@@ -246,15 +301,15 @@ class _TeacherRegistrationScreenState
           subtitle: context.l10n.teacherFinalSubtitle,
         ),
         const SizedBox(height: IntelliaSpacing.lg),
-        _IntelliaCheckboxTile(
+        AuthConsentTile(
           value: state.acceptedTerms,
-          onChanged: (value) => controller.setAcceptedTerms(value ?? false),
+          onChanged: controller.setAcceptedTerms,
           label: context.l10n.acceptTerms,
         ),
         const SizedBox(height: IntelliaSpacing.sm),
-        _IntelliaCheckboxTile(
+        AuthConsentTile(
           value: state.acceptedPrivacy,
-          onChanged: (value) => controller.setAcceptedPrivacy(value ?? false),
+          onChanged: controller.setAcceptedPrivacy,
           label: context.l10n.acceptPrivacy,
         ),
         const LegalLinks(),
@@ -266,58 +321,41 @@ class _TeacherRegistrationScreenState
 
   Widget _buildBottomActions(TeacherRegistrationState state) {
     final controller = ref.read(teacherRegistrationControllerProvider.notifier);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        IntelliaSpacing.xl,
-        IntelliaSpacing.sm,
-        IntelliaSpacing.xl,
-        IntelliaSpacing.xl,
-      ),
-      child: Row(
-        children: [
-          if (!state.isFirstStep)
-            Expanded(
-              child: IntelliaOutlineButton(
-                onTap: state.isSubmitting
-                    ? null
-                    : () {
-                        setState(() {
-                          _previousStep = state.currentStep;
-                        });
-                        controller.previousStep();
-                      },
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    context.l10n.previousLabel,
-                    maxLines: 1,
-                    softWrap: false,
-                  ),
-                ),
-              ),
-            )
-          else
-            const Spacer(),
-          const SizedBox(width: IntelliaSpacing.sm),
-          Expanded(
-            flex: 2,
-            child: IntelliaPrimaryButton(
-              onTap: state.isSubmitting ? null : () => _onPrimaryAction(state),
-              isLoading: state.isSubmitting,
-              child: Text(
-                state.isLastStep
-                    ? context.l10n.createTeacherAccount
-                    : context.l10n.nextLabel,
-              ),
+    return Row(
+      children: [
+        if (!state.isFirstStep) ...[
+          IconButton(
+            tooltip: context.l10n.previousLabel,
+            onPressed: state.isSubmitting
+                ? null
+                : () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    setState(() => _previousStep = state.currentStep);
+                    controller.previousStep();
+                  },
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: AuthExperienceColors.textSecondary,
             ),
           ),
+          const SizedBox(width: 10),
         ],
-      ),
-    ).animate().fadeIn(duration: IntelliaMotion.medium);
+        Expanded(
+          child: AuthPrimaryButton(
+            key: const ValueKey('registration-primary-action'),
+            onTap: state.isSubmitting ? null : () => _onPrimaryAction(state),
+            isLoading: state.isSubmitting,
+            label: state.isLastStep
+                ? context.l10n.createTeacherAccount
+                : context.l10n.nextLabel,
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _onPrimaryAction(TeacherRegistrationState state) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final controller = ref.read(teacherRegistrationControllerProvider.notifier);
 
     final isValidForm = switch (state.currentStep) {
@@ -356,35 +394,6 @@ class _TeacherRegistrationScreenState
   }
 }
 
-class _GlassStepPanel extends StatelessWidget {
-  const _GlassStepPanel({required this.child, super.key});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark
-            ? IntelliaColors.surfaceSolidDark
-            : IntelliaColors.surfaceSolid,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(IntelliaRadii.large),
-        ),
-        border: Border(
-          top: BorderSide(color: theme.colorScheme.outline, width: 0.8),
-          left: BorderSide(color: theme.colorScheme.outline, width: 0.8),
-          right: BorderSide(color: theme.colorScheme.outline, width: 0.8),
-        ),
-      ),
-      child: child,
-    );
-  }
-}
-
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.title, required this.subtitle});
 
@@ -393,27 +402,17 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: IntelliaTypography.title2(
-            brightness: theme.brightness,
-          ).copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: IntelliaSpacing.xxs),
+        Text(title.toUpperCase(), style: passDisplay(size: 34)),
+        const SizedBox(height: 8),
         Text(
           subtitle,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 13,
-            color: isDark
-                ? IntelliaColors.textSecondaryDark
-                : IntelliaColors.textSecondary,
-            height: 1.4,
+            color: AuthExperienceColors.textSecondary,
+            height: 1.45,
           ),
         ),
       ],
@@ -428,90 +427,22 @@ class _InfoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(IntelliaSpacing.md),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(IntelliaRadii.small),
-        color: isDark
-            ? IntelliaColors.backgroundSecondaryDark
-            : IntelliaColors.backgroundSecondary,
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.1)
-              : Colors.black.withValues(alpha: 0.05),
+        color: AuthExperienceColors.surfaceSoft,
+        border: const Border(
+          left: BorderSide(color: AuthExperienceColors.gold, width: 2),
         ),
       ),
       child: Text(
         message,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 13,
-          color: isDark
-              ? IntelliaColors.textSecondaryDark
-              : IntelliaColors.textSecondary,
+          height: 1.45,
+          color: AuthExperienceColors.textSecondary,
         ),
-      ),
-    );
-  }
-}
-
-class _IntelliaCheckboxTile extends StatelessWidget {
-  const _IntelliaCheckboxTile({
-    required this.value,
-    required this.onChanged,
-    required this.label,
-  });
-
-  final bool value;
-  final ValueChanged<bool?> onChanged;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AnimatedContainer(
-            duration: IntelliaMotion.fast,
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              gradient: value ? IntelliaGradients.brand : null,
-              color: value ? null : Colors.transparent,
-              border: Border.all(
-                color: value
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outline,
-                width: value ? 0 : 1.5,
-              ),
-            ),
-            child: value
-                ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
-                : null,
-          ),
-          const SizedBox(width: IntelliaSpacing.md),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                color: isDark
-                    ? IntelliaColors.textSecondaryDark
-                    : IntelliaColors.textSecondary,
-                height: 1.4,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

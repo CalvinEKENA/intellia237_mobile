@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/animations/app_page_transitions.dart';
-import '../../core/widgets/intellia_loading_surface.dart';
 import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/application/auth_state.dart';
 import '../../features/auth/domain/app_role.dart';
@@ -14,6 +13,7 @@ import '../../features/auth/presentation/phone_auth_screen.dart';
 import '../../features/auth/presentation/auth_gateway_screen.dart';
 import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/widgets/auth_experience_scaffold.dart';
+import '../../features/auth/presentation/widgets/pass_home_arrival.dart';
 import '../../features/auth/presentation/profile_recovery_screen.dart';
 import '../../features/admin/presentation/admin_home_screen.dart';
 import '../../features/campus/presentation/screens/campus_root_screen.dart';
@@ -185,9 +185,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.studentHome,
-        pageBuilder: (context, state) => buildAppTransitionPage(
+        pageBuilder: (context, state) => buildPassHomePage(
           state: state,
-          transitionBackground: const IntelliaLoadingSurface(),
+          role: AppRole.student,
+          duration: notifier.homeArrivalDuration,
           child: const StudentHomeScreen(),
         ),
       ),
@@ -333,8 +334,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.parentHome,
-        pageBuilder: (context, state) => buildAppTransitionPage(
+        pageBuilder: (context, state) => buildPassHomePage(
           state: state,
+          role: AppRole.parent,
+          duration: notifier.homeArrivalDuration,
           child: const ParentHomeScreen(),
         ),
       ),
@@ -372,8 +375,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.teacherHome,
-        pageBuilder: (context, state) => buildAppTransitionPage(
+        pageBuilder: (context, state) => buildPassHomePage(
           state: state,
+          role: AppRole.teacher,
+          duration: notifier.homeArrivalDuration,
           child: const TeacherHomeScreen(),
         ),
       ),
@@ -469,14 +474,29 @@ class AppRouterNotifier extends ChangeNotifier {
   late final ProviderSubscription<AuthState> _authSub;
   late final ProviderSubscription<bool> _onboardingSub;
   late final ProviderSubscription<bool> _authEntrySub;
+  Duration homeArrivalDuration = const Duration(milliseconds: 360);
 
   String? redirect(BuildContext context, GoRouterState state) {
-    return resolveAppRedirect(
+    final destination = resolveAppRedirect(
       auth: ref.read(authControllerProvider),
       hasSeenOnboarding: ref.read(hasSeenOnboardingProvider),
       hasAuthenticatedBefore: ref.read(hasAuthenticatedBeforeProvider),
       location: state.uri.path,
     );
+    if (destination != null && AppRoutes.roleHomes.contains(destination)) {
+      // This only selects presentation timing; authentication and access
+      // decisions still come exclusively from resolveAppRedirect above.
+      homeArrivalDuration = state.uri.path == AppRoutes.bootstrap
+          ? Duration.zero
+          : const {
+              AppRoutes.studentRegistration,
+              AppRoutes.parentRegistration,
+              AppRoutes.teacherRegistration,
+            }.contains(state.uri.path)
+          ? const Duration(milliseconds: 760)
+          : const Duration(milliseconds: 360);
+    }
+    return destination;
   }
 
   @override

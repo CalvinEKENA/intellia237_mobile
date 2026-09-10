@@ -26,87 +26,75 @@ class AuthChoiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reduced = MediaQuery.disableAnimationsOf(context);
     return Semantics(
       selected: isSelected,
-      button: true,
-      label: '$title. $description',
-      child: IntelliaPressable(
-        onTap: () {
+      child: OutlinedButton(
+        onPressed: () {
           HapticFeedback.selectionClick();
           onTap();
         },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          constraints: const BoxConstraints(minHeight: 88),
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
+        style: OutlinedButton.styleFrom(
+          animationDuration: reduced
+              ? Duration.zero
+              : const Duration(milliseconds: 180),
+          foregroundColor: isSelected
+              ? AuthExperienceColors.surface
+              : AuthExperienceColors.textPrimary,
+          backgroundColor: isSelected
+              ? AuthExperienceColors.textPrimary
+              : AuthExperienceColors.surface,
+          side: BorderSide(
             color: isSelected
-                ? accent.withValues(alpha: 0.18)
-                : AuthExperienceColors.surface,
-            borderRadius: BorderRadius.circular(IntelliaRadii.small),
-            border: Border.all(
-              color: isSelected
-                  ? accent.withValues(alpha: 0.9)
-                  : AuthExperienceColors.border,
-              width: isSelected ? 1.5 : 1,
+                ? AuthExperienceColors.textPrimary
+                : AuthExperienceColors.border,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 25,
+              color: isSelected ? const Color(0xFFCEC7FA) : accent,
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(IntelliaRadii.small),
-                ),
-                child: Icon(icon, color: accent, size: 25),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        color: AuthExperienceColors.textPrimary,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontFamily: 'CampaignBody',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        color: AuthExperienceColors.textSecondary,
-                        fontSize: 12.5,
-                        height: 1.35,
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontFamily: 'CampaignBody',
+                      fontSize: 12,
+                      height: 1.4,
+                      color: isSelected
+                          ? const Color(0xFFE2DEEE)
+                          : AuthExperienceColors.textSecondary,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 180),
-                child: isSelected
-                    ? Icon(
-                        Icons.check_circle_rounded,
-                        key: const ValueKey('selected'),
-                        color: accent,
-                        size: 24,
-                      )
-                    : const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        key: ValueKey('idle'),
-                        color: AuthExperienceColors.textTertiary,
-                        size: 17,
-                      ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 10),
+            Icon(
+              isSelected ? Icons.check_rounded : Icons.north_east_rounded,
+              size: 19,
+            ),
+          ],
         ),
       ),
     );

@@ -1,43 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/localization/localization_extensions.dart';
-import '../../../../core/assets/intellia_assets.dart';
-import '../../../../core/widgets/intellia_pressable.dart';
+import 'living_pass.dart';
 import '../../../../core/widgets/intellia_text_wordmark.dart';
 
 abstract final class AuthExperienceColors {
   static const canvas = Color(0xFFFBF8F1);
-  static const surface = Color(0xFFFFFFFF);
-  static const surfaceSoft = Color(0xFFF4EFE5);
+  static const surface = Color(0xFFFFFDF8);
+  static const surfaceSoft = Color(0xFFF0EADB);
   static const night = canvas;
   static const nightRaised = surfaceSoft;
-  static const indigo = Color(0xFF315B93);
-  static const purple = Color(0xFF75639C);
-  static const blue = Color(0xFF2E6FA8);
+  static const indigo = Color(0xFF5444D8);
+  static const purple = Color(0xFF5444D8);
+  static const blue = Color(0xFF3E477D);
   static const champagne = Color(0xFFE7D9BD);
-  static const gold = Color(0xFF8A671B);
-  static const success = Color(0xFF2F7D4C);
+  static const gold = Color(0xFF80643D);
+  static const success = Color(0xFF32694C);
   static const error = Color(0xFFB3261E);
-  static const textPrimary = Color(0xFF17243A);
-  static const textSecondary = Color(0xFF526173);
-  static const textTertiary = Color(0xFF6F7B88);
-  static const border = Color(0xFFD9D3C8);
+  static const textPrimary = Color(0xFF25233E);
+  static const textSecondary = Color(0xFF656173);
+  static const textTertiary = Color(0xFF746F7D);
+  static const border = Color(0xFFD8D0C2);
 }
 
 class AuthExperienceScaffold extends StatelessWidget {
   const AuthExperienceScaffold({
     required this.child,
+    this.pass,
+    this.topBar,
     this.showBackButton = true,
     this.onBack,
-    this.maxContentWidth = 560,
-    this.padding = const EdgeInsets.fromLTRB(20, 12, 20, 24),
+    this.maxContentWidth = 520,
+    this.padding = const EdgeInsets.fromLTRB(22, 12, 22, 24),
     super.key,
   });
 
   final Widget child;
+  final Widget? pass;
+  final Widget? topBar;
   final bool showBackButton;
   final VoidCallback? onBack;
   final double maxContentWidth;
@@ -45,126 +47,141 @@ class AuthExperienceScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
-
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: AuthExperienceColors.canvas,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          const AuthAmbientBackground(),
-          SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: padding.copyWith(
-                    bottom: padding.bottom + keyboardInset,
-                  ),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: maxContentWidth,
-                        minHeight:
-                            (constraints.maxHeight -
-                                    padding.vertical -
-                                    keyboardInset)
-                                .clamp(0.0, double.infinity),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (showBackButton)
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: _BackButton(
-                                onTap: onBack ?? () => context.pop(),
-                              ),
-                            ),
-                          child,
-                        ],
+    final router = GoRouter.maybeOf(context);
+    final canGoBack =
+        onBack != null || (router?.canPop() ?? Navigator.canPop(context));
+    final theme = Theme.of(context);
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: AuthExperienceColors.canvas,
+        systemNavigationBarDividerColor: AuthExperienceColors.canvas,
+      ),
+      child: Theme(
+        data: theme.copyWith(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: AuthExperienceColors.indigo,
+            brightness: Brightness.light,
+            primary: AuthExperienceColors.indigo,
+            surface: AuthExperienceColors.surface,
+            onSurface: AuthExperienceColors.textPrimary,
+          ),
+          textTheme: theme.textTheme.apply(
+            fontFamily: 'CampaignBody',
+            bodyColor: AuthExperienceColors.textPrimary,
+            displayColor: AuthExperienceColors.textPrimary,
+          ),
+          scaffoldBackgroundColor: AuthExperienceColors.canvas,
+          dividerColor: AuthExperienceColors.border,
+        ),
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          backgroundColor: AuthExperienceColors.canvas,
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              const AuthAmbientBackground(),
+              SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) => PassRoom(
+                    tight: constraints.maxHeight < PassRoom.threshold,
+                    child: SingleChildScrollView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      // Scaffold consumes the keyboard inset once.
+                      padding: padding,
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: maxContentWidth,
+                            minHeight:
+                                (constraints.maxHeight - padding.vertical)
+                                    .clamp(0.0, double.infinity),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (topBar != null ||
+                                  (showBackButton && canGoBack)) ...[
+                                Row(
+                                  children: [
+                                    if (showBackButton && canGoBack)
+                                      IconButton(
+                                        tooltip: context.l10n.backLabel,
+                                        onPressed:
+                                            onBack ??
+                                            () {
+                                              if (router != null) {
+                                                router.pop();
+                                              } else {
+                                                Navigator.pop(context);
+                                              }
+                                            },
+                                        icon: const Icon(
+                                          Icons.arrow_back_rounded,
+                                        ),
+                                      ),
+                                    if (topBar != null)
+                                      Expanded(child: topBar!),
+                                  ],
+                                ),
+                                const SizedBox(height: 14),
+                              ],
+                              if (pass != null) ...[
+                                pass!,
+                                const SizedBox(height: 26),
+                              ],
+                              child,
+                              const _AuthorSignature(),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    ).animate(target: reduceMotion ? 0 : 1).fadeIn(duration: 260.ms);
+    );
   }
 }
 
+/// Signe l'application, sans jamais disputer la place à l'action en cours.
+///
+/// Discrète par construction : une seule ligne, au pied de la colonne qui
+/// défile, dans l'encre la plus légère de la palette.
+class _AuthorSignature extends StatelessWidget {
+  const _AuthorSignature();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 26),
+    child: Text(
+      context.l10n.authorSignature,
+      textAlign: TextAlign.center,
+      style: const TextStyle(
+        fontFamily: 'CampaignBody',
+        fontSize: 10,
+        height: 1.4,
+        letterSpacing: .3,
+        fontWeight: FontWeight.w600,
+        color: AuthExperienceColors.textTertiary,
+      ),
+    ),
+  );
+}
+
+/// The uninterrupted paper underneath the signed onboarding and auth routes.
 class AuthAmbientBackground extends StatelessWidget {
   const AuthAmbientBackground({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AuthExperienceColors.canvas,
-                  Color(0xFFFFFDF8),
-                  AuthExperienceColors.surfaceSoft,
-                ],
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.topCenter,
-            child: Container(
-              width: double.infinity,
-              height: 330,
-              decoration: BoxDecoration(
-                // The bloom has to reach transparency inside its own band:
-                // stopping it at the band's edge leaves a hard line across
-                // every authentication screen.
-                gradient: RadialGradient(
-                  center: const Alignment(0.2, -0.8),
-                  radius: 1.2,
-                  stops: const [0, 0.35, 0.7],
-                  colors: [
-                    const Color(0xFFFFFDF8).withValues(alpha: 0.82),
-                    AuthExperienceColors.champagne.withValues(alpha: 0.24),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              width: double.infinity,
-              height: 260,
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: const Alignment(-0.6, 1.0),
-                  radius: 1.1,
-                  colors: [
-                    AuthExperienceColors.blue.withValues(alpha: 0.06),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const IgnorePointer(
+    child: ColoredBox(color: AuthExperienceColors.canvas),
+  );
 }
 
 class AuthHeader extends StatelessWidget {
@@ -184,133 +201,89 @@ class AuthHeader extends StatelessWidget {
   final Widget? titleWidget;
 
   @override
-  Widget build(BuildContext context) {
-    final reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (showBrand) ...[
+        const Intellia237TextWordmark(
+          style: TextStyle(
+            fontFamily: 'CampaignBody',
+            color: AuthExperienceColors.indigo,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 25),
+      ],
+      if (eyebrow != null) ...[
+        Row(
           children: [
-            if (showBrand) ...[
-              Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(IntelliaRadii.small),
-                    child: Image.asset(
-                      IntelliaBrandAssets.appIcon,
-                      width: 34,
-                      height: 34,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Intellia237TextWordmark(
-                    style: TextStyle(
-                      color: AuthExperienceColors.indigo,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 28),
-            ],
-            if (eyebrow != null) ...[
-              Text(
+            const SizedBox(
+              width: 20,
+              height: 2,
+              child: ColoredBox(color: AuthExperienceColors.indigo),
+            ),
+            const SizedBox(width: 9),
+            Expanded(
+              child: Text(
                 eyebrow!.toUpperCase(),
                 style: const TextStyle(
-                  color: AuthExperienceColors.gold,
-                  fontSize: 11,
+                  fontFamily: 'CampaignBody',
+                  color: AuthExperienceColors.textSecondary,
+                  fontSize: 10,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 0,
+                  letterSpacing: 1.5,
                 ),
-              ),
-              const SizedBox(height: 8),
-            ],
-            titleWidget ??
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: AuthExperienceColors.textPrimary,
-                    fontSize: 30,
-                    height: 1.12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0,
-                  ),
-                ),
-            const SizedBox(height: 10),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                color: AuthExperienceColors.textSecondary,
-                fontSize: 14,
-                height: 1.5,
-                letterSpacing: 0,
               ),
             ),
           ],
-        )
-        .animate(target: reduceMotion ? 0 : 1)
-        .fadeIn(duration: 360.ms)
-        .slideY(begin: 0.06, end: 0, curve: Curves.easeOutCubic);
-  }
+        ),
+        const SizedBox(height: 12),
+      ],
+      Semantics(
+        header: true,
+        child:
+            titleWidget ??
+            Text(
+              title,
+              style: const TextStyle(
+                fontFamily: 'BarlowCondensed',
+                color: AuthExperienceColors.textPrimary,
+                fontSize: 43,
+                height: 1.02,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+      ),
+      if (subtitle.isNotEmpty) ...[
+        const SizedBox(height: 10),
+        Text(
+          subtitle,
+          style: const TextStyle(
+            fontFamily: 'CampaignBody',
+            color: AuthExperienceColors.textSecondary,
+            fontSize: 13,
+            height: 1.5,
+          ),
+        ),
+      ],
+    ],
+  );
 }
 
 class AuthGlassPanel extends StatelessWidget {
   const AuthGlassPanel({required this.child, this.padding, super.key});
-
   final Widget child;
   final EdgeInsets? padding;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: padding ?? const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AuthExperienceColors.surface,
-        borderRadius: BorderRadius.circular(IntelliaRadii.small),
-        border: Border.all(color: AuthExperienceColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF473C2B).withValues(alpha: 0.10),
-            blurRadius: 28,
-            offset: const Offset(0, 16),
-          ),
-        ],
-      ),
-      child: child,
-    );
-  }
-}
-
-class _BackButton extends StatelessWidget {
-  const _BackButton({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: IntelliaSpacing.md),
-      child: IntelliaPressable(
-        onTap: onTap,
-        child: Tooltip(
-          message: context.l10n.backLabel,
-          child: Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: AuthExperienceColors.surface,
-              borderRadius: BorderRadius.circular(IntelliaRadii.small),
-              border: Border.all(color: AuthExperienceColors.border),
-            ),
-            child: const Icon(
-              Icons.arrow_back_rounded,
-              color: AuthExperienceColors.textPrimary,
-              size: 21,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Container(
+    padding: padding ?? const EdgeInsets.all(18),
+    decoration: BoxDecoration(
+      color: AuthExperienceColors.surface,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AuthExperienceColors.border),
+    ),
+    child: child,
+  );
 }

@@ -8,11 +8,14 @@ import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
 import 'package:intellia237/features/auth/presentation/login_screen.dart';
 import 'package:intellia237/features/auth/presentation/register_screen.dart';
+import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('register and login links navigate in both directions', (
     tester,
   ) async {
+    SharedPreferences.setMockInitialValues({});
     final router = GoRouter(
       initialLocation: AppRoutes.register,
       routes: [
@@ -21,6 +24,14 @@ void main() {
           builder: (_, _) => const RegisterScreen(),
         ),
         GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+        GoRoute(
+          path: AppRoutes.emailLogin,
+          builder: (_, _) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.authGateway,
+          builder: (_, _) => const AuthGatewayScreen(),
+        ),
         GoRoute(
           path: AppRoutes.forgotPassword,
           builder: (_, _) => const Scaffold(body: Text('Mot de passe oublié')),
@@ -48,6 +59,11 @@ void main() {
 
     await tester.ensureVisible(find.text('J’ai déjà un compte'));
     await tester.tap(find.text('J’ai déjà un compte'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('gateway-role-teacher')),
+    );
+    await tester.tap(find.byKey(const ValueKey('gateway-role-teacher')));
     await tester.pumpAndSettle();
     expect(find.text('Se connecter'), findsOneWidget);
 

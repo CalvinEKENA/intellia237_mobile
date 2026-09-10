@@ -15,8 +15,13 @@ import 'package:intellia237/features/student_registration/domain/student_registr
 import 'package:intellia237/features/student_registration/domain/student_registration_result.dart';
 import 'package:intellia237/features/student_registration/presentation/student_registration_flow_screen.dart';
 import 'package:intellia237/features/tutor/application/tutor_preference_provider.dart';
+import '../../support/intellia_fonts.dart';
+import 'package:intellia237/features/auth/presentation/widgets/living_pass.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(loadIntelliaFonts);
+
   Future<void> pumpSuccess(
     WidgetTester tester, {
     Size size = const Size(390, 844),
@@ -121,9 +126,16 @@ void main() {
       asset: 'assets/companions/__inexistant__.png',
       companionName: 'Kira',
     );
-    // Le reste de l'écran reste visible et le fallback affiche l'initiale.
+    // Le repli n'est plus une initiale mais le sceau gravé du Pass. Ce que ce
+    // test garde n'a pas changé : une image absente ne laisse jamais un écran
+    // vide ni une exception.
     expectCoreContent();
-    expect(find.text('K'), findsOneWidget);
+    expect(find.byType(LivingPass), findsOneWidget);
+    expect(
+      tester.getSize(find.byType(LivingPass)).height,
+      greaterThan(120),
+      reason: 'le Pass doit garder sa présence sans son image',
+    );
     expect(tester.takeException(), isNull);
   });
 

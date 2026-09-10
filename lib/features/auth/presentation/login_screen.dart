@@ -8,6 +8,7 @@ import '../application/auth_controller.dart';
 import '../domain/auth_input_validators.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
+import 'widgets/living_pass.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -31,6 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    if (ref.read(authControllerProvider).isLoading) return;
     FocusManager.instance.primaryFocus?.unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     await ref
@@ -49,24 +51,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return AuthExperienceScaffold(
       showBackButton: false,
+      pass: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: _emailController,
+        builder: (context, value, _) => LivingPass(
+          detail: value.text.trim().isEmpty ? null : value.text.trim(),
+          phase: context.l10n.passSignIn,
+          progress: .65,
+        ),
+      ),
       child: AutofillGroup(
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 18),
               AuthHeader(
-                eyebrow: l10n.loginEyebrow,
-                title: l10n.loginTitle,
-                subtitle: l10n.loginSubtitle,
+                showBrand: false,
+                eyebrow: context.l10n.passEmailAccess,
+                title: context.l10n.passYourNextChapterAwaits,
+                subtitle: context.l10n.passReturnToYourSpaceWithYour,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 24),
               AuthGlassPanel(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     AuthAnimatedField(
+                      key: const ValueKey('login-email-field'),
                       controller: _emailController,
                       label: l10n.emailLabel,
                       hint: l10n.emailHint,
@@ -81,6 +92,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                     const SizedBox(height: 14),
                     AuthAnimatedField(
+                      key: const ValueKey('login-password-field'),
                       controller: _passwordController,
                       focusNode: _passwordFocus,
                       label: l10n.passwordLabel,
@@ -108,7 +120,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                     AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 220),
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 220),
                       child: auth.error == null
                           ? const SizedBox.shrink()
                           : Padding(
@@ -122,6 +136,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                     ),
                     AuthPrimaryButton(
+                      key: const ValueKey('login-submit'),
                       label: l10n.signIn,
                       onTap: auth.isLoading ? null : _submit,
                       isLoading: auth.isLoading,
@@ -131,16 +146,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Flexible(
-                    child: Text(
-                      l10n.noAccount,
-                      style: const TextStyle(
-                        color: AuthExperienceColors.textSecondary,
-                        fontSize: 13,
-                      ),
+                  Text(
+                    l10n.noAccount,
+                    style: const TextStyle(
+                      color: AuthExperienceColors.textSecondary,
+                      fontSize: 13,
                     ),
                   ),
                   TextButton(
@@ -156,6 +170,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                 ],
+              ),
+              TextButton.icon(
+                key: const ValueKey('login-change-profile'),
+                onPressed: auth.isLoading
+                    ? null
+                    : () => context.go(AppRoutes.authGateway),
+                icon: const Icon(Icons.arrow_back_rounded, size: 16),
+                label: Text(
+                  context.l10n.passChooseAnotherWayIn,
+                ),
               ),
               const SizedBox(height: 18),
             ],

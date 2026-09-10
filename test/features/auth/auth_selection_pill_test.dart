@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_selection_pill.dart';
 import 'package:intellia237/features/student_registration/domain/academic_rules.dart';
+import '../../support/intellia_fonts.dart';
+import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(loadIntelliaFonts);
+
   Future<void> pumpPill(
     WidgetTester tester, {
     required bool selected,
@@ -47,11 +52,18 @@ void main() {
     final textColor = textColorOf(tester);
     final decoration = decorationOf(tester);
 
-    expect(textColor, const Color(0xFF17243A));
+    // L'intention est la lisibilité, pas une valeur : la pastille au repos
+    // porte l'encre de la surface, quel que soit le thème global. Épingler un
+    // hexadécimal ferait échouer ce test à chaque accord de palette.
+    expect(textColor, AuthExperienceColors.textPrimary);
     expect(textColor.a, 1);
+    expect(
+      _luminanceGap(textColor, AuthExperienceColors.surface),
+      greaterThan(0.5),
+    );
 
     expect(decoration.gradient, isNull);
-    expect(decoration.color, Colors.white);
+    expect(decoration.color, AuthExperienceColors.surface);
   });
 
   testWidgets('état sélectionné : gradient + texte blanc + coche', (
@@ -134,8 +146,16 @@ void main() {
               ),
             ),
           );
+          // Le thème global de l'application ne doit pas traverser la
+          // pastille : elle garde l'encre de sa propre surface, et l'écart de
+          // luminance qui la rend lisible.
           final text = tester.widget<Text>(find.text(label));
-          expect(text.style?.color, const Color(0xFF17243A));
+          expect(text.style?.color, AuthExperienceColors.textPrimary);
+          expect(
+            _luminanceGap(text.style!.color!, AuthExperienceColors.surface),
+            greaterThan(0.5),
+            reason: '$label sous thème ${brightness.name}',
+          );
         }
       },
     );
@@ -186,3 +206,7 @@ class _SeriesHarnessState extends State<_SeriesHarness> {
     );
   }
 }
+
+/// Écart de luminance perçue entre le texte et son fond.
+double _luminanceGap(Color text, Color surface) =>
+    (text.computeLuminance() - surface.computeLuminance()).abs();
