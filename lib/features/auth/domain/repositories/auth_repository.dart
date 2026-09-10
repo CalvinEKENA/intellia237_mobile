@@ -10,6 +10,7 @@ class AuthUserData {
     required this.lastName,
     required this.profileCompleted,
     this.legacyProfile = false,
+    this.isSuperAdmin = false,
   });
 
   final String uid;
@@ -19,6 +20,7 @@ class AuthUserData {
   final String lastName;
   final bool profileCompleted;
   final bool legacyProfile;
+  final bool isSuperAdmin;
 }
 
 enum AuthSessionResolutionKind {

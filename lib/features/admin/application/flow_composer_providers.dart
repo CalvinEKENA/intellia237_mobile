@@ -84,7 +84,12 @@ final contentActorProvider = Provider<ContentActor?>((ref) {
   final uid = auth.userId;
   final role = auth.role;
   if (uid == null || role == null) return null;
-  return ContentActor(uid: uid, role: role, establishmentId: null);
+  return ContentActor(
+    uid: uid,
+    role: role,
+    establishmentId: null,
+    unrestricted: auth.isSuperAdmin,
+  );
 });
 
 /// Publie ou fait avancer une publication du fil.

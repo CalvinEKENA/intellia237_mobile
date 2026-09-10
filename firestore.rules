@@ -368,9 +368,14 @@ service cloud.firestore {
     // l'administration y ecrit. Un contenu d'etablissement n'est modifiable
     // que par le personnel de cet etablissement.
     function mayWriteContentScope(scopeId) {
-      return scopeId == 'global'
-        ? isAdmin()
-        : ((isTeacher() || isAdmin()) && getUserEstablishment() == scopeId);
+      // L'administration generale n'est rattachee a aucun etablissement :
+      // elle publie pour tous. Un administrateur d'etablissement reste borne
+      // au sien, et un enseignant aussi.
+      return isSuperAdmin()
+        || (scopeId == 'global'
+              ? isAdmin()
+              : ((isTeacher() || isAdmin())
+                 && getUserEstablishment() == scopeId));
     }
 
     function editorialStatusOf(data) {

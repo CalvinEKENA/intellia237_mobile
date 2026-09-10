@@ -3,10 +3,18 @@ import '../../../app/router/app_routes.dart';
 enum AppRole { student, parent, teacher, admin }
 
 class StoredAppRoleResolution {
-  const StoredAppRoleResolution({required this.role, required this.isLegacy});
+  const StoredAppRoleResolution({
+    required this.role,
+    required this.isLegacy,
+    this.isSuperAdmin = false,
+  });
 
   final AppRole? role;
   final bool isLegacy;
+
+  /// Le super administrateur se présente comme AppRole.admin, mais sa portée
+  /// n'est pas la même : il n'est rattaché à aucun établissement.
+  final bool isSuperAdmin;
 
   bool get isUnknown => role == null;
 }
@@ -16,7 +24,11 @@ class StoredAppRoleResolution {
 StoredAppRoleResolution parseStoredAppRole(String storedValue) {
   final normalized = storedValue.trim();
   if (normalized == 'superAdmin' || normalized == 'super_admin') {
-    return const StoredAppRoleResolution(role: AppRole.admin, isLegacy: true);
+    return const StoredAppRoleResolution(
+      role: AppRole.admin,
+      isLegacy: true,
+      isSuperAdmin: true,
+    );
   }
   for (final role in AppRole.values) {
     if (role.name == normalized) {

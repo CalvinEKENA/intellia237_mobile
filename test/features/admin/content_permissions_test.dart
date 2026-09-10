@@ -30,6 +30,75 @@ void main() {
   );
   const eleve = ContentActor(uid: 'eleve-1', role: AppRole.student);
 
+  group('le super administrateur du terrain', () {
+    // Tel que l'application le construit réellement : le rôle stocké
+    // « super_admin » devient AppRole.admin, et le compte historique ne porte
+    // aucun établissement. C'est le compte avec lequel INTELLIA publie.
+    const superAdmin = ContentActor(
+      uid: 'super-1',
+      role: AppRole.admin,
+      unrestricted: true,
+    );
+
+    test('il écrit le programme national sans établissement', () {
+      expect(parseStoredAppRole('super_admin').role, AppRole.admin);
+      expect(parseStoredAppRole('super_admin').isSuperAdmin, isTrue);
+      expect(superAdmin.establishmentId, isNull);
+      expect(superAdmin.canWriteInScope(global), isTrue);
+    });
+
+    test('il publie pour n’importe quel établissement', () {
+      // Sans cette portée, l'administration générale ne pourrait alimenter
+      // que le programme national : aucun contenu pour un lycée donné.
+      for (final scope in [leclerc, voisin]) {
+        expect(superAdmin.canWriteInScope(scope), isTrue, reason: '$scope');
+        expect(superAdmin.canReadScope(scope), isTrue, reason: '$scope');
+      }
+    });
+
+    test('un administrateur d’établissement reste borné au sien', () {
+      expect(adminLeclerc.canWriteInScope(voisin), isFalse);
+    });
+
+    test('il mène une publication du brouillon à la mise en ligne', () {
+      var metadata = const EditorialWorkflowMetadata(
+        status: EditorialStatus.draft,
+      );
+      for (final next in const [
+        EditorialStatus.inReview,
+        EditorialStatus.approved,
+        EditorialStatus.published,
+      ]) {
+        expect(
+          ContentPermissions.canTransition(
+            actor: superAdmin,
+            scope: global,
+            metadata: metadata,
+            next: next,
+            authorUid: superAdmin.uid,
+          ),
+          isTrue,
+          reason: 'transition vers ${next.name} refusée',
+        );
+        metadata = EditorialWorkflowMetadata(status: next);
+      }
+    });
+
+    test('un contenu en ligne ne redevient pas un brouillon en place', () {
+      expect(
+        ContentPermissions.canTransition(
+          actor: superAdmin,
+          scope: global,
+          metadata: const EditorialWorkflowMetadata(
+            status: EditorialStatus.published,
+          ),
+          next: EditorialStatus.draft,
+        ),
+        isFalse,
+      );
+    });
+  });
+
   group('cloisonnement par établissement', () {
     test('un enseignant écrit dans son établissement', () {
       expect(profLeclerc.canWriteInScope(leclerc), isTrue);

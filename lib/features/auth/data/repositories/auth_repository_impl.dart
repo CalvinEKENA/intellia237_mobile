@@ -238,6 +238,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
       lastName: (data['lastName'] as String? ?? '').trim(),
       profileCompleted: profileCompleted,
       legacyProfile: parsedRole.isLegacy,
+      isSuperAdmin: parsedRole.isSuperAdmin,
     );
   }
 

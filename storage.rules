@@ -79,9 +79,12 @@ service firebase.storage {
     }
 
     function mayWriteScope(scopeId) {
-      return scopeId == 'global'
-        ? mayWriteGlobalScope()
-        : mayWriteEstablishmentScope(scopeId);
+      // Meme portee que les regles Firestore : l'administration generale
+      // depose des medias pour n'importe quel etablissement.
+      return isSuperAdmin()
+        || (scopeId == 'global'
+              ? mayWriteGlobalScope()
+              : mayWriteEstablishmentScope(scopeId));
     }
 
     // Le contenu national est lisible par tout compte authentifié ; le

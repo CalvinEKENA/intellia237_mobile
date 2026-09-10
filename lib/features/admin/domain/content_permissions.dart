@@ -19,11 +19,17 @@ class ContentActor {
     required this.uid,
     required this.role,
     this.establishmentId,
+    this.unrestricted = false,
   });
 
   final String uid;
   final AppRole role;
   final String? establishmentId;
+
+  /// L'administration générale n'est rattachée à aucun établissement : elle
+  /// publie pour tous, sur tous les niveaux. Un administrateur d'établissement
+  /// reste, lui, borné au sien.
+  final bool unrestricted;
 
   bool get isAdministration => role == AppRole.admin;
   bool get isTeacher => role == AppRole.teacher;
@@ -43,6 +49,7 @@ class ContentActor {
   /// enseignant d'écraser le travail d'un autre établissement.
   bool canWriteInScope(ContentScope scope) {
     if (!isStaff) return false;
+    if (unrestricted) return isAdministration;
     if (scope.isGlobal) return isAdministration;
     final establishment = establishmentId;
     if (establishment == null || establishment.isEmpty) return false;
@@ -51,7 +58,7 @@ class ContentActor {
 
   /// Vrai quand cet acteur peut consulter ce périmètre.
   bool canReadScope(ContentScope scope) {
-    if (scope.isGlobal) return true;
+    if (scope.isGlobal || unrestricted) return true;
     return establishmentId != null && establishmentId == scope.establishmentId;
   }
 }
