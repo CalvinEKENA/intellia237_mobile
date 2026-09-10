@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/design_tokens.dart';
+
 class Intellia237TextWordmark extends StatelessWidget {
   const Intellia237TextWordmark({
     this.style,
@@ -18,9 +20,11 @@ class Intellia237TextWordmark extends StatelessWidget {
   final TextAlign textAlign;
   final int? maxLines;
 
-  static const green = Color(0xFF237A4B);
-  static const red = Color(0xFFB83A43);
-  static const yellow = Color(0xFFB58A16);
+  // Le drapeau vient des jetons de marque : le splash, le bandeau de
+  // l'onboarding et ce wordmark montraient trois trios différents.
+  static const green = IntelliaFlag.green;
+  static const red = IntelliaFlag.red;
+  static const yellow = IntelliaFlag.yellow;
 
   @override
   Widget build(BuildContext context) {
