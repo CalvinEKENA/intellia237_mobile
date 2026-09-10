@@ -178,6 +178,20 @@
           }
         }
       ]
+    },
+    {
+      "collectionGroup": "flow_items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "classLevels",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "updatedAt",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []
