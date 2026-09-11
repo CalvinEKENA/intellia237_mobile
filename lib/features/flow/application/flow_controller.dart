@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../learn/domain/learn_academic_context.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
 import '../../auth/application/auth_controller.dart';
 import '../data/flow_demo_content.dart';
@@ -47,6 +48,14 @@ class FlowCatalog {
   );
 }
 
+/// Le niveau sous lequel le fil est lu.
+///
+/// La clé de catalogue, pas le libellé enregistré : un profil ancien en
+/// « Première » doit recevoir ce que le Studio publie pour « Premiere », dans
+/// chaque établissement. Le libellé ne sert qu'à défaut de clé.
+String? flowFeedClassLevel(LearnAcademicContext? academic) =>
+    academic?.catalogClassLevel ?? academic?.classLevel;
+
 /// Compose le fil : Firestore d'abord, cache local ensuite, rien enfin.
 ///
 /// Registre de décisions : le contenu de démonstration n'est plus un recours.
@@ -63,10 +72,9 @@ final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
     );
   }
 
-  final classLevel = ref
-      .watch(studentAcademicContextProvider)
-      .valueOrNull
-      ?.classLevel;
+  final classLevel = flowFeedClassLevel(
+    ref.watch(studentAcademicContextProvider).valueOrNull,
+  );
   if (classLevel == null || classLevel.trim().isEmpty) {
     return FlowCatalog.empty;
   }
