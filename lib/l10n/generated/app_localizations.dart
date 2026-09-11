@@ -7107,6 +7107,60 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Enfants liés'**
   String get schoolTransferChildren;
+
+  /// No description provided for @generalAdministrationAllSchools.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administration générale · toutes les écoles'**
+  String get generalAdministrationAllSchools;
+
+  /// No description provided for @broadcastTargetSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'École destinataire'**
+  String get broadcastTargetSchool;
+
+  /// No description provided for @broadcastTargetSchoolRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez l’école destinataire.'**
+  String get broadcastTargetSchoolRequired;
+
+  /// No description provided for @announcementFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’annonce n’a pas pu être publiée. Réessayez.'**
+  String get announcementFailed;
+
+  /// No description provided for @schoolsOverviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écoles'**
+  String get schoolsOverviewTitle;
+
+  /// No description provided for @schoolsOverviewBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les écoles d’INTELLIA237. Touchez-en une pour voir son annuaire et ses classes.'**
+  String get schoolsOverviewBody;
+
+  /// No description provided for @schoolsOverviewCreate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir une école'**
+  String get schoolsOverviewCreate;
+
+  /// No description provided for @schoolsOverviewEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune école n’est encore ouverte.'**
+  String get schoolsOverviewEmpty;
+
+  /// No description provided for @schoolsOverviewHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez une école existante, ou ouvrez-en une nouvelle avec sa ville.'**
+  String get schoolsOverviewHint;
 }
 
 class _AppLocalizationsDelegate

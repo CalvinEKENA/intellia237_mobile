@@ -12,6 +12,8 @@ import 'content_chapter_screen.dart';
 import 'content_quiz_editor_screen.dart';
 import 'admin_presentation_localization.dart';
 import 'flow_publications_tab.dart';
+import '../application/flow_composer_providers.dart';
+import 'new_subject_dialog.dart';
 
 /// Studio de Contenu — vue principale : sélecteur de classe + liste des matières
 class ContentStudioScreen extends ConsumerStatefulWidget {
@@ -129,7 +131,7 @@ class _SubjectsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final subjectsAsync = ref.watch(adminSubjectsProvider(classLevel));
 
-    return subjectsAsync.when(
+    final content = subjectsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, _) => _ErrorView(
         message: stateMessageForKind(context, stateKindForError(error)),
@@ -170,6 +172,29 @@ class _SubjectsTab extends ConsumerWidget {
           ],
         ),
       ),
+    );
+    // Le programme national appartient à l'administration générale : elle
+    // seule ouvre une matière pour une classe.
+    final canCreate = ref.watch(contentActorProvider)?.unrestricted ?? false;
+    return Stack(
+      children: [
+        content,
+        if (canCreate)
+          Positioned(
+            bottom: IntelliaSpacing.lg,
+            right: IntelliaSpacing.lg,
+            child: FloatingActionButton.extended(
+              key: const ValueKey('studio-new-subject'),
+              heroTag: 'studio-new-subject',
+              onPressed: () => showDialog<bool>(
+                context: context,
+                builder: (_) => NewSubjectDialog(classLevel: classLevel),
+              ),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Nouvelle matière'),
+            ),
+          ),
+      ],
     );
   }
 }

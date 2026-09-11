@@ -4086,4 +4086,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get schoolTransferChildren => 'Linked children';
+
+  @override
+  String get generalAdministrationAllSchools =>
+      'General administration · all schools';
+
+  @override
+  String get broadcastTargetSchool => 'Recipient school';
+
+  @override
+  String get broadcastTargetSchoolRequired => 'Choose the recipient school.';
+
+  @override
+  String get announcementFailed =>
+      'The announcement could not be published. Try again.';
+
+  @override
+  String get schoolsOverviewTitle => 'Schools';
+
+  @override
+  String get schoolsOverviewBody =>
+      'Every INTELLIA237 school. Tap one to see its directory and classes.';
+
+  @override
+  String get schoolsOverviewCreate => 'Open a school';
+
+  @override
+  String get schoolsOverviewEmpty => 'No school has been opened yet.';
+
+  @override
+  String get schoolsOverviewHint =>
+      'Choose an existing school, or open a new one with its city.';
 }

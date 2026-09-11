@@ -43,20 +43,25 @@ final adminActionsProvider = Provider<AdminActions>((ref) {
 
 final schoolDirectoryProvider = FutureProvider.autoDispose.family<
   SchoolDirectoryPage,
-  ({AdminRoleType role, String? afterId})
+  ({AdminRoleType role, String? afterId, String? establishmentId})
 >((ref, filter) async {
   return ref.watch(adminRepositoryProvider).fetchSchoolDirectory(
     adminUid: ref.watch(_adminUidProvider),
     role: filter.role,
     afterId: filter.afterId,
+    establishmentId: filter.establishmentId,
   );
 });
 
-final schoolClassesProvider = FutureProvider.autoDispose<List<SchoolClassSummary>>((ref) async {
-  return ref.watch(adminRepositoryProvider).fetchSchoolClasses(
-    adminUid: ref.watch(_adminUidProvider),
-  );
-});
+/// Les classes d'une école : la sienne pour une direction, celle choisie par
+/// l'administration générale.
+final schoolClassesProvider = FutureProvider.autoDispose
+    .family<List<SchoolClassSummary>, String?>((ref, establishmentId) async {
+      return ref.watch(adminRepositoryProvider).fetchSchoolClasses(
+        adminUid: ref.watch(_adminUidProvider),
+        establishmentId: establishmentId,
+      );
+    });
 
 final adminEstablishmentsProvider =
     FutureProvider.autoDispose<List<EstablishmentOption>>((ref) async {
@@ -150,6 +155,7 @@ class AdminActions {
     required String title,
     required String message,
     required String audience,
+    String? establishmentId,
   }) async {
     final uid = _ref.read(_adminUidProvider);
     await _ref
@@ -159,6 +165,7 @@ class AdminActions {
           title: title,
           message: message,
           audience: audience,
+          establishmentId: establishmentId,
         );
     _invalidate();
   }

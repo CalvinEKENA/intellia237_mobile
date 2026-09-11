@@ -697,6 +697,69 @@ describe("Firestore security rules", () => {
     }
   });
 
+  it("opens the moderation queue to the general administration and each school to its own", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, "moderation_queue/report-a"), {
+        establishmentId: "school-a",
+        contentTitle: "A",
+        status: "pending",
+      });
+      await setDoc(doc(db, "moderation_queue/report-b"), {
+        establishmentId: "school-b",
+        contentTitle: "B",
+        status: "pending",
+      });
+    });
+    const root = dbFor("root");
+    const head = dbFor("admin-a");
+
+    await assertSucceeds(getDocs(collection(root, "moderation_queue")));
+    await assertSucceeds(updateDoc(doc(root, "moderation_queue/report-b"), {
+      status: "approved",
+      reviewedBy: "root",
+    }));
+
+    await assertSucceeds(getDocs(query(
+      collection(head, "moderation_queue"),
+      where("establishmentId", "==", "school-a"),
+    )));
+    await assertFails(getDocs(collection(head, "moderation_queue")));
+    await assertFails(getDoc(doc(head, "moderation_queue/report-b")));
+    // The decision only: never the reported content itself.
+    await assertFails(updateDoc(doc(head, "moderation_queue/report-a"), {
+      contentTitle: "Réécrit",
+      status: "approved",
+      reviewedBy: "admin-a",
+    }));
+    await assertFails(getDocs(collection(dbFor("teacher-a"), "moderation_queue")));
+  });
+
+  it("lets the general administration announce to the school of its choice", async () => {
+    await seedFirestore();
+    const announcement = (createdBy: string, establishmentId: string) => ({
+      createdBy,
+      establishmentId,
+      title: "Rentrée",
+      message: "Bienvenue",
+      audience: "Parents",
+    });
+
+    await assertSucceeds(setDoc(
+      doc(dbFor("root"), "announcements/from-root"),
+      announcement("root", "school-b"),
+    ));
+    await assertFails(setDoc(
+      doc(dbFor("admin-a"), "announcements/from-head"),
+      announcement("admin-a", "school-b"),
+    ));
+    await assertSucceeds(setDoc(
+      doc(dbFor("admin-a"), "announcements/own-school"),
+      announcement("admin-a", "school-a"),
+    ));
+  });
+
   it("lets only the general administration open a school", async () => {
     await seedFirestore();
 

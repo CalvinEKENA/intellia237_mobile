@@ -4108,4 +4108,36 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get schoolTransferChildren => 'Enfants liés';
+
+  @override
+  String get generalAdministrationAllSchools =>
+      'Administration générale · toutes les écoles';
+
+  @override
+  String get broadcastTargetSchool => 'École destinataire';
+
+  @override
+  String get broadcastTargetSchoolRequired =>
+      'Choisissez l’école destinataire.';
+
+  @override
+  String get announcementFailed =>
+      'L’annonce n’a pas pu être publiée. Réessayez.';
+
+  @override
+  String get schoolsOverviewTitle => 'Écoles';
+
+  @override
+  String get schoolsOverviewBody =>
+      'Toutes les écoles d’INTELLIA237. Touchez-en une pour voir son annuaire et ses classes.';
+
+  @override
+  String get schoolsOverviewCreate => 'Ouvrir une école';
+
+  @override
+  String get schoolsOverviewEmpty => 'Aucune école n’est encore ouverte.';
+
+  @override
+  String get schoolsOverviewHint =>
+      'Choisissez une école existante, ou ouvrez-en une nouvelle avec sa ville.';
 }

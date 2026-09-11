@@ -630,7 +630,9 @@ service cloud.firestore {
       allow create: if (isAdmin() || isSuperAdmin())
                     && request.resource.data.createdBy == request.auth.uid
                     && request.resource.data.establishmentId is string
-                    && isSameEstablishment(request.resource.data.establishmentId)
+                    // L'administration generale publie pour l'ecole de son choix.
+                    && (isSuperAdmin()
+                        || isSameEstablishment(request.resource.data.establishmentId))
                     && request.resource.data.title is string
                     && request.resource.data.message is string
                     && request.resource.data.audience in [
@@ -757,6 +759,22 @@ service cloud.firestore {
     // =============================================
     // REPORTS
     // =============================================
+    // =============================================
+    // MODERATION QUEUE
+    // =============================================
+    // L'administration generale voit et traite tout ; une direction, ce qui
+    // releve de son ecole. Le traitement ne touche qu'a la decision.
+    match /moderation_queue/{entryId} {
+      allow read: if isSuperAdmin()
+                  || (isAdmin() && isSameEstablishment(resource.data.establishmentId));
+      allow update: if (isSuperAdmin()
+                        || (isAdmin() && isSameEstablishment(resource.data.establishmentId)))
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['status', 'reviewedBy', 'reviewedAt'])
+                    && request.resource.data.reviewedBy == request.auth.uid;
+      allow create, delete: if isSuperAdmin();
+    }
+
     match /reports/{reportId} {
       allow read: if isSuperAdmin()
                   || (isAdmin() && isSameEstablishment(resource.data.establishmentId))

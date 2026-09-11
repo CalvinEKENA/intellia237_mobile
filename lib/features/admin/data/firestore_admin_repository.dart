@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 
 import '../domain/account_school_record.dart';
 import '../domain/admin_models.dart';
@@ -19,12 +20,26 @@ class FirestoreAdminRepository implements AdminRepository {
   @override
   Future<AdminDashboard> fetchDashboard({required String adminUid}) async {
     final context = await _fetchAdminContext(adminUid);
+    // Chaque partie du tableau de bord se lit à part : une lecture refusée ou
+    // en panne vide sa tuile, elle ne fait plus tomber l'écran entier.
     final results = await Future.wait<Object>([
-      _fetchKpi(context.establishmentId),
-      fetchPendingReviews(adminUid: adminUid),
-      fetchModerationQueue(adminUid: adminUid),
-      _fetchAnalytics(context.establishmentId),
-      _fetchAnnouncements(context),
+      _orFallback(_fetchKpi(context), _emptyKpi, 'indicateurs'),
+      _orFallback(
+        fetchPendingReviews(adminUid: adminUid),
+        const <PendingAccountReview>[],
+        'demandes en attente',
+      ),
+      _orFallback(
+        fetchModerationQueue(adminUid: adminUid),
+        const <ModerationEntry>[],
+        'modération',
+      ),
+      _orFallback(_fetchAnalytics(context), _emptyAnalytics, 'analyses'),
+      _orFallback(
+        _fetchAnnouncements(context),
+        const <AdminAnnouncement>[],
+        'annonces',
+      ),
     ]);
     final kpi = results[0] as AdminKpi;
     final pendingReviews = results[1] as List<PendingAccountReview>;
@@ -34,7 +49,8 @@ class FirestoreAdminRepository implements AdminRepository {
 
     return AdminDashboard(
       adminName: context.displayName,
-      establishmentName: context.establishmentName,
+      establishmentName: context.isSuperAdmin ? '' : context.establishmentName,
+      allSchools: context.isSuperAdmin,
       kpi: kpi,
       pendingReviews: pendingReviews.length,
       openModerationTickets: moderationQueue
@@ -43,6 +59,28 @@ class FirestoreAdminRepository implements AdminRepository {
       analytics: analytics,
       recentAnnouncements: announcements,
     );
+  }
+
+  static const _emptyKpi = AdminKpi(
+    totalStudents: 0,
+    totalTeachers: 0,
+    totalParents: 0,
+    dailyActiveUsers: 0,
+    averageCompletion: 0,
+  );
+
+  static const _emptyAnalytics = SchoolAnalyticsSnapshot(
+    weeklyActiveUsers: [],
+    weeklyStudyMinutes: [],
+  );
+
+  Future<T> _orFallback<T>(Future<T> future, T fallback, String part) async {
+    try {
+      return await future;
+    } catch (error) {
+      debugPrint('Tableau de bord ($part) indisponible : $error');
+      return fallback;
+    }
   }
 
   @override
@@ -87,7 +125,21 @@ class FirestoreAdminRepository implements AdminRepository {
   Future<List<ModerationEntry>> fetchModerationQueue({
     required String adminUid,
   }) async {
-    final snapshot = await _db.collection('moderation_queue').limit(25).get();
+    final context = await _fetchAdminContext(adminUid);
+    final queue = _db.collection('moderation_queue');
+    final QuerySnapshot<Map<String, dynamic>> snapshot;
+    if (context.isSuperAdmin) {
+      snapshot = await queue.limit(50).get();
+    } else if (context.establishmentId.isEmpty) {
+      return const [];
+    } else {
+      // Les règles n'ouvrent à une direction que les signalements de son
+      // école : la requête le dit.
+      snapshot = await queue
+          .where('establishmentId', isEqualTo: context.establishmentId)
+          .limit(25)
+          .get();
+    }
     return [
       for (final doc in snapshot.docs)
         ModerationEntry(
@@ -128,16 +180,24 @@ class FirestoreAdminRepository implements AdminRepository {
     required String title,
     required String message,
     required String audience,
+    String? establishmentId,
   }) async {
     final context = await _fetchAdminContext(adminUid);
-    if (context.establishmentId.isEmpty) {
+    // L'administration générale choisit l'école destinataire ; une direction
+    // publie pour la sienne, quoi que demande l'appel.
+    final target = context.isSuperAdmin
+        ? (establishmentId?.trim() ?? '')
+        : context.establishmentId;
+    if (target.isEmpty) {
       throw StateError(
-        'Aucun établissement n’est associé à ce compte administrateur.',
+        context.isSuperAdmin
+            ? 'Choisissez l’école destinataire de l’annonce.'
+            : 'Aucun établissement n’est associé à ce compte administrateur.',
       );
     }
     await _db.collection('announcements').add({
       'createdBy': adminUid,
-      'establishmentId': context.establishmentId,
+      'establishmentId': target,
       'title': title,
       'message': message,
       'audience': audience,
@@ -187,29 +247,29 @@ class FirestoreAdminRepository implements AdminRepository {
     );
   }
 
-  Future<AdminKpi> _fetchKpi(String establishmentId) async {
-    if (establishmentId.isEmpty) {
-      return const AdminKpi(
-        totalStudents: 0,
-        totalTeachers: 0,
-        totalParents: 0,
-        dailyActiveUsers: 0,
-        averageCompletion: 0,
-      );
-    }
+  /// L'école à lire, ou null pour toutes : la vue de l'administration
+  /// générale. Une direction sans école ne lit rien.
+  String? _readScope(_AdminContext context) =>
+      context.isSuperAdmin ? null : context.establishmentId;
 
-    final startOfToday = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
-    );
+  Query<Map<String, dynamic>> _usersIn(String? establishmentId) {
+    final users = _db.collection('users');
+    return establishmentId == null
+        ? users
+        : users.where('establishmentId', isEqualTo: establishmentId);
+  }
+
+  Future<AdminKpi> _fetchKpi(_AdminContext context) async {
+    final scope = _readScope(context);
+    if (scope != null && scope.isEmpty) return _emptyKpi;
+
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
     final results = await Future.wait<int>([
-      _countUsers(establishmentId, 'student'),
-      _countUsers(establishmentId, 'teacher'),
-      _countUsers(establishmentId, 'parent'),
-      _db
-          .collection('users')
-          .where('establishmentId', isEqualTo: establishmentId)
+      _countUsers(scope, 'student'),
+      _countUsers(scope, 'teacher'),
+      _countUsers(scope, 'parent'),
+      _usersIn(scope)
           .where(
             'lastActivityAt',
             isGreaterThanOrEqualTo: Timestamp.fromDate(startOfToday),
@@ -218,7 +278,7 @@ class FirestoreAdminRepository implements AdminRepository {
           .get()
           .then((snapshot) => snapshot.count ?? 0),
     ]);
-    final averageCompletion = await _fetchAverageCompletion(establishmentId);
+    final averageCompletion = await _fetchAverageCompletion(scope);
 
     return AdminKpi(
       totalStudents: results[0],
@@ -229,23 +289,17 @@ class FirestoreAdminRepository implements AdminRepository {
     );
   }
 
-  Future<int> _countUsers(String establishmentId, String role) async {
-    final snapshot = await _db
-        .collection('users')
-        .where('establishmentId', isEqualTo: establishmentId)
-        .where('role', isEqualTo: role)
-        .count()
-        .get();
+  Future<int> _countUsers(String? establishmentId, String role) async {
+    final snapshot = await _usersIn(
+      establishmentId,
+    ).where('role', isEqualTo: role).count().get();
     return snapshot.count ?? 0;
   }
 
-  Future<double> _fetchAverageCompletion(String establishmentId) async {
-    final users = await _db
-        .collection('users')
-        .where('establishmentId', isEqualTo: establishmentId)
-        .where('role', isEqualTo: 'student')
-        .limit(300)
-        .get();
+  Future<double> _fetchAverageCompletion(String? establishmentId) async {
+    final users = await _usersIn(
+      establishmentId,
+    ).where('role', isEqualTo: 'student').limit(300).get();
     if (users.docs.isEmpty) return 0;
     final values = <double>[];
     for (var offset = 0; offset < users.docs.length; offset += 30) {
@@ -276,27 +330,23 @@ class FirestoreAdminRepository implements AdminRepository {
   }
 
   Future<SchoolAnalyticsSnapshot> _fetchAnalytics(
-    String establishmentId,
+    _AdminContext context,
   ) async {
-    if (establishmentId.isEmpty) {
-      return const SchoolAnalyticsSnapshot(
-        weeklyActiveUsers: [],
-        weeklyStudyMinutes: [],
-      );
-    }
+    final scope = _readScope(context);
+    if (scope != null && scope.isEmpty) return _emptyAnalytics;
     final now = DateTime.now();
     final start = DateTime(
       now.year,
       now.month,
       now.day,
     ).subtract(const Duration(days: 6));
-    final activeUsers = await _db
-        .collection('users')
-        .where('establishmentId', isEqualTo: establishmentId)
+    final activeUsers = await _usersIn(scope)
         .where(
           'lastActivityAt',
           isGreaterThanOrEqualTo: Timestamp.fromDate(start),
         )
+        // Toutes écoles confondues, un échantillon borné suffit à la courbe.
+        .limit(scope == null ? 2000 : 1000)
         .get();
     final daily = List<int>.filled(7, 0);
     for (final user in activeUsers.docs) {
@@ -362,14 +412,16 @@ class FirestoreAdminRepository implements AdminRepository {
     required String adminUid,
     required AdminRoleType role,
     String? afterId,
+    String? establishmentId,
   }) async {
     final context = await _fetchAdminContext(adminUid);
-    if (context.establishmentId.isEmpty) {
+    final school = _schoolToRead(context, establishmentId);
+    if (school.isEmpty) {
       return const SchoolDirectoryPage(members: []);
     }
     var query = _db
         .collection('users')
-        .where('establishmentId', isEqualTo: context.establishmentId)
+        .where('establishmentId', isEqualTo: school)
         .where('role', isEqualTo: role.name)
         .orderBy(FieldPath.documentId)
         .limit(_directoryPageSize);
@@ -398,12 +450,14 @@ class FirestoreAdminRepository implements AdminRepository {
   @override
   Future<List<SchoolClassSummary>> fetchSchoolClasses({
     required String adminUid,
+    String? establishmentId,
   }) async {
     final context = await _fetchAdminContext(adminUid);
-    if (context.establishmentId.isEmpty) return const [];
+    final school = _schoolToRead(context, establishmentId);
+    if (school.isEmpty) return const [];
     final snapshot = await _db
         .collection('classes')
-        .where('establishmentId', isEqualTo: context.establishmentId)
+        .where('establishmentId', isEqualTo: school)
         .limit(100)
         .get();
     final classes = [
@@ -670,6 +724,11 @@ class FirestoreAdminRepository implements AdminRepository {
     final lower = value.trim().toLowerCase();
     return [for (final char in lower.split('')) accents[char] ?? char].join();
   }
+
+  /// L'école qu'une lecture vise : celle choisie par l'administration
+  /// générale, la sienne pour une direction — jamais une autre.
+  String _schoolToRead(_AdminContext context, String? requested) =>
+      context.isSuperAdmin ? (requested?.trim() ?? '') : context.establishmentId;
 
   Future<Map<String, String>> _establishmentNames(Set<String> ids) async {
     // Lectures unitaires : une requête « in » sur l'identifiant ne se prouve

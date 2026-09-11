@@ -76,29 +76,31 @@ describe("Mobile Money callables", () => {
     ]);
   });
 
-  it("confines both admin and superAdmin reviews to their establishment", () => {
-    expect(() =>
-      authorizePaymentReview(
-        {
-          role: "admin",
-          accountStatus: "active",
-          establishmentId: "school-a",
-        },
-        "school-a",
-      ),
-    ).not.toThrow();
-    expect(() =>
-      authorizePaymentReview(
-        { role: "superAdmin", establishmentId: "school-a" },
-        "school-b",
-      ),
-    ).toThrowError(expect.objectContaining({ code: "permission-denied" }));
-    expect(() =>
-      authorizePaymentReview(
-        { role: "teacher", establishmentId: "school-a" },
-        "school-a",
-      ),
-    ).toThrowError(expect.objectContaining({ code: "permission-denied" }));
+  it("confines a school admin to its school and opens every school to the general administration", () => {
+    const denied = expect.objectContaining({ code: "permission-denied" });
+    expect(() => authorizePaymentReview(
+      { role: "admin", accountStatus: "active", establishmentId: "school-a" },
+      "school-a",
+    )).not.toThrow();
+    expect(() => authorizePaymentReview(
+      { role: "admin", establishmentId: "school-a" },
+      "school-b",
+    )).toThrowError(denied);
+    expect(() => authorizePaymentReview({ role: "admin" }, "school-a")).toThrowError(denied);
+    expect(() => authorizePaymentReview({ role: "superAdmin" }, "school-b")).not.toThrow();
+    expect(() => authorizePaymentReview(
+      { role: "super_admin", establishmentId: "school-a" },
+      "school-b",
+    )).not.toThrow();
+    expect(() => authorizePaymentReview(
+      { role: "superAdmin", accountStatus: "disabled" },
+      "school-b",
+    )).toThrowError(denied);
+    expect(() => authorizePaymentReview({ role: "superAdmin" }, "")).toThrowError(denied);
+    expect(() => authorizePaymentReview(
+      { role: "teacher", establishmentId: "school-a" },
+      "school-a",
+    )).toThrowError(denied);
   });
 
   it("rejects any review payload attempting to mutate entitlement scope", async () => {

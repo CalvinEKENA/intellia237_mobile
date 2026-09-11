@@ -13,7 +13,11 @@ import 'admin_presentation_localization.dart';
 /// d'école n'existe ici, pour aucun rôle. Les élèves entrent par leur propre
 /// inscription ; la direction les voit, elle ne les administre pas.
 class SchoolDirectorySection extends ConsumerStatefulWidget {
-  const SchoolDirectorySection({super.key});
+  const SchoolDirectorySection({super.key, this.establishmentId});
+
+  /// L'école à lire, pour l'administration générale ; une direction lit
+  /// toujours la sienne.
+  final String? establishmentId;
 
   @override
   ConsumerState<SchoolDirectorySection> createState() =>
@@ -33,6 +37,12 @@ class _SchoolDirectorySectionState
   final List<String> _cursors = [];
 
   @override
+  void didUpdateWidget(SchoolDirectorySection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.establishmentId != widget.establishmentId) _cursors.clear();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final rows = <Widget>[];
@@ -42,7 +52,11 @@ class _SchoolDirectorySectionState
     // Chaque page reste une lecture distincte : « voir plus » ajoute un
     // curseur, sans relire ce qui est déjà affiché.
     for (final cursor in <String?>[null, ..._cursors]) {
-      final filter = (role: _role, afterId: cursor);
+      final filter = (
+        role: _role,
+        afterId: cursor,
+        establishmentId: widget.establishmentId,
+      );
       ref
           .watch(schoolDirectoryProvider(filter))
           .when<void>(
@@ -165,7 +179,9 @@ class _MemberTile extends StatelessWidget {
 /// Les classes de l'école : la direction les nomme, sans en changer la
 /// composition — les règles refusent d'ailleurs toute retouche des effectifs.
 class SchoolClassesSection extends ConsumerWidget {
-  const SchoolClassesSection({super.key});
+  const SchoolClassesSection({super.key, this.establishmentId});
+
+  final String? establishmentId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -182,14 +198,15 @@ class SchoolClassesSection extends ConsumerWidget {
         ),
         const SizedBox(height: IntelliaSpacing.sm),
         ref
-            .watch(schoolClassesProvider)
+            .watch(schoolClassesProvider(establishmentId))
             .when(
               loading: () => const Padding(
                 padding: EdgeInsets.all(IntelliaSpacing.md),
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (error, _) => _InlineRetry(
-                onRetry: () => ref.invalidate(schoolClassesProvider),
+                onRetry: () =>
+                    ref.invalidate(schoolClassesProvider(establishmentId)),
               ),
               data: (classes) => classes.isEmpty
                   ? Card(

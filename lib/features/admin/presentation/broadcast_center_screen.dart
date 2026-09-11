@@ -8,6 +8,7 @@ import '../domain/admin_models.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import 'admin_presentation_localization.dart';
+import '../../auth/application/auth_controller.dart';
 
 class BroadcastCenterScreen extends ConsumerStatefulWidget {
   const BroadcastCenterScreen({super.key, this.embedded = false});
@@ -24,6 +25,9 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
   final _titleController = TextEditingController();
   final _messageController = TextEditingController();
   String _audience = adminAudienceWholeSchool;
+
+  /// L'école destinataire, que l'administration générale choisit.
+  String? _targetSchoolId;
   bool _isSending = false;
 
   @override
@@ -35,6 +39,11 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isSuperAdmin = ref.watch(authControllerProvider).isSuperAdmin;
+    final schools = isSuperAdmin
+        ? ref.watch(adminEstablishmentsProvider).valueOrNull ??
+              const <EstablishmentOption>[]
+        : const <EstablishmentOption>[];
     final dashboardAsync = ref.watch(adminDashboardProvider);
     final body = dashboardAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -83,6 +92,32 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
                           : null,
                     ),
                     const SizedBox(height: IntelliaSpacing.sm),
+                    if (isSuperAdmin) ...[
+                      DropdownButtonFormField<String>(
+                        key: const ValueKey('broadcast-target-school'),
+                        initialValue: _targetSchoolId,
+                        decoration: InputDecoration(
+                          labelText: context.l10n.broadcastTargetSchool,
+                        ),
+                        items: [
+                          for (final school in schools)
+                            DropdownMenuItem(
+                              value: school.id,
+                              child: Text(
+                                school.city.isEmpty
+                                    ? school.name
+                                    : '${school.name} — ${school.city}',
+                              ),
+                            ),
+                        ],
+                        validator: (value) => value == null
+                            ? context.l10n.broadcastTargetSchoolRequired
+                            : null,
+                        onChanged: (value) =>
+                            setState(() => _targetSchoolId = value),
+                      ),
+                      const SizedBox(height: IntelliaSpacing.sm),
+                    ],
                     DropdownButtonFormField<String>(
                       initialValue: _audience,
                       decoration: InputDecoration(
@@ -165,21 +200,28 @@ class _BroadcastCenterScreenState extends ConsumerState<BroadcastCenterScreen> {
       return;
     }
 
+    final messenger = ScaffoldMessenger.of(context);
+    final published = context.l10n.announcementPublished;
+    final failed = context.l10n.announcementFailed;
     setState(() => _isSending = true);
-    await ref
-        .read(adminActionsProvider)
-        .publishAnnouncement(
-          title: _titleController.text.trim(),
-          message: _messageController.text.trim(),
-          audience: _audience,
-        );
-    if (!mounted) return;
-    setState(() => _isSending = false);
-    _titleController.clear();
-    _messageController.clear();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.announcementPublished)));
+    try {
+      await ref
+          .read(adminActionsProvider)
+          .publishAnnouncement(
+            title: _titleController.text.trim(),
+            message: _messageController.text.trim(),
+            audience: _audience,
+            establishmentId: _targetSchoolId,
+          );
+      _titleController.clear();
+      _messageController.clear();
+      messenger.showSnackBar(SnackBar(content: Text(published)));
+    } catch (_) {
+      // Une annonce refusée se dit ; elle ne fait plus planter l'écran.
+      messenger.showSnackBar(SnackBar(content: Text(failed)));
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
   }
 }
 

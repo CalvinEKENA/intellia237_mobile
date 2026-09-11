@@ -2112,5 +2112,14 @@
   "schoolTransferConfirm": "Confirmer le changement",
   "schoolTransferDone": "École mise à jour. La personne la retrouve à sa prochaine ouverture de l’application.",
   "schoolTransferSameSchool": "Ce compte appartient déjà à cette école.",
-  "schoolTransferChildren": "Enfants liés"
+  "schoolTransferChildren": "Enfants liés",
+  "generalAdministrationAllSchools": "Administration générale · toutes les écoles",
+  "broadcastTargetSchool": "École destinataire",
+  "broadcastTargetSchoolRequired": "Choisissez l’école destinataire.",
+  "announcementFailed": "L’annonce n’a pas pu être publiée. Réessayez.",
+  "schoolsOverviewTitle": "Écoles",
+  "schoolsOverviewBody": "Toutes les écoles d’INTELLIA237. Touchez-en une pour voir son annuaire et ses classes.",
+  "schoolsOverviewCreate": "Ouvrir une école",
+  "schoolsOverviewEmpty": "Aucune école n’est encore ouverte.",
+  "schoolsOverviewHint": "Choisissez une école existante, ou ouvrez-en une nouvelle avec sa ville."
 }

@@ -290,7 +290,9 @@ class _AdminHeroCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            context.l10n.administrationAtSchool(dashboard.establishmentName),
+            dashboard.allSchools
+                ? context.l10n.generalAdministrationAllSchools
+                : context.l10n.administrationAtSchool(dashboard.establishmentName),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.9),
               fontWeight: FontWeight.w700,

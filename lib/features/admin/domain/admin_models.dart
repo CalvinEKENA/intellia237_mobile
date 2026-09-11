@@ -173,6 +173,7 @@ class SchoolAnalyticsSnapshot {
 
 class AdminDashboard {
   const AdminDashboard({
+    this.allSchools = false,
     required this.adminName,
     required this.establishmentName,
     required this.kpi,
@@ -182,6 +183,8 @@ class AdminDashboard {
     required this.recentAnnouncements,
   });
 
+  /// Vue de l'administration générale : toutes les écoles confondues.
+  final bool allSchools;
   final String adminName;
   final String establishmentName;
   final AdminKpi kpi;

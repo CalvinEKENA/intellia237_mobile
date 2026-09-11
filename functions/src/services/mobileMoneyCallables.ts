@@ -334,11 +334,12 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
     status: MobileMoneyPaymentStatus,
   ): Promise<AdminPaymentRequest[]> {
     const context = await this.requireReviewer(reviewerId);
-    const snapshot = await this.firestore
-      .collection("mobile_money_payment_requests")
-      .where("establishmentId", "==", context.establishmentId)
-      .limit(100)
-      .get();
+    const requests = this.firestore.collection("mobile_money_payment_requests");
+    // The general administration follows the payments of every school.
+    const snapshot = await (context.unrestricted
+      ? requests.limit(300)
+      : requests.where("establishmentId", "==", context.establishmentId).limit(100)
+    ).get();
 
     return snapshot.docs
       .map((document) => toAdminPaymentRequest(document.id, document.data()))
@@ -563,15 +564,14 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
   }
 
   private async requireReviewer(reviewerId: string): Promise<{
+    unrestricted: boolean;
     establishmentId: string;
   }> {
     const snapshot = await this.firestore
       .collection("users")
       .doc(reviewerId)
       .get();
-    const establishmentId = normalizedString(snapshot.data()?.establishmentId);
-    authorizePaymentReview(snapshot.data(), establishmentId);
-    return { establishmentId };
+    return authorizePaymentReviewer(snapshot.data());
   }
 }
 
@@ -656,10 +656,13 @@ export function createReviewMobileMoneyPaymentHandler(
   };
 }
 
-export function authorizePaymentReview(
+/**
+ * Who may review payments: a school administrator for their school, the
+ * general administration for every school.
+ */
+export function authorizePaymentReviewer(
   reviewerData: DocumentData | undefined,
-  requestEstablishmentId: string,
-): void {
+): { unrestricted: boolean; establishmentId: string } {
   const role = normalizedString(reviewerData?.role);
   if (role !== "admin" && role !== "superAdmin" && role !== "super_admin") {
     throw new AppError(
@@ -674,14 +677,33 @@ export function authorizePaymentReview(
       "The reviewer account is not active.",
     );
   }
-  const reviewerEstablishmentId = normalizedString(
-    reviewerData?.establishmentId,
-  );
-  if (
-    !requestEstablishmentId ||
-    !reviewerEstablishmentId ||
-    reviewerEstablishmentId !== requestEstablishmentId
-  ) {
+  const establishmentId = normalizedString(reviewerData?.establishmentId);
+  if (role === "superAdmin" || role === "super_admin") {
+    return { unrestricted: true, establishmentId };
+  }
+  if (!establishmentId) {
+    throw new AppError(
+      "permission-denied",
+      "A school administrator must belong to a school to review payments.",
+    );
+  }
+  return { unrestricted: false, establishmentId };
+}
+
+export function authorizePaymentReview(
+  reviewerData: DocumentData | undefined,
+  requestEstablishmentId: string,
+): void {
+  const reviewer = authorizePaymentReviewer(reviewerData);
+  // An entitlement is granted for a school: a request without one is refused
+  // to everyone, the general administration included.
+  if (!requestEstablishmentId) {
+    throw new AppError(
+      "permission-denied",
+      "A payment request without a school cannot be reviewed.",
+    );
+  }
+  if (!reviewer.unrestricted && reviewer.establishmentId !== requestEstablishmentId) {
     throw new AppError(
       "permission-denied",
       "Cross-establishment payment review is forbidden.",

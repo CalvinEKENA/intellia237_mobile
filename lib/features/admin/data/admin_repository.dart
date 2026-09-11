@@ -2,13 +2,19 @@ import '../domain/account_school_record.dart';
 import '../domain/admin_models.dart';
 
 abstract class AdminRepository {
+  /// [establishmentId] ne sert qu'à l'administration générale ; une direction
+  /// lit toujours sa propre école.
   Future<SchoolDirectoryPage> fetchSchoolDirectory({
     required String adminUid,
     required AdminRoleType role,
     String? afterId,
+    String? establishmentId,
   });
 
-  Future<List<SchoolClassSummary>> fetchSchoolClasses({required String adminUid});
+  Future<List<SchoolClassSummary>> fetchSchoolClasses({
+    required String adminUid,
+    String? establishmentId,
+  });
 
   Future<void> renameSchoolClass({
     required String adminUid,
@@ -66,6 +72,7 @@ abstract class AdminRepository {
     required String title,
     required String message,
     required String audience,
+    String? establishmentId,
   });
 
   Future<void> updateModeration({

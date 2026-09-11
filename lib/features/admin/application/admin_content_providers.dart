@@ -509,8 +509,21 @@ class AdminContentActions {
     );
   }
 
-  Future<void> publishLesson(AdminLessonModel lesson) =>
-      saveLesson(lesson.copyWith(status: 'published'));
+  Future<void> publishLesson(AdminLessonModel lesson) async {
+    await saveLesson(lesson.copyWith(status: 'published'));
+    // Une leçon publiée dans une matière en brouillon resterait introuvable
+    // pour l'élève : la matière suit.
+    try {
+      final subjectRef = _subjectsRef(lesson.classLevel).doc(lesson.subjectId);
+      final subject = await subjectRef.get();
+      if (subject.exists && subject.data()?['status'] != 'published') {
+        await subjectRef.update({'status': 'published'});
+        _ref.invalidate(adminSubjectsProvider(lesson.classLevel));
+      }
+    } catch (_) {
+      // Sans droit sur la matière, elle reste à qui peut la publier.
+    }
+  }
 
   Future<void> deleteLesson({
     required String classLevel,

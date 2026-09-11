@@ -14,6 +14,7 @@ import 'attach_school_sheet.dart';
 import 'school_directory_section.dart';
 import 'school_transfer_section.dart';
 import 'unattached_staff_section.dart';
+import 'schools_overview_section.dart';
 
 /// Le personnel, les demandes d'accès et l'annuaire de l'école.
 ///
@@ -92,7 +93,10 @@ class UserManagementScreen extends ConsumerWidget {
           const SizedBox(height: IntelliaSpacing.xl),
           const SchoolTransferSection(),
         ],
-        if (hasSchool) ...[
+        if (auth.isSuperAdmin) ...[
+          const SizedBox(height: IntelliaSpacing.xl),
+          const SchoolsOverviewSection(),
+        ] else if (hasSchool) ...[
           const SizedBox(height: IntelliaSpacing.xl),
           const SchoolDirectorySection(),
           const SizedBox(height: IntelliaSpacing.xl),
