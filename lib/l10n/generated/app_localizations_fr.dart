@@ -4016,4 +4016,25 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get adminPhoneLinkBody =>
       'Rattachez votre numéro pour recevoir un code à chaque connexion.';
+
+  @override
+  String get unattachedStaffTitle => 'Personnel sans école';
+
+  @override
+  String get unattachedStaffBody =>
+      'Ces comptes ont été approuvés avant d’être rattachés. Sans école, ils ne composent ni ne gèrent rien pour elle.';
+
+  @override
+  String get unattachedStaffEmpty => 'Tout le personnel approuvé a son école.';
+
+  @override
+  String get attachStaffAction => 'Rattacher';
+
+  @override
+  String get attachStaffSheetBody =>
+      'Choisissez l’école de ce compte. Une fois rattaché, il ne changera plus d’école depuis l’application.';
+
+  @override
+  String get staffAttached =>
+      'Compte rattaché. La personne retrouve son école à sa prochaine ouverture de l’application.';
 }

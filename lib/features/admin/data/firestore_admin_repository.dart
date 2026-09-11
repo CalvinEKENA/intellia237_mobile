@@ -480,6 +480,56 @@ class FirestoreAdminRepository implements AdminRepository {
     return created.id;
   }
 
+  @override
+  Future<List<UnattachedStaffMember>> fetchUnattachedStaff({
+    required String adminUid,
+  }) async {
+    final context = await _fetchAdminContext(adminUid);
+    if (!context.isSuperAdmin) return const [];
+    // Firestore ne cherche pas un champ absent : on lit le personnel et l'on
+    // garde les comptes approuvés qu'aucune école ne porte encore.
+    final snapshot = await _db
+        .collection('users')
+        .where('role', whereIn: const ['teacher', 'admin'])
+        .limit(500)
+        .get();
+    final members = [
+      for (final doc in snapshot.docs)
+        if (_nonEmpty(doc.data()['establishmentId']) == null &&
+            _isActiveOrLegacy(doc.data()['accountStatus']))
+          UnattachedStaffMember(
+            id: doc.id,
+            fullName: _fullName(doc.data()),
+            email: (doc.data()['email'] as String?)?.trim() ?? '',
+            role: _readRole(doc.data()['role']),
+          ),
+    ];
+    members.sort(
+      (a, b) => a.fullName.toLowerCase().compareTo(b.fullName.toLowerCase()),
+    );
+    return members;
+  }
+
+  @override
+  Future<void> attachStaffToEstablishment({
+    required String adminUid,
+    required String staffId,
+    required String establishmentId,
+  }) async {
+    // Le serveur vérifie tout : administration générale, compte approuvé sans
+    // école, école existante — et ne déplace jamais un compte déjà rattaché.
+    await _functions.httpsCallable('assignStaffEstablishment').call<void>({
+      'staffId': staffId,
+      'establishmentId': establishmentId,
+    });
+  }
+
+  /// Les demandes en attente passent par l'approbation, qui rattache déjà.
+  bool _isActiveOrLegacy(Object? status) {
+    final value = status is String ? status.trim() : '';
+    return value.isEmpty || value == 'active';
+  }
+
   Future<Map<String, String>> _establishmentNames(Set<String> ids) async {
     // Lectures unitaires : une requête « in » sur l'identifiant ne se prouve
     // pas pour un chef d'établissement, une lecture de document si.

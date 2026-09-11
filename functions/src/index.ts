@@ -28,6 +28,7 @@ import {
 import { AskTutorUseCase } from "./services/askTutorUseCase";
 import { requestAccountDeletionHandler } from "./services/accountDeletionCallable";
 import { reviewStaffAccountHandler } from "./services/staffAccountReviewCallable";
+import { assignStaffEstablishmentHandler } from "./services/staffEstablishmentAssignmentCallable";
 import { submitFlowActivityHandler } from "./services/flowPointsCallable";
 import {
   getMobileMoneyOverviewHandler,
@@ -260,6 +261,15 @@ export const reviewStaffAccount = onCall(
     memory: "256MiB",
   },
   reviewStaffAccountHandler,
+);
+
+export const assignStaffEstablishment = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  assignStaffEstablishmentHandler,
 );
 
 export const submitFlowActivity = onCall(

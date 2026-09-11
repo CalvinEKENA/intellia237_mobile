@@ -6951,6 +6951,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Rattachez votre numéro pour recevoir un code à chaque connexion.'**
   String get adminPhoneLinkBody;
+
+  /// No description provided for @unattachedStaffTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnel sans école'**
+  String get unattachedStaffTitle;
+
+  /// No description provided for @unattachedStaffBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces comptes ont été approuvés avant d’être rattachés. Sans école, ils ne composent ni ne gèrent rien pour elle.'**
+  String get unattachedStaffBody;
+
+  /// No description provided for @unattachedStaffEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout le personnel approuvé a son école.'**
+  String get unattachedStaffEmpty;
+
+  /// No description provided for @attachStaffAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rattacher'**
+  String get attachStaffAction;
+
+  /// No description provided for @attachStaffSheetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez l’école de ce compte. Une fois rattaché, il ne changera plus d’école depuis l’application.'**
+  String get attachStaffSheetBody;
+
+  /// No description provided for @staffAttached.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte rattaché. La personne retrouve son école à sa prochaine ouverture de l’application.'**
+  String get staffAttached;
 }
 
 class _AppLocalizationsDelegate

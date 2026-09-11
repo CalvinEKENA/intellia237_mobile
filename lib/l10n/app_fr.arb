@@ -2072,5 +2072,11 @@
   "reviewCreateSchoolAction": "Ouvrir et rattacher",
   "accountReviewFailed": "La décision n’a pas pu être enregistrée. Réessayez.",
   "adminPhoneLinkTitle": "Se connecter aussi par téléphone",
-  "adminPhoneLinkBody": "Rattachez votre numéro pour recevoir un code à chaque connexion."
+  "adminPhoneLinkBody": "Rattachez votre numéro pour recevoir un code à chaque connexion.",
+  "unattachedStaffTitle": "Personnel sans école",
+  "unattachedStaffBody": "Ces comptes ont été approuvés avant d’être rattachés. Sans école, ils ne composent ni ne gèrent rien pour elle.",
+  "unattachedStaffEmpty": "Tout le personnel approuvé a son école.",
+  "attachStaffAction": "Rattacher",
+  "attachStaffSheetBody": "Choisissez l’école de ce compte. Une fois rattaché, il ne changera plus d’école depuis l’application.",
+  "staffAttached": "Compte rattaché. La personne retrouve son école à sa prochaine ouverture de l’application."
 }

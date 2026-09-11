@@ -3995,4 +3995,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get adminPhoneLinkBody =>
       'Link your number to receive a code at every sign-in.';
+
+  @override
+  String get unattachedStaffTitle => 'Staff without a school';
+
+  @override
+  String get unattachedStaffBody =>
+      'These accounts were approved before being attached. Without a school, they neither compose nor manage anything for it.';
+
+  @override
+  String get unattachedStaffEmpty => 'All approved staff belong to a school.';
+
+  @override
+  String get attachStaffAction => 'Attach';
+
+  @override
+  String get attachStaffSheetBody =>
+      'Choose this account’s school. Once attached, it can no longer change school from the app.';
+
+  @override
+  String get staffAttached =>
+      'Account attached. The person finds their school the next time they open the app.';
 }

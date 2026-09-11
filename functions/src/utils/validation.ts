@@ -198,3 +198,26 @@ export const staffAccountReviewCallableInputSchema = z
 export type StaffAccountReviewCallableInput = z.infer<
   typeof staffAccountReviewCallableInputSchema
 >;
+
+// The general administration attaches an already approved staff account to
+// its school. Only identifiers travel: never a role, a permission or a claim.
+export const staffEstablishmentAssignmentInputSchema = z
+  .object({
+    staffId: z
+      .string()
+      .trim()
+      .min(1)
+      .max(128)
+      .regex(/^[A-Za-z0-9_-]+$/),
+    establishmentId: z
+      .string()
+      .trim()
+      .min(1)
+      .max(128)
+      .regex(/^[A-Za-z0-9_-]+$/),
+  })
+  .strict();
+
+export type StaffEstablishmentAssignmentInput = z.infer<
+  typeof staffEstablishmentAssignmentInputSchema
+>;

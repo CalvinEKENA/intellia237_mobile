@@ -2072,5 +2072,11 @@
   "reviewCreateSchoolAction": "Open and attach",
   "accountReviewFailed": "The decision could not be saved. Try again.",
   "adminPhoneLinkTitle": "Also sign in by phone",
-  "adminPhoneLinkBody": "Link your number to receive a code at every sign-in."
+  "adminPhoneLinkBody": "Link your number to receive a code at every sign-in.",
+  "unattachedStaffTitle": "Staff without a school",
+  "unattachedStaffBody": "These accounts were approved before being attached. Without a school, they neither compose nor manage anything for it.",
+  "unattachedStaffEmpty": "All approved staff belong to a school.",
+  "attachStaffAction": "Attach",
+  "attachStaffSheetBody": "Choose this account’s school. Once attached, it can no longer change school from the app.",
+  "staffAttached": "Account attached. The person finds their school the next time they open the app."
 }

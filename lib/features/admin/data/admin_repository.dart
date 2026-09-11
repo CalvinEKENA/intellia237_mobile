@@ -42,6 +42,16 @@ abstract class AdminRepository {
     required String city,
   });
 
+  Future<List<UnattachedStaffMember>> fetchUnattachedStaff({
+    required String adminUid,
+  });
+
+  Future<void> attachStaffToEstablishment({
+    required String adminUid,
+    required String staffId,
+    required String establishmentId,
+  });
+
   Future<void> publishAnnouncement({
     required String adminUid,
     required String title,

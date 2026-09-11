@@ -112,6 +112,23 @@ class EstablishmentOption {
   final String city;
 }
 
+/// Un membre du personnel approuvé avant que son école existe dans INTELLIA.
+///
+/// Tant qu'aucune école ne le porte, il ne compose ni ne gère rien pour elle.
+class UnattachedStaffMember {
+  const UnattachedStaffMember({
+    required this.id,
+    required this.fullName,
+    required this.email,
+    required this.role,
+  });
+
+  final String id;
+  final String fullName;
+  final String email;
+  final AdminRoleType role;
+}
+
 class ModerationEntry {
   const ModerationEntry({
     required this.id,

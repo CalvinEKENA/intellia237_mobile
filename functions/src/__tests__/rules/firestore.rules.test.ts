@@ -672,6 +672,31 @@ describe("Firestore security rules", () => {
     }));
   });
 
+  it("shows a class's national content to that class in every school", async () => {
+    await seedFirestore();
+    const root = dbFor("root");
+    await assertSucceeds(setDoc(doc(root, "flow_items/national-terminale"), {
+      title: "Dérivées",
+      subjectId: "maths",
+      status: "draft",
+      classLevels: ["Terminale"],
+      scope: { type: "global" },
+    }));
+    await assertSucceeds(updateDoc(doc(root, "flow_items/national-terminale"), {
+      status: "published",
+    }));
+
+    // The learner feed queries by class level only, whatever the school.
+    for (const pupil of ["student-a", "student-b"]) {
+      const feed = await assertSucceeds(getDocs(query(
+        collection(dbFor(pupil), "flow_items"),
+        where("status", "==", "published"),
+        where("classLevels", "array-contains", "Terminale"),
+      )));
+      expect(feed.docs.map((item) => item.id)).toContain("national-terminale");
+    }
+  });
+
   it("lets only the general administration open a school", async () => {
     await seedFirestore();
 

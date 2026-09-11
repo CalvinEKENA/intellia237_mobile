@@ -64,6 +64,13 @@ final adminEstablishmentsProvider =
           .fetchEstablishments(adminUid: ref.watch(_adminUidProvider));
     });
 
+final adminUnattachedStaffProvider =
+    FutureProvider.autoDispose<List<UnattachedStaffMember>>((ref) async {
+      return ref
+          .watch(adminRepositoryProvider)
+          .fetchUnattachedStaff(adminUid: ref.watch(_adminUidProvider));
+    });
+
 class AdminActions {
   AdminActions(this._ref);
 
@@ -89,6 +96,20 @@ class AdminActions {
         );
     _ref.invalidate(adminEstablishmentsProvider);
     return id;
+  }
+
+  Future<void> attachStaffToEstablishment({
+    required String staffId,
+    required String establishmentId,
+  }) async {
+    await _ref
+        .read(adminRepositoryProvider)
+        .attachStaffToEstablishment(
+          adminUid: _ref.read(_adminUidProvider),
+          staffId: staffId,
+          establishmentId: establishmentId,
+        );
+    _ref.invalidate(adminUnattachedStaffProvider);
   }
 
   Future<void> validateAccount({
