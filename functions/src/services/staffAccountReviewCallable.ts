@@ -30,6 +30,7 @@ interface AuthorizedStaffReview {
   reviewerRole: ReviewerRole;
   targetRole: ReviewableStaffRole;
   establishmentId: string;
+  attachesEstablishment: boolean;
 }
 
 export interface StaffAccountReviewStore {
@@ -67,6 +68,8 @@ implements StaffAccountReviewStore {
         targetId: input.reviewId,
         reviewerData: reviewerSnapshot.data(),
         targetData: targetSnapshot.data(),
+        approved: input.approved,
+        requestedEstablishmentId: input.establishmentId,
       });
       const profileCollection = authorization.targetRole === "teacher"
         ? "teacher_profiles"
@@ -80,6 +83,15 @@ implements StaffAccountReviewStore {
           "failed-precondition",
           "The staff profile must exist before it can be reviewed.",
         );
+      }
+      if (input.approved && authorization.attachesEstablishment) {
+        // Every read happens before the first write of the transaction.
+        const school = await transaction.get(
+          this.firestore.collection("establishments").doc(authorization.establishmentId),
+        );
+        if (!school.exists) {
+          throw new AppError("not-found", "The school to attach does not exist.");
+        }
       }
 
       const status: StaffReviewStatus = input.approved ? "approved" : "rejected";
@@ -104,6 +116,9 @@ implements StaffAccountReviewStore {
       const patches = buildStaffReviewPatches({
         reviewerId,
         approved: input.approved,
+        attachEstablishmentId: authorization.attachesEstablishment
+          ? authorization.establishmentId
+          : undefined,
       });
       transaction.update(targetRef, patches.userPatch);
       transaction.set(profileRef, patches.profilePatch, { merge: true });
@@ -137,11 +152,15 @@ export function authorizeStaffReview({
   targetId,
   reviewerData,
   targetData,
+  approved = true,
+  requestedEstablishmentId,
 }: {
   reviewerId: string;
   targetId: string;
   reviewerData: DocumentData | undefined;
   targetData: DocumentData | undefined;
+  approved?: boolean;
+  requestedEstablishmentId?: string;
 }): AuthorizedStaffReview {
   const reviewerRole = normalizedString(reviewerData?.role);
   if (
@@ -163,49 +182,86 @@ export function authorizeStaffReview({
   if (targetRole !== "teacher" && targetRole !== "admin") {
     throw new AppError("failed-precondition", "Only teacher and administrator accounts are reviewable.");
   }
-  const establishmentId = normalizedString(targetData?.establishmentId);
-  if (!establishmentId) {
+  const currentEstablishmentId = normalizedString(targetData?.establishmentId);
+  const requested = normalizedString(requestedEstablishmentId);
+
+  if (reviewerRole !== "admin") {
+    // The general administration reviews for every school. It attaches a
+    // school to an account that has none, and never moves an assigned one.
+    if (currentEstablishmentId && requested && requested !== currentEstablishmentId) {
+      throw new AppError(
+        "failed-precondition",
+        "A staff account already assigned to a school cannot be moved by a review.",
+      );
+    }
+    const establishmentId = currentEstablishmentId || requested;
+    if (approved && !establishmentId) {
+      throw new AppError(
+        "failed-precondition",
+        "Choose the school this staff account belongs to before approving it.",
+      );
+    }
+    return {
+      reviewerRole,
+      targetRole,
+      establishmentId,
+      attachesEstablishment: !currentEstablishmentId && requested.length > 0,
+    };
+  }
+
+  // A school administrator reviews only the teachers of their own school and
+  // never assigns one: the role alone grants no cross-school capability.
+  if (requested) {
+    throw new AppError("permission-denied", "Only the general administration assigns a school.");
+  }
+  if (targetRole !== "teacher") {
+    throw new AppError("permission-denied", "A school administrator only reviews teachers.");
+  }
+  if (!currentEstablishmentId) {
     throw new AppError(
       "failed-precondition",
       "The staff account must be assigned to an establishment before review.",
     );
   }
-
   const reviewerEstablishmentId = normalizedString(reviewerData?.establishmentId);
-  // Both administrator roles are confined to the establishment explicitly
-  // assigned to their trusted user document. The role alone never grants a
-  // cross-school review capability.
-  if (!reviewerEstablishmentId || reviewerEstablishmentId !== establishmentId) {
+  if (!reviewerEstablishmentId || reviewerEstablishmentId !== currentEstablishmentId) {
     throw new AppError("permission-denied", "Cross-establishment staff review is forbidden.");
   }
-
   return {
     reviewerRole,
     targetRole,
-    establishmentId,
+    establishmentId: currentEstablishmentId,
+    attachesEstablishment: false,
   };
 }
 
 export function buildStaffReviewPatches({
   reviewerId,
   approved,
+  attachEstablishmentId,
 }: {
   reviewerId: string;
   approved: boolean;
+  attachEstablishmentId?: string;
 }): {
   userPatch: Record<string, unknown>;
   profilePatch: Record<string, unknown>;
 } {
   const status: StaffReviewStatus = approved ? "approved" : "rejected";
+  // Role, permissions and claims never travel with a review: approving a
+  // request must not become a privilege-escalation API. A school travels only
+  // when the general administration attaches one to an unassigned account.
+  const school = approved && attachEstablishmentId
+    ? { establishmentId: attachEstablishmentId }
+    : {};
   return {
-    // Deliberately excludes role, establishmentId, permissions and claims:
-    // approving an existing request must never become a privilege-escalation API.
     userPatch: {
       accountStatus: approved ? "active" : "rejected",
       requiresValidation: false,
       reviewedBy: reviewerId,
       reviewedAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
+      ...school,
     },
     profilePatch: {
       validation: {
@@ -215,6 +271,7 @@ export function buildStaffReviewPatches({
         reviewedAt: FieldValue.serverTimestamp(),
       },
       updatedAt: FieldValue.serverTimestamp(),
+      ...school,
     },
   };
 }

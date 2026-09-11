@@ -7,12 +7,16 @@ import {
   initializeTestEnvironment,
 } from "@firebase/rules-unit-testing";
 import {
+  collection,
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
+  query,
   runTransaction,
   setDoc,
   updateDoc,
+  where,
   writeBatch,
 } from "firebase/firestore";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
@@ -77,6 +81,9 @@ async function seedFirestore() {
       establishmentId: "school-a",
       accountStatus: "pending_validation",
     });
+    // The general administration belongs to no school: it serves every one.
+    await setDoc(doc(db, "users/root"), { role: "superAdmin" });
+    await setDoc(doc(db, "establishments/school-a"), { name: "School A" });
     await setDoc(doc(db, "classes/class-a"), {
       establishmentId: "school-a",
       mainTeacherId: "teacher-a",
@@ -566,6 +573,153 @@ describe("Firestore security rules", () => {
       }),
     );
     await assertFails(deleteDoc(doc(db, "users/student-a")));
+  });
+
+  it("lets a school head run their school without adding or removing a pupil", async () => {
+    await seedFirestore();
+    const head = dbFor("admin-a");
+
+    await assertSucceeds(getDoc(doc(head, "users/student-a")));
+    await assertSucceeds(getDoc(doc(head, "establishments/school-a")));
+    await assertFails(getDoc(doc(head, "users/student-b")));
+
+    // No pupil enters or leaves the school through its head.
+    await assertFails(setDoc(doc(head, "users/new-pupil"), {
+      uid: "new-pupil",
+      role: "student",
+      establishmentId: "school-a",
+    }));
+    await assertFails(setDoc(doc(head, "student_profiles/new-pupil"), {
+      uid: "new-pupil",
+      points: 0,
+      level: 1,
+    }));
+    await assertFails(deleteDoc(doc(head, "users/student-a")));
+    await assertFails(deleteDoc(doc(head, "student_profiles/student-a")));
+    await assertFails(updateDoc(doc(head, "users/student-a"), {
+      establishmentId: "school-b",
+    }));
+
+    // Classes are organised, rosters are not touched.
+    await assertSucceeds(updateDoc(doc(head, "classes/class-a"), {
+      name: "Terminale C",
+    }));
+    await assertFails(updateDoc(doc(head, "classes/class-a"), { studentIds: [] }));
+    await assertFails(updateDoc(doc(head, "classes/class-a"), {
+      studentIds: ["student-a", "student-b"],
+    }));
+    await assertFails(deleteDoc(doc(head, "classes/class-a")));
+  });
+
+  it("keeps every assigned teacher's class lists readable, school or not", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      // Teachers approved before schools were attached still teach classes.
+      await setDoc(doc(db, "users/teacher-unattached"), { role: "teacher" });
+      await setDoc(doc(db, "classes/class-u"), {
+        establishmentId: "school-a",
+        mainTeacherId: "teacher-a",
+        teacherIds: ["teacher-unattached"],
+        studentIds: [],
+      });
+    });
+    const classesOf = (uid: string) => collection(dbFor(uid), "classes");
+
+    await assertSucceeds(getDocs(query(
+      classesOf("teacher-a"),
+      where("teacherIds", "array-contains", "teacher-a"),
+    )));
+    await assertSucceeds(getDocs(query(
+      classesOf("teacher-a"),
+      where("mainTeacherId", "==", "teacher-a"),
+    )));
+    await assertSucceeds(getDocs(query(
+      classesOf("teacher-unattached"),
+      where("teacherIds", "array-contains", "teacher-unattached"),
+    )));
+    await assertSucceeds(getDoc(doc(dbFor("teacher-unattached"), "classes/class-u")));
+    await assertFails(getDoc(doc(dbFor("admin-b"), "classes/class-a")));
+    await assertFails(getDocs(classesOf("parent-a")));
+  });
+
+  it("reserves national content to the general administration", async () => {
+    await seedFirestore();
+    const head = dbFor("admin-a");
+    const root = dbFor("root");
+    const national = { title: "National", workflow: { status: "draft" } };
+    const forSchool = (establishmentId: string) => ({
+      title: "School",
+      scope: { type: "establishment", establishmentId },
+      workflow: { status: "draft" },
+    });
+
+    await assertFails(setDoc(doc(head, "lessons/national"), national));
+    await assertSucceeds(setDoc(doc(head, "lessons/own"), forSchool("school-a")));
+    await assertFails(setDoc(doc(head, "lessons/other"), forSchool("school-b")));
+    await assertSucceeds(setDoc(doc(root, "lessons/national"), national));
+    await assertSucceeds(setDoc(doc(root, "lessons/other"), forSchool("school-b")));
+
+    await assertFails(setDoc(doc(head, "flow_items/national"), {
+      status: "draft",
+    }));
+    await assertSucceeds(setDoc(doc(head, "flow_items/own"), {
+      status: "draft",
+      scope: { type: "establishment", establishmentId: "school-a" },
+    }));
+    await assertFails(setDoc(doc(dbFor("teacher-a"), "flow_items/national"), {
+      status: "draft",
+    }));
+  });
+
+  it("lets only the general administration open a school", async () => {
+    await seedFirestore();
+
+    await assertSucceeds(setDoc(doc(dbFor("root"), "establishments/new-school"), {
+      name: "New School",
+      city: "Douala",
+    }));
+    await assertFails(setDoc(doc(dbFor("teacher-a"), "establishments/other-school"), {
+      name: "Other School",
+    }));
+  });
+
+  it("serves the school-scoped announcement queries of every dashboard", async () => {
+    // Reads stay open to signed-in accounts until installed versions that
+    // query without a school are gone; the new queries must already pass.
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, "announcements/news-a"), {
+        createdBy: "teacher-a",
+        establishmentId: "school-a",
+        title: "A",
+        message: "A",
+        audience: "Parents",
+      });
+      await setDoc(doc(db, "announcements/news-b"), {
+        createdBy: "admin-b",
+        establishmentId: "school-b",
+        title: "B",
+        message: "B",
+        audience: "Parents",
+      });
+    });
+    const ofSchool = (uid: string, establishmentId: string) =>
+      getDocs(query(
+        collection(dbFor(uid), "announcements"),
+        where("establishmentId", "==", establishmentId),
+      ));
+
+    await assertSucceeds(ofSchool("admin-a", "school-a"));
+    await assertSucceeds(ofSchool("parent-a", "school-a"));
+    await assertSucceeds(getDocs(query(
+      collection(dbFor("teacher-a"), "announcements"),
+      where("establishmentId", "==", "school-a"),
+      where("createdBy", "==", "teacher-a"),
+    )));
+    await assertFails(getDocs(collection(dbFor(), "announcements")));
+    await assertSucceeds(getDocs(collection(dbFor("root"), "announcements")));
   });
 
   it("blocks client writes to generated quizzes and summaries", async () => {

@@ -3928,4 +3928,92 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get authorSignature =>
       'Application conçue par Calvin EKENA · +237 699 98 90 99';
+
+  @override
+  String get schoolHeadShieldTooltip => 'Espace direction d’établissement';
+
+  @override
+  String get schoolHeadSheetEyebrow => 'ESPACE DIRECTION';
+
+  @override
+  String get schoolHeadSheetTitle => 'Votre école,\nen entier.';
+
+  @override
+  String get schoolHeadSheetBody =>
+      'Connectez-vous pour administrer toute votre école : personnel, classes, contenus et suivi. Les comptes des élèves restent les leurs : vous ne pouvez ni en ajouter ni en supprimer.';
+
+  @override
+  String get schoolHeadContinueEmail => 'Continuer par e-mail';
+
+  @override
+  String get schoolHeadContinuePhone => 'Continuer par téléphone';
+
+  @override
+  String get schoolHeadPhoneNote =>
+      'Le téléphone fonctionne une fois votre numéro rattaché à votre compte, depuis vos paramètres.';
+
+  @override
+  String get schoolHeadRequestAccess => 'Demander un accès pour mon école';
+
+  @override
+  String get schoolDirectoryTitle => 'Annuaire de l’école';
+
+  @override
+  String get schoolDirectoryEmpty =>
+      'Personne dans cette catégorie pour le moment.';
+
+  @override
+  String get schoolDirectoryStudentsNote =>
+      'Les élèves rejoignent l’école par leur propre inscription : la direction les consulte, sans les ajouter ni les retirer.';
+
+  @override
+  String get schoolDirectoryLoadMore => 'Voir plus';
+
+  @override
+  String get schoolDirectoryPending => 'En attente de validation';
+
+  @override
+  String get schoolClassesTitle => 'Classes de l’école';
+
+  @override
+  String get schoolClassesEmpty =>
+      'Aucune classe n’est encore ouverte pour votre école.';
+
+  @override
+  String schoolClassCounts(int students, int teachers) {
+    return 'Élèves : $students · Enseignants : $teachers';
+  }
+
+  @override
+  String get renameClassLabel => 'Renommer la classe';
+
+  @override
+  String get classNameLabel => 'Nom de la classe';
+
+  @override
+  String get reviewNoSchool => 'Aucune école rattachée';
+
+  @override
+  String get reviewAttachSchoolTitle => 'Rattacher à une école';
+
+  @override
+  String get reviewAttachSchoolBody =>
+      'Ce compte n’appartient encore à aucune école. Choisissez la sienne pour l’approuver.';
+
+  @override
+  String get reviewCreateSchool => 'Ouvrir une nouvelle école';
+
+  @override
+  String get reviewCreateSchoolAction => 'Ouvrir et rattacher';
+
+  @override
+  String get accountReviewFailed =>
+      'La décision n’a pas pu être enregistrée. Réessayez.';
+
+  @override
+  String get adminPhoneLinkTitle => 'Se connecter aussi par téléphone';
+
+  @override
+  String get adminPhoneLinkBody =>
+      'Rattachez votre numéro pour recevoir un code à chaque connexion.';
 }

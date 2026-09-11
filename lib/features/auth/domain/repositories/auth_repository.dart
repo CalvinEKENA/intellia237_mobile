@@ -11,6 +11,7 @@ class AuthUserData {
     required this.profileCompleted,
     this.legacyProfile = false,
     this.isSuperAdmin = false,
+    this.establishmentId,
   });
 
   final String uid;
@@ -21,6 +22,10 @@ class AuthUserData {
   final bool profileCompleted;
   final bool legacyProfile;
   final bool isSuperAdmin;
+
+  /// L'école à laquelle ce compte appartient ; absente pour l'administration
+  /// générale et pour un compte que personne n'a encore rattaché.
+  final String? establishmentId;
 }
 
 enum AuthSessionResolutionKind {

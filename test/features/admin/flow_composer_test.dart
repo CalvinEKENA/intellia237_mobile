@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/features/admin/application/flow_composer_providers.dart';
 import 'package:intellia237/features/admin/domain/content_permissions.dart';
+import 'package:intellia237/features/admin/domain/content_scope.dart';
 import 'package:intellia237/features/admin/domain/editorial_workflow.dart';
 import 'package:intellia237/features/admin/presentation/flow_composer_screen.dart';
 import 'package:intellia237/features/admin/presentation/flow_publications_tab.dart';
@@ -151,7 +152,18 @@ void main() {
   });
 
   group('permissions de publication', () {
-    const admin = ContentActor(uid: 'admin-1', role: AppRole.admin);
+    // L'administration générale publie le national ; une direction
+    // d'établissement publie pour son école seulement.
+    const admin = ContentActor(
+      uid: 'admin-1',
+      role: AppRole.admin,
+      unrestricted: true,
+    );
+    const head = ContentActor(
+      uid: 'head-1',
+      role: AppRole.admin,
+      establishmentId: 'lycee-a',
+    );
     const prof = ContentActor(uid: 'prof-1', role: AppRole.teacher);
 
     test('l’administration publie', () async {
@@ -166,6 +178,32 @@ void main() {
 
       expect(published.status, 'published');
       expect(published.publishedAt, isNotNull);
+    });
+
+    test('une direction publie pour son école, pas au national', () async {
+      final repository = _RecordingRepository();
+      final service = FlowPublicationService(repository);
+      const school = ContentScope(
+        type: ContentScopeType.establishment,
+        establishmentId: 'lycee-a',
+      );
+
+      final published = await service.transition(
+        item: draft('b', status: 'inReview').copyWith(scope: school),
+        next: EditorialStatus.published,
+        actor: head,
+      );
+      expect(published.status, 'published');
+      expect(published.scope, school);
+
+      await expectLater(
+        service.transition(
+          item: draft('c', status: 'inReview'),
+          next: EditorialStatus.published,
+          actor: head,
+        ),
+        throwsStateError,
+      );
     });
 
     test('un enseignant ne publie pas', () async {

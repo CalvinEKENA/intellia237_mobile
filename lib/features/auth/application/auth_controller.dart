@@ -65,6 +65,7 @@ class AuthController extends Notifier<AuthState> {
         firstName: user.firstName,
         profileCompleted: user.profileCompleted,
         isSuperAdmin: user.isSuperAdmin,
+        establishmentId: user.establishmentId,
       );
       await _cacheValidUser(user);
     } on AuthError catch (e) {
@@ -127,6 +128,7 @@ class AuthController extends Notifier<AuthState> {
         firstName: user.firstName,
         profileCompleted: user.profileCompleted,
         isSuperAdmin: user.isSuperAdmin,
+        establishmentId: user.establishmentId,
       );
       await _cacheValidUser(user);
     } on AuthError catch (e) {
@@ -303,6 +305,7 @@ class AuthController extends Notifier<AuthState> {
           firstName: user.firstName,
           profileCompleted: user.profileCompleted,
           isSuperAdmin: user.isSuperAdmin,
+          establishmentId: user.establishmentId,
         );
         await _cacheValidUser(user);
       case AuthSessionResolutionKind.retryableProfileFailure:

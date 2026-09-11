@@ -44,13 +44,16 @@ class ContentActor {
   /// Vrai quand cet acteur peut écrire dans ce périmètre.
   ///
   /// Le programme national n'appartient à personne en particulier : seule
-  /// l'administration y touche. Un contenu d'établissement n'est modifiable
+  /// l'administration générale y touche. Un contenu d'établissement n'est
+  /// modifiable
   /// que par le personnel de cet établissement — c'est ce qui empêche un
   /// enseignant d'écraser le travail d'un autre établissement.
   bool canWriteInScope(ContentScope scope) {
     if (!isStaff) return false;
     if (unrestricted) return isAdministration;
-    if (scope.isGlobal) return isAdministration;
+    // Le programme national est celui de toutes les écoles : aucun
+    // établissement ne le rédige pour les autres.
+    if (scope.isGlobal) return false;
     final establishment = establishmentId;
     if (establishment == null || establishment.isEmpty) return false;
     return establishment == scope.establishmentId;

@@ -7,6 +7,7 @@ import '../domain/app_role.dart';
 import 'widgets/auth_choices.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
+import 'widgets/school_head_access.dart';
 
 /// Porte d'entrée neutre après une déconnexion.
 ///
@@ -32,12 +33,21 @@ class AuthGatewayScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 12),
-          AuthHeader(
-            showBrand: false,
-            eyebrow: context.l10n.passSignIn,
-            title: context.l10n.passGoodToSeeYouAgain,
-            subtitle: l10n.authGatewaySubtitle,
+          // Le bouclier de la direction se range sur la ligne du surtitre :
+          // discret, il ne repousse aucun choix sous la ligne de flottaison.
+          Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: AuthHeader(
+                  showBrand: false,
+                  eyebrow: context.l10n.passSignIn,
+                  title: context.l10n.passGoodToSeeYouAgain,
+                  subtitle: l10n.authGatewaySubtitle,
+                ),
+              ),
+              const Positioned(top: 0, right: 0, child: SchoolHeadShield()),
+            ],
           ),
           const SizedBox(height: 26),
           AuthChoiceCard(

@@ -1,6 +1,20 @@
 import '../domain/admin_models.dart';
 
 abstract class AdminRepository {
+  Future<SchoolDirectoryPage> fetchSchoolDirectory({
+    required String adminUid,
+    required AdminRoleType role,
+    String? afterId,
+  });
+
+  Future<List<SchoolClassSummary>> fetchSchoolClasses({required String adminUid});
+
+  Future<void> renameSchoolClass({
+    required String adminUid,
+    required String classId,
+    required String name,
+  });
+
   Future<AdminDashboard> fetchDashboard({required String adminUid});
 
   Future<List<PendingAccountReview>> fetchPendingReviews({
@@ -15,6 +29,17 @@ abstract class AdminRepository {
     required String adminUid,
     required String reviewId,
     required bool approved,
+    String? establishmentId,
+  });
+
+  Future<List<EstablishmentOption>> fetchEstablishments({
+    required String adminUid,
+  });
+
+  Future<String> createEstablishment({
+    required String adminUid,
+    required String name,
+    required String city,
   });
 
   Future<void> publishAnnouncement({

@@ -20,6 +20,7 @@ class AuthState {
     this.error,
     this.profileCompleted = true,
     this.isSuperAdmin = false,
+    this.establishmentId,
   });
 
   const AuthState.bootstrapping() : this._(status: AuthStatus.bootstrapping);
@@ -38,6 +39,7 @@ class AuthState {
     String? firstName,
     bool profileCompleted = true,
     bool isSuperAdmin = false,
+    String? establishmentId,
   }) : this._(
          status: AuthStatus.authenticated,
          role: role,
@@ -46,6 +48,7 @@ class AuthState {
          firstName: firstName,
          profileCompleted: profileCompleted,
          isSuperAdmin: isSuperAdmin,
+         establishmentId: establishmentId,
        );
 
   const AuthState.needsOnboarding({
@@ -102,6 +105,10 @@ class AuthState {
   /// Administration sans rattachement : sa portée couvre tous les
   /// établissements et tous les niveaux.
   final bool isSuperAdmin;
+
+  /// L'école du compte, quand il en a une : elle borne ce que le personnel
+  /// d'un établissement peut lire, rédiger et administrer.
+  final String? establishmentId;
   final String? userId;
   final String? email;
   final String? firstName;
@@ -130,6 +137,7 @@ class AuthState {
     String? error,
     bool? profileCompleted,
     bool? isSuperAdmin,
+    String? establishmentId,
   }) {
     return AuthState._(
       status: status ?? this.status,
@@ -141,6 +149,7 @@ class AuthState {
       error: error,
       profileCompleted: profileCompleted ?? this.profileCompleted,
       isSuperAdmin: isSuperAdmin ?? this.isSuperAdmin,
+      establishmentId: establishmentId ?? this.establishmentId,
     );
   }
 }

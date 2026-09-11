@@ -183,6 +183,15 @@ export const staffAccountReviewCallableInputSchema = z
       .max(128)
       .regex(/^[A-Za-z0-9_-]+$/),
     approved: z.boolean(),
+    // Only the general administration may send it: it attaches a school to
+    // an account that has none at the moment it approves the account.
+    establishmentId: z
+      .string()
+      .trim()
+      .min(1)
+      .max(128)
+      .regex(/^[A-Za-z0-9_-]+$/)
+      .optional(),
   })
   .strict();
 

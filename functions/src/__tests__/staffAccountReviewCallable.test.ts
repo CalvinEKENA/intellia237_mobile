@@ -108,55 +108,107 @@ describe("reviewStaffAccount", () => {
     })).toThrowError(expect.objectContaining({ code: "failed-precondition" }));
   });
 
-  it("confines a superAdmin to the same explicitly assigned establishment", () => {
+  it("lets the general administration review and attach a school across establishments", () => {
+    const pendingAdmin = { role: "admin", accountStatus: "pending_validation" };
+
     expect(authorizeStaffReview({
       reviewerId: "root-a",
       targetId: "admin-b",
-      reviewerData: {
-        role: "superAdmin",
-        accountStatus: "active",
-        establishmentId: "school-b",
-      },
-      targetData: {
-        role: "admin",
-        accountStatus: "pending_validation",
-        establishmentId: "school-b",
-      },
-    })).toMatchObject({ establishmentId: "school-b" });
+      reviewerData: { role: "super_admin", accountStatus: "active" },
+      targetData: pendingAdmin,
+      approved: true,
+      requestedEstablishmentId: "school-b",
+    })).toMatchObject({ establishmentId: "school-b", attachesEstablishment: true });
+
+    expect(authorizeStaffReview({
+      reviewerId: "root-a",
+      targetId: "teacher-b",
+      reviewerData: { role: "superAdmin", accountStatus: "active", establishmentId: "school-a" },
+      targetData: { role: "teacher", accountStatus: "pending_validation", establishmentId: "school-b" },
+      approved: true,
+    })).toMatchObject({ establishmentId: "school-b", attachesEstablishment: false });
 
     expect(() => authorizeStaffReview({
       reviewerId: "root-a",
       targetId: "admin-b",
       reviewerData: { role: "superAdmin", accountStatus: "active" },
-      targetData: {
-        role: "admin",
-        accountStatus: "pending_validation",
-        establishmentId: "school-b",
-      },
+      targetData: pendingAdmin,
+      approved: true,
+    })).toThrowError(expect.objectContaining({ code: "failed-precondition" }));
+
+    expect(authorizeStaffReview({
+      reviewerId: "root-a",
+      targetId: "admin-b",
+      reviewerData: { role: "superAdmin", accountStatus: "active" },
+      targetData: pendingAdmin,
+      approved: false,
+    })).toMatchObject({ attachesEstablishment: false });
+  });
+
+  it("never lets a review move an account to another school", () => {
+    expect(() => authorizeStaffReview({
+      reviewerId: "root-a",
+      targetId: "teacher-b",
+      reviewerData: { role: "superAdmin", accountStatus: "active" },
+      targetData: { role: "teacher", accountStatus: "pending_validation", establishmentId: "school-b" },
+      approved: true,
+      requestedEstablishmentId: "school-a",
+    })).toThrowError(expect.objectContaining({ code: "failed-precondition" }));
+  });
+
+  it("confines a school administrator to the teachers of their own school", () => {
+    const schoolAdmin = { role: "admin", accountStatus: "active", establishmentId: "school-a" };
+
+    expect(() => authorizeStaffReview({
+      reviewerId: "admin-a",
+      targetId: "admin-a2",
+      reviewerData: schoolAdmin,
+      targetData: { role: "admin", accountStatus: "pending_validation", establishmentId: "school-a" },
+    })).toThrowError(expect.objectContaining({ code: "permission-denied" }));
+
+    expect(() => authorizeStaffReview({
+      reviewerId: "admin-a",
+      targetId: "teacher-a",
+      reviewerData: schoolAdmin,
+      targetData: { role: "teacher", accountStatus: "pending_validation" },
+      requestedEstablishmentId: "school-a",
     })).toThrowError(expect.objectContaining({ code: "permission-denied" }));
   });
 
-  it("updates review state without mutating role, school, permissions or claims", () => {
-    const patches = buildStaffReviewPatches({
-      reviewerId: "admin-a",
-      approved: true,
-    });
+  it("updates review state without mutating role, permissions or claims", () => {
+    const patches = buildStaffReviewPatches({ reviewerId: "admin-a", approved: true });
     expect(patches.userPatch).toMatchObject({
       accountStatus: "active",
       requiresValidation: false,
       reviewedBy: "admin-a",
     });
     expect(patches.profilePatch).toMatchObject({
-      validation: {
-        status: "approved",
-        required: false,
-        reviewedBy: "admin-a",
-      },
+      validation: { status: "approved", required: false, reviewedBy: "admin-a" },
     });
     for (const forbidden of ["role", "establishmentId", "permissions", "claims"]) {
       expect(patches.userPatch).not.toHaveProperty(forbidden);
       expect(patches.profilePatch).not.toHaveProperty(forbidden);
     }
+  });
+
+  it("carries a school only when the general administration attaches one", () => {
+    const attached = buildStaffReviewPatches({
+      reviewerId: "root-a",
+      approved: true,
+      attachEstablishmentId: "school-b",
+    });
+    expect(attached.userPatch).toMatchObject({ establishmentId: "school-b" });
+    expect(attached.profilePatch).toMatchObject({ establishmentId: "school-b" });
+    for (const forbidden of ["role", "permissions", "claims"]) {
+      expect(attached.userPatch).not.toHaveProperty(forbidden);
+    }
+
+    const rejected = buildStaffReviewPatches({
+      reviewerId: "root-a",
+      approved: false,
+      attachEstablishmentId: "school-b",
+    });
+    expect(rejected.userPatch).not.toHaveProperty("establishmentId");
   });
 });
 

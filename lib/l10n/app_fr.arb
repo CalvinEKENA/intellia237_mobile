@@ -2036,5 +2036,41 @@
       }
     }
   },
-  "authorSignature": "Application conçue par Calvin EKENA · +237 699 98 90 99"
+  "authorSignature": "Application conçue par Calvin EKENA · +237 699 98 90 99",
+  "schoolHeadShieldTooltip": "Espace direction d’établissement",
+  "schoolHeadSheetEyebrow": "ESPACE DIRECTION",
+  "schoolHeadSheetTitle": "Votre école,\nen entier.",
+  "schoolHeadSheetBody": "Connectez-vous pour administrer toute votre école : personnel, classes, contenus et suivi. Les comptes des élèves restent les leurs : vous ne pouvez ni en ajouter ni en supprimer.",
+  "schoolHeadContinueEmail": "Continuer par e-mail",
+  "schoolHeadContinuePhone": "Continuer par téléphone",
+  "schoolHeadPhoneNote": "Le téléphone fonctionne une fois votre numéro rattaché à votre compte, depuis vos paramètres.",
+  "schoolHeadRequestAccess": "Demander un accès pour mon école",
+  "schoolDirectoryTitle": "Annuaire de l’école",
+  "schoolDirectoryEmpty": "Personne dans cette catégorie pour le moment.",
+  "schoolDirectoryStudentsNote": "Les élèves rejoignent l’école par leur propre inscription : la direction les consulte, sans les ajouter ni les retirer.",
+  "schoolDirectoryLoadMore": "Voir plus",
+  "schoolDirectoryPending": "En attente de validation",
+  "schoolClassesTitle": "Classes de l’école",
+  "schoolClassesEmpty": "Aucune classe n’est encore ouverte pour votre école.",
+  "schoolClassCounts": "Élèves : {students} · Enseignants : {teachers}",
+  "@schoolClassCounts": {
+    "placeholders": {
+      "students": {
+        "type": "int"
+      },
+      "teachers": {
+        "type": "int"
+      }
+    }
+  },
+  "renameClassLabel": "Renommer la classe",
+  "classNameLabel": "Nom de la classe",
+  "reviewNoSchool": "Aucune école rattachée",
+  "reviewAttachSchoolTitle": "Rattacher à une école",
+  "reviewAttachSchoolBody": "Ce compte n’appartient encore à aucune école. Choisissez la sienne pour l’approuver.",
+  "reviewCreateSchool": "Ouvrir une nouvelle école",
+  "reviewCreateSchoolAction": "Ouvrir et rattacher",
+  "accountReviewFailed": "La décision n’a pas pu être enregistrée. Réessayez.",
+  "adminPhoneLinkTitle": "Se connecter aussi par téléphone",
+  "adminPhoneLinkBody": "Rattachez votre numéro pour recevoir un code à chaque connexion."
 }

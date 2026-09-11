@@ -137,6 +137,7 @@ service cloud.firestore {
 
     function isStudentProfileCreate(uid) {
       return isOwner(uid)
+        && (!exists(/databases/$(database)/documents/users/$(uid)) || isStudent())
         && request.resource.data.keys().hasOnly(studentProfileCreateKeys())
         && request.resource.data.uid == uid
         && request.resource.data.keys().hasAny(['points', 'xp'])
@@ -163,11 +164,34 @@ service cloud.firestore {
     }
 
     function getUserEstablishment() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.establishmentId;
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('establishmentId', '');
     }
 
     function isSameEstablishment(establishmentId) {
-      return getUserEstablishment() == establishmentId;
+      return isAuthenticated()
+        && establishmentId is string
+        && establishmentId.size() > 0
+        && getUserEstablishment() == establishmentId;
+    }
+
+    function isStaffForStudent(studentId) {
+      return (isTeacher() || isAdmin())
+        && isSameEstablishment(
+          get(/databases/$(database)/documents/users/$(studentId)).data.establishmentId);
+    }
+
+    // A school head can manage the class, but its pupil roster remains under
+    // trusted enrollment control, including when deleting the class itself.
+    function classHasNoStudents(data) {
+      return data.get('studentIds', []) == []
+        && data.get('students', []) == []
+        && data.get('enrollments', []) == []
+        && data.get('studentCount', 0) == 0;
+    }
+
+    function classRosterUnchanged() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['studentIds', 'students', 'enrollments', 'studentCount']);
     }
 
     function isAssignedTeacherForClass(classId) {
@@ -294,7 +318,7 @@ service cloud.firestore {
                     request.auth.uid == resource.data.parentId
                     || request.auth.uid == resource.data.studentId
                     || isSuperAdmin()
-                    || isAdmin()
+                    || (isAdmin() && isStaffForStudent(resource.data.studentId))
                   );
       allow create: if isParent()
                     && request.auth.uid == request.resource.data.parentId
@@ -310,7 +334,10 @@ service cloud.firestore {
                     && request.resource.data.status == 'pending';
       allow update: if isSuperAdmin()
                     || (isAdmin() && isSameEstablishment(
-                         get(/databases/$(database)/documents/users/$(resource.data.studentId)).data.establishmentId));
+                         get(/databases/$(database)/documents/users/$(resource.data.studentId)).data.establishmentId)
+                        && request.resource.data.diff(resource.data).affectedKeys()
+                          .hasOnly(['status', 'updatedAt'])
+                        && request.resource.data.status in ['pending', 'approved', 'rejected']);
       allow delete: if isSuperAdmin();
     }
 
@@ -322,8 +349,10 @@ service cloud.firestore {
       allow create: if isSuperAdmin()
                     || (isAdmin() && isSameEstablishment(request.resource.data.establishmentId));
       allow update: if isSuperAdmin()
-                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId))
-                    || (isTeacher() && request.auth.uid in resource.data.teacherIds);
+                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId)
+                        && isSameEstablishment(request.resource.data.establishmentId))
+                    || (isTeacher() && request.auth.uid in resource.data.teacherIds
+                        && request.resource.data.establishmentId == resource.data.establishmentId);
       allow delete: if isSuperAdmin()
                     || (isAdmin() && isSameEstablishment(resource.data.establishmentId));
     }
@@ -332,14 +361,26 @@ service cloud.firestore {
     // CLASSES
     // =============================================
     match /classes/{classId} {
-      allow read: if isAuthenticated();
+      // Un enseignant affecte lit ses classes, rattache ou non a une ecole :
+      // ses listes interrogent teacherIds / mainTeacherId, que la regle doit
+      // pouvoir prouver sur la requete elle-meme.
+      allow read: if isSuperAdmin()
+                  || isSameEstablishment(resource.data.establishmentId)
+                  || (isTeacher()
+                      && (request.auth.uid in resource.data.teacherIds
+                          || request.auth.uid == resource.data.mainTeacherId));
       allow create: if isSuperAdmin()
-                    || (isAdmin() && isSameEstablishment(request.resource.data.establishmentId));
+                    || (isAdmin() && isSameEstablishment(request.resource.data.establishmentId)
+                        && classHasNoStudents(request.resource.data));
       allow update: if isSuperAdmin()
-                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId))
-                    || (isTeacher() && request.auth.uid == resource.data.mainTeacherId);
+                    || (isSameEstablishment(resource.data.establishmentId)
+                        && isSameEstablishment(request.resource.data.establishmentId)
+                        && classRosterUnchanged()
+                        && (isAdmin()
+                            || (isTeacher() && request.auth.uid == resource.data.mainTeacherId)));
       allow delete: if isSuperAdmin()
-                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId));
+                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId)
+                        && classHasNoStudents(resource.data));
     }
 
     // =============================================
@@ -347,9 +388,11 @@ service cloud.firestore {
     // =============================================
     match /{path=**}/chapters/{chapterId} {
       allow read: if isAuthenticated();
-      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
-      allow update: if isTeacher() || isAdmin() || isSuperAdmin();
-      allow delete: if isAdmin() || isSuperAdmin();
+      allow create: if mayWriteLegacyCatalog(request.resource.data);
+      allow update: if mayWriteLegacyCatalog(resource.data)
+                    && mayWriteLegacyCatalog(request.resource.data);
+      allow delete: if isSuperAdmin()
+                    || (isAdmin() && mayWriteContentScope(contentScopeIdOf(resource.data)));
     }
 
     // =============================================
@@ -361,7 +404,7 @@ service cloud.firestore {
     function contentScopeIdOf(data) {
       return ('scope' in data && data.scope.type == 'establishment')
         ? data.scope.establishmentId
-        : 'global';
+        : data.get('establishmentId', 'global');
     }
 
     // Le programme national n'appartient a personne en particulier : seule
@@ -373,9 +416,20 @@ service cloud.firestore {
       // au sien, et un enseignant aussi.
       return isSuperAdmin()
         || (scopeId == 'global'
-              ? isAdmin()
+              ? false
               : ((isTeacher() || isAdmin())
-                 && getUserEstablishment() == scopeId));
+                 && isSameEstablishment(scopeId)));
+    }
+
+    // Keep the established teacher authoring contract on legacy catalog
+    // documents. A school administrator never inherits global write access.
+    function mayWriteLegacyCatalog(data) {
+      return isTeacher() || mayWriteContentScope(contentScopeIdOf(data));
+    }
+
+    function mayReadContentScope(scopeId) {
+      return isAuthenticated()
+        && (scopeId == 'global' || isSuperAdmin() || isSameEstablishment(scopeId));
     }
 
     function editorialStatusOf(data) {
@@ -445,22 +499,27 @@ service cloud.firestore {
     // =============================================
     match /courses/{courseId} {
       allow read: if isAuthenticated();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isAdmin() || isSuperAdmin();
+      allow create: if mayWriteLegacyCatalog(request.resource.data);
+      allow update: if mayWriteLegacyCatalog(resource.data)
+                    && mayWriteLegacyCatalog(request.resource.data);
+      allow delete: if isSuperAdmin()
+                    || (isAdmin() && mayWriteContentScope(contentScopeIdOf(resource.data)));
     }
 
     match /courses/{courseId}/images/{imageId} {
       allow read: if isAuthenticated();
-      allow create: if isStaff();
-      allow update: if isStaff();
-      allow delete: if isAdmin() || isSuperAdmin();
+      allow create, update: if mayWriteLegacyCatalog(
+        get(/databases/$(database)/documents/courses/$(courseId)).data);
+      allow delete: if isSuperAdmin()
+        || (isAdmin() && mayWriteContentScope(contentScopeIdOf(
+          get(/databases/$(database)/documents/courses/$(courseId)).data)));
     }
 
     match /courses/{courseId}/generated_quizzes/{quizId} {
       allow read: if isAuthenticated() && (
                     request.auth.uid == resource.data.generatedByUid
-                    || isStaff()
+                    || (isStaff() && mayReadContentScope(contentScopeIdOf(
+                         get(/databases/$(database)/documents/courses/$(courseId)).data)))
                   );
       allow create, update, delete: if false; // Ecriture reservee aux Cloud Functions
     }
@@ -468,7 +527,8 @@ service cloud.firestore {
     match /courses/{courseId}/generated_summaries/{summaryId} {
       allow read: if isAuthenticated() && (
                     request.auth.uid == resource.data.generatedByUid
-                    || isStaff()
+                    || (isStaff() && mayReadContentScope(contentScopeIdOf(
+                         get(/databases/$(database)/documents/courses/$(courseId)).data)))
                   );
       allow create, update, delete: if false; // Ecriture reservee aux Cloud Functions
     }
@@ -478,9 +538,11 @@ service cloud.firestore {
     // =============================================
     match /lesson_assets/{assetId} {
       allow read: if isAuthenticated();
-      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
-      allow update: if isTeacher() || isAdmin() || isSuperAdmin();
-      allow delete: if isAdmin() || isSuperAdmin();
+      allow create: if mayWriteLegacyCatalog(request.resource.data);
+      allow update: if mayWriteLegacyCatalog(resource.data)
+                    && mayWriteLegacyCatalog(request.resource.data);
+      allow delete: if isSuperAdmin()
+                    || (isAdmin() && mayWriteContentScope(contentScopeIdOf(resource.data)));
     }
 
     // =============================================
@@ -492,14 +554,21 @@ service cloud.firestore {
       // réservée aux auteurs afin de ne pas exposer les anciens documents qui
       // contiennent encore leurs réponses pendant la migration.
       allow read: if isStaff();
-      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
-      allow update: if isTeacher() || isAdmin() || isSuperAdmin();
-      allow delete: if isAdmin() || isSuperAdmin();
+      allow create: if mayWriteLegacyCatalog(request.resource.data);
+      allow update: if mayWriteLegacyCatalog(resource.data)
+                    && mayWriteLegacyCatalog(request.resource.data);
+      allow delete: if isSuperAdmin()
+                    || (isAdmin() && mayWriteContentScope(contentScopeIdOf(resource.data)));
     }
 
     match /quiz_answer_keys/{quizId} {
-      allow read, create, update: if isStaff();
-      allow delete: if isAdmin() || isSuperAdmin();
+      allow read: if isStaff();
+      allow create, update: if isTeacher() || isSuperAdmin()
+        || (isAdmin() && mayWriteContentScope(contentScopeIdOf(
+          get(/databases/$(database)/documents/quizzes/$(quizId)).data)));
+      allow delete: if isSuperAdmin()
+        || (isAdmin() && mayWriteContentScope(contentScopeIdOf(
+          get(/databases/$(database)/documents/quizzes/$(quizId)).data)));
     }
 
     // =============================================
@@ -508,8 +577,7 @@ service cloud.firestore {
     match /quiz_attempts/{attemptId} {
       allow read: if isAuthenticated() && (
                     request.auth.uid == resource.data.studentId
-                    || isTeacher()
-                    || isAdmin()
+                    || isStaffForStudent(resource.data.studentId)
                     || isSuperAdmin()
                     || isLinkedParent(resource.data.studentId)
                   );
@@ -522,8 +590,7 @@ service cloud.firestore {
     match /progress/{progressId} {
       allow read: if isAuthenticated() && (
                     request.auth.uid == resource.data.studentId
-                    || isTeacher()
-                    || isAdmin()
+                    || isStaffForStudent(resource.data.studentId)
                     || isSuperAdmin()
                     || isLinkedParent(resource.data.studentId)
                   );
@@ -535,8 +602,8 @@ service cloud.firestore {
     // =============================================
     match /badges/{badgeId} {
       allow read: if isAuthenticated();
-      allow create: if isAdmin() || isSuperAdmin();
-      allow update: if isAdmin() || isSuperAdmin();
+      allow create: if isSuperAdmin();
+      allow update: if isSuperAdmin();
       allow delete: if isSuperAdmin();
     }
 
@@ -554,6 +621,11 @@ service cloud.firestore {
     // ANNOUNCEMENTS
     // =============================================
     match /announcements/{announcementId} {
+      // Contrat en deux temps. Les versions deja installees lisent encore les
+      // annonces sans nommer l'ecole : resserrer maintenant casserait leurs
+      // tableaux de bord. Les nouvelles versions bornent leurs requetes a
+      // l'ecole ; une fois adoptees, la lecture deviendra
+      // isSuperAdmin() || isSameEstablishment(resource.data.establishmentId).
       allow read: if isAuthenticated();
       allow create: if (isAdmin() || isSuperAdmin())
                     && request.resource.data.createdBy == request.auth.uid
@@ -578,7 +650,8 @@ service cloud.firestore {
       // Une annonce publiée est immuable : le fan-out de notifications est
       // idempotent et ne doit jamais diverger du message source.
       allow update: if false;
-      allow delete: if isAdmin() || isSuperAdmin();
+      allow delete: if isSuperAdmin()
+                    || (isAdmin() && isSameEstablishment(resource.data.establishmentId));
     }
 
     // =============================================
@@ -688,7 +761,9 @@ service cloud.firestore {
       allow read: if isSuperAdmin()
                   || (isAdmin() && isSameEstablishment(resource.data.establishmentId))
                   || (isTeacher() && request.auth.uid == resource.data.generatedBy);
-      allow create: if isTeacher() || isAdmin() || isSuperAdmin();
+      allow create: if isSuperAdmin()
+                    || ((isTeacher() || isAdmin())
+                        && isSameEstablishment(request.resource.data.establishmentId));
       allow update: if isSuperAdmin();
       allow delete: if isSuperAdmin();
     }

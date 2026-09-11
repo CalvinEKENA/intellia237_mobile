@@ -14,7 +14,7 @@ class FirestoreParentRepository implements ParentRepository {
   @override
   Future<ParentDashboard> fetchDashboard({required String parentUid}) async {
     final children = await _fetchLinkedChildren(parentUid);
-    final announcements = await _fetchAnnouncements();
+    final announcements = await _fetchAnnouncements(parentUid);
 
     return ParentDashboard(children: children, announcements: announcements);
   }
@@ -74,15 +74,29 @@ class FirestoreParentRepository implements ParentRepository {
     }
   }
 
-  Future<List<ParentAnnouncement>> _fetchAnnouncements() async {
+  Future<List<ParentAnnouncement>> _fetchAnnouncements(String parentUid) async {
+    // Une famille lit les annonces de son école, et la requête doit le dire :
+    // les règles refusent en bloc une lecture qui ne se borne pas à une école.
+    final user = await _db.collection('users').doc(parentUid).get();
+    final establishmentId =
+        (user.data()?['establishmentId'] as String?)?.trim() ?? '';
+    if (establishmentId.isEmpty) return const [];
     final snapshot = await _db
         .collection('announcements')
-        .orderBy('publishedAt', descending: true)
-        .limit(5)
+        .where('establishmentId', isEqualTo: establishmentId)
+        .limit(50)
         .get();
+    int millis(Object? value) =>
+        value is Timestamp ? value.millisecondsSinceEpoch : 0;
+    final docs = [...snapshot.docs]
+      ..sort(
+        (a, b) => millis(
+          b.data()['publishedAt'],
+        ).compareTo(millis(a.data()['publishedAt'])),
+      );
 
     return [
-      for (final doc in snapshot.docs)
+      for (final doc in docs.take(5))
         ParentAnnouncement(
           id: doc.id,
           title: (doc.data()['title'] as String?)?.trim() ?? 'Annonce',

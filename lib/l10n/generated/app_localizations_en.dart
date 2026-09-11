@@ -3908,4 +3908,91 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get authorSignature =>
       'App designed by Calvin EKENA · +237 699 98 90 99';
+
+  @override
+  String get schoolHeadShieldTooltip => 'School leadership space';
+
+  @override
+  String get schoolHeadSheetEyebrow => 'LEADERSHIP SPACE';
+
+  @override
+  String get schoolHeadSheetTitle => 'Your whole\nschool.';
+
+  @override
+  String get schoolHeadSheetBody =>
+      'Sign in to run your entire school: staff, classes, content and follow-up. Student accounts remain theirs: you cannot add or remove a student.';
+
+  @override
+  String get schoolHeadContinueEmail => 'Continue with email';
+
+  @override
+  String get schoolHeadContinuePhone => 'Continue with phone';
+
+  @override
+  String get schoolHeadPhoneNote =>
+      'Phone sign-in works once your number is linked to your account, from your settings.';
+
+  @override
+  String get schoolHeadRequestAccess => 'Request access for my school';
+
+  @override
+  String get schoolDirectoryTitle => 'School directory';
+
+  @override
+  String get schoolDirectoryEmpty => 'Nobody in this group yet.';
+
+  @override
+  String get schoolDirectoryStudentsNote =>
+      'Students join the school through their own registration: leadership views them, without adding or removing them.';
+
+  @override
+  String get schoolDirectoryLoadMore => 'Show more';
+
+  @override
+  String get schoolDirectoryPending => 'Awaiting approval';
+
+  @override
+  String get schoolClassesTitle => 'School classes';
+
+  @override
+  String get schoolClassesEmpty =>
+      'No class has been opened for your school yet.';
+
+  @override
+  String schoolClassCounts(int students, int teachers) {
+    return 'Students: $students · Teachers: $teachers';
+  }
+
+  @override
+  String get renameClassLabel => 'Rename the class';
+
+  @override
+  String get classNameLabel => 'Class name';
+
+  @override
+  String get reviewNoSchool => 'No school attached';
+
+  @override
+  String get reviewAttachSchoolTitle => 'Attach to a school';
+
+  @override
+  String get reviewAttachSchoolBody =>
+      'This account does not belong to a school yet. Choose theirs to approve it.';
+
+  @override
+  String get reviewCreateSchool => 'Open a new school';
+
+  @override
+  String get reviewCreateSchoolAction => 'Open and attach';
+
+  @override
+  String get accountReviewFailed =>
+      'The decision could not be saved. Try again.';
+
+  @override
+  String get adminPhoneLinkTitle => 'Also sign in by phone';
+
+  @override
+  String get adminPhoneLinkBody =>
+      'Link your number to receive a code at every sign-in.';
 }

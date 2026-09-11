@@ -68,7 +68,9 @@ service firebase.storage {
 
     // Le programme national n'est modifiable que par l'administration.
     function mayWriteGlobalScope() {
-      return isAdmin();
+      // Le programme national est celui de toutes les écoles : seule
+      // l'administration générale y dépose des médias.
+      return isSuperAdmin();
     }
 
     // Un contenu d'établissement n'est modifiable que par son personnel.

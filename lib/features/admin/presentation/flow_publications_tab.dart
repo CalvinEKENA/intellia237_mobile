@@ -5,7 +5,6 @@ import '../../../app/theme/design_tokens.dart';
 import '../../flow/domain/flow_item.dart';
 import '../application/flow_composer_providers.dart';
 import '../domain/content_permissions.dart';
-import '../domain/content_scope.dart';
 import '../domain/editorial_workflow.dart';
 import 'flow_composer_screen.dart';
 
@@ -105,7 +104,7 @@ class _FlowItemTile extends ConsumerWidget {
         ? const <EditorialStatus>[]
         : ContentPermissions.availableTransitions(
             actor: actor!,
-            scope: ContentScope.global,
+            scope: item.scope,
             metadata: metadata,
             authorUid: item.createdBy,
           );
@@ -142,7 +141,12 @@ class _FlowItemTile extends ConsumerWidget {
     try {
       await ref
           .read(flowPublicationServiceProvider)
-          .transition(item: item, next: next, actor: currentActor);
+          .transition(
+            item: item,
+            next: next,
+            actor: currentActor,
+            scope: item.scope,
+          );
       ref.invalidate(adminFlowItemsProvider(classLevel));
     } catch (error) {
       messenger.showSnackBar(SnackBar(content: Text('$error')));

@@ -16,6 +16,51 @@ const adminAudienceOptions = <String>[
 
 enum ModerationStatus { pending, approved, rejected }
 
+/// School directory projections deliberately exclude private learning data.
+/// There is no student creation, deletion or reassignment contract here.
+class SchoolDirectoryMember {
+  const SchoolDirectoryMember({
+    required this.id,
+    required this.fullName,
+    required this.role,
+    required this.email,
+    required this.phone,
+    required this.classLevel,
+    required this.accountStatus,
+  });
+
+  final String id;
+  final String fullName;
+  final AdminRoleType role;
+  final String email;
+  final String phone;
+  final String classLevel;
+  final String accountStatus;
+}
+
+class SchoolDirectoryPage {
+  const SchoolDirectoryPage({required this.members, this.nextCursor});
+
+  final List<SchoolDirectoryMember> members;
+  final String? nextCursor;
+}
+
+class SchoolClassSummary {
+  const SchoolClassSummary({
+    required this.id,
+    required this.name,
+    required this.levelLabel,
+    required this.studentCount,
+    required this.teacherCount,
+  });
+
+  final String id;
+  final String name;
+  final String levelLabel;
+  final int studentCount;
+  final int teacherCount;
+}
+
 class AdminKpi {
   const AdminKpi({
     required this.totalStudents,
@@ -40,6 +85,7 @@ class PendingAccountReview {
     required this.role,
     required this.establishmentName,
     required this.submittedAt,
+    this.establishmentId,
   });
 
   final String id;
@@ -48,6 +94,22 @@ class PendingAccountReview {
   final AdminRoleType role;
   final String establishmentName;
   final DateTime submittedAt;
+
+  /// Absent tant que l'administration générale n'a rattaché aucune école.
+  final String? establishmentId;
+}
+
+/// Une école telle que l'administration générale la choisit à l'approbation.
+class EstablishmentOption {
+  const EstablishmentOption({
+    required this.id,
+    required this.name,
+    required this.city,
+  });
+
+  final String id;
+  final String name;
+  final String city;
 }
 
 class ModerationEntry {

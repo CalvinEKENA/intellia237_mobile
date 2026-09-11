@@ -1,3 +1,4 @@
+import 'flow_composer_providers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -391,6 +392,9 @@ class AdminContentActions {
       'aiGenerated': false,
       'contentSections': [],
       'miniQuiz': [],
+      // Une leçon naît dans le périmètre de son auteur : les règles refusent
+      // le programme national à qui ne l'administre pas.
+      'scope': _ref.read(contentAuthoringScopeProvider).toFirestore(),
     });
 
     _ref.invalidate(

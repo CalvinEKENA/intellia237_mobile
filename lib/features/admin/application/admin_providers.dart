@@ -40,19 +40,71 @@ final adminActionsProvider = Provider<AdminActions>((ref) {
   return AdminActions(ref);
 });
 
+final schoolDirectoryProvider = FutureProvider.autoDispose.family<
+  SchoolDirectoryPage,
+  ({AdminRoleType role, String? afterId})
+>((ref, filter) async {
+  return ref.watch(adminRepositoryProvider).fetchSchoolDirectory(
+    adminUid: ref.watch(_adminUidProvider),
+    role: filter.role,
+    afterId: filter.afterId,
+  );
+});
+
+final schoolClassesProvider = FutureProvider.autoDispose<List<SchoolClassSummary>>((ref) async {
+  return ref.watch(adminRepositoryProvider).fetchSchoolClasses(
+    adminUid: ref.watch(_adminUidProvider),
+  );
+});
+
+final adminEstablishmentsProvider =
+    FutureProvider.autoDispose<List<EstablishmentOption>>((ref) async {
+      return ref
+          .watch(adminRepositoryProvider)
+          .fetchEstablishments(adminUid: ref.watch(_adminUidProvider));
+    });
+
 class AdminActions {
   AdminActions(this._ref);
 
   final Ref _ref;
 
+  Future<void> renameSchoolClass({required String classId, required String name}) async {
+    await _ref.read(adminRepositoryProvider).renameSchoolClass(
+      adminUid: _ref.read(_adminUidProvider), classId: classId, name: name,
+    );
+    _ref.invalidate(schoolClassesProvider);
+  }
+
+  Future<String> createEstablishment({
+    required String name,
+    required String city,
+  }) async {
+    final id = await _ref
+        .read(adminRepositoryProvider)
+        .createEstablishment(
+          adminUid: _ref.read(_adminUidProvider),
+          name: name,
+          city: city,
+        );
+    _ref.invalidate(adminEstablishmentsProvider);
+    return id;
+  }
+
   Future<void> validateAccount({
     required String reviewId,
     required bool approved,
+    String? establishmentId,
   }) async {
     final uid = _ref.read(_adminUidProvider);
     await _ref
         .read(adminRepositoryProvider)
-        .validateAccount(adminUid: uid, reviewId: reviewId, approved: approved);
+        .validateAccount(
+          adminUid: uid,
+          reviewId: reviewId,
+          approved: approved,
+          establishmentId: establishmentId,
+        );
     _invalidate();
   }
 

@@ -153,6 +153,9 @@ void main() {
         expect(headScopes.contains(CampusScopes.staffManage), isTrue);
         expect(headScopes.contains(CampusScopes.overviewRead), isTrue);
         expect(headScopes.contains(CampusScopes.auditRead), isTrue);
+        // La direction administre toute l'école, sans jamais ajouter ni
+        // retirer un élève.
+        expect(headScopes.contains(CampusScopes.studentsManage), isFalse);
       },
     );
 

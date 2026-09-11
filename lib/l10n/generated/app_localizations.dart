@@ -6795,6 +6795,162 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Application conçue par Calvin EKENA · +237 699 98 90 99'**
   String get authorSignature;
+
+  /// No description provided for @schoolHeadShieldTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace direction d’établissement'**
+  String get schoolHeadShieldTooltip;
+
+  /// No description provided for @schoolHeadSheetEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'ESPACE DIRECTION'**
+  String get schoolHeadSheetEyebrow;
+
+  /// No description provided for @schoolHeadSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre école,\nen entier.'**
+  String get schoolHeadSheetTitle;
+
+  /// No description provided for @schoolHeadSheetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous pour administrer toute votre école : personnel, classes, contenus et suivi. Les comptes des élèves restent les leurs : vous ne pouvez ni en ajouter ni en supprimer.'**
+  String get schoolHeadSheetBody;
+
+  /// No description provided for @schoolHeadContinueEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer par e-mail'**
+  String get schoolHeadContinueEmail;
+
+  /// No description provided for @schoolHeadContinuePhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer par téléphone'**
+  String get schoolHeadContinuePhone;
+
+  /// No description provided for @schoolHeadPhoneNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le téléphone fonctionne une fois votre numéro rattaché à votre compte, depuis vos paramètres.'**
+  String get schoolHeadPhoneNote;
+
+  /// No description provided for @schoolHeadRequestAccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander un accès pour mon école'**
+  String get schoolHeadRequestAccess;
+
+  /// No description provided for @schoolDirectoryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuaire de l’école'**
+  String get schoolDirectoryTitle;
+
+  /// No description provided for @schoolDirectoryEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personne dans cette catégorie pour le moment.'**
+  String get schoolDirectoryEmpty;
+
+  /// No description provided for @schoolDirectoryStudentsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les élèves rejoignent l’école par leur propre inscription : la direction les consulte, sans les ajouter ni les retirer.'**
+  String get schoolDirectoryStudentsNote;
+
+  /// No description provided for @schoolDirectoryLoadMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir plus'**
+  String get schoolDirectoryLoadMore;
+
+  /// No description provided for @schoolDirectoryPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de validation'**
+  String get schoolDirectoryPending;
+
+  /// No description provided for @schoolClassesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classes de l’école'**
+  String get schoolClassesTitle;
+
+  /// No description provided for @schoolClassesEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune classe n’est encore ouverte pour votre école.'**
+  String get schoolClassesEmpty;
+
+  /// No description provided for @schoolClassCounts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élèves : {students} · Enseignants : {teachers}'**
+  String schoolClassCounts(int students, int teachers);
+
+  /// No description provided for @renameClassLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renommer la classe'**
+  String get renameClassLabel;
+
+  /// No description provided for @classNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de la classe'**
+  String get classNameLabel;
+
+  /// No description provided for @reviewNoSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune école rattachée'**
+  String get reviewNoSchool;
+
+  /// No description provided for @reviewAttachSchoolTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rattacher à une école'**
+  String get reviewAttachSchoolTitle;
+
+  /// No description provided for @reviewAttachSchoolBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte n’appartient encore à aucune école. Choisissez la sienne pour l’approuver.'**
+  String get reviewAttachSchoolBody;
+
+  /// No description provided for @reviewCreateSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir une nouvelle école'**
+  String get reviewCreateSchool;
+
+  /// No description provided for @reviewCreateSchoolAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir et rattacher'**
+  String get reviewCreateSchoolAction;
+
+  /// No description provided for @accountReviewFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La décision n’a pas pu être enregistrée. Réessayez.'**
+  String get accountReviewFailed;
+
+  /// No description provided for @adminPhoneLinkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter aussi par téléphone'**
+  String get adminPhoneLinkTitle;
+
+  /// No description provided for @adminPhoneLinkBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rattachez votre numéro pour recevoir un code à chaque connexion.'**
+  String get adminPhoneLinkBody;
 }
 
 class _AppLocalizationsDelegate

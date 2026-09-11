@@ -113,8 +113,10 @@ void main() {
       expect(profLeclerc.canWriteInScope(global), isFalse);
     });
 
-    test('l’administration écrit au national', () {
-      expect(adminLeclerc.canWriteInScope(global), isTrue);
+    test('un chef d’établissement n’écrit pas le programme national', () {
+      // Le national est celui de toutes les écoles : l'administration d'un
+      // établissement ne le rédige pas pour les autres.
+      expect(adminLeclerc.canWriteInScope(global), isFalse);
     });
 
     test('un enseignant sans établissement n’écrit nulle part', () {

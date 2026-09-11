@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../../admin/domain/content_scope.dart';
+
 /// Nature d'une publication Flow.
 ///
 /// La liste est ouverte par construction : un type inconnu — publié par une
@@ -113,6 +115,7 @@ class FlowItem {
     this.priority = 0,
     this.tags = const <String>[],
     this.version = 1,
+    this.scope = ContentScope.global,
   });
 
   final String id;
@@ -158,6 +161,10 @@ class FlowItem {
   final List<String> tags;
   final int version;
 
+  /// Périmètre d'écriture : le programme national, ou une école précise.
+  /// Les règles Firestore le relisent avant chaque écriture.
+  final ContentScope scope;
+
   /// Vrai quand cette publication peut être servie à un élève.
   ///
   /// Le client ne décide pas seul : les règles Firestore refusent déjà la
@@ -193,6 +200,7 @@ class FlowItem {
     'priority': priority,
     'tags': tags,
     'version': version,
+    'scope': scope.toFirestore(),
   };
 
   /// Relit un document, ou null s'il est inexploitable.
@@ -244,7 +252,24 @@ class FlowItem {
       priority: _int(data['priority'], 0),
       tags: (data['tags'] as List?)?.whereType<String>().toList() ?? const [],
       version: _int(data['version'], 1),
+      scope: _scope(data['scope']),
     );
+  }
+
+  /// Un périmètre d'école sans école désignée ne vaut rien : il est lu
+  /// comme national plutôt que de faire tomber le fil.
+  static ContentScope _scope(Object? value) {
+    if (value is! Map) return ContentScope.global;
+    final establishmentId = value['establishmentId'];
+    if (value['type'] == ContentScopeType.establishment.name &&
+        establishmentId is String &&
+        establishmentId.trim().isNotEmpty) {
+      return ContentScope(
+        type: ContentScopeType.establishment,
+        establishmentId: establishmentId.trim(),
+      );
+    }
+    return ContentScope.global;
   }
 
   static int _int(Object? value, int fallback) =>
@@ -288,6 +313,7 @@ class FlowItem {
     int? priority,
     List<String>? tags,
     int? version,
+    ContentScope? scope,
   }) => FlowItem(
     id: id ?? this.id,
     type: type ?? this.type,
@@ -312,6 +338,7 @@ class FlowItem {
     priority: priority ?? this.priority,
     tags: tags ?? this.tags,
     version: version ?? this.version,
+    scope: scope ?? this.scope,
   );
 }
 

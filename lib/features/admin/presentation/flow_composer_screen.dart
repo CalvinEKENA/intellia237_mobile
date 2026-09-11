@@ -80,6 +80,9 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
     hook: _hook.text.trim(),
     subjectId: _subjectId,
     classLevels: [widget.classLevel],
+    // Une publication garde son périmètre ; une nouvelle naît dans celui
+    // de son auteur.
+    scope: widget.initial?.scope ?? ref.read(contentAuthoringScopeProvider),
     pedagogicalIntent: _intent,
     difficulty: _difficulty,
     durationSeconds: _durationSeconds,

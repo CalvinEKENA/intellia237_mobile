@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../learn/domain/content_block.dart';
 import '../application/flow_composer_providers.dart';
-import '../domain/content_scope.dart';
 import '../domain/educational_media.dart';
 import '../domain/notebooklm_import.dart';
 
@@ -80,7 +79,7 @@ class _NotebookLmImportWizardScreenState
   String _storagePathFor(
     NotebookArtifact artifact,
   ) => EducationalAssetPath.build(
-    scope: ContentScope.global,
+    scope: ref.read(contentAuthoringScopeProvider),
     classLevel: widget.classLevel,
     subjectId: _subject.text.trim().isEmpty ? 'divers' : _subject.text.trim(),
     lessonId: _lesson.text.trim().isEmpty ? 'sans-lecon' : _lesson.text.trim(),

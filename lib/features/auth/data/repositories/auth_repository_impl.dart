@@ -239,6 +239,10 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
       profileCompleted: profileCompleted,
       legacyProfile: parsedRole.isLegacy,
       isSuperAdmin: parsedRole.isSuperAdmin,
+      establishmentId: switch ((data['establishmentId'] as String?)?.trim()) {
+        final String id when id.isNotEmpty => id,
+        _ => null,
+      },
     );
   }
 

@@ -63,6 +63,11 @@ afterAll(async () => {
 async function seedActors() {
   await env().withSecurityRulesDisabled(async (context) => {
     const db = context.firestore();
+    await setDoc(doc(db, "users/root"), {
+      uid: "root",
+      role: "superAdmin",
+      status: "active"
+    });
     await setDoc(doc(db, "users/admin-a"), {
       uid: "admin-a",
       role: "admin",
@@ -108,10 +113,27 @@ describe("Educational asset rules", () => {
   beforeAll(seedActors);
 
   describe("cloisonnement", () => {
-    it("lets an administrator write the national curriculum", async () => {
+    it("reserves the national curriculum to the general administration", async () => {
       await assertSucceeds(
         uploadBytes(
+          ref(storageFor("root"), assetPath("global", "schema.png")),
+          bytes(1024),
+          { contentType: "image/png" }
+        )
+      );
+      await assertFails(
+        uploadBytes(
           ref(storageFor("admin-a"), assetPath("global", "schema.png")),
+          bytes(1024),
+          { contentType: "image/png" }
+        )
+      );
+    });
+
+    it("lets a school administrator write inside their establishment", async () => {
+      await assertSucceeds(
+        uploadBytes(
+          ref(storageFor("admin-a"), assetPath("lycee-a", "schema.png")),
           bytes(1024),
           { contentType: "image/png" }
         )
@@ -170,10 +192,12 @@ describe("Educational asset rules", () => {
   });
 
   describe("plafonds par nature de média", () => {
+    // Measured on an authorised upload (the general administration on the
+    // national path), so a "blocks" case never passes for a tenancy reason.
     it("accepts an image under ten megabytes", async () => {
       await assertSucceeds(
         uploadBytes(
-          ref(storageFor("admin-a"), assetPath("global", "schema.png")),
+          ref(storageFor("root"), assetPath("global", "schema.png")),
           bytes(2 * 1024 * 1024),
           { contentType: "image/png" }
         )
@@ -184,7 +208,7 @@ describe("Educational asset rules", () => {
       // C'est précisément ce que l'ancien plafond global laissait passer.
       await assertFails(
         uploadBytes(
-          ref(storageFor("admin-a"), assetPath("global", "enorme.png")),
+          ref(storageFor("root"), assetPath("global", "enorme.png")),
           bytes(11 * 1024 * 1024),
           { contentType: "image/png" }
         )
@@ -194,14 +218,14 @@ describe("Educational asset rules", () => {
     it("accepts a JPEG and a WebP", async () => {
       await assertSucceeds(
         uploadBytes(
-          ref(storageFor("admin-a"), assetPath("global", "photo.jpg")),
+          ref(storageFor("root"), assetPath("global", "photo.jpg")),
           bytes(1024),
           { contentType: "image/jpeg" }
         )
       );
       await assertSucceeds(
         uploadBytes(
-          ref(storageFor("admin-a"), assetPath("global", "photo.webp")),
+          ref(storageFor("root"), assetPath("global", "photo.webp")),
           bytes(1024),
           { contentType: "image/webp" }
         )
@@ -212,7 +236,7 @@ describe("Educational asset rules", () => {
       // Document actif, porteur de script, non assaini par le pipeline.
       await assertFails(
         uploadBytes(
-          ref(storageFor("admin-a"), assetPath("global", "schema.svg")),
+          ref(storageFor("root"), assetPath("global", "schema.svg")),
           bytes(1024),
           { contentType: "image/svg+xml" }
         )
@@ -229,7 +253,7 @@ describe("Educational asset rules", () => {
         await assertSucceeds(
           uploadBytes(
             ref(
-              storageFor("admin-a"),
+              storageFor("root"),
               assetPath("global", `capsule-${contentType.split("/")[1]}`)
             ),
             bytes(1024),
@@ -242,7 +266,7 @@ describe("Educational asset rules", () => {
     it("accepts a PDF under twenty-five megabytes", async () => {
       await assertSucceeds(
         uploadBytes(
-          ref(storageFor("admin-a"), assetPath("global", "fiche.pdf")),
+          ref(storageFor("root"), assetPath("global", "fiche.pdf")),
           bytes(2 * 1024 * 1024),
           { contentType: "application/pdf" }
         )
@@ -252,7 +276,7 @@ describe("Educational asset rules", () => {
     it("blocks an unsupported content type", async () => {
       await assertFails(
         uploadBytes(
-          ref(storageFor("admin-a"), assetPath("global", "slides.pptx")),
+          ref(storageFor("root"), assetPath("global", "slides.pptx")),
           bytes(1024),
           { contentType: "application/vnd.ms-powerpoint" }
         )
@@ -262,7 +286,7 @@ describe("Educational asset rules", () => {
     it("blocks an empty file", async () => {
       await assertFails(
         uploadBytes(
-          ref(storageFor("admin-a"), assetPath("global", "vide.png")),
+          ref(storageFor("root"), assetPath("global", "vide.png")),
           bytes(0),
           { contentType: "image/png" }
         )

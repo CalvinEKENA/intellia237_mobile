@@ -254,8 +254,15 @@ class FirestoreTeacherRepository implements TeacherRepository {
   }
 
   Future<List<String>> _fetchLatestAnnouncements(String teacherUid) async {
+    // Les règles ne lisent une annonce que dans l'école du lecteur : la
+    // requête nomme donc l'école, faute de quoi elle serait refusée en bloc.
+    final user = await _db.collection('users').doc(teacherUid).get();
+    final establishmentId =
+        (user.data()?['establishmentId'] as String?)?.trim() ?? '';
+    if (establishmentId.isEmpty) return const [];
     final snapshot = await _db
         .collection('announcements')
+        .where('establishmentId', isEqualTo: establishmentId)
         .where('createdBy', isEqualTo: teacherUid)
         .limit(5)
         .get();

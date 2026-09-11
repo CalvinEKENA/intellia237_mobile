@@ -33,7 +33,6 @@ abstract final class CampusScopes {
         return {
           overviewRead,
           studentsRead,
-          studentsManage,
           staffRead,
           staffManage,
           classesRead,

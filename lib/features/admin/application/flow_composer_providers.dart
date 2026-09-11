@@ -87,7 +87,7 @@ final contentActorProvider = Provider<ContentActor?>((ref) {
   return ContentActor(
     uid: uid,
     role: role,
-    establishmentId: null,
+    establishmentId: auth.establishmentId,
     unrestricted: auth.isSuperAdmin,
   );
 });
@@ -106,7 +106,8 @@ class FlowPublicationService {
     required FlowItem item,
     required EditorialStatus next,
     required ContentActor actor,
-    ContentScope scope = ContentScope.global,
+    // Par défaut, le périmètre est celui de la publication elle-même.
+    ContentScope? scope,
   }) async {
     final metadata = EditorialWorkflowMetadata(
       status: EditorialStatus.fromString(item.status),
@@ -116,7 +117,7 @@ class FlowPublicationService {
 
     final allowed = ContentPermissions.canTransition(
       actor: actor,
-      scope: scope,
+      scope: scope ?? item.scope,
       metadata: metadata,
       next: next,
       authorUid: item.createdBy,
@@ -142,6 +143,23 @@ class FlowPublicationService {
 final flowPublicationServiceProvider = Provider<FlowPublicationService>(
   (ref) => FlowPublicationService(ref.watch(adminFlowRepositoryProvider)),
 );
+
+/// Où naît ce que l'acteur courant compose.
+///
+/// L'administration générale écrit le programme national ; le personnel
+/// d'une école écrit pour son école, seul périmètre que les règles lui
+/// ouvrent.
+final contentAuthoringScopeProvider = Provider<ContentScope>((ref) {
+  final ContentActor? actor = ref.watch(contentActorProvider);
+  final establishmentId = actor?.establishmentId?.trim() ?? '';
+  if (actor == null || actor.unrestricted || establishmentId.isEmpty) {
+    return ContentScope.global;
+  }
+  return ContentScope(
+    type: ContentScopeType.establishment,
+    establishmentId: establishmentId,
+  );
+});
 
 /// Rôles autorisés à composer une publication du fil.
 bool canComposeFlow(AppRole? role) =>

@@ -13,6 +13,7 @@ import 'widgets/auth_choices.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
+import 'widgets/school_head_access.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -51,6 +52,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               ),
             ),
           ),
+          const SchoolHeadShield(),
+          const SizedBox(width: 4),
           SegmentedButton<String>(
             key: const ValueKey('pass-language-selector'),
             showSelectedIcon: false,

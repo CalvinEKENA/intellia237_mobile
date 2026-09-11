@@ -2036,5 +2036,41 @@
       }
     }
   },
-  "authorSignature": "App designed by Calvin EKENA · +237 699 98 90 99"
+  "authorSignature": "App designed by Calvin EKENA · +237 699 98 90 99",
+  "schoolHeadShieldTooltip": "School leadership space",
+  "schoolHeadSheetEyebrow": "LEADERSHIP SPACE",
+  "schoolHeadSheetTitle": "Your whole\nschool.",
+  "schoolHeadSheetBody": "Sign in to run your entire school: staff, classes, content and follow-up. Student accounts remain theirs: you cannot add or remove a student.",
+  "schoolHeadContinueEmail": "Continue with email",
+  "schoolHeadContinuePhone": "Continue with phone",
+  "schoolHeadPhoneNote": "Phone sign-in works once your number is linked to your account, from your settings.",
+  "schoolHeadRequestAccess": "Request access for my school",
+  "schoolDirectoryTitle": "School directory",
+  "schoolDirectoryEmpty": "Nobody in this group yet.",
+  "schoolDirectoryStudentsNote": "Students join the school through their own registration: leadership views them, without adding or removing them.",
+  "schoolDirectoryLoadMore": "Show more",
+  "schoolDirectoryPending": "Awaiting approval",
+  "schoolClassesTitle": "School classes",
+  "schoolClassesEmpty": "No class has been opened for your school yet.",
+  "schoolClassCounts": "Students: {students} · Teachers: {teachers}",
+  "@schoolClassCounts": {
+    "placeholders": {
+      "students": {
+        "type": "int"
+      },
+      "teachers": {
+        "type": "int"
+      }
+    }
+  },
+  "renameClassLabel": "Rename the class",
+  "classNameLabel": "Class name",
+  "reviewNoSchool": "No school attached",
+  "reviewAttachSchoolTitle": "Attach to a school",
+  "reviewAttachSchoolBody": "This account does not belong to a school yet. Choose theirs to approve it.",
+  "reviewCreateSchool": "Open a new school",
+  "reviewCreateSchoolAction": "Open and attach",
+  "accountReviewFailed": "The decision could not be saved. Try again.",
+  "adminPhoneLinkTitle": "Also sign in by phone",
+  "adminPhoneLinkBody": "Link your number to receive a code at every sign-in."
 }
