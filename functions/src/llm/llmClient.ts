@@ -5,7 +5,17 @@ import { getEnv, type AppEnv } from "../config/env";
 import { AppError } from "../utils/errors";
 import { getVertexAccessToken } from "./vertexAuth";
 
-export type AiOperation = "askTutor" | "generateQuiz" | "generateSummary";
+export type AiOperation =
+  | "askTutor"
+  | "generateQuiz"
+  | "generateSummary"
+  | "importCoursePages";
+
+/** A page image or PDF sent inline with the prompt, base64-encoded. */
+export interface InlineAttachment {
+  mimeType: string;
+  data: string;
+}
 type ThinkingLevel = AppEnv["GEMINI_TUTOR_THINKING_LEVEL"];
 type FailureKind =
   | "authentication"
@@ -95,6 +105,7 @@ function buildGeminiPayload(params: {
   prompt: string;
   thinkingLevel: ThinkingLevel;
   jsonOutput: boolean;
+  attachments?: InlineAttachment[];
 }) {
   const generationConfig: Record<string, unknown> = {
     thinkingConfig: {
@@ -113,7 +124,12 @@ function buildGeminiPayload(params: {
     contents: [
       {
         role: "user",
-        parts: [{ text: params.prompt }],
+        parts: [
+          ...(params.attachments ?? []).map((attachment) => ({
+            inlineData: { mimeType: attachment.mimeType, data: attachment.data },
+          })),
+          { text: params.prompt },
+        ],
       },
     ],
     generationConfig,
@@ -180,6 +196,8 @@ async function requestGemini<T>(params: {
   thinkingLevel: ThinkingLevel;
   jsonOutput: boolean;
   parse: (content: string) => T;
+  attachments?: InlineAttachment[];
+  timeoutMs?: number;
 }): Promise<T> {
   const env = getEnv();
   const projectId = env.VERTEX_AI_PROJECT_ID?.trim() ?? "";
@@ -207,6 +225,7 @@ async function requestGemini<T>(params: {
         prompt: params.prompt,
         thinkingLevel: params.thinkingLevel,
         jsonOutput: params.jsonOutput,
+        attachments: params.attachments,
       }),
       {
         headers: {
@@ -215,7 +234,7 @@ async function requestGemini<T>(params: {
           "Accept": "application/json",
           "User-Agent": "Intellia237Functions/1.0",
         },
-        timeout: env.LLM_SERVICE_TIMEOUT_MS,
+        timeout: params.timeoutMs ?? env.LLM_SERVICE_TIMEOUT_MS,
       },
     );
     status = response.status;
@@ -264,11 +283,13 @@ async function requestGemini<T>(params: {
 }
 
 export async function generateStructuredContent<T>(params: {
-  operation: Extract<AiOperation, "generateQuiz" | "generateSummary">;
+  operation: Extract<AiOperation, "generateQuiz" | "generateSummary" | "importCoursePages">;
   correlationId: string;
   system: string;
   prompt: string;
   schema: ResponseSchema<T>;
+  attachments?: InlineAttachment[];
+  timeoutMs?: number;
 }): Promise<T> {
   const env = getEnv();
   return requestGemini({
@@ -277,6 +298,8 @@ export async function generateStructuredContent<T>(params: {
     system: params.system,
     prompt: params.prompt,
     thinkingLevel: env.GEMINI_STRUCTURED_THINKING_LEVEL,
+    attachments: params.attachments,
+    timeoutMs: params.timeoutMs,
     jsonOutput: true,
     parse: (content) => {
       let decoded: unknown;

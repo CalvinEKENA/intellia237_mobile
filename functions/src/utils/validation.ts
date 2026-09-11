@@ -199,11 +199,12 @@ export type StaffAccountReviewCallableInput = z.infer<
   typeof staffAccountReviewCallableInputSchema
 >;
 
-// The general administration attaches an already approved staff account to
-// its school. Only identifiers travel: never a role, a permission or a claim.
-export const staffEstablishmentAssignmentInputSchema = z
+// The general administration attaches an account to its school, or moves it
+// to another one. Identifiers and a reason travel, never a role, a permission
+// or a claim.
+export const accountEstablishmentChangeInputSchema = z
   .object({
-    staffId: z
+    accountId: z
       .string()
       .trim()
       .min(1)
@@ -215,9 +216,35 @@ export const staffEstablishmentAssignmentInputSchema = z
       .min(1)
       .max(128)
       .regex(/^[A-Za-z0-9_-]+$/),
+    reason: z.string().trim().min(5).max(280).optional(),
   })
   .strict();
 
-export type StaffEstablishmentAssignmentInput = z.infer<
-  typeof staffEstablishmentAssignmentInputSchema
+export type AccountEstablishmentChangeInput = z.infer<
+  typeof accountEstablishmentChangeInputSchema
 >;
+
+// Course pages photographed or scanned by staff, already uploaded under the
+// educational assets tree. Only their storage paths travel to the function.
+export const coursePageImportInputSchema = z
+  .object({
+    classLevel: z.string().trim().min(1).max(32),
+    subjectLabel: z.string().trim().min(1).max(80),
+    chapterTitle: z.string().trim().max(160).optional(),
+    language: z.enum(["fr", "en"]).default("fr"),
+    storagePaths: z
+      .array(
+        z
+          .string()
+          .trim()
+          .max(512)
+          .regex(/^educational_assets\/[A-Za-z0-9_-]+(\/[A-Za-z0-9._-]+)+$/)
+          .refine((path) => !path.includes(".."), "Path traversal is forbidden."),
+      )
+      .min(1)
+      .max(12),
+    rightsConfirmed: z.literal(true),
+  })
+  .strict();
+
+export type CoursePageImportInput = z.infer<typeof coursePageImportInputSchema>;

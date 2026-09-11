@@ -36,7 +36,19 @@ class QuizHubScreen extends ConsumerWidget {
               error: error,
               onRetry: () => ref.invalidate(quizHubProvider),
             ),
-      data: (quizzes) => _QuizHubBody(quizzes: quizzes, offline: offline),
+      // Un quiz publié depuis le Studio arrive d'un simple geste, sans
+      // relancer l'application.
+      data: (quizzes) => RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(quizHubProvider);
+          try {
+            await ref.read(quizHubProvider.future);
+          } catch (_) {
+            // L'état d'erreur du hub prend le relais.
+          }
+        },
+        child: _QuizHubBody(quizzes: quizzes, offline: offline),
+      ),
     );
 
     if (embedded) {

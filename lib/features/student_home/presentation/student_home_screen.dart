@@ -20,6 +20,8 @@ import '../../../core/widgets/tab_presentation.dart';
 import '../../ai_companion/presentation/ai_companion_screen.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
+import '../../flow/application/flow_controller.dart';
+import '../../quiz/application/quiz_providers.dart';
 import '../../flow/presentation/widgets/flow_entry_card.dart';
 import '../../greetings/application/greeting_provider.dart';
 import '../../greetings/domain/local_greeting_engine.dart';
@@ -67,6 +69,36 @@ class StudentHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
+  late final AppLifecycleListener _lifecycle;
+  DateTime? _hiddenAt;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ce que le Studio publie doit atteindre l'élève sans qu'il ferme
+    // l'application : au retour après quelques minutes, le fil et les quiz se
+    // relisent.
+    _lifecycle = AppLifecycleListener(
+      onHide: () => _hiddenAt = DateTime.now(),
+      onShow: () {
+        final hiddenAt = _hiddenAt;
+        _hiddenAt = null;
+        if (hiddenAt == null ||
+            DateTime.now().difference(hiddenAt) < const Duration(minutes: 5)) {
+          return;
+        }
+        ref.invalidate(flowCatalogProvider);
+        ref.invalidate(quizHubProvider);
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
   List<IntelliaBottomNavItem> _navItems(BuildContext context) => [
     IntelliaBottomNavItem(
       label: context.l10n.homeLabel,

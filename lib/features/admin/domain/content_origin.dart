@@ -9,6 +9,10 @@ enum ContentSourceType {
   /// Generated via Cloud Function AI pipeline.
   cloudFunctionAi,
 
+  /// Read by Gemini from photographed or scanned course pages, then reviewed
+  /// by its author in the Studio before any draft exists.
+  pageImport,
+
   /// Pedagogical draft submitted by an authenticated teacher.
   teacherDraft;
 

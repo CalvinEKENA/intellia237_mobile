@@ -1,7 +1,9 @@
-import 'flow_composer_providers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../domain/content_origin.dart';
+import '../../learn/domain/learn_lesson.dart';
+import 'flow_composer_providers.dart';
 import '../../../features/quiz/domain/quiz_question.dart';
 import '../data/admin_catalog_denormalization.dart';
 import '../domain/admin_content_models.dart';
@@ -376,6 +378,9 @@ class AdminContentActions {
     required String title,
     required String summary,
     required int estimatedMinutes,
+    List<LessonContentSection> contentSections = const [],
+    List<LessonMiniQuizQuestion> miniQuiz = const [],
+    ContentOrigin origin = ContentOrigin.manual,
   }) async {
     final existing = await _lessonsRef(classLevel, subjectId, chapterId).get();
     final order = existing.docs.length;
@@ -389,9 +394,22 @@ class AdminContentActions {
       'estimatedMinutes': estimatedMinutes,
       'order': order,
       'status': 'draft',
-      'aiGenerated': false,
-      'contentSections': [],
-      'miniQuiz': [],
+      'aiGenerated': origin.source != ContentSourceType.manual,
+      'contentSections': [
+        for (final section in contentSections)
+          {'title': section.title, 'body': section.body},
+      ],
+      'miniQuiz': [
+        for (final question in miniQuiz)
+          {
+            'id': question.id,
+            'prompt': question.prompt,
+            'options': question.options,
+            'correctIndex': question.correctIndex,
+            'explanation': question.explanation,
+          },
+      ],
+      'origin': origin.toFirestore(),
       // Une leçon naît dans le périmètre de son auteur : les règles refusent
       // le programme national à qui ne l'administre pas.
       'scope': _ref.read(contentAuthoringScopeProvider).toFirestore(),

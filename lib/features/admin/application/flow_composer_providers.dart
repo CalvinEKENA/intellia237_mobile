@@ -5,6 +5,7 @@ import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
 import '../../flow/data/flow_feed_repository.dart';
 import '../../flow/domain/flow_item.dart';
+import '../../flow/domain/flow_item_mapper.dart';
 import '../domain/content_permissions.dart';
 import '../domain/content_scope.dart';
 import '../domain/editorial_workflow.dart';
@@ -126,6 +127,17 @@ class FlowPublicationService {
       throw StateError(
         'Transition ${item.status} → ${next.name} non autorisée pour '
         '${actor.role.name}.',
+      );
+    }
+
+    // Rendre visible une carte que le fil écarterait reviendrait à publier
+    // du vide : l'élève ne recevrait rien, et personne ne le saurait.
+    if ((next == EditorialStatus.published ||
+            next == EditorialStatus.scheduled) &&
+        FlowItemMapper.toCard(item) == null) {
+      throw StateError(
+        'Publication incomplète : l’élève ne la verrait pas. '
+        'Complète-la avant de la publier.',
       );
     }
 

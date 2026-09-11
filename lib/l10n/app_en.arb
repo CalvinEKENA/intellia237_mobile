@@ -2078,5 +2078,39 @@
   "unattachedStaffEmpty": "All approved staff belong to a school.",
   "attachStaffAction": "Attach",
   "attachStaffSheetBody": "Choose this account’s school. Once attached, it can no longer change school from the app.",
-  "staffAttached": "Account attached. The person finds their school the next time they open the app."
+  "staffAttached": "Account attached. The person finds their school the next time they open the app.",
+  "schoolNameRequired": "Give the school’s full name.",
+  "schoolCityRequired": "Enter the school’s city.",
+  "schoolCityHelper": "Free entry, for example Douala or Bafoussam.",
+  "schoolTransferTitle": "Change an account’s school",
+  "schoolTransferBody": "Registration mistake, move, transfer: find the student, parent or staff member by email or phone.",
+  "schoolTransferQueryLabel": "Email or phone",
+  "schoolTransferQueryHint": "699 98 90 99 or name@example.cm",
+  "schoolTransferSearch": "Search",
+  "schoolTransferNoResult": "No account matches. Check the email or number.",
+  "schoolTransferCurrentSchool": "School: {school}",
+  "@schoolTransferCurrentSchool": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolTransferDeclared": "Declared at registration: {school}",
+  "@schoolTransferDeclared": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolTransferMove": "Change school",
+  "schoolTransferAttachBody": "Choose this account’s school.",
+  "schoolTransferMoveBody": "Choose the new school. This account will leave the classes of its former school.",
+  "schoolTransferReasonTitle": "Reason for the change",
+  "schoolTransferReasonHint": "For example: parent’s mistake at registration",
+  "schoolTransferConfirm": "Confirm the change",
+  "schoolTransferDone": "School updated. The person finds it the next time they open the app.",
+  "schoolTransferSameSchool": "This account already belongs to this school.",
+  "schoolTransferChildren": "Linked children"
 }

@@ -27,7 +27,9 @@ export class FirestoreQuizContentStore implements QuizContentStore {
       .collection("quizzes")
       .where("status", "==", "published")
       .where("classLevels", "array-contains-any", classLevelReadAliases(input.classLevel))
-      .limit(40)
+      // Without an order, a cap of 40 let older seeded quizzes crowd a new one
+      // out of the list. The listing carries no questions: 100 stays light.
+      .limit(100)
       .get();
 
     return snapshot.docs

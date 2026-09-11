@@ -2078,5 +2078,39 @@
   "unattachedStaffEmpty": "Tout le personnel approuvé a son école.",
   "attachStaffAction": "Rattacher",
   "attachStaffSheetBody": "Choisissez l’école de ce compte. Une fois rattaché, il ne changera plus d’école depuis l’application.",
-  "staffAttached": "Compte rattaché. La personne retrouve son école à sa prochaine ouverture de l’application."
+  "staffAttached": "Compte rattaché. La personne retrouve son école à sa prochaine ouverture de l’application.",
+  "schoolNameRequired": "Donnez le nom complet de l’école.",
+  "schoolCityRequired": "Indiquez la ville de l’école.",
+  "schoolCityHelper": "Saisie libre, par exemple Douala ou Bafoussam.",
+  "schoolTransferTitle": "Changer un compte d’école",
+  "schoolTransferBody": "Erreur à l’inscription, déménagement, mutation : retrouvez l’élève, le parent ou le membre du personnel par son e-mail ou son téléphone.",
+  "schoolTransferQueryLabel": "E-mail ou téléphone",
+  "schoolTransferQueryHint": "699 98 90 99 ou nom@exemple.cm",
+  "schoolTransferSearch": "Rechercher",
+  "schoolTransferNoResult": "Aucun compte ne correspond. Vérifiez l’e-mail ou le numéro.",
+  "schoolTransferCurrentSchool": "École : {school}",
+  "@schoolTransferCurrentSchool": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolTransferDeclared": "Déclarée à l’inscription : {school}",
+  "@schoolTransferDeclared": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "schoolTransferMove": "Changer d’école",
+  "schoolTransferAttachBody": "Choisissez l’école de ce compte.",
+  "schoolTransferMoveBody": "Choisissez la nouvelle école. Ce compte quittera les classes de son ancienne école.",
+  "schoolTransferReasonTitle": "Motif du changement",
+  "schoolTransferReasonHint": "Par exemple : erreur du parent à l’inscription",
+  "schoolTransferConfirm": "Confirmer le changement",
+  "schoolTransferDone": "École mise à jour. La personne la retrouve à sa prochaine ouverture de l’application.",
+  "schoolTransferSameSchool": "Ce compte appartient déjà à cette école.",
+  "schoolTransferChildren": "Enfants liés"
 }

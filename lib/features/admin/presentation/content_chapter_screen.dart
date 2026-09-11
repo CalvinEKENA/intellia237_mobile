@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'course_page_import_screen.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
@@ -256,6 +257,21 @@ class ContentLessonsScreen extends ConsumerWidget {
           chapter.title,
           style: GoogleFonts.manrope(fontWeight: FontWeight.w800),
         ),
+        actions: [
+          IconButton(
+            key: const ValueKey('lessons-import-pages'),
+            tooltip: 'Importer des pages de cours',
+            icon: const Icon(Icons.document_scanner_outlined),
+            onPressed: () async {
+              final created = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => CoursePageImportScreen(chapter: chapter),
+                ),
+              );
+              if (created ?? false) ref.invalidate(adminLessonsProvider(args));
+            },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddLessonDialog(context, ref, actions),

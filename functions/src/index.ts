@@ -28,7 +28,8 @@ import {
 import { AskTutorUseCase } from "./services/askTutorUseCase";
 import { requestAccountDeletionHandler } from "./services/accountDeletionCallable";
 import { reviewStaffAccountHandler } from "./services/staffAccountReviewCallable";
-import { assignStaffEstablishmentHandler } from "./services/staffEstablishmentAssignmentCallable";
+import { changeAccountEstablishmentHandler } from "./services/accountEstablishmentChangeCallable";
+import { importCoursePagesHandler } from "./services/coursePageImport";
 import { submitFlowActivityHandler } from "./services/flowPointsCallable";
 import {
   getMobileMoneyOverviewHandler,
@@ -263,13 +264,24 @@ export const reviewStaffAccount = onCall(
   reviewStaffAccountHandler,
 );
 
-export const assignStaffEstablishment = onCall(
+export const changeAccountEstablishment = onCall(
   {
     region: env.FUNCTIONS_REGION,
-    timeoutSeconds: 20,
+    timeoutSeconds: 30,
     memory: "256MiB",
   },
-  assignStaffEstablishmentHandler,
+  changeAccountEstablishmentHandler,
+);
+
+// Reading photographed pages takes one multimodal request of up to two
+// minutes: the function outlives it, and holds the pages in memory once.
+export const importCoursePages = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 180,
+    memory: "1GiB",
+  },
+  importCoursePagesHandler,
 );
 
 export const submitFlowActivity = onCall(

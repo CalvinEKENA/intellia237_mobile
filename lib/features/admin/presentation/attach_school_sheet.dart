@@ -9,31 +9,51 @@ import '../application/admin_providers.dart';
 ///
 /// Renvoie l'identifiant de l'école retenue, ou null si la feuille se referme
 /// sans choix. Réservé à l'administration générale, seule à voir toutes les
-/// écoles et à pouvoir en ouvrir une.
-Future<String?> showAttachSchoolSheet(BuildContext context, {String? body}) {
+/// écoles et à pouvoir en ouvrir une. [initialName] et [initialCity]
+/// préremplissent l'ouverture d'une école — celle qu'une famille a déclarée à
+/// l'inscription, par exemple.
+Future<String?> showAttachSchoolSheet(
+  BuildContext context, {
+  String? body,
+  String? initialName,
+  String? initialCity,
+}) {
   return showModalBottomSheet<String>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (_) => AttachSchoolSheet(body: body),
+    builder: (_) => AttachSchoolSheet(
+      body: body,
+      initialName: initialName,
+      initialCity: initialCity,
+    ),
   );
 }
 
 class AttachSchoolSheet extends ConsumerStatefulWidget {
-  const AttachSchoolSheet({super.key, this.body});
+  const AttachSchoolSheet({
+    super.key,
+    this.body,
+    this.initialName,
+    this.initialCity,
+  });
 
   /// Ce que la feuille explique ; par défaut, le cas d'une approbation.
   final String? body;
+  final String? initialName;
+  final String? initialCity;
 
   @override
   ConsumerState<AttachSchoolSheet> createState() => _AttachSchoolSheetState();
 }
 
 class _AttachSchoolSheetState extends ConsumerState<AttachSchoolSheet> {
-  final _name = TextEditingController();
-  final _city = TextEditingController();
+  late final _name = TextEditingController(text: widget.initialName ?? '');
+  late final _city = TextEditingController(text: widget.initialCity ?? '');
   bool _creating = false;
   bool _saving = false;
+  String? _nameError;
+  String? _cityError;
 
   @override
   void dispose() {
@@ -43,15 +63,25 @@ class _AttachSchoolSheetState extends ConsumerState<AttachSchoolSheet> {
   }
 
   Future<void> _create() async {
-    if (_name.text.trim().length < 3) return;
+    final l10n = context.l10n;
+    final name = _name.text.trim();
+    final city = _city.text.trim();
+    // Une école s'ouvre avec sa ville : deux lycées portent souvent le même
+    // nom d'une région à l'autre.
+    setState(() {
+      _nameError = name.length < 3 ? l10n.schoolNameRequired : null;
+      _cityError = city.length < 2 ? l10n.schoolCityRequired : null;
+    });
+    if (_nameError != null || _cityError != null) return;
+
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final failure = context.l10n.accountReviewFailed;
+    final failure = l10n.accountReviewFailed;
     setState(() => _saving = true);
     try {
       final id = await ref
           .read(adminActionsProvider)
-          .createEstablishment(name: _name.text, city: _city.text);
+          .createEstablishment(name: name, city: city);
       navigator.pop(id);
     } catch (_) {
       messenger.showSnackBar(SnackBar(content: Text(failure)));
@@ -130,14 +160,21 @@ class _AttachSchoolSheetState extends ConsumerState<AttachSchoolSheet> {
                 key: const ValueKey('attach-school-name'),
                 controller: _name,
                 textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(labelText: l10n.schoolNameLabel),
+                decoration: InputDecoration(
+                  labelText: l10n.schoolNameLabel,
+                  errorText: _nameError,
+                ),
               ),
               const SizedBox(height: IntelliaSpacing.sm),
               TextField(
                 key: const ValueKey('attach-school-city'),
                 controller: _city,
                 textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(labelText: l10n.schoolCityLabel),
+                decoration: InputDecoration(
+                  labelText: l10n.schoolCityLabel,
+                  helperText: l10n.schoolCityHelper,
+                  errorText: _cityError,
+                ),
               ),
               const SizedBox(height: IntelliaSpacing.md),
               FilledButton(

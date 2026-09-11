@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../domain/account_school_record.dart';
 import '../domain/admin_models.dart';
 import 'admin_repository.dart';
 
@@ -469,9 +470,15 @@ class FirestoreAdminRepository implements AdminRepository {
     if (trimmed.length < 3 || trimmed.length > 120) {
       throw ArgumentError('Le nom d’une école compte de 3 à 120 caractères.');
     }
+    final trimmedCity = city.trim();
+    if (trimmedCity.length < 2 || trimmedCity.length > 80) {
+      throw ArgumentError('La ville d’une école compte de 2 à 80 caractères.');
+    }
     final created = await _db.collection('establishments').add({
       'name': trimmed,
-      'city': city.trim(),
+      'city': trimmedCity,
+      // Forme de recherche : deux saisies de « Bafoussam » se rejoignent.
+      'cityNormalized': _normalizedPlace(trimmedCity),
       'status': 'active',
       'createdBy': adminUid,
       'createdAt': FieldValue.serverTimestamp(),
@@ -511,23 +518,157 @@ class FirestoreAdminRepository implements AdminRepository {
   }
 
   @override
-  Future<void> attachStaffToEstablishment({
+  Future<List<AccountSchoolRecord>> searchAccounts({
     required String adminUid,
-    required String staffId,
-    required String establishmentId,
+    required String query,
   }) async {
-    // Le serveur vérifie tout : administration générale, compte approuvé sans
-    // école, école existante — et ne déplace jamais un compte déjà rattaché.
-    await _functions.httpsCallable('assignStaffEstablishment').call<void>({
-      'staffId': staffId,
+    final context = await _fetchAdminContext(adminUid);
+    final trimmed = query.trim();
+    if (!context.isSuperAdmin || trimmed.isEmpty) return const [];
+
+    // Firestore ne cherche pas dans un texte : e-mail et téléphone exacts,
+    // les deux clés qu'une famille ou un établissement sait donner.
+    final users = _db.collection('users');
+    final documents = <String, QueryDocumentSnapshot<Map<String, dynamic>>>{};
+    if (trimmed.contains('@')) {
+      for (final email in {trimmed, trimmed.toLowerCase()}) {
+        final snapshot = await users
+            .where('email', isEqualTo: email)
+            .limit(5)
+            .get();
+        for (final doc in snapshot.docs) {
+          documents[doc.id] = doc;
+        }
+      }
+    } else {
+      final phone = normalizeCameroonPhone(trimmed);
+      if (phone == null) return const [];
+      final snapshot = await users
+          .where('phoneNumber', isEqualTo: phone)
+          .limit(5)
+          .get();
+      for (final doc in snapshot.docs) {
+        documents[doc.id] = doc;
+      }
+    }
+
+    final records = <AccountSchoolRecord>[];
+    for (final doc in documents.values) {
+      final role = (doc.data()['role'] as String?)?.trim();
+      if (!const {'student', 'parent', 'teacher', 'admin'}.contains(role)) {
+        continue;
+      }
+      records.add(
+        await _accountRecord(
+          doc.id,
+          doc.data(),
+          children: role == 'parent'
+              ? await _linkedChildren(doc.id)
+              : const <AccountSchoolRecord>[],
+        ),
+      );
+    }
+    return records;
+  }
+
+  @override
+  Future<void> changeAccountEstablishment({
+    required String adminUid,
+    required String accountId,
+    required String establishmentId,
+    String? reason,
+  }) async {
+    // Le serveur vérifie tout : administration générale, rôle du compte, école
+    // existante, motif exigé pour un déplacement ; il retire aussi le compte
+    // des classes de son ancienne école.
+    await _functions.httpsCallable('changeAccountEstablishment').call<void>({
+      'accountId': accountId,
       'establishmentId': establishmentId,
+      if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim(),
     });
+  }
+
+  Future<AccountSchoolRecord> _accountRecord(
+    String id,
+    Map<String, dynamic> data, {
+    List<AccountSchoolRecord> children = const [],
+  }) async {
+    final establishmentId = _nonEmpty(data['establishmentId']);
+    final names = establishmentId == null
+        ? const <String, String>{}
+        : await _establishmentNames({establishmentId});
+    final declared = await _declaredSchool(id, data);
+    return AccountSchoolRecord(
+      id: id,
+      fullName: _fullName(data),
+      role: _readRole(data['role']),
+      email: (data['email'] as String?)?.trim() ?? '',
+      phone: (data['phoneNumber'] as String?)?.trim() ?? '',
+      establishmentId: establishmentId,
+      establishmentName: names[establishmentId] ?? '',
+      declaredSchoolName: (declared['name'] as String?)?.trim() ?? '',
+      declaredSchoolCity: (declared['city'] as String?)?.trim() ?? '',
+      children: children,
+    );
+  }
+
+  /// L'école saisie à l'inscription, rangée dans les préférences du profil
+  /// élève.
+  Future<Map<String, dynamic>> _declaredSchool(
+    String id,
+    Map<String, dynamic> userData,
+  ) async {
+    Map<String, dynamic>? candidateIn(Map<String, dynamic>? data) {
+      final direct = data?['establishmentCandidate'];
+      if (direct is Map) return Map<String, dynamic>.from(direct);
+      final preferences = data?['preferences'];
+      final nested = preferences is Map
+          ? preferences['establishmentCandidate']
+          : null;
+      return nested is Map ? Map<String, dynamic>.from(nested) : null;
+    }
+
+    final fromUser = candidateIn(userData);
+    if (fromUser != null || userData['role'] != 'student') {
+      return fromUser ?? const <String, dynamic>{};
+    }
+    final profile = await _db.collection('student_profiles').doc(id).get();
+    return candidateIn(profile.data()) ?? const <String, dynamic>{};
+  }
+
+  Future<List<AccountSchoolRecord>> _linkedChildren(String parentId) async {
+    final links = await _db
+        .collection('children_links')
+        .where('parentId', isEqualTo: parentId)
+        .limit(10)
+        .get();
+    final children = <AccountSchoolRecord>[];
+    for (final link in links.docs) {
+      if (link.data()['status'] == 'rejected') continue;
+      final studentId = _nonEmpty(link.data()['studentId']);
+      if (studentId == null) continue;
+      final student = await _db.collection('users').doc(studentId).get();
+      final data = student.data();
+      if (data == null) continue;
+      children.add(await _accountRecord(student.id, data));
+    }
+    return children;
   }
 
   /// Les demandes en attente passent par l'approbation, qui rattache déjà.
   bool _isActiveOrLegacy(Object? status) {
     final value = status is String ? status.trim() : '';
     return value.isEmpty || value == 'active';
+  }
+
+  String _normalizedPlace(String value) {
+    const accents = {
+      'à': 'a', 'â': 'a', 'ä': 'a', 'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
+      'î': 'i', 'ï': 'i', 'ô': 'o', 'ö': 'o', 'ù': 'u', 'û': 'u', 'ü': 'u',
+      'ç': 'c',
+    };
+    final lower = value.trim().toLowerCase();
+    return [for (final char in lower.split('')) accents[char] ?? char].join();
   }
 
   Future<Map<String, String>> _establishmentNames(Set<String> ids) async {

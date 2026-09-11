@@ -4037,4 +4037,75 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get staffAttached =>
       'Compte rattaché. La personne retrouve son école à sa prochaine ouverture de l’application.';
+
+  @override
+  String get schoolNameRequired => 'Donnez le nom complet de l’école.';
+
+  @override
+  String get schoolCityRequired => 'Indiquez la ville de l’école.';
+
+  @override
+  String get schoolCityHelper =>
+      'Saisie libre, par exemple Douala ou Bafoussam.';
+
+  @override
+  String get schoolTransferTitle => 'Changer un compte d’école';
+
+  @override
+  String get schoolTransferBody =>
+      'Erreur à l’inscription, déménagement, mutation : retrouvez l’élève, le parent ou le membre du personnel par son e-mail ou son téléphone.';
+
+  @override
+  String get schoolTransferQueryLabel => 'E-mail ou téléphone';
+
+  @override
+  String get schoolTransferQueryHint => '699 98 90 99 ou nom@exemple.cm';
+
+  @override
+  String get schoolTransferSearch => 'Rechercher';
+
+  @override
+  String get schoolTransferNoResult =>
+      'Aucun compte ne correspond. Vérifiez l’e-mail ou le numéro.';
+
+  @override
+  String schoolTransferCurrentSchool(String school) {
+    return 'École : $school';
+  }
+
+  @override
+  String schoolTransferDeclared(String school) {
+    return 'Déclarée à l’inscription : $school';
+  }
+
+  @override
+  String get schoolTransferMove => 'Changer d’école';
+
+  @override
+  String get schoolTransferAttachBody => 'Choisissez l’école de ce compte.';
+
+  @override
+  String get schoolTransferMoveBody =>
+      'Choisissez la nouvelle école. Ce compte quittera les classes de son ancienne école.';
+
+  @override
+  String get schoolTransferReasonTitle => 'Motif du changement';
+
+  @override
+  String get schoolTransferReasonHint =>
+      'Par exemple : erreur du parent à l’inscription';
+
+  @override
+  String get schoolTransferConfirm => 'Confirmer le changement';
+
+  @override
+  String get schoolTransferDone =>
+      'École mise à jour. La personne la retrouve à sa prochaine ouverture de l’application.';
+
+  @override
+  String get schoolTransferSameSchool =>
+      'Ce compte appartient déjà à cette école.';
+
+  @override
+  String get schoolTransferChildren => 'Enfants liés';
 }

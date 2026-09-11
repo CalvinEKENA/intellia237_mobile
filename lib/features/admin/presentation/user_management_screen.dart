@@ -12,6 +12,7 @@ import '../../../core/widgets/intellia_async_states.dart';
 import 'admin_presentation_localization.dart';
 import 'attach_school_sheet.dart';
 import 'school_directory_section.dart';
+import 'school_transfer_section.dart';
 import 'unattached_staff_section.dart';
 
 /// Le personnel, les demandes d'accès et l'annuaire de l'école.
@@ -88,6 +89,8 @@ class UserManagementScreen extends ConsumerWidget {
         if (auth.isSuperAdmin) ...[
           const SizedBox(height: IntelliaSpacing.xl),
           const UnattachedStaffSection(),
+          const SizedBox(height: IntelliaSpacing.xl),
+          const SchoolTransferSection(),
         ],
         if (hasSchool) ...[
           const SizedBox(height: IntelliaSpacing.xl),

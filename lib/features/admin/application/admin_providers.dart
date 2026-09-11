@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../domain/account_school_record.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_user_id.dart';
 import '../data/admin_repository.dart';
@@ -101,15 +102,31 @@ class AdminActions {
   Future<void> attachStaffToEstablishment({
     required String staffId,
     required String establishmentId,
+  }) => changeAccountEstablishment(
+    accountId: staffId,
+    establishmentId: establishmentId,
+  );
+
+  Future<List<AccountSchoolRecord>> searchAccounts(String query) => _ref
+      .read(adminRepositoryProvider)
+      .searchAccounts(adminUid: _ref.read(_adminUidProvider), query: query);
+
+  Future<void> changeAccountEstablishment({
+    required String accountId,
+    required String establishmentId,
+    String? reason,
   }) async {
     await _ref
         .read(adminRepositoryProvider)
-        .attachStaffToEstablishment(
+        .changeAccountEstablishment(
           adminUid: _ref.read(_adminUidProvider),
-          staffId: staffId,
+          accountId: accountId,
           establishmentId: establishmentId,
+          reason: reason,
         );
     _ref.invalidate(adminUnattachedStaffProvider);
+    _ref.invalidate(schoolDirectoryProvider);
+    _ref.invalidate(adminPendingReviewsProvider);
   }
 
   Future<void> validateAccount({

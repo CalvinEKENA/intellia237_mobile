@@ -11,6 +11,7 @@ import 'package:intellia237/features/admin/presentation/flow_composer_screen.dar
 import 'package:intellia237/features/admin/presentation/flow_publications_tab.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/flow/domain/flow_item.dart';
+import 'package:intellia237/features/flow/domain/flow_item_mapper.dart';
 
 /// Le compositeur ne recopie jamais le média source, et rien n'atteint l'élève
 /// sans passer par le workflow éditorial.
@@ -106,7 +107,12 @@ void main() {
 
     testWidgets('le média est référencé, jamais recopié', (tester) async {
       final repository = _RecordingRepository();
-      await pumpComposer(tester, repository: repository, initial: draft('a'));
+      await pumpComposer(
+        tester,
+        repository: repository,
+        // Seuls les types à média portent une référence de stockage.
+        initial: draft('a').copyWith(type: FlowItemType.audio),
+      );
 
       await tester.enterText(
         find.byKey(const ValueKey('flow-composer-storage-path')),
@@ -123,6 +129,92 @@ void main() {
       );
       // La charge utile ne contient que du texte court.
       expect(saved.payload.values.whereType<List<int>>(), isEmpty);
+      // La carte apparue en cours de test anime son entrée : on laisse ses
+      // délais s'écouler avant la fin.
+      await tester.pump(const Duration(seconds: 2));
+    });
+
+    testWidgets('un mini-quiz porte ses options et sa bonne réponse', (
+      tester,
+    ) async {
+      final repository = _RecordingRepository();
+      await pumpComposer(
+        tester,
+        repository: repository,
+        initial: const FlowItem(
+          id: 'q',
+          type: FlowItemType.quiz,
+          title: 'Dérivées',
+          subjectId: 'maths',
+          classLevels: ['terminale'],
+        ),
+      );
+
+      // Sans options, l'élève ne verrait rien : le Studio le dit.
+      expect(
+        find.byKey(const ValueKey('flow-composer-incomplete')),
+        findsOneWidget,
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('flow-composer-question')),
+        'Dérivée de x² ?',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('flow-composer-option-0')),
+        'x',
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('flow-composer-option-1')),
+        '2x',
+      );
+      await tester.tap(find.byKey(const ValueKey('flow-composer-correct-1')));
+      await tester.pump();
+
+      expect(find.byKey(const ValueKey('flow-composer-incomplete')), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('flow-composer-save')));
+      await tester.pump();
+
+      final saved = repository.saved.single;
+      expect(saved.payload['options'], ['x', '2x']);
+      expect(saved.payload['correctIndex'], 1);
+      expect(FlowItemMapper.toCard(saved), isNotNull);
+      // La carte apparue en cours de test anime son entrée : on laisse ses
+      // délais s'écouler avant la fin.
+      await tester.pump(const Duration(seconds: 2));
+    });
+
+    testWidgets('un exercice demande sa question et sa réponse', (
+      tester,
+    ) async {
+      final repository = _RecordingRepository();
+      await pumpComposer(
+        tester,
+        repository: repository,
+        initial: const FlowItem(
+          id: 'e',
+          type: FlowItemType.question,
+          title: 'Exercice',
+          subjectId: 'maths',
+          classLevels: ['terminale'],
+          payload: {'question': 'Dériver 3x².'},
+        ),
+      );
+
+      expect(
+        find.byKey(const ValueKey('flow-composer-incomplete')),
+        findsOneWidget,
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('flow-composer-body')),
+        '6x',
+      );
+      await tester.pump();
+
+      expect(find.byKey(const ValueKey('flow-composer-incomplete')), findsNothing);
+      expect(find.byKey(const ValueKey('flow-preview-card')), findsOneWidget);
+      // La carte apparue en cours de test anime son entrée : on laisse ses
+      // délais s'écouler avant la fin.
+      await tester.pump(const Duration(seconds: 2));
     });
 
     testWidgets('l’aperçu montre le rendu élève réel', (tester) async {
@@ -204,6 +296,28 @@ void main() {
         ),
         throwsStateError,
       );
+    });
+
+    test('une carte que le fil écarterait ne se publie pas', () async {
+      final repository = _RecordingRepository();
+      final service = FlowPublicationService(repository);
+
+      await expectLater(
+        service.transition(
+          item: const FlowItem(
+            id: 'vide',
+            type: FlowItemType.quiz,
+            title: 'Sans options',
+            subjectId: 'maths',
+            classLevels: ['terminale'],
+            status: 'inReview',
+          ),
+          next: EditorialStatus.published,
+          actor: admin,
+        ),
+        throwsStateError,
+      );
+      expect(repository.saved, isEmpty);
     });
 
     test('un enseignant ne publie pas', () async {

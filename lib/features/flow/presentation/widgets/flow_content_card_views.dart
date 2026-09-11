@@ -170,12 +170,17 @@ class _FlowQuestionCardViewState extends State<FlowQuestionCardView> {
         children: [
           Icon(Icons.emoji_events_outlined, size: 16, color: accent),
           const SizedBox(width: 8),
-          Text(
-            context.l10n.discoverAnswer,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: accent,
+          // Sur un écran étroit, le libellé passe à la ligne plutôt que de
+          // déborder du bouton.
+          Flexible(
+            child: Text(
+              context.l10n.discoverAnswer,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: accent,
+              ),
             ),
           ),
         ],

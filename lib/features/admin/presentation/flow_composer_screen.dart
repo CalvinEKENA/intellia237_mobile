@@ -8,6 +8,40 @@ import '../../flow/domain/flow_subject.dart';
 import '../../flow/presentation/widgets/flow_card_view.dart';
 import '../application/flow_composer_providers.dart';
 
+/// Libellé d'un type de publication, tel que l'auteur le lit.
+String flowItemTypeLabel(FlowItemType type) => switch (type) {
+  FlowItemType.notion => 'Notion',
+  FlowItemType.question => 'Exercice (question et réponse)',
+  FlowItemType.quiz => 'Mini-quiz (QCM)',
+  FlowItemType.image => 'Image commentée',
+  FlowItemType.infographic => 'Infographie',
+  FlowItemType.audio => 'Capsule audio',
+  FlowItemType.shortVideo => 'Capsule vidéo',
+  FlowItemType.interactiveNative => 'Activité interactive',
+};
+
+/// Ce qui manque encore pour que l'élève voie la publication, ou null.
+///
+/// Registre de décisions : le fil écarte en silence une carte incomplète —
+/// mieux vaut un fil plus court qu'une carte fausse. Le Studio doit donc dire,
+/// lui, ce qui manque ; sans quoi l'auteur publie et l'élève ne reçoit rien.
+String? flowItemMissingParts(FlowItem item) {
+  if (FlowItemMapper.toCard(item) != null) return null;
+  if (FlowSubjects.byId(item.subjectId) == null) return 'Choisis une matière.';
+  return switch (item.type) {
+    FlowItemType.notion ||
+    FlowItemType.infographic => 'Il lui faut une idée clé ou des points clés.',
+    FlowItemType.question => 'Il lui faut une question et sa réponse.',
+    FlowItemType.quiz =>
+      'Il lui faut une question, au moins deux options et une bonne réponse.',
+    FlowItemType.image => 'Il lui faut un média référencé et une légende.',
+    FlowItemType.audio ||
+    FlowItemType.shortVideo => 'Il lui faut un média référencé.',
+    FlowItemType.interactiveNative =>
+      'Il lui faut une activité enregistrée et son résumé.',
+  };
+}
+
 /// Composition d'une publication du fil.
 ///
 /// Registre de décisions : le compositeur ne recopie jamais le média source.
@@ -15,8 +49,11 @@ import '../application/flow_composer_providers.dart';
 /// stockage ; la publication porte une accroche et une référence. C'est ce qui
 /// permettra de servir des milliers d'élèves sans dupliquer un octet.
 ///
-/// L'aperçu utilise le **rendu élève réel** — `FlowCardView` — dans un cadre
-/// 9:16. Un auteur qui valide ce qu'il voit valide ce que l'élève verra.
+/// Chaque type a ses propres champs, ceux que le rendu élève lit réellement :
+/// un mini-quiz porte ses options et sa bonne réponse, un exercice sa question
+/// et sa réponse. L'aperçu utilise le **rendu élève réel** — `FlowCardView` —
+/// dans un cadre 9:16. Un auteur qui valide ce qu'il voit valide ce que
+/// l'élève verra.
 class FlowComposerScreen extends ConsumerStatefulWidget {
   const FlowComposerScreen({required this.classLevel, this.initial, super.key});
 
@@ -28,11 +65,17 @@ class FlowComposerScreen extends ConsumerStatefulWidget {
 }
 
 class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
+  static const _maxOptions = 6;
+
   late final TextEditingController _title;
   late final TextEditingController _hook;
   late final TextEditingController _body;
+  late final TextEditingController _question;
+  late final TextEditingController _points;
+  late final TextEditingController _explanation;
   late final TextEditingController _lessonRef;
   late final TextEditingController _storagePath;
+  late final List<TextEditingController> _options;
 
   late FlowItemType _type;
   late String _subjectId;
@@ -40,6 +83,8 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
   late int _difficulty;
   late int _durationSeconds;
   late int _priority;
+  late int _optionCount;
+  late int _correctIndex;
   bool _saving = false;
   String? _error;
 
@@ -47,14 +92,39 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
   void initState() {
     super.initState();
     final initial = widget.initial;
+    final payload = initial?.payload ?? const <String, Object?>{};
+    String text(String key) => (payload[key] as String?) ?? '';
+    final initialOptions = ((payload['options'] as List?) ?? const [])
+        .whereType<String>()
+        .toList(growable: false);
+
+    _type = initial?.type ?? FlowItemType.notion;
     _title = TextEditingController(text: initial?.title ?? '');
     _hook = TextEditingController(text: initial?.hook ?? '');
     _body = TextEditingController(
-      text: (initial?.payload['insight'] as String?) ?? '',
+      text: switch (_type) {
+        FlowItemType.question => text('answer'),
+        FlowItemType.image => text('caption'),
+        _ => text('insight').isNotEmpty ? text('insight') : text('caption'),
+      },
     );
+    _question = TextEditingController(text: text('question'));
+    _points = TextEditingController(
+      text: ((payload['points'] as List?) ?? const [])
+          .whereType<String>()
+          .join('\n'),
+    );
+    _explanation = TextEditingController(text: text('explanation'));
+    _options = List.generate(
+      _maxOptions,
+      (index) => TextEditingController(
+        text: index < initialOptions.length ? initialOptions[index] : '',
+      ),
+    );
+    _optionCount = initialOptions.length.clamp(2, _maxOptions);
+    _correctIndex = (payload['correctIndex'] as num?)?.toInt() ?? 0;
     _lessonRef = TextEditingController(text: initial?.ref.lessonId ?? '');
     _storagePath = TextEditingController(text: initial?.ref.storagePath ?? '');
-    _type = initial?.type ?? FlowItemType.notion;
     _subjectId = initial?.subjectId ?? FlowSubjects.all.first.id;
     _intent = initial?.pedagogicalIntent ?? FlowPedagogicalIntent.discover;
     _difficulty = initial?.difficulty ?? 3;
@@ -64,12 +134,79 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
 
   @override
   void dispose() {
-    _title.dispose();
-    _hook.dispose();
-    _body.dispose();
-    _lessonRef.dispose();
-    _storagePath.dispose();
+    for (final controller in [
+      _title,
+      _hook,
+      _body,
+      _question,
+      _points,
+      _explanation,
+      _lessonRef,
+      _storagePath,
+      ..._options,
+    ]) {
+      controller.dispose();
+    }
     super.dispose();
+  }
+
+  bool get _usesMedia => switch (_type) {
+    FlowItemType.image ||
+    FlowItemType.infographic ||
+    FlowItemType.audio ||
+    FlowItemType.shortVideo => true,
+    _ => false,
+  };
+
+  /// Ce que le rendu élève lit, et rien d'autre, pour le type choisi.
+  Map<String, Object?> _payload() {
+    String clean(TextEditingController controller) => controller.text.trim();
+    switch (_type) {
+      case FlowItemType.notion:
+      case FlowItemType.infographic:
+        final points = _points.text
+            .split('\n')
+            .map((line) => line.trim())
+            .where((line) => line.isNotEmpty)
+            .toList(growable: false);
+        return <String, Object?>{
+          if (clean(_body).isNotEmpty) 'insight': clean(_body),
+          if (points.isNotEmpty) 'points': points,
+        };
+      case FlowItemType.question:
+        return <String, Object?>{
+          if (clean(_question).isNotEmpty) 'question': clean(_question),
+          if (clean(_body).isNotEmpty) 'answer': clean(_body),
+        };
+      case FlowItemType.quiz:
+        // Une option laissée vide disparaît ; la bonne réponse suit sa place.
+        final options = <String>[];
+        var correct = -1;
+        for (var index = 0; index < _optionCount; index++) {
+          final option = clean(_options[index]);
+          if (option.isEmpty) continue;
+          if (index == _correctIndex) correct = options.length;
+          options.add(option);
+        }
+        return <String, Object?>{
+          if (clean(_question).isNotEmpty) 'question': clean(_question),
+          'options': options,
+          if (correct >= 0) 'correctIndex': correct,
+          if (clean(_explanation).isNotEmpty)
+            'explanation': clean(_explanation),
+        };
+      case FlowItemType.image:
+        return <String, Object?>{
+          if (clean(_body).isNotEmpty) 'caption': clean(_body),
+        };
+      case FlowItemType.audio:
+      case FlowItemType.shortVideo:
+        return const <String, Object?>{};
+      case FlowItemType.interactiveNative:
+        // L'activité vient du registre ASTRA : le compositeur la transporte
+        // sans la réécrire.
+        return widget.initial?.payload ?? const <String, Object?>{};
+    }
   }
 
   /// Construit la publication telle qu'elle serait enregistrée.
@@ -90,18 +227,16 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
     // Les contenus lourds restent où ils sont : seule leur adresse voyage.
     ref: FlowItemRef(
       lessonId: _lessonRef.text.trim().isEmpty ? null : _lessonRef.text.trim(),
-      storagePath: _storagePath.text.trim().isEmpty
+      storagePath: !_usesMedia || _storagePath.text.trim().isEmpty
           ? null
           : _storagePath.text.trim(),
     ),
-    payload: <String, Object?>{
-      if (_body.text.trim().isNotEmpty) 'insight': _body.text.trim(),
-      if (_body.text.trim().isNotEmpty) 'caption': _body.text.trim(),
-      if (_body.text.trim().isNotEmpty) 'answer': _body.text.trim(),
-    },
+    payload: _payload(),
     // Une publication naît toujours brouillon : la mise en ligne est un geste
     // distinct, soumis aux permissions.
     status: widget.initial?.status ?? 'draft',
+    tags: widget.initial?.tags ?? const <String>[],
+    origin: widget.initial?.origin ?? 'manual',
     createdBy: widget.initial?.createdBy,
     createdAt: widget.initial?.createdAt,
   );
@@ -139,7 +274,7 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final form = _buildForm(context, card == null);
+          final form = _buildForm(context, flowItemMissingParts(draft));
           final preview = _FlowPreviewFrame(card: card);
 
           // Sur un écran large, l'auteur voit son texte et son rendu côte à
@@ -173,7 +308,138 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
     );
   }
 
-  Widget _buildForm(BuildContext context, bool incomplete) {
+  Widget _field({
+    required String keyName,
+    required TextEditingController controller,
+    required String label,
+    String? helper,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(top: IntelliaSpacing.sm),
+      child: TextField(
+        key: ValueKey(keyName),
+        controller: controller,
+        minLines: 1,
+        maxLines: maxLines,
+        decoration: InputDecoration(labelText: label, helperText: helper),
+        onChanged: (_) => setState(() {}),
+      ),
+    );
+  }
+
+  List<Widget> _typeFields() => switch (_type) {
+    FlowItemType.notion || FlowItemType.infographic => [
+      _field(
+        keyName: 'flow-composer-body',
+        controller: _body,
+        label: 'Idée clé',
+        helper: 'Une ou deux phrases que l’élève retiendra.',
+        maxLines: 3,
+      ),
+      _field(
+        keyName: 'flow-composer-points',
+        controller: _points,
+        label: 'Points clés (un par ligne)',
+        maxLines: 5,
+      ),
+    ],
+    FlowItemType.question => [
+      _field(
+        keyName: 'flow-composer-question',
+        controller: _question,
+        label: 'Question posée à l’élève',
+        maxLines: 3,
+      ),
+      _field(
+        keyName: 'flow-composer-body',
+        controller: _body,
+        label: 'Réponse (révélée à l’élève)',
+        maxLines: 4,
+      ),
+    ],
+    FlowItemType.quiz => [
+      _field(
+        keyName: 'flow-composer-question',
+        controller: _question,
+        label: 'Question du mini-quiz',
+        maxLines: 3,
+      ),
+      const SizedBox(height: IntelliaSpacing.sm),
+      Text(
+        'Options — touche le rond de la bonne réponse',
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
+      for (var index = 0; index < _optionCount; index++)
+        Row(
+          children: [
+            IconButton(
+              key: ValueKey('flow-composer-correct-$index'),
+              tooltip: 'Bonne réponse',
+              onPressed: () => setState(() => _correctIndex = index),
+              icon: Icon(
+                index == _correctIndex
+                    ? Icons.check_circle_rounded
+                    : Icons.radio_button_unchecked,
+                color: index == _correctIndex
+                    ? Theme.of(context).colorScheme.primary
+                    : null,
+              ),
+            ),
+            Expanded(
+              child: TextField(
+                key: ValueKey('flow-composer-option-$index'),
+                controller: _options[index],
+                decoration: InputDecoration(labelText: 'Option ${index + 1}'),
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+          ],
+        ),
+      Wrap(
+        spacing: IntelliaSpacing.sm,
+        children: [
+          if (_optionCount < _maxOptions)
+            TextButton.icon(
+              key: const ValueKey('flow-composer-add-option'),
+              onPressed: () => setState(() => _optionCount += 1),
+              icon: const Icon(Icons.add),
+              label: const Text('Ajouter une option'),
+            ),
+          if (_optionCount > 2)
+            TextButton.icon(
+              key: const ValueKey('flow-composer-remove-option'),
+              onPressed: () => setState(() {
+                _optionCount -= 1;
+                _options[_optionCount].clear();
+                if (_correctIndex >= _optionCount) _correctIndex = 0;
+              }),
+              icon: const Icon(Icons.remove),
+              label: const Text('Retirer la dernière'),
+            ),
+        ],
+      ),
+      _field(
+        keyName: 'flow-composer-explanation',
+        controller: _explanation,
+        label: 'Explication (après la réponse)',
+        maxLines: 3,
+      ),
+    ],
+    FlowItemType.image => [
+      _field(
+        keyName: 'flow-composer-body',
+        controller: _body,
+        label: 'Légende',
+        maxLines: 3,
+      ),
+    ],
+    FlowItemType.audio ||
+    FlowItemType.shortVideo ||
+    FlowItemType.interactiveNative => const <Widget>[],
+  };
+
+  Widget _buildForm(BuildContext context, String? missing) {
     return Padding(
       padding: const EdgeInsets.all(IntelliaSpacing.md),
       child: Column(
@@ -194,7 +460,14 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
             decoration: const InputDecoration(labelText: 'Type'),
             items: [
               for (final type in FlowItemType.values)
-                DropdownMenuItem(value: type, child: Text(type.name)),
+                // Une activité interactive vient du registre ASTRA : on la
+                // relit, on ne la crée pas ici.
+                if (type != FlowItemType.interactiveNative ||
+                    widget.initial?.type == FlowItemType.interactiveNative)
+                  DropdownMenuItem(
+                    value: type,
+                    child: Text(flowItemTypeLabel(type)),
+                  ),
             ],
             onChanged: (value) =>
                 setState(() => _type = value ?? FlowItemType.notion),
@@ -211,51 +484,29 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
             onChanged: (value) =>
                 setState(() => _subjectId = value ?? _subjectId),
           ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          TextField(
-            key: const ValueKey('flow-composer-title'),
+          _field(
+            keyName: 'flow-composer-title',
             controller: _title,
-            decoration: const InputDecoration(labelText: 'Titre'),
-            onChanged: (_) => setState(() {}),
+            label: 'Titre',
           ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          TextField(
-            key: const ValueKey('flow-composer-hook'),
+          _field(
+            keyName: 'flow-composer-hook',
             controller: _hook,
-            decoration: const InputDecoration(labelText: 'Accroche'),
-            onChanged: (_) => setState(() {}),
+            label: 'Accroche',
           ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          TextField(
-            key: const ValueKey('flow-composer-body'),
-            controller: _body,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Contenu court',
-              helperText: 'Les médias lourds passent par une référence.',
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          TextField(
-            key: const ValueKey('flow-composer-lesson-ref'),
+          ..._typeFields(),
+          _field(
+            keyName: 'flow-composer-lesson-ref',
             controller: _lessonRef,
-            decoration: const InputDecoration(
-              labelText: 'Leçon source (identifiant)',
-            ),
-            onChanged: (_) => setState(() {}),
+            label: 'Leçon source (identifiant)',
           ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          TextField(
-            key: const ValueKey('flow-composer-storage-path'),
-            controller: _storagePath,
-            decoration: const InputDecoration(
-              labelText: 'Média référencé (chemin de stockage)',
-              helperText:
-                  'Le fichier n’est jamais recopié dans la publication.',
+          if (_usesMedia)
+            _field(
+              keyName: 'flow-composer-storage-path',
+              controller: _storagePath,
+              label: 'Média référencé (chemin de stockage)',
+              helper: 'Le fichier n’est jamais recopié dans la publication.',
             ),
-            onChanged: (_) => setState(() {}),
-          ),
           const SizedBox(height: IntelliaSpacing.sm),
           DropdownButtonFormField<FlowPedagogicalIntent>(
             initialValue: _intent,
@@ -289,13 +540,14 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
             max: 10,
             onChanged: (value) => setState(() => _priority = value),
           ),
-          if (incomplete) ...[
+          if (missing != null) ...[
             const SizedBox(height: IntelliaSpacing.sm),
             Text(
-              'Cette publication n’est pas encore présentable : complète les '
-              'champs que son type demande.',
+              'L’élève ne verra pas encore cette publication. $missing',
               key: const ValueKey('flow-composer-incomplete'),
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.error,
+              ),
             ),
           ],
         ],

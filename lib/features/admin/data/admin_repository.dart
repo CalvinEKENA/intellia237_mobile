@@ -1,3 +1,4 @@
+import '../domain/account_school_record.dart';
 import '../domain/admin_models.dart';
 
 abstract class AdminRepository {
@@ -46,10 +47,18 @@ abstract class AdminRepository {
     required String adminUid,
   });
 
-  Future<void> attachStaffToEstablishment({
+  /// Retrouve un compte par son e-mail ou son téléphone exacts.
+  Future<List<AccountSchoolRecord>> searchAccounts({
     required String adminUid,
-    required String staffId,
+    required String query,
+  });
+
+  /// Rattache un compte à une école, ou le change d'école avec un motif.
+  Future<void> changeAccountEstablishment({
+    required String adminUid,
+    required String accountId,
     required String establishmentId,
+    String? reason,
   });
 
   Future<void> publishAnnouncement({

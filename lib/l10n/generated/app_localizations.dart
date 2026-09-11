@@ -6987,6 +6987,126 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Compte rattaché. La personne retrouve son école à sa prochaine ouverture de l’application.'**
   String get staffAttached;
+
+  /// No description provided for @schoolNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donnez le nom complet de l’école.'**
+  String get schoolNameRequired;
+
+  /// No description provided for @schoolCityRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez la ville de l’école.'**
+  String get schoolCityRequired;
+
+  /// No description provided for @schoolCityHelper.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisie libre, par exemple Douala ou Bafoussam.'**
+  String get schoolCityHelper;
+
+  /// No description provided for @schoolTransferTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer un compte d’école'**
+  String get schoolTransferTitle;
+
+  /// No description provided for @schoolTransferBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur à l’inscription, déménagement, mutation : retrouvez l’élève, le parent ou le membre du personnel par son e-mail ou son téléphone.'**
+  String get schoolTransferBody;
+
+  /// No description provided for @schoolTransferQueryLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'E-mail ou téléphone'**
+  String get schoolTransferQueryLabel;
+
+  /// No description provided for @schoolTransferQueryHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'699 98 90 99 ou nom@exemple.cm'**
+  String get schoolTransferQueryHint;
+
+  /// No description provided for @schoolTransferSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get schoolTransferSearch;
+
+  /// No description provided for @schoolTransferNoResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte ne correspond. Vérifiez l’e-mail ou le numéro.'**
+  String get schoolTransferNoResult;
+
+  /// No description provided for @schoolTransferCurrentSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'École : {school}'**
+  String schoolTransferCurrentSchool(String school);
+
+  /// No description provided for @schoolTransferDeclared.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclarée à l’inscription : {school}'**
+  String schoolTransferDeclared(String school);
+
+  /// No description provided for @schoolTransferMove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer d’école'**
+  String get schoolTransferMove;
+
+  /// No description provided for @schoolTransferAttachBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez l’école de ce compte.'**
+  String get schoolTransferAttachBody;
+
+  /// No description provided for @schoolTransferMoveBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez la nouvelle école. Ce compte quittera les classes de son ancienne école.'**
+  String get schoolTransferMoveBody;
+
+  /// No description provided for @schoolTransferReasonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Motif du changement'**
+  String get schoolTransferReasonTitle;
+
+  /// No description provided for @schoolTransferReasonHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par exemple : erreur du parent à l’inscription'**
+  String get schoolTransferReasonHint;
+
+  /// No description provided for @schoolTransferConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le changement'**
+  String get schoolTransferConfirm;
+
+  /// No description provided for @schoolTransferDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'École mise à jour. La personne la retrouve à sa prochaine ouverture de l’application.'**
+  String get schoolTransferDone;
+
+  /// No description provided for @schoolTransferSameSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte appartient déjà à cette école.'**
+  String get schoolTransferSameSchool;
+
+  /// No description provided for @schoolTransferChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enfants liés'**
+  String get schoolTransferChildren;
 }
 
 class _AppLocalizationsDelegate
