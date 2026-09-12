@@ -6,6 +6,7 @@ import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
+import '../../auth/application/auth_controller.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
 import 'broadcast_center_screen.dart';
@@ -63,11 +64,24 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
       extendBody: true,
       appBar: AppBar(
         title: Text(items[_index].label),
-        actions: const [NotificationAppBarAction()],
+        actions: [
+          const NotificationAppBarAction(),
+          IconButton(
+            key: const ValueKey('admin-sign-out'),
+            tooltip: context.l10n.signOutTitle,
+            icon: const Icon(Icons.logout_rounded),
+            onPressed: _confirmSignOut,
+          ),
+        ],
       ),
       body: SafeArea(
         bottom: false,
-        child: IndexedStack(
+        // La barre de navigation flotte au-dessus du contenu : sans cette
+        // réserve, le bouton « Nouvelle matière » ou la dernière carte d'une
+        // liste disparaît derrière elle.
+        child: Padding(
+          padding: EdgeInsets.only(bottom: intelliaBottomNavInset(context)),
+          child: IndexedStack(
           index: _index,
           children: const [
             _AdminDashboardTab(),
@@ -75,7 +89,8 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
             SchoolAnalyticsScreen(embedded: true),
             UserManagementScreen(embedded: true),
             _AdminToolsTab(),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: IntelliaBottomNavBar(
@@ -84,6 +99,32 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
         onTap: (value) => setState(() => _index = value),
       ),
     );
+  }
+
+  /// Quitter l'administration depuis l'administration : sur un appareil
+  /// partagé, rester connecté en super-admin n'est pas une option.
+  Future<void> _confirmSignOut() async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.signOutQuestion),
+        content: Text(l10n.signOutDescription),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.cancelLabel),
+          ),
+          FilledButton(
+            key: const ValueKey('admin-sign-out-confirm'),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.signOutTitle),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await ref.read(authControllerProvider.notifier).signOut();
   }
 }
 

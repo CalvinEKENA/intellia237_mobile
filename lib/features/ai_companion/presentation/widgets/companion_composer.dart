@@ -183,6 +183,10 @@ class _Field extends StatelessWidget {
                 hintText: l10n.writeQuestionHint,
                 hintStyle: TextStyle(color: s.textTertiary, fontSize: 14),
                 border: InputBorder.none,
+                // Le thème remplit les champs d'un fond clair : sur la surface
+                // sombre du compagnon, le texte blanc y devenait invisible.
+                // Le champ écrit à même la surface.
+                filled: false,
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 10),
               ),

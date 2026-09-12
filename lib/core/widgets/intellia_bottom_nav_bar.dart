@@ -18,6 +18,21 @@ class IntelliaBottomNavItem {
 
 /// Barre de navigation premium avec courbe fluide, glow animé,
 /// bulle flottante sur l'item actif et retour haptique.
+/// Hauteur de la barre flottante, marge comprise.
+const kIntelliaBottomNavHeight = 72.0;
+const kIntelliaBottomNavMargin = 10.0;
+
+/// Place qu'un écran doit réserver sous son contenu quand il s'étend derrière
+/// la barre.
+///
+/// Registre de décisions : la barre flotte au-dessus du contenu. Sans cette
+/// réserve, un bouton d'action ou la dernière carte d'une liste disparaît
+/// derrière elle — et l'utilisateur ne sait pas qu'il lui manque quelque chose.
+double intelliaBottomNavInset(BuildContext context) =>
+    kIntelliaBottomNavHeight +
+    kIntelliaBottomNavMargin +
+    MediaQuery.viewPaddingOf(context).bottom;
+
 class IntelliaBottomNavBar extends StatefulWidget {
   const IntelliaBottomNavBar({
     required this.items,
