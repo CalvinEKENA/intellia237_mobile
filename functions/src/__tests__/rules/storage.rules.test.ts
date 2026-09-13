@@ -7,6 +7,7 @@ import {
   initializeTestEnvironment
 } from "@firebase/rules-unit-testing";
 import { getBytes, ref, uploadBytes } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
 import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
 
 const projectId = "demo-intellia237";
@@ -16,6 +17,10 @@ let testEnv: RulesTestEnvironment;
 beforeAll(async () => {
   testEnv = await initializeTestEnvironment({
     projectId,
+    firestore: {
+      host: "127.0.0.1", port: 8085,
+      rules: readFileSync(join(process.cwd(), "../firestore.rules"), "utf8"),
+    },
     storage: {
       host: "127.0.0.1",
       port: 9200,
@@ -26,6 +31,7 @@ beforeAll(async () => {
 
 afterEach(async () => {
   await testEnv.clearStorage();
+  await testEnv.clearFirestore();
 });
 
 afterAll(async () => {
@@ -49,6 +55,15 @@ async function seedAvatar() {
 }
 
 describe("Storage security rules", () => {
+  it("blocks avatar writes from a suspended user holding an old token", async () => {
+    await testEnv.withSecurityRulesDisabled(async context => {
+      await setDoc(doc(context.firestore(), "users/student-a"), {
+        role: "student", accountStatus: "suspended",
+      });
+    });
+    await assertFails(uploadBytes(ref(storageFor("student-a"), "avatars/student-a/avatar.png"),
+      new Uint8Array([1, 2, 3]), {contentType: "image/png"}));
+  });
   it("blocks unauthenticated avatar reads", async () => {
     await seedAvatar();
 

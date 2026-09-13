@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/firebase_error_mapper.dart';
@@ -8,11 +12,16 @@ final phoneAuthRepositoryProvider = Provider<PhoneAuthRepository>(
   (ref) => FirebasePhoneAuthRepository(),
 );
 
-class FirebasePhoneAuthRepository implements PhoneAuthRepository {
+class FirebasePhoneAuthRepository
+    implements PhoneAuthRepository, CancelablePhoneAuthRepository {
   FirebasePhoneAuthRepository({FirebaseAuth? auth})
     : _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseAuth _auth;
+  int _attempt = 0;
+
+  @override
+  void cancelPendingVerification() => _attempt++;
 
   @override
   Future<void> startVerification({
@@ -24,12 +33,14 @@ class FirebasePhoneAuthRepository implements PhoneAuthRepository {
     required void Function(PhoneCodeDispatch dispatch) onCodeSent,
     required void Function(String verificationId) onAutoRetrievalTimeout,
   }) async {
+    final attempt = ++_attempt;
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         forceResendingToken: forceResendingToken,
         timeout: const Duration(seconds: 60),
         verificationCompleted: (credential) async {
+          if (attempt != _attempt) return;
           try {
             onVerified(
               await _completeCredential(
@@ -110,6 +121,29 @@ class FirebasePhoneAuthRepository implements PhoneAuthRepository {
 
   /// Le code seul ne suffit pas : le motif réel d'un refus Android est
   /// souvent porté par le message technique.
-  static String _normalizeCode(String code, [String? technicalMessage]) =>
-      FirebaseErrorMapper.normalizeCode(code, technicalMessage);
+  static String _normalizeCode(String code, [String? technicalMessage]) {
+    final normalized = FirebaseErrorMapper.normalizeCode(
+      code,
+      technicalMessage,
+    );
+    final reference = FirebaseErrorMapper.diagnosticId(normalized);
+    // Never send the SDK message: it may contain a phone number or credential.
+    // Collection still respects the user's existing Crashlytics preference.
+    if (!kIsWeb && !kDebugMode) {
+      unawaited(_recordDiagnostic(reference));
+    }
+    return normalized;
+  }
+
+  static Future<void> _recordDiagnostic(String reference) async {
+    try {
+      await FirebaseCrashlytics.instance.recordError(
+        'PhoneAuthFailure:$reference',
+        StackTrace.current,
+        reason: 'Phone verification failed',
+      );
+    } catch (_) {
+      // Telemetry must never interrupt authentication.
+    }
+  }
 }

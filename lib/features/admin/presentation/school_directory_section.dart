@@ -6,6 +6,8 @@ import '../../../core/localization/localization_extensions.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
 import 'admin_presentation_localization.dart';
+import '../../auth/application/auth_controller.dart';
+import 'account_management_controls.dart';
 
 /// L'annuaire de toute l'école, en lecture.
 ///
@@ -144,17 +146,19 @@ class _SchoolDirectorySectionState
   }
 }
 
-class _MemberTile extends StatelessWidget {
+class _MemberTile extends ConsumerWidget {
   const _MemberTile({required this.member});
 
   final SchoolDirectoryMember member;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final details = [
       member.classLevel,
       member.email,
       member.phone,
+      if (member.accountStatus == 'suspended')
+        context.l10n.adminStatusSuspended,
     ].where((detail) => detail.isNotEmpty).join(' · ');
     final initial = member.fullName.trim().isEmpty
         ? '?'
@@ -165,7 +169,13 @@ class _MemberTile extends StatelessWidget {
         leading: CircleAvatar(child: Text(initial)),
         title: Text(member.fullName),
         subtitle: details.isEmpty ? null : Text(details),
-        trailing: member.accountStatus == 'pending_validation'
+        trailing: ref.watch(authControllerProvider).isSuperAdmin
+            ? AccountManagementMenu(
+                accountId: member.id,
+                name: member.fullName,
+                status: member.accountStatus,
+              )
+            : member.accountStatus == 'pending_validation'
             ? Tooltip(
                 message: context.l10n.schoolDirectoryPending,
                 child: const Icon(Icons.hourglass_top_rounded),
@@ -233,16 +243,11 @@ class SchoolClassesSection extends ConsumerWidget {
                                 ].join(' · '),
                               ),
                               trailing: IconButton(
-                                key: ValueKey(
-                                  'rename-class-${schoolClass.id}',
-                                ),
+                                key: ValueKey('rename-class-${schoolClass.id}'),
                                 tooltip: l10n.renameClassLabel,
                                 icon: const Icon(Icons.edit_outlined),
-                                onPressed: () => _rename(
-                                  context,
-                                  ref,
-                                  schoolClass,
-                                ),
+                                onPressed: () =>
+                                    _rename(context, ref, schoolClass),
                               ),
                             ),
                           ),

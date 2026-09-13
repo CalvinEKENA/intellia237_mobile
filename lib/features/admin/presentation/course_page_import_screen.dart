@@ -796,7 +796,7 @@ class _CoursePageImportScreenState
       const SizedBox(height: IntelliaSpacing.md),
       Text(
         'Rien n’est encore visible pour les élèves : relisez, puis publiez '
-        'chaque contenu depuis le Studio.',
+        'la leçon depuis ce chapitre. Ses quiz et cartes FLOW associés seront publiés ensemble. Les contenus créés seuls se publient depuis leur rubrique du Studio.',
         style: theme.textTheme.bodyMedium,
       ),
       if (outcome.failures.isNotEmpty) ...[

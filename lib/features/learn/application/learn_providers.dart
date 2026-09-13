@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,7 +23,34 @@ import '../domain/learn_route_requests.dart';
 import '../domain/learn_subject.dart';
 
 final learnRepositoryProvider = Provider<LearnRepository>((ref) {
-  return FirestoreLearnRepository();
+  ref.watch(learnCatalogRevisionProvider);
+  final auth = ref.watch(authControllerProvider);
+  return FirestoreLearnRepository(establishmentId: auth.establishmentId);
+});
+
+// Parent indexes are updated in the publication commit. A catalog change
+// rebuilds the repository, clearing both empty previews and cached lessons.
+final learnCatalogRevisionProvider = StreamProvider.autoDispose<String>((
+  ref,
+) async* {
+  final context = await ref.watch(studentAcademicContextProvider.future);
+  yield* FirebaseFirestore.instance
+      .collection('classes')
+      .doc(context.quizAndCatalogClassLevel)
+      .collection('subjects')
+      .snapshots()
+      .map(
+        (snapshot) => jsonEncode([
+          for (final doc in snapshot.docs)
+            {
+              'id': doc.id,
+              'status': doc.data()['status'],
+              'chapters': doc.data()['chapterSummaries'],
+              'updatedAt': doc.data()['updatedAt'].toString(),
+            },
+        ]),
+      )
+      .distinct();
 });
 
 final studentAcademicContextProvider = FutureProvider<LearnAcademicContext>((

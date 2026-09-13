@@ -9,7 +9,8 @@ import 'editorial_workflow.dart';
 /// Firestore). Les rôles `contentEditor` / `contentReviewer` /
 /// `contentPublisher` demandés à terme n'existent donc pas encore, et rien ici
 /// ne fait semblant du contraire : l'enseignant tient le rôle d'auteur,
-/// l'administration celui de relecteur et de publieur.
+/// l'administration celui de relecteur. L'enseignant peut aussi publier son
+/// propre contenu dans son établissement.
 ///
 /// Cette classe est le pendant Dart des règles Firestore. Elle ne les remplace
 /// pas — le client n'est pas une autorité — mais elle permet à l'interface de
@@ -37,7 +38,7 @@ class ContentActor {
   /// Le personnel pédagogique : les seuls à pouvoir rédiger.
   bool get isStaff => isAdministration || isTeacher;
 
-  /// Relire, approuver, programmer, publier et archiver relèvent de
+  /// Relire, approuver, programmer et archiver relèvent de
   /// l'administration.
   bool get isReviewer => isAdministration;
 
@@ -80,9 +81,14 @@ abstract final class ContentPermissions {
     String? authorUid,
   }) {
     if (!actor.canWriteInScope(scope)) return false;
+    final publishesOwnSchoolContent =
+        actor.isTeacher &&
+        scope.isEstablishment &&
+        authorUid == actor.uid &&
+        next == EditorialStatus.published;
     return metadata.canTransitionTo(
       next,
-      isReviewerOrAdmin: actor.isReviewer,
+      isReviewerOrAdmin: actor.isReviewer || publishesOwnSchoolContent,
       isAuthor: authorUid == null || authorUid == actor.uid,
     );
   }

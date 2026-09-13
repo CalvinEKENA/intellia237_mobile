@@ -17,9 +17,14 @@ import 'new_subject_dialog.dart';
 
 /// Studio de Contenu — vue principale : sélecteur de classe + liste des matières
 class ContentStudioScreen extends ConsumerStatefulWidget {
-  const ContentStudioScreen({super.key, this.embedded = false});
+  const ContentStudioScreen({
+    super.key,
+    this.embedded = false,
+    this.initialTab = 0,
+  });
 
   final bool embedded;
+  final int initialTab;
 
   @override
   ConsumerState<ContentStudioScreen> createState() =>
@@ -33,7 +38,11 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 3, vsync: this);
+    _tabs = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialTab,
+    );
   }
 
   @override

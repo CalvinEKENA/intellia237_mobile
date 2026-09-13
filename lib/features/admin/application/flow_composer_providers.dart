@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
@@ -35,18 +36,16 @@ class FirestoreAdminFlowRepository implements AdminFlowRepository {
 
   @override
   Future<List<FlowItem>> listForClass(String classLevel) async {
-    final snapshot = await _items
-        .where('classLevels', arrayContains: classLevel)
-        .orderBy('updatedAt', descending: true)
-        .limit(100)
-        .get();
-
-    final items = <FlowItem>[];
-    for (final doc in snapshot.docs) {
-      final item = FlowItem.fromFirestore(doc.id, doc.data());
-      if (item != null) items.add(item);
-    }
-    return items;
+    final response = await FirebaseFunctions.instanceFor(region: 'europe-west1')
+        .httpsCallable('listEditorialFlow')
+        .call<Map<String, dynamic>>({'classLevel': classLevel});
+    return (response.data['items'] as List)
+        .map((raw) {
+          final data = Map<String, dynamic>.from(raw as Map);
+          return FlowItem.fromFirestore(data['id'] as String, data);
+        })
+        .whereType<FlowItem>()
+        .toList();
   }
 
   @override

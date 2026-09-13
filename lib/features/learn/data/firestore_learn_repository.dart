@@ -22,10 +22,26 @@ class FirestoreLearnRepository implements LearnRepository {
     FirebaseFirestore? firestore,
     FirebaseFunctions? functions,
     LearnCatalogCache? catalogCache,
+    this.establishmentId,
   }) : _db = firestore ?? FirebaseFirestore.instance,
        _functions =
            functions ?? FirebaseFunctions.instanceFor(region: 'europe-west1'),
        _catalogCache = catalogCache ?? LearnCatalogCache();
+
+  final String? establishmentId;
+  bool _visible(Map<String, dynamic> data) {
+    final scope = data['scope'];
+    return scope is! Map ||
+        scope['type'] != 'establishment' ||
+        scope['establishmentId'] == establishmentId;
+  }
+
+  int _visibleLessonCount(Map<String, dynamic> data) {
+    final counts = data['lessonCountsByScope'];
+    if (counts is! Map) return (data['lessonsCount'] as num?)?.toInt() ?? 0;
+    return ((counts['global'] as num?)?.toInt() ?? 0) +
+        ((counts[establishmentId] as num?)?.toInt() ?? 0);
+  }
 
   final FirebaseFirestore _db;
   final FirebaseFunctions _functions;
@@ -224,9 +240,10 @@ class FirestoreLearnRepository implements LearnRepository {
             await _chaptersCatalog(catalogClassLevel, subjectId);
 
         final chapterSummaries = chapterDocuments
+            .where((chapter) => _visibleLessonCount(chapter.data) > 0)
             .map((chapter) {
               final cd = chapter.data;
-              final lessonsCount = (cd['lessonsCount'] as num?)?.toInt() ?? 0;
+              final lessonsCount = _visibleLessonCount(cd);
               final totalProgress = progress.totalForChapter(
                 subjectId,
                 chapter.id,
@@ -296,6 +313,7 @@ class FirestoreLearnRepository implements LearnRepository {
               chapterId,
             );
         final lessons = lessonDocuments
+            .where((lesson) => _visible(lesson.data))
             .map((lesson) {
               final ld = lesson.data;
               final lessonProgress = progress.forLesson(
@@ -334,7 +352,9 @@ class FirestoreLearnRepository implements LearnRepository {
       description: sd['description'] as String? ?? '',
       colorHex: (sd['colorHex'] as num?)?.toInt() ?? 0xFF1451E1,
       iconKey: sd['iconKey'] as String? ?? 'book',
-      chapters: chapters,
+      chapters: chapters
+          .where((chapter) => chapter.lessons.isNotEmpty)
+          .toList(),
     );
   }
 
@@ -371,6 +391,7 @@ class FirestoreLearnRepository implements LearnRepository {
     });
 
     final lessons = lessonDocuments
+        .where((lesson) => _visible(lesson.data))
         .map((lesson) {
           final ld = lesson.data;
           final lessonProgress = progress.forLesson(
@@ -422,6 +443,9 @@ class FirestoreLearnRepository implements LearnRepository {
     if (lesson == null) throw StateError('Leçon introuvable: $lessonId');
     final progressDocument = await progressFuture;
     final data = lesson.data;
+    if (data['status'] != 'published' || !_visible(data)) {
+      throw StateError('Leçon indisponible.');
+    }
     final p = progressDocument.data();
 
     // contentSections

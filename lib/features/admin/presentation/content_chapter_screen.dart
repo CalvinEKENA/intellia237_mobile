@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../application/admin_content_providers.dart';
+import '../application/flow_composer_providers.dart';
 import '../domain/admin_content_models.dart';
 import 'content_lesson_editor_screen.dart';
 import 'admin_presentation_localization.dart';
@@ -33,28 +35,40 @@ class ContentChapterScreen extends ConsumerWidget {
           style: GoogleFonts.manrope(fontWeight: FontWeight.w800),
         ),
         actions: [
+          if (ref.watch(contentActorProvider)?.unrestricted ?? false)
+            IconButton(
+              tooltip: 'Supprimer la matière',
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () => _confirmCatalogDeletion(
+                context,
+                '« ${subject.title} » et tous ses chapitres',
+                () => actions.deleteSubject(subject.classLevel, subject.id),
+                popAfter: true,
+              ),
+            ),
           // Publish / Unpublish toggle
-          TextButton.icon(
-            onPressed: () async {
-              final newStatus = subject.isPublished ? 'draft' : 'published';
-              await actions.updateSubjectStatus(
-                subject.classLevel,
-                subject.id,
-                newStatus,
-              );
-              if (context.mounted) Navigator.pop(context);
-            },
-            icon: Icon(
-              subject.isPublished
-                  ? Icons.visibility_off_rounded
-                  : Icons.publish_rounded,
+          if (ref.watch(contentActorProvider)?.unrestricted ?? false)
+            TextButton.icon(
+              onPressed: () async {
+                final newStatus = subject.isPublished ? 'draft' : 'published';
+                await actions.updateSubjectStatus(
+                  subject.classLevel,
+                  subject.id,
+                  newStatus,
+                );
+                if (context.mounted) Navigator.pop(context);
+              },
+              icon: Icon(
+                subject.isPublished
+                    ? Icons.visibility_off_rounded
+                    : Icons.publish_rounded,
+              ),
+              label: Text(
+                subject.isPublished
+                    ? context.l10n.unpublishLabel
+                    : context.l10n.publishLabel,
+              ),
             ),
-            label: Text(
-              subject.isPublished
-                  ? context.l10n.unpublishLabel
-                  : context.l10n.publishLabel,
-            ),
-          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -115,48 +129,74 @@ class ContentChapterScreen extends ConsumerWidget {
   ) {
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
+    var busy = false;
+    String? error;
 
     return showDialog<void>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(context.l10n.newChapter),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleCtrl,
-              decoration: InputDecoration(
-                labelText: context.l10n.chapterTitleLabel,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, update) => AlertDialog(
+          title: Text(context.l10n.newChapter),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (error != null)
+                Text(error!, style: const TextStyle(color: Colors.red)),
+              TextField(
+                controller: titleCtrl,
+                decoration: InputDecoration(
+                  labelText: context.l10n.chapterTitleLabel,
+                ),
               ),
+              const SizedBox(height: IntelliaSpacing.sm),
+              TextField(
+                controller: descCtrl,
+                decoration: InputDecoration(
+                  labelText: context.l10n.shortDescriptionLabel,
+                ),
+                maxLines: 2,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: busy ? null : () => Navigator.pop(ctx),
+              child: Text(context.l10n.cancelLabel),
             ),
-            const SizedBox(height: IntelliaSpacing.sm),
-            TextField(
-              controller: descCtrl,
-              decoration: InputDecoration(
-                labelText: context.l10n.shortDescriptionLabel,
-              ),
-              maxLines: 2,
+            FilledButton(
+              onPressed: busy
+                  ? null
+                  : () async {
+                      update(() {
+                        busy = true;
+                        error = null;
+                      });
+                      try {
+                        await actions.createChapter(
+                          classLevel: subject.classLevel,
+                          subjectId: subject.id,
+                          title: titleCtrl.text.trim(),
+                          description: descCtrl.text.trim(),
+                        );
+                        if (ctx.mounted) Navigator.pop(ctx);
+                      } catch (failure) {
+                        if (ctx.mounted) {
+                          update(() {
+                            busy = false;
+                            error = failure is StateError
+                                ? failure.message.toString()
+                                : failure is FirebaseFunctionsException
+                                ? failure.message ??
+                                      'Impossible de créer le chapitre.'
+                                : 'Impossible de créer le chapitre.';
+                          });
+                        }
+                      }
+                    },
+              child: Text(context.l10n.createLabel),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(context.l10n.cancelLabel),
-          ),
-          FilledButton(
-            onPressed: () async {
-              await actions.createChapter(
-                classLevel: subject.classLevel,
-                subjectId: subject.id,
-                title: titleCtrl.text.trim(),
-                description: descCtrl.text.trim(),
-              );
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            child: Text(context.l10n.createLabel),
-          ),
-        ],
       ),
     );
   }
@@ -223,6 +263,22 @@ class _ChapterCard extends ConsumerWidget {
                   ],
                 ),
               ),
+              if (ref.watch(contentActorProvider)?.unrestricted ?? false)
+                IconButton(
+                  tooltip: 'Supprimer le chapitre',
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: () => _confirmCatalogDeletion(
+                    context,
+                    '« ${chapter.title} » et toutes ses leçons',
+                    () => ref
+                        .read(adminContentActionsProvider)
+                        .deleteChapter(
+                          chapter.classLevel,
+                          chapter.subjectId,
+                          chapter.id,
+                        ),
+                  ),
+                ),
               const Icon(Icons.chevron_right_rounded),
             ],
           ),
@@ -395,14 +451,14 @@ class ContentLessonsScreen extends ConsumerWidget {
 // Lesson tile
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _LessonTile extends StatelessWidget {
+class _LessonTile extends ConsumerWidget {
   const _LessonTile({required this.lesson, required this.chapter});
 
   final AdminLessonModel lesson;
   final AdminChapterModel chapter;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final statusLabel = adminContentStatusLabel(context, lesson.status);
     final statusColor = switch (lesson.status) {
       'published' => IntelliaColors.success,
@@ -445,6 +501,23 @@ class _LessonTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: IntelliaSpacing.xs),
+          if (ref.watch(contentActorProvider)?.unrestricted ?? false)
+            IconButton(
+              tooltip: 'Supprimer la leçon',
+              icon: const Icon(Icons.delete_outline, size: 20),
+              onPressed: () => _confirmCatalogDeletion(
+                context,
+                '« ${lesson.title} »',
+                () => ref
+                    .read(adminContentActionsProvider)
+                    .deleteLesson(
+                      classLevel: lesson.classLevel,
+                      subjectId: lesson.subjectId,
+                      chapterId: lesson.chapterId,
+                      lessonId: lesson.id,
+                    ),
+              ),
+            ),
           const Icon(Icons.edit_outlined, size: 18),
         ],
       ),
@@ -456,4 +529,63 @@ class _LessonTile extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _confirmCatalogDeletion(
+  BuildContext context,
+  String label,
+  Future<void> Function() delete, {
+  bool popAfter = false,
+}) async {
+  var busy = false;
+  String? error;
+  final deleted = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) => StatefulBuilder(
+      builder: (context, update) => PopScope(
+        canPop: !busy,
+        child: AlertDialog(
+          title: const Text('Supprimer ce contenu ?'),
+          content: Text(
+            error ??
+                'Supprimer $label ? Les quiz et cartes FLOW associés seront aussi retirés. Cette suppression est définitive.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: busy
+                  ? null
+                  : () => Navigator.pop(dialogContext, false),
+              child: Text(context.l10n.cancelLabel),
+            ),
+            FilledButton(
+              onPressed: busy
+                  ? null
+                  : () async {
+                      update(() {
+                        busy = true;
+                        error = null;
+                      });
+                      try {
+                        await delete();
+                        if (dialogContext.mounted) {
+                          Navigator.pop(dialogContext, true);
+                        }
+                      } catch (_) {
+                        if (dialogContext.mounted) {
+                          update(() {
+                            busy = false;
+                            error = 'Suppression impossible. Réessayez.';
+                          });
+                        }
+                      }
+                    },
+              child: Text(busy ? 'Suppression…' : 'Supprimer'),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+  if (deleted == true && context.mounted && popAfter) Navigator.pop(context);
 }

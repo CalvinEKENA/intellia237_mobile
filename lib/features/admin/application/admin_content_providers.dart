@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/content_origin.dart';
+import '../domain/content_scope.dart';
 import '../../learn/domain/learn_lesson.dart';
 import 'flow_composer_providers.dart';
 import '../../../features/quiz/domain/quiz_question.dart';
@@ -104,6 +106,7 @@ final adminLessonsProvider =
       List<AdminLessonModel>,
       ({String classLevel, String subjectId, String chapterId})
     >((ref, args) async {
+      final actor = ref.watch(contentActorProvider);
       final snap = await _db
           .collection('classes')
           .doc(args.classLevel)
@@ -116,6 +119,13 @@ final adminLessonsProvider =
           .get();
 
       return snap.docs
+          .where(
+            (d) =>
+                actor?.canWriteInScope(
+                  ContentScope.fromFirestore(d.data()['scope']),
+                ) ??
+                false,
+          )
           .map(
             (d) => AdminLessonModel.fromFirestore(
               d.id,
@@ -137,23 +147,32 @@ final adminQuizzesProvider =
       ref,
       classLevel,
     ) async {
+      final actor = ref.watch(contentActorProvider);
       final snap = await _db
           .collection('quizzes')
           .where('classLevels', arrayContains: classLevel)
           .get();
 
       return Future.wait(
-        snap.docs.map((document) async {
-          final answerKey = await _db
-              .collection('quiz_answer_keys')
-              .doc(document.id)
-              .get();
-          return AdminQuizModel.fromFirestore(
-            document.id,
-            document.data(),
-            answerKeyData: answerKey.data(),
-          );
-        }),
+        snap.docs
+            .where(
+              (doc) =>
+                  actor?.canWriteInScope(
+                    ContentScope.fromFirestore(doc.data()['scope']),
+                  ) ??
+                  false,
+            )
+            .map((document) async {
+              final answerKey = await _db
+                  .collection('quiz_answer_keys')
+                  .doc(document.id)
+                  .get();
+              return AdminQuizModel.fromFirestore(
+                document.id,
+                document.data(),
+                answerKeyData: answerKey.data(),
+              );
+            }),
       );
     });
 
@@ -181,65 +200,6 @@ class AdminContentActions {
     String subjectId,
     String chapterId,
   ) => _chaptersRef(cls, subjectId).doc(chapterId).collection('lessons');
-
-  Map<String, dynamic> _chapterSummary({
-    required String id,
-    required Map<String, dynamic> data,
-    int? lessonsCount,
-  }) => <String, dynamic>{
-    'id': id,
-    'title': data['title'] as String? ?? '',
-    'description': data['description'] as String? ?? '',
-    'lessonsCount':
-        lessonsCount ?? (data['lessonsCount'] as num?)?.toInt() ?? 0,
-    'order': (data['order'] as num?)?.toInt() ?? 0,
-  };
-
-  Map<String, dynamic> _lessonPreview({
-    required String id,
-    required Map<String, dynamic> data,
-  }) => <String, dynamic>{
-    'id': id,
-    'classLevel': data['classLevel'] as String? ?? '',
-    'subjectId': data['subjectId'] as String? ?? '',
-    'chapterId': data['chapterId'] as String? ?? '',
-    'title': data['title'] as String? ?? '',
-    'summary': data['summary'] as String? ?? '',
-    'estimatedMinutes': (data['estimatedMinutes'] as num?)?.toInt() ?? 0,
-    'order': (data['order'] as num?)?.toInt() ?? 0,
-  };
-
-  Future<List<Map<String, dynamic>>> _legacyChapterSummaries(
-    String classLevel,
-    String subjectId,
-  ) async {
-    final snapshot = await _chaptersRef(
-      classLevel,
-      subjectId,
-    ).orderBy('order').get();
-    return snapshot.docs
-        .map(
-          (document) => _chapterSummary(id: document.id, data: document.data()),
-        )
-        .toList(growable: false);
-  }
-
-  Future<List<Map<String, dynamic>>> _legacyPublishedLessonPreviews(
-    String classLevel,
-    String subjectId,
-    String chapterId,
-  ) async {
-    final snapshot = await _lessonsRef(
-      classLevel,
-      subjectId,
-      chapterId,
-    ).where('status', isEqualTo: 'published').orderBy('order').get();
-    return snapshot.docs
-        .map(
-          (document) => _lessonPreview(id: document.id, data: document.data()),
-        )
-        .toList(growable: false);
-  }
 
   // ── Subjects ─────────────────────────────────────────────
 
@@ -275,10 +235,8 @@ class AdminContentActions {
     _ref.invalidate(adminSubjectsProvider(classLevel));
   }
 
-  Future<void> deleteSubject(String classLevel, String subjectId) async {
-    await _subjectsRef(classLevel).doc(subjectId).delete();
-    _ref.invalidate(adminSubjectsProvider(classLevel));
-  }
+  Future<void> deleteSubject(String classLevel, String subjectId) =>
+      _deleteContent(classLevel, subjectId);
 
   // ── Chapters ─────────────────────────────────────────────
 
@@ -288,86 +246,22 @@ class AdminContentActions {
     required String title,
     required String description,
   }) async {
-    final legacySummaries = await _legacyChapterSummaries(
-      classLevel,
-      subjectId,
-    );
-    final subjectRef = _subjectsRef(classLevel).doc(subjectId);
-    final chapterRef = _chaptersRef(classLevel, subjectId).doc();
-
-    await _db.runTransaction((transaction) async {
-      final subjectSnapshot = await transaction.get(subjectRef);
-      final subjectData = subjectSnapshot.data();
-      if (subjectData == null) {
-        throw StateError('Matière introuvable: $subjectId');
-      }
-      final current = subjectData.containsKey('chapterSummaries')
-          ? subjectData['chapterSummaries']
-          : legacySummaries;
-      final entries = readCatalogEntries(current);
-      final order =
-          entries.fold<int>(
-            -1,
-            (maximum, entry) =>
-                ((entry['order'] as num?)?.toInt() ?? 0) > maximum
-                ? (entry['order'] as num?)?.toInt() ?? 0
-                : maximum,
-          ) +
-          1;
-      final chapterData = <String, dynamic>{
-        'classLevel': classLevel,
-        'subjectId': subjectId,
-        'title': title,
-        'description': description,
-        'order': order,
-        'lessonsCount': 0,
-        'lessonPreviews': <Map<String, dynamic>>[],
-      };
-
-      transaction.set(chapterRef, chapterData);
-      transaction.update(subjectRef, {
-        'chapterSummaries': upsertCatalogEntry(
-          current,
-          _chapterSummary(id: chapterRef.id, data: chapterData),
-        ),
-      });
+    await FirebaseFunctions.instanceFor(
+      region: 'europe-west1',
+    ).httpsCallable('createCatalogChapter').call<void>({
+      'classLevel': classLevel,
+      'subjectId': subjectId,
+      'title': title,
+      'description': description,
     });
-    _ref.invalidate(adminSubjectsProvider(classLevel));
-    _ref.invalidate(
-      adminChaptersProvider((classLevel: classLevel, subjectId: subjectId)),
-    );
+    _invalidateCatalog(classLevel, subjectId);
   }
 
   Future<void> deleteChapter(
     String classLevel,
     String subjectId,
     String chapterId,
-  ) async {
-    final legacySummaries = await _legacyChapterSummaries(
-      classLevel,
-      subjectId,
-    );
-    final subjectRef = _subjectsRef(classLevel).doc(subjectId);
-    final chapterRef = _chaptersRef(classLevel, subjectId).doc(chapterId);
-    await _db.runTransaction((transaction) async {
-      final subjectSnapshot = await transaction.get(subjectRef);
-      final subjectData = subjectSnapshot.data();
-      if (subjectData == null) {
-        throw StateError('Matière introuvable: $subjectId');
-      }
-      final current = subjectData.containsKey('chapterSummaries')
-          ? subjectData['chapterSummaries']
-          : legacySummaries;
-      transaction.delete(chapterRef);
-      transaction.update(subjectRef, {
-        'chapterSummaries': removeCatalogEntry(current, chapterId),
-      });
-    });
-    _ref.invalidate(adminSubjectsProvider(classLevel));
-    _ref.invalidate(
-      adminChaptersProvider((classLevel: classLevel, subjectId: subjectId)),
-    );
-  }
+  ) => _deleteContent(classLevel, subjectId, chapterId);
 
   // ── Lessons ──────────────────────────────────────────────
 
@@ -410,6 +304,8 @@ class AdminContentActions {
           },
       ],
       'origin': origin.toFirestore(),
+      'createdBy': _ref.read(contentActorProvider)?.uid,
+      'createdAt': FieldValue.serverTimestamp(),
       // Une leçon naît dans le périmètre de son auteur : les règles refusent
       // le programme national à qui ne l'administre pas.
       'scope': _ref.read(contentAuthoringScopeProvider).toFirestore(),
@@ -425,104 +321,72 @@ class AdminContentActions {
     return ref.id;
   }
 
-  Future<void> saveLesson(AdminLessonModel lesson) async {
-    final legacyPreviewsFuture = _legacyPublishedLessonPreviews(
-      lesson.classLevel,
-      lesson.subjectId,
-      lesson.chapterId,
-    );
-    final legacySummariesFuture = _legacyChapterSummaries(
-      lesson.classLevel,
-      lesson.subjectId,
-    );
-    final legacyPreviews = await legacyPreviewsFuture;
-    final legacySummaries = await legacySummariesFuture;
-    final subjectRef = _subjectsRef(lesson.classLevel).doc(lesson.subjectId);
-    final chapterRef = _chaptersRef(
-      lesson.classLevel,
-      lesson.subjectId,
-    ).doc(lesson.chapterId);
-    final lessonRef = _lessonsRef(
-      lesson.classLevel,
-      lesson.subjectId,
-      lesson.chapterId,
-    ).doc(lesson.id);
-
-    await _db.runTransaction((transaction) async {
-      final chapterSnapshot = await transaction.get(chapterRef);
-      final subjectSnapshot = await transaction.get(subjectRef);
-      final chapterData = chapterSnapshot.data();
-      final subjectData = subjectSnapshot.data();
-      if (chapterData == null) {
-        throw StateError('Chapitre introuvable: ${lesson.chapterId}');
-      }
-      if (subjectData == null) {
-        throw StateError('Matière introuvable: ${lesson.subjectId}');
-      }
-
-      final currentPreviews = chapterData.containsKey('lessonPreviews')
-          ? chapterData['lessonPreviews']
-          : legacyPreviews;
-      final lessonData = <String, dynamic>{
-        ...lesson.toFirestore(),
-        'classLevel': lesson.classLevel,
-        'subjectId': lesson.subjectId,
-        'chapterId': lesson.chapterId,
-      };
-      final previews = syncPublishedLessonPreview(
-        current: currentPreviews,
-        preview: _lessonPreview(id: lesson.id, data: lessonData),
-        isPublished: lesson.isPublished,
-      );
-      final currentSummaries = subjectData.containsKey('chapterSummaries')
-          ? subjectData['chapterSummaries']
-          : legacySummaries;
-      final summaries = upsertCatalogEntry(
-        currentSummaries,
-        _chapterSummary(
-          id: lesson.chapterId,
-          data: chapterData,
-          lessonsCount: previews.length,
-        ),
-      );
-
-      transaction.update(lessonRef, lessonData);
-      transaction.update(chapterRef, {
-        'lessonPreviews': previews,
-        'lessonsCount': previews.length,
-      });
-      transaction.update(subjectRef, {'chapterSummaries': summaries});
-    });
-    _ref.invalidate(adminSubjectsProvider(lesson.classLevel));
-    _ref.invalidate(
-      adminChaptersProvider((
-        classLevel: lesson.classLevel,
-        subjectId: lesson.subjectId,
-      )),
-    );
-    _ref.invalidate(
-      adminLessonsProvider((
-        classLevel: lesson.classLevel,
-        subjectId: lesson.subjectId,
-        chapterId: lesson.chapterId,
-      )),
-    );
+  Future<void> _persistLesson(
+    AdminLessonModel lesson, {
+    required bool publish,
+  }) async {
+    await FirebaseFunctions.instanceFor(region: 'europe-west1')
+        .httpsCallable(
+          'saveLessonPublication',
+          options: HttpsCallableOptions(timeout: const Duration(minutes: 2)),
+        )
+        .call<void>({
+          'classLevel': lesson.classLevel,
+          'subjectId': lesson.subjectId,
+          'chapterId': lesson.chapterId,
+          'lessonId': lesson.id,
+          'publish': publish,
+          'content': lesson.toFirestore(),
+        });
+    _invalidateCatalog(lesson.classLevel, lesson.subjectId, lesson.chapterId);
   }
 
-  Future<void> publishLesson(AdminLessonModel lesson) async {
-    await saveLesson(lesson.copyWith(status: 'published'));
-    // Une leçon publiée dans une matière en brouillon resterait introuvable
-    // pour l'élève : la matière suit.
-    try {
-      final subjectRef = _subjectsRef(lesson.classLevel).doc(lesson.subjectId);
-      final subject = await subjectRef.get();
-      if (subject.exists && subject.data()?['status'] != 'published') {
-        await subjectRef.update({'status': 'published'});
-        _ref.invalidate(adminSubjectsProvider(lesson.classLevel));
-      }
-    } catch (_) {
-      // Sans droit sur la matière, elle reste à qui peut la publier.
+  void _invalidateCatalog(
+    String classLevel,
+    String subjectId, [
+    String? chapterId,
+  ]) {
+    _ref.invalidate(adminSubjectsProvider(classLevel));
+    _ref.invalidate(
+      adminChaptersProvider((classLevel: classLevel, subjectId: subjectId)),
+    );
+    _ref.invalidate(adminQuizzesProvider(classLevel));
+    _ref.invalidate(adminFlowItemsProvider(classLevel));
+    if (chapterId != null) {
+      _ref.invalidate(
+        adminLessonsProvider((
+          classLevel: classLevel,
+          subjectId: subjectId,
+          chapterId: chapterId,
+        )),
+      );
     }
+  }
+
+  Future<void> saveLesson(AdminLessonModel lesson) =>
+      _persistLesson(lesson, publish: false);
+
+  Future<void> publishLesson(AdminLessonModel lesson) =>
+      _persistLesson(lesson, publish: true);
+
+  Future<void> _deleteContent(
+    String classLevel,
+    String subjectId, [
+    String? chapterId,
+    String? lessonId,
+  ]) async {
+    await FirebaseFunctions.instanceFor(region: 'europe-west1')
+        .httpsCallable(
+          'deleteCatalogContent',
+          options: HttpsCallableOptions(timeout: const Duration(minutes: 5)),
+        )
+        .call<void>({
+          'classLevel': classLevel,
+          'subjectId': subjectId,
+          'chapterId': ?chapterId,
+          'lessonId': ?lessonId,
+        });
+    _invalidateCatalog(classLevel, subjectId, chapterId);
   }
 
   Future<void> deleteLesson({
@@ -530,73 +394,7 @@ class AdminContentActions {
     required String subjectId,
     required String chapterId,
     required String lessonId,
-  }) async {
-    final legacyPreviewsFuture = _legacyPublishedLessonPreviews(
-      classLevel,
-      subjectId,
-      chapterId,
-    );
-    final legacySummariesFuture = _legacyChapterSummaries(
-      classLevel,
-      subjectId,
-    );
-    final legacyPreviews = await legacyPreviewsFuture;
-    final legacySummaries = await legacySummariesFuture;
-    final subjectRef = _subjectsRef(classLevel).doc(subjectId);
-    final chapterRef = _chaptersRef(classLevel, subjectId).doc(chapterId);
-    final lessonRef = _lessonsRef(
-      classLevel,
-      subjectId,
-      chapterId,
-    ).doc(lessonId);
-
-    await _db.runTransaction((transaction) async {
-      final chapterSnapshot = await transaction.get(chapterRef);
-      final subjectSnapshot = await transaction.get(subjectRef);
-      final chapterData = chapterSnapshot.data();
-      final subjectData = subjectSnapshot.data();
-      if (chapterData == null) {
-        throw StateError('Chapitre introuvable: $chapterId');
-      }
-      if (subjectData == null) {
-        throw StateError('Matière introuvable: $subjectId');
-      }
-
-      final currentPreviews = chapterData.containsKey('lessonPreviews')
-          ? chapterData['lessonPreviews']
-          : legacyPreviews;
-      final previews = removeCatalogEntry(currentPreviews, lessonId);
-      final currentSummaries = subjectData.containsKey('chapterSummaries')
-          ? subjectData['chapterSummaries']
-          : legacySummaries;
-      final summaries = upsertCatalogEntry(
-        currentSummaries,
-        _chapterSummary(
-          id: chapterId,
-          data: chapterData,
-          lessonsCount: previews.length,
-        ),
-      );
-
-      transaction.delete(lessonRef);
-      transaction.update(chapterRef, {
-        'lessonPreviews': previews,
-        'lessonsCount': previews.length,
-      });
-      transaction.update(subjectRef, {'chapterSummaries': summaries});
-    });
-    _ref.invalidate(adminSubjectsProvider(classLevel));
-    _ref.invalidate(
-      adminChaptersProvider((classLevel: classLevel, subjectId: subjectId)),
-    );
-    _ref.invalidate(
-      adminLessonsProvider((
-        classLevel: classLevel,
-        subjectId: subjectId,
-        chapterId: chapterId,
-      )),
-    );
-  }
+  }) => _deleteContent(classLevel, subjectId, chapterId, lessonId);
 
   // ── AI generation ─────────────────────────────────────────
 
@@ -627,9 +425,13 @@ class AdminContentActions {
         ? _db.collection('quizzes').doc()
         : _db.collection('quizzes').doc(quiz.id);
     final answerKeyRef = _db.collection('quiz_answer_keys').doc(quizRef.id);
+    final existing = quiz.id.isEmpty ? null : (await quizRef.get()).data();
+    final scope =
+        existing?['scope'] ??
+        _ref.read(contentAuthoringScopeProvider).toFirestore();
     final batch = _db.batch();
-    batch.set(quizRef, quiz.toPublicFirestore());
-    batch.set(answerKeyRef, quiz.toAnswerKeyFirestore());
+    batch.set(quizRef, {...quiz.toPublicFirestore(), 'scope': scope});
+    batch.set(answerKeyRef, {...quiz.toAnswerKeyFirestore(), 'scope': scope});
     await batch.commit();
     for (final cl in quiz.classLevels) {
       _ref.invalidate(adminQuizzesProvider(cl));

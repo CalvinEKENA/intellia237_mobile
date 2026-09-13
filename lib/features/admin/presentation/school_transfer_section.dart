@@ -7,6 +7,7 @@ import '../application/admin_providers.dart';
 import '../domain/account_school_record.dart';
 import 'admin_presentation_localization.dart';
 import 'attach_school_sheet.dart';
+import 'account_management_controls.dart';
 
 /// Changer un compte d'école : erreur à l'inscription, déménagement, mutation.
 ///
@@ -34,13 +35,16 @@ class _SchoolTransferSectionState extends ConsumerState<SchoolTransferSection> {
   }
 
   Future<void> _search() async {
+    if (_searching) return;
     final query = _query.text.trim();
     if (query.isEmpty) return;
     final messenger = ScaffoldMessenger.of(context);
     final failure = context.l10n.accountReviewFailed;
     setState(() => _searching = true);
     try {
-      final results = await ref.read(adminActionsProvider).searchAccounts(query);
+      final results = await ref
+          .read(adminActionsProvider)
+          .searchAccounts(query);
       if (mounted) setState(() => _results = results);
     } catch (_) {
       messenger.showSnackBar(SnackBar(content: Text(failure)));
@@ -90,9 +94,7 @@ class _SchoolTransferSectionState extends ConsumerState<SchoolTransferSection> {
       messenger.showSnackBar(SnackBar(content: Text(l10n.schoolTransferDone)));
       await _search();
     } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.accountReviewFailed)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(l10n.accountReviewFailed)));
     }
   }
 
@@ -154,17 +156,22 @@ class _SchoolTransferSectionState extends ConsumerState<SchoolTransferSection> {
           )
         else
           for (final record in results ?? const <AccountSchoolRecord>[])
-            _AccountCard(record: record, onChange: _change),
+            _AccountCard(record: record, onChange: _change, onManaged: _search),
       ],
     );
   }
 }
 
 class _AccountCard extends StatelessWidget {
-  const _AccountCard({required this.record, required this.onChange});
+  const _AccountCard({
+    required this.record,
+    required this.onChange,
+    required this.onManaged,
+  });
 
   final AccountSchoolRecord record;
   final ValueChanged<AccountSchoolRecord> onChange;
+  final VoidCallback onManaged;
 
   @override
   Widget build(BuildContext context) {
@@ -197,18 +204,35 @@ class _AccountCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: IntelliaSpacing.sm),
-                FilledButton.tonal(
-                  key: ValueKey('school-transfer-change-${record.id}'),
-                  onPressed: () => onChange(record),
-                  child: Text(
-                    record.hasSchool
-                        ? l10n.schoolTransferMove
-                        : l10n.attachStaffAction,
-                  ),
+                AccountManagementMenu(
+                  accountId: record.id,
+                  name: record.fullName,
+                  status: record.accountStatus,
+                  onChanged: onManaged,
                 ),
               ],
             ),
             Text(contact, style: theme.textTheme.bodySmall),
+            const SizedBox(height: IntelliaSpacing.xs),
+            FilledButton.tonal(
+              key: ValueKey('school-transfer-change-${record.id}'),
+              onPressed: record.accountStatus == 'deleted'
+                  ? null
+                  : () => onChange(record),
+              child: Text(
+                record.hasSchool
+                    ? l10n.schoolTransferMove
+                    : l10n.attachStaffAction,
+              ),
+            ),
+            if (record.accountStatus == 'suspended' ||
+                record.accountStatus == 'deleted')
+              Text(
+                record.accountStatus == 'deleted'
+                    ? l10n.adminStatusDeleted
+                    : l10n.adminStatusSuspended,
+                style: TextStyle(color: theme.colorScheme.error),
+              ),
             const SizedBox(height: IntelliaSpacing.xxs),
             Text(
               record.hasSchool
@@ -226,11 +250,18 @@ class _AccountCard extends StatelessWidget {
               ),
             if (record.children.isNotEmpty) ...[
               const SizedBox(height: IntelliaSpacing.sm),
-              Text(l10n.schoolTransferChildren, style: theme.textTheme.labelLarge),
+              Text(
+                l10n.schoolTransferChildren,
+                style: theme.textTheme.labelLarge,
+              ),
               for (final child in record.children)
                 Padding(
                   padding: const EdgeInsets.only(top: IntelliaSpacing.xs),
-                  child: _AccountCard(record: child, onChange: onChange),
+                  child: _AccountCard(
+                    record: child,
+                    onChange: onChange,
+                    onManaged: onManaged,
+                  ),
                 ),
             ],
           ],

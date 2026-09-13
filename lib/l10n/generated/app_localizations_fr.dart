@@ -9,6 +9,71 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get adminManageProfile => 'Administrer le profil';
+
+  @override
+  String get adminSuspendProfile => 'Suspendre le profil';
+
+  @override
+  String get adminReactivateProfile => 'Réactiver le profil';
+
+  @override
+  String get adminRestoreProfile => 'Restaurer le profil';
+
+  @override
+  String get adminDeleteProfile => 'Supprimer le profil';
+
+  @override
+  String get adminAccountUpdated => 'Le profil a été mis à jour.';
+
+  @override
+  String get adminDeleteProfileBody =>
+      'Le profil sera retiré des annuaires et son accès sera bloqué. Ses données seront conservées pour permettre sa restauration par l’administration générale.';
+
+  @override
+  String get adminAccountDecisionBody =>
+      'Cette décision modifie l’accès du compte. Son motif sera conservé dans l’historique d’administration.';
+
+  @override
+  String get adminDecisionReason => 'Motif de la décision';
+
+  @override
+  String get adminCreateStudent => 'Ajouter un élève';
+
+  @override
+  String get adminCreateStudentBody =>
+      'Crée son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.';
+
+  @override
+  String get adminStudentCreated =>
+      'Le compte élève est créé. Il peut se connecter par téléphone.';
+
+  @override
+  String get adminStudentContactExists =>
+      'Ce téléphone ou cet e-mail possède déjà un compte. Retrouve-le avec la recherche.';
+
+  @override
+  String get adminStudentFirstName => 'Prénom';
+
+  @override
+  String get adminStudentLastName => 'Nom';
+
+  @override
+  String get adminFieldRequired => 'Ce champ est obligatoire.';
+
+  @override
+  String get adminStudentEmailOptional => 'E-mail (facultatif)';
+
+  @override
+  String get adminInvalidEmail => 'Vérifie l’adresse e-mail.';
+
+  @override
+  String get adminStatusSuspended => 'Compte suspendu';
+
+  @override
+  String get adminStatusDeleted => 'Profil supprimé';
+
+  @override
   String get backToPreviousAct => 'Revenir à l’acte précédent';
 
   @override
@@ -436,7 +501,20 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneErrorTooManyRequests =>
-      'Trop de tentatives ont été effectuées. Attends quelques minutes avant de demander un nouveau code.';
+      'Les demandes de code sont temporairement bloquées par Firebase. Le délai de déblocage n’est pas communiqué et peut dépasser une heure. Évite les demandes répétées. Si tu as déjà associé un e-mail à ton compte, utilise-le pour te connecter.';
+
+  @override
+  String get phoneErrorAppVerification =>
+      'Cette version de l’application n’a pas pu être vérifiée. Contacte l’assistance avec la référence ci-dessous.';
+
+  @override
+  String get phoneErrorCaptcha =>
+      'La vérification de sécurité n’a pas abouti. Réessaie depuis l’application.';
+
+  @override
+  String phoneRequestPause(int seconds) {
+    return 'Nouvelle demande dans $seconds s';
+  }
 
   @override
   String get phoneErrorQuota =>

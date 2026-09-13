@@ -274,6 +274,10 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
   }
 
   String? _validateAcademicInfo() {
+    if (state.accountLinkage == LearnerAccountLinkage.establishmentManaged &&
+        (state.establishment?.candidateId?.isEmpty ?? true)) {
+      return 'Choisissez votre établissement dans la liste.';
+    }
     final schoolClass = state.schoolClass;
     if (schoolClass == null) {
       return 'Sélectionnez votre classe.';

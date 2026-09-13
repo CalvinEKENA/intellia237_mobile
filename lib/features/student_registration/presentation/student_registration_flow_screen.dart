@@ -413,6 +413,8 @@ class _StudentRegistrationFlowScreenState
         const SizedBox(height: 18),
         EstablishmentSearchField(
           initialName: state.establishment?.name,
+          initialId: state.establishment?.candidateId,
+          onCleared: () => controller.setEstablishmentCandidate(''),
           onSelected: controller.selectEstablishment,
           onSuggestion: controller.suggestEstablishment,
         ),

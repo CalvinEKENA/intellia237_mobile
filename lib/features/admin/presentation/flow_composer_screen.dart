@@ -110,9 +110,9 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
     );
     _question = TextEditingController(text: text('question'));
     _points = TextEditingController(
-      text: ((payload['points'] as List?) ?? const [])
-          .whereType<String>()
-          .join('\n'),
+      text: ((payload['points'] as List?) ?? const []).whereType<String>().join(
+        '\n',
+      ),
     );
     _explanation = TextEditingController(text: text('explanation'));
     _options = List.generate(
@@ -237,7 +237,9 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
     status: widget.initial?.status ?? 'draft',
     tags: widget.initial?.tags ?? const <String>[],
     origin: widget.initial?.origin ?? 'manual',
-    createdBy: widget.initial?.createdBy,
+    createdBy: widget.initial == null
+        ? ref.read(contentActorProvider)?.uid
+        : widget.initial!.createdBy,
     createdAt: widget.initial?.createdAt,
   );
 

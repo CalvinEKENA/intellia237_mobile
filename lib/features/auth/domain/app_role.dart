@@ -24,9 +24,9 @@ class StoredAppRoleResolution {
 StoredAppRoleResolution parseStoredAppRole(String storedValue) {
   final normalized = storedValue.trim();
   if (normalized == 'superAdmin' || normalized == 'super_admin') {
-    return const StoredAppRoleResolution(
+    return StoredAppRoleResolution(
       role: AppRole.admin,
-      isLegacy: true,
+      isLegacy: normalized == 'super_admin',
       isSuperAdmin: true,
     );
   }

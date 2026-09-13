@@ -8,6 +8,26 @@ import '../domain/repositories/phone_auth_repository.dart';
 
 enum PhoneAuthStage { phoneEntry, codeEntry, success }
 
+/// Shared across login/link screens. Leaving a screen must not bypass the
+/// spacing between SMS requests. This delay is not Firebase's unblock time.
+final phoneRequestGateProvider = Provider((ref) => PhoneRequestGate());
+
+class PhoneRequestGate {
+  final _deadlines = <String, DateTime>{};
+
+  int remaining(String phone) {
+    final deadline = _deadlines[phone];
+    if (deadline == null) return 0;
+    final milliseconds = deadline.difference(DateTime.now()).inMilliseconds;
+    return milliseconds <= 0 ? 0 : (milliseconds / 1000).ceil();
+  }
+
+  void reserve(String phone, int seconds) {
+    _deadlines.removeWhere((_, deadline) => deadline.isBefore(DateTime.now()));
+    _deadlines[phone] = DateTime.now().add(Duration(seconds: seconds));
+  }
+}
+
 class PhoneAuthState {
   const PhoneAuthState({
     this.stage = PhoneAuthStage.phoneEntry,
@@ -63,6 +83,7 @@ final phoneAuthControllerProvider = StateNotifierProvider.autoDispose
       final controller = PhoneAuthController(
         repository: ref.read(phoneAuthRepositoryProvider),
         linkCurrentUser: linkCurrentUser,
+        requestGate: ref.read(phoneRequestGateProvider),
       );
       ref.onDispose(controller.close);
       return controller;
@@ -72,22 +93,28 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
   PhoneAuthController({
     required PhoneAuthRepository repository,
     required this.linkCurrentUser,
+    PhoneRequestGate? requestGate,
   }) : _repository = repository,
+       _requestGate = requestGate ?? PhoneRequestGate(),
        super(const PhoneAuthState());
 
-  static const resendCooldown = 45;
+  static const resendCooldown = 60;
 
   final PhoneAuthRepository _repository;
+  final PhoneRequestGate _requestGate;
   final bool linkCurrentUser;
   Timer? _cooldownTimer;
   bool _closed = false;
+  int _requestGeneration = 0;
 
-  Future<void> sendCode(String rawPhone) async {
+  Future<void> sendCode(String rawPhone, {bool resend = false}) async {
     // Le clavier (`onFieldSubmitted`) et le bouton déclenchent le même geste.
     // Sans garde, un seul envoi voulu par l'élève pouvait produire deux
     // `verifyPhoneNumber`, donc consommer deux fois le quota Firebase et
     // provoquer le throttling « trop de tentatives ».
-    if (state.isLoading) return;
+    if (_closed || state.isLoading || state.stage == PhoneAuthStage.success) {
+      return;
+    }
     String phone;
     try {
       phone = CameroonPhoneNumber.normalize(rawPhone);
@@ -96,6 +123,21 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
       return;
     }
 
+    final remaining = _requestGate.remaining(phone);
+    if (remaining > 0) {
+      state = state.copyWith(phoneNumber: phone, cooldownSeconds: remaining);
+      _startCooldown();
+      return;
+    }
+    final generation = ++_requestGeneration;
+    bool current() =>
+        !_closed &&
+        generation == _requestGeneration &&
+        state.stage != PhoneAuthStage.success;
+    final token = resend && phone == state.phoneNumber
+        ? state.resendToken
+        : null;
+    _requestGate.reserve(phone, resendCooldown);
     state = state.copyWith(
       phoneNumber: phone,
       isLoading: true,
@@ -106,23 +148,33 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
       await _repository.startVerification(
         phoneNumber: phone,
         linkCurrentUser: linkCurrentUser,
-        forceResendingToken: state.resendToken,
-        onVerified: _handleVerified,
-        onFailed: _handleFailure,
-        onCodeSent: _handleCodeSent,
-        onAutoRetrievalTimeout: _handleTimeout,
+        forceResendingToken: token,
+        onVerified: (session) {
+          if (current()) _handleVerified(session);
+        },
+        onFailed: (failure) {
+          if (current()) _handleFailure(failure);
+        },
+        onCodeSent: (dispatch) {
+          if (current()) _handleCodeSent(dispatch);
+        },
+        onAutoRetrievalTimeout: (id) {
+          if (current()) _handleTimeout(id);
+        },
       );
     } on PhoneAuthFailure catch (error) {
-      _handleFailure(error);
+      if (current()) _handleFailure(error);
     } catch (_) {
-      _handleFailure(const PhoneAuthFailure('unknown-error'));
+      if (current()) _handleFailure(const PhoneAuthFailure('unknown-error'));
     }
   }
 
   Future<void> confirmCode(String code) async {
     // La saisie du sixième chiffre valide déjà automatiquement : le
     // « terminé » du clavier ne doit pas soumettre le code une seconde fois.
-    if (state.isLoading) return;
+    if (_closed || state.isLoading || state.stage != PhoneAuthStage.codeEntry) {
+      return;
+    }
     final verificationId = state.verificationId;
     final normalizedCode = code.replaceAll(RegExp(r'\D'), '');
     if (verificationId == null || normalizedCode.length != 6) {
@@ -148,12 +200,19 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
 
   Future<void> resendCode() async {
     if (state.cooldownSeconds > 0 || state.isLoading) return;
-    await sendCode(state.phoneNumber);
+    await sendCode(state.phoneNumber, resend: true);
   }
 
   void changePhoneNumber() {
+    if (_closed || state.isLoading) return;
+    _requestGeneration++;
+    _cancelPendingVerification();
     _cooldownTimer?.cancel();
-    state = PhoneAuthState(phoneNumber: state.phoneNumber);
+    state = PhoneAuthState(
+      phoneNumber: state.phoneNumber,
+      cooldownSeconds: _requestGate.remaining(state.phoneNumber),
+    );
+    _startCooldown();
   }
 
   void showProfileMissing() {
@@ -168,6 +227,7 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
 
   void _handleCodeSent(PhoneCodeDispatch dispatch) {
     if (_closed) return;
+    _requestGate.reserve(state.phoneNumber, resendCooldown);
     state = state.copyWith(
       stage: PhoneAuthStage.codeEntry,
       verificationId: dispatch.verificationId,
@@ -191,15 +251,22 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
   }
 
   void _handleFailure(PhoneAuthFailure failure) {
-    if (_closed) return;
-    state = state.copyWith(isLoading: false, errorCode: failure.code);
+    if (_closed || state.stage == PhoneAuthStage.success) return;
+    state = state.copyWith(
+      isLoading: false,
+      errorCode: failure.code,
+      cooldownSeconds: _requestGate.remaining(state.phoneNumber),
+    );
+    _startCooldown();
   }
 
   void _handleTimeout(String verificationId) {
     if (_closed || state.stage == PhoneAuthStage.success) return;
     state = state.copyWith(
       verificationId: verificationId,
-      isLoading: false,
+      isLoading: state.stage == PhoneAuthStage.phoneEntry
+          ? false
+          : state.isLoading,
       autoRetrievalTimedOut: true,
     );
   }
@@ -211,7 +278,7 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
         timer.cancel();
         return;
       }
-      final next = state.cooldownSeconds - 1;
+      final next = _requestGate.remaining(state.phoneNumber);
       state = state.copyWith(cooldownSeconds: next.clamp(0, resendCooldown));
       if (next <= 0) timer.cancel();
     });
@@ -219,6 +286,14 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
 
   void close() {
     _closed = true;
+    _cancelPendingVerification();
     _cooldownTimer?.cancel();
+  }
+
+  void _cancelPendingVerification() {
+    final repository = _repository;
+    if (repository is CancelablePhoneAuthRepository) {
+      (repository as CancelablePhoneAuthRepository).cancelPendingVerification();
+    }
   }
 }

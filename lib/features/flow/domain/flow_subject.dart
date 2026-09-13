@@ -24,6 +24,22 @@ class FlowSubject {
 
 /// Catalogue des matières utilisées dans le Flow de démonstration.
 abstract final class FlowSubjects {
+  static FlowSubject? fromLabel(String? label) {
+    if (label == null || label.trim().isEmpty) return null;
+    final value = label.trim().toLowerCase();
+    for (final subject in all) {
+      if (subject.label.toLowerCase() == value || subject.id == value) {
+        return subject;
+      }
+    }
+    return FlowSubject(
+      id: value,
+      label: label.trim(),
+      icon: Icons.menu_book_rounded,
+      gradient: IntelliaGradients.french,
+    );
+  }
+
   static const maths = FlowSubject(
     id: 'maths',
     label: 'Mathématiques',

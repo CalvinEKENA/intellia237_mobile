@@ -13,7 +13,9 @@ import 'flow_subject.dart';
 /// encore de rendu est écartée du fil — jamais rendue à moitié.
 abstract final class FlowItemMapper {
   static FlowCard? toCard(FlowItem item) {
-    final subject = FlowSubjects.byId(item.subjectId);
+    final subject =
+        FlowSubjects.byId(item.subjectId) ??
+        FlowSubjects.fromLabel(item.payload['subjectLabel'] as String?);
     if (subject == null) return null;
 
     final title = item.title.trim();

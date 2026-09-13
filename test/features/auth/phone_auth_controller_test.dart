@@ -3,6 +3,52 @@ import 'package:intellia237/features/auth/application/phone_auth_controller.dart
 import 'package:intellia237/features/auth/domain/repositories/phone_auth_repository.dart';
 
 void main() {
+  test('leaving and reopening OTP does not resend during cooldown', () async {
+    final gate = PhoneRequestGate();
+    final repository = _FakePhoneAuthRepository();
+    final first = PhoneAuthController(
+      repository: repository,
+      linkCurrentUser: false,
+      requestGate: gate,
+    );
+    await first.sendCode('699123456');
+    repository.failed!(const PhoneAuthFailure('too-many-requests'));
+    first.close();
+    final reopened = PhoneAuthController(
+      repository: repository,
+      linkCurrentUser: false,
+      requestGate: gate,
+    );
+    addTearDown(reopened.close);
+    await reopened.sendCode('699123456');
+    expect(repository.startCalls, 1);
+    expect(reopened.state.cooldownSeconds, greaterThan(0));
+  });
+
+  test(
+    'callbacks from the previous number cannot replace the current code',
+    () async {
+      final repository = _FakePhoneAuthRepository();
+      final controller = PhoneAuthController(
+        repository: repository,
+        linkCurrentUser: false,
+      );
+      addTearDown(controller.close);
+      await controller.sendCode('699123456');
+      repository.codeSent!(const PhoneCodeDispatch(verificationId: 'old'));
+      final staleCodeSent = repository.codeSent!;
+      controller.changePhoneNumber();
+      await controller.sendCode('699123457');
+      repository.codeSent!(const PhoneCodeDispatch(verificationId: 'new'));
+      staleCodeSent(const PhoneCodeDispatch(verificationId: 'old-late'));
+      expect(controller.state.verificationId, 'new');
+      await controller.confirmCode('123456');
+      repository.failed!(const PhoneAuthFailure('too-many-requests'));
+      repository.codeSent!(const PhoneCodeDispatch(verificationId: 'late'));
+      expect(controller.state.stage, PhoneAuthStage.success);
+      expect(controller.state.errorCode, isNull);
+    },
+  );
   test(
     'dispatches E.164 number and exposes every verification callback',
     () async {

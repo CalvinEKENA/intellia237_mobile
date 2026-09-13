@@ -22,7 +22,7 @@ export function createListPublishedQuizzesHandler(
     const traceId = randomUUID();
     try {
       const input = listPublishedQuizzesCallableInputSchema.parse(request.data);
-      const quizzes = await store.listPublished(input);
+      const quizzes = await store.listPublished(input, request.auth!.uid);
       return { traceId, quizzes };
     } catch (error) {
       logFailure("listPublishedQuizzes", traceId, error);
@@ -39,7 +39,7 @@ export function createGetPublishedQuizHandler(
     const traceId = randomUUID();
     try {
       const input = getPublishedQuizCallableInputSchema.parse(request.data);
-      const quiz = await store.getPublished(input.quizId);
+      const quiz = await store.getPublished(input.quizId, request.auth!.uid);
       return { traceId, quiz };
     } catch (error) {
       logFailure("getPublishedQuiz", traceId, error);
@@ -56,7 +56,7 @@ export function createCheckTrainingQuizAnswerHandler(
     const traceId = randomUUID();
     try {
       const input = checkTrainingQuizAnswerCallableInputSchema.parse(request.data);
-      const correction = await store.checkTrainingAnswer(input);
+      const correction = await store.checkTrainingAnswer(input, request.auth!.uid);
       // Do not log the answer or correction: both are academic content.
       logger.info("checkTrainingQuizAnswer completed.", {
         traceId,

@@ -153,6 +153,13 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
         user: user,
       );
     } on AuthError catch (error) {
+      if (error.code == 'user-disabled') {
+        await _auth.signOut();
+        return const AuthSessionResolution(
+          kind: AuthSessionResolutionKind.unauthenticated,
+          errorCode: 'user-disabled',
+        );
+      }
       if (error.code == 'user-profile-not-found') {
         return AuthSessionResolution(
           kind: AuthSessionResolutionKind.needsOnboarding,
@@ -209,6 +216,12 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
     }
 
     final roleString = (data['role'] as String? ?? '').trim();
+    if (const ['suspended', 'deleted'].contains(data['accountStatus'])) {
+      throw const AuthError(
+        message: 'Ce compte est désactivé. Contacte l’assistance Intellia 237.',
+        code: 'user-disabled',
+      );
+    }
 
     final parsedRole = parseStoredAppRole(roleString);
     final role = parsedRole.role;

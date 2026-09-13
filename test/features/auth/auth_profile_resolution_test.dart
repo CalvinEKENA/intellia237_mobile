@@ -11,6 +11,45 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues(const {}));
 
+  for (final kind in [
+    AuthSessionResolutionKind.authenticated,
+    AuthSessionResolutionKind.legacyProfileRecovery,
+  ]) {
+    test('super-admin scope survives $kind and offline restoration', () async {
+      final state = await _bootstrap(
+        AuthSessionResolution(
+          kind: kind,
+          firebaseUid: 'owner',
+          user: const AuthUserData(
+            uid: 'owner',
+            email: 'owner@example.com',
+            role: AppRole.admin,
+            firstName: 'Owner',
+            lastName: '',
+            profileCompleted: true,
+            isSuperAdmin: true,
+          ),
+        ),
+      );
+      expect(state.isSuperAdmin, isTrue);
+      final offline = await _bootstrap(
+        const AuthSessionResolution(
+          kind: AuthSessionResolutionKind.retryableProfileFailure,
+          firebaseUid: 'owner',
+        ),
+      );
+      expect(offline.isSuperAdmin, isTrue);
+      final otherAccount = await _bootstrap(
+        const AuthSessionResolution(
+          kind: AuthSessionResolutionKind.retryableProfileFailure,
+          firebaseUid: 'another-user',
+        ),
+      );
+      expect(otherAccount.isSuperAdmin, isFalse);
+      expect(otherAccount.isAuthenticated, isFalse);
+    });
+  }
+
   test('1. Auth OK plus canonical profile resolves authenticated', () async {
     final state = await _bootstrap(
       _resolution(AuthSessionResolutionKind.authenticated),

@@ -12,6 +12,7 @@ import { AppError } from "../utils/errors";
 import { buildScoringQuizRecord } from "./quizAnswerKeys";
 import { scoreQuizAttempt } from "./quizScoring";
 import { accumulatedPoints } from "./pointsPolicy";
+import { quizAudienceAllows } from "./quizContentStore";
 import {
   type QuizSubmissionResult,
   type StoredQuizAttempt
@@ -138,6 +139,10 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
       const userSnapshot = await transaction.get(userRef);
       const profileSnapshot = await transaction.get(profileRef);
       const streakSnapshot = await transaction.get(streakRef);
+
+      if (!quizAudienceAllows(quizSnapshot.data()!, userSnapshot.data() || {})) {
+        throw new AppError("permission-denied", "Quiz unavailable for this student.");
+      }
 
       transaction.set(attemptRef, {
         attemptId,
@@ -523,7 +528,8 @@ export function assertLessonProgressAuthorized({
     }
   }
 
-  const lessonEstablishment = normalizedString(lessonData.establishmentId);
+  const lessonEstablishment = normalizedString(lessonData.scope?.type === "establishment"
+    ? lessonData.scope.establishmentId : lessonData.establishmentId);
   const studentEstablishment = normalizedString(userData.establishmentId);
   if (
     (lessonEstablishment && lessonEstablishment !== studentEstablishment) ||

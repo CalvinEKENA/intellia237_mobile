@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../domain/flow_item.dart';
+import '../../auth/application/auth_controller.dart';
 
 /// Collection des publications du fil pédagogique.
 const kFlowItemsCollection = 'flow_items';
@@ -28,11 +29,37 @@ abstract interface class FlowFeedRepository {
   });
 }
 
+/// Consume the cursor, including pages containing only filtered-out entries.
+/// Previously the UI silently stopped after its first ten documents.
+Future<List<FlowItem>> fetchFlowCatalog(
+  FlowFeedRepository repository,
+  String classLevel,
+) async {
+  final items = <String, FlowItem>{};
+  final seenCursors = <String>{};
+  String? cursor;
+  do {
+    final page = await repository.fetchPage(
+      classLevel: classLevel,
+      cursor: cursor,
+      limit: 100,
+    );
+    for (final item in page.items) {
+      items[item.id] = item;
+    }
+    cursor = page.nextCursor;
+  } while (cursor != null && seenCursors.add(cursor));
+  return items.values.toList(growable: false);
+}
+
 class FirestoreFlowFeedRepository implements FlowFeedRepository {
-  FirestoreFlowFeedRepository([FirebaseFirestore? firestore])
-    : _firestore = firestore ?? FirebaseFirestore.instance;
+  FirestoreFlowFeedRepository([
+    FirebaseFirestore? firestore,
+    this.establishmentId,
+  ]) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
+  final String? establishmentId;
 
   @override
   Future<FlowFeedPage> fetchPage({
@@ -70,6 +97,10 @@ class FirestoreFlowFeedRepository implements FlowFeedRepository {
       final item = FlowItem.fromFirestore(doc.id, doc.data());
       // Un document illisible ou programmé plus tard est ignoré, pas fatal.
       if (item == null || !item.isVisibleAt(now)) continue;
+      if (item.scope.isEstablishment &&
+          item.scope.establishmentId != establishmentId) {
+        continue;
+      }
       items.add(item);
     }
 
@@ -131,5 +162,8 @@ class FlowFeedCache {
 }
 
 final flowFeedRepositoryProvider = Provider<FlowFeedRepository>(
-  (ref) => FirestoreFlowFeedRepository(),
+  (ref) => FirestoreFlowFeedRepository(
+    null,
+    ref.watch(authControllerProvider).establishmentId,
+  ),
 );

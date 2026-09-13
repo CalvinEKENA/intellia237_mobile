@@ -13,6 +13,7 @@ import '../application/auth_controller.dart';
 import '../application/auth_state.dart';
 import '../application/phone_auth_controller.dart';
 import '../domain/app_role.dart';
+import '../domain/firebase_error_mapper.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
@@ -147,6 +148,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                   controller: _phoneController,
                   focusNode: _phoneFocus,
                   isLoading: state.isLoading,
+                  cooldownSeconds: state.cooldownSeconds,
                   onSubmit: () => controller.sendCode(_phoneController.text),
                 ),
                 PhoneAuthStage.codeEntry => _CodeEntry(
@@ -187,7 +189,9 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
             const SizedBox(height: 14),
             AuthErrorBanner(
               key: ValueKey(state.errorCode),
-              message: _localizedPhoneError(l10n, state.errorCode!),
+              message:
+                  '${_localizedPhoneError(l10n, state.errorCode!)}\n'
+                  '${FirebaseErrorMapper.diagnosticId(state.errorCode)}',
               onDismiss: controller.clearError,
             ),
           ],
@@ -205,9 +209,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                   ? null
                   : () => context.go(AppRoutes.authGateway),
               icon: const Icon(Icons.arrow_back_rounded, size: 16),
-              label: Text(
-                context.l10n.passChooseAnotherWayIn,
-              ),
+              label: Text(context.l10n.passChooseAnotherWayIn),
             ),
           ],
           const SizedBox(height: 20),
@@ -271,6 +273,7 @@ class _PhoneEntry extends StatelessWidget {
     required this.controller,
     required this.focusNode,
     required this.isLoading,
+    required this.cooldownSeconds,
     required this.onSubmit,
     super.key,
   });
@@ -278,6 +281,7 @@ class _PhoneEntry extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final bool isLoading;
+  final int cooldownSeconds;
   final VoidCallback onSubmit;
 
   @override
@@ -332,7 +336,9 @@ class _PhoneEntry extends StatelessWidget {
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9+ ()-]')),
                     LengthLimitingTextInputFormatter(20),
                   ],
-                  onFieldSubmitted: (_) => onSubmit(),
+                  onFieldSubmitted: (_) {
+                    if (!isLoading && cooldownSeconds == 0) onSubmit();
+                  },
                   style: const TextStyle(
                     fontFamily: 'CampaignBody',
                     color: AuthExperienceColors.textPrimary,
@@ -363,8 +369,10 @@ class _PhoneEntry extends StatelessWidget {
           const SizedBox(height: 18),
           AuthPrimaryButton(
             key: const ValueKey('send-phone-code'),
-            label: l10n.sendVerificationCode,
-            onTap: isLoading ? null : onSubmit,
+            label: cooldownSeconds > 0
+                ? l10n.phoneRequestPause(cooldownSeconds)
+                : l10n.sendVerificationCode,
+            onTap: isLoading || cooldownSeconds > 0 ? null : onSubmit,
             isLoading: isLoading,
             icon: Icons.sms_outlined,
           ),
@@ -540,6 +548,12 @@ String _localizedPhoneError(AppLocalizations l10n, String code) {
     'missing-verification-code' => l10n.phoneErrorInvalidCode,
     'too-many-requests' => l10n.phoneErrorTooManyRequests,
     'quota-exceeded' => l10n.phoneErrorQuota,
+    'app-not-authorized' ||
+    'invalid-app-credential' ||
+    'missing-app-credential' ||
+    'invalid-cert-hash' ||
+    'missing-client-identifier' => l10n.phoneErrorAppVerification,
+    'captcha-check-failed' => l10n.phoneErrorCaptcha,
     'network-request-failed' || 'network-error' => l10n.phoneErrorNetwork,
     'operation-not-allowed' => l10n.phoneErrorDisabled,
     'credential-already-in-use' ||

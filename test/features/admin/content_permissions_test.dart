@@ -6,7 +6,7 @@ import 'package:intellia237/features/auth/domain/app_role.dart';
 
 /// Le cloisonnement et la barrière éditoriale sont les deux garanties du
 /// Studio : un établissement ne touche pas au travail d'un autre, et rien ne
-/// devient visible aux élèves sans passage par l'administration.
+/// devient visible aux élèves sans publication explicite.
 void main() {
   const leclerc = ContentScope(
     type: ContentScopeType.establishment,
@@ -162,8 +162,7 @@ void main() {
       );
     });
 
-    test('un enseignant ne publie pas lui-même', () {
-      // Rendre visible aux élèves relève de l'administration.
+    test('un enseignant publie son contenu dans son établissement', () {
       expect(
         ContentPermissions.canTransition(
           actor: profLeclerc,
@@ -171,6 +170,19 @@ void main() {
           metadata: inReview,
           next: EditorialStatus.published,
           authorUid: 'prof-1',
+        ),
+        isTrue,
+      );
+    });
+
+    test('un enseignant ne publie pas le contenu d’un autre auteur', () {
+      expect(
+        ContentPermissions.canTransition(
+          actor: profLeclerc,
+          scope: leclerc,
+          metadata: inReview,
+          next: EditorialStatus.published,
+          authorUid: 'autre-prof',
         ),
         isFalse,
       );
@@ -244,7 +256,7 @@ void main() {
   });
 
   group('gestes proposés à l’interface', () {
-    test('l’enseignant ne se voit offrir que la soumission', () {
+    test('l’enseignant peut soumettre ou publier son brouillon', () {
       final gestes = ContentPermissions.availableTransitions(
         actor: profLeclerc,
         scope: leclerc,
@@ -252,7 +264,7 @@ void main() {
         authorUid: 'prof-1',
       );
 
-      expect(gestes, [EditorialStatus.inReview]);
+      expect(gestes, [EditorialStatus.inReview, EditorialStatus.published]);
     });
 
     test('l’administration dispose des gestes de publication', () {

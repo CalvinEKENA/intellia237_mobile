@@ -2,7 +2,8 @@ import { randomUUID } from "node:crypto";
 
 import { logger } from "firebase-functions";
 import { setGlobalOptions } from "firebase-functions/v2";
-import { HttpsError, onCall } from "firebase-functions/v2/https";
+import { HttpsError } from "firebase-functions/v2/https";
+import { onCallWithAccountAccess as onCall } from "./services/callableAccountAccess";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 
 import { getEnv } from "./config/env";
@@ -28,6 +29,9 @@ import {
 import { AskTutorUseCase } from "./services/askTutorUseCase";
 import { requestAccountDeletionHandler } from "./services/accountDeletionCallable";
 import { reviewStaffAccountHandler } from "./services/staffAccountReviewCallable";
+import { manageAccountHandler } from "./services/adminAccountManagementCallable";
+import { saveLessonPublicationHandler, deleteCatalogContentHandler, createCatalogChapterHandler, createListEditorialFlowHandler } from "./services/lessonPublicationCallable";
+import { listRegistrationEstablishmentsHandler } from "./services/registrationEstablishmentsCallable";
 import { changeAccountEstablishmentHandler } from "./services/accountEstablishmentChangeCallable";
 import { importCoursePagesHandler } from "./services/coursePageImport";
 import { submitFlowActivityHandler } from "./services/flowPointsCallable";
@@ -48,6 +52,12 @@ setGlobalOptions({
   // basculer toutes les callables sur un refus strict dans un déploiement dédié.
   enforceAppCheck: env.ENFORCE_APP_CHECK,
 });
+
+export const saveLessonPublication = onCall({ timeoutSeconds: 120, memory: "512MiB", region: env.FUNCTIONS_REGION }, saveLessonPublicationHandler);
+export const deleteCatalogContent = onCall({ timeoutSeconds: 300, memory: "512MiB", region: env.FUNCTIONS_REGION }, deleteCatalogContentHandler);
+export const listRegistrationEstablishments = onCall({ timeoutSeconds: 30, region: env.FUNCTIONS_REGION }, listRegistrationEstablishmentsHandler);
+export const createCatalogChapter = onCall({ timeoutSeconds: 60, region: env.FUNCTIONS_REGION }, createCatalogChapterHandler());
+export const listEditorialFlow = onCall({ timeoutSeconds: 30, region: env.FUNCTIONS_REGION }, createListEditorialFlowHandler());
 
 const generateQuizUseCase = new GenerateQuizUseCase();
 const generateSummaryUseCase = new GenerateSummaryUseCase();
@@ -262,6 +272,11 @@ export const reviewStaffAccount = onCall(
     memory: "256MiB",
   },
   reviewStaffAccountHandler,
+);
+
+export const manageAccount = onCall(
+  { region: env.FUNCTIONS_REGION, timeoutSeconds: 30, memory: "256MiB" },
+  manageAccountHandler,
 );
 
 export const changeAccountEstablishment = onCall(

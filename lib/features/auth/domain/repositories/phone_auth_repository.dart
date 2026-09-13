@@ -45,3 +45,7 @@ abstract interface class PhoneAuthRepository {
     required bool linkCurrentUser,
   });
 }
+
+abstract interface class CancelablePhoneAuthRepository {
+  void cancelPendingVerification();
+}

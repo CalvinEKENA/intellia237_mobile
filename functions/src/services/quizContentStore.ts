@@ -1,6 +1,7 @@
 import type { Firestore } from "firebase-admin/firestore";
 
 import { db } from "../config/firebase";
+import { scopeId } from "./lessonPublicationCallable";
 import { AppError } from "../utils/errors";
 import type {
   CheckTrainingQuizAnswerCallableInput,
@@ -12,16 +13,16 @@ import { scoreQuizAttempt } from "./quizScoring";
 import type { QuizCorrection } from "./quizTypes";
 
 export interface QuizContentStore {
-  listPublished(input: ListPublishedQuizzesCallableInput): Promise<PublicQuizPayload[]>;
-  getPublished(quizId: string): Promise<PublicQuizPayload>;
-  checkTrainingAnswer(input: CheckTrainingQuizAnswerCallableInput): Promise<QuizCorrection>;
+  listPublished(input: ListPublishedQuizzesCallableInput, userId?: string): Promise<PublicQuizPayload[]>;
+  getPublished(quizId: string, userId?: string): Promise<PublicQuizPayload>;
+  checkTrainingAnswer(input: CheckTrainingQuizAnswerCallableInput, userId?: string): Promise<QuizCorrection>;
 }
 
 export class FirestoreQuizContentStore implements QuizContentStore {
   constructor(private readonly firestore: Firestore = db) {}
 
   async listPublished(
-    input: ListPublishedQuizzesCallableInput
+    input: ListPublishedQuizzesCallableInput, userId?: string
   ): Promise<PublicQuizPayload[]> {
     const snapshot = await this.firestore
       .collection("quizzes")
@@ -32,7 +33,9 @@ export class FirestoreQuizContentStore implements QuizContentStore {
       .limit(100)
       .get();
 
+    const user = userId ? (await this.firestore.doc(`users/${userId}`).get()).data() || {} : undefined;
     return snapshot.docs
+      .filter(document => quizAudienceAllows(document.data(), user))
       .filter((document) => isAllowedForSeries(document.data(), input.series))
       .map((document) => toPublicQuizPayload({
         id: document.id,
@@ -41,9 +44,12 @@ export class FirestoreQuizContentStore implements QuizContentStore {
       }));
   }
 
-  async getPublished(quizId: string): Promise<PublicQuizPayload> {
+  async getPublished(quizId: string, userId?: string): Promise<PublicQuizPayload> {
     const snapshot = await this.firestore.collection("quizzes").doc(quizId).get();
     if (!snapshot.exists) {
+      throw new AppError("not-found", "Quiz not found.");
+    }
+    if (userId && !quizAudienceAllows(snapshot.data()!, (await this.firestore.doc(`users/${userId}`).get()).data() || {})) {
       throw new AppError("not-found", "Quiz not found.");
     }
 
@@ -55,7 +61,7 @@ export class FirestoreQuizContentStore implements QuizContentStore {
   }
 
   async checkTrainingAnswer(
-    input: CheckTrainingQuizAnswerCallableInput
+    input: CheckTrainingQuizAnswerCallableInput, userId?: string
   ): Promise<QuizCorrection> {
     const quizRef = this.firestore.collection("quizzes").doc(input.quizId);
     const answerKeyRef = this.firestore.collection("quiz_answer_keys").doc(input.quizId);
@@ -64,6 +70,9 @@ export class FirestoreQuizContentStore implements QuizContentStore {
       answerKeyRef.get()
     ]);
     if (!quizSnapshot.exists) {
+      throw new AppError("not-found", "Quiz not found.");
+    }
+    if (userId && !quizAudienceAllows(quizSnapshot.data()!, (await this.firestore.doc(`users/${userId}`).get()).data() || {})) {
       throw new AppError("not-found", "Quiz not found.");
     }
 
@@ -95,6 +104,16 @@ export class FirestoreQuizContentStore implements QuizContentStore {
     });
     return result.corrections[0];
   }
+}
+
+export function quizAudienceAllows(data: Record<string, unknown>, user?: Record<string, unknown>): boolean {
+  if (!user) return true; // Internal callers/tests; public callables always supply the authenticated user.
+  if (["superAdmin", "super_admin"].includes(String(user.role))) return true;
+  const scope = scopeId(data);
+  if (scope !== "global" && scope !== user.establishmentId) return false;
+  const levels = Array.isArray(data.classLevels) ? data.classLevels : [];
+  return user.role !== "student" ||
+    classLevelReadAliases(String(user.classLevel || "")).some(level => levels.includes(level));
 }
 
 export function classLevelReadAliases(value: string): string[] {

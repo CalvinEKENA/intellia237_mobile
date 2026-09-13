@@ -672,6 +672,21 @@ describe("Firestore security rules", () => {
     }));
   });
 
+  it("revokes suspended/deleted profile access without waiting for token expiration", async () => {
+    await seedFirestore();
+    for (const accountStatus of ["suspended", "deleted"]) {
+      await testEnv.withSecurityRulesDisabled(async context => {
+        await updateDoc(doc(context.firestore(), "users/student-a"), {accountStatus});
+      });
+      const blocked = dbFor("student-a");
+      // Own status remains readable so the client can sign out cleanly.
+      await assertSucceeds(getDoc(doc(blocked, "users/student-a")));
+      await assertFails(getDoc(doc(blocked, "student_profiles/student-a")));
+      await assertFails(updateDoc(doc(blocked, "users/student-a"), {accountStatus: "active"}));
+      await assertSucceeds(updateDoc(doc(dbFor("root"), "users/student-a"), {accountStatus: "active"}));
+    }
+  });
+
   it("shows a class's national content to that class in every school", async () => {
     await seedFirestore();
     const root = dbFor("root");

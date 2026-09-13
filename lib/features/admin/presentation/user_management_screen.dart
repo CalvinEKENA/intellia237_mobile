@@ -15,6 +15,7 @@ import 'school_directory_section.dart';
 import 'school_transfer_section.dart';
 import 'unattached_staff_section.dart';
 import 'schools_overview_section.dart';
+import 'account_management_controls.dart';
 
 /// Le personnel, les demandes d'accès et l'annuaire de l'école.
 ///
@@ -88,6 +89,8 @@ class UserManagementScreen extends ConsumerWidget {
           ],
         ),
         if (auth.isSuperAdmin) ...[
+          const SizedBox(height: IntelliaSpacing.lg),
+          const CreateStudentButton(),
           const SizedBox(height: IntelliaSpacing.xl),
           const UnattachedStaffSection(),
           const SizedBox(height: IntelliaSpacing.xl),
@@ -155,15 +158,11 @@ class _ReviewCardState extends ConsumerState<_ReviewCard> {
           );
       messenger.showSnackBar(
         SnackBar(
-          content: Text(
-            approved ? l10n.accountApproved : l10n.accountRejected,
-          ),
+          content: Text(approved ? l10n.accountApproved : l10n.accountRejected),
         ),
       );
     } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.accountReviewFailed)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(l10n.accountReviewFailed)));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

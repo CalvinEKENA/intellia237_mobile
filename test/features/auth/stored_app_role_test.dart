@@ -10,11 +10,12 @@ void main() {
     }
   });
 
-  test('known super-admin aliases recover as legacy admin roles', () {
+  test('super-admin scope survives canonical and legacy role parsing', () {
     for (final stored in const ['superAdmin', 'super_admin']) {
       final resolution = parseStoredAppRole(stored);
       expect(resolution.role, AppRole.admin);
-      expect(resolution.isLegacy, isTrue);
+      expect(resolution.isLegacy, stored == 'super_admin');
+      expect(resolution.isSuperAdmin, isTrue);
     }
   });
 

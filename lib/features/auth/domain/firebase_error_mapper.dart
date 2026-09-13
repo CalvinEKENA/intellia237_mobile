@@ -5,6 +5,20 @@ abstract final class FirebaseErrorMapper {
         source.contains('configuration-not-found')) {
       return 'configuration-not-found';
     }
+    // Preserve configuration/quota failures even when Android wraps them in
+    // an internal error. They require a different remedy from abuse blocking.
+    final normalizedSource = source.replaceAll('_', '-');
+    for (final category in const [
+      'quota-exceeded',
+      'app-not-authorized',
+      'invalid-app-credential',
+      'missing-app-credential',
+      'invalid-cert-hash',
+      'captcha-check-failed',
+      'missing-client-identifier',
+    ]) {
+      if (normalizedSource.contains(category)) return category;
+    }
     // Le SDK Android signale fréquemment la limitation sous un code générique
     // (`unknown`, `internal-error`), le motif réel n'apparaissant que dans le
     // message. Sans cette lecture, un throttling s'affichait « La vérification
@@ -31,7 +45,18 @@ abstract final class FirebaseErrorMapper {
         'Le service d’inscription est momentanément indisponible. '
             'Réessaie dans quelques instants.',
       'too-many-requests' =>
-        'Trop de tentatives ont été effectuées. Patiente quelques minutes.',
+        'Les demandes de code sont temporairement bloquées par Firebase. '
+            'Le délai de déblocage n’est pas communiqué et peut dépasser une heure. '
+            'Évite les demandes répétées.',
+      'app-not-authorized' ||
+      'invalid-app-credential' ||
+      'missing-app-credential' ||
+      'invalid-cert-hash' ||
+      'missing-client-identifier' =>
+        'Cette version de l’application n’a pas pu être vérifiée. '
+            'Contacte l’assistance avec la référence affichée.',
+      'captcha-check-failed' =>
+        'La vérification de sécurité n’a pas abouti. Réessaie depuis l’application.',
       'quota-exceeded' =>
         'Le service est momentanément saturé. Réessaie un peu plus tard.',
       'operation-not-allowed' =>
@@ -74,7 +99,14 @@ abstract final class FirebaseErrorMapper {
     return switch (normalizeCode(code, technicalMessage)) {
       'configuration-not-found' || 'operation-not-allowed' => 'AUTH-CONFIG-001',
       'network-request-failed' || 'network-error' => 'AUTH-NET-002',
-      'too-many-requests' || 'quota-exceeded' => 'AUTH-RATE-003',
+      'too-many-requests' => 'AUTH-RATE-003',
+      'quota-exceeded' => 'AUTH-SMS-QUOTA-008',
+      'app-not-authorized' ||
+      'invalid-app-credential' ||
+      'missing-app-credential' ||
+      'invalid-cert-hash' ||
+      'missing-client-identifier' => 'AUTH-ANDROID-009',
+      'captcha-check-failed' => 'AUTH-CAPTCHA-010',
       'email-already-in-use' => 'AUTH-EMAIL-004',
       'weak-password' => 'AUTH-PWD-005',
       'invalid-email' => 'AUTH-EMAIL-006',

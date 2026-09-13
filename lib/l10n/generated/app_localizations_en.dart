@@ -9,6 +9,71 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get adminManageProfile => 'Manage profile';
+
+  @override
+  String get adminSuspendProfile => 'Suspend profile';
+
+  @override
+  String get adminReactivateProfile => 'Reactivate profile';
+
+  @override
+  String get adminRestoreProfile => 'Restore profile';
+
+  @override
+  String get adminDeleteProfile => 'Delete profile';
+
+  @override
+  String get adminAccountUpdated => 'The profile has been updated.';
+
+  @override
+  String get adminDeleteProfileBody =>
+      'The profile will be removed from directories and access will be blocked. Its data will be kept so general administration can restore it.';
+
+  @override
+  String get adminAccountDecisionBody =>
+      'This decision changes account access. Its reason will be kept in the administration history.';
+
+  @override
+  String get adminDecisionReason => 'Reason for this decision';
+
+  @override
+  String get adminCreateStudent => 'Add a student';
+
+  @override
+  String get adminCreateStudentBody =>
+      'Create an account in the selected school. The student will sign in with their phone, then complete their class and preferences.';
+
+  @override
+  String get adminStudentCreated =>
+      'The student account has been created. They can sign in with their phone.';
+
+  @override
+  String get adminStudentContactExists =>
+      'This phone or email already has an account. Find it using account search.';
+
+  @override
+  String get adminStudentFirstName => 'First name';
+
+  @override
+  String get adminStudentLastName => 'Last name';
+
+  @override
+  String get adminFieldRequired => 'This field is required.';
+
+  @override
+  String get adminStudentEmailOptional => 'Email (optional)';
+
+  @override
+  String get adminInvalidEmail => 'Check the email address.';
+
+  @override
+  String get adminStatusSuspended => 'Account suspended';
+
+  @override
+  String get adminStatusDeleted => 'Profile deleted';
+
+  @override
   String get backToPreviousAct => 'Return to the previous act';
 
   @override
@@ -434,7 +499,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneErrorTooManyRequests =>
-      'Too many attempts have been made. Wait a few minutes before requesting a new code.';
+      'Firebase has temporarily blocked code requests. No unblock time is provided and it may take more than an hour. Avoid repeated requests. If you have already linked an email to your account, use it to sign in.';
+
+  @override
+  String get phoneErrorAppVerification =>
+      'This app version could not be verified. Contact support with the reference below.';
+
+  @override
+  String get phoneErrorCaptcha =>
+      'The security check did not complete. Try again from the app.';
+
+  @override
+  String phoneRequestPause(int seconds) {
+    return 'Request again in ${seconds}s';
+  }
 
   @override
   String get phoneErrorQuota =>

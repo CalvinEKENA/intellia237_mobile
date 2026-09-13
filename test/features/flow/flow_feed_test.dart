@@ -14,6 +14,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test(
+    'pagination continues past an empty filtered page without duplicate cards',
+    () async {
+      final result = await fetchFlowCatalog(_PagedFeed(), '6eme');
+      expect(result.map((item) => item.id), ['published-later']);
+    },
+  );
+
   FlowItem item(
     String id, {
     FlowItemType type = FlowItemType.notion,
@@ -88,6 +96,20 @@ void main() {
   });
 
   group('traduction en cartes', () {
+    test('a real Firestore subject is rendered using its published label', () {
+      final card = FlowItemMapper.toCard(
+        item(
+          'live',
+          subjectId: 'kSeMcmqt6TcUtTCkHz3Q',
+          payload: {
+            'insight': 'Le climat influence les végétaux.',
+            'subjectLabel': 'SVT',
+          },
+        ),
+      );
+      expect(card, isA<FlowNotionCard>());
+      expect(card!.subject.label, 'SVT');
+    });
     test('une notion devient une carte de notion', () {
       final card = FlowItemMapper.toCard(item('a'));
       expect(card, isA<FlowNotionCard>());
@@ -311,6 +333,30 @@ void main() {
       expect(FlowDemoContent.build(), isNotEmpty);
     });
   });
+}
+
+class _PagedFeed implements FlowFeedRepository {
+  @override
+  Future<FlowFeedPage> fetchPage({
+    required String classLevel,
+    String? cursor,
+    int limit = 10,
+  }) async {
+    if (cursor == null) {
+      return const FlowFeedPage(items: [], nextCursor: 'page2');
+    }
+    return const FlowFeedPage(
+      items: [
+        FlowItem(
+          id: 'published-later',
+          type: FlowItemType.notion,
+          title: 'La plante',
+          subjectId: 'svt',
+          classLevels: ['6eme'],
+        ),
+      ],
+    );
+  }
 }
 
 class _FakeRepository implements FlowFeedRepository {

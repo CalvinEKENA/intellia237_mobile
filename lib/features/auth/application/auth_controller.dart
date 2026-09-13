@@ -281,7 +281,13 @@ class AuthController extends Notifier<AuthState> {
     final user = resolution.user;
     switch (resolution.kind) {
       case AuthSessionResolutionKind.unauthenticated:
-        state = const AuthState.unauthenticated();
+        final preferences = await SharedPreferences.getInstance();
+        await preferences.remove(_lastValidSessionKey);
+        state = AuthState.unauthenticated(
+          error: resolution.errorCode == 'user-disabled'
+              ? 'Ce compte est désactivé. Contacte l’assistance Intellia 237.'
+              : null,
+        );
       case AuthSessionResolutionKind.needsOnboarding:
         await _markOnboardingSeen();
         await _markAuthenticatedBefore();
@@ -323,6 +329,8 @@ class AuthController extends Notifier<AuthState> {
           firstName: user?.firstName,
           recoveredRole: user?.role,
           profileCompleted: user?.profileCompleted ?? false,
+          isSuperAdmin: user?.isSuperAdmin ?? false,
+          establishmentId: user?.establishmentId,
           error: user == null
               ? 'Le profil utilise un rôle historique non reconnu.'
               : null,
@@ -361,6 +369,8 @@ class AuthController extends Notifier<AuthState> {
       firstName: cached?.firstName,
       cachedRole: cached?.role,
       cachedProfileCompleted: cached?.profileCompleted ?? false,
+      isSuperAdmin: cached?.isSuperAdmin ?? false,
+      establishmentId: cached?.establishmentId,
       error: 'Le profil ne peut pas être synchronisé pour le moment.',
     );
   }
@@ -377,6 +387,9 @@ class AuthController extends Notifier<AuthState> {
         'firstName': user.firstName,
         'lastName': user.lastName,
         'profileCompleted': true,
+        'isSuperAdmin': user.isSuperAdmin,
+        if (user.establishmentId != null)
+          'establishmentId': user.establishmentId!,
       }),
     );
   }
@@ -401,6 +414,9 @@ class AuthController extends Notifier<AuthState> {
         firstName: data['firstName'] as String? ?? '',
         lastName: data['lastName'] as String? ?? '',
         profileCompleted: data['profileCompleted'] == true,
+        isSuperAdmin:
+            role.first == AppRole.admin && data['isSuperAdmin'] == true,
+        establishmentId: data['establishmentId'] as String?,
       );
     } catch (_) {
       return null;

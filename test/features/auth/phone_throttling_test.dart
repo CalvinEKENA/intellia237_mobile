@@ -56,7 +56,8 @@ void main() {
         technicalMessage: 'blocked all requests',
       );
 
-      expect(message, contains('Trop de tentatives'));
+      expect(message, contains('bloquées par Firebase'));
+      expect(message, isNot(contains('quelques minutes')));
       expect(message, isNot(contains('Une erreur')));
     });
   });

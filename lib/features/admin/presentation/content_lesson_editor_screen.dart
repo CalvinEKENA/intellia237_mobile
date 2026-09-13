@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -64,46 +65,46 @@ class _ContentLessonEditorScreenState
 
   // ── Persistence ─────────────────────────────────────────────
 
-  Future<void> _save() async {
+  Future<void> _save() => _persist(publish: false);
+
+  Future<void> _publish() => _persist(publish: true);
+
+  Future<void> _persist({required bool publish}) async {
+    if (_isSaving) return;
+    final lesson = _current;
     setState(() => _isSaving = true);
     try {
-      await ref.read(adminContentActionsProvider).saveLesson(_current);
+      final actions = ref.read(adminContentActionsProvider);
+      if (publish) {
+        await actions.publishLesson(lesson);
+      } else {
+        await actions.saveLesson(lesson);
+      }
+      if (!mounted) return;
       setState(() {
-        _lesson = _current;
+        _lesson = lesson.copyWith(
+          status: publish ? 'published' : lesson.status,
+        );
         _hasUnsavedChanges = false;
       });
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.lessonSaved)));
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.lessonSaveFailed)));
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            publish ? context.l10n.lessonPublished : context.l10n.lessonSaved,
+          ),
+        ),
+      );
+      if (publish) Navigator.pop(context);
+    } catch (error) {
+      if (!mounted) return;
+      final message = error is FirebaseFunctionsException
+          ? error.message ?? context.l10n.lessonSaveFailed
+          : context.l10n.lessonSaveFailed;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     } finally {
       if (mounted) setState(() => _isSaving = false);
-    }
-  }
-
-  Future<void> _publish() async {
-    await _save();
-    try {
-      await ref.read(adminContentActionsProvider).publishLesson(_current);
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.lessonPublished)));
-        Navigator.pop(context);
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.l10n.publicationFailed)));
-      }
     }
   }
 
@@ -248,6 +249,16 @@ class _ContentLessonEditorScreenState
             ).animate().fadeIn(),
           const SizedBox(height: IntelliaSpacing.md),
 
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                _lesson.isPublished
+                    ? 'En ligne · Les modifications enregistrées actualisent la leçon et ses contenus associés.'
+                    : 'Brouillon · Invisible aux élèves. Publier met en ligne cette leçon, ses quiz et ses cartes FLOW associés.\nPublic : ${_lesson.scope.isGlobal ? "tous les élèves de ${_lesson.classLevel}" : "les élèves de votre établissement"}.',
+              ),
+            ),
+          ),
           // Metadata
           _Card(
             title: context.l10n.informationLabel,

@@ -7,7 +7,10 @@ service cloud.firestore {
     // =============================================
 
     function isAuthenticated() {
-      return request.auth != null;
+      return request.auth != null
+        && (!exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          || !(get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('accountStatus', 'active')
+            in ['suspended', 'deleted']));
     }
 
     function isOwner(uid) {
@@ -214,7 +217,8 @@ service cloud.firestore {
     // USERS
     // =============================================
     match /users/{uid} {
-      allow read: if isOwner(uid)
+      // A disabled account can read its own status to leave the UI cleanly.
+      allow read: if (request.auth != null && request.auth.uid == uid)
                   || isSuperAdmin()
                   || (isAdmin() && isSameEstablishment(resource.data.establishmentId))
                   || (isTeacher() && isSameEstablishment(resource.data.establishmentId))
@@ -789,6 +793,11 @@ service cloud.firestore {
     // =============================================
     // SETTINGS
     // =============================================
+    match /account_management_audit/{eventId} {
+      allow read: if isSuperAdmin();
+      allow write: if false;
+    }
+
     match /settings/{uid} {
       allow read: if isOwner(uid);
       allow create: if isOwner(uid);

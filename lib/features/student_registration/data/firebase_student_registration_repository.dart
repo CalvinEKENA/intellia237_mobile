@@ -10,6 +10,7 @@ import '../domain/student_registration_payload.dart';
 import '../domain/student_registration_result.dart';
 import 'student_registration_gateways.dart';
 import 'student_registration_repository.dart';
+import 'registration_establishments_provider.dart';
 
 final studentRegistrationRepositoryProvider =
     Provider<StudentRegistrationRepository>((ref) {
@@ -26,6 +27,9 @@ final studentRegistrationRepositoryProvider =
       return FirebaseStudentRegistrationRepository(
         projectId: projectId,
         appId: appId,
+        isRegisteredEstablishment: (id) async => (await ref.read(
+          registrationEstablishmentsProvider.future,
+        )).any((school) => school.id == id),
       );
     });
 
@@ -36,6 +40,7 @@ class FirebaseStudentRegistrationRepository
     FirebaseFirestore? firestore,
     RegistrationAuthGateway? authGateway,
     RegistrationDocumentStore? documentStore,
+    this.isRegisteredEstablishment,
     this.projectId,
     this.appId,
   }) : _authGateway =
@@ -47,6 +52,7 @@ class FirebaseStudentRegistrationRepository
              firestore ?? FirebaseFirestore.instance,
            );
 
+  final Future<bool> Function(String)? isRegisteredEstablishment;
   final RegistrationAuthGateway _authGateway;
   final RegistrationDocumentStore _documentStore;
   final String? projectId;
@@ -67,6 +73,16 @@ class FirebaseStudentRegistrationRepository
         );
       }
 
+      final school = payload.establishment;
+      if (school != null &&
+          isRegisteredEstablishment != null &&
+          (school.candidateId == null ||
+              !await isRegisteredEstablishment!(school.candidateId!))) {
+        throw const StudentRegistrationException(
+          message: 'Sélectionnez un établissement dans la liste actualisée.',
+          code: 'invalid-establishment',
+        );
+      }
       final now = DateTime.now();
       final uid = user.uid;
       final userCreateData = payload.toUserDocument(uid: uid, now: now);

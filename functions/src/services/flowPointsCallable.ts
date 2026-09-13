@@ -8,6 +8,7 @@ import { z } from "zod";
 import { db } from "../config/firebase";
 import { AppError, toHttpsError } from "../utils/errors";
 import { accumulatedPoints } from "./pointsPolicy";
+import { scopeId } from "./lessonPublicationCallable";
 import {
   FLOW_CATALOG,
   isAcceptedFlowAnswer,
@@ -21,7 +22,7 @@ const FLOW_TIMEZONE = "Africa/Douala";
 
 const flowActivityInputSchema = z.object({
   clientEventId: z.string().trim().min(8).max(128).regex(/^[A-Za-z0-9_-]+$/),
-  cardId: z.string().trim().min(1).max(80).regex(/^[a-z0-9-]+$/),
+  cardId: z.string().trim().min(1).max(160).regex(/^[A-Za-z0-9_-]+$/),
   kind: z.enum(["content", "choice", "boolean", "text", "ordering"]),
   answer: z.union([
     z.string().max(400),
@@ -59,7 +60,6 @@ export class FirestoreFlowPointsStore implements FlowPointsStore {
   constructor(private readonly firestore: Firestore = db) {}
 
   async submit(command: FlowActivityCommand): Promise<FlowActivityResult> {
-    const evaluation = evaluateFlowActivity(command);
     const eventId = flowDocumentId(command.studentId, command.clientEventId);
     const completionId = flowDocumentId(command.studentId, command.cardId);
     const requestHash = flowRequestHash(command);
@@ -109,6 +109,12 @@ export class FirestoreFlowPointsStore implements FlowPointsStore {
       if (!profileSnapshot.exists) {
         throw new AppError("failed-precondition", "Student profile is incomplete.");
       }
+
+      const evaluation = FLOW_CATALOG[command.cardId]
+        ? evaluateFlowActivity(command)
+        : evaluatePublishedFlowActivity(command,
+            (await transaction.get(this.firestore.doc(`flow_items/${command.cardId}`))).data(),
+            userSnapshot.data()!, profileSnapshot.data()!);
 
       const currentTotal = Math.max(
         accumulatedPoints(userSnapshot.data()),
@@ -182,6 +188,35 @@ export class FirestoreFlowPointsStore implements FlowPointsStore {
       return result;
     });
   }
+}
+
+export function evaluatePublishedFlowActivity(
+  command: Pick<FlowActivityCommand, "kind" | "answer">,
+  item: FirebaseFirestore.DocumentData | undefined,
+  user: FirebaseFirestore.DocumentData,
+  profile: FirebaseFirestore.DocumentData,
+): { correct: boolean; pointsReward: number } {
+  const date = (value: unknown) => typeof value === "string" ? Date.parse(value)
+    : (value as { toMillis?: () => number } | undefined)?.toMillis?.() || 0;
+  if (!item || item.status !== "published" || date(item.scheduledAt) > Date.now() ||
+      date(item.publishedAt) > Date.now() ||
+      !item.classLevels?.includes(profile.classLevel || user.classLevel) ||
+      (scopeId(item) !== "global" && scopeId(item) !== user.establishmentId)) {
+    throw new AppError("not-found", "FLOW activity unavailable.");
+  }
+  if (item.type === "quiz") {
+    const payload = item.payload || {};
+    if (command.kind !== "choice" || !Number.isInteger(payload.correctIndex) ||
+        payload.correctIndex < 0 || payload.correctIndex >= (payload.options?.length || 0)) {
+      throw new AppError("invalid-argument", "Invalid FLOW quiz.");
+    }
+    return { correct: command.answer === payload.correctIndex, pointsReward: 25 };
+  }
+  // Reveal/read cards award reading points, never a guessed free-text grade.
+  if (!["notion", "question", "image", "infographic", "audio", "shortVideo", "interactiveNative"].includes(item.type) || command.kind !== "content") {
+    throw new AppError("invalid-argument", "Invalid FLOW activity kind.");
+  }
+  return { correct: command.answer === null, pointsReward: 10 };
 }
 
 export function evaluateFlowActivity(command: Omit<FlowActivityCommand, "studentId" | "clientEventId">): {

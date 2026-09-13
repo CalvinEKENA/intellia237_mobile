@@ -71,6 +71,8 @@ class AuthState {
     String? firstName,
     AppRole? cachedRole,
     bool cachedProfileCompleted = false,
+    bool isSuperAdmin = false,
+    String? establishmentId,
     String? error,
   }) : this._(
          status: AuthStatus.retryableProfileFailure,
@@ -79,6 +81,8 @@ class AuthState {
          firstName: firstName,
          role: cachedRole,
          profileCompleted: cachedProfileCompleted,
+         isSuperAdmin: isSuperAdmin,
+         establishmentId: establishmentId,
          error: error,
        );
 
@@ -88,6 +92,8 @@ class AuthState {
     String? firstName,
     AppRole? recoveredRole,
     bool profileCompleted = false,
+    bool isSuperAdmin = false,
+    String? establishmentId,
     String? error,
   }) : this._(
          status: AuthStatus.legacyProfileRecovery,
@@ -96,6 +102,8 @@ class AuthState {
          firstName: firstName,
          role: recoveredRole,
          profileCompleted: profileCompleted,
+         isSuperAdmin: isSuperAdmin,
+         establishmentId: establishmentId,
          error: error,
        );
 

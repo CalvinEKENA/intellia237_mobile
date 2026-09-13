@@ -9,8 +9,8 @@ import {
 
 const answerKeyEntrySchema = z.object({
   id: z.string().trim().min(1).max(128),
-  correctOptionIndex: z.number().int().optional(),
-  correctBooleanValue: z.boolean().optional(),
+  correctOptionIndex: z.preprocess(value => value === null ? undefined : value, z.number().int().optional()),
+  correctBooleanValue: z.preprocess(value => value === null ? undefined : value, z.boolean().optional()),
   acceptedAnswers: z.array(z.string()).default([]),
   explanation: z.string().default(""),
   pointsReward: z.number().int().optional(),

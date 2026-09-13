@@ -628,12 +628,13 @@ abstract final class EstablishmentSearch {
   static List<EstablishmentSearchResult> query(
     String rawQuery, {
     int limit = 8,
+    Iterable<Establishment>? catalog,
   }) {
     final query = normalize(rawQuery);
     if (query.isEmpty) return const <EstablishmentSearchResult>[];
 
     final scored = <({Establishment establishment, int score})>[];
-    for (final establishment in EstablishmentCatalog.all) {
+    for (final establishment in catalog ?? EstablishmentCatalog.all) {
       if (establishment.status != EstablishmentCatalogStatus.active) continue;
       final score = _score(establishment, query);
       if (score > 0) scored.add((establishment: establishment, score: score));

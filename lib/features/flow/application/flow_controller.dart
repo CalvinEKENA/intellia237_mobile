@@ -79,6 +79,10 @@ final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
     return FlowCatalog.empty;
   }
 
+  ref.watch(learnCatalogRevisionProvider);
+  final auth = ref.watch(authControllerProvider);
+  final cacheKey =
+      '${auth.userId}_${auth.establishmentId ?? "global"}_$classLevel';
   final repository = ref.watch(flowFeedRepositoryProvider);
   final prefs = await SharedPreferences.getInstance();
   final cache = FlowFeedCache(prefs);
@@ -86,20 +90,22 @@ final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
   const strategy = DeterministicFlowFeedStrategy();
 
   try {
-    final page = await repository.fetchPage(classLevel: classLevel);
-    if (page.items.isNotEmpty) {
+    final items = await fetchFlowCatalog(repository, classLevel);
+    if (items.isNotEmpty) {
       // Le cache ne retient que ce qui a été réellement servi.
-      await cache.save(classLevel, page.items);
+      await cache.save(cacheKey, items);
       return FlowCatalog(
-        cards: FlowItemMapper.toCards(strategy.order(page.items, learner)),
+        cards: FlowItemMapper.toCards(strategy.order(items, learner)),
         origin: FlowCatalogOrigin.live,
       );
     }
+    await cache.clear(cacheKey);
+    return FlowCatalog.empty;
   } catch (_) {
     // Réseau absent ou lecture refusée : le cache prend le relais.
   }
 
-  final cached = cache.read(classLevel);
+  final cached = cache.read(cacheKey);
   if (cached.isEmpty) return FlowCatalog.empty;
   return FlowCatalog(
     cards: FlowItemMapper.toCards(strategy.order(cached, learner)),

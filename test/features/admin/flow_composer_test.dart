@@ -33,6 +33,7 @@ void main() {
     WidgetTester tester, {
     required _RecordingRepository repository,
     FlowItem? initial,
+    ContentActor? actor,
   }) async {
     // Écran large : l'aperçu est alors à côté du formulaire, donc réellement
     // construit. En colonne il vit sous la ligne de flottaison d'une liste
@@ -44,7 +45,10 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [adminFlowRepositoryProvider.overrideWithValue(repository)],
+        overrides: [
+          adminFlowRepositoryProvider.overrideWithValue(repository),
+          if (actor != null) contentActorProvider.overrideWithValue(actor),
+        ],
         child: MaterialApp(
           // Le compositeur se referme sur lui-même après enregistrement : il
           // lui faut une route en dessous, comme dans le Studio.
@@ -81,6 +85,30 @@ void main() {
   }
 
   group('compositeur', () {
+    testWidgets('une nouvelle carte conserve son auteur enseignant', (
+      tester,
+    ) async {
+      final repository = _RecordingRepository();
+      await pumpComposer(
+        tester,
+        repository: repository,
+        actor: const ContentActor(
+          uid: 'prof-1',
+          role: AppRole.teacher,
+          establishmentId: 'school-a',
+        ),
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('flow-composer-title')),
+        'Le climat',
+      );
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('flow-composer-save')));
+      await tester.pump();
+      expect(repository.saved.single.createdBy, 'prof-1');
+      expect(repository.saved.single.scope.establishmentId, 'school-a');
+    });
+
     testWidgets('un titre est requis avant d’enregistrer', (tester) async {
       final repository = _RecordingRepository();
       await pumpComposer(tester, repository: repository);
@@ -170,7 +198,10 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('flow-composer-correct-1')));
       await tester.pump();
 
-      expect(find.byKey(const ValueKey('flow-composer-incomplete')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('flow-composer-incomplete')),
+        findsNothing,
+      );
       await tester.tap(find.byKey(const ValueKey('flow-composer-save')));
       await tester.pump();
 
@@ -210,7 +241,10 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byKey(const ValueKey('flow-composer-incomplete')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('flow-composer-incomplete')),
+        findsNothing,
+      );
       expect(find.byKey(const ValueKey('flow-preview-card')), findsOneWidget);
       // La carte apparue en cours de test anime son entrée : on laisse ses
       // délais s'écouler avant la fin.

@@ -241,9 +241,10 @@ class FirestoreAdminRepository implements AdminRepository {
       establishmentName:
           (profileData['establishmentName'] as String?)?.trim() ??
           'Établissement',
-      isSuperAdmin: const {'superAdmin', 'super_admin'}.contains(
-        (userData['role'] as String?)?.trim(),
-      ),
+      isSuperAdmin: const {
+        'superAdmin',
+        'super_admin',
+      }.contains((userData['role'] as String?)?.trim()),
     );
   }
 
@@ -290,10 +291,12 @@ class FirestoreAdminRepository implements AdminRepository {
   }
 
   Future<int> _countUsers(String? establishmentId, String role) async {
-    final snapshot = await _usersIn(
-      establishmentId,
-    ).where('role', isEqualTo: role).count().get();
-    return snapshot.count ?? 0;
+    final query = _usersIn(establishmentId).where('role', isEqualTo: role);
+    final counts = await Future.wait([
+      query.count().get(),
+      query.where('accountStatus', isEqualTo: 'deleted').count().get(),
+    ]);
+    return (counts[0].count ?? 0) - (counts[1].count ?? 0);
   }
 
   Future<double> _fetchAverageCompletion(String? establishmentId) async {
@@ -329,9 +332,7 @@ class FirestoreAdminRepository implements AdminRepository {
     return values.reduce((left, right) => left + right) / values.length;
   }
 
-  Future<SchoolAnalyticsSnapshot> _fetchAnalytics(
-    _AdminContext context,
-  ) async {
+  Future<SchoolAnalyticsSnapshot> _fetchAnalytics(_AdminContext context) async {
     final scope = _readScope(context);
     if (scope != null && scope.isEmpty) return _emptyAnalytics;
     final now = DateTime.now();
@@ -369,12 +370,13 @@ class FirestoreAdminRepository implements AdminRepository {
   ) async {
     final List<QueryDocumentSnapshot<Map<String, dynamic>>> docs;
     if (context.isSuperAdmin) {
-      docs = (await _db
-              .collection('announcements')
-              .orderBy('publishedAt', descending: true)
-              .limit(5)
-              .get())
-          .docs;
+      docs =
+          (await _db
+                  .collection('announcements')
+                  .orderBy('publishedAt', descending: true)
+                  .limit(5)
+                  .get())
+              .docs;
     } else if (context.establishmentId.isEmpty) {
       return const [];
     } else {
@@ -430,16 +432,17 @@ class FirestoreAdminRepository implements AdminRepository {
     return SchoolDirectoryPage(
       members: [
         for (final doc in snapshot.docs)
-          SchoolDirectoryMember(
-            id: doc.id,
-            fullName: _fullName(doc.data()),
-            role: role,
-            email: (doc.data()['email'] as String?)?.trim() ?? '',
-            phone: (doc.data()['phoneNumber'] as String?)?.trim() ?? '',
-            classLevel: (doc.data()['classLevel'] as String?)?.trim() ?? '',
-            accountStatus:
-                (doc.data()['accountStatus'] as String?)?.trim() ?? 'active',
-          ),
+          if (doc.data()['accountStatus'] != 'deleted')
+            SchoolDirectoryMember(
+              id: doc.id,
+              fullName: _fullName(doc.data()),
+              role: role,
+              email: (doc.data()['email'] as String?)?.trim() ?? '',
+              phone: (doc.data()['phoneNumber'] as String?)?.trim() ?? '',
+              classLevel: (doc.data()['classLevel'] as String?)?.trim() ?? '',
+              accountStatus:
+                  (doc.data()['accountStatus'] as String?)?.trim() ?? 'active',
+            ),
       ],
       nextCursor: snapshot.docs.length == _directoryPageSize
           ? snapshot.docs.last.id
@@ -473,7 +476,9 @@ class FirestoreAdminRepository implements AdminRepository {
           }.length,
         ),
     ];
-    classes.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    classes.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
     return classes;
   }
 
@@ -510,7 +515,9 @@ class FirestoreAdminRepository implements AdminRepository {
           city: (doc.data()['city'] as String?)?.trim() ?? '',
         ),
     ];
-    options.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    options.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
     return options;
   }
 
@@ -654,6 +661,7 @@ class FirestoreAdminRepository implements AdminRepository {
     final declared = await _declaredSchool(id, data);
     return AccountSchoolRecord(
       id: id,
+      accountStatus: (data['accountStatus'] as String?) ?? 'active',
       fullName: _fullName(data),
       role: _readRole(data['role']),
       email: (data['email'] as String?)?.trim() ?? '',
@@ -717,8 +725,20 @@ class FirestoreAdminRepository implements AdminRepository {
 
   String _normalizedPlace(String value) {
     const accents = {
-      'à': 'a', 'â': 'a', 'ä': 'a', 'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-      'î': 'i', 'ï': 'i', 'ô': 'o', 'ö': 'o', 'ù': 'u', 'û': 'u', 'ü': 'u',
+      'à': 'a',
+      'â': 'a',
+      'ä': 'a',
+      'é': 'e',
+      'è': 'e',
+      'ê': 'e',
+      'ë': 'e',
+      'î': 'i',
+      'ï': 'i',
+      'ô': 'o',
+      'ö': 'o',
+      'ù': 'u',
+      'û': 'u',
+      'ü': 'u',
       'ç': 'c',
     };
     final lower = value.trim().toLowerCase();
@@ -728,7 +748,9 @@ class FirestoreAdminRepository implements AdminRepository {
   /// L'école qu'une lecture vise : celle choisie par l'administration
   /// générale, la sienne pour une direction — jamais une autre.
   String _schoolToRead(_AdminContext context, String? requested) =>
-      context.isSuperAdmin ? (requested?.trim() ?? '') : context.establishmentId;
+      context.isSuperAdmin
+      ? (requested?.trim() ?? '')
+      : context.establishmentId;
 
   Future<Map<String, String>> _establishmentNames(Set<String> ids) async {
     // Lectures unitaires : une requête « in » sur l'identifiant ne se prouve
@@ -740,7 +762,8 @@ class FirestoreAdminRepository implements AdminRepository {
             .doc(id)
             .get()
             .then(
-              (doc) => MapEntry(id, (doc.data()?['name'] as String?)?.trim() ?? ''),
+              (doc) =>
+                  MapEntry(id, (doc.data()?['name'] as String?)?.trim() ?? ''),
               onError: (Object _) => MapEntry(id, ''),
             ),
     ]);

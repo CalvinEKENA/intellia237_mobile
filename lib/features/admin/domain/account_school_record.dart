@@ -17,6 +17,7 @@ class AccountSchoolRecord {
     this.declaredSchoolName = '',
     this.declaredSchoolCity = '',
     this.children = const [],
+    this.accountStatus = 'active',
   });
 
   final String id;
@@ -24,6 +25,7 @@ class AccountSchoolRecord {
   final AdminRoleType role;
   final String email;
   final String phone;
+  final String accountStatus;
   final String? establishmentId;
   final String establishmentName;
   final String declaredSchoolName;
@@ -50,7 +52,8 @@ String? normalizeCameroonPhone(String raw) {
       ? compact.substring(2)
       : compact;
   if (!RegExp(r'^\d+$').hasMatch(digits)) return null;
-  if (digits.length == 9 && (digits.startsWith('6') || digits.startsWith('2'))) {
+  if (digits.length == 9 &&
+      (digits.startsWith('6') || digits.startsWith('2'))) {
     return '+237$digits';
   }
   if (digits.length == 12 && digits.startsWith('237')) return '+$digits';

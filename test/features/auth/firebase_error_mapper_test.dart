@@ -2,6 +2,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/features/auth/domain/firebase_error_mapper.dart';
 
 void main() {
+  test('Android configuration and SMS quota keep distinct diagnostics', () {
+    expect(
+      FirebaseErrorMapper.normalizeCode('internal-error', '[QUOTA_EXCEEDED]'),
+      'quota-exceeded',
+    );
+    expect(
+      FirebaseErrorMapper.diagnosticId(
+        'internal-error',
+        '[INVALID_APP_CREDENTIAL]',
+      ),
+      'AUTH-ANDROID-009',
+    );
+    expect(
+      FirebaseErrorMapper.diagnosticId('quota-exceeded'),
+      isNot(FirebaseErrorMapper.diagnosticId('too-many-requests')),
+    );
+  });
   group('FirebaseErrorMapper', () {
     test('translates known Firebase Auth errors into French', () {
       expect(

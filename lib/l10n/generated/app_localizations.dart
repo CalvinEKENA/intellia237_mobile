@@ -98,6 +98,126 @@ abstract class AppLocalizations {
     Locale('fr'),
   ];
 
+  /// No description provided for @adminManageProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administrer le profil'**
+  String get adminManageProfile;
+
+  /// No description provided for @adminSuspendProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suspendre le profil'**
+  String get adminSuspendProfile;
+
+  /// No description provided for @adminReactivateProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réactiver le profil'**
+  String get adminReactivateProfile;
+
+  /// No description provided for @adminRestoreProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restaurer le profil'**
+  String get adminRestoreProfile;
+
+  /// No description provided for @adminDeleteProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le profil'**
+  String get adminDeleteProfile;
+
+  /// No description provided for @adminAccountUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le profil a été mis à jour.'**
+  String get adminAccountUpdated;
+
+  /// No description provided for @adminDeleteProfileBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le profil sera retiré des annuaires et son accès sera bloqué. Ses données seront conservées pour permettre sa restauration par l’administration générale.'**
+  String get adminDeleteProfileBody;
+
+  /// No description provided for @adminAccountDecisionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette décision modifie l’accès du compte. Son motif sera conservé dans l’historique d’administration.'**
+  String get adminAccountDecisionBody;
+
+  /// No description provided for @adminDecisionReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Motif de la décision'**
+  String get adminDecisionReason;
+
+  /// No description provided for @adminCreateStudent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un élève'**
+  String get adminCreateStudent;
+
+  /// No description provided for @adminCreateStudentBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crée son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.'**
+  String get adminCreateStudentBody;
+
+  /// No description provided for @adminStudentCreated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le compte élève est créé. Il peut se connecter par téléphone.'**
+  String get adminStudentCreated;
+
+  /// No description provided for @adminStudentContactExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce téléphone ou cet e-mail possède déjà un compte. Retrouve-le avec la recherche.'**
+  String get adminStudentContactExists;
+
+  /// No description provided for @adminStudentFirstName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom'**
+  String get adminStudentFirstName;
+
+  /// No description provided for @adminStudentLastName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom'**
+  String get adminStudentLastName;
+
+  /// No description provided for @adminFieldRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce champ est obligatoire.'**
+  String get adminFieldRequired;
+
+  /// No description provided for @adminStudentEmailOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'E-mail (facultatif)'**
+  String get adminStudentEmailOptional;
+
+  /// No description provided for @adminInvalidEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie l’adresse e-mail.'**
+  String get adminInvalidEmail;
+
+  /// No description provided for @adminStatusSuspended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte suspendu'**
+  String get adminStatusSuspended;
+
+  /// No description provided for @adminStatusDeleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil supprimé'**
+  String get adminStatusDeleted;
+
   /// No description provided for @backToPreviousAct.
   ///
   /// In fr, this message translates to:
@@ -863,8 +983,26 @@ abstract class AppLocalizations {
   /// No description provided for @phoneErrorTooManyRequests.
   ///
   /// In fr, this message translates to:
-  /// **'Trop de tentatives ont été effectuées. Attends quelques minutes avant de demander un nouveau code.'**
+  /// **'Les demandes de code sont temporairement bloquées par Firebase. Le délai de déblocage n’est pas communiqué et peut dépasser une heure. Évite les demandes répétées. Si tu as déjà associé un e-mail à ton compte, utilise-le pour te connecter.'**
   String get phoneErrorTooManyRequests;
+
+  /// No description provided for @phoneErrorAppVerification.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette version de l’application n’a pas pu être vérifiée. Contacte l’assistance avec la référence ci-dessous.'**
+  String get phoneErrorAppVerification;
+
+  /// No description provided for @phoneErrorCaptcha.
+  ///
+  /// In fr, this message translates to:
+  /// **'La vérification de sécurité n’a pas abouti. Réessaie depuis l’application.'**
+  String get phoneErrorCaptcha;
+
+  /// No description provided for @phoneRequestPause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle demande dans {seconds} s'**
+  String phoneRequestPause(int seconds);
 
   /// No description provided for @phoneErrorQuota.
   ///
