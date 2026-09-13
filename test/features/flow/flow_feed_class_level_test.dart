@@ -8,17 +8,20 @@ import 'package:intellia237/features/student_registration/domain/academic_rules.
 /// cette classe de chaque établissement. Encore faut-il que le Studio et
 /// l'élève parlent du même niveau.
 void main() {
-  test('un profil ancien en « Première » lit le fil publié pour « Premiere »', () {
-    expect(
-      flowFeedClassLevel(
-        const LearnAcademicContext(
-          classLevel: 'Première',
-          catalogClassLevel: 'Premiere',
+  test(
+    'un profil ancien en « Première » lit le fil publié pour « Premiere »',
+    () {
+      expect(
+        flowFeedClassLevel(
+          const LearnAcademicContext(
+            classLevel: 'Première',
+            catalogClassLevel: 'Premiere',
+          ),
         ),
-      ),
-      'Premiere',
-    );
-  });
+        'Premiere',
+      );
+    },
+  );
 
   test('sans clé de catalogue, le niveau enregistré sert encore', () {
     expect(

@@ -75,12 +75,16 @@ void main() {
     expect(find.text('École : Lycée A'), findsOneWidget);
     expect(find.textContaining('Déclarée à l’inscription'), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('school-transfer-change-eleve-1')));
+    await tester.tap(
+      find.byKey(const ValueKey('school-transfer-change-eleve-1')),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('attach-school-lycee-b')));
     await tester.pumpAndSettle();
 
-    final confirm = find.byKey(const ValueKey('school-transfer-reason-confirm'));
+    final confirm = find.byKey(
+      const ValueKey('school-transfer-reason-confirm'),
+    );
     expect(tester.widget<FilledButton>(confirm).onPressed, isNull);
     await tester.enterText(
       find.byKey(const ValueKey('school-transfer-reason')),
@@ -108,7 +112,9 @@ void main() {
       ],
     );
 
-    await tester.tap(find.byKey(const ValueKey('school-transfer-change-eleve-2')));
+    await tester.tap(
+      find.byKey(const ValueKey('school-transfer-change-eleve-2')),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('attach-school-lycee-a')));
     await tester.pumpAndSettle();

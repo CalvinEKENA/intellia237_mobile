@@ -522,7 +522,9 @@ class AdminQuizModel {
       difficultyLabel: data['difficultyLabel'] as String? ?? 'Intermédiaire',
       classLevels: List<String>.from(data['classLevels'] as List? ?? []),
       series: List<String>.from(data['series'] as List? ?? []),
-      audience: data['audience'] is Map ? ContentAudience.fromFirestore(data['audience'] as Map) : null,
+      audience: data['audience'] is Map
+          ? ContentAudience.fromFirestore(data['audience'] as Map)
+          : null,
       timerSeconds: data['timerSeconds'] as int?,
       status: data['status'] as String? ?? 'draft',
       aiGenerated: data['aiGenerated'] as bool? ?? false,

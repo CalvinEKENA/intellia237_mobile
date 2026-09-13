@@ -76,10 +76,10 @@ class _EducationalVideoPlayerState extends ConsumerState<EducationalVideoPlayer>
 
   void _pause() {
     final c = _controller;
-    if (c != null) {
-      _resume = c.value.position;
-      unawaited(c.pause());
-    }
+    if (!mounted || c == null) return;
+
+    _resume = c.value.position;
+    unawaited(c.pause());
   }
 
   @override
@@ -149,7 +149,11 @@ class _EducationalVideoPlayerState extends ConsumerState<EducationalVideoPlayer>
     _generation++;
     WidgetsBinding.instance.removeObserver(this);
     educationalVideoRouteObserver.unsubscribe(this);
-    unawaited(_controller?.dispose());
+
+    final controller = _controller;
+    _controller = null;
+    unawaited(controller?.dispose());
+
     super.dispose();
   }
 

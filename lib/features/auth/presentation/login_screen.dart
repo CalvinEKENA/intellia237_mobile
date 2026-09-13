@@ -177,9 +177,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ? null
                     : () => context.go(AppRoutes.authGateway),
                 icon: const Icon(Icons.arrow_back_rounded, size: 16),
-                label: Text(
-                  context.l10n.passChooseAnotherWayIn,
-                ),
+                label: Text(context.l10n.passChooseAnotherWayIn),
               ),
               const SizedBox(height: 18),
             ],

@@ -112,7 +112,16 @@ class _NewSubjectDialogState extends ConsumerState<NewSubjectDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ContentAudienceEditor(
-                value: _audience ?? ContentAudience(clauses: [{'classLevels': [widget.classLevel], 'series': _series.toList()}]),
+                value:
+                    _audience ??
+                    ContentAudience(
+                      clauses: [
+                        {
+                          'classLevels': [widget.classLevel],
+                          'series': _series.toList(),
+                        },
+                      ],
+                    ),
                 defaultClass: widget.classLevel,
                 onChanged: (a) => setState(() => _audience = a),
               ),

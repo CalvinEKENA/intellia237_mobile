@@ -88,7 +88,10 @@ void main() {
   ) async {
     await pumpSection(tester, members: const []);
 
-    expect(find.text('Tout le personnel approuvé a son école.'), findsOneWidget);
+    expect(
+      find.text('Tout le personnel approuvé a son école.'),
+      findsOneWidget,
+    );
   });
 }
 

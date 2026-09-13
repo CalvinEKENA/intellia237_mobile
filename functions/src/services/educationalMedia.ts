@@ -1,15 +1,20 @@
 import type { Bucket } from "@google-cloud/storage";
-import type { Firestore, DocumentData } from "firebase-admin/firestore";
+import type {
+  Firestore,
+  DocumentData,
+  DocumentReference,
+  DocumentSnapshot,
+} from "firebase-admin/firestore";
 import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
 import { bucket, db } from "../config/firebase";
 import { audienceAllows, staffCanWrite } from "./contentAudience";
 import { inspectMp4 } from "./mp4Validation";
 
 export function parseAssetPath(path: unknown) {
-  if (typeof path !== "string") throw new HttpsError("invalid-argument", "Chemin média requis.");
+  if (typeof path !== "string") throw new HttpsError("invalid-argument", "Chemin mÃ©dia requis.");
   const p = path.split("/");
   if (p.length !== 7 || p[0] !== "educational_assets" || p.slice(1).some(s => !s.trim() || s === "." || s === ".." || /[\\\x00-\x1f]/.test(s))) {
-    throw new HttpsError("invalid-argument", "Chemin média invalide.");
+    throw new HttpsError("invalid-argument", "Chemin mÃ©dia invalide.");
   }
   return { path, scopeId: p[1], classLevel: p[2], subjectId: p[3], lessonId: p[4], assetId: p[5], fileName: p[6] };
 }
@@ -18,29 +23,29 @@ export async function validateLessonMedia(lesson: DocumentData, store: Bucket = 
   const validated: DocumentData[] = [];
   for (const block of lesson.contentBlocks || []) {
     if (block.type !== "media") continue;
-    if (!["image", "audio", "video", "pdf"].includes(block.mediaType)) throw new HttpsError("invalid-argument", "Type de média inconnu.");
+    if (!["image", "audio", "video", "pdf"].includes(block.mediaType)) throw new HttpsError("invalid-argument", "Type de mÃ©dia inconnu.");
     const asset = parseAssetPath(block.storagePath);
     const scope = lesson.scope?.type === "establishment" ? lesson.scope.establishmentId : lesson.establishmentId || "global";
     if (asset.scopeId !== scope || asset.classLevel !== lesson.classLevel || asset.subjectId !== lesson.subjectId || asset.lessonId !== lesson.id) {
-      throw new HttpsError("permission-denied", "Le média ne correspond pas à cette leçon et à son périmètre.");
+      throw new HttpsError("permission-denied", "Le mÃ©dia ne correspond pas Ã  cette leÃ§on et Ã  son pÃ©rimÃ¨tre.");
     }
     const file = store.file(asset.path);
     let metadata;
     try { [metadata] = await file.getMetadata(); }
-    catch { throw new HttpsError("failed-precondition", "Fichier absent ou téléversement inachevé. Réimportez le média."); }
+    catch { throw new HttpsError("failed-precondition", "Fichier absent ou tÃ©lÃ©versement inachevÃ©. RÃ©importez le mÃ©dia."); }
     const limits: Record<string, number> = { image: 10, audio: 50, video: 150, pdf: 25 };
     const types: Record<string, string[]> = { image: ["image/jpeg", "image/png", "image/webp"], audio: ["audio/mpeg", "audio/mp4", "audio/m4a", "audio/aac"], video: ["video/mp4"], pdf: ["application/pdf"] };
     const size = Number(metadata.size);
     if (!Number.isFinite(size) || size <= 0 || size > limits[block.mediaType] * 1024 * 1024 || !types[block.mediaType].includes(metadata.contentType || "") || (block.mimeType && block.mimeType !== metadata.contentType)) {
-      throw new HttpsError("failed-precondition", "Format ou taille du média non conforme.");
+      throw new HttpsError("failed-precondition", "Format ou taille du mÃ©dia non conforme.");
     }
     let durationSeconds = block.durationSeconds;
     if (block.mediaType === "video") {
-      if (block.mimeType !== "video/mp4" || !asset.fileName.toLowerCase().endsWith(".mp4")) throw new HttpsError("failed-precondition", "Une vidéo MP4 est requise.");
+      if (block.mimeType !== "video/mp4" || !asset.fileName.toLowerCase().endsWith(".mp4")) throw new HttpsError("failed-precondition", "Une vidÃ©o MP4 est requise.");
       try {
         const [bytes] = await store.file(asset.path, { generation: metadata.generation }).download();
         durationSeconds = inspectMp4(bytes).durationSeconds;
-      } catch { throw new HttpsError("failed-precondition", "Vidéo illisible : exportez un MP4 H.264 avec audio AAC puis réimportez-le."); }
+      } catch { throw new HttpsError("failed-precondition", "VidÃ©o illisible : exportez un MP4 H.264 avec audio AAC puis rÃ©importez-le."); }
     }
     // Never retain a permanent Firebase bearer URL in public content.
     delete block.downloadUrl;
@@ -76,15 +81,15 @@ export function createEducationalMediaHandler(firestore: Firestore = db, store: 
     const staff = staffCanWrite(actor, { scope: { type: asset.scopeId === "global" ? "global" : "establishment", establishmentId: asset.scopeId } });
     const ledger = firestore.doc(`educational_asset_access/${asset.assetId}`);
     const entry = (await ledger.get()).data();
-    if (entry && entry.path !== asset.path) throw new HttpsError("permission-denied", "Référence média incompatible.");
+    if (entry && entry.path !== asset.path) throw new HttpsError("permission-denied", "RÃ©fÃ©rence mÃ©dia incompatible.");
     if (request.data?.action === "delete") {
-      if (!staff) throw new HttpsError("permission-denied", "Suppression non autorisée.");
+      if (!staff) throw new HttpsError("permission-denied", "Suppression non autorisÃ©e.");
       await firestore.runTransaction(async tx => {
         const current = (await tx.get(ledger)).data();
-        if (current?.path && current.path !== asset.path) throw new HttpsError("permission-denied", "Référence média incompatible.");
+        if (current?.path && current.path !== asset.path) throw new HttpsError("permission-denied", "RÃ©fÃ©rence mÃ©dia incompatible.");
         if (current?.lessonPath) {
           const lesson = (await tx.get(firestore.doc(current.lessonPath))).data();
-          if (lesson?.contentBlocks?.some((b: DocumentData) => b.storagePath === asset.path)) throw new HttpsError("failed-precondition", "Enregistrez le retrait du média de la leçon avant de supprimer le fichier.");
+          if (lesson?.contentBlocks?.some((b: DocumentData) => b.storagePath === asset.path)) throw new HttpsError("failed-precondition", "Enregistrez le retrait du mÃ©dia de la leÃ§on avant de supprimer le fichier.");
         }
         tx.set(ledger, { ...asset, state: "deleting" }, { merge: true });
       });
@@ -92,11 +97,11 @@ export function createEducationalMediaHandler(firestore: Firestore = db, store: 
       await ledger.set({ state: "deleted" }, { merge: true });
       return { deleted: true };
     }
-    if (entry && entry.state !== "ready") throw new HttpsError("not-found", "Média indisponible.");
-    if (!staff && (!entry?.lessonPath || !await publishedLessonAllows(firestore, entry.lessonPath, actor, profile))) throw new HttpsError("permission-denied", "Ce média ne fait pas partie de votre catalogue publié.");
+    if (entry && entry.state !== "ready") throw new HttpsError("not-found", "MÃ©dia indisponible.");
+    if (!staff && (!entry?.lessonPath || !await publishedLessonAllows(firestore, entry.lessonPath, actor, profile))) throw new HttpsError("permission-denied", "Ce mÃ©dia ne fait pas partie de votre catalogue publiÃ©.");
     if (!staff) {
       const lesson = (await firestore.doc(entry!.lessonPath).get()).data();
-      if (!lesson?.contentBlocks?.some((b: DocumentData) => b.storagePath === asset.path)) throw new HttpsError("not-found", "Média retiré de cette leçon.");
+      if (!lesson?.contentBlocks?.some((b: DocumentData) => b.storagePath === asset.path)) throw new HttpsError("not-found", "MÃ©dia retirÃ© de cette leÃ§on.");
     }
     try {
       const file = store.file(asset.path, entry?.generation ? { generation: entry.generation } : undefined);
@@ -105,6 +110,6 @@ export function createEducationalMediaHandler(firestore: Firestore = db, store: 
       const expiresAt = Date.now() + 15 * 60 * 1000;
       const [url] = await file.getSignedUrl({ version: "v4", action: "read", expires: expiresAt });
       return { url, expiresAt };
-    } catch { throw new HttpsError("unavailable", "Le média est indisponible. Réessayez dans quelques instants."); }
+    } catch { throw new HttpsError("unavailable", "Le mÃ©dia est indisponible. RÃ©essayez dans quelques instants."); }
   };
 }

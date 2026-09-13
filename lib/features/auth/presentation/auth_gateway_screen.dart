@@ -27,9 +27,7 @@ class AuthGatewayScreen extends StatelessWidget {
 
     return AuthExperienceScaffold(
       showBackButton: false,
-      pass: LivingPass(
-        phase: context.l10n.passWelcomeBack,
-      ),
+      pass: LivingPass(phase: context.l10n.passWelcomeBack),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

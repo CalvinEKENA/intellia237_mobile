@@ -1,10 +1,13 @@
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import type { Bucket } from "@google-cloud/storage";
 import { inspectMp4 } from "../services/mp4Validation";
 import { parseAssetPath, validateLessonMedia } from "../services/educationalMedia";
 
-const bytes = readFileSync(new URL("../../../test/fixtures/video/synthetic-chemistry-h264-aac.mp4", import.meta.url));
+const bytes = readFileSync(
+  join(process.cwd(), "../test/fixtures/video/synthetic-chemistry-h264-aac.mp4"),
+);
 const path = "educational_assets/global/Terminale/chemistry/lesson/video-unique/video.mp4";
 const block = { id: "video-unique", order: 0, type: "media", mediaType: "video", storagePath: path, mimeType: "video/mp4" };
 const lesson = () => ({ id: "lesson", classLevel: "Terminale", subjectId: "chemistry", scope: { type: "global" }, contentBlocks: [{ ...block }] });

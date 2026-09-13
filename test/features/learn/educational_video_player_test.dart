@@ -67,6 +67,7 @@ class _Controller extends VideoPlayerController {
   @override
   Future<void> dispose() async {
     disposed = true;
+    await super.dispose();
   }
 }
 

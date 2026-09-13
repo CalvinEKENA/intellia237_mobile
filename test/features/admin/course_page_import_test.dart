@@ -116,29 +116,32 @@ void main() {
     );
   });
 
-  test('un QCM sans bonne réponse valide n’entre ni dans la leçon ni au hub', () {
-    final draft = sample();
-    final quiz = CoursePageDraftPlanner.quiz(
-      draft: draft,
-      classLevel: 'Terminale',
-      subjectId: 'maths-terminale',
-      subjectLabel: 'Mathématiques',
-      lessonId: 'lecon-1',
-    )!;
+  test(
+    'un QCM sans bonne réponse valide n’entre ni dans la leçon ni au hub',
+    () {
+      final draft = sample();
+      final quiz = CoursePageDraftPlanner.quiz(
+        draft: draft,
+        classLevel: 'Terminale',
+        subjectId: 'maths-terminale',
+        subjectLabel: 'Mathématiques',
+        lessonId: 'lecon-1',
+      )!;
 
-    expect(CoursePageDraftPlanner.miniQuiz(draft), hasLength(1));
-    expect(quiz.questions, hasLength(1));
-    expect(quiz.status, 'draft');
-    expect(quiz.mode, QuizMode.training);
-    expect(quiz.classLevels, ['Terminale']);
-    // La bonne réponse reste dans la clé, jamais dans le document public.
-    final publicQuestion =
-        (quiz.toPublicFirestore()['questions'] as List).single as Map;
-    expect(publicQuestion.containsKey('correctOptionIndex'), isFalse);
-    final answer =
-        (quiz.toAnswerKeyFirestore()['answers'] as List).single as Map;
-    expect(answer['correctOptionIndex'], 0);
-  });
+      expect(CoursePageDraftPlanner.miniQuiz(draft), hasLength(1));
+      expect(quiz.questions, hasLength(1));
+      expect(quiz.status, 'draft');
+      expect(quiz.mode, QuizMode.training);
+      expect(quiz.classLevels, ['Terminale']);
+      // La bonne réponse reste dans la clé, jamais dans le document public.
+      final publicQuestion =
+          (quiz.toPublicFirestore()['questions'] as List).single as Map;
+      expect(publicQuestion.containsKey('correctOptionIndex'), isFalse);
+      final answer =
+          (quiz.toAnswerKeyFirestore()['answers'] as List).single as Map;
+      expect(answer['correctOptionIndex'], 0);
+    },
+  );
 
   test('sans QCM valide, aucun quiz vide n’est créé', () {
     final draft = sample();
@@ -158,10 +161,7 @@ void main() {
 
   test('l’intitulé du catalogue retrouve sa matière FLOW', () {
     expect(CoursePageDraftPlanner.flowSubjectIdFor('Mathématiques'), 'maths');
-    expect(
-      CoursePageDraftPlanner.flowSubjectIdFor('Physique-Chimie'),
-      'pc',
-    );
+    expect(CoursePageDraftPlanner.flowSubjectIdFor('Physique-Chimie'), 'pc');
     expect(
       CoursePageDraftPlanner.flowSubjectIdFor(
         'Sciences de la Vie et de la Terre',

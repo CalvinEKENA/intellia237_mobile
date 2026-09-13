@@ -433,7 +433,11 @@ class AdminContentActions {
         existing?['scope'] ??
         _ref.read(contentAuthoringScopeProvider).toFirestore();
     final batch = _db.batch();
-    batch.set(quizRef, {...?existing, ...quiz.toPublicFirestore(), 'scope': scope});
+    batch.set(quizRef, {
+      ...?existing,
+      ...quiz.toPublicFirestore(),
+      'scope': scope,
+    });
     batch.set(answerKeyRef, {...quiz.toAnswerKeyFirestore(), 'scope': scope});
     await batch.commit();
     for (final cl in quiz.classLevels) {

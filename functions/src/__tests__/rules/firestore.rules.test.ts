@@ -363,8 +363,24 @@ describe("Firestore security rules", () => {
       }),
     );
     await assertSucceeds(
+      setDoc(doc(teacherDb, "quizzes/teacher-authored"), {
+        title: "Teacher quiz",
+        status: "draft",
+        classLevels: ["Terminale"],
+        scope: {
+          type: "establishment",
+          establishmentId: "school-a",
+        },
+      }),
+    );
+
+    await assertSucceeds(
       setDoc(doc(teacherDb, "quiz_answer_keys/teacher-authored"), {
         answers: [{ id: "q1", correctOptionIndex: 0 }],
+        scope: {
+          type: "establishment",
+          establishmentId: "school-a",
+        },
       }),
     );
   });
@@ -645,31 +661,65 @@ describe("Firestore security rules", () => {
 
   it("reserves national content to the general administration", async () => {
     await seedFirestore();
+
     const head = dbFor("admin-a");
     const root = dbFor("root");
-    const national = { title: "National", workflow: { status: "draft" } };
+
+    const national = {
+      title: "National",
+      workflow: { status: "draft" },
+    };
+
     const forSchool = (establishmentId: string) => ({
       title: "School",
-      scope: { type: "establishment", establishmentId },
+      scope: {
+        type: "establishment",
+        establishmentId,
+      },
       workflow: { status: "draft" },
     });
 
     await assertFails(setDoc(doc(head, "lessons/national"), national));
-    await assertSucceeds(setDoc(doc(head, "lessons/own"), forSchool("school-a")));
-    await assertFails(setDoc(doc(head, "lessons/other"), forSchool("school-b")));
+    await assertSucceeds(
+      setDoc(doc(head, "lessons/own"), forSchool("school-a")),
+    );
+    await assertFails(
+      setDoc(doc(head, "lessons/other"), forSchool("school-b")),
+    );
     await assertSucceeds(setDoc(doc(root, "lessons/national"), national));
-    await assertSucceeds(setDoc(doc(root, "lessons/other"), forSchool("school-b")));
+    await assertSucceeds(
+      setDoc(doc(root, "lessons/other"), forSchool("school-b")),
+    );
 
-    await assertFails(setDoc(doc(head, "flow_items/national"), {
-      status: "draft",
-    }));
-    await assertSucceeds(setDoc(doc(head, "flow_items/own"), {
-      status: "draft",
-      scope: { type: "establishment", establishmentId: "school-a" },
-    }));
-    await assertFails(setDoc(doc(dbFor("teacher-a"), "flow_items/national"), {
-      status: "draft",
-    }));
+    // FLOW est écrit uniquement par saveFlowPublication.
+    await assertFails(
+      setDoc(doc(head, "flow_items/national"), {
+        status: "draft",
+      }),
+    );
+
+    await assertFails(
+      setDoc(doc(head, "flow_items/own"), {
+        status: "draft",
+        scope: {
+          type: "establishment",
+          establishmentId: "school-a",
+        },
+      }),
+    );
+
+    await assertFails(
+      setDoc(doc(root, "flow_items/root-direct"), {
+        status: "draft",
+        scope: { type: "global" },
+      }),
+    );
+
+    await assertFails(
+      setDoc(doc(dbFor("teacher-a"), "flow_items/national"), {
+        status: "draft",
+      }),
+    );
   });
 
   it("revokes suspended/deleted profile access without waiting for token expiration", async () => {
@@ -687,28 +737,34 @@ describe("Firestore security rules", () => {
     }
   });
 
-  it("shows a class's national content to that class in every school", async () => {
+  it("keeps learner FLOW reads behind the server projection", async () => {
     await seedFirestore();
-    const root = dbFor("root");
-    await assertSucceeds(setDoc(doc(root, "flow_items/national-terminale"), {
-      title: "Dérivées",
-      subjectId: "maths",
-      status: "draft",
-      classLevels: ["Terminale"],
-      scope: { type: "global" },
-    }));
-    await assertSucceeds(updateDoc(doc(root, "flow_items/national-terminale"), {
-      status: "published",
-    }));
 
-    // The learner feed queries by class level only, whatever the school.
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(
+        doc(context.firestore(), "flow_items/national-terminale"),
+        {
+          title: "Dérivées",
+          subjectId: "maths",
+          status: "published",
+          classLevels: ["Terminale"],
+          scope: { type: "global" },
+        },
+      );
+    });
+
+    // L'élève ne lit plus directement flow_items.
+    // readLearningCatalog applique le filtrage d'audience côté serveur.
     for (const pupil of ["student-a", "student-b"]) {
-      const feed = await assertSucceeds(getDocs(query(
-        collection(dbFor(pupil), "flow_items"),
-        where("status", "==", "published"),
-        where("classLevels", "array-contains", "Terminale"),
-      )));
-      expect(feed.docs.map((item) => item.id)).toContain("national-terminale");
+      await assertFails(
+        getDocs(
+          query(
+            collection(dbFor(pupil), "flow_items"),
+            where("status", "==", "published"),
+            where("classLevels", "array-contains", "Terminale"),
+          ),
+        ),
+      );
     }
   });
 

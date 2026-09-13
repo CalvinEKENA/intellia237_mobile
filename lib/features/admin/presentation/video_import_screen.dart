@@ -101,10 +101,14 @@ class _VideoImportScreenState extends ConsumerState<VideoImportScreen> {
       _media,
     ).attach(widget.lesson, block, replacingId: widget.replacingId);
     if (widget.notebook) {
-      lesson = lesson.copyWith(origin: ContentOrigin(
-      source: ContentSourceType.notebooklm, sourceDocumentName: video.caption,
-      importedAt: DateTime.now(), importedByUid: ref.read(contentActorProvider)?.uid,
-    ));
+      lesson = lesson.copyWith(
+        origin: ContentOrigin(
+          source: ContentSourceType.notebooklm,
+          sourceDocumentName: video.caption,
+          importedAt: DateTime.now(),
+          importedByUid: ref.read(contentActorProvider)?.uid,
+        ),
+      );
     }
     try {
       await ref.read(adminContentActionsProvider).saveLesson(lesson);

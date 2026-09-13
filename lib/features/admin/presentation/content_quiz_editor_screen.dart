@@ -141,8 +141,11 @@ class _ContentQuizEditorScreenState
           120,
         ),
         children: [
-          ContentAudienceEditor(value: _audience, defaultClass: widget.classLevel,
-            onChanged: (a) => setState(() => _audience = a)),
+          ContentAudienceEditor(
+            value: _audience,
+            defaultClass: widget.classLevel,
+            onChanged: (a) => setState(() => _audience = a),
+          ),
           // ── Meta ────────────────────────────────────────────
           _InfoCard(
             child: Column(
