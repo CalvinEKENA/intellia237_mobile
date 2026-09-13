@@ -1,3 +1,5 @@
+import 'widgets/content_audience_editor.dart';
+import '../../learn/domain/content_audience.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,6 +42,7 @@ class _NewSubjectDialogState extends ConsumerState<NewSubjectDialog> {
   String _iconKey = 'book';
   int _color = kSubjectColorOptions.first;
   final Set<String> _series = {};
+  ContentAudience? _audience;
   bool _saving = false;
   String? _error;
 
@@ -71,6 +74,7 @@ class _NewSubjectDialogState extends ConsumerState<NewSubjectDialog> {
             colorHex: _color,
             iconKey: _iconKey,
             allowedSeries: _series.toList(growable: false),
+            audience: _audience,
           );
       navigator.pop(true);
     } catch (error) {
@@ -107,6 +111,11 @@ class _NewSubjectDialogState extends ConsumerState<NewSubjectDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ContentAudienceEditor(
+                value: _audience ?? ContentAudience(clauses: [{'classLevels': [widget.classLevel], 'series': _series.toList()}]),
+                defaultClass: widget.classLevel,
+                onChanged: (a) => setState(() => _audience = a),
+              ),
               label('Suggestions'),
               Wrap(
                 spacing: IntelliaSpacing.xs,
@@ -119,8 +128,9 @@ class _NewSubjectDialogState extends ConsumerState<NewSubjectDialog> {
                       onPressed: () => setState(() {
                         _title.text = _suggestions[index].$1;
                         _iconKey = _suggestions[index].$2;
-                        _color = kSubjectColorOptions[
-                            index % kSubjectColorOptions.length];
+                        _color =
+                            kSubjectColorOptions[index %
+                                kSubjectColorOptions.length];
                         _error = null;
                       }),
                     ),
@@ -185,7 +195,7 @@ class _NewSubjectDialogState extends ConsumerState<NewSubjectDialog> {
                     ),
                 ],
               ),
-              if (series != null) ...[
+              if (series != null && _audience == null) ...[
                 label('Séries concernées — aucune cochée : toutes'),
                 Wrap(
                   spacing: IntelliaSpacing.xs,

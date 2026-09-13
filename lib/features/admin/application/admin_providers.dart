@@ -41,26 +41,31 @@ final adminActionsProvider = Provider<AdminActions>((ref) {
   return AdminActions(ref);
 });
 
-final schoolDirectoryProvider = FutureProvider.autoDispose.family<
-  SchoolDirectoryPage,
-  ({AdminRoleType role, String? afterId, String? establishmentId})
->((ref, filter) async {
-  return ref.watch(adminRepositoryProvider).fetchSchoolDirectory(
-    adminUid: ref.watch(_adminUidProvider),
-    role: filter.role,
-    afterId: filter.afterId,
-    establishmentId: filter.establishmentId,
-  );
-});
+final schoolDirectoryProvider = FutureProvider.autoDispose
+    .family<
+      SchoolDirectoryPage,
+      ({AdminRoleType role, String? afterId, String? establishmentId})
+    >((ref, filter) async {
+      return ref
+          .watch(adminRepositoryProvider)
+          .fetchSchoolDirectory(
+            adminUid: ref.watch(_adminUidProvider),
+            role: filter.role,
+            afterId: filter.afterId,
+            establishmentId: filter.establishmentId,
+          );
+    });
 
 /// Les classes d'une école : la sienne pour une direction, celle choisie par
 /// l'administration générale.
 final schoolClassesProvider = FutureProvider.autoDispose
     .family<List<SchoolClassSummary>, String?>((ref, establishmentId) async {
-      return ref.watch(adminRepositoryProvider).fetchSchoolClasses(
-        adminUid: ref.watch(_adminUidProvider),
-        establishmentId: establishmentId,
-      );
+      return ref
+          .watch(adminRepositoryProvider)
+          .fetchSchoolClasses(
+            adminUid: ref.watch(_adminUidProvider),
+            establishmentId: establishmentId,
+          );
     });
 
 final adminEstablishmentsProvider =
@@ -82,10 +87,17 @@ class AdminActions {
 
   final Ref _ref;
 
-  Future<void> renameSchoolClass({required String classId, required String name}) async {
-    await _ref.read(adminRepositoryProvider).renameSchoolClass(
-      adminUid: _ref.read(_adminUidProvider), classId: classId, name: name,
-    );
+  Future<void> renameSchoolClass({
+    required String classId,
+    required String name,
+  }) async {
+    await _ref
+        .read(adminRepositoryProvider)
+        .renameSchoolClass(
+          adminUid: _ref.read(_adminUidProvider),
+          classId: classId,
+          name: name,
+        );
     _ref.invalidate(schoolClassesProvider);
   }
 

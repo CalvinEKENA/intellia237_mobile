@@ -50,19 +50,13 @@ class FirestoreAdminFlowRepository implements AdminFlowRepository {
 
   @override
   Future<String> save(FlowItem item) async {
-    final data = <String, Object?>{
-      ...item.toFirestore(),
-      'updatedAt': DateTime.now().toIso8601String(),
-    };
-    if (item.id.isEmpty) {
-      final created = await _items.add({
-        ...data,
-        'createdAt': DateTime.now().toIso8601String(),
-      });
-      return created.id;
-    }
-    await _items.doc(item.id).set(data, SetOptions(merge: true));
-    return item.id;
+    final result = await FirebaseFunctions.instanceFor(region: 'europe-west1')
+        .httpsCallable('saveFlowPublication')
+        .call<Map<String, dynamic>>({
+          'id': item.id,
+          'content': item.toFirestore(),
+        });
+    return result.data['id'] as String;
   }
 
   @override

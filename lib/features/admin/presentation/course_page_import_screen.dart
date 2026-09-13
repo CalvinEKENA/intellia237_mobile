@@ -709,8 +709,7 @@ class _CoursePageImportScreenState
                   keyName: 'page-import-flow-question-$index',
                   label: 'Question',
                   value: draft.flowCards[index].question,
-                  onChanged: (value) =>
-                      draft.flowCards[index].question = value,
+                  onChanged: (value) => draft.flowCards[index].question = value,
                   maxLines: 3,
                 ),
                 field(
@@ -726,8 +725,7 @@ class _CoursePageImportScreenState
                   keyName: 'page-import-flow-question-$index',
                   label: 'Question',
                   value: draft.flowCards[index].question,
-                  onChanged: (value) =>
-                      draft.flowCards[index].question = value,
+                  onChanged: (value) => draft.flowCards[index].question = value,
                   maxLines: 3,
                 ),
                 for (
@@ -767,14 +765,13 @@ class _CoursePageImportScreenState
     ];
   }
 
-  List<Widget> _doneStep(BuildContext context, CoursePageImportOutcome outcome) {
+  List<Widget> _doneStep(
+    BuildContext context,
+    CoursePageImportOutcome outcome,
+  ) {
     final theme = Theme.of(context);
     return [
-      Icon(
-        Icons.task_alt_rounded,
-        size: 44,
-        color: theme.colorScheme.primary,
-      ),
+      Icon(Icons.task_alt_rounded, size: 44, color: theme.colorScheme.primary),
       const SizedBox(height: IntelliaSpacing.sm),
       Text(
         'Brouillons créés',
@@ -784,8 +781,7 @@ class _CoursePageImportScreenState
         ),
       ),
       const SizedBox(height: IntelliaSpacing.sm),
-      if (outcome.lessonId != null)
-        const Text('• La leçon, dans ce chapitre.'),
+      if (outcome.lessonId != null) const Text('• La leçon, dans ce chapitre.'),
       if (outcome.quizCreated)
         const Text('• Le quiz d’entraînement, dans Quiz.'),
       if (outcome.flowItemsCreated > 0)
@@ -808,10 +804,7 @@ class _CoursePageImportScreenState
           ),
         ),
         for (final failure in outcome.failures)
-          Text(
-            '• $failure',
-            style: TextStyle(color: theme.colorScheme.error),
-          ),
+          Text('• $failure', style: TextStyle(color: theme.colorScheme.error)),
       ],
     ];
   }
@@ -833,9 +826,7 @@ class _ContextCard extends StatelessWidget {
     child: ListTile(
       leading: const Icon(Icons.menu_book_outlined),
       title: Text(chapter),
-      subtitle: Text(
-        [classLevel, if (subject.isNotEmpty) subject].join(' · '),
-      ),
+      subtitle: Text([classLevel, if (subject.isNotEmpty) subject].join(' · ')),
     ),
   );
 }

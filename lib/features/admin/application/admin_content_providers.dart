@@ -1,3 +1,4 @@
+import '../../learn/domain/content_audience.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -210,6 +211,7 @@ class AdminContentActions {
     required int colorHex,
     required String iconKey,
     List<String> allowedSeries = const [],
+    ContentAudience? audience,
   }) async {
     final existing = await _subjectsRef(classLevel).get();
     final order = existing.docs.length;
@@ -221,6 +223,7 @@ class AdminContentActions {
       'order': order,
       'status': 'draft',
       'allowedSeries': allowedSeries,
+      if (audience != null) 'audience': audience.toFirestore(),
       'chapterSummaries': <Map<String, dynamic>>[],
     });
     _ref.invalidate(adminSubjectsProvider(classLevel));
@@ -430,7 +433,7 @@ class AdminContentActions {
         existing?['scope'] ??
         _ref.read(contentAuthoringScopeProvider).toFirestore();
     final batch = _db.batch();
-    batch.set(quizRef, {...quiz.toPublicFirestore(), 'scope': scope});
+    batch.set(quizRef, {...?existing, ...quiz.toPublicFirestore(), 'scope': scope});
     batch.set(answerKeyRef, {...quiz.toAnswerKeyFirestore(), 'scope': scope});
     await batch.commit();
     for (final cl in quiz.classLevels) {

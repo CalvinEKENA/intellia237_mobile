@@ -1,3 +1,4 @@
+import '../../learn/domain/content_audience.dart';
 import 'package:flutter/material.dart';
 
 import '../../learn/domain/content_block.dart';
@@ -21,6 +22,13 @@ const kAllClassLevels = <String>[
   'Seconde',
   'Premiere',
   'Terminale',
+  'Form1',
+  'Form2',
+  'Form3',
+  'Form4',
+  'Form5',
+  'LowerSixth',
+  'UpperSixth',
 ];
 
 const kSeriesByClass = <String, List<String>>{
@@ -192,6 +200,7 @@ class AdminLessonModel {
     required this.contentSections,
     required this.miniQuiz,
     this.aiGenerated = false,
+    this.audience,
     this.contentBlocks = const [],
     this.schemaVersion = 1,
     this.scope = ContentScope.global,
@@ -211,6 +220,7 @@ class AdminLessonModel {
   final List<LessonContentSection> contentSections;
   final List<LessonMiniQuizQuestion> miniQuiz;
   final bool aiGenerated;
+  final ContentAudience? audience;
 
   // ── V2 Content Studio fields ──────────────────────────────
   final List<ContentBlock> contentBlocks;
@@ -242,6 +252,7 @@ class AdminLessonModel {
     );
 
     return <String, dynamic>{
+      if (audience != null) 'audience': audience!.toFirestore(),
       'title': title,
       'summary': summary,
       'estimatedMinutes': estimatedMinutes,
@@ -320,6 +331,9 @@ class AdminLessonModel {
       status: data['status'] as String? ?? 'draft',
       contentSections: sections,
       miniQuiz: miniQuiz,
+      audience: data['audience'] is Map
+          ? ContentAudience.fromFirestore(data['audience'] as Map)
+          : null,
       aiGenerated: data['aiGenerated'] as bool? ?? false,
       contentBlocks: contentBlocks,
       schemaVersion: schemaVersion,
@@ -340,6 +354,7 @@ class AdminLessonModel {
     List<LessonContentSection>? contentSections,
     List<LessonMiniQuizQuestion>? miniQuiz,
     bool? aiGenerated,
+    ContentAudience? audience,
     List<ContentBlock>? contentBlocks,
     int? schemaVersion,
     ContentScope? scope,
@@ -358,6 +373,7 @@ class AdminLessonModel {
     contentSections: contentSections ?? this.contentSections,
     miniQuiz: miniQuiz ?? this.miniQuiz,
     aiGenerated: aiGenerated ?? this.aiGenerated,
+    audience: audience ?? this.audience,
     contentBlocks: contentBlocks ?? this.contentBlocks,
     schemaVersion: schemaVersion ?? this.schemaVersion,
     scope: scope ?? this.scope,
@@ -383,6 +399,7 @@ class AdminQuizModel {
     required this.questions,
     this.mode = QuizMode.exam,
     this.series = const [],
+    this.audience,
     this.timerSeconds,
     this.sourceLessonId,
     this.aiGenerated = false,
@@ -396,6 +413,7 @@ class AdminQuizModel {
   final String difficultyLabel;
   final List<String> classLevels;
   final List<String> series;
+  final ContentAudience? audience;
   final String status; // 'draft' | 'published' | 'ai_generated'
   final List<QuizQuestion> questions;
   final QuizMode mode;
@@ -413,6 +431,7 @@ class AdminQuizModel {
     'difficultyLabel': difficultyLabel,
     'classLevels': classLevels,
     'series': series,
+    if (audience != null) 'audience': audience!.toFirestore(),
     'timerSeconds': timerSeconds,
     'status': status,
     'mode': mode.wireValue,
@@ -503,6 +522,7 @@ class AdminQuizModel {
       difficultyLabel: data['difficultyLabel'] as String? ?? 'Intermédiaire',
       classLevels: List<String>.from(data['classLevels'] as List? ?? []),
       series: List<String>.from(data['series'] as List? ?? []),
+      audience: data['audience'] is Map ? ContentAudience.fromFirestore(data['audience'] as Map) : null,
       timerSeconds: data['timerSeconds'] as int?,
       status: data['status'] as String? ?? 'draft',
       aiGenerated: data['aiGenerated'] as bool? ?? false,

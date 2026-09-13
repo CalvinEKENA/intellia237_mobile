@@ -1,3 +1,4 @@
+import 'educational_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -147,10 +148,10 @@ class _MediaSurface extends ConsumerWidget {
           durationSeconds: block.durationSeconds,
         );
       case MediaType.video:
-        return _MediaPlaceholder(
-          icon: Icons.play_circle_outline_rounded,
-          label: 'Capsule vidéo',
-          durationSeconds: block.durationSeconds,
+        return EducationalVideoPlayer(
+          storagePath: block.storagePath,
+          caption: block.caption,
+          fileSizeBytes: block.fileSizeBytes,
         );
       case MediaType.pdf:
         return _MediaPlaceholder(

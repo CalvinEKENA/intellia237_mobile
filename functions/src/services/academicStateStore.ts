@@ -1,3 +1,5 @@
+import { publishedLessonAllows } from "./educationalMedia";
+import { audienceAllows, canonicalClass } from "./contentAudience";
 import { createHash } from "node:crypto";
 
 import {
@@ -140,8 +142,13 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
       const profileSnapshot = await transaction.get(profileRef);
       const streakSnapshot = await transaction.get(streakRef);
 
-      if (!quizAudienceAllows(quizSnapshot.data()!, userSnapshot.data() || {})) {
+      if (!quizAudienceAllows(quizSnapshot.data()!, userSnapshot.data() || {}, profileSnapshot.data() || {})) {
         throw new AppError("permission-denied", "Quiz unavailable for this student.");
+      }
+
+      const sourceLessonPath = quizSnapshot.data()?.sourceLessonPath;
+      if (sourceLessonPath && !await publishedLessonAllows(this.firestore, sourceLessonPath, userSnapshot.data() || {}, profileSnapshot.data() || {}, ref => transaction.get(ref))) {
+        throw new AppError("permission-denied", "Source lesson unavailable for this student.");
       }
 
       transaction.set(attemptRef, {
@@ -213,28 +220,41 @@ export class FirestoreAcademicStateStore implements AcademicStateStore {
         .collection("lessonProgress")
         .doc(progressId);
       const userRef = this.firestore.collection("users").doc(command.studentId);
+      const sourceClass = command.subjectId.includes("~") ? command.subjectId.split("~")[0] : command.classLevel;
+      const sourceSubject = command.subjectId.includes("~") ? command.subjectId.substring(command.subjectId.indexOf("~") + 1) : command.subjectId;
       const lessonRef = this.firestore
         .collection("classes")
-        .doc(command.classLevel)
+        .doc(sourceClass)
         .collection("subjects")
-        .doc(command.subjectId)
+        .doc(sourceSubject)
         .collection("chapters")
         .doc(command.chapterId)
         .collection("lessons")
         .doc(command.lessonId);
       const streakRef = this.firestore.collection("streaks").doc(command.studentId);
-      const [progressSnapshot, userSnapshot, lessonSnapshot, streakSnapshot] =
+      const [progressSnapshot, userSnapshot, lessonSnapshot, streakSnapshot, profileSnapshot, chapterSnapshot, subjectSnapshot] =
         await Promise.all([
           transaction.get(progressRef),
           transaction.get(userRef),
           transaction.get(lessonRef),
-          transaction.get(streakRef)
+          transaction.get(streakRef),
+          transaction.get(this.firestore.doc(`student_profiles/${command.studentId}`)),
+          transaction.get(lessonRef.parent.parent!),
+          transaction.get(lessonRef.parent.parent!.parent.parent!)
         ]);
       assertLessonProgressAuthorized({
         command,
         userData: userSnapshot.exists ? userSnapshot.data() : undefined,
-        lessonData: lessonSnapshot.exists ? lessonSnapshot.data() : undefined
+        lessonData: lessonSnapshot.exists ? lessonSnapshot.data() : undefined,
+        profileData: profileSnapshot.data(),
       });
+      if (!chapterSnapshot.exists || !subjectSnapshot.exists || subjectSnapshot.data()!.status !== "published" ||
+        ![chapterSnapshot, subjectSnapshot].every(d => !d.data()!.deleting && audienceAllows(
+          d === chapterSnapshot && d.data()!.audience === undefined && subjectSnapshot.data()?.audience
+            ? { ...d.data(), audience: subjectSnapshot.data()!.audience } : d.data()!,
+          userSnapshot.data()!, profileSnapshot.data(), sourceClass))) {
+        throw new AppError("permission-denied", "Lesson parent audience does not match the student.");
+      }
       const previousProgress = clampProgress(Number(progressSnapshot.data()?.progress ?? 0));
       const nextProgress = Math.max(previousProgress, clampProgress(command.progress));
       const result: LessonProgressResult = {
@@ -484,7 +504,8 @@ export function buildRequestHash(value: unknown): string {
 export function assertLessonProgressAuthorized({
   command,
   userData,
-  lessonData
+  lessonData,
+  profileData = {}
 }: {
   command: Pick<
     LessonProgressCommand,
@@ -492,6 +513,7 @@ export function assertLessonProgressAuthorized({
   >;
   userData: DocumentData | undefined;
   lessonData: DocumentData | undefined;
+  profileData?: DocumentData;
 }): void {
   if (!userData || normalizedString(userData.role) !== "student") {
     throw new AppError("permission-denied", "A student account is required.");
@@ -500,25 +522,18 @@ export function assertLessonProgressAuthorized({
   if (accountStatus && accountStatus !== "active") {
     throw new AppError("permission-denied", "The student account is not active.");
   }
-  const authoritativeClass = normalizedString(userData.classLevel);
-  if (
-    !authoritativeClass ||
-    !sameAcademicValue(authoritativeClass, command.classLevel)
-  ) {
-    throw new AppError(
-      "permission-denied",
-      "Lesson progress must match the student's registered class.",
-    );
-  }
   if (!lessonData || normalizedString(lessonData.status) !== "published") {
     throw new AppError("not-found", "Published lesson was not found.");
   }
-  const lessonClass = normalizedString(lessonData.classLevel);
-  if (lessonClass && !sameAcademicValue(lessonClass, authoritativeClass)) {
-    throw new AppError("permission-denied", "Lesson class does not match the student profile.");
+  if (!audienceAllows(lessonData, userData, profileData, command.classLevel)) {
+    throw new AppError("permission-denied", "Lesson audience does not match the student profile.");
+  }
+  const sourceClass = command.subjectId.includes("~") ? command.subjectId.split("~")[0] : command.classLevel;
+  if (lessonData.classLevel && canonicalClass(lessonData.classLevel) !== canonicalClass(sourceClass)) {
+    throw new AppError("permission-denied", "Lesson path and class metadata are inconsistent.");
   }
   for (const [field, expected] of [
-    ["subjectId", command.subjectId],
+    ["subjectId", command.subjectId.includes("~") ? command.subjectId.substring(command.subjectId.indexOf("~") + 1) : command.subjectId],
     ["chapterId", command.chapterId],
     ["lessonId", command.lessonId]
   ] as const) {

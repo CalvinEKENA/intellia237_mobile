@@ -82,13 +82,13 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
         child: Padding(
           padding: EdgeInsets.only(bottom: intelliaBottomNavInset(context)),
           child: IndexedStack(
-          index: _index,
-          children: const [
-            _AdminDashboardTab(),
-            ContentStudioScreen(embedded: true),
-            SchoolAnalyticsScreen(embedded: true),
-            UserManagementScreen(embedded: true),
-            _AdminToolsTab(),
+            index: _index,
+            children: const [
+              _AdminDashboardTab(),
+              ContentStudioScreen(embedded: true),
+              SchoolAnalyticsScreen(embedded: true),
+              UserManagementScreen(embedded: true),
+              _AdminToolsTab(),
             ],
           ),
         ),
@@ -333,7 +333,9 @@ class _AdminHeroCard extends StatelessWidget {
           Text(
             dashboard.allSchools
                 ? context.l10n.generalAdministrationAllSchools
-                : context.l10n.administrationAtSchool(dashboard.establishmentName),
+                : context.l10n.administrationAtSchool(
+                    dashboard.establishmentName,
+                  ),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.9),
               fontWeight: FontWeight.w700,

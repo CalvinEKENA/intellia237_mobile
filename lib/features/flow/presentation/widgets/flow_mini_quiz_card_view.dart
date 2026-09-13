@@ -1,3 +1,4 @@
+import 'flow_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -60,12 +61,7 @@ class _FlowMiniQuizCardViewState extends ConsumerState<FlowMiniQuizCardView> {
         children: [
           Text(
             card.question,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-              height: 1.18,
-              color: IntelliaColors.textPrimary,
-            ),
+            style: FlowTypography.title(context),
           ).animate().fadeIn(duration: 420.ms).slideY(begin: 0.1, end: 0),
           const SizedBox(height: IntelliaSpacing.xl),
           ...card.options.asMap().entries.map(

@@ -1,3 +1,4 @@
+import 'flow_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -265,28 +266,26 @@ class _FlowOrderingCardViewState extends ConsumerState<FlowOrderingCardView> {
         children: [
           _ExerciseTitle(widget.card.instruction),
           const SizedBox(height: IntelliaSpacing.md),
-          Expanded(
-            child: ReorderableListView.builder(
-              buildDefaultDragHandles: !locked,
-              itemCount: _items.length,
-              onReorderItem: (oldIndex, newIndex) {
-                if (locked) return;
-                HapticFeedback.selectionClick();
-                setState(() {
-                  final item = _items.removeAt(oldIndex);
-                  _items.insert(newIndex, item);
-                });
-              },
-              itemBuilder: (context, index) => Card(
-                key: ValueKey(_items[index]),
-                margin: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
-                child: ListTile(
-                  leading: CircleAvatar(child: Text('${index + 1}')),
-                  title: Text(_items[index]),
-                  trailing: locked
-                      ? null
-                      : const Icon(Icons.drag_handle_rounded),
-                ),
+          ReorderableListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            buildDefaultDragHandles: !locked,
+            itemCount: _items.length,
+            onReorderItem: (oldIndex, newIndex) {
+              if (locked) return;
+              HapticFeedback.selectionClick();
+              setState(() {
+                final item = _items.removeAt(oldIndex);
+                _items.insert(newIndex, item);
+              });
+            },
+            itemBuilder: (context, index) => Card(
+              key: ValueKey(_items[index]),
+              margin: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
+              child: ListTile(
+                leading: CircleAvatar(child: Text('${index + 1}')),
+                title: Text(_items[index]),
+                trailing: locked ? null : const Icon(Icons.drag_handle_rounded),
               ),
             ),
           ),
@@ -313,12 +312,7 @@ class _ExerciseTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: GoogleFonts.playfairDisplay(
-      fontSize: 26,
-      fontWeight: FontWeight.w700,
-      height: 1.18,
-      color: IntelliaColors.textPrimary,
-    ),
+    style: FlowTypography.title(context),
   ).animate().fadeIn(duration: 420.ms).slideY(begin: 0.1, end: 0);
 }
 

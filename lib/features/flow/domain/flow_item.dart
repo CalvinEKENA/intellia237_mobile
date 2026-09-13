@@ -1,3 +1,4 @@
+import '../../learn/domain/content_audience.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../admin/domain/content_scope.dart';
@@ -97,6 +98,7 @@ class FlowItem {
     required this.title,
     required this.subjectId,
     required this.classLevels,
+    this.audience,
     this.hook = '',
     this.ref = const FlowItemRef(),
     this.payload = const <String, Object?>{},
@@ -129,6 +131,7 @@ class FlowItem {
 
   /// Niveaux concernés. Un fil est filtré là-dessus côté serveur.
   final List<String> classLevels;
+  final ContentAudience? audience;
 
   final String? chapterId;
 
@@ -183,6 +186,7 @@ class FlowItem {
     'hook': hook,
     'subjectId': subjectId,
     'classLevels': classLevels,
+    if (audience != null) 'audience': audience!.toFirestore(),
     if (chapterId != null) 'chapterId': chapterId,
     if (!ref.isEmpty) 'ref': ref.toFirestore(),
     if (payload.isNotEmpty) 'payload': payload,
@@ -231,6 +235,9 @@ class FlowItem {
       hook: (data['hook'] as String?) ?? '',
       subjectId: subjectId,
       classLevels: levels,
+      audience: data['audience'] is Map
+          ? ContentAudience.fromFirestore(data['audience'] as Map)
+          : null,
       chapterId: data['chapterId'] as String?,
       ref: FlowItemRef.fromFirestore(data['ref']),
       payload: data['payload'] is Map
@@ -296,6 +303,7 @@ class FlowItem {
     String? hook,
     String? subjectId,
     List<String>? classLevels,
+    ContentAudience? audience,
     String? chapterId,
     FlowItemRef? ref,
     Map<String, Object?>? payload,
@@ -321,6 +329,7 @@ class FlowItem {
     hook: hook ?? this.hook,
     subjectId: subjectId ?? this.subjectId,
     classLevels: classLevels ?? this.classLevels,
+    audience: audience ?? this.audience,
     chapterId: chapterId ?? this.chapterId,
     ref: ref ?? this.ref,
     payload: payload ?? this.payload,

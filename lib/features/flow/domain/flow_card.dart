@@ -63,7 +63,7 @@ final class FlowQuestionCard extends FlowCard {
   final String answer;
 }
 
-/// Une capsule vidéo (poster + lecture simulée — pas de média réel ici).
+/// Une capsule portant la même référence média que la leçon.
 final class FlowVideoCard extends FlowCard {
   const FlowVideoCard({
     required super.id,
@@ -71,6 +71,8 @@ final class FlowVideoCard extends FlowCard {
     required this.title,
     required this.description,
     required this.durationLabel,
+    this.storagePath,
+    this.fileSizeBytes,
     super.kicker = 'Capsule vidéo',
     super.estimatedSeconds = 45,
     super.pointsReward = 15,
@@ -79,6 +81,8 @@ final class FlowVideoCard extends FlowCard {
   final String title;
   final String description;
   final String durationLabel;
+  final String? storagePath;
+  final int? fileSizeBytes;
 }
 
 /// Une notion illustrée par une animation conceptuelle (pendule, cellule…).

@@ -76,8 +76,12 @@ abstract final class FlowItemMapper {
           id: item.id,
           subject: subject,
           title: title,
-          description: item.hook,
+          description: _text(item.payload['description'], item.hook),
           durationLabel: _durationLabel(item.durationSeconds),
+          storagePath: item.type == FlowItemType.shortVideo
+              ? item.ref.storagePath
+              : null,
+          fileSizeBytes: (item.payload['fileSizeBytes'] as num?)?.toInt(),
           kicker: item.type == FlowItemType.audio
               ? 'Révision express'
               : 'Capsule vidéo',

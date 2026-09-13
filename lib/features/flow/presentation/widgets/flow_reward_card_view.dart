@@ -1,3 +1,4 @@
+import 'flow_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,11 +32,7 @@ class FlowRewardCardView extends ConsumerWidget {
           Text(
                 card.title,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
-                  color: IntelliaColors.textPrimary,
-                ),
+                style: FlowTypography.title(context),
               )
               .animate()
               .fadeIn(delay: 200.ms, duration: 460.ms)
@@ -52,21 +49,21 @@ class FlowRewardCardView extends ConsumerWidget {
             ),
           ).animate().fadeIn(delay: 320.ms, duration: 460.ms),
           const SizedBox(height: IntelliaSpacing.xl),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 16,
+            runSpacing: 16,
             children: [
               _stat(
                 '+${progress.sessionPoints}',
                 context.l10n.verifiedSession,
                 IntelliaColors.pointsGold,
               ),
-              _divider(),
               _stat(
                 progress.verifiedTotalPoints?.toString() ?? '—',
                 context.l10n.verifiedTotal,
                 accent,
               ),
-              _divider(),
               _stat(
                 progress.pendingValidationCount.toString(),
                 context.l10n.pendingValidationLabel,
@@ -143,12 +140,5 @@ class FlowRewardCardView extends ConsumerWidget {
         ),
       ),
     ],
-  );
-
-  Widget _divider() => Container(
-    width: 1,
-    height: 30,
-    margin: const EdgeInsets.symmetric(horizontal: IntelliaSpacing.lg),
-    color: Colors.black.withValues(alpha: 0.08),
   );
 }

@@ -82,7 +82,7 @@ final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
   ref.watch(learnCatalogRevisionProvider);
   final auth = ref.watch(authControllerProvider);
   final cacheKey =
-      '${auth.userId}_${auth.establishmentId ?? "global"}_$classLevel';
+      '${auth.userId}_${auth.establishmentId ?? "global"}_${ref.watch(studentAcademicContextProvider).valueOrNull?.series}_${ref.watch(studentAcademicContextProvider).valueOrNull?.academicLevelId}_$classLevel';
   final repository = ref.watch(flowFeedRepositoryProvider);
   final prefs = await SharedPreferences.getInstance();
   final cache = FlowFeedCache(prefs);
@@ -101,8 +101,13 @@ final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
     }
     await cache.clear(cacheKey);
     return FlowCatalog.empty;
+  } on FirebaseFunctionsException catch (error) {
+    if (!['unavailable', 'deadline-exceeded'].contains(error.code)) {
+      await cache.clear(cacheKey);
+      rethrow;
+    }
   } catch (_) {
-    // Réseau absent ou lecture refusée : le cache prend le relais.
+    // Only a previously authorized feed for this exact academic context is cached.
   }
 
   final cached = cache.read(cacheKey);

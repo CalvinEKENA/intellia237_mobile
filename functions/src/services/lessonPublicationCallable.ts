@@ -1,3 +1,5 @@
+import { contentAudienceSchema, effectiveAudience } from "./contentAudience";
+import { validateLessonMedia } from "./educationalMedia";
 import { createHash } from "node:crypto";
 import { FieldValue, type DocumentData, type Firestore } from "firebase-admin/firestore";
 import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
@@ -17,6 +19,8 @@ const content = z.object({
   estimatedMinutes: z.number().int().min(1).max(600),
   contentSections: z.array(z.object({ title: z.string(), body: z.string() })).max(100),
   contentBlocks: z.array(z.record(z.unknown())).max(200).optional(),
+  origin: z.object({ source: z.enum(["manual", "notebooklm", "cloudFunctionAi", "pageImport", "teacherDraft"]), sourceDocumentName: z.string().max(500).optional(), importedAt: z.string().optional(), importedByUid: z.string().optional(), notebookId: z.string().max(500).optional() }).optional(),
+  audience: contentAudienceSchema.optional(),
   schemaVersion: z.number().int().optional(), miniQuiz: z.array(miniQuestion).max(50),
 });
 
@@ -58,11 +62,11 @@ export function buildLessonCompanions(path: string, lesson: DocumentData, subjec
   const questions = z.array(miniQuestion).parse(lesson.miniQuiz || []);
   const key = publicationId(path);
   const common = { status: "published", classLevels: [lesson.classLevel],
-    scope: lesson.scope || { type: "global" }, sourceLessonId: path.split("/").at(-1),
+    scope: lesson.scope || { type: "global" }, audience: effectiveAudience(lesson, subject, lesson.classLevel), sourceLessonId: path.split("/").at(-1),
     sourceLessonPath: path, managedBy: "lessonPublication" };
   const quiz = questions.length ? { ...common, title: lesson.title, subjectId: lesson.subjectId,
     subjectLabel: subject.title || "Cours", description: lesson.summary || "",
-    difficultyLabel: "Entra√Ænement", mode: "training", series: [], timerSeconds: null,
+    difficultyLabel: "Entra√Ænement", mode: "training", series: lesson.series || subject.allowedSeries || [], timerSeconds: null,
     questions: questions.map((q, index) => ({ id: q.id || `q${index + 1}`, type: "qcm",
       prompt: q.prompt, options: q.options, pointsReward: 10 })),
   } : null;
@@ -81,6 +85,14 @@ export function buildLessonCompanions(path: string, lesson: DocumentData, subjec
     ...flowBase, type: "quiz", payload: { question: q.prompt, options: q.options,
       correctIndex: q.correctIndex, explanation: q.explanation, subjectLabel: subject.title || "Cours" },
   } }));
+  for (const block of lesson.contentBlocks || []) {
+    if (block.type !== "media" || block.mediaType !== "video") continue;
+    flow.push({ id: `${key}_video_${createHash("sha256").update(block.id || block.storagePath).digest("hex").slice(0, 12)}`, data: {
+      ...flowBase, type: "shortVideo", durationSeconds: block.durationSeconds || 30,
+      ref: { ...flowBase.ref, storagePath: block.storagePath },
+      payload: { description: block.caption || "", fileSizeBytes: block.fileSizeBytes || 0, subjectLabel: subject.title || "Cours" },
+    } });
+  }
   return { key, quiz, answers, flow };
 }
 
@@ -122,6 +134,18 @@ export function createSaveLessonPublicationHandler(firestore: Firestore = db) {
       }
       if (published) lesson.editorialWorkflow = { ...(current.editorialWorkflow || {}), status: "published",
         publishedAt: current.editorialWorkflow?.publishedAt || new Date().toISOString(), publishedByUid: request.auth!.uid };
+      if (input.content?.origin?.source === "notebooklm") lesson.origin = { ...input.content.origin, importedByUid: request.auth!.uid };
+      lesson.audience = effectiveAudience(lesson, subjectDoc.data()!, input.classLevel);
+      const assets = await validateLessonMedia({ ...lesson, id: input.lessonId,
+        contentBlocks: (lesson.contentBlocks || []).filter((b: DocumentData) => published || b.storagePath),
+      });
+      const ledgers = await Promise.all(assets.map(a => transaction.get(firestore.doc(`educational_asset_access/${a.assetId}`))));
+      for (let i = 0; i < assets.length; i++) {
+        const previous = ledgers[i].data();
+        if (previous && (previous.path !== assets[i].path || previous.state !== "ready" || previous.generation !== assets[i].generation)) {
+          throw new HttpsError("failed-precondition", "Le mÈdia a changÈ ou a ÈtÈ supprimÈ. RÈimportez le fichier.");
+        }
+      }
       const previews = lessons.docs
         .map(d => ({ id: d.id, data: d.id === input.lessonId ? lesson : d.data() }))
         .filter(d => d.data.status === "published").map(d => lessonPreview(d.id, d.data))
@@ -153,13 +177,14 @@ export function createSaveLessonPublicationHandler(firestore: Firestore = db) {
             : ["notion", "infographic"].includes(item.type) ? p.insight?.trim() || p.points?.length
             : ["audio", "shortVideo", "image"].includes(item.type) ? !!item.ref?.storagePath
             : item.type === "interactiveNative" && p.componentKey && p.summary;
+          if (item.type === "shortVideo" && !assets.some(a => a.path === item.ref?.storagePath)) throw new HttpsError("failed-precondition", "Associez la vidÈo FLOW ‡ un bloc mÈdia de cette leÁon.");
           if (!valid) throw new HttpsError("failed-precondition", "Compl√©tez les cartes FLOW associ√©es avant de publier.");
         }
         for (const linked of [...importedQuizzes, ...importedCards]) {
           assertContentAuthor(actor, linked.data());
           if (scopeId(linked.data()) !== scopeId(current)) throw new HttpsError("failed-precondition", "Les contenus associ√©s ont des publics diff√©rents.");
           writes.push({ path: linked.ref.path, data: { status: "published", classLevels: [input.classLevel],
-            scheduledAt: null,
+            scheduledAt: null, audience: lesson.audience,
             ...(linked.ref.parent.id === "flow_items" ? { priority: linked.data().priority || 0,
               payload: { ...linked.data().payload, subjectLabel: subjectDoc.data()!.title || "Cours" } } : {}),
             publishedAt: linked.data().publishedAt || new Date().toISOString(), updatedAt: new Date().toISOString() } });
@@ -168,7 +193,8 @@ export function createSaveLessonPublicationHandler(firestore: Firestore = db) {
           writes.push({ path: `quizzes/${companions.key}`, data: companions.quiz },
             { path: `quiz_answer_keys/${companions.key}`, data: { answers: companions.answers, scope: lesson.scope || { type: "global" } } });
         }
-        if (!importedCards.length) for (const item of companions.flow) {
+        for (const item of companions.flow) {
+          if (importedCards.length && item.data.type !== "shortVideo") continue;
           const existing = cards.docs.find(d => d.id === item.id)?.data();
           writes.push({ path: `flow_items/${item.id}`, data: { ...item.data,
             createdBy: current.createdBy || request.auth!.uid,
@@ -184,6 +210,10 @@ export function createSaveLessonPublicationHandler(firestore: Firestore = db) {
         }
       }
       if (writes.length + cards.size + quizzes.size > 400) throw new HttpsError("resource-exhausted", "Trop de contenus associ√©s pour une publication unique.");
+      for (const asset of assets) transaction.set(firestore.doc(`educational_asset_access/${asset.assetId}`), {
+        ...asset, lessonPath: lessonRef.path, state: "ready",
+      });
+      transaction.set(firestore.doc("content_catalog_state/revision"), { updatedAt: FieldValue.serverTimestamp() });
       transaction.update(lessonRef, lesson);
       transaction.update(chapterRef, { lessonPreviews: previews, lessonsCount: previews.length, lessonCountsByScope: audienceCounts(previews) });
       transaction.update(subjectRef, { chapterSummaries: summaries,

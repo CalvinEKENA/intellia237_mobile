@@ -349,7 +349,7 @@ service cloud.firestore {
     // SUBJECTS
     // =============================================
     match /{path=**}/subjects/{subjectId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
       allow create: if isSuperAdmin()
                     || (isAdmin() && isSameEstablishment(request.resource.data.establishmentId));
       allow update: if isSuperAdmin()
@@ -391,7 +391,7 @@ service cloud.firestore {
     // CHAPTERS
     // =============================================
     match /{path=**}/chapters/{chapterId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
       allow create: if mayWriteLegacyCatalog(request.resource.data);
       allow update: if mayWriteLegacyCatalog(resource.data)
                     && mayWriteLegacyCatalog(request.resource.data);
@@ -428,7 +428,7 @@ service cloud.firestore {
     // Keep the established teacher authoring contract on legacy catalog
     // documents. A school administrator never inherits global write access.
     function mayWriteLegacyCatalog(data) {
-      return isTeacher() || mayWriteContentScope(contentScopeIdOf(data));
+      return mayWriteContentScope(contentScopeIdOf(data));
     }
 
     function mayReadContentScope(scopeId) {
@@ -437,9 +437,7 @@ service cloud.firestore {
     }
 
     function editorialStatusOf(data) {
-      return ('workflow' in data && 'status' in data.workflow)
-        ? data.workflow.status
-        : 'draft';
+      return data.get('status', data.get('editorialWorkflow', {}).get('status', 'draft'));
     }
 
     // Rendre un contenu visible aux eleves, le programmer ou l'archiver
@@ -457,20 +455,25 @@ service cloud.firestore {
         && (current == next || !isPublicationTransition(next) || isAdmin());
     }
 
+    // Publication and changes to published lessons must pass the server's
+    // media validation. Direct authoring remains available for draft text.
     match /{path=**}/lessons/{lessonId} {
-      allow read: if isAuthenticated();
-      allow create: if mayWriteContentScope(
-                         contentScopeIdOf(request.resource.data));
-      // Le perimetre est verifie avant et apres : on ne deplace pas un
-      // contenu d'un etablissement vers un autre par une simple mise a jour.
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
+      allow create: if mayWriteContentScope(contentScopeIdOf(request.resource.data))
+                    && request.resource.data.get('status', 'draft') in ['draft', 'ai_generated', 'inReview'];
       allow update: if mayWriteContentScope(contentScopeIdOf(resource.data))
-                    && mayWriteContentScope(
-                         contentScopeIdOf(request.resource.data))
-                    && isAllowedEditorialTransition();
-      allow delete: if isSuperAdmin()
-                    || (isAdmin()
-                        && mayWriteContentScope(
-                             contentScopeIdOf(resource.data)));
+                    && mayWriteContentScope(contentScopeIdOf(request.resource.data))
+                    && resource.data.get('status', 'draft') != 'published'
+                    && request.resource.data.get('status', 'draft') in ['draft', 'ai_generated', 'inReview'];
+      allow delete: if isSuperAdmin();
+    }
+
+    match /content_catalog_state/{id} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+    match /educational_asset_access/{id} {
+      allow read, write: if false;
     }
 
     // =============================================
@@ -480,18 +483,8 @@ service cloud.firestore {
     // laisse au client. Le personnel voit aussi les brouillons de son
     // perimetre, sans quoi il ne pourrait pas relire son propre travail.
     match /flow_items/{itemId} {
-      allow read: if isAuthenticated()
-                  && (resource.data.status == 'published'
-                      || (isStaff()
-                          && mayWriteContentScope(
-                               contentScopeIdOf(resource.data))));
-      allow create: if mayWriteContentScope(
-                         contentScopeIdOf(request.resource.data))
-                    && request.resource.data.status in ['draft', 'inReview'];
-      allow update: if mayWriteContentScope(contentScopeIdOf(resource.data))
-                    && mayWriteContentScope(
-                         contentScopeIdOf(request.resource.data))
-                    && isAllowedEditorialTransition();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
+      allow create, update: if false; // saveFlowPublication validates media and audience.
       allow delete: if isSuperAdmin()
                     || (isAdmin()
                         && mayWriteContentScope(
@@ -557,7 +550,7 @@ service cloud.firestore {
       // représentation publique sans corrigé. La lecture directe reste
       // réservée aux auteurs afin de ne pas exposer les anciens documents qui
       // contiennent encore leurs réponses pendant la migration.
-      allow read: if isStaff();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
       allow create: if mayWriteLegacyCatalog(request.resource.data);
       allow update: if mayWriteLegacyCatalog(resource.data)
                     && mayWriteLegacyCatalog(request.resource.data);
@@ -566,10 +559,9 @@ service cloud.firestore {
     }
 
     match /quiz_answer_keys/{quizId} {
-      allow read: if isStaff();
-      allow create, update: if isTeacher() || isSuperAdmin()
-        || (isAdmin() && mayWriteContentScope(contentScopeIdOf(
-          get(/databases/$(database)/documents/quizzes/$(quizId)).data)));
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
+      allow create, update: if mayWriteContentScope(contentScopeIdOf(
+          getAfter(/databases/$(database)/documents/quizzes/$(quizId)).data));
       allow delete: if isSuperAdmin()
         || (isAdmin() && mayWriteContentScope(contentScopeIdOf(
           get(/databases/$(database)/documents/quizzes/$(quizId)).data)));

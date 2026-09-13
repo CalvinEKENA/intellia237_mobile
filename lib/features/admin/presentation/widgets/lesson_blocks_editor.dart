@@ -1,3 +1,4 @@
+import '../../../learn/presentation/widgets/educational_video_player.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/design_tokens.dart';
@@ -16,9 +17,11 @@ class LessonBlocksEditor extends StatelessWidget {
   const LessonBlocksEditor({
     required this.blocks,
     required this.onChanged,
+    this.onReplaceVideo,
     super.key,
   });
 
+  final ValueChanged<MediaBlock>? onReplaceVideo;
   final List<ContentBlock> blocks;
   final ValueChanged<List<ContentBlock>> onChanged;
 
@@ -79,6 +82,8 @@ class LessonBlocksEditor extends StatelessWidget {
         mediaType: block.mediaType,
         storagePath: block.storagePath,
         caption: block.caption,
+        fileSizeBytes: block.fileSizeBytes,
+        downloadUrl: block.downloadUrl,
         durationSeconds: block.durationSeconds,
         mimeType: block.mimeType,
         transcriptionText: block.transcriptionText,
@@ -171,6 +176,7 @@ class LessonBlocksEditor extends StatelessWidget {
             _BlockTile(
               key: ValueKey('lesson-block-${blocks[i].id}'),
               block: blocks[i],
+              onReplaceVideo: onReplaceVideo,
               isFirst: i == 0,
               isLast: i == blocks.length - 1,
               onDelete: () => _delete(i),
@@ -190,6 +196,7 @@ class LessonBlocksEditor extends StatelessWidget {
 class _BlockTile extends StatelessWidget {
   const _BlockTile({
     required this.block,
+    this.onReplaceVideo,
     required this.isFirst,
     required this.isLast,
     required this.onDelete,
@@ -199,6 +206,7 @@ class _BlockTile extends StatelessWidget {
     super.key,
   });
 
+  final ValueChanged<MediaBlock>? onReplaceVideo;
   final ContentBlock block;
   final bool isFirst;
   final bool isLast;
@@ -221,6 +229,18 @@ class _BlockTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (block case MediaBlock(
+            mediaType: MediaType.video,
+            storagePath: final path,
+          ) when path.isNotEmpty) ...[
+            EducationalVideoPlayer(storagePath: path),
+            if (onReplaceVideo != null)
+              TextButton.icon(
+                onPressed: () => onReplaceVideo!(block as MediaBlock),
+                icon: const Icon(Icons.swap_horiz),
+                label: const Text('Remplacer la vidéo'),
+              ),
+          ],
           Row(
             children: [
               Expanded(
@@ -270,6 +290,30 @@ class _BlockTile extends StatelessWidget {
         ),
       );
     }
+    if (current is MediaBlock &&
+        current.mediaType == MediaType.video &&
+        current.storagePath.isNotEmpty) {
+      return TextFormField(
+        key: ValueKey('block-video-caption-${current.id}'),
+        initialValue: current.caption,
+        maxLines: null,
+        decoration: const InputDecoration(labelText: 'Légende vidéo'),
+        onChanged: (value) => onChanged(
+          MediaBlock(
+            id: current.id,
+            order: current.order,
+            mediaType: current.mediaType,
+            storagePath: current.storagePath,
+            caption: value,
+            mimeType: current.mimeType,
+            fileSizeBytes: current.fileSizeBytes,
+            durationSeconds: current.durationSeconds,
+            transcriptionText: current.transcriptionText,
+            transcriptionVtt: current.transcriptionVtt,
+          ),
+        ),
+      );
+    }
     if (current is MediaBlock) {
       return Column(
         children: [
@@ -288,6 +332,11 @@ class _BlockTile extends StatelessWidget {
                 mediaType: value ?? current.mediaType,
                 storagePath: current.storagePath,
                 caption: current.caption,
+                mimeType: current.mimeType,
+                fileSizeBytes: current.fileSizeBytes,
+                durationSeconds: current.durationSeconds,
+                transcriptionText: current.transcriptionText,
+                transcriptionVtt: current.transcriptionVtt,
               ),
             ),
           ),
@@ -307,6 +356,11 @@ class _BlockTile extends StatelessWidget {
                 mediaType: current.mediaType,
                 storagePath: value,
                 caption: current.caption,
+                mimeType: current.mimeType,
+                fileSizeBytes: current.fileSizeBytes,
+                durationSeconds: current.durationSeconds,
+                transcriptionText: current.transcriptionText,
+                transcriptionVtt: current.transcriptionVtt,
               ),
             ),
           ),

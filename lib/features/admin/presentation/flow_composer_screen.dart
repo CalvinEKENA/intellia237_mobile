@@ -1,3 +1,5 @@
+import 'widgets/content_audience_editor.dart';
+import '../../learn/domain/content_audience.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -85,6 +87,7 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
   late int _priority;
   late int _optionCount;
   late int _correctIndex;
+  ContentAudience? _audience;
   bool _saving = false;
   String? _error;
 
@@ -92,6 +95,7 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
   void initState() {
     super.initState();
     final initial = widget.initial;
+    _audience = initial?.audience;
     final payload = initial?.payload ?? const <String, Object?>{};
     String text(String key) => (payload[key] as String?) ?? '';
     final initialOptions = ((payload['options'] as List?) ?? const [])
@@ -216,7 +220,8 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
     title: _title.text.trim(),
     hook: _hook.text.trim(),
     subjectId: _subjectId,
-    classLevels: [widget.classLevel],
+    classLevels: widget.initial?.classLevels ?? [widget.classLevel],
+    audience: _audience,
     // Une publication garde son périmètre ; une nouvelle naît dans celui
     // de son auteur.
     scope: widget.initial?.scope ?? ref.read(contentAuthoringScopeProvider),
@@ -242,6 +247,45 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
         : widget.initial!.createdBy,
     createdAt: widget.initial?.createdAt,
   );
+
+  Future<void> _splitNotion() async {
+    final chunks = splitFlowEditorialText(_body.text);
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    var saved = 0;
+    try {
+      final base = _draft();
+      for (var i = 0; i < chunks.length; i++) {
+        await ref
+            .read(adminFlowRepositoryProvider)
+            .save(
+              base.copyWith(
+                id: '',
+                status: 'draft',
+                title: '${base.title} (${i + 1}/${chunks.length})',
+                payload: {
+                  ...base.payload,
+                  'insight': chunks[i],
+                  if (i > 0) 'points': <String>[],
+                },
+              ),
+            );
+        saved++;
+      }
+      if (mounted) Navigator.pop(context, true);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error =
+              '$saved brouillon(s) enregistré(s). Création interrompue ; vérifiez le Studio avant de recommencer.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   Future<void> _save() async {
     setState(() {
@@ -486,6 +530,24 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
             onChanged: (value) =>
                 setState(() => _subjectId = value ?? _subjectId),
           ),
+          ContentAudienceEditor(
+            value: _audience,
+            defaultClass: widget.classLevel,
+            onChanged: (a) => setState(() => _audience = a),
+          ),
+          if (_title.text.length > 80 || _body.text.length > 600)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                'Contenu long : visez un titre de 80 caractères et environ 600 caractères par carte. Le texte intégral reste lisible par défilement dans l’aperçu.',
+              ),
+            ),
+          if (_type == FlowItemType.notion && _body.text.length > 600)
+            TextButton.icon(
+              onPressed: _saving ? null : _splitNotion,
+              icon: const Icon(Icons.splitscreen_outlined),
+              label: const Text('Créer plusieurs brouillons avec ce texte'),
+            ),
           _field(
             keyName: 'flow-composer-title',
             controller: _title,
@@ -642,4 +704,22 @@ class _StepperRow extends StatelessWidget {
       ],
     );
   }
+}
+
+/// Split at paragraph/sentence/word boundaries without removing content.
+List<String> splitFlowEditorialText(String text, {int target = 600}) {
+  final chunks = <String>[];
+  var remaining = text.trim();
+  while (remaining.length > target) {
+    var end = remaining.lastIndexOf('\n', target);
+    if (end < target ~/ 2) end = remaining.lastIndexOf('. ', target);
+    if (end < target ~/ 2) end = remaining.lastIndexOf(' ', target);
+    if (end <= 0) end = remaining.indexOf(' ', target);
+    if (end <= 0) break;
+    if (remaining[end] == '.') end++;
+    chunks.add(remaining.substring(0, end).trim());
+    remaining = remaining.substring(end).trim();
+  }
+  if (remaining.isNotEmpty) chunks.add(remaining);
+  return chunks;
 }

@@ -1,3 +1,4 @@
+import '../../features/learn/presentation/widgets/educational_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -52,6 +53,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = ref.watch(_routerNotifierProvider);
 
   return GoRouter(
+    observers: [educationalVideoRouteObserver],
     initialLocation: AppRoutes.bootstrap,
     refreshListenable: notifier,
     redirect: notifier.redirect,

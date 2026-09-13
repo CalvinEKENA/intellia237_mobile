@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,23 +32,11 @@ final learnRepositoryProvider = Provider<LearnRepository>((ref) {
 final learnCatalogRevisionProvider = StreamProvider.autoDispose<String>((
   ref,
 ) async* {
-  final context = await ref.watch(studentAcademicContextProvider.future);
+  await ref.watch(studentAcademicContextProvider.future);
   yield* FirebaseFirestore.instance
-      .collection('classes')
-      .doc(context.quizAndCatalogClassLevel)
-      .collection('subjects')
+      .doc('content_catalog_state/revision')
       .snapshots()
-      .map(
-        (snapshot) => jsonEncode([
-          for (final doc in snapshot.docs)
-            {
-              'id': doc.id,
-              'status': doc.data()['status'],
-              'chapters': doc.data()['chapterSummaries'],
-              'updatedAt': doc.data()['updatedAt'].toString(),
-            },
-        ]),
-      )
+      .map((snapshot) => snapshot.data()?['updatedAt'].toString() ?? 'initial')
       .distinct();
 });
 

@@ -134,7 +134,7 @@ service firebase.storage {
     }
 
     function isAllowedVideo() {
-      return assetContentType() in ['video/mp4', 'video/webm']
+      return assetContentType() in ['video/mp4']
         && assetSize() <= 150 * 1024 * 1024;
     }
 
@@ -152,11 +152,15 @@ service firebase.storage {
             || isAllowedPdf());
     }
 
-    match /educational_assets/{scopeId}/{allPaths=**} {
-      allow read: if mayReadScope(scopeId);
-      allow create, update: if mayWriteScope(scopeId)
-                            && isAllowedEducationalAsset();
-      allow delete: if mayWriteScope(scopeId);
+    match /educational_assets/{scopeId}/{classLevel}/{subjectId}/{lessonId}/{assetId}/{fileName} {
+      // Student media URLs are issued by educationalMedia after checking the
+      // current published lesson and its audience. Drafts have no public URL.
+      allow read: if mayWriteScope(scopeId);
+      allow create: if mayWriteScope(scopeId) && isAllowedEducationalAsset()
+        && !firestore.exists(/databases/(default)/documents/educational_asset_access/$(assetId));
+      // New file, new asset ID: a validated generation is never overwritten.
+      // The callable deletes only assets no longer referenced by a lesson.
+      allow update, delete: if false;
     }
 
     match /{allPaths=**} {

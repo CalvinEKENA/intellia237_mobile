@@ -1,3 +1,8 @@
+import 'widgets/content_audience_editor.dart';
+import 'video_import_screen.dart';
+import 'notebooklm_import_wizard_screen.dart';
+import '../data/educational_media_service.dart';
+import '../domain/content_block.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -63,6 +68,29 @@ class _ContentLessonEditorScreenState
         int.tryParse(_durationCtrl.text) ?? _lesson.estimatedMinutes,
   );
 
+  Future<void> _importVideo({
+    String? replacingId,
+    bool notebook = false,
+  }) async {
+    final current = _current;
+    final result = await Navigator.of(context).push<AdminLessonModel>(
+      MaterialPageRoute(
+        builder: (_) => notebook
+            ? NotebookLmImportWizardScreen(
+                classLevel: current.classLevel,
+                targetLesson: current,
+              )
+            : VideoImportScreen(lesson: current, replacingId: replacingId),
+      ),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _lesson = result;
+        _hasUnsavedChanges = false;
+      });
+    }
+  }
+
   // ── Persistence ─────────────────────────────────────────────
 
   Future<void> _save() => _persist(publish: false);
@@ -79,6 +107,25 @@ class _ContentLessonEditorScreenState
         await actions.publishLesson(lesson);
       } else {
         await actions.saveLesson(lesson);
+      }
+      final remaining = lesson.contentBlocks
+          .whereType<MediaBlock>()
+          .map((b) => b.storagePath)
+          .toSet();
+      for (final removed
+          in widget.lesson.contentBlocks.whereType<MediaBlock>()) {
+        if (!remaining.contains(removed.storagePath)) {
+          try {
+            await ref
+                .read(educationalMediaServiceProvider)
+                .deleteAsset(
+                  storagePath: removed.storagePath,
+                  scope: lesson.scope,
+                );
+          } catch (_) {
+            /* The server retains any still-referenced asset. */
+          }
+        }
       }
       if (!mounted) return;
       setState(() {
@@ -255,9 +302,17 @@ class _ContentLessonEditorScreenState
               child: Text(
                 _lesson.isPublished
                     ? 'En ligne · Les modifications enregistrées actualisent la leçon et ses contenus associés.'
-                    : 'Brouillon · Invisible aux élèves. Publier met en ligne cette leçon, ses quiz et ses cartes FLOW associés.\nPublic : ${_lesson.scope.isGlobal ? "tous les élèves de ${_lesson.classLevel}" : "les élèves de votre établissement"}.',
+                    : 'Brouillon · Invisible aux élèves. Publier met en ligne cette leçon, ses quiz et ses cartes FLOW associés.\nLe public est défini par les critères ci-dessous et ceux de la matière.',
               ),
             ),
+          ),
+          ContentAudienceEditor(
+            value: _lesson.audience,
+            defaultClass: _lesson.classLevel,
+            onChanged: (value) => setState(() {
+              _lesson = _lesson.copyWith(audience: value);
+              _hasUnsavedChanges = true;
+            }),
           ),
           // Metadata
           _Card(
@@ -356,9 +411,27 @@ class _ContentLessonEditorScreenState
           // Blocs V2 — texte enrichi, médias, quiz, activités interactives.
           _Card(
             title: 'Blocs de contenu',
+            trailing: PopupMenuButton<String>(
+              tooltip: 'Importer une vidéo',
+              onSelected: (v) => _importVideo(notebook: v == 'notebook'),
+              itemBuilder: (_) => [
+                const PopupMenuItem(
+                  value: 'video',
+                  child: Text('Importer une vidéo MP4'),
+                ),
+                if (!_lesson.isPublished)
+                  const PopupMenuItem(
+                    value: 'notebook',
+                    child: Text('Importer depuis NotebookLM'),
+                  ),
+              ],
+              icon: const Icon(Icons.video_call_outlined),
+            ),
             child: LessonBlocksEditor(
               blocks: _lesson.contentBlocks,
+              onReplaceVideo: (block) => _importVideo(replacingId: block.id),
               onChanged: (blocks) => setState(() {
+                _hasUnsavedChanges = true;
                 // Passer en V2 dès qu'un bloc existe : la projection texte
                 // continue d'alimenter les anciennes versions.
                 _lesson = _lesson.copyWith(

@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -56,9 +57,8 @@ class FirestoreFlowFeedRepository implements FlowFeedRepository {
   FirestoreFlowFeedRepository([
     FirebaseFirestore? firestore,
     this.establishmentId,
-  ]) : _firestore = firestore ?? FirebaseFirestore.instance;
+  ]);
 
-  final FirebaseFirestore _firestore;
   final String? establishmentId;
 
   @override
@@ -67,48 +67,25 @@ class FirestoreFlowFeedRepository implements FlowFeedRepository {
     String? cursor,
     int limit = kFlowPageSize,
   }) async {
-    // L'ordre est déterministe : priorité éditoriale d'abord, puis date de
-    // publication, puis identifiant. Sans ce dernier critère, deux
-    // publications de même priorité et même date pourraient s'échanger d'une
-    // requête à l'autre et réapparaître au fil de la pagination.
-    var query = _firestore
-        .collection(kFlowItemsCollection)
-        .where('status', isEqualTo: 'published')
-        .where('classLevels', arrayContains: classLevel)
-        .orderBy('priority', descending: true)
-        .orderBy('publishedAt', descending: true)
-        .orderBy(FieldPath.documentId)
-        .limit(limit);
-
-    if (cursor != null) {
-      final anchor = await _firestore
-          .collection(kFlowItemsCollection)
-          .doc(cursor)
-          .get();
-      // Une ancre disparue — publication archivée entre deux pages — ne doit
-      // pas interrompre la lecture : on repart du début plutôt que d'échouer.
-      if (anchor.exists) query = query.startAfterDocument(anchor);
-    }
-
-    final snapshot = await query.get();
-    final now = DateTime.now();
+    final response = await FirebaseFunctions.instanceFor(region: 'europe-west1')
+        .httpsCallable('readLearningCatalog')
+        .call<Map<String, dynamic>>({
+          'action': 'flow',
+          'classLevel': classLevel,
+          'limit': limit,
+          'cursor': ?cursor,
+        });
     final items = <FlowItem>[];
-    for (final doc in snapshot.docs) {
-      final item = FlowItem.fromFirestore(doc.id, doc.data());
-      // Un document illisible ou programmé plus tard est ignoré, pas fatal.
-      if (item == null || !item.isVisibleAt(now)) continue;
-      if (item.scope.isEstablishment &&
-          item.scope.establishmentId != establishmentId) {
-        continue;
-      }
-      items.add(item);
+    for (final doc in response.data['documents'] as List? ?? []) {
+      final item = FlowItem.fromFirestore(
+        doc['id'] as String,
+        Map<String, dynamic>.from(doc['data'] as Map),
+      );
+      if (item != null && item.isVisibleAt(DateTime.now())) items.add(item);
     }
-
     return FlowFeedPage(
       items: items,
-      // Le curseur suit le dernier document *lu*, pas le dernier retenu :
-      // sinon une page entièrement filtrée bloquerait la pagination.
-      nextCursor: snapshot.docs.length < limit ? null : snapshot.docs.last.id,
+      nextCursor: response.data['nextCursor'] as String?,
     );
   }
 }

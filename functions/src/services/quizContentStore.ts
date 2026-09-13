@@ -1,7 +1,8 @@
 import type { Firestore } from "firebase-admin/firestore";
 
 import { db } from "../config/firebase";
-import { scopeId } from "./lessonPublicationCallable";
+import { audienceAllows } from "./contentAudience";
+import { publishedLessonAllows } from "./educationalMedia";
 import { AppError } from "../utils/errors";
 import type {
   CheckTrainingQuizAnswerCallableInput,
@@ -27,21 +28,27 @@ export class FirestoreQuizContentStore implements QuizContentStore {
     const snapshot = await this.firestore
       .collection("quizzes")
       .where("status", "==", "published")
-      .where("classLevels", "array-contains-any", classLevelReadAliases(input.classLevel))
       // Without an order, a cap of 40 let older seeded quizzes crowd a new one
       // out of the list. The listing carries no questions: 100 stays light.
       .limit(100)
       .get();
 
-    const user = userId ? (await this.firestore.doc(`users/${userId}`).get()).data() || {} : undefined;
-    return snapshot.docs
-      .filter(document => quizAudienceAllows(document.data(), user))
-      .filter((document) => isAllowedForSeries(document.data(), input.series))
-      .map((document) => toPublicQuizPayload({
-        id: document.id,
-        data: document.data(),
-        includeQuestions: false
-      }));
+    const documents = [];
+    for (const document of snapshot.docs) {
+      if (!await this.authorized(document.data(), userId)) continue;
+      if (!userId && !isAllowedForSeries(document.data(), input.series)) continue;
+      documents.push(toPublicQuizPayload({ id: document.id, data: document.data(), includeQuestions: false }));
+    }
+    return documents;
+  }
+
+  private async authorized(data: Record<string, unknown>, userId?: string): Promise<boolean> {
+    if (data.status !== "published") return false;
+    if (!userId) return true;
+    const [user, profile] = await Promise.all([this.firestore.doc(`users/${userId}`).get(), this.firestore.doc(`student_profiles/${userId}`).get()]);
+    const actor = user.data() || {}, academic = profile.data() || {};
+    return quizAudienceAllows(data, actor, academic) && (!data.sourceLessonPath ||
+      await publishedLessonAllows(this.firestore, String(data.sourceLessonPath), actor, academic));
   }
 
   async getPublished(quizId: string, userId?: string): Promise<PublicQuizPayload> {
@@ -49,7 +56,7 @@ export class FirestoreQuizContentStore implements QuizContentStore {
     if (!snapshot.exists) {
       throw new AppError("not-found", "Quiz not found.");
     }
-    if (userId && !quizAudienceAllows(snapshot.data()!, (await this.firestore.doc(`users/${userId}`).get()).data() || {})) {
+    if (!await this.authorized(snapshot.data()!, userId)) {
       throw new AppError("not-found", "Quiz not found.");
     }
 
@@ -72,7 +79,7 @@ export class FirestoreQuizContentStore implements QuizContentStore {
     if (!quizSnapshot.exists) {
       throw new AppError("not-found", "Quiz not found.");
     }
-    if (userId && !quizAudienceAllows(quizSnapshot.data()!, (await this.firestore.doc(`users/${userId}`).get()).data() || {})) {
+    if (!await this.authorized(quizSnapshot.data()!, userId)) {
       throw new AppError("not-found", "Quiz not found.");
     }
 
@@ -106,14 +113,9 @@ export class FirestoreQuizContentStore implements QuizContentStore {
   }
 }
 
-export function quizAudienceAllows(data: Record<string, unknown>, user?: Record<string, unknown>): boolean {
-  if (!user) return true; // Internal callers/tests; public callables always supply the authenticated user.
-  if (["superAdmin", "super_admin"].includes(String(user.role))) return true;
-  const scope = scopeId(data);
-  if (scope !== "global" && scope !== user.establishmentId) return false;
-  const levels = Array.isArray(data.classLevels) ? data.classLevels : [];
-  return user.role !== "student" ||
-    classLevelReadAliases(String(user.classLevel || "")).some(level => levels.includes(level));
+export function quizAudienceAllows(data: Record<string, unknown>, user?: Record<string, unknown>, profile: Record<string, unknown> = {}): boolean {
+  if (!user) return true; // Trusted internal calls only; public callables always supply authentication.
+  return audienceAllows(data, user, profile);
 }
 
 export function classLevelReadAliases(value: string): string[] {

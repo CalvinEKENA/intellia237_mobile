@@ -1,3 +1,5 @@
+import 'video_import_screen.dart';
+import '../domain/admin_content_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,11 +21,13 @@ import '../domain/notebooklm_import.dart';
 class NotebookLmImportWizardScreen extends ConsumerStatefulWidget {
   const NotebookLmImportWizardScreen({
     required this.classLevel,
+    this.targetLesson,
     this.artifacts = const <NotebookArtifact>[],
     super.key,
   });
 
   final String classLevel;
+  final AdminLessonModel? targetLesson;
 
   /// Artefacts déjà choisis. Le sélecteur de fichiers les fournit en usage
   /// réel ; les tests les injectent directement.
@@ -47,7 +51,7 @@ class _NotebookLmImportWizardScreenState
   final _model = TextEditingController();
   final _notes = TextEditingController();
 
-  bool _importing = false;
+  final bool _importing = false;
   String? _outcome;
 
   @override
@@ -99,35 +103,23 @@ class _NotebookLmImportWizardScreenState
   };
 
   Future<void> _import() async {
-    setState(() => _importing = true);
-    final actor = ref.read(contentActorProvider);
-    final blocks = _plannedBlocks;
-
-    // La provenance est enregistrée telle qu'elle est connue : un champ
-    // inconnu reste vide plutôt que rempli d'une approximation.
-    final provenance = NotebookImportProvenance(
-      importedByUid: actor?.uid ?? 'inconnu',
-      importedAt: DateTime.now(),
-      notebookId: _textOrNull(_notebookId),
-      sourceTitle: _textOrNull(_sourceTitle),
-      model: _textOrNull(_model),
-      notes: _textOrNull(_notes),
-    );
-
     setState(() {
-      _importing = false;
       _outcome =
-          '${blocks.length} bloc(s) préparé(s) en brouillon depuis '
-          '${provenance.notebookId ?? 'un notebook non nommé'}.';
+          'Aucun fichier enregistré. Ouvrez une leçon en brouillon dans le Studio, puis choisissez « Importer depuis NotebookLM ».';
       _step = 4;
     });
   }
 
-  static String? _textOrNull(TextEditingController controller) =>
-      controller.text.trim().isEmpty ? null : controller.text.trim();
-
   @override
   Widget build(BuildContext context) {
+    if (widget.targetLesson case final lesson?) {
+      if (lesson.isPublished) {
+        return const Scaffold(
+          body: Center(child: Text('Choisissez une leçon en brouillon.')),
+        );
+      }
+      return VideoImportScreen(lesson: lesson, notebook: true);
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Importer depuis NotebookLM')),
       body: Column(

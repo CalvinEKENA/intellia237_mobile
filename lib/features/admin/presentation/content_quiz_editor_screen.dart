@@ -1,3 +1,5 @@
+import 'widgets/content_audience_editor.dart';
+import '../../learn/domain/content_audience.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,12 +41,14 @@ class _ContentQuizEditorScreenState
   late String _status;
   late QuizMode _mode;
   int? _timerSeconds;
+  ContentAudience? _audience;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     final q = widget.quiz;
+    _audience = q?.audience;
     _titleCtrl = TextEditingController(text: q?.title ?? '');
     _descCtrl = TextEditingController(text: q?.description ?? '');
     _subjectId = q?.subjectId ?? '';
@@ -72,6 +76,9 @@ class _ContentQuizEditorScreenState
     description: _descCtrl.text.trim(),
     difficultyLabel: _difficulty,
     classLevels: _classLevels,
+    audience: _audience,
+    series: widget.quiz?.series ?? const [],
+    sourceLessonId: widget.quiz?.sourceLessonId,
     status: _status,
     questions: _questions,
     mode: _mode,
@@ -134,6 +141,8 @@ class _ContentQuizEditorScreenState
           120,
         ),
         children: [
+          ContentAudienceEditor(value: _audience, defaultClass: widget.classLevel,
+            onChanged: (a) => setState(() => _audience = a)),
           // ── Meta ────────────────────────────────────────────
           _InfoCard(
             child: Column(
@@ -506,6 +515,7 @@ extension on AdminQuizModel {
     difficultyLabel: difficultyLabel,
     classLevels: classLevels,
     series: series,
+    audience: audience,
     status: status ?? this.status,
     questions: questions,
     mode: mode,

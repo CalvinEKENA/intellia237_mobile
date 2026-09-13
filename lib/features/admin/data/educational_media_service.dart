@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
@@ -12,15 +13,20 @@ import '../domain/educational_media.dart';
 /// Elle reste volontairement mince : toute la connaissance métier — chemins
 /// canoniques, formats acceptés, plafonds — vit dans le domaine, de sorte
 /// qu'un autre hébergeur puisse la remplacer sans rien réécrire d'autre.
-class FirebaseEducationalMediaProvider implements EducationalMediaProvider {
+class FirebaseEducationalMediaProvider
+    implements EducationalMediaProvider, CancellableEducationalMediaProvider {
   FirebaseEducationalMediaProvider([FirebaseStorage? storage])
     : _storage = storage ?? FirebaseStorage.instance;
 
   final FirebaseStorage _storage;
 
   @override
-  Future<String> resolveUrl(String storagePath) =>
-      _storage.ref(storagePath).getDownloadURL();
+  Future<String> resolveUrl(String storagePath) async {
+    final result = await FirebaseFunctions.instanceFor(region: 'europe-west1')
+        .httpsCallable('educationalMedia')
+        .call<Map<String, dynamic>>({'storagePath': storagePath});
+    return result.data['url'] as String;
+  }
 
   @override
   Future<MediaUploadResult> upload({
@@ -28,18 +34,45 @@ class FirebaseEducationalMediaProvider implements EducationalMediaProvider {
     required Uint8List bytes,
     required String mimeType,
     void Function(double progress)? onProgress,
+  }) => uploadCancellable(
+    storagePath: storagePath,
+    bytes: bytes,
+    mimeType: mimeType,
+    cancellation: MediaUploadCancellation(),
+    onProgress: onProgress,
+  );
+
+  @override
+  Future<MediaUploadResult> uploadCancellable({
+    required String storagePath,
+    required Uint8List bytes,
+    required String mimeType,
+    required MediaUploadCancellation cancellation,
+    void Function(double progress)? onProgress,
   }) async {
+    if (cancellation.isCancelled) {
+      throw const MediaRejectedException('Import annulé.');
+    }
     final ref = _storage.ref(storagePath);
     final task = ref.putData(bytes, SettableMetadata(contentType: mimeType));
 
-    if (onProgress != null) {
-      task.snapshotEvents.listen((snapshot) {
-        final total = snapshot.totalBytes;
-        if (total > 0) onProgress(snapshot.bytesTransferred / total);
-      });
+    cancellation.attach(() async {
+      await task.cancel();
+    });
+    final subscription = task.snapshotEvents.listen((snapshot) {
+      final total = snapshot.totalBytes;
+      if (total > 0) onProgress?.call(snapshot.bytesTransferred / total);
+    });
+    try {
+      await task;
+    } finally {
+      await subscription.cancel();
+      cancellation.detach();
     }
-
-    await task;
+    if (cancellation.isCancelled) {
+      await delete(storagePath);
+      throw const MediaRejectedException('Import annulé.');
+    }
     return MediaUploadResult(
       storagePath: storagePath,
       sizeBytes: bytes.lengthInBytes,
@@ -48,7 +81,11 @@ class FirebaseEducationalMediaProvider implements EducationalMediaProvider {
   }
 
   @override
-  Future<void> delete(String storagePath) => _storage.ref(storagePath).delete();
+  Future<void> delete(String storagePath) async {
+    await FirebaseFunctions.instanceFor(region: 'europe-west1')
+        .httpsCallable('educationalMedia')
+        .call<void>({'storagePath': storagePath, 'action': 'delete'});
+  }
 }
 
 /// Téléversement d'une ressource pédagogique, périmètre et format contrôlés.
@@ -72,6 +109,7 @@ class EducationalMediaService {
     required Uint8List bytes,
     required String mimeType,
     void Function(double progress)? onProgress,
+    MediaUploadCancellation? cancellation,
   }) async {
     final refusal = EducationalMediaPolicy.rejectionReason(
       type: mediaType,
@@ -89,6 +127,17 @@ class EducationalMediaService {
       fileName: fileName,
     );
 
+    if (cancellation != null &&
+        _provider is CancellableEducationalMediaProvider) {
+      return (_provider as CancellableEducationalMediaProvider)
+          .uploadCancellable(
+            storagePath: storagePath,
+            bytes: bytes,
+            mimeType: mimeType,
+            cancellation: cancellation,
+            onProgress: onProgress,
+          );
+    }
     return _provider.upload(
       storagePath: storagePath,
       bytes: bytes,

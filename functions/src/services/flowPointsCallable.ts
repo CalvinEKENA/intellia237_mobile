@@ -1,3 +1,5 @@
+import { publishedLessonAllows } from "./educationalMedia";
+import { audienceAllows } from "./contentAudience";
 import { createHash, randomUUID } from "node:crypto";
 
 import { logger } from "firebase-functions";
@@ -8,7 +10,6 @@ import { z } from "zod";
 import { db } from "../config/firebase";
 import { AppError, toHttpsError } from "../utils/errors";
 import { accumulatedPoints } from "./pointsPolicy";
-import { scopeId } from "./lessonPublicationCallable";
 import {
   FLOW_CATALOG,
   isAcceptedFlowAnswer,
@@ -110,11 +111,13 @@ export class FirestoreFlowPointsStore implements FlowPointsStore {
         throw new AppError("failed-precondition", "Student profile is incomplete.");
       }
 
+      const liveItem = FLOW_CATALOG[command.cardId] ? undefined : (await transaction.get(this.firestore.doc(`flow_items/${command.cardId}`))).data();
+      if (liveItem?.sourceLessonPath && !await publishedLessonAllows(this.firestore, liveItem.sourceLessonPath, userSnapshot.data()!, profileSnapshot.data()!, ref => transaction.get(ref))) {
+        throw new AppError("permission-denied", "Source lesson unavailable for this student.");
+      }
       const evaluation = FLOW_CATALOG[command.cardId]
         ? evaluateFlowActivity(command)
-        : evaluatePublishedFlowActivity(command,
-            (await transaction.get(this.firestore.doc(`flow_items/${command.cardId}`))).data(),
-            userSnapshot.data()!, profileSnapshot.data()!);
+        : evaluatePublishedFlowActivity(command, liveItem, userSnapshot.data()!, profileSnapshot.data()!);
 
       const currentTotal = Math.max(
         accumulatedPoints(userSnapshot.data()),
@@ -200,8 +203,7 @@ export function evaluatePublishedFlowActivity(
     : (value as { toMillis?: () => number } | undefined)?.toMillis?.() || 0;
   if (!item || item.status !== "published" || date(item.scheduledAt) > Date.now() ||
       date(item.publishedAt) > Date.now() ||
-      !item.classLevels?.includes(profile.classLevel || user.classLevel) ||
-      (scopeId(item) !== "global" && scopeId(item) !== user.establishmentId)) {
+      !audienceAllows(item, user, profile)) {
     throw new AppError("not-found", "FLOW activity unavailable.");
   }
   if (item.type === "quiz") {

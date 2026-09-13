@@ -294,20 +294,16 @@ class _OfflineChapterActionState extends ConsumerState<_OfflineChapterAction> {
 
     return Semantics(
       container: true,
-      label: saved
-          ? context.l10n.chapterSavedOffline
-          : context.l10n.saveChapterOffline,
+      label: 'Préparation du chapitre — connexion requise pour les médias',
       child: ChapterOfflineActionCard(
         saved: saved,
         busy: _busy,
-        title: saved
-            ? context.l10n.availableOffline
-            : context.l10n.studyOffline,
+        title: saved ? 'Chapitre préparé' : 'Préparer la lecture',
         subtitle: saved
-            ? context.l10n.offlineLessonPrepared(pack.lessonIds.length)
+            ? '${pack.lessonIds.length} leçons repérées. La vidéo et les autres médias nécessitent une connexion ; aucun fichier vidéo n’a été téléchargé.'
             : offline
             ? context.l10n.reconnectToPrepareLessons
-            : context.l10n.prepareChapterLessons(widget.chapter.lessons.length),
+            : 'Préparer la liste des leçons. Les contenus et médias restent chargés en ligne.',
         actionLabel: context.l10n.prepareLabel,
         actionEnabled: canSave && !offline,
         onAction: _save,

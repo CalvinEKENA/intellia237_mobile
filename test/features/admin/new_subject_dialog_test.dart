@@ -1,3 +1,4 @@
+import 'package:intellia237/features/learn/domain/content_audience.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -95,6 +96,7 @@ class _RecordingContentActions extends AdminContentActions {
     required int colorHex,
     required String iconKey,
     List<String> allowedSeries = const [],
+    ContentAudience? audience,
   }) async {
     created.add({
       'classLevel': classLevel,

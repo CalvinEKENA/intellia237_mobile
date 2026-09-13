@@ -135,8 +135,7 @@ class _FlowItemTile extends ConsumerWidget {
       child: ListTile(
         key: ValueKey('flow-item-${item.id}'),
         isThreeLine: missing != null,
-        onTap: () =>
-            openFlowComposer(context, ref, classLevel, initial: item),
+        onTap: () => openFlowComposer(context, ref, classLevel, initial: item),
         title: Text(item.title),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

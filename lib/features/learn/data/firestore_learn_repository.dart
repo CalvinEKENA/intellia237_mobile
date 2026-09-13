@@ -47,156 +47,81 @@ class FirestoreLearnRepository implements LearnRepository {
   final FirebaseFunctions _functions;
   final LearnCatalogCache _catalogCache;
   final Random _random = Random.secure();
-  final Map<String, String> _resolvedCatalogKeys = <String, String>{};
-
-  // ───── Helpers ─────────────────────────────────────────────
-
-  CollectionReference<Map<String, dynamic>> _subjects(String cls) =>
-      _db.collection('classes').doc(cls).collection('subjects');
-
-  CollectionReference<Map<String, dynamic>> _chapters(
-    String cls,
-    String subjectId,
-  ) => _subjects(cls).doc(subjectId).collection('chapters');
-
-  CollectionReference<Map<String, dynamic>> _lessons(
-    String cls,
-    String subjectId,
-    String chapterId,
-  ) => _chapters(cls, subjectId).doc(chapterId).collection('lessons');
-
   CollectionReference<Map<String, dynamic>> _progress(String userId) => _db
       .collection('student_profiles')
       .doc(userId)
       .collection('lessonProgress');
 
-  /// `Premiere` est l'identifiant d'écriture stable. Le chemin accentué a été
-  /// créé historiquement en production à partir d'un libellé UI; il reste lu
-  /// en compatibilité tant qu'aucune migration explicite n'est autorisée.
-  Future<String> _resolveCatalogReadKey(String requested) async {
-    final cached = _resolvedCatalogKeys[requested];
-    if (cached != null) return cached;
-    if (requested != 'Premiere') {
-      _resolvedCatalogKeys[requested] = requested;
-      return requested;
-    }
-    final canonical = await _subjects('Premiere').limit(1).get();
-    if (canonical.docs.isNotEmpty) {
-      _resolvedCatalogKeys[requested] = 'Premiere';
-      return 'Premiere';
-    }
-    final legacy = await _subjects('Première').limit(1).get();
-    final resolved = legacy.docs.isNotEmpty ? 'Première' : 'Premiere';
-    _resolvedCatalogKeys[requested] = resolved;
-    return resolved;
+  Future<String> _resolveCatalogReadKey(String requested) async => requested;
+
+  Future<List<_CatalogDocument>> _catalog(
+    String action,
+    String level, [
+    String? subjectId,
+    String? chapterId,
+    String? lessonId,
+  ]) async {
+    final response = await _functions
+        .httpsCallable('readLearningCatalog')
+        .call<Map<String, dynamic>>({
+          'action': action,
+          'classLevel': level,
+          'subjectId': ?subjectId,
+          'chapterId': ?chapterId,
+          'lessonId': ?lessonId,
+        });
+    return [
+      for (final item in response.data['documents'] as List? ?? [])
+        _CatalogDocument(
+          item['id'] as String,
+          Map<String, dynamic>.from(item['data'] as Map),
+        ),
+    ];
   }
 
-  // Le catalogue change peu pendant une session. On met uniquement les
-  // documents pédagogiques en cache mémoire ; la progression reste relue à
-  // chaque appel afin qu'un résultat fraîchement enregistré soit immédiat.
-  Future<List<_CatalogDocument>> _publishedSubjectsCatalog(String classLevel) =>
-      _catalogCache.getOrLoad('subjects:$classLevel', () async {
-        final snapshot = await _subjects(
-          classLevel,
-        ).where('status', isEqualTo: 'published').orderBy('order').get();
-        final documents = snapshot.docs
-            .map((doc) => _CatalogDocument(doc.id, doc.data()))
-            .toList(growable: false);
-        for (final document in documents) {
-          _catalogCache.put<_CatalogDocument>(
-            'subject:$classLevel:${document.id}',
-            document,
-          );
-        }
-        return documents;
-      });
-
-  Future<_CatalogDocument?> _subjectCatalog(
-    String classLevel,
-    String subjectId,
-  ) => _catalogCache.getOrLoad('subject:$classLevel:$subjectId', () async {
-    final snapshot = await _subjects(classLevel).doc(subjectId).get();
-    final data = snapshot.data();
-    return data == null ? null : _CatalogDocument(snapshot.id, data);
-  });
-
-  Future<List<_CatalogDocument>> _chaptersCatalog(
-    String classLevel,
-    String subjectId,
-  ) => _catalogCache.getOrLoad('chapters:$classLevel:$subjectId', () async {
-    final snapshot = await _chapters(
-      classLevel,
-      subjectId,
-    ).orderBy('order').get();
-    final documents = snapshot.docs
-        .map((doc) => _CatalogDocument(doc.id, doc.data()))
-        .toList(growable: false);
-    for (final document in documents) {
-      _catalogCache.put<_CatalogDocument>(
-        'chapter:$classLevel:$subjectId:${document.id}',
-        document,
+  Future<List<_CatalogDocument>> _publishedSubjectsCatalog(String level) =>
+      _catalogCache.getOrLoad(
+        'subjects:$level',
+        () => _catalog('subjects', level),
       );
-    }
-    return documents;
-  });
-
+  Future<_CatalogDocument?> _subjectCatalog(String level, String subject) =>
+      _catalogCache.getOrLoad(
+        'subject:$level:$subject',
+        () async => (await _catalog('subject', level, subject)).firstOrNull,
+      );
+  Future<List<_CatalogDocument>> _chaptersCatalog(
+    String level,
+    String subject,
+  ) => _catalogCache.getOrLoad(
+    'chapters:$level:$subject',
+    () => _catalog('chapters', level, subject),
+  );
   Future<_CatalogDocument?> _chapterCatalog(
-    String classLevel,
-    String subjectId,
-    String chapterId,
+    String level,
+    String subject,
+    String chapter,
   ) => _catalogCache.getOrLoad(
-    'chapter:$classLevel:$subjectId:$chapterId',
-    () async {
-      final snapshot = await _chapters(
-        classLevel,
-        subjectId,
-      ).doc(chapterId).get();
-      final data = snapshot.data();
-      return data == null ? null : _CatalogDocument(snapshot.id, data);
-    },
+    'chapter:$level:$subject:$chapter',
+    () async =>
+        (await _catalog('chapter', level, subject, chapter)).firstOrNull,
   );
-
   Future<List<_CatalogDocument>> _publishedLessonsCatalog(
-    String classLevel,
-    String subjectId,
-    String chapterId,
+    String level,
+    String subject,
+    String chapter,
   ) => _catalogCache.getOrLoad(
-    'lessons:$classLevel:$subjectId:$chapterId',
-    () async {
-      final snapshot = await _lessons(
-        classLevel,
-        subjectId,
-        chapterId,
-      ).where('status', isEqualTo: 'published').orderBy('order').get();
-      final documents = snapshot.docs
-          .map((doc) => _CatalogDocument(doc.id, doc.data()))
-          .toList(growable: false);
-      for (final document in documents) {
-        _catalogCache.put<_CatalogDocument>(
-          'lesson:$classLevel:$subjectId:$chapterId:${document.id}',
-          document,
-        );
-      }
-      return documents;
-    },
+    'lessons:$level:$subject:$chapter',
+    () => _catalog('lessons', level, subject, chapter),
   );
-
   Future<_CatalogDocument?> _lessonCatalog(
-    String classLevel,
-    String subjectId,
-    String chapterId,
-    String lessonId,
+    String level,
+    String subject,
+    String chapter,
+    String lesson,
   ) => _catalogCache.getOrLoad(
-    'lesson:$classLevel:$subjectId:$chapterId:$lessonId',
-    () async {
-      final snapshot = await _lessons(
-        classLevel,
-        subjectId,
-        chapterId,
-      ).doc(lessonId).get();
-      final data = snapshot.data();
-      return data == null ? null : _CatalogDocument(snapshot.id, data);
-    },
+    'lesson:$level:$subject:$chapter:$lesson',
+    () async =>
+        (await _catalog('lesson', level, subject, chapter, lesson)).firstOrNull,
   );
 
   // ───── fetchSubjects ────────────────────────────────────────
@@ -217,15 +142,7 @@ class FirestoreLearnRepository implements LearnRepository {
       for (final doc in progressSnapshot.docs) doc.id: doc.data(),
     });
 
-    final visibleSubjects = subjectDocuments
-        .where((subject) {
-          final allowedSeries = List<String>.from(
-            subject.data['allowedSeries'] as List? ?? const [],
-          );
-          return allowedSeries.isEmpty ||
-              (series != null && allowedSeries.contains(series));
-        })
-        .toList(growable: false);
+    final visibleSubjects = subjectDocuments;
 
     // Les anciennes lectures attendaient chaque sous-collection de chapitres
     // l'une après l'autre. Future.wait ramène la latence à celle de la requête

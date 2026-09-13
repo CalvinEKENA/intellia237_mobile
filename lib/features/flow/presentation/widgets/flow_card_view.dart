@@ -1,3 +1,4 @@
+import 'flow_typography.dart';
 import 'package:flutter/material.dart';
 
 import '../../application/flow_controller.dart';
@@ -16,17 +17,28 @@ class FlowCardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return switch (card) {
-      FlowNotionCard c => FlowNotionCardView(card: c),
-      FlowQuestionCard c => FlowQuestionCardView(card: c),
-      FlowVideoCard c => FlowVideoCardView(card: c),
-      FlowAnimationCard c => FlowAnimationCardView(card: c),
-      FlowAnecdoteCard c => FlowAnecdoteCardView(card: c),
-      FlowMiniQuizCard c => FlowMiniQuizCardView(card: c, onAward: onAward),
-      FlowTrueFalseCard c => FlowTrueFalseCardView(card: c, onAward: onAward),
-      FlowFillBlankCard c => FlowFillBlankCardView(card: c, onAward: onAward),
-      FlowOrderingCard c => FlowOrderingCardView(card: c, onAward: onAward),
-      FlowRewardCard c => FlowRewardCardView(card: c),
-    };
+    return LayoutBuilder(
+      builder: (context, constraints) => FlowTypographyScope(
+        width: constraints.maxWidth,
+        child: switch (card) {
+          FlowNotionCard c => FlowNotionCardView(card: c),
+          FlowQuestionCard c => FlowQuestionCardView(card: c),
+          FlowVideoCard c => FlowVideoCardView(card: c),
+          FlowAnimationCard c => FlowAnimationCardView(card: c),
+          FlowAnecdoteCard c => FlowAnecdoteCardView(card: c),
+          FlowMiniQuizCard c => FlowMiniQuizCardView(card: c, onAward: onAward),
+          FlowTrueFalseCard c => FlowTrueFalseCardView(
+            card: c,
+            onAward: onAward,
+          ),
+          FlowFillBlankCard c => FlowFillBlankCardView(
+            card: c,
+            onAward: onAward,
+          ),
+          FlowOrderingCard c => FlowOrderingCardView(card: c, onAward: onAward),
+          FlowRewardCard c => FlowRewardCardView(card: c),
+        },
+      ),
+    );
   }
 }

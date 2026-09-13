@@ -92,7 +92,7 @@ abstract final class EducationalMediaPolicy {
     // rien dans le pipeline ne l'assainit aujourd'hui.
     MediaType.image: {'image/jpeg', 'image/png', 'image/webp'},
     MediaType.audio: {'audio/mpeg', 'audio/mp4', 'audio/m4a', 'audio/aac'},
-    MediaType.video: {'video/mp4', 'video/webm'},
+    MediaType.video: {'video/mp4'},
     MediaType.pdf: {'application/pdf'},
   };
 
@@ -165,4 +165,32 @@ class MediaRejectedException implements Exception {
 
   @override
   String toString() => reason;
+}
+
+/// A cancellation owns one upload; cancellation before registration is honored.
+class MediaUploadCancellation {
+  bool _cancelled = false;
+  Future<void> Function()? _abort;
+  bool get isCancelled => _cancelled;
+  void attach(Future<void> Function() abort) {
+    _abort = abort;
+    if (_cancelled) abort();
+  }
+
+  Future<void> cancel() async {
+    _cancelled = true;
+    await _abort?.call();
+  }
+
+  void detach() => _abort = null;
+}
+
+abstract interface class CancellableEducationalMediaProvider {
+  Future<MediaUploadResult> uploadCancellable({
+    required String storagePath,
+    required Uint8List bytes,
+    required String mimeType,
+    required MediaUploadCancellation cancellation,
+    void Function(double progress)? onProgress,
+  });
 }

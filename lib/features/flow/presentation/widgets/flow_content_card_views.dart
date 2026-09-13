@@ -1,3 +1,5 @@
+import 'flow_typography.dart';
+import '../../../learn/presentation/widgets/educational_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -10,20 +12,8 @@ import '../../domain/flow_card.dart';
 import 'flow_card_scaffold.dart';
 import 'flow_concept_animation.dart';
 
-TextStyle _title(BuildContext context) => GoogleFonts.playfairDisplay(
-  fontSize: 32,
-  fontWeight: FontWeight.w700,
-  height: 1.12,
-  letterSpacing: -0.4,
-  color: IntelliaColors.textPrimary,
-);
-
-TextStyle _body() => GoogleFonts.montserrat(
-  fontSize: 16,
-  height: 1.55,
-  fontWeight: FontWeight.w500,
-  color: IntelliaColors.textSecondary,
-);
+TextStyle _title(BuildContext context) => FlowTypography.title(context);
+TextStyle _body(BuildContext context) => FlowTypography.body(context);
 
 // ── Notion ────────────────────────────────────────────────────────────────
 class FlowNotionCardView extends StatelessWidget {
@@ -46,7 +36,7 @@ class FlowNotionCardView extends StatelessWidget {
           const SizedBox(height: IntelliaSpacing.md),
           Text(
             card.insight,
-            style: _body(),
+            style: _body(context),
           ).animate().fadeIn(delay: 240.ms, duration: 460.ms),
           const SizedBox(height: IntelliaSpacing.xl),
           ...card.points.asMap().entries.map((e) {
@@ -142,7 +132,7 @@ class _FlowQuestionCardViewState extends State<FlowQuestionCardView> {
                 borderRadius: BorderRadius.circular(IntelliaRadii.large),
                 border: Border.all(color: accent.withValues(alpha: 0.22)),
               ),
-              child: Text(card.answer, style: _body()),
+              child: Text(card.answer, style: _body(context)),
             ),
           ),
         ],
@@ -189,136 +179,33 @@ class _FlowQuestionCardViewState extends State<FlowQuestionCardView> {
   );
 }
 
-// ── Capsule vidéo (poster + lecture simulée) ────────────────────────────────
-class FlowVideoCardView extends StatefulWidget {
+// The media reference is shared with the lesson and Studio preview.
+class FlowVideoCardView extends StatelessWidget {
   const FlowVideoCardView({required this.card, super.key});
   final FlowVideoCard card;
-
   @override
-  State<FlowVideoCardView> createState() => _FlowVideoCardViewState();
+  Widget build(BuildContext context) => FlowCardScaffold(
+    subject: card.subject,
+    kicker: card.kicker,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(card.title, style: _title(context)),
+        const SizedBox(height: 16),
+        if (card.storagePath?.isNotEmpty ?? false)
+          EducationalVideoPlayer(
+            storagePath: card.storagePath!,
+            fileSizeBytes: card.fileSizeBytes,
+          )
+        else
+          const Text('Ce média ne possède pas encore de fichier vidéo.'),
+        const SizedBox(height: 16),
+        Text(card.description, style: _body(context)),
+      ],
+    ),
+  );
 }
 
-class _FlowVideoCardViewState extends State<FlowVideoCardView>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _progress;
-
-  @override
-  void initState() {
-    super.initState();
-    _progress = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: widget.card.estimatedSeconds),
-    );
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    if (!reduced && !_progress.isAnimating) _progress.forward();
-  }
-
-  @override
-  void dispose() {
-    _progress.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final card = widget.card;
-    return FlowCardScaffold(
-      subject: card.subject,
-      kicker: card.kicker,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(IntelliaRadii.extraLarge),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(gradient: card.subject.gradient),
-                  ),
-                  Center(
-                        child: Container(
-                          width: 72,
-                          height: 72,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.92),
-                            shape: BoxShape.circle,
-                            boxShadow: IntelliaShadows.glow(
-                              Colors.black,
-                              intensity: 0.18,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.play_arrow_rounded,
-                            size: 40,
-                            color: card.subject.accent,
-                          ),
-                        ),
-                      )
-                      .animate(onPlay: (c) => c.repeat())
-                      .scaleXY(
-                        begin: 1,
-                        end: 1.06,
-                        duration: 1100.ms,
-                        curve: Curves.easeInOut,
-                      ),
-                  Positioned(
-                    left: 16,
-                    right: 16,
-                    bottom: 16,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: AnimatedBuilder(
-                            animation: _progress,
-                            builder: (context, _) => ClipRRect(
-                              borderRadius: BorderRadius.circular(99),
-                              child: LinearProgressIndicator(
-                                value: _progress.value,
-                                minHeight: 4,
-                                backgroundColor: Colors.white.withValues(
-                                  alpha: 0.3,
-                                ),
-                                valueColor: const AlwaysStoppedAnimation(
-                                  Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          card.durationLabel,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: IntelliaSpacing.lg),
-          Text(card.title, style: _title(context)),
-          const SizedBox(height: IntelliaSpacing.sm),
-          Text(card.description, style: _body()),
-        ],
-      ).animate().fadeIn(duration: 420.ms),
-    );
-  }
-}
-
-// ── Animation conceptuelle ──────────────────────────────────────────────────
 class FlowAnimationCardView extends StatelessWidget {
   const FlowAnimationCardView({required this.card, super.key});
   final FlowAnimationCard card;
@@ -331,7 +218,8 @@ class FlowAnimationCardView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
+          AspectRatio(
+            aspectRatio: 1.35,
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -350,7 +238,7 @@ class FlowAnimationCardView extends StatelessWidget {
           const SizedBox(height: IntelliaSpacing.lg),
           Text(card.title, style: _title(context)),
           const SizedBox(height: IntelliaSpacing.sm),
-          Text(card.caption, style: _body()),
+          Text(card.caption, style: _body(context)),
         ],
       ).animate().fadeIn(duration: 420.ms),
     );
@@ -389,7 +277,7 @@ class FlowAnecdoteCardView extends StatelessWidget {
           const SizedBox(height: IntelliaSpacing.md),
           Text(
             card.story,
-            style: _body().copyWith(fontSize: 17, height: 1.6),
+            style: _body(context),
           ).animate().fadeIn(delay: 260.ms, duration: 460.ms),
         ],
       ),

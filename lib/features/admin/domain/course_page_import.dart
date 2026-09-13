@@ -402,8 +402,18 @@ abstract final class CoursePageDraftPlanner {
   /// La matière FLOW la plus proche d'un intitulé du catalogue.
   static String flowSubjectIdFor(String subjectTitle) {
     const accents = {
-      'à': 'a', 'â': 'a', 'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e', 'î': 'i',
-      'ï': 'i', 'ô': 'o', 'ù': 'u', 'û': 'u', 'ç': 'c',
+      'à': 'a',
+      'â': 'a',
+      'é': 'e',
+      'è': 'e',
+      'ê': 'e',
+      'ë': 'e',
+      'î': 'i',
+      'ï': 'i',
+      'ô': 'o',
+      'ù': 'u',
+      'û': 'u',
+      'ç': 'c',
     };
     final folded = [
       for (final char in subjectTitle.toLowerCase().split(''))
@@ -416,11 +426,15 @@ abstract final class CoursePageDraftPlanner {
     bool has(String prefix) => tokens.any((token) => token.startsWith(prefix));
 
     if (has('math')) return FlowSubjects.maths.id;
-    if (has('physi') || has('chimi') || tokens.contains('pc') ||
+    if (has('physi') ||
+        has('chimi') ||
+        tokens.contains('pc') ||
         tokens.contains('pct')) {
       return FlowSubjects.pc.id;
     }
-    if (tokens.contains('svt') || has('biolog') || has('geolog') ||
+    if (tokens.contains('svt') ||
+        has('biolog') ||
+        has('geolog') ||
         (has('vie') && has('terre'))) {
       return FlowSubjects.svt.id;
     }
@@ -433,6 +447,8 @@ abstract final class CoursePageDraftPlanner {
 
   static String _clip(String value, int max) {
     final trimmed = value.trim();
-    return trimmed.length <= max ? trimmed : '${trimmed.substring(0, max - 1)}…';
+    return trimmed.length <= max
+        ? trimmed
+        : '${trimmed.substring(0, max - 1)}…';
   }
 }

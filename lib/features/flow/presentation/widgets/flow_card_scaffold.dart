@@ -76,30 +76,26 @@ class FlowCardScaffold extends ConsumerWidget {
               IntelliaSpacing.lg,
               IntelliaSpacing.lg,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                      children: [
-                        _subjectChip(accent),
-                        const Spacer(),
-                        if (isDemo) ...[
-                          _DemoContentBadge(accent: accent),
-                          const SizedBox(width: IntelliaSpacing.xs),
-                        ],
-                        _kickerChip(accent),
-                      ],
-                    )
-                    .animate()
-                    .fadeIn(duration: 360.ms)
-                    .slideY(begin: -0.2, end: 0),
-                const SizedBox(height: IntelliaSpacing.xl),
-                Expanded(child: child),
-                if (footer != null) ...[
-                  const SizedBox(height: IntelliaSpacing.md),
-                  footer!,
+            child: SingleChildScrollView(
+              key: const ValueKey('flow-content-scroll'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      _subjectChip(accent),
+                      if (isDemo) _DemoContentBadge(accent: accent),
+                      _kickerChip(accent),
+                    ],
+                  ).animate().fadeIn(duration: 360.ms),
+                  const SizedBox(height: 24),
+                  child,
+                  if (footer != null) ...[const SizedBox(height: 16), footer!],
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -119,12 +115,14 @@ class FlowCardScaffold extends ConsumerWidget {
       children: [
         Icon(subject.icon, size: 15, color: accent),
         const SizedBox(width: 7),
-        Text(
-          subject.label,
-          style: GoogleFonts.montserrat(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: accent,
+        Flexible(
+          child: Text(
+            subject.label,
+            style: GoogleFonts.montserrat(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: accent,
+            ),
           ),
         ),
       ],

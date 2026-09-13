@@ -1,3 +1,6 @@
+import { createSaveFlowPublicationHandler } from "./services/saveFlowPublicationCallable";
+import { createLearningCatalogHandler } from "./services/learningCatalogCallable";
+import { createEducationalMediaHandler } from "./services/educationalMedia";
 import { randomUUID } from "node:crypto";
 
 import { logger } from "firebase-functions";
@@ -53,6 +56,9 @@ setGlobalOptions({
   enforceAppCheck: env.ENFORCE_APP_CHECK,
 });
 
+export const saveFlowPublication = onCall({ timeoutSeconds: 60, region: env.FUNCTIONS_REGION }, createSaveFlowPublicationHandler());
+export const readLearningCatalog = onCall({ timeoutSeconds: 60, region: env.FUNCTIONS_REGION }, createLearningCatalogHandler());
+export const educationalMedia = onCall({ timeoutSeconds: 60, region: env.FUNCTIONS_REGION }, createEducationalMediaHandler());
 export const saveLessonPublication = onCall({ timeoutSeconds: 120, memory: "512MiB", region: env.FUNCTIONS_REGION }, saveLessonPublicationHandler);
 export const deleteCatalogContent = onCall({ timeoutSeconds: 300, memory: "512MiB", region: env.FUNCTIONS_REGION }, deleteCatalogContentHandler);
 export const listRegistrationEstablishments = onCall({ timeoutSeconds: 30, region: env.FUNCTIONS_REGION }, listRegistrationEstablishmentsHandler);

@@ -106,9 +106,7 @@ class UnattachedStaffSection extends ConsumerWidget {
       );
       messenger.showSnackBar(SnackBar(content: Text(l10n.staffAttached)));
     } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.accountReviewFailed)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(l10n.accountReviewFailed)));
     }
   }
 }
