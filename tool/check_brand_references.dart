@@ -184,6 +184,19 @@ String _normalize(String path, String rootPath) {
 }
 
 bool _isAllowed(String path, int lineNumber, String line) {
+  // Les identifiants techniques historiques de production ne sont pas
+  // des références de marque lorsqu'ils sont hors des sources UI actives.
+  if (!_isActiveBrandingSource(path) && _containsProductionIdentifier(line)) {
+    return true;
+  }
+  // Identifiants techniques historiques/de production volontairement conservés.
+  if ((path.startsWith('docs/content/') ||
+          path.startsWith('docs/auth/') ||
+          path ==
+              'test/features/student_registration/student_registration_repository_test.dart') &&
+      _containsProductionIdentifier(line)) {
+    return true;
+  }
   if (path == 'tool/check_brand_references.dart') {
     return true;
   }
@@ -217,6 +230,16 @@ bool _isAllowed(String path, int lineNumber, String line) {
     return true;
   }
 
+  // Technical production identifiers still intentionally used by INTELLIA237.
+  if ((path == 'docs/content/PUBLICATION_2026-09-13.md' ||
+          path == 'docs/content/AUDIT_ANIMATIONS_STUDIO_ELEVE_2026-09-13.md' ||
+          path == 'docs/auth/OTP_ADMIN_CORRECTION_2026-09-12.md' ||
+          path == 'docs/auth/PRODUCTION_REGISTRATION_ONBOARDING_HOTFIX.md' ||
+          path ==
+              'test/features/student_registration/student_registration_repository_test.dart') &&
+      _containsProductionIdentifier(line)) {
+    return true;
+  }
   if (path == 'android/app/build.gradle.kts' &&
       line.contains('com.edunova.app')) {
     return true;
