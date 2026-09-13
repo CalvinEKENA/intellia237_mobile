@@ -1,18 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../auth/application/auth_controller.dart';
-import '../../auth/application/auth_user_id.dart';
 import '../data/firestore_parent_repository.dart';
 import '../data/parent_repository.dart';
 import '../domain/parent_child_profile.dart';
 import '../domain/parent_dashboard.dart';
+import 'parent_preview.dart';
 
 final parentRepositoryProvider = Provider<ParentRepository>((ref) {
   return FirestoreParentRepository();
 });
 
 final parentDashboardProvider = FutureProvider<ParentDashboard>((ref) async {
-  final uid = requireAuthenticatedUserId(ref.watch(authControllerProvider));
+  // UID effectif : celui du parent prévisualisé quand le super-admin est en
+  // mode prévisualisation, sinon l'utilisateur authentifié lui-même.
+  final uid = ref.watch(effectiveParentUidProvider);
   return ref.read(parentRepositoryProvider).fetchDashboard(parentUid: uid);
 });
 

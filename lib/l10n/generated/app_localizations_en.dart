@@ -4195,4 +4195,42 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get schoolsOverviewHint =>
       'Choose an existing school, or open a new one with its city.';
+
+  @override
+  String get parentPreviewBadge => 'Parent preview';
+
+  @override
+  String get parentPreviewExit => 'Exit preview';
+
+  @override
+  String parentPreviewViewingParent(String name) {
+    return '$name\'s space';
+  }
+
+  @override
+  String get parentPreviewOwnAccountNote => 'Preview of your own Parent space.';
+
+  @override
+  String get adminParentPreviewAction => 'Preview the Parent space';
+
+  @override
+  String get adminParentPreviewDescription =>
+      'Open the Parent space as super-admin, without switching accounts.';
+
+  @override
+  String get parentPreviewChooseParent => 'Preview as';
+
+  @override
+  String get parentPreviewOwnAccount => 'My account (super-admin)';
+
+  @override
+  String get parentPreviewNoParents => 'No parent account to preview yet.';
+
+  @override
+  String get parentPreviewPaymentsBlockedTitle =>
+      'Payment unavailable in preview';
+
+  @override
+  String get parentPreviewPaymentsBlockedBody =>
+      'You are viewing another parent\'s space: to protect their data, no payment operation is possible here.';
 }

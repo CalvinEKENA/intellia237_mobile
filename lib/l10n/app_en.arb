@@ -2145,5 +2145,16 @@
   "schoolsOverviewBody": "Every INTELLIA237 school. Tap one to see its directory and classes.",
   "schoolsOverviewCreate": "Open a school",
   "schoolsOverviewEmpty": "No school has been opened yet.",
-  "schoolsOverviewHint": "Choose an existing school, or open a new one with its city."
+  "schoolsOverviewHint": "Choose an existing school, or open a new one with its city.",
+  "parentPreviewBadge": "Parent preview",
+  "parentPreviewExit": "Exit preview",
+  "parentPreviewViewingParent": "{name}'s space",
+  "parentPreviewOwnAccountNote": "Preview of your own Parent space.",
+  "adminParentPreviewAction": "Preview the Parent space",
+  "adminParentPreviewDescription": "Open the Parent space as super-admin, without switching accounts.",
+  "parentPreviewChooseParent": "Preview as",
+  "parentPreviewOwnAccount": "My account (super-admin)",
+  "parentPreviewNoParents": "No parent account to preview yet.",
+  "parentPreviewPaymentsBlockedTitle": "Payment unavailable in preview",
+  "parentPreviewPaymentsBlockedBody": "You are viewing another parent's space: to protect their data, no payment operation is possible here."
 }

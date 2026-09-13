@@ -245,6 +245,81 @@ void main() {
       }
     });
   });
+
+  group('super-admin Parent preview (routing)', () {
+    const superAdmin = AuthState.authenticated(
+      role: AppRole.admin,
+      userId: 'super-admin-uid',
+      email: 'calvinekena4@gmail.com',
+      isSuperAdmin: true,
+    );
+
+    test(
+      'super-admin on a Parent route goes to Admin when preview inactive',
+      () {
+        expect(
+          _redirect(
+            auth: superAdmin,
+            location: AppRoutes.parentHome,
+            hasSeenOnboarding: true,
+            hasAuthenticatedBefore: true,
+          ),
+          AppRoutes.adminHome,
+        );
+      },
+    );
+
+    test('super-admin is allowed on Parent routes while preview is active', () {
+      for (final location in [
+        AppRoutes.parentHome,
+        AppRoutes.childOverview('child-1'),
+        AppRoutes.childProgress('child-1'),
+      ]) {
+        expect(
+          _redirect(
+            auth: superAdmin,
+            location: location,
+            hasSeenOnboarding: true,
+            hasAuthenticatedBefore: true,
+            parentPreviewActive: true,
+          ),
+          isNull,
+          reason: '$location should be allowed during preview',
+        );
+      }
+    });
+
+    test('preview flag never lets a non-admin role reach Parent routes', () {
+      expect(
+        _redirect(
+          auth: const AuthState.authenticated(
+            role: AppRole.teacher,
+            userId: 'teacher-uid',
+          ),
+          location: AppRoutes.parentHome,
+          hasSeenOnboarding: true,
+          hasAuthenticatedBefore: true,
+          parentPreviewActive: true,
+        ),
+        AppRoutes.teacherHome,
+      );
+    });
+
+    test('an ordinary parent still opens Parent home without any preview', () {
+      expect(
+        _redirect(
+          auth: const AuthState.authenticated(
+            role: AppRole.parent,
+            userId: 'parent-uid',
+          ),
+          location: AppRoutes.parentHome,
+          hasSeenOnboarding: true,
+          hasAuthenticatedBefore: true,
+        ),
+        isNull,
+      );
+    });
+  });
 }
 
 String? _returningRedirect(String location) => _redirect(
@@ -263,6 +338,7 @@ String? _redirect({
   AuthState auth = const AuthState.unauthenticated(),
   bool hasSeenOnboarding = false,
   bool hasAuthenticatedBefore = false,
+  bool parentPreviewActive = false,
   required String location,
 }) {
   return resolveAppRedirect(
@@ -270,5 +346,6 @@ String? _redirect({
     hasSeenOnboarding: hasSeenOnboarding,
     hasAuthenticatedBefore: hasAuthenticatedBefore,
     location: location,
+    parentPreviewActive: parentPreviewActive,
   );
 }

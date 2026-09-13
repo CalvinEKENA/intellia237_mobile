@@ -4218,4 +4218,44 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get schoolsOverviewHint =>
       'Choisissez une école existante, ou ouvrez-en une nouvelle avec sa ville.';
+
+  @override
+  String get parentPreviewBadge => 'Prévisualisation Parent';
+
+  @override
+  String get parentPreviewExit => 'Quitter l’aperçu';
+
+  @override
+  String parentPreviewViewingParent(String name) {
+    return 'Espace de $name';
+  }
+
+  @override
+  String get parentPreviewOwnAccountNote =>
+      'Aperçu de votre propre espace Parent.';
+
+  @override
+  String get adminParentPreviewAction => 'Prévisualiser l’espace Parent';
+
+  @override
+  String get adminParentPreviewDescription =>
+      'Ouvrir l’espace Parent en tant que super-administrateur, sans changer de compte.';
+
+  @override
+  String get parentPreviewChooseParent => 'Prévisualiser en tant que';
+
+  @override
+  String get parentPreviewOwnAccount => 'Mon compte (super-admin)';
+
+  @override
+  String get parentPreviewNoParents =>
+      'Aucun compte parent à prévisualiser pour l’instant.';
+
+  @override
+  String get parentPreviewPaymentsBlockedTitle =>
+      'Paiement indisponible en prévisualisation';
+
+  @override
+  String get parentPreviewPaymentsBlockedBody =>
+      'Vous consultez l’espace d’un autre parent : pour protéger ses données, aucune opération de paiement n’est possible ici.';
 }

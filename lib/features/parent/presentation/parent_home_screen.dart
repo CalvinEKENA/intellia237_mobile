@@ -10,6 +10,7 @@ import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
+import '../application/parent_preview.dart';
 import '../application/parent_providers.dart';
 import '../domain/parent_announcement.dart';
 import '../domain/parent_child_profile.dart';
@@ -57,6 +58,9 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final dashboardAsync = ref.watch(parentDashboardProvider);
+    final preview = ref.watch(parentPreviewControllerProvider);
+    final ownUid = ref.watch(authControllerProvider).userId;
+    final impersonating = preview.isImpersonating(ownUid);
 
     return Scaffold(
       extendBody: true,
@@ -67,81 +71,105 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
       ),
       body: TabSurface(
         palette: const TabPalette(TabPresentationMode.embeddedLight),
-        child: dashboardAsync.when(
-          loading: () =>
-              const IntelliaStateView(kind: IntelliaStateKind.loading),
-          error: (error, stackTrace) => IntelliaStateView(
-            kind: stateKindForError(error),
-            title: context.l10n.parentSpaceUnavailable,
-            message: stateMessageForKind(context, stateKindForError(error)),
-            primaryLabel: context.l10n.retryLabel,
-            onPrimary: () => ref.invalidate(parentDashboardProvider),
-          ),
-          data: (dashboard) {
-            if (dashboard.children.isEmpty) {
-              _scheduleTourGuide();
-              return SafeArea(
-                bottom: false,
-                child: IndexedStack(
-                  index: _tabIndex,
-                  children: [
-                    _EmptyParentHomeTab(
-                      announcements: dashboard.announcements,
-                      heroKey: _tourTargets[TourGuideTargetIds.roleHero],
-                    ),
-                    const _ChildrenTab(children: []),
-                    _AnnouncementsTab(announcements: dashboard.announcements),
-                    const MobileMoneyParentTab(),
-                    _ProfileTab(
-                      onSignOut: () =>
-                          ref.read(authControllerProvider.notifier).signOut(),
-                      signOutKey: _tourTargets[TourGuideTargetIds.roleSignOut],
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            _selectedChildId ??= dashboard.children.isNotEmpty
-                ? dashboard.children.first.id
-                : null;
-            final selectedChild = dashboard.children.firstWhere(
-              (child) => child.id == _selectedChildId,
-              orElse: () => dashboard.children.first,
-            );
-            _scheduleTourGuide();
-
-            return SafeArea(
-              bottom: false,
-              child: IndexedStack(
-                index: _tabIndex,
-                children: [
-                  _ParentHomeTab(
-                    dashboard: dashboard,
-                    selectedChild: selectedChild,
-                    onSelectChild: (childId) =>
-                        setState(() => _selectedChildId = childId),
-                    heroKey: _tourTargets[TourGuideTargetIds.roleHero],
-                    switcherKey: _tourTargets[TourGuideTargetIds.roleSwitcher],
-                  ),
-                  _ChildrenTab(children: dashboard.children),
-                  _AnnouncementsTab(announcements: dashboard.announcements),
-                  const MobileMoneyParentTab(),
-                  _ProfileTab(
-                    onSignOut: () =>
-                        ref.read(authControllerProvider.notifier).signOut(),
-                    signOutKey: _tourTargets[TourGuideTargetIds.roleSignOut],
-                  ),
-                ],
+        child: Column(
+          children: [
+            if (preview.active)
+              _ParentPreviewBanner(
+                targetLabel: preview.targetParentLabel,
+                impersonating: impersonating,
+                onExit: () {
+                  ref.read(parentPreviewControllerProvider.notifier).exit();
+                  context.go(AppRoutes.adminHome);
+                },
               ),
-            );
-          },
+            Expanded(child: _buildBody(context, dashboardAsync, impersonating)),
+          ],
         ),
       ),
       bottomNavigationBar: ParentPremiumNavBar(
         currentIndex: _tabIndex,
         onTap: (index) => setState(() => _tabIndex = index),
       ),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    AsyncValue<ParentDashboard> dashboardAsync,
+    bool impersonating,
+  ) {
+    return dashboardAsync.when(
+      loading: () => const IntelliaStateView(kind: IntelliaStateKind.loading),
+      error: (error, stackTrace) => IntelliaStateView(
+        kind: stateKindForError(error),
+        title: context.l10n.parentSpaceUnavailable,
+        message: stateMessageForKind(context, stateKindForError(error)),
+        primaryLabel: context.l10n.retryLabel,
+        onPrimary: () => ref.invalidate(parentDashboardProvider),
+      ),
+      data: (dashboard) {
+        if (dashboard.children.isEmpty) {
+          _scheduleTourGuide();
+          return SafeArea(
+            bottom: false,
+            child: IndexedStack(
+              index: _tabIndex,
+              children: [
+                _EmptyParentHomeTab(
+                  announcements: dashboard.announcements,
+                  heroKey: _tourTargets[TourGuideTargetIds.roleHero],
+                ),
+                const _ChildrenTab(children: []),
+                _AnnouncementsTab(announcements: dashboard.announcements),
+                impersonating
+                    ? const _PreviewPaymentsBlocked()
+                    : const MobileMoneyParentTab(),
+                _ProfileTab(
+                  onSignOut: () =>
+                      ref.read(authControllerProvider.notifier).signOut(),
+                  signOutKey: _tourTargets[TourGuideTargetIds.roleSignOut],
+                ),
+              ],
+            ),
+          );
+        }
+
+        _selectedChildId ??= dashboard.children.isNotEmpty
+            ? dashboard.children.first.id
+            : null;
+        final selectedChild = dashboard.children.firstWhere(
+          (child) => child.id == _selectedChildId,
+          orElse: () => dashboard.children.first,
+        );
+        _scheduleTourGuide();
+
+        return SafeArea(
+          bottom: false,
+          child: IndexedStack(
+            index: _tabIndex,
+            children: [
+              _ParentHomeTab(
+                dashboard: dashboard,
+                selectedChild: selectedChild,
+                onSelectChild: (childId) =>
+                    setState(() => _selectedChildId = childId),
+                heroKey: _tourTargets[TourGuideTargetIds.roleHero],
+                switcherKey: _tourTargets[TourGuideTargetIds.roleSwitcher],
+              ),
+              _ChildrenTab(children: dashboard.children),
+              _AnnouncementsTab(announcements: dashboard.announcements),
+              impersonating
+                  ? const _PreviewPaymentsBlocked()
+                  : const MobileMoneyParentTab(),
+              _ProfileTab(
+                onSignOut: () =>
+                    ref.read(authControllerProvider.notifier).signOut(),
+                signOutKey: _tourTargets[TourGuideTargetIds.roleSignOut],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -471,6 +499,96 @@ class _ProfileTab extends StatelessWidget {
           label: Text(context.l10n.signOutTitle),
         ),
       ],
+    );
+  }
+}
+
+/// Bandeau discret indiquant que l'espace Parent est affiché en
+/// prévisualisation par le super-administrateur. Toujours dismissible.
+class _ParentPreviewBanner extends StatelessWidget {
+  const _ParentPreviewBanner({
+    required this.impersonating,
+    required this.onExit,
+    this.targetLabel,
+  });
+
+  final bool impersonating;
+  final VoidCallback onExit;
+  final String? targetLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final label = targetLabel?.trim();
+    final subtitle = impersonating && label != null && label.isNotEmpty
+        ? l10n.parentPreviewViewingParent(label)
+        : l10n.parentPreviewOwnAccountNote;
+
+    return Material(
+      color: IntelliaColors.brandIndigo.withValues(alpha: 0.12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: IntelliaSpacing.md,
+          vertical: IntelliaSpacing.xs,
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Row(
+            children: [
+              const Icon(
+                Icons.visibility_outlined,
+                size: 18,
+                color: IntelliaColors.brandIndigo,
+              ),
+              const SizedBox(width: IntelliaSpacing.xs),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.parentPreviewBadge,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: IntelliaColors.brandIndigo,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: IntelliaColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              TextButton(
+                key: const ValueKey('parent-preview-exit'),
+                onPressed: onExit,
+                child: Text(l10n.parentPreviewExit),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Onglet Paiements neutralisé pendant la prévisualisation d'un **autre**
+/// parent : on ne mute jamais les données sensibles d'un tiers.
+class _PreviewPaymentsBlocked extends StatelessWidget {
+  const _PreviewPaymentsBlocked();
+
+  @override
+  Widget build(BuildContext context) {
+    return IntelliaStateView(
+      key: const ValueKey('parent-preview-payments-blocked'),
+      kind: IntelliaStateKind.locked,
+      title: context.l10n.parentPreviewPaymentsBlockedTitle,
+      message: context.l10n.parentPreviewPaymentsBlockedBody,
     );
   }
 }

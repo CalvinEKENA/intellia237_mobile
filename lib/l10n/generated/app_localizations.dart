@@ -7299,6 +7299,72 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Choisissez une école existante, ou ouvrez-en une nouvelle avec sa ville.'**
   String get schoolsOverviewHint;
+
+  /// No description provided for @parentPreviewBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévisualisation Parent'**
+  String get parentPreviewBadge;
+
+  /// No description provided for @parentPreviewExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter l’aperçu'**
+  String get parentPreviewExit;
+
+  /// No description provided for @parentPreviewViewingParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace de {name}'**
+  String parentPreviewViewingParent(String name);
+
+  /// No description provided for @parentPreviewOwnAccountNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu de votre propre espace Parent.'**
+  String get parentPreviewOwnAccountNote;
+
+  /// No description provided for @adminParentPreviewAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévisualiser l’espace Parent'**
+  String get adminParentPreviewAction;
+
+  /// No description provided for @adminParentPreviewDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir l’espace Parent en tant que super-administrateur, sans changer de compte.'**
+  String get adminParentPreviewDescription;
+
+  /// No description provided for @parentPreviewChooseParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévisualiser en tant que'**
+  String get parentPreviewChooseParent;
+
+  /// No description provided for @parentPreviewOwnAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon compte (super-admin)'**
+  String get parentPreviewOwnAccount;
+
+  /// No description provided for @parentPreviewNoParents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte parent à prévisualiser pour l’instant.'**
+  String get parentPreviewNoParents;
+
+  /// No description provided for @parentPreviewPaymentsBlockedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paiement indisponible en prévisualisation'**
+  String get parentPreviewPaymentsBlockedTitle;
+
+  /// No description provided for @parentPreviewPaymentsBlockedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous consultez l’espace d’un autre parent : pour protéger ses données, aucune opération de paiement n’est possible ici.'**
+  String get parentPreviewPaymentsBlockedBody;
 }
 
 class _AppLocalizationsDelegate

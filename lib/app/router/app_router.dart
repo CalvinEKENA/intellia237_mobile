@@ -31,6 +31,7 @@ import '../../features/learn/presentation/subject_detail_screen.dart';
 import '../../features/legal/presentation/legal_document_screen.dart';
 import '../../features/onboarding/data/onboarding_preferences.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
+import '../../features/parent/application/parent_preview.dart';
 import '../../features/parent/presentation/child_overview_screen.dart';
 import '../../features/parent/presentation/child_progress_screen.dart';
 import '../../features/parent/presentation/parent_home_screen.dart';
@@ -470,12 +471,19 @@ class AppRouterNotifier extends ChangeNotifier {
       (previous, next) => notifyListeners(),
       fireImmediately: true,
     );
+    // Entrer/quitter la prévisualisation Parent doit réévaluer les redirections
+    // (autoriser les routes Parent en entrant, revenir à l'Admin en quittant).
+    _parentPreviewSub = ref.listen<ParentPreviewState>(
+      parentPreviewControllerProvider,
+      (previous, next) => notifyListeners(),
+    );
   }
 
   final Ref ref;
   late final ProviderSubscription<AuthState> _authSub;
   late final ProviderSubscription<bool> _onboardingSub;
   late final ProviderSubscription<bool> _authEntrySub;
+  late final ProviderSubscription<ParentPreviewState> _parentPreviewSub;
   Duration homeArrivalDuration = const Duration(milliseconds: 360);
 
   String? redirect(BuildContext context, GoRouterState state) {
@@ -484,6 +492,7 @@ class AppRouterNotifier extends ChangeNotifier {
       hasSeenOnboarding: ref.read(hasSeenOnboardingProvider),
       hasAuthenticatedBefore: ref.read(hasAuthenticatedBeforeProvider),
       location: state.uri.path,
+      parentPreviewActive: ref.read(parentPreviewControllerProvider).active,
     );
     if (destination != null && AppRoutes.roleHomes.contains(destination)) {
       // This only selects presentation timing; authentication and access
@@ -506,6 +515,7 @@ class AppRouterNotifier extends ChangeNotifier {
     _authSub.close();
     _onboardingSub.close();
     _authEntrySub.close();
+    _parentPreviewSub.close();
     super.dispose();
   }
 }
@@ -515,6 +525,7 @@ String? resolveAppRedirect({
   required bool hasSeenOnboarding,
   required bool hasAuthenticatedBefore,
   required String location,
+  bool parentPreviewActive = false,
 }) {
   switch (auth.status) {
     case AuthStatus.bootstrapping:
@@ -557,7 +568,11 @@ String? resolveAppRedirect({
 
     case AuthStatus.retryableProfileFailure:
       if (auth.isAuthenticated && auth.role != null) {
-        return _resolveAuthenticatedRoleRedirect(auth, location);
+        return _resolveAuthenticatedRoleRedirect(
+          auth,
+          location,
+          parentPreviewActive: parentPreviewActive,
+        );
       }
       return location == AppRoutes.authProfileRecovery
           ? null
@@ -565,18 +580,30 @@ String? resolveAppRedirect({
 
     case AuthStatus.legacyProfileRecovery:
       if (auth.isAuthenticated && auth.role != null) {
-        return _resolveAuthenticatedRoleRedirect(auth, location);
+        return _resolveAuthenticatedRoleRedirect(
+          auth,
+          location,
+          parentPreviewActive: parentPreviewActive,
+        );
       }
       return location == AppRoutes.authProfileRecovery
           ? null
           : AppRoutes.authProfileRecovery;
 
     case AuthStatus.authenticated:
-      return _resolveAuthenticatedRoleRedirect(auth, location);
+      return _resolveAuthenticatedRoleRedirect(
+        auth,
+        location,
+        parentPreviewActive: parentPreviewActive,
+      );
   }
 }
 
-String? _resolveAuthenticatedRoleRedirect(AuthState auth, String location) {
+String? _resolveAuthenticatedRoleRedirect(
+  AuthState auth,
+  String location, {
+  bool parentPreviewActive = false,
+}) {
   final role = auth.role;
   if (role == null) return AppRoutes.authProfileRecovery;
 
@@ -584,6 +611,17 @@ String? _resolveAuthenticatedRoleRedirect(AuthState auth, String location) {
     return location == AppRoutes.studentRegistration
         ? null
         : AppRoutes.studentRegistration;
+  }
+
+  // Prévisualisation Parent : le super-administrateur (rôle réel admin,
+  // inchangé) est explicitement autorisé sur les routes Parent tant que le mode
+  // est actif. Le drapeau ne peut être vrai que si le contrôleur a validé
+  // l'habilitation (isSuperAdmin + e-mail attendu) ; on redouble ici le garde
+  // en exigeant le rôle admin.
+  if (parentPreviewActive &&
+      role == AppRole.admin &&
+      AppRoutes.isParentPath(location)) {
+    return null;
   }
 
   final expectedHome = role.homePath;

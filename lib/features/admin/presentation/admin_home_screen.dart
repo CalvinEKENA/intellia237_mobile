@@ -7,8 +7,10 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../parent/application/parent_preview.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
+import 'widgets/parent_preview_launcher.dart';
 import 'broadcast_center_screen.dart';
 import 'content_moderation_screen.dart';
 import 'content_studio_screen.dart';
@@ -212,6 +214,19 @@ class _AdminDashboardTab extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right_rounded),
             onTap: () => context.push(AppRoutes.settings),
           ),
+          if (canActivateParentPreview(ref.watch(authControllerProvider))) ...[
+            const SizedBox(height: IntelliaSpacing.md),
+            Card(
+              child: ListTile(
+                key: const ValueKey('admin-parent-preview-entry'),
+                leading: const Icon(Icons.family_restroom_outlined),
+                title: Text(context.l10n.adminParentPreviewAction),
+                subtitle: Text(context.l10n.adminParentPreviewDescription),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => showParentPreviewLauncher(context, ref),
+              ),
+            ),
+          ],
           const SizedBox(height: IntelliaSpacing.md),
           Card(
             child: Padding(
