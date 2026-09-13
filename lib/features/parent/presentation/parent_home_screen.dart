@@ -21,6 +21,7 @@ import '../../tour_guide/presentation/contextual_tour_guide.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../../mobile_money/presentation/mobile_money_parent_tab.dart';
 import '../../notifications/presentation/notification_app_bar_action.dart';
+import 'widgets/add_child_button.dart';
 import 'widgets/parent_premium_nav_bar.dart';
 import 'widgets/parent_learning_overview.dart';
 import '../../mastery/presentation/mastery_style.dart';
@@ -327,6 +328,8 @@ class _EmptyParentHomeTab extends StatelessWidget {
                 ),
                 const SizedBox(height: IntelliaSpacing.xs),
                 Text(context.l10n.linkChildHelp),
+                const SizedBox(height: IntelliaSpacing.md),
+                const AddChildButton(expanded: true),
               ],
             ),
           ),
@@ -369,6 +372,8 @@ class _ChildrenTab extends StatelessWidget {
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
         ),
+        const SizedBox(height: IntelliaSpacing.sm),
+        const AddChildButton(expanded: true),
         const SizedBox(height: IntelliaSpacing.md),
         for (final child in children) ...[
           Card(

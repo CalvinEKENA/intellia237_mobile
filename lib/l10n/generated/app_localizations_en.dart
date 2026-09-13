@@ -4233,4 +4233,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get parentPreviewPaymentsBlockedBody =>
       'You are viewing another parent\'s space: to protect their data, no payment operation is possible here.';
+
+  @override
+  String get addChildTitle => 'Add a child';
+
+  @override
+  String get addChildCodeLabel => 'Child\'s link code';
+
+  @override
+  String get addChildCodeHelp =>
+      'Ask your child for their code, shown in their Profile space under \"My parent code\".';
+
+  @override
+  String get addChildSubmit => 'Link child';
+
+  @override
+  String addChildSuccess(String name) {
+    return '$name is now linked to your account.';
+  }
+
+  @override
+  String addChildAlready(String name) {
+    return '$name is already linked to your account.';
+  }
+
+  @override
+  String get studentLinkCodeTitle => 'My parent code';
+
+  @override
+  String get studentLinkCodeBody =>
+      'Share this code with your parent so they can follow your progress.';
+
+  @override
+  String get studentLinkCodeCopy => 'Copy code';
+
+  @override
+  String get studentLinkCodeCopied => 'Code copied.';
+
+  @override
+  String get studentLinkCodeError =>
+      'The code could not be generated. Try again.';
 }

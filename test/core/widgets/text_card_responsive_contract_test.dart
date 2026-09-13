@@ -52,6 +52,9 @@ const _coveredPublicCardTypes = {
   // Dedicated FR/EN matrix: test/features/mastery/mastery_widget_test.dart.
   'MasterySubjectCard',
   'CampusKpiCard',
+  // Dedicated test (needs a ProviderScope for the link-code provider):
+  // test/features/student_home/student_link_code_card_test.dart.
+  'StudentLinkCodeCard',
 };
 
 const _longQuestion = QuizQuestion(

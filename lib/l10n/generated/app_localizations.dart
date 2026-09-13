@@ -7365,6 +7365,72 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Vous consultez l’espace d’un autre parent : pour protéger ses données, aucune opération de paiement n’est possible ici.'**
   String get parentPreviewPaymentsBlockedBody;
+
+  /// No description provided for @addChildTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un enfant'**
+  String get addChildTitle;
+
+  /// No description provided for @addChildCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code de liaison de l’enfant'**
+  String get addChildCodeLabel;
+
+  /// No description provided for @addChildCodeHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande à ton enfant son code, visible dans son espace Profil › « Mon code parent ».'**
+  String get addChildCodeHelp;
+
+  /// No description provided for @addChildSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lier l’enfant'**
+  String get addChildSubmit;
+
+  /// No description provided for @addChildSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} est maintenant lié à ton compte.'**
+  String addChildSuccess(String name);
+
+  /// No description provided for @addChildAlready.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} est déjà lié à ton compte.'**
+  String addChildAlready(String name);
+
+  /// No description provided for @studentLinkCodeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon code parent'**
+  String get studentLinkCodeTitle;
+
+  /// No description provided for @studentLinkCodeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Communique ce code à ton parent pour qu’il puisse suivre ta progression.'**
+  String get studentLinkCodeBody;
+
+  /// No description provided for @studentLinkCodeCopy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier le code'**
+  String get studentLinkCodeCopy;
+
+  /// No description provided for @studentLinkCodeCopied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code copié.'**
+  String get studentLinkCodeCopied;
+
+  /// No description provided for @studentLinkCodeError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code n’a pas pu être généré. Réessaie.'**
+  String get studentLinkCodeError;
 }
 
 class _AppLocalizationsDelegate

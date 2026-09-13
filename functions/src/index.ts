@@ -31,6 +31,7 @@ import {
 } from "./utils/validation";
 import { AskTutorUseCase } from "./services/askTutorUseCase";
 import { requestAccountDeletionHandler } from "./services/accountDeletionCallable";
+import { linkChildByCodeHandler, ensureStudentLinkCodeHandler } from "./services/childLinkCallable";
 import { reviewStaffAccountHandler } from "./services/staffAccountReviewCallable";
 import { manageAccountHandler } from "./services/adminAccountManagementCallable";
 import { saveLessonPublicationHandler, deleteCatalogContentHandler, createCatalogChapterHandler, createListEditorialFlowHandler } from "./services/lessonPublicationCallable";
@@ -348,4 +349,23 @@ export const reviewMobileMoneyPayment = onCall(
     memory: "256MiB",
   },
   reviewMobileMoneyPaymentHandler,
+);
+
+// Liaison parent ↔ enfant, autoritaire côté serveur (section C release v27).
+export const linkChildByCode = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  linkChildByCodeHandler,
+);
+
+export const ensureStudentLinkCode = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  ensureStudentLinkCodeHandler,
 );

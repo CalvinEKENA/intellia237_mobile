@@ -1176,3 +1176,57 @@ describe("Firestore security rules", () => {
     });
   });
 });
+
+describe("Child link codes stay server-authoritative (section C)", () => {
+  it("no client role can read or write the reverse code index", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), "student_link_codes/ABCDEFGH"), {
+        studentId: "student-a",
+      });
+    });
+
+    // Élève (propriétaire), parent (déjà lié), enseignant, admin, anonyme :
+    // aucun ne doit atteindre l'index inverse — seul l'Admin SDK y accède.
+    for (const uid of [
+      "student-a",
+      "parent-a",
+      "teacher-a",
+      "admin-a",
+      undefined,
+    ]) {
+      const db = dbFor(uid);
+      await assertFails(getDoc(doc(db, "student_link_codes/ABCDEFGH")));
+      await assertFails(
+        setDoc(doc(db, "student_link_codes/NEWCODE1"), {
+          studentId: "student-a",
+        }),
+      );
+    }
+  });
+
+  it("a parent still cannot self-create an approved link (only pending)", async () => {
+    await seedFirestore();
+    const db = dbFor("parent-b");
+    // Un lien approuvé ne peut naître que du callable (Admin SDK).
+    await assertFails(
+      setDoc(doc(db, "children_links/parent-b_student-b"), {
+        parentId: "parent-b",
+        studentId: "student-b",
+        status: "approved",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+    );
+  });
+
+  it("a linked parent can read their approved link; a stranger cannot", async () => {
+    await seedFirestore();
+    await assertSucceeds(
+      getDoc(doc(dbFor("parent-a"), "children_links/parent-a_student-a")),
+    );
+    await assertFails(
+      getDoc(doc(dbFor("parent-b"), "children_links/parent-a_student-a")),
+    );
+  });
+});

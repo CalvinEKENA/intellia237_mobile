@@ -2161,5 +2161,26 @@
   "parentPreviewOwnAccount": "Mon compte (super-admin)",
   "parentPreviewNoParents": "Aucun compte parent à prévisualiser pour l’instant.",
   "parentPreviewPaymentsBlockedTitle": "Paiement indisponible en prévisualisation",
-  "parentPreviewPaymentsBlockedBody": "Vous consultez l’espace d’un autre parent : pour protéger ses données, aucune opération de paiement n’est possible ici."
+  "parentPreviewPaymentsBlockedBody": "Vous consultez l’espace d’un autre parent : pour protéger ses données, aucune opération de paiement n’est possible ici.",
+  "addChildTitle": "Ajouter un enfant",
+  "addChildCodeLabel": "Code de liaison de l’enfant",
+  "addChildCodeHelp": "Demande à ton enfant son code, visible dans son espace Profil › « Mon code parent ».",
+  "addChildSubmit": "Lier l’enfant",
+  "addChildSuccess": "{name} est maintenant lié à ton compte.",
+  "@addChildSuccess": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "addChildAlready": "{name} est déjà lié à ton compte.",
+  "@addChildAlready": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "studentLinkCodeTitle": "Mon code parent",
+  "studentLinkCodeBody": "Communique ce code à ton parent pour qu’il puisse suivre ta progression.",
+  "studentLinkCodeCopy": "Copier le code",
+  "studentLinkCodeCopied": "Code copié.",
+  "studentLinkCodeError": "Le code n’a pas pu être généré. Réessaie."
 }

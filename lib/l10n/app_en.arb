@@ -2156,5 +2156,16 @@
   "parentPreviewOwnAccount": "My account (super-admin)",
   "parentPreviewNoParents": "No parent account to preview yet.",
   "parentPreviewPaymentsBlockedTitle": "Payment unavailable in preview",
-  "parentPreviewPaymentsBlockedBody": "You are viewing another parent's space: to protect their data, no payment operation is possible here."
+  "parentPreviewPaymentsBlockedBody": "You are viewing another parent's space: to protect their data, no payment operation is possible here.",
+  "addChildTitle": "Add a child",
+  "addChildCodeLabel": "Child's link code",
+  "addChildCodeHelp": "Ask your child for their code, shown in their Profile space under \"My parent code\".",
+  "addChildSubmit": "Link child",
+  "addChildSuccess": "{name} is now linked to your account.",
+  "addChildAlready": "{name} is already linked to your account.",
+  "studentLinkCodeTitle": "My parent code",
+  "studentLinkCodeBody": "Share this code with your parent so they can follow your progress.",
+  "studentLinkCodeCopy": "Copy code",
+  "studentLinkCodeCopied": "Code copied.",
+  "studentLinkCodeError": "The code could not be generated. Try again."
 }

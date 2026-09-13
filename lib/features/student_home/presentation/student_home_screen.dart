@@ -44,6 +44,7 @@ import '../application/student_home_controller.dart';
 import '../domain/student_home_snapshot.dart';
 import '../domain/learner_activity.dart';
 import 'widgets/daily_challenges_section.dart';
+import 'widgets/student_link_code_card.dart';
 import 'widgets/weekly_goal_card.dart';
 import 'widgets/fade_slide_entrance.dart';
 import 'widgets/progress_overview_card.dart';
@@ -853,6 +854,8 @@ class StudentProfileTab extends ConsumerWidget {
       const StudentLearningContinuity(),
       const SizedBox(height: 16),
       const OfficialRecordNotice(),
+      const SizedBox(height: 20),
+      const StudentLinkCodeCard(),
       const SizedBox(height: 20),
       ListTile(
         onTap: () => context.push(AppRoutes.settings),
