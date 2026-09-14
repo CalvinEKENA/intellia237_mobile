@@ -30,6 +30,12 @@ class FlowScreen extends ConsumerWidget {
     final catalog = ref.watch(flowCatalogProvider);
 
     return catalog.when(
+      // Une recomposition en arrière-plan — nouvelle révision du catalogue,
+      // retour du réseau — ne renvoie jamais un fil déjà affiché à l'écran de
+      // chargement et ne le remplace pas par une erreur : l'élève garde ses
+      // cartes et le pager sa position.
+      skipLoadingOnReload: true,
+      skipError: true,
       loading: () => const _FlowLoading(),
       // Une panne de lecture n'est pas différente d'un fil vide du point de
       // vue de l'élève : dans les deux cas il n'y a rien à parcourir, et le
@@ -74,7 +80,11 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
 
   /// Invite de balayage visible : au démarrage (carte 0) et après une réponse
   /// révélée. Elle se retire seule après quelques secondes.
-  bool _showAffordance = true;
+  ///
+  /// Au démarrage, elle n'apparaît qu'une fois la première carte posée à
+  /// l'écran : l'invite s'anime sur un contenu stable, jamais pendant son
+  /// installation.
+  bool _showAffordance = false;
   Timer? _affordanceTimer;
 
   void _flashAffordance() {
@@ -98,7 +108,9 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
       ...catalog.where((card) => completed.contains(card.id)),
     ];
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _handleSettled(0);
+      if (!mounted) return;
+      _handleSettled(0);
+      if (_index == 0) setState(() => _showAffordance = true);
     });
   }
 
@@ -194,6 +206,7 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
 
   @override
   Widget build(BuildContext context) {
+    final swipeTutor = ref.watch(flowSwipeTutorProvider);
     return Scaffold(
       backgroundColor: IntelliaColors.backgroundPrimary,
       body: Stack(
@@ -231,10 +244,12 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
           ),
 
           // Invite de balayage : au démarrage et après chaque réponse révélée.
-          if (_showAffordance && _index < _cards.length - 1)
-            FlowSwipeAffordance(
-              prominent: ref.watch(flowSwipeTutorProvider.notifier).prominent,
-            ),
+          // Elle attend de savoir si l'élève connaît déjà le geste, pour ne
+          // pas changer de forme sous ses yeux.
+          if (_showAffordance &&
+              swipeTutor.loaded &&
+              _index < _cards.length - 1)
+            FlowSwipeAffordance(prominent: swipeTutor.prominent),
 
           // Célébration discrète d'une récompense.
           if (_celebration != null)

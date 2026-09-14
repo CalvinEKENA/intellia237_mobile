@@ -138,9 +138,11 @@ class FlowFeedCache {
   Future<void> clear(String classLevel) => _prefs.remove(_key(classLevel));
 }
 
+/// Ne dépend que de l'établissement : un simple drapeau de chargement de la
+/// session ne doit pas reconstruire le dépôt, donc recomposer le fil.
 final flowFeedRepositoryProvider = Provider<FlowFeedRepository>(
   (ref) => FirestoreFlowFeedRepository(
     null,
-    ref.watch(authControllerProvider).establishmentId,
+    ref.watch(authControllerProvider.select((auth) => auth.establishmentId)),
   ),
 );

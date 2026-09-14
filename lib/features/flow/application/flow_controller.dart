@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,37 +58,79 @@ class FlowCatalog {
 String? flowFeedClassLevel(LearnAcademicContext? academic) =>
     academic?.catalogClassLevel ?? academic?.classLevel;
 
+/// Le jeu de démonstration remplace-t-il le fil publié ?
+///
+/// Registre de décisions : la réponse dépend de `kDebugMode`, si bien qu'une
+/// build de débogage — et tout test — ne parcourait jamais le chemin publié
+/// qu'exécute l'APK de production. Le défaut de première entrée n'existait
+/// donc qu'en release. Le drapeau passe par un provider pour que les tests
+/// puissent exercer ce chemin réel.
+final flowDemoContentPermittedProvider = Provider<bool>(
+  (ref) => FlowDemoContent.isPermittedIn(ref.watch(appConfigProvider)),
+);
+
 /// Compose le fil : Firestore d'abord, cache local ensuite, rien enfin.
 ///
 /// Registre de décisions : le contenu de démonstration n'est plus un recours.
 /// Servir des cartes non validées à un élève de production revenait à lui
 /// présenter comme un cours ce qui n'était qu'une maquette. Hors ligne, il
 /// retrouve son dernier fil ; à défaut, un écran vide qui se dit.
+///
+/// Registre de décisions (QA appareil, round 2) : le fil clignotait plusieurs
+/// fois à la première entrée. Ce provider observait toute la progression FLOW
+/// à travers le contexte de l'élève. La première carte affichée était marquée
+/// vue, ce qui recomposait le fil : l'écran repassait par le chargement, le
+/// pager était recréé, et sa nouvelle première carte — une carte encore non
+/// vue, puisque le classement les fait passer devant — relançait le cycle.
+/// Il y avait autant de clignotements que de cartes, puis un de plus à chaque
+/// carte validée. Le fil n'observe désormais que ce qui le définit : l'élève,
+/// son établissement, sa classe et la révision du catalogue. La progression
+/// est lue une fois, au moment de composer, et jamais observée.
 final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
-  final config = ref.watch(appConfigProvider);
-
-  if (FlowDemoContent.isPermittedIn(config)) {
+  if (ref.watch(flowDemoContentPermittedProvider)) {
     return FlowCatalog(
       cards: FlowDemoContent.build(),
       origin: FlowCatalogOrigin.demo,
     );
   }
 
-  final classLevel = flowFeedClassLevel(
-    ref.watch(studentAcademicContextProvider).valueOrNull,
-  );
+  // Le contexte académique est attendu plutôt que lu à l'instant : lu avant
+  // d'être chargé, il donnait un fil vide que l'élève voyait passer avant
+  // le vrai contenu.
+  final LearnAcademicContext academic;
+  try {
+    academic = await ref.watch(studentAcademicContextProvider.future);
+  } catch (_) {
+    return FlowCatalog.empty;
+  }
+  final classLevel = flowFeedClassLevel(academic);
   if (classLevel == null || classLevel.trim().isEmpty) {
     return FlowCatalog.empty;
   }
 
-  ref.watch(learnCatalogRevisionProvider);
-  final auth = ref.watch(authControllerProvider);
+  // Seule une révision réellement nouvelle recompose le fil : la première
+  // valeur du flux n'est pas un changement.
+  ref.listen<AsyncValue<String>>(learnCatalogRevisionProvider, (
+    previous,
+    next,
+  ) {
+    final before = previous?.valueOrNull;
+    final after = next.valueOrNull;
+    if (before != null && after != null && before != after) {
+      ref.invalidateSelf();
+    }
+  });
+  final (userId, establishmentId) = ref.watch(
+    authControllerProvider.select(
+      (auth) => (auth.userId, auth.establishmentId),
+    ),
+  );
   final cacheKey =
-      '${auth.userId}_${auth.establishmentId ?? "global"}_${ref.watch(studentAcademicContextProvider).valueOrNull?.series}_${ref.watch(studentAcademicContextProvider).valueOrNull?.academicLevelId}_$classLevel';
+      '${userId}_${establishmentId ?? "global"}_${academic.series}_${academic.academicLevelId}_$classLevel';
   final repository = ref.watch(flowFeedRepositoryProvider);
   final prefs = await SharedPreferences.getInstance();
   final cache = FlowFeedCache(prefs);
-  final learner = await ref.watch(flowLearnerContextProvider.future);
+  final learner = await flowLearnerContextAtComposition(ref, academic);
   const strategy = DeterministicFlowFeedStrategy();
 
   try {
@@ -119,16 +163,22 @@ final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
 });
 
 /// Ce que l'application sait de l'élève au moment de composer son fil.
-final flowLearnerContextProvider = FutureProvider<FlowLearnerContext>((
-  ref,
+///
+/// Un instantané, pas une observation : les cartes vues pendant la session ne
+/// réordonnent pas le fil sous les doigts de l'élève. La progression locale
+/// est attendue une fois restaurée, pour qu'une reprise place bien le déjà-vu
+/// derrière le contenu neuf.
+Future<FlowLearnerContext> flowLearnerContextAtComposition(
+  Ref ref,
+  LearnAcademicContext academic,
 ) async {
-  final context = ref.watch(studentAcademicContextProvider).valueOrNull;
-  final seen = ref.watch(flowControllerProvider).seenCardIds;
+  final progress = ref.read(flowControllerProvider.notifier);
+  await progress.restored;
   return FlowLearnerContext(
-    classLevel: context?.classLevel ?? '',
-    seenItemIds: seen,
+    classLevel: academic.classLevel,
+    seenItemIds: ref.read(flowControllerProvider).seenCardIds,
   );
-});
+}
 
 /// Cartes du fil, ou une liste vide tant qu'elles n'ont pas été lues.
 final flowCardsProvider = Provider<List<FlowCard>>(
@@ -203,6 +253,11 @@ class FlowController extends Notifier<FlowProgressState> {
   String? _learnerUid;
   bool _dirty = false;
   Future<void> _persistTail = Future<void>.value();
+  Completer<void> _restoration = Completer<void>();
+
+  /// Se complète dès que la progression locale de l'élève a été relue — ou
+  /// reconnue absente —, avant toute synchronisation réseau.
+  Future<void> get restored => _restoration.future;
 
   @override
   FlowProgressState build() {
@@ -214,24 +269,29 @@ class FlowController extends Notifier<FlowProgressState> {
       authControllerProvider.select((auth) => auth.userId),
     );
     _dirty = false;
-    Future<void>.microtask(_restoreAndSync);
+    final restoration = _restoration = Completer<void>();
+    Future<void>.microtask(() => _restoreAndSync(restoration));
     return const FlowProgressState();
   }
 
-  Future<void> _restoreAndSync() async {
-    final store = await FlowProgressStore.open();
-    // Traité une seule fois, indépendamment de la session en cours : la
-    // propriété de l'état hérité ne dépend pas de qui est connecté maintenant.
-    await store.resolveLegacy();
+  Future<void> _restoreAndSync(Completer<void> restoration) async {
+    try {
+      final store = await FlowProgressStore.open();
+      // Traité une seule fois, indépendamment de la session en cours : la
+      // propriété de l'état hérité ne dépend pas de qui est connecté maintenant.
+      await store.resolveLegacy();
 
-    final learnerUid = _learnerUid;
-    if (learnerUid != null && !_dirty) {
-      final restored = store.read(learnerUid);
-      // L'identité a pu changer pendant la lecture asynchrone : on n'applique
-      // jamais un état à un autre élève que celui pour lequel il a été lu.
-      if (restored != null && _learnerUid == learnerUid && !_dirty) {
-        state = restored;
+      final learnerUid = _learnerUid;
+      if (learnerUid != null && !_dirty) {
+        final restored = store.read(learnerUid);
+        // L'identité a pu changer pendant la lecture asynchrone : on n'applique
+        // jamais un état à un autre élève que celui pour lequel il a été lu.
+        if (restored != null && _learnerUid == learnerUid && !_dirty) {
+          state = restored;
+        }
       }
+    } finally {
+      if (!restoration.isCompleted) restoration.complete();
     }
     await retryPending();
   }
