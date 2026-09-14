@@ -19,9 +19,9 @@ import {
   type ThresholdNotifier,
 } from "../services/studyReserveConsumption";
 import type { StudyReserveProvisioningStore } from "../services/studyReserveProvisioning";
+import { CurrentCycleProvisioning } from "./support/currentCycleProvisioning";
 
-/** Provisionnement neutre : les tests scellent l'agrégat dans le store de
- * consommation ; aucune entitlement/allocation ne s'applique. */
+/** Aucun entitlement ni plan : la réserve est « unavailable ». */
 class NoopProvisioningStore implements StudyReserveProvisioningStore {
   async resolveEntitlement() {
     return null;
@@ -29,7 +29,7 @@ class NoopProvisioningStore implements StudyReserveProvisioningStore {
   async planConfig() {
     return null;
   }
-  async updateAllowance() {
+  async updateCurrentCycle() {
     return null;
   }
   async readAggregate() {
@@ -41,6 +41,10 @@ class NoopProvisioningStore implements StudyReserveProvisioningStore {
 }
 
 const noopProvisioning = new NoopProvisioningStore();
+
+/** L'agrégat scellé dans le store est le cycle en cours d'un abonnement actif. */
+const currentCycle = (store: MemoryConsumptionStore) =>
+  new CurrentCycleProvisioning(async (id) => store.view(id));
 
 interface Agg {
   allowance: number;
@@ -65,6 +69,19 @@ class MemoryConsumptionStore implements StudyReserveConsumptionStore {
       holds: {},
       ledger: new Set(),
     });
+  }
+
+  async view(studentId: string): Promise<ReserveAggregate | null> {
+    const agg = this.aggs.get(studentId);
+    if (!agg) return null;
+    return {
+      allowanceInternal: agg.allowance,
+      consumed: agg.consumed,
+      cycleId: agg.cycleId,
+      cycleStart: null,
+      cycleEnd: null,
+      latestThresholdEmitted: agg.latestThresholdEmitted,
+    };
   }
 
   private held(agg: Agg): number {
@@ -141,7 +158,7 @@ describe("StudyReserveConsumption.run", () => {
   it("records the real usage exactly once and reduces the reserve", async () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 1000);
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), currentCycle(store));
     const out = await consumption.run(
       { studentId: "s1", requestId: "r1", provider: "vertex-ai", model: "gemini" },
       async () => ({ result: "answer", usage: usage(250) }),
@@ -153,7 +170,7 @@ describe("StudyReserveConsumption.run", () => {
   it("idempotent retry does not consume twice", async () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 1000);
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), currentCycle(store));
     const exec = async () => ({ result: "a", usage: usage(250) });
     await consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, exec);
     await consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, exec);
@@ -208,7 +225,7 @@ describe("StudyReserveConsumption.run", () => {
   it("actual usage below the hold releases the unused reservation", async () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 1000);
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), currentCycle(store));
     // Estimation 1000, usage réel 200 → seul 200 est débité, 800 libérés.
     await consumption.run(
       { studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1000 },
@@ -222,7 +239,7 @@ describe("StudyReserveConsumption.run", () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 1000);
     store.aggs.get("s1")!.consumed = 900; // reste 100
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), currentCycle(store));
     // Réservation 100 (tient), mais l'usage réel dépasse (150) : on débite le
     // réel, l'agrégat se cape à 0 % — pas de surconsommation illimitée.
     await consumption.run(
@@ -237,7 +254,7 @@ describe("StudyReserveConsumption.run", () => {
   it("releases the reservation when the provider call fails", async () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 1000);
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), currentCycle(store));
     await expect(
       consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, async () => {
         throw new Error("provider down");
@@ -252,7 +269,7 @@ describe("StudyReserveConsumption.run", () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 100);
     store.aggs.get("s1")!.consumed = 100; // épuisé
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), currentCycle(store));
     let executed = false;
     await expect(
       consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, async () => {
@@ -279,11 +296,24 @@ describe("StudyReserveConsumption.run", () => {
     expect(store.aggs.get("s1")).toBeUndefined();
   });
 
+  it("an old cycle is never debited once the entitlement or plan is unavailable", async () => {
+    const store = new MemoryConsumptionStore();
+    store.seed("s1", 1000);
+    store.aggs.get("s1")!.consumed = 400; // cycle précédent, abonnement échu
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    await consumption.run(
+      { studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "answer", usage: usage(50) }),
+    );
+    expect(store.aggs.get("s1")!.consumed).toBe(400);
+    expect(Object.keys(store.aggs.get("s1")!.holds)).toHaveLength(0);
+  });
+
   it("keeps children independent", async () => {
     const store = new MemoryConsumptionStore();
     store.seed("a", 1000);
     store.seed("b", 1000);
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), currentCycle(store));
     await consumption.run({ studentId: "a", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, async () => ({
       result: "x",
       usage: usage(900),
@@ -297,7 +327,7 @@ describe("StudyReserveConsumption.run", () => {
     store.seed("child-1", 1000);
     store.parents.set("child-1", ["parent-1", "parent-2"]);
     const notifier = new RecordingNotifier();
-    const consumption = new StudyReserveConsumption(store, notifier, noopProvisioning);
+    const consumption = new StudyReserveConsumption(store, notifier, currentCycle(store));
     // 100% -> 40% franchit 50 : émission unique.
     await consumption.run({ studentId: "child-1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, async () => ({
       result: "x",
@@ -318,7 +348,7 @@ describe("StudyReserveConsumption.run", () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 1000);
     const notifier = new RecordingNotifier();
-    const consumption = new StudyReserveConsumption(store, notifier, noopProvisioning);
+    const consumption = new StudyReserveConsumption(store, notifier, currentCycle(store));
     // 100% -> 20% franchit 75, 50 et 25 : on n'émet QUE le plus sévère (25).
     const first = await consumption.run(
       { studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 },
@@ -340,6 +370,60 @@ describe("StudyReserveConsumption.run", () => {
     );
     expect(third.thresholdEvent).toBe(5);
     expect(notifier.events.map((e) => e.threshold)).toEqual([25, 5]);
+  });
+
+  it("progressively emits every threshold (75, 50, 25, 5, 0) and resets watermark on new cycle", async () => {
+    const store = new MemoryConsumptionStore();
+    store.seed("s-thresholds", 1000); // 1000 allowance
+    const notifier = new RecordingNotifier();
+    const consumption = new StudyReserveConsumption(store, notifier, currentCycle(store));
+
+    // 100% -> 75% (consumed 250) -> emits 75
+    const r75 = await consumption.run(
+      { studentId: "s-thresholds", requestId: "t75", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "ok", usage: usage(250) }),
+    );
+    expect(r75.thresholdEvent).toBe(75);
+
+    // 75% -> 50% (consumed +250 = 500) -> emits 50
+    const r50 = await consumption.run(
+      { studentId: "s-thresholds", requestId: "t50", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "ok", usage: usage(250) }),
+    );
+    expect(r50.thresholdEvent).toBe(50);
+
+    // 50% -> 25% (consumed +250 = 750) -> emits 25
+    const r25 = await consumption.run(
+      { studentId: "s-thresholds", requestId: "t25", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "ok", usage: usage(250) }),
+    );
+    expect(r25.thresholdEvent).toBe(25);
+
+    // 25% -> 5% (consumed +200 = 950) -> emits 5
+    const r5 = await consumption.run(
+      { studentId: "s-thresholds", requestId: "t5", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "ok", usage: usage(200) }),
+    );
+    expect(r5.thresholdEvent).toBe(5);
+
+    // 5% -> 0% (consumed +50 = 1000) -> emits 0
+    const r0 = await consumption.run(
+      { studentId: "s-thresholds", requestId: "t0", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "ok", usage: usage(50) }),
+    );
+    expect(r0.thresholdEvent).toBe(0);
+
+    expect(notifier.events.map((e) => e.threshold)).toEqual([75, 50, 25, 5, 0]);
+
+    // Nouveau cycle (agrégat frais, marque nulle — cf. provisionnement) : les
+    // seuils sont de nouveau émis, un par un.
+    store.seed("s-thresholds", 1000, "next-cycle");
+    const renewed = await consumption.run(
+      { studentId: "s-thresholds", requestId: "t75", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "ok", usage: usage(250) }),
+    );
+    expect(renewed.thresholdEvent).toBe(75);
+    expect(notifier.events.map((e) => e.threshold)).toEqual([75, 50, 25, 5, 0, 75]);
   });
 });
 

@@ -1,4 +1,4 @@
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, type Firestore } from "firebase-admin/firestore";
 import { HttpsError } from "firebase-functions/v2/https";
 
 import { db } from "../config/firebase";
@@ -112,16 +112,27 @@ function activeHolds(
   return holds;
 }
 
+/**
+ * `holds` est toujours réécrit EN ENTIER. Un `set(..., { merge: true })`
+ * fusionne les maps clé par clé : une réservation supprimée resterait en base
+ * (et compterait jusqu'à l'expiration du TTL) dès qu'une autre est en cours.
+ * `mergeFields` remplace exactement les champs listés, document absent compris.
+ */
+const HOLDS_WRITE = { mergeFields: ["holds", "updatedAt"] };
+
 function heldUnits(holds: Record<string, HoldEntry>): number {
   return Object.values(holds).reduce((sum, h) => sum + Math.max(0, h.units), 0);
 }
 
 export class FirestoreStudyReserveConsumptionStore
   implements StudyReserveConsumptionStore {
-  constructor(private readonly now: () => number = () => Date.now()) {}
+  constructor(
+    private readonly now: () => number = () => Date.now(),
+    private readonly firestore: Firestore = db,
+  ) {}
 
   private aggregateRef(studentId: string) {
-    return db.collection("study_reserve").doc(studentId);
+    return this.firestore.collection("study_reserve").doc(studentId);
   }
 
   async reserve(params: {
@@ -131,7 +142,7 @@ export class FirestoreStudyReserveConsumptionStore
   }): Promise<ReserveHold> {
     const ref = this.aggregateRef(params.studentId);
     const now = this.now();
-    return db.runTransaction(async (tx) => {
+    return this.firestore.runTransaction(async (tx) => {
       const snap = await tx.get(ref);
       const data = snap.data();
       const allowance = safeUnits(data?.allowanceInternal);
@@ -149,11 +160,7 @@ export class FirestoreStudyReserveConsumptionStore
         throw studyReserveExhaustedError();
       }
       holds[params.requestId] = { units: params.estimateUnits, tsMs: now };
-      tx.set(
-        ref,
-        { holds, updatedAt: FieldValue.serverTimestamp() },
-        { merge: true },
-      );
+      tx.set(ref, { holds, updatedAt: FieldValue.serverTimestamp() }, HOLDS_WRITE);
       return { configured: true, reserved: true };
     });
   }
@@ -167,7 +174,7 @@ export class FirestoreStudyReserveConsumptionStore
   }): Promise<CommitResult> {
     const ref = this.aggregateRef(params.studentId);
     const now = this.now();
-    return db.runTransaction(async (tx) => {
+    return this.firestore.runTransaction(async (tx) => {
       const snap = await tx.get(ref);
       const data = snap.data();
       const cycleId = String(data?.cycleId ?? "");
@@ -179,7 +186,7 @@ export class FirestoreStudyReserveConsumptionStore
 
       // Idempotence : une requête déjà comptabilisée n'est jamais rejouée.
       if (ledgerSnap.exists) {
-        tx.set(ref, { holds }, { merge: true });
+        tx.set(ref, { holds, updatedAt: FieldValue.serverTimestamp() }, HOLDS_WRITE);
         return { duplicate: true, thresholdEvent: null, cycleId };
       }
 
@@ -210,7 +217,13 @@ export class FirestoreStudyReserveConsumptionStore
           ...(event !== null ? { latestThresholdEmitted: event } : {}),
           updatedAt: FieldValue.serverTimestamp(),
         },
-        { merge: true },
+        {
+          mergeFields: [
+            "consumed",
+            ...HOLDS_WRITE.mergeFields,
+            ...(event !== null ? ["latestThresholdEmitted"] : []),
+          ],
+        },
       );
       return { duplicate: false, thresholdEvent: event, cycleId };
     });
@@ -219,17 +232,17 @@ export class FirestoreStudyReserveConsumptionStore
   async release(params: { studentId: string; requestId: string }): Promise<void> {
     const ref = this.aggregateRef(params.studentId);
     const now = this.now();
-    await db.runTransaction(async (tx) => {
+    await this.firestore.runTransaction(async (tx) => {
       const snap = await tx.get(ref);
       if (!snap.exists) return;
       const holds = activeHolds(snap.data()?.holds, now);
       delete holds[params.requestId];
-      tx.set(ref, { holds }, { merge: true });
+      tx.set(ref, { holds, updatedAt: FieldValue.serverTimestamp() }, HOLDS_WRITE);
     });
   }
 
   async listLinkedParents(studentId: string): Promise<string[]> {
-    const snapshot = await db
+    const snapshot = await this.firestore
       .collection("children_links")
       .where("studentId", "==", studentId)
       .where("status", "==", "approved")
@@ -333,9 +346,11 @@ export function buildThresholdNotificationFields(params: {
  * idempotent (id stable) : un rejeu n'en crée jamais un second. */
 export class FirestoreThresholdNotifier implements ThresholdNotifier {
   constructor(
+    private readonly firestore: Firestore = db,
     private readonly localeReader: (
       uid: string,
-    ) => Promise<NotificationLocale | null> = readPreferredLocale,
+    ) => Promise<NotificationLocale | null> = (uid) =>
+      readPreferredLocale(firestore, uid),
   ) {}
 
   async emit(params: {
@@ -345,13 +360,13 @@ export class FirestoreThresholdNotifier implements ThresholdNotifier {
     threshold: ReserveThreshold;
   }): Promise<void> {
     const recipients = [...new Set([params.studentId, ...params.parentIds])];
-    const batch = db.batch();
+    const batch = this.firestore.batch();
     for (const recipient of recipients) {
       const audience = recipient === params.studentId ? "student" : "parent";
       // Langue illisible → null → boîte de réception seule (jamais deviner).
       const lang = await this.localeReader(recipient).catch(() => null);
       batch.set(
-        db
+        this.firestore
           .collection("notifications")
           .doc(thresholdNotificationId(params.cycleId, params.threshold, recipient)),
         {
@@ -382,10 +397,13 @@ export function normalizePreferredLocale(raw: unknown): NotificationLocale | nul
 }
 
 /** Langue préférée d'un utilisateur (student_profiles.preferences, users). */
-async function readPreferredLocale(uid: string): Promise<NotificationLocale | null> {
+async function readPreferredLocale(
+  firestore: Firestore,
+  uid: string,
+): Promise<NotificationLocale | null> {
   const [profileSnap, userSnap] = await Promise.all([
-    db.collection("student_profiles").doc(uid).get(),
-    db.collection("users").doc(uid).get(),
+    firestore.collection("student_profiles").doc(uid).get(),
+    firestore.collection("users").doc(uid).get(),
   ]);
   const candidates = [
     profileSnap.data()?.preferences?.interfaceLanguage,
@@ -420,8 +438,19 @@ export class StudyReserveConsumption {
     exec: () => Promise<{ result: T; usage: ProviderUsage }>,
   ): Promise<{ result: T; thresholdEvent: ReserveThreshold | null }> {
     // Provisionne/renouvelle le cycle depuis l'entitlement réel avant toute
-    // réservation (jamais de valeur inventée ; unavailable si non configuré).
-    await ensureCurrentStudyReserveCycle(params.studentId, this.provisioning);
+    // réservation (jamais de valeur inventée).
+    const cycle = await ensureCurrentStudyReserveCycle(
+      params.studentId,
+      this.provisioning,
+    );
+
+    // Réserve « unavailable » (pas d'entitlement actif, plan absent/invalide) :
+    // rien à débiter — même comportement qu'un compte jamais configuré ; le
+    // quota quotidien reste le garde-fou. Un ancien cycle n'est jamais débité.
+    if (cycle === null) {
+      const { result } = await exec();
+      return { result, thresholdEvent: null };
+    }
 
     const hold = await this.store.reserve({
       studentId: params.studentId,

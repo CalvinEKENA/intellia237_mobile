@@ -11,28 +11,7 @@ import {
   type UsageRecord,
   type RecordResult,
 } from "../services/studyReserve";
-import type { StudyReserveProvisioningStore } from "../services/studyReserveProvisioning";
-
-/** Provisionnement de test : aucun entitlement (resolveEntitlement=null) → la
- * vue reflète l'agrégat déjà présent dans le store, sans toucher Firestore. */
-class PassthroughProvisioning implements StudyReserveProvisioningStore {
-  constructor(private readonly reads: (id: string) => Promise<ReserveAggregate | null>) {}
-  async resolveEntitlement() {
-    return null;
-  }
-  async planConfig() {
-    return null;
-  }
-  async updateAllowance() {
-    return null;
-  }
-  async readAggregate(studentId: string) {
-    return this.reads(studentId);
-  }
-  async provisionCycle(_studentId: string, fresh: ReserveAggregate) {
-    return fresh;
-  }
-}
+import { CurrentCycleProvisioning } from "./support/currentCycleProvisioning";
 
 /** Réserve en mémoire, appliquant la même logique que l'implémentation
  * Firestore (idempotence + franchissement de seuil), sans base. */
@@ -207,7 +186,7 @@ describe("recordUsage", () => {
 
 describe("getStudyReserve callable (authorization + parent visibility)", () => {
   it("rejects unauthenticated callers", async () => {
-    const handler = createGetStudyReserveHandler(new MemoryStudyReserveStore(), new PassthroughProvisioning(async () => null));
+    const handler = createGetStudyReserveHandler(new MemoryStudyReserveStore(), new CurrentCycleProvisioning(async () => null));
     await expect(handler({ data: {} } as never)).rejects.toMatchObject({
       code: "unauthenticated",
     });
@@ -219,7 +198,7 @@ describe("getStudyReserve callable (authorization + parent visibility)", () => {
     await store.recordUsage(
       usage({ studentId: "s1", requestId: "r1", billableUnits: 25 }),
     );
-    const handler = createGetStudyReserveHandler(store, new PassthroughProvisioning((id) => store.getAggregate(id)));
+    const handler = createGetStudyReserveHandler(store, new CurrentCycleProvisioning((id) => store.getAggregate(id)));
     const view = await handler({ auth: { uid: "s1" }, data: {} } as never);
     expect(view.percentRemaining).toBe(75);
     expect(view.status).toBe("healthy");
@@ -234,7 +213,7 @@ describe("getStudyReserve callable (authorization + parent visibility)", () => {
     store.roles.set("parent-1", "parent");
     store.links.add("parent-1_child-1");
 
-    const handler = createGetStudyReserveHandler(store, new PassthroughProvisioning((id) => store.getAggregate(id)));
+    const handler = createGetStudyReserveHandler(store, new CurrentCycleProvisioning((id) => store.getAggregate(id)));
     await expect(
       handler({ auth: { uid: "parent-1" }, data: { studentId: "child-1" } } as never),
     ).resolves.toMatchObject({ studentId: "child-1" });

@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import type { ReserveAggregate } from "../services/studyReserve";
+import {
+  createGetStudyReserveHandler,
+  type RecordResult,
+  type ReserveAggregate,
+  type StudyReserveStore,
+} from "../services/studyReserve";
+import {
+  StudyReserveConsumption,
+  type ReserveHold,
+  type StudyReserveConsumptionStore,
+  type ThresholdNotifier,
+} from "../services/studyReserveConsumption";
 import {
   computeCurrentCycle,
   ensureCurrentStudyReserveCycle,
@@ -39,10 +50,14 @@ class MemoryProvisioningStore implements StudyReserveProvisioningStore {
     this.aggregates.set(studentId, { ...fresh });
     return fresh;
   }
-  async updateAllowance(studentId: string, cycleId: string, allowanceInternal: number) {
+  async updateCurrentCycle(
+    studentId: string,
+    cycleId: string,
+    terms: { allowanceInternal: number; cycleEnd: string },
+  ) {
     const current = this.aggregates.get(studentId);
     if (!current || current.cycleId !== cycleId) return current ?? null;
-    const updated = { ...current, allowanceInternal };
+    const updated = { ...current, ...terms };
     this.aggregates.set(studentId, updated);
     return updated;
   }
@@ -115,6 +130,50 @@ describe("ensureCurrentStudyReserveCycle — entitlement & cycle", () => {
     expect(cycle.endMs).toBe(JUNE_1 + 70 * DAY);
   });
 
+  it("30-day boundaries: last millisecond stays in cycle 0, the 30th day opens cycle 1, then cycle 2", async () => {
+    const store = new MemoryProvisioningStore();
+    const offerId = "lycee-bilingue-etoug-ebe";
+    store.entitlements.set("s1", entitlement({ offerId, windowEndMs: JUNE_1 + 90 * DAY }));
+    store.plans.set(offerId, { allowanceInternal: 600_000, cycleDays: 30 });
+
+    const c0 = await ensureCurrentStudyReserveCycle("s1", store, JUNE_1);
+    store.aggregates.get("s1")!.consumed = 450_000;
+    const lastMs = await ensureCurrentStudyReserveCycle("s1", store, JUNE_1 + 30 * DAY - 1);
+    expect(lastMs).toMatchObject({ cycleId: c0!.cycleId, consumed: 450_000 });
+
+    const c1 = await ensureCurrentStudyReserveCycle("s1", store, JUNE_1 + 30 * DAY);
+    expect(c1).toMatchObject({
+      cycleId: `${offerId}_${JUNE_1}_1`,
+      consumed: 0,
+      cycleStart: new Date(JUNE_1 + 30 * DAY).toISOString(),
+      cycleEnd: new Date(JUNE_1 + 60 * DAY).toISOString(),
+    });
+    const c2 = await ensureCurrentStudyReserveCycle("s1", store, JUNE_1 + 60 * DAY);
+    expect(c2).toMatchObject({ cycleId: `${offerId}_${JUNE_1}_2`, consumed: 0 });
+    expect(store.provisionCalls).toBe(3); // aucun cycle dupliqué
+  });
+
+  it("early renewal during a short final slice extends its end without resetting consumption", async () => {
+    const store = new MemoryProvisioningStore();
+    const offerId = "lycee-bilingue-etoug-ebe";
+    store.plans.set(offerId, { allowanceInternal: 600_000, cycleDays: 30 });
+    // Offre de 45 jours : tranche 1 = jours 30 → 45 (tranche finale courte).
+    store.entitlements.set("s1", entitlement({ offerId, windowEndMs: JUNE_1 + 45 * DAY }));
+    const short = await ensureCurrentStudyReserveCycle("s1", store, JUNE_1 + 35 * DAY);
+    expect(short!.cycleEnd).toBe(new Date(JUNE_1 + 45 * DAY).toISOString());
+    store.aggregates.get("s1")!.consumed = 200_000;
+
+    // Renouvellement anticipé : startsAt conservé, endsAt repoussé de 45 jours.
+    store.entitlements.set("s1", entitlement({ offerId, windowEndMs: JUNE_1 + 90 * DAY }));
+    const extended = await ensureCurrentStudyReserveCycle("s1", store, JUNE_1 + 40 * DAY);
+    expect(extended).toMatchObject({
+      cycleId: short!.cycleId,
+      consumed: 200_000,
+      cycleEnd: new Date(JUNE_1 + 60 * DAY).toISOString(),
+    });
+    expect(store.provisionCalls).toBe(1);
+  });
+
   it("plan change opens a new cycle with the new allowance", async () => {
     const store = new MemoryProvisioningStore();
     store.plans.set("school-a", plan());
@@ -152,11 +211,138 @@ describe("ensureCurrentStudyReserveCycle — entitlement & cycle", () => {
     expect(await ensureCurrentStudyReserveCycle("s1", store, NOW)).toBeNull();
   });
 
+  it("an existing aggregate becomes unavailable (untouched) when the plan config is removed or malformed", async () => {
+    const store = new MemoryProvisioningStore();
+    store.entitlements.set("s1", entitlement());
+    store.plans.set("school-a", plan({ allowanceInternal: 600_000, cycleDays: 30 }));
+    await ensureCurrentStudyReserveCycle("s1", store, NOW);
+    store.aggregates.get("s1")!.consumed = 300_000;
+    store.plans.delete("school-a"); // absente, ou rejetée par parsePlanConfig
+    expect(await ensureCurrentStudyReserveCycle("s1", store, NOW)).toBeNull();
+    expect(store.aggregates.get("s1")).toMatchObject({ consumed: 300_000, allowanceInternal: 600_000 });
+    expect(store.provisionCalls).toBe(1);
+  });
+
+  it("an expired subscription never presents its last cycle as a live reserve", async () => {
+    const store = new MemoryProvisioningStore();
+    store.entitlements.set("s1", entitlement());
+    store.plans.set("school-a", plan());
+    await ensureCurrentStudyReserveCycle("s1", store, NOW);
+    store.entitlements.set("s1", entitlement({ active: false }));
+    expect(await ensureCurrentStudyReserveCycle("s1", store, JUNE_1 + 31 * DAY)).toBeNull();
+    expect(store.aggregates.get("s1")).toBeDefined(); // ledger et agrégat conservés
+  });
+
   it("missing plan allowance never invents a number", async () => {
     const store = new MemoryProvisioningStore();
     store.entitlements.set("s1", entitlement());
     expect(await ensureCurrentStudyReserveCycle("s1", store, NOW)).toBeNull();
     expect(store.provisionCalls).toBe(0);
+  });
+
+  it("V1 standard contract: auto-provisions 600,000 units and 30-day cycle without manual creation", async () => {
+    const store = new MemoryProvisioningStore();
+    // En production, offerId === establishmentId (mobileMoneyCallables).
+    store.entitlements.set("student-v1", entitlement({
+      offerId: "lycee-bilingue-etoug-ebe",
+      windowStartMs: JUNE_1,
+      windowEndMs: JUNE_1 + 30 * DAY,
+    }));
+    store.plans.set("lycee-bilingue-etoug-ebe", { allowanceInternal: 600_000, cycleDays: 30 });
+
+    const agg = await ensureCurrentStudyReserveCycle("student-v1", store, NOW);
+    expect(agg).not.toBeNull();
+    expect(agg!.allowanceInternal).toBe(600_000);
+    expect(agg!.consumed).toBe(0);
+    expect(agg!.latestThresholdEmitted).toBeNull();
+    expect(agg!.cycleId).toBe(`lycee-bilingue-etoug-ebe_${JUNE_1}_0`);
+    expect(agg!.cycleStart).toBe(new Date(JUNE_1).toISOString());
+    expect(agg!.cycleEnd).toBe(new Date(JUNE_1 + 30 * DAY).toISOString());
+  });
+
+  it("Mobile Money early renewal: preserves startsAt, extends endsAt, slices into 30 days without mid-slice reset", async () => {
+    const store = new MemoryProvisioningStore();
+    const offerId = "establishment-cm-1";
+    store.plans.set(offerId, { allowanceInternal: 600_000, cycleDays: 30 });
+
+    // Initial 30-day entitlement: June 1 -> July 1
+    store.entitlements.set("student-renewal", entitlement({
+      offerId,
+      windowStartMs: JUNE_1,
+      windowEndMs: JUNE_1 + 30 * DAY,
+    }));
+
+    // Day 10: initial provisioning and usage
+    const day10 = JUNE_1 + 10 * DAY;
+    const initial = await ensureCurrentStudyReserveCycle("student-renewal", store, day10);
+    expect(initial!.cycleId).toBe(`${offerId}_${JUNE_1}_0`);
+    store.aggregates.get("student-renewal")!.consumed = 250_000;
+    store.aggregates.get("student-renewal")!.latestThresholdEmitted = 75;
+
+    // Day 20: Early Mobile Money renewal extends endsAt to 60 days (August 1) while keeping startsAt (June 1)
+    store.entitlements.set("student-renewal", entitlement({
+      offerId,
+      windowStartMs: JUNE_1,
+      windowEndMs: JUNE_1 + 60 * DAY,
+    }));
+
+    // Still in slice 0 (day 20): consumed is NOT reset
+    const day20 = JUNE_1 + 20 * DAY;
+    const midSlice = await ensureCurrentStudyReserveCycle("student-renewal", store, day20);
+    expect(midSlice!.cycleId).toBe(`${offerId}_${JUNE_1}_0`);
+    expect(midSlice!.consumed).toBe(250_000);
+    expect(midSlice!.latestThresholdEmitted).toBe(75);
+
+    // Day 31: Transition into slice 1 (next 30-day cycle). Consumed resets to 0!
+    const day31 = JUNE_1 + 31 * DAY;
+    const slice1 = await ensureCurrentStudyReserveCycle("student-renewal", store, day31);
+    expect(slice1!.cycleId).toBe(`${offerId}_${JUNE_1}_1`);
+    expect(slice1!.consumed).toBe(0);
+    expect(slice1!.latestThresholdEmitted).toBeNull();
+    expect(slice1!.allowanceInternal).toBe(600_000);
+    expect(slice1!.cycleStart).toBe(new Date(JUNE_1 + 30 * DAY).toISOString());
+    expect(slice1!.cycleEnd).toBe(new Date(JUNE_1 + 60 * DAY).toISOString());
+  });
+
+  it("multi-child storage independence: Parent P with Child A and Child B maintains two independent study_reserve documents", async () => {
+    const store = new MemoryProvisioningStore();
+    const offerId = "college-la-retraite";
+    store.plans.set(offerId, { allowanceInternal: 600_000, cycleDays: 30 });
+
+    // Single family entitlement shared by Parent P
+    const familyEntitlement = entitlement({
+      offerId,
+      windowStartMs: JUNE_1,
+      windowEndMs: JUNE_1 + 60 * DAY,
+    });
+    store.entitlements.set("child-a", familyEntitlement);
+    store.entitlements.set("child-b", familyEntitlement);
+
+    // Provision Child A
+    const aggA = await ensureCurrentStudyReserveCycle("child-a", store, JUNE_1 + 5 * DAY);
+    expect(aggA!.allowanceInternal).toBe(600_000);
+    expect(store.aggregates.has("child-a")).toBe(true);
+    expect(store.aggregates.has("child-b")).toBe(false);
+
+    // Provision Child B
+    const aggB = await ensureCurrentStudyReserveCycle("child-b", store, JUNE_1 + 5 * DAY);
+    expect(aggB!.allowanceInternal).toBe(600_000);
+    expect(store.aggregates.has("child-b")).toBe(true);
+
+    // Child A consumes 300,000 units
+    store.aggregates.get("child-a")!.consumed = 300_000;
+    expect(store.aggregates.get("child-a")!.consumed).toBe(300_000);
+    expect(store.aggregates.get("child-b")!.consumed).toBe(0); // Child B untouched
+
+    // Advance Child A to next cycle (Day 35)
+    const renewedA = await ensureCurrentStudyReserveCycle("child-a", store, JUNE_1 + 35 * DAY);
+    expect(renewedA!.cycleId).toBe(`${offerId}_${JUNE_1}_1`);
+    expect(renewedA!.consumed).toBe(0);
+
+    // Child B still in slice 0 with its own distinct state
+    const currentB = await store.readAggregate("child-b");
+    expect(currentB!.cycleId).toBe(`${offerId}_${JUNE_1}_0`);
+    expect(currentB!.consumed).toBe(0);
   });
 });
 
@@ -207,5 +393,90 @@ describe("legacy / malformed data", () => {
     expect(parsePlanConfig({ allowanceInternal: 12.5 })).toBeNull();
     expect(parsePlanConfig({ allowanceInternal: 100_000, cycleDays: 0 })).toBeNull();
     expect(parsePlanConfig({ allowanceInternal: 100_000, cycleDays: "30" })).toBeNull();
+  });
+});
+
+describe("dual entry-point auto-provisioning (no manual aggregate creation)", () => {
+  class MockConsumptionStore implements StudyReserveConsumptionStore {
+    constructor(private readonly prov: MemoryProvisioningStore) {}
+    async reserve(params: { studentId: string; requestId: string; estimateUnits: number }): Promise<ReserveHold> {
+      const agg = await this.prov.readAggregate(params.studentId);
+      if (!agg || agg.allowanceInternal <= 0) return { configured: false, reserved: false };
+      return { configured: true, reserved: true };
+    }
+    async commit() {
+      return { duplicate: false, thresholdEvent: null, cycleId: "c1" };
+    }
+    async release() {}
+    async listLinkedParents() {
+      return [];
+    }
+  }
+
+  class MockReserveStore implements StudyReserveStore {
+    constructor(private readonly prov: MemoryProvisioningStore) {}
+    async readRole() {
+      return "student";
+    }
+    async isLinkedChild() {
+      return true;
+    }
+    async getAggregate(studentId: string) {
+      return this.prov.readAggregate(studentId);
+    }
+    async recordUsage(): Promise<RecordResult> {
+      throw new Error("not used in view");
+    }
+  }
+
+  class NoopNotifier implements ThresholdNotifier {
+    async emit() {}
+  }
+
+  it("A. getStudyReserve auto-provisions an uninitialized student aggregate from active entitlement", async () => {
+    const provStore = new MemoryProvisioningStore();
+    provStore.entitlements.set("student-ep-a", entitlement({ offerId: "lycee-leclerc" }));
+    provStore.plans.set("lycee-leclerc", { allowanceInternal: 600_000, cycleDays: 30 });
+
+    expect(await provStore.readAggregate("student-ep-a")).toBeNull();
+
+    const handler = createGetStudyReserveHandler(new MockReserveStore(provStore), provStore);
+    const view = await handler({ auth: { uid: "student-ep-a" }, data: {} } as never);
+
+    expect(view.status).toBe("healthy");
+    expect(view.percentRemaining).toBe(100);
+    expect(provStore.aggregates.get("student-ep-a")).toMatchObject({
+      allowanceInternal: 600_000,
+      consumed: 0,
+    });
+  });
+
+  it("B. StudyReserveConsumption.run auto-provisions an uninitialized student aggregate before reserving", async () => {
+    const provStore = new MemoryProvisioningStore();
+    provStore.entitlements.set("student-ep-b", entitlement({ offerId: "lycee-leclerc" }));
+    provStore.plans.set("lycee-leclerc", { allowanceInternal: 600_000, cycleDays: 30 });
+
+    expect(await provStore.readAggregate("student-ep-b")).toBeNull();
+
+    const consumption = new StudyReserveConsumption(
+      new MockConsumptionStore(provStore),
+      new NoopNotifier(),
+      provStore,
+    );
+
+    let executed = false;
+    await consumption.run(
+      { studentId: "student-ep-b", requestId: "req-1", provider: "vertex-ai", model: "gemini", estimateUnits: 1000 },
+      async () => {
+        executed = true;
+        return { result: "ok", usage: { inputUnits: 10, outputUnits: 10, billableUnits: 20 } };
+      },
+    );
+
+    expect(executed).toBe(true);
+    expect(provStore.aggregates.get("student-ep-b")).toMatchObject({
+      allowanceInternal: 600_000,
+      consumed: 0,
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, type Firestore } from "firebase-admin/firestore";
 import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
 
 import { db } from "../config/firebase";
@@ -150,14 +150,16 @@ function toView(studentId: string, aggregate: ReserveAggregate | null): StudyRes
 }
 
 export class FirestoreStudyReserveStore implements StudyReserveStore {
+  constructor(private readonly firestore: Firestore = db) {}
+
   async readRole(uid: string): Promise<string | undefined> {
-    const snapshot = await db.collection("users").doc(uid).get();
+    const snapshot = await this.firestore.collection("users").doc(uid).get();
     const role = snapshot.data()?.role;
     return typeof role === "string" ? role : undefined;
   }
 
   async isLinkedChild(parentId: string, studentId: string): Promise<boolean> {
-    const snapshot = await db
+    const snapshot = await this.firestore
       .collection("children_links")
       .doc(`${parentId}_${studentId}`)
       .get();
@@ -165,7 +167,7 @@ export class FirestoreStudyReserveStore implements StudyReserveStore {
   }
 
   async getAggregate(studentId: string): Promise<ReserveAggregate | null> {
-    const snapshot = await db.collection("study_reserve").doc(studentId).get();
+    const snapshot = await this.firestore.collection("study_reserve").doc(studentId).get();
     const data = snapshot.data();
     if (!data) return null;
     return {
@@ -179,12 +181,12 @@ export class FirestoreStudyReserveStore implements StudyReserveStore {
   }
 
   async recordUsage(record: UsageRecord): Promise<RecordResult> {
-    const aggregateRef = db.collection("study_reserve").doc(record.studentId);
+    const aggregateRef = this.firestore.collection("study_reserve").doc(record.studentId);
     const ledgerRef = aggregateRef
       .collection("ledger")
       .doc(`${record.cycleId}__${record.requestId}`);
 
-    return db.runTransaction(async (tx) => {
+    return this.firestore.runTransaction(async (tx) => {
       const [aggregateSnap, ledgerSnap] = await Promise.all([
         tx.get(aggregateRef),
         tx.get(ledgerRef),

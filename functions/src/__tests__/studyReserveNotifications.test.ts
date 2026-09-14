@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyNotificationDelivery } from "../services/notificationDelivery";
+import {
+  classifyNotificationDelivery,
+  deliverNotificationPushHandler,
+} from "../services/notificationDelivery";
 import {
   buildThresholdNotificationFields,
   normalizePreferredLocale,
@@ -73,5 +76,49 @@ describe("study reserve threshold notifications", () => {
     expect(normalizePreferredLocale("")).toBeNull();
     expect(normalizePreferredLocale(undefined)).toBeNull();
     expect(normalizePreferredLocale("de")).toBeNull();
+  });
+
+  it("deliverNotificationPushHandler marks inbox_only notifications without sending push", async () => {
+    const fields = buildThresholdNotificationFields({ ...base, lang: null });
+    const sets: Record<string, unknown>[] = [];
+    const mockSnapshot = {
+      id: "notif-inbox",
+      data: () => fields,
+      ref: {
+        set: async (data: Record<string, unknown>) => {
+          sets.push(data);
+        },
+      },
+    };
+
+    await deliverNotificationPushHandler({
+      id: "evt-1",
+      data: mockSnapshot as never,
+    } as never);
+
+    expect(sets).toHaveLength(1);
+    expect(sets[0]).toMatchObject({ deliveryState: "inbox_only" });
+  });
+
+  it("deliverNotificationPushHandler marks ordinary malformed notifications as invalid", async () => {
+    const malformed = { userId: "u1", title: "", body: "" };
+    const sets: Record<string, unknown>[] = [];
+    const mockSnapshot = {
+      id: "notif-invalid",
+      data: () => malformed,
+      ref: {
+        set: async (data: Record<string, unknown>) => {
+          sets.push(data);
+        },
+      },
+    };
+
+    await deliverNotificationPushHandler({
+      id: "evt-2",
+      data: mockSnapshot as never,
+    } as never);
+
+    expect(sets).toHaveLength(1);
+    expect(sets[0]).toMatchObject({ deliveryState: "invalid" });
   });
 });

@@ -1,4 +1,4 @@
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, type Firestore } from "firebase-admin/firestore";
 
 import { db } from "../config/firebase";
 import type { ReserveAggregate } from "./studyReserve";
@@ -50,12 +50,14 @@ export interface StudyReserveProvisioningStore {
   readAggregate(studentId: string): Promise<ReserveAggregate | null>;
   /** Nouveau cycle (transactionnel, jamais de reset si le cycle est déjà en place). */
   provisionCycle(studentId: string, fresh: ReserveAggregate): Promise<ReserveAggregate>;
-  /** Changement d'allocation en cours de cycle : met à jour l'allocation SANS
-   * toucher à la consommation (seulement si le cycle correspond). */
-  updateAllowance(
+  /** Même cycle, termes changés (allocation modifiée par le propriétaire, ou fin
+   * de tranche repoussée par un renouvellement anticipé) : met à jour
+   * l'allocation et la fin SANS toucher à la consommation, et seulement si le
+   * cycle stocké est toujours celui-ci. */
+  updateCurrentCycle(
     studentId: string,
     cycleId: string,
-    allowanceInternal: number,
+    terms: { allowanceInternal: number; cycleEnd: string },
   ): Promise<ReserveAggregate | null>;
 }
 
@@ -129,8 +131,9 @@ export function computeCurrentCycle(
 
 /**
  * Assure que l'agrégat reflète le cycle courant issu de l'entitlement réel.
- * - pas d'entitlement actif → agrégat inchangé (souvent null → unavailable) ;
- * - plan non configuré → agrégat inchangé (jamais d'allocation inventée) ;
+ * - pas d'entitlement actif, ou plan absent/invalide → null (« unavailable ») :
+ *   aucun débit, et le document stocké n'est ni modifié ni supprimé (un ancien
+ *   cycle n'est jamais présenté comme une réserve en cours) ;
  * - même cycle → consommation JAMAIS réinitialisée (allocation ajustée si la
  *   configuration a changé) ;
  * - cycle absent/expiré/offre changée → nouveau cycle transactionnel.
@@ -141,21 +144,20 @@ export async function ensureCurrentStudyReserveCycle(
   nowMs: number = Date.now(),
 ): Promise<ReserveAggregate | null> {
   const entitlement = await store.resolveEntitlement(studentId);
-  if (!entitlement || !entitlement.active) {
-    return store.readAggregate(studentId);
-  }
+  if (!entitlement || !entitlement.active) return null;
   const config = await store.planConfig(entitlement.offerId);
-  if (config === null) {
-    return store.readAggregate(studentId);
-  }
+  if (config === null) return null;
 
   const cycle = computeCurrentCycle(entitlement, config.cycleDays, nowMs);
   const existing = await store.readAggregate(studentId);
   if (existing && existing.cycleId === cycle.cycleId && existing.allowanceInternal > 0) {
-    if (existing.allowanceInternal !== config.allowanceInternal) {
+    const cycleEnd = new Date(cycle.endMs).toISOString();
+    if (existing.allowanceInternal !== config.allowanceInternal || existing.cycleEnd !== cycleEnd) {
       return (
-        (await store.updateAllowance(studentId, cycle.cycleId, config.allowanceInternal)) ??
-        existing
+        (await store.updateCurrentCycle(studentId, cycle.cycleId, {
+          allowanceInternal: config.allowanceInternal,
+          cycleEnd,
+        })) ?? existing
       );
     }
     return existing;
@@ -204,13 +206,16 @@ function aggregateFrom(
 
 export class FirestoreStudyReserveProvisioningStore
   implements StudyReserveProvisioningStore {
-  constructor(private readonly now: () => number = () => Date.now()) {}
+  constructor(
+    private readonly now: () => number = () => Date.now(),
+    private readonly firestore: Firestore = db,
+  ) {}
 
   async resolveEntitlement(studentId: string): Promise<StudentEntitlement | null> {
     const establishmentId = await this.readEstablishment(studentId);
     if (!establishmentId) return null;
 
-    const links = await db
+    const links = await this.firestore
       .collection("children_links")
       .where("studentId", "==", studentId)
       .where("status", "==", "approved")
@@ -220,7 +225,7 @@ export class FirestoreStudyReserveProvisioningStore
     for (const link of links.docs) {
       const parentId = link.data()?.parentId;
       if (typeof parentId !== "string" || parentId.length === 0) continue;
-      const snap = await db
+      const snap = await this.firestore
         .collection("entitlements")
         .doc(`${parentId}_${establishmentId}`)
         .get();
@@ -233,12 +238,12 @@ export class FirestoreStudyReserveProvisioningStore
   }
 
   async planConfig(offerId: string): Promise<StudyReservePlanConfig | null> {
-    const snap = await db.collection("study_reserve_plans").doc(offerId).get();
+    const snap = await this.firestore.collection("study_reserve_plans").doc(offerId).get();
     return parsePlanConfig(snap.data());
   }
 
   async readAggregate(studentId: string): Promise<ReserveAggregate | null> {
-    const snap = await db.collection("study_reserve").doc(studentId).get();
+    const snap = await this.firestore.collection("study_reserve").doc(studentId).get();
     return aggregateFrom(snap.data());
   }
 
@@ -246,8 +251,8 @@ export class FirestoreStudyReserveProvisioningStore
     studentId: string,
     fresh: ReserveAggregate,
   ): Promise<ReserveAggregate> {
-    const ref = db.collection("study_reserve").doc(studentId);
-    return db.runTransaction(async (tx) => {
+    const ref = this.firestore.collection("study_reserve").doc(studentId);
+    return this.firestore.runTransaction(async (tx) => {
       const current = aggregateFrom((await tx.get(ref)).data());
       // Course : un autre appel a déjà ouvert ce cycle → ne pas réinitialiser.
       if (current && current.cycleId === fresh.cycleId && current.allowanceInternal > 0) {
@@ -273,32 +278,36 @@ export class FirestoreStudyReserveProvisioningStore
     });
   }
 
-  async updateAllowance(
+  async updateCurrentCycle(
     studentId: string,
     cycleId: string,
-    allowanceInternal: number,
+    terms: { allowanceInternal: number; cycleEnd: string },
   ): Promise<ReserveAggregate | null> {
-    const ref = db.collection("study_reserve").doc(studentId);
-    return db.runTransaction(async (tx) => {
+    const ref = this.firestore.collection("study_reserve").doc(studentId);
+    return this.firestore.runTransaction(async (tx) => {
       const current = aggregateFrom((await tx.get(ref)).data());
       if (!current || current.cycleId !== cycleId) return current;
-      tx.set(
-        ref,
-        { allowanceInternal, updatedAt: FieldValue.serverTimestamp() },
-        { merge: true },
-      );
-      return { ...current, allowanceInternal };
+      tx.update(ref, {
+        allowanceInternal: terms.allowanceInternal,
+        cycleEnd: terms.cycleEnd,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      return { ...current, ...terms };
     });
   }
 
+  /** Même source que l'écriture Mobile Money (`resolveParentScope` lit
+   * `users/{studentId}.establishmentId`) : l'id d'entitlement recalculé ici est
+   * donc exactement `{parentId}_{establishmentId}` écrit à l'approbation. Le
+   * profil élève ne sert que de repli pour un compte hérité sans ce champ. */
   private async readEstablishment(studentId: string): Promise<string | null> {
     const [userSnap, profileSnap] = await Promise.all([
-      db.collection("users").doc(studentId).get(),
-      db.collection("student_profiles").doc(studentId).get(),
+      this.firestore.collection("users").doc(studentId).get(),
+      this.firestore.collection("student_profiles").doc(studentId).get(),
     ]);
     const candidates = [
-      profileSnap.data()?.establishmentId,
       userSnap.data()?.establishmentId,
+      profileSnap.data()?.establishmentId,
     ];
     for (const candidate of candidates) {
       if (typeof candidate === "string" && candidate.trim().length > 0) {
