@@ -1,15 +1,46 @@
 import { describe, expect, it } from "vitest";
 
-import { crossedThreshold, remainingPercent, type ReserveThreshold } from "../services/studyReserve";
 import {
+  crossedThreshold,
+  remainingPercent,
+  type ReserveAggregate,
+  type ReserveThreshold,
+} from "../services/studyReserve";
+import {
+  STUDY_RESERVE_EXHAUSTED_REASON,
   StudyReserveConsumption,
   billableFromUsage,
+  studyReserveExhaustedError,
+  studyReserveNotificationText,
   type CommitResult,
   type ProviderUsage,
   type ReserveHold,
   type StudyReserveConsumptionStore,
   type ThresholdNotifier,
 } from "../services/studyReserveConsumption";
+import type { StudyReserveProvisioningStore } from "../services/studyReserveProvisioning";
+
+/** Provisionnement neutre : les tests scellent l'agrégat dans le store de
+ * consommation ; aucune entitlement/allocation ne s'applique. */
+class NoopProvisioningStore implements StudyReserveProvisioningStore {
+  async resolveEntitlement() {
+    return null;
+  }
+  async planConfig() {
+    return null;
+  }
+  async updateAllowance() {
+    return null;
+  }
+  async readAggregate() {
+    return null;
+  }
+  async provisionCycle(_studentId: string, fresh: ReserveAggregate) {
+    return fresh;
+  }
+}
+
+const noopProvisioning = new NoopProvisioningStore();
 
 interface Agg {
   allowance: number;
@@ -44,8 +75,9 @@ class MemoryConsumptionStore implements StudyReserveConsumptionStore {
     const agg = this.aggs.get(p.studentId);
     if (!agg || agg.allowance <= 0) return { configured: false, reserved: false };
     const remaining = agg.allowance - agg.consumed - this.held(agg);
-    if (remaining <= 0) {
-      throw Object.assign(new Error("resource-exhausted"), { code: "resource-exhausted" });
+    // L'estimation doit tenir dans le restant : pas de surconsommation possible.
+    if (remaining < p.estimateUnits) {
+      throw studyReserveExhaustedError();
     }
     agg.holds[p.requestId] = p.estimateUnits;
     return { configured: true, reserved: true };
@@ -109,7 +141,7 @@ describe("StudyReserveConsumption.run", () => {
   it("records the real usage exactly once and reduces the reserve", async () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 1000);
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier());
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
     const out = await consumption.run(
       { studentId: "s1", requestId: "r1", provider: "vertex-ai", model: "gemini" },
       async () => ({ result: "answer", usage: usage(250) }),
@@ -121,10 +153,10 @@ describe("StudyReserveConsumption.run", () => {
   it("idempotent retry does not consume twice", async () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 1000);
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier());
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
     const exec = async () => ({ result: "a", usage: usage(250) });
-    await consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m" }, exec);
-    await consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m" }, exec);
+    await consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, exec);
+    await consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, exec);
     expect(store.aggs.get("s1")!.consumed).toBe(250);
   });
 
@@ -145,12 +177,69 @@ describe("StudyReserveConsumption.run", () => {
     ).resolves.toMatchObject({ reserved: true });
   });
 
+  it("blocks a request whose estimate exceeds the remaining reserve", async () => {
+    const store = new MemoryConsumptionStore();
+    store.seed("s1", 1000);
+    store.aggs.get("s1")!.consumed = 700; // reste 300
+    await expect(
+      store.reserve({ studentId: "s1", requestId: "big", estimateUnits: 1000 }),
+    ).rejects.toMatchObject({ code: "resource-exhausted" });
+  });
+
+  it("tags reserve exhaustion with a stable reason distinct from the daily quota", () => {
+    const error = studyReserveExhaustedError();
+    expect(error.code).toBe("resource-exhausted");
+    expect(error.details).toEqual({ reason: STUDY_RESERVE_EXHAUSTED_REASON });
+    expect(STUDY_RESERVE_EXHAUSTED_REASON).toBe("study_reserve_exhausted");
+  });
+
+  it("two concurrent equal reservations: only one may proceed", async () => {
+    const store = new MemoryConsumptionStore();
+    store.seed("s1", 1500);
+    await expect(
+      store.reserve({ studentId: "s1", requestId: "A", estimateUnits: 1000 }),
+    ).resolves.toMatchObject({ reserved: true });
+    // B voit le hold de A (reste 500 < 1000) → refusé.
+    await expect(
+      store.reserve({ studentId: "s1", requestId: "B", estimateUnits: 1000 }),
+    ).rejects.toMatchObject({ code: "resource-exhausted" });
+  });
+
+  it("actual usage below the hold releases the unused reservation", async () => {
+    const store = new MemoryConsumptionStore();
+    store.seed("s1", 1000);
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    // Estimation 1000, usage réel 200 → seul 200 est débité, 800 libérés.
+    await consumption.run(
+      { studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1000 },
+      async () => ({ result: "x", usage: usage(200) }),
+    );
+    expect(store.aggs.get("s1")!.consumed).toBe(200);
+    expect(Object.keys(store.aggs.get("s1")!.holds)).toHaveLength(0);
+  });
+
+  it("actual usage above the hold is bounded (charged once, never unbounded)", async () => {
+    const store = new MemoryConsumptionStore();
+    store.seed("s1", 1000);
+    store.aggs.get("s1")!.consumed = 900; // reste 100
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    // Réservation 100 (tient), mais l'usage réel dépasse (150) : on débite le
+    // réel, l'agrégat se cape à 0 % — pas de surconsommation illimitée.
+    await consumption.run(
+      { studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 100 },
+      async () => ({ result: "x", usage: usage(150) }),
+    );
+    const agg = store.aggs.get("s1")!;
+    expect(agg.consumed).toBe(1050);
+    expect(remainingPercent(agg.allowance, agg.consumed)).toBe(0);
+  });
+
   it("releases the reservation when the provider call fails", async () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 1000);
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier());
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
     await expect(
-      consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m" }, async () => {
+      consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, async () => {
         throw new Error("provider down");
       }),
     ).rejects.toThrow("provider down");
@@ -163,10 +252,10 @@ describe("StudyReserveConsumption.run", () => {
     const store = new MemoryConsumptionStore();
     store.seed("s1", 100);
     store.aggs.get("s1")!.consumed = 100; // épuisé
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier());
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
     let executed = false;
     await expect(
-      consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m" }, async () => {
+      consumption.run({ studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, async () => {
         executed = true;
         return { result: "x", usage: usage(1) };
       }),
@@ -176,10 +265,10 @@ describe("StudyReserveConsumption.run", () => {
 
   it("not-configured (no plan) runs without deducting and does not fabricate 100%", async () => {
     const store = new MemoryConsumptionStore(); // aucun seed → non configuré
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier());
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
     let executed = false;
     const out = await consumption.run(
-      { studentId: "s1", requestId: "r1", provider: "p", model: "m" },
+      { studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 },
       async () => {
         executed = true;
         return { result: "answer", usage: usage(50) };
@@ -194,8 +283,8 @@ describe("StudyReserveConsumption.run", () => {
     const store = new MemoryConsumptionStore();
     store.seed("a", 1000);
     store.seed("b", 1000);
-    const consumption = new StudyReserveConsumption(store, new RecordingNotifier());
-    await consumption.run({ studentId: "a", requestId: "r1", provider: "p", model: "m" }, async () => ({
+    const consumption = new StudyReserveConsumption(store, new RecordingNotifier(), noopProvisioning);
+    await consumption.run({ studentId: "a", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, async () => ({
       result: "x",
       usage: usage(900),
     }));
@@ -208,9 +297,9 @@ describe("StudyReserveConsumption.run", () => {
     store.seed("child-1", 1000);
     store.parents.set("child-1", ["parent-1", "parent-2"]);
     const notifier = new RecordingNotifier();
-    const consumption = new StudyReserveConsumption(store, notifier);
+    const consumption = new StudyReserveConsumption(store, notifier, noopProvisioning);
     // 100% -> 40% franchit 50 : émission unique.
-    await consumption.run({ studentId: "child-1", requestId: "r1", provider: "p", model: "m" }, async () => ({
+    await consumption.run({ studentId: "child-1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 }, async () => ({
       result: "x",
       usage: usage(600),
     }));
@@ -218,10 +307,67 @@ describe("StudyReserveConsumption.run", () => {
     expect(notifier.events[0].threshold).toBe(50);
     expect(notifier.events[0].parentIds).toEqual(["parent-1", "parent-2"]);
     // 40% -> 30% : ne réémet pas.
-    await consumption.run({ studentId: "child-1", requestId: "r2", provider: "p", model: "m" }, async () => ({
+    await consumption.run({ studentId: "child-1", requestId: "r2", provider: "p", model: "m", estimateUnits: 1 }, async () => ({
       result: "x",
       usage: usage(100),
     }));
     expect(notifier.events).toHaveLength(1);
+  });
+
+  it("a single large drop notifies only the most severe level, never re-sends higher ones", async () => {
+    const store = new MemoryConsumptionStore();
+    store.seed("s1", 1000);
+    const notifier = new RecordingNotifier();
+    const consumption = new StudyReserveConsumption(store, notifier, noopProvisioning);
+    // 100% -> 20% franchit 75, 50 et 25 : on n'émet QUE le plus sévère (25).
+    const first = await consumption.run(
+      { studentId: "s1", requestId: "r1", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "x", usage: usage(800) }),
+    );
+    expect(first.thresholdEvent).toBe(25);
+    expect(notifier.events.map((e) => e.threshold)).toEqual([25]);
+    // La marque (latestThresholdEmitted=25) empêche 75/50 d'être renvoyés plus
+    // tard hors ordre : 20% -> 10% n'émet rien de nouveau au-dessus.
+    const second = await consumption.run(
+      { studentId: "s1", requestId: "r2", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "x", usage: usage(100) }),
+    );
+    expect(second.thresholdEvent).toBeNull();
+    // 10% -> 3% émet 5 (le prochain plus sévère), jamais 75/50/25 à nouveau.
+    const third = await consumption.run(
+      { studentId: "s1", requestId: "r3", provider: "p", model: "m", estimateUnits: 1 },
+      async () => ({ result: "x", usage: usage(70) }),
+    );
+    expect(third.thresholdEvent).toBe(5);
+    expect(notifier.events.map((e) => e.threshold)).toEqual([25, 5]);
+  });
+});
+
+describe("studyReserveNotificationText (bilingual, never blank)", () => {
+  it("produces non-empty FR and EN title/body per threshold", () => {
+    for (const lang of ["fr", "en"] as const) {
+      for (const threshold of [75, 50, 25, 5, 0] as const) {
+        for (const audience of ["student", "parent"] as const) {
+          const text = studyReserveNotificationText(lang, threshold, audience);
+          expect(text.title.length).toBeGreaterThan(0);
+          expect(text.body.length).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  it("uses the product-safe term and no technical wording", () => {
+    const fr = studyReserveNotificationText("fr", 25, "student");
+    const en = studyReserveNotificationText("en", 25, "parent");
+    expect(fr.title).toContain("Réserve d’étude");
+    expect(en.title).toContain("Study reserve");
+    for (const banned of ["token", "XP", "credit", "crédit"]) {
+      expect(`${fr.title}${fr.body}${en.title}${en.body}`).not.toContain(banned);
+    }
+  });
+
+  it("0% explains the tutor rests while content stays available", () => {
+    expect(studyReserveNotificationText("fr", 0, "student").body).toContain("cours");
+    expect(studyReserveNotificationText("en", 0, "parent").body).toContain("Lessons");
   });
 });
