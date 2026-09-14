@@ -12,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/config/app_config.dart';
+import 'core/system/intellia_system_bars.dart';
 import 'features/auth/data/auth_entry_preferences.dart';
 import 'features/onboarding/data/onboarding_preferences.dart';
 import 'core/notifications/learning_reminder_service.dart';
@@ -32,6 +33,16 @@ Future<void> bootstrap({
     );
     debugPrintStack(stackTrace: stackTrace);
     rethrow;
+  }
+
+  // 1b. Politique globale des barres système : bord-à-bord, barres d'état et
+  // de navigation TOUJOURS visibles. L'app n'entre jamais en mode immersif ;
+  // seul un plein écran média peut la changer temporairement puis la restaurer.
+  try {
+    await IntelliaSystemBarPolicy.applyGlobalDefault();
+  } catch (error, stackTrace) {
+    debugPrint('System UI overlay policy failed: $error');
+    debugPrintStack(stackTrace: stackTrace);
   }
 
   // 2. Tenter d'exécuter les étapes non critiques sous protection

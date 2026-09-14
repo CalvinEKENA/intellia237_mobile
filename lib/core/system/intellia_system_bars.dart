@@ -6,6 +6,19 @@ import '../../app/router/app_routes.dart';
 enum SystemSurfaceTone { light, dark }
 
 abstract final class IntelliaSystemBarPolicy {
+  /// Politique globale unique : bord-à-bord avec **toutes** les surfaces
+  /// système activées (barre d'état ET barre de navigation toujours visibles).
+  ///
+  /// L'application n'entre jamais en mode immersif : l'heure, le réseau et la
+  /// batterie restent lisibles sur tous les écrans normaux. À appeler au
+  /// démarrage, et à ré-appeler après toute sortie d'un plein écran média.
+  static Future<void> applyGlobalDefault() {
+    return SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+      overlays: SystemUiOverlay.values,
+    );
+  }
+
   static SystemSurfaceTone toneForLocation(String location) {
     if (location == AppRoutes.onboarding ||
         location == AppRoutes.learnHub ||
