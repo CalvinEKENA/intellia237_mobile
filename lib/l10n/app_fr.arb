@@ -2223,5 +2223,21 @@
   "childLinkErrorPermission": "Seul un compte parent peut rattacher un enfant.",
   "childLinkErrorUnauthenticated": "Ta session a expiré. Reconnecte-toi puis réessaie.",
   "childLinkErrorTooMany": "Trop de tentatives. Réessaie un peu plus tard.",
-  "childLinkErrorGeneric": "La liaison n’a pas abouti. Réessaie dans un instant."
+  "childLinkErrorGeneric": "La liaison n’a pas abouti. Réessaie dans un instant.",
+  "studyReserveTitle": "Réserve d’étude",
+  "studyReserveRemaining": "{percent} % restants",
+  "@studyReserveRemaining": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "studyReserveRenews": "Renouvellement le {date}",
+  "@studyReserveRenews": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "studyReserveStatusHealthy": "Bonne réserve",
+  "studyReserveStatusWarning": "À surveiller",
+  "studyReserveStatusLow": "Réserve basse",
+  "studyReserveStatusCritical": "Presque épuisée",
+  "studyReserveStatusDepleted": "Réserve épuisée",
+  "studyReserveDepletedHelp": "Le tuteur IA se repose jusqu’au renouvellement. Les cours, quiz et lectures restent accessibles.",
+  "studyReserveUnavailable": "Réserve d’étude indisponible pour le moment."
 }

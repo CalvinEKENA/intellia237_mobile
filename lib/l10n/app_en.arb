@@ -2199,5 +2199,15 @@
   "childLinkErrorPermission": "Only a parent account can link a child.",
   "childLinkErrorUnauthenticated": "Your session expired. Sign in again and retry.",
   "childLinkErrorTooMany": "Too many attempts. Try again a little later.",
-  "childLinkErrorGeneric": "Linking failed. Try again in a moment."
+  "childLinkErrorGeneric": "Linking failed. Try again in a moment.",
+  "studyReserveTitle": "Study reserve",
+  "studyReserveRemaining": "{percent}% remaining",
+  "studyReserveRenews": "Renews on {date}",
+  "studyReserveStatusHealthy": "Plenty left",
+  "studyReserveStatusWarning": "Getting lower",
+  "studyReserveStatusLow": "Running low",
+  "studyReserveStatusCritical": "Almost empty",
+  "studyReserveStatusDepleted": "Reserve empty",
+  "studyReserveDepletedHelp": "The AI tutor rests until renewal. Lessons, quizzes and readings stay available.",
+  "studyReserveUnavailable": "Study reserve unavailable right now."
 }

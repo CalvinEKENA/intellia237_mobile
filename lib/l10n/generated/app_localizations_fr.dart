@@ -4408,4 +4408,40 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get childLinkErrorGeneric =>
       'La liaison n’a pas abouti. Réessaie dans un instant.';
+
+  @override
+  String get studyReserveTitle => 'Réserve d’étude';
+
+  @override
+  String studyReserveRemaining(int percent) {
+    return '$percent % restants';
+  }
+
+  @override
+  String studyReserveRenews(String date) {
+    return 'Renouvellement le $date';
+  }
+
+  @override
+  String get studyReserveStatusHealthy => 'Bonne réserve';
+
+  @override
+  String get studyReserveStatusWarning => 'À surveiller';
+
+  @override
+  String get studyReserveStatusLow => 'Réserve basse';
+
+  @override
+  String get studyReserveStatusCritical => 'Presque épuisée';
+
+  @override
+  String get studyReserveStatusDepleted => 'Réserve épuisée';
+
+  @override
+  String get studyReserveDepletedHelp =>
+      'Le tuteur IA se repose jusqu’au renouvellement. Les cours, quiz et lectures restent accessibles.';
+
+  @override
+  String get studyReserveUnavailable =>
+      'Réserve d’étude indisponible pour le moment.';
 }

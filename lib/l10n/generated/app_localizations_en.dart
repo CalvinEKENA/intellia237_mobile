@@ -4381,4 +4381,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get childLinkErrorGeneric => 'Linking failed. Try again in a moment.';
+
+  @override
+  String get studyReserveTitle => 'Study reserve';
+
+  @override
+  String studyReserveRemaining(int percent) {
+    return '$percent% remaining';
+  }
+
+  @override
+  String studyReserveRenews(String date) {
+    return 'Renews on $date';
+  }
+
+  @override
+  String get studyReserveStatusHealthy => 'Plenty left';
+
+  @override
+  String get studyReserveStatusWarning => 'Getting lower';
+
+  @override
+  String get studyReserveStatusLow => 'Running low';
+
+  @override
+  String get studyReserveStatusCritical => 'Almost empty';
+
+  @override
+  String get studyReserveStatusDepleted => 'Reserve empty';
+
+  @override
+  String get studyReserveDepletedHelp =>
+      'The AI tutor rests until renewal. Lessons, quizzes and readings stay available.';
+
+  @override
+  String get studyReserveUnavailable => 'Study reserve unavailable right now.';
 }

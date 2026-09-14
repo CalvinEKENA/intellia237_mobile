@@ -7623,6 +7623,66 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'La liaison n’a pas abouti. Réessaie dans un instant.'**
   String get childLinkErrorGeneric;
+
+  /// No description provided for @studyReserveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve d’étude'**
+  String get studyReserveTitle;
+
+  /// No description provided for @studyReserveRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} % restants'**
+  String studyReserveRemaining(int percent);
+
+  /// No description provided for @studyReserveRenews.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renouvellement le {date}'**
+  String studyReserveRenews(String date);
+
+  /// No description provided for @studyReserveStatusHealthy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne réserve'**
+  String get studyReserveStatusHealthy;
+
+  /// No description provided for @studyReserveStatusWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'À surveiller'**
+  String get studyReserveStatusWarning;
+
+  /// No description provided for @studyReserveStatusLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve basse'**
+  String get studyReserveStatusLow;
+
+  /// No description provided for @studyReserveStatusCritical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presque épuisée'**
+  String get studyReserveStatusCritical;
+
+  /// No description provided for @studyReserveStatusDepleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve épuisée'**
+  String get studyReserveStatusDepleted;
+
+  /// No description provided for @studyReserveDepletedHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le tuteur IA se repose jusqu’au renouvellement. Les cours, quiz et lectures restent accessibles.'**
+  String get studyReserveDepletedHelp;
+
+  /// No description provided for @studyReserveUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve d’étude indisponible pour le moment.'**
+  String get studyReserveUnavailable;
 }
 
 class _AppLocalizationsDelegate
