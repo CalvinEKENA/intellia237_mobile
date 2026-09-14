@@ -11,6 +11,12 @@ abstract interface class TutorFunctionsGateway {
   Future<Object?> askTutor(Map<String, dynamic> payload);
 }
 
+/// Raison stable envoyée par `askTutor` quand la Réserve d'étude est vide.
+const studyReserveExhaustedReason = 'study_reserve_exhausted';
+
+bool _isStudyReserveExhausted(Object? details) =>
+    details is Map && details['reason'] == studyReserveExhaustedReason;
+
 class TutorCallableFailure implements Exception {
   const TutorCallableFailure({required this.code, this.message, this.details});
 
@@ -146,6 +152,16 @@ class CloudAIRepository implements AIRepository {
     }
 
     return switch (code) {
+      // Même code que le quota quotidien : la raison stable du backend les
+      // distingue, sinon l'élève lirait « plus de questions aujourd'hui ».
+      'resource-exhausted' when _isStudyReserveExhausted(error.details) =>
+        AICompanionException(
+          message: 'La réserve d’étude est épuisée pour ce cycle.',
+          kind: AICompanionFailureKind.studyReserveExhausted,
+          normalizedErrorCode: studyReserveExhaustedReason,
+          diagnosticId: 'TUTOR-RESERVE-507',
+          retryable: false,
+        ),
       'resource-exhausted' => AICompanionException(
         message:
             'Tu as utilisé toutes tes questions du jour. '

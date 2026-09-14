@@ -65,6 +65,34 @@ void main() {
   });
 
   test(
+    'empty study reserve is not shown as the daily question limit',
+    () async {
+      final repository = CloudAIRepository(
+        gateway: const _TutorGateway(
+          failure: TutorCallableFailure(
+            code: 'resource-exhausted',
+            details: <String, dynamic>{'reason': 'study_reserve_exhausted'},
+          ),
+        ),
+      );
+
+      await expectLater(
+        _send(repository, kira),
+        throwsA(
+          isA<AICompanionException>()
+              .having(
+                (error) => error.kind,
+                'kind',
+                AICompanionFailureKind.studyReserveExhausted,
+              )
+              .having((error) => error.retryable, 'retryable', isFalse)
+              .having((error) => error.quota, 'quota', isNull),
+        ),
+      );
+    },
+  );
+
+  test(
     'auth/profile mismatch is distinguishable from service failure',
     () async {
       final repository = CloudAIRepository(

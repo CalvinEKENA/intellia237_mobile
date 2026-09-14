@@ -372,6 +372,8 @@ class _CompanionHeader extends StatelessWidget {
         : switch (state.errorKind) {
             AICompanionFailureKind.quotaExhausted =>
               context.l10n.companionStatusQuota,
+            AICompanionFailureKind.studyReserveExhausted =>
+              context.l10n.studyReserveStatusDepleted,
             AICompanionFailureKind.authorizationProfile =>
               context.l10n.companionStatusProfile,
             AICompanionFailureKind.network =>
@@ -468,6 +470,8 @@ String _localizedCompanionError(BuildContext context, AICompanionState state) {
     AICompanionFailureKind.quotaExhausted => context.l10n.companionQuotaReached(
       name,
     ),
+    AICompanionFailureKind.studyReserveExhausted =>
+      context.l10n.studyReserveDepletedHelp,
     AICompanionFailureKind.authorizationProfile =>
       context.l10n.companionProfileSync(name),
     AICompanionFailureKind.invalidRequest =>
