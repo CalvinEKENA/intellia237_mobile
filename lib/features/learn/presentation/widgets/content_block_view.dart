@@ -1,6 +1,7 @@
 import 'audio_overview_player.dart';
 import 'educational_video_player.dart';
 import 'lesson_pdf_view.dart';
+import 'rich_lesson_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -83,14 +84,16 @@ class _TextBlockView extends StatelessWidget {
           ),
           const SizedBox(height: IntelliaSpacing.sm),
         ],
-        Text(
-          block.markdown,
-          style: GoogleFonts.manrope(
+        // Rendu riche et sûr : l'élève ne voit jamais la syntaxe Markdown brute.
+        RichLessonText(
+          markdown: block.markdown,
+          baseStyle: GoogleFonts.manrope(
             fontSize: 16,
             height: 1.7,
             color: surface.textPrimary,
             fontWeight: FontWeight.w400,
           ),
+          linkColor: IntelliaColors.brandIndigo,
         ),
       ],
     );

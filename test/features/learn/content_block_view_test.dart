@@ -8,11 +8,17 @@ import 'package:intellia237/features/admin/domain/educational_media.dart';
 import 'package:intellia237/features/admin/presentation/widgets/lesson_blocks_editor.dart';
 import 'package:intellia237/features/learn/domain/content_block.dart';
 import 'package:intellia237/features/learn/domain/learn_lesson.dart';
+import 'package:intellia237/features/learn/presentation/widgets/audio_overview_player.dart';
 import 'package:intellia237/features/learn/presentation/widgets/content_block_view.dart';
+import 'package:intellia237/features/learn/presentation/widgets/lesson_pdf_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Un bloc défaillant n'emporte jamais la leçon : chaque cas de panne donne un
 /// encart lisible, et le reste continue.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() => SharedPreferences.setMockInitialValues(const {}));
+
   Future<void> pumpBlock(
     WidgetTester tester,
     ContentBlock block, {
@@ -92,7 +98,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('une capsule audio annonce sa durée sans la télécharger', (
+    testWidgets('une capsule audio rend le vrai lecteur, pas un placeholder', (
       tester,
     ) async {
       await pumpBlock(
@@ -104,10 +110,27 @@ void main() {
           storagePath: 'educational_assets/global/capsule.mp3',
           durationSeconds: 245,
         ),
+        media: _StubMedia(),
       );
 
-      expect(find.text('Capsule audio'), findsOneWidget);
-      expect(find.textContaining('4 min'), findsOneWidget);
+      expect(find.byType(AudioOverviewPlayer), findsOneWidget);
+    });
+
+    testWidgets('un document PDF rend la vue de consultation sécurisée', (
+      tester,
+    ) async {
+      await pumpBlock(
+        tester,
+        const MediaBlock(
+          id: 'm2',
+          order: 0,
+          mediaType: MediaType.pdf,
+          storagePath: 'educational_assets/global/fiche.pdf',
+        ),
+        media: _StubMedia(),
+      );
+
+      expect(find.byType(LessonPdfView), findsOneWidget);
     });
 
     testWidgets('un quiz vide est signalé, pas rendu à moitié', (tester) async {
@@ -299,6 +322,23 @@ class _FailingMedia implements EducationalMediaProvider {
   @override
   Future<String> resolveUrl(String storagePath) async =>
       throw Exception('ressource effacée');
+
+  @override
+  Future<MediaUploadResult> upload({
+    required String storagePath,
+    required Uint8List bytes,
+    required String mimeType,
+    void Function(double progress)? onProgress,
+  }) async => throw UnimplementedError();
+
+  @override
+  Future<void> delete(String storagePath) async {}
+}
+
+class _StubMedia implements EducationalMediaProvider {
+  @override
+  Future<String> resolveUrl(String storagePath) async =>
+      'https://signed.example/$storagePath';
 
   @override
   Future<MediaUploadResult> upload({
