@@ -2,7 +2,7 @@ import type { DocumentData, Firestore } from "firebase-admin/firestore";
 
 import { db } from "../config/firebase";
 import { getEnv } from "../config/env";
-import { generateText, logAiQuotaRejection } from "../llm/llmClient";
+import { generateText, logAiQuotaRejection, type LlmTokenUsage } from "../llm/llmClient";
 import { ASK_TUTOR_SYSTEM_PROMPT, buildAskTutorUserPrompt } from "../llm/prompts";
 import { AppError } from "../utils/errors";
 import type { AskTutorCallableInput } from "../utils/validation";
@@ -11,6 +11,10 @@ import {
   type TutorQuotaSnapshot,
   type TutorQuotaStore,
 } from "./tutorDailyQuota";
+import {
+  StudyReserveConsumption,
+  billableFromUsage,
+} from "./studyReserveConsumption";
 
 const MAX_CONTEXT_LESSONS = 3;
 const MAX_CONTEXT_CHARACTERS = 5_000;
@@ -37,6 +41,7 @@ type TutorTextGenerator = (params: {
   correlationId: string;
   system: string;
   prompt: string;
+  onUsage?: (usage: LlmTokenUsage | undefined) => void;
 }) => Promise<string>;
 
 /**
@@ -124,6 +129,9 @@ export class AskTutorUseCase {
     private readonly textGenerator: TutorTextGenerator = generateText,
     private readonly quotaStore: TutorQuotaStore = new FirestoreTutorQuotaStore(),
     private readonly dailyQuestionLimit: number = getEnv().TUTOR_DAILY_QUESTION_LIMIT,
+    // Couche de consommation unique de la Réserve d'étude (réserve/commit/release
+    // + comptabilisation de l'usage réel + seuils). Centralisée ici.
+    private readonly studyReserve: StudyReserveConsumption = new StudyReserveConsumption(),
   ) {}
 
   async execute(params: {
@@ -165,12 +173,31 @@ export class AskTutorUseCase {
       throw error;
     }
     try {
-      const responseText = await this.textGenerator({
-        operation: "askTutor",
-        correlationId: params.traceId,
-        system: systemPrompt,
-        prompt: userPrompt,
-      });
+      // La Réserve d'étude encadre l'appel modèle : réservation (concurrence),
+      // exécution, puis comptabilisation de l'usage RÉEL du fournisseur, une
+      // seule fois (idempotent sur traceId). Réserve vide → rejet ; contenu
+      // statique jamais affecté (ce chemin ne concerne que le tuteur).
+      const { result: responseText } = await this.studyReserve.run(
+        {
+          studentId: params.userId,
+          requestId: params.traceId,
+          provider: "vertex-ai",
+          model: getEnv().GEMINI_MODEL,
+        },
+        async () => {
+          let captured: LlmTokenUsage | undefined;
+          const text = await this.textGenerator({
+            operation: "askTutor",
+            correlationId: params.traceId,
+            system: systemPrompt,
+            prompt: userPrompt,
+            onUsage: (usage) => {
+              captured = usage;
+            },
+          });
+          return { result: text, usage: billableFromUsage(captured ?? {}) };
+        },
+      );
       const quota = await this.quotaStore.consume({
         userId: params.userId,
         traceId: params.traceId,
@@ -179,7 +206,8 @@ export class AskTutorUseCase {
       return { text: responseText, ...quota };
     } catch (error) {
       // Never log the prompt, user message or history. A failed generation does
-      // not consume the student's daily allowance.
+      // not consume the student's daily allowance (nor the study reserve — the
+      // consumption layer releases its reservation internally).
       await this.quotaStore.release({
         userId: params.userId,
         traceId: params.traceId,

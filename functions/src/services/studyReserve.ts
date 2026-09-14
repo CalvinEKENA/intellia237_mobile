@@ -19,7 +19,13 @@ import { db } from "../config/firebase";
 export const RESERVE_THRESHOLDS = [75, 50, 25, 5, 0] as const;
 export type ReserveThreshold = (typeof RESERVE_THRESHOLDS)[number];
 
-export type ReserveStatus = "healthy" | "warning" | "low" | "critical" | "depleted";
+export type ReserveStatus =
+  | "healthy"
+  | "warning"
+  | "low"
+  | "critical"
+  | "depleted"
+  | "unavailable"; // aucun plan/réserve valide : jamais inventer 100 %
 
 /** Agrégat product-safe renvoyé au client. Jamais de comptes bruts de modèle. */
 export interface StudyReserveView {
@@ -107,11 +113,12 @@ export interface StudyReserveStore {
 }
 
 function toView(studentId: string, aggregate: ReserveAggregate | null): StudyReserveView {
+  // Aucun plan/réserve configuré : état sûr « unavailable », jamais 100 % inventé.
   if (!aggregate || aggregate.allowanceInternal <= 0) {
     return {
       studentId,
       percentRemaining: 0,
-      status: "depleted",
+      status: "unavailable",
       cycleStart: aggregate?.cycleStart ?? null,
       cycleEnd: aggregate?.cycleEnd ?? null,
       latestThresholdEmitted: aggregate?.latestThresholdEmitted ?? null,

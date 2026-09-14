@@ -11,7 +11,38 @@ import type {
   TutorQuotaSnapshot,
   TutorQuotaStore,
 } from "../services/tutorDailyQuota";
+import {
+  StudyReserveConsumption,
+  type ReserveHold,
+  type StudyReserveConsumptionStore,
+  type ThresholdNotifier,
+} from "../services/studyReserveConsumption";
 import type { AskTutorCallableInput } from "../utils/validation";
+
+/** Réserve non configurée : le tuteur s'exécute sans toucher à Firestore. */
+class NotConfiguredConsumptionStore implements StudyReserveConsumptionStore {
+  async reserve(): Promise<ReserveHold> {
+    return { configured: false, reserved: false };
+  }
+  async commit() {
+    return { duplicate: false, thresholdEvent: null, cycleId: "" };
+  }
+  async release(): Promise<void> {}
+  async listLinkedParents(): Promise<string[]> {
+    return [];
+  }
+}
+
+class NoopNotifier implements ThresholdNotifier {
+  async emit(): Promise<void> {}
+}
+
+function passthroughStudyReserve(): StudyReserveConsumption {
+  return new StudyReserveConsumption(
+    new NotConfiguredConsumptionStore(),
+    new NoopNotifier(),
+  );
+}
 
 describe("AskTutorUseCase academic isolation", () => {
   it("rejects a client class that differs from the authenticated profile", () => {
@@ -92,6 +123,8 @@ describe("AskTutorUseCase academic isolation", () => {
         return "Réponse sûre";
       },
       quotaStore,
+      20,
+      passthroughStudyReserve(),
     );
 
     const result = await useCase.execute({

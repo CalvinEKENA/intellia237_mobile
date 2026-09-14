@@ -34,6 +34,9 @@ interface TokenUsage {
   thoughtsTokenCount?: number;
 }
 
+/** Usage réel du fournisseur, exposé aux appelants pour la comptabilité. */
+export type LlmTokenUsage = TokenUsage;
+
 interface ResponseSchema<T> {
   safeParse(value: unknown):
     | { success: true; data: T }
@@ -198,6 +201,7 @@ async function requestGemini<T>(params: {
   parse: (content: string) => T;
   attachments?: InlineAttachment[];
   timeoutMs?: number;
+  onUsage?: (usage: LlmTokenUsage | undefined) => void;
 }): Promise<T> {
   const env = getEnv();
   const projectId = env.VERTEX_AI_PROJECT_ID?.trim() ?? "";
@@ -239,6 +243,9 @@ async function requestGemini<T>(params: {
     );
     status = response.status;
     tokenUsage = extractTokenUsage(response.data);
+    // Usage réel du fournisseur : remonté à l'appelant pour une comptabilité
+    // exacte (jamais une estimation permanente quand l'usage réel est connu).
+    params.onUsage?.(tokenUsage);
 
     phase = "response_parsing";
     const content = extractGeminiText(response.data);
@@ -322,6 +329,7 @@ export async function generateText(params: {
   correlationId: string;
   system: string;
   prompt: string;
+  onUsage?: (usage: LlmTokenUsage | undefined) => void;
 }): Promise<string> {
   const env = getEnv();
   return requestGemini({
@@ -332,6 +340,7 @@ export async function generateText(params: {
     thinkingLevel: env.GEMINI_TUTOR_THINKING_LEVEL,
     jsonOutput: false,
     parse: (content) => content,
+    onUsage: params.onUsage,
   });
 }
 
