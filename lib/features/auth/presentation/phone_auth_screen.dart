@@ -105,10 +105,17 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
             PhoneAuthStage.codeEntry => context.l10n.passVerificationInProgress,
             PhoneAuthStage.success => context.l10n.passNumberVerified,
           },
+          // Progression 0..1 : le numéro colore « 2 » (vert), la vérification
+          // « 3 » (rouge), et la réussite « 7 » (jaune) + pulsation.
           progress: switch (state.stage) {
-            PhoneAuthStage.phoneEntry => .16,
-            PhoneAuthStage.codeEntry => .38,
-            PhoneAuthStage.success => .56,
+            PhoneAuthStage.phoneEntry =>
+              (value.text.replaceAll(RegExp(r'\D'), '').length / 9).clamp(
+                    0.0,
+                    1.0,
+                  ) *
+                  0.33,
+            PhoneAuthStage.codeEntry => .66,
+            PhoneAuthStage.success => 1.0,
           },
           verified: state.stage == PhoneAuthStage.success,
         ),

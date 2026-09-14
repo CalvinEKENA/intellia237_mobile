@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
@@ -6,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/app_role.dart';
 import 'auth_experience_scaffold.dart';
+import 'intellia_237_membrane.dart';
 
 String passRoleLabel(BuildContext context, AppRole? role) => switch (role) {
   AppRole.student => context.l10n.studentRole,
@@ -266,14 +266,21 @@ class _PassSurface extends StatelessWidget {
                 height: lerpDouble(52, 102, e)!,
                 child: asset == null
                     ? ExcludeSemantics(
-                        child: CustomPaint(painter: _PassSeal(ready: verified)),
+                        child: Intellia237Membrane(
+                          progress: progress,
+                          verified: verified,
+                        ),
                       )
                     : Image.asset(
                         asset!,
                         fit: BoxFit.contain,
                         excludeFromSemantics: true,
-                        errorBuilder: (_, _, _) =>
-                            CustomPaint(painter: _PassSeal(ready: verified)),
+                        errorBuilder: (_, _, _) => ExcludeSemantics(
+                          child: Intellia237Membrane(
+                            progress: progress,
+                            verified: verified,
+                          ),
+                        ),
                       ),
               ),
             ],
@@ -327,43 +334,4 @@ class _PassEngraving extends CustomPainter {
   @override
   bool shouldRepaint(_PassEngraving oldDelegate) =>
       oldDelegate.progress != progress || oldDelegate.expansion != expansion;
-}
-
-class _PassSeal extends CustomPainter {
-  const _PassSeal({required this.ready});
-  final bool ready;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final unit = size.width * 0.46;
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8
-      ..color = AuthExperienceColors.indigo.withValues(alpha: 0.6);
-    for (var i = 0; i < 11; i++) {
-      final path = Path();
-      for (var step = 0; step <= 160; step++) {
-        final angle = step / 160 * math.pi * 2;
-        final r = unit * (0.49 + i * 0.043 + 0.085 * math.cos(angle * 8));
-        final p = center + Offset(math.cos(angle), math.sin(angle) * 1.12) * r;
-        step == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
-      }
-      canvas.drawPath(path..close(), paint);
-    }
-    final text = TextPainter(
-      text: TextSpan(
-        text: ready ? '✓' : '237',
-        style: passDisplay(
-          size: unit * 0.67,
-          color: AuthExperienceColors.indigo,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    text.paint(canvas, center - Offset(text.width / 2, text.height / 2));
-  }
-
-  @override
-  bool shouldRepaint(_PassSeal oldDelegate) => oldDelegate.ready != ready;
 }
