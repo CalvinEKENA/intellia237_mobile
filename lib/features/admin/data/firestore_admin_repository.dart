@@ -469,6 +469,8 @@ class FirestoreAdminRepository implements AdminRepository {
           id: doc.id,
           name: (doc.data()['name'] as String?)?.trim() ?? doc.id,
           levelLabel: (doc.data()['classLevel'] as String?)?.trim() ?? '',
+          series: (doc.data()['series'] as String?)?.trim(),
+          track: (doc.data()['track'] as String?)?.trim(),
           studentCount: (doc.data()['studentIds'] as List?)?.length ?? 0,
           teacherCount: {
             ...((doc.data()['teacherIds'] as List?) ?? const []),
@@ -501,6 +503,99 @@ class FirestoreAdminRepository implements AdminRepository {
   }
 
   @override
+  Future<String> createSchoolClass({
+    required String adminUid,
+    required String name,
+    required String classLevel,
+    String? series,
+    String? track,
+    String? establishmentId,
+  }) async {
+    final trimmed = name.trim();
+    if (trimmed.length < 2 || trimmed.length > 60) {
+      throw ArgumentError('Le nom d’une classe compte de 2 à 60 caractères.');
+    }
+    final level = classLevel.trim();
+    if (level.isEmpty) {
+      throw ArgumentError('Choisissez un niveau académique.');
+    }
+    final context = await _fetchAdminContext(adminUid);
+    final school = _schoolToRead(context, establishmentId);
+    if (school.isEmpty) {
+      throw ArgumentError('Sélectionnez une école pour la classe.');
+    }
+    // La classe naît vide : les règles exigent studentIds vide à la création,
+    // ce qui protège aussi de tout rattachement d'élève non désiré.
+    final created = await _db.collection('classes').add({
+      'name': trimmed,
+      'classLevel': level,
+      if (series != null && series.trim().isNotEmpty) 'series': series.trim(),
+      if (track != null && track.trim().isNotEmpty) 'track': track.trim(),
+      'establishmentId': school,
+      'studentIds': <String>[],
+      'teacherIds': <String>[],
+      'createdBy': adminUid,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+    return created.id;
+  }
+
+  @override
+  Future<void> updateSchoolClass({
+    required String adminUid,
+    required String classId,
+    String? name,
+    String? classLevel,
+    String? series,
+    String? track,
+  }) async {
+    final update = <String, Object?>{'updatedAt': FieldValue.serverTimestamp()};
+    if (name != null) {
+      final trimmed = name.trim();
+      if (trimmed.length < 2 || trimmed.length > 60) {
+        throw ArgumentError('Le nom d’une classe compte de 2 à 60 caractères.');
+      }
+      update['name'] = trimmed;
+    }
+    if (classLevel != null) {
+      final level = classLevel.trim();
+      if (level.isEmpty) throw ArgumentError('Niveau académique invalide.');
+      update['classLevel'] = level;
+    }
+    if (series != null) {
+      update['series'] = series.trim().isEmpty
+          ? FieldValue.delete()
+          : series.trim();
+    }
+    if (track != null) {
+      update['track'] = track.trim().isEmpty
+          ? FieldValue.delete()
+          : track.trim();
+    }
+    // La composition (studentIds/teacherIds) n'est jamais touchée ici.
+    await _db.collection('classes').doc(classId).update(update);
+  }
+
+  @override
+  Future<void> deleteSchoolClass({
+    required String adminUid,
+    required String classId,
+  }) async {
+    final snapshot = await _db.collection('classes').doc(classId).get();
+    final data = snapshot.data();
+    if (data == null) return;
+    final studentCount = (data['studentIds'] as List?)?.length ?? 0;
+    if (studentCount > 0) {
+      throw StateError(
+        'Cette classe compte encore des élèves : retirez-les avant de la '
+        'supprimer.',
+      );
+    }
+    await _db.collection('classes').doc(classId).delete();
+  }
+
+  @override
   Future<List<EstablishmentOption>> fetchEstablishments({
     required String adminUid,
   }) async {
@@ -513,6 +608,7 @@ class FirestoreAdminRepository implements AdminRepository {
           id: doc.id,
           name: (doc.data()['name'] as String?)?.trim() ?? doc.id,
           city: (doc.data()['city'] as String?)?.trim() ?? '',
+          archived: (doc.data()['status'] as String?)?.trim() == 'archived',
         ),
     ];
     options.sort(
@@ -546,6 +642,43 @@ class FirestoreAdminRepository implements AdminRepository {
       'updatedAt': FieldValue.serverTimestamp(),
     });
     return created.id;
+  }
+
+  @override
+  Future<void> updateEstablishment({
+    required String adminUid,
+    required String establishmentId,
+    required String name,
+    required String city,
+  }) async {
+    final trimmed = name.trim();
+    if (trimmed.length < 3 || trimmed.length > 120) {
+      throw ArgumentError('Le nom d’une école compte de 3 à 120 caractères.');
+    }
+    final trimmedCity = city.trim();
+    if (trimmedCity.length < 2 || trimmedCity.length > 80) {
+      throw ArgumentError('La ville d’une école compte de 2 à 80 caractères.');
+    }
+    await _db.collection('establishments').doc(establishmentId).update({
+      'name': trimmed,
+      'city': trimmedCity,
+      'cityNormalized': _normalizedPlace(trimmedCity),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  @override
+  Future<void> setEstablishmentArchived({
+    required String adminUid,
+    required String establishmentId,
+    required bool archived,
+  }) async {
+    // On archive par un statut plutôt que par une suppression : les comptes,
+    // classes et contenus rattachés restent intègres et réactivables.
+    await _db.collection('establishments').doc(establishmentId).update({
+      'status': archived ? 'archived' : 'active',
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   @override

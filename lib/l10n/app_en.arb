@@ -2171,5 +2171,20 @@
   "studentLinkCodeRotate": "Regenerate code",
   "studentLinkCodeRotateConfirmTitle": "Regenerate the code?",
   "studentLinkCodeRotateConfirmBody": "The old code will stop working immediately. Parents already linked stay linked.",
-  "studentLinkCodeRotated": "New code generated."
+  "studentLinkCodeRotated": "New code generated.",
+  "createClassLabel": "Create a class",
+  "classLevelLabel": "Academic level",
+  "classSeriesLabel": "Series (optional)",
+  "classTrackLabel": "Track (optional)",
+  "classSeriesNone": "None",
+  "deleteClassLabel": "Delete class",
+  "deleteClassConfirm": "Delete \"{name}\"? This class is empty.",
+  "deleteClassBlocked": "Class not empty: remove the students first.",
+  "classCreatedMessage": "Class created.",
+  "classDeletedMessage": "Class deleted.",
+  "editEstablishmentLabel": "Edit school",
+  "archiveEstablishmentLabel": "Archive school",
+  "unarchiveEstablishmentLabel": "Reactivate school",
+  "establishmentArchivedBadge": "Archived",
+  "establishmentCityLabel": "City"
 }

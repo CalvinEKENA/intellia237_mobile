@@ -22,6 +22,36 @@ abstract class AdminRepository {
     required String name,
   });
 
+  /// Crée une classe d'établissement. [classLevel] est un **niveau académique
+  /// canonique** (6eme…Terminale, Form1…UpperSixth), distinct du nom d'usage
+  /// (« 6e A »). La classe naît sans élève (les règles l'exigent).
+  Future<String> createSchoolClass({
+    required String adminUid,
+    required String name,
+    required String classLevel,
+    String? series,
+    String? track,
+    String? establishmentId,
+  });
+
+  /// Met à jour le nom et/ou les métadonnées (niveau/série/filière) d'une classe.
+  /// Ne touche jamais à la composition (élèves/enseignants).
+  Future<void> updateSchoolClass({
+    required String adminUid,
+    required String classId,
+    String? name,
+    String? classLevel,
+    String? series,
+    String? track,
+  });
+
+  /// Supprime une classe **uniquement si elle est vide** (aucun élève). Lève une
+  /// erreur explicite sinon, pour ne jamais orpheliner d'élèves.
+  Future<void> deleteSchoolClass({
+    required String adminUid,
+    required String classId,
+  });
+
   Future<AdminDashboard> fetchDashboard({required String adminUid});
 
   Future<List<PendingAccountReview>> fetchPendingReviews({
@@ -47,6 +77,22 @@ abstract class AdminRepository {
     required String adminUid,
     required String name,
     required String city,
+  });
+
+  /// Modifie le nom et/ou la ville d'un établissement.
+  Future<void> updateEstablishment({
+    required String adminUid,
+    required String establishmentId,
+    required String name,
+    required String city,
+  });
+
+  /// Archive (désactive) ou réactive un établissement sans supprimer ses
+  /// données : on ne détruit jamais une école qui porte des comptes/classes.
+  Future<void> setEstablishmentArchived({
+    required String adminUid,
+    required String establishmentId,
+    required bool archived,
   });
 
   Future<List<UnattachedStaffMember>> fetchUnattachedStaff({

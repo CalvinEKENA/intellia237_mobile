@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/admin_providers.dart';
+import '../domain/admin_models.dart';
 import 'attach_school_sheet.dart';
 import 'school_directory_section.dart';
 
@@ -31,6 +32,42 @@ class _SchoolsOverviewSectionState
       body: context.l10n.schoolsOverviewHint,
     );
     if (id != null && mounted) setState(() => _selectedId = id);
+  }
+
+  Future<void> _editSchool(EstablishmentOption option) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final failure = context.l10n.accountReviewFailed;
+    final draft = await showDialog<({String name, String city})>(
+      context: context,
+      builder: (_) => _EditSchoolDialog(initial: option),
+    );
+    if (draft == null) return;
+    try {
+      await ref
+          .read(adminActionsProvider)
+          .updateEstablishment(
+            establishmentId: option.id,
+            name: draft.name,
+            city: draft.city,
+          );
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(failure)));
+    }
+  }
+
+  Future<void> _toggleArchive(EstablishmentOption option) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final failure = context.l10n.accountReviewFailed;
+    try {
+      await ref
+          .read(adminActionsProvider)
+          .setEstablishmentArchived(
+            establishmentId: option.id,
+            archived: !option.archived,
+          );
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(failure)));
+    }
   }
 
   @override
@@ -91,16 +128,54 @@ class _SchoolsOverviewSectionState
                       Card(
                         child: ListTile(
                           key: ValueKey('schools-overview-${option.id}'),
-                          leading: const Icon(Icons.school_outlined),
+                          leading: Icon(
+                            option.archived
+                                ? Icons.school_outlined
+                                : Icons.school_rounded,
+                            color: option.archived ? theme.disabledColor : null,
+                          ),
                           title: Text(option.name),
-                          subtitle: option.city.isEmpty
-                              ? null
-                              : Text(option.city),
+                          subtitle: Text(
+                            [
+                              if (option.city.isNotEmpty) option.city,
+                              if (option.archived)
+                                l10n.establishmentArchivedBadge,
+                            ].join(' · '),
+                          ),
                           selected: option.id == _selectedId,
-                          trailing: Icon(
-                            option.id == _selectedId
-                                ? Icons.expand_less_rounded
-                                : Icons.chevron_right_rounded,
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              PopupMenuButton<String>(
+                                key: ValueKey('school-menu-${option.id}'),
+                                onSelected: (value) {
+                                  if (value == 'edit') {
+                                    _editSchool(option);
+                                  } else if (value == 'archive') {
+                                    _toggleArchive(option);
+                                  }
+                                },
+                                itemBuilder: (_) => [
+                                  PopupMenuItem(
+                                    value: 'edit',
+                                    child: Text(l10n.editEstablishmentLabel),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'archive',
+                                    child: Text(
+                                      option.archived
+                                          ? l10n.unarchiveEstablishmentLabel
+                                          : l10n.archiveEstablishmentLabel,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Icon(
+                                option.id == _selectedId
+                                    ? Icons.expand_less_rounded
+                                    : Icons.chevron_right_rounded,
+                              ),
+                            ],
                           ),
                           onTap: () => setState(
                             () => _selectedId = option.id == _selectedId
@@ -121,6 +196,70 @@ class _SchoolsOverviewSectionState
           const SizedBox(height: IntelliaSpacing.xl),
           SchoolClassesSection(establishmentId: _selectedId),
         ],
+      ],
+    );
+  }
+}
+
+class _EditSchoolDialog extends StatefulWidget {
+  const _EditSchoolDialog({required this.initial});
+
+  final EstablishmentOption initial;
+
+  @override
+  State<_EditSchoolDialog> createState() => _EditSchoolDialogState();
+}
+
+class _EditSchoolDialogState extends State<_EditSchoolDialog> {
+  late final TextEditingController _name = TextEditingController(
+    text: widget.initial.name,
+  );
+  late final TextEditingController _city = TextEditingController(
+    text: widget.initial.city,
+  );
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _city.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      title: Text(l10n.editEstablishmentLabel),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            key: const ValueKey('edit-school-name'),
+            controller: _name,
+            autofocus: true,
+            maxLength: 120,
+            decoration: InputDecoration(labelText: l10n.schoolsOverviewTitle),
+          ),
+          TextField(
+            key: const ValueKey('edit-school-city'),
+            controller: _city,
+            maxLength: 80,
+            decoration: InputDecoration(labelText: l10n.establishmentCityLabel),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancelLabel),
+        ),
+        FilledButton(
+          key: const ValueKey('edit-school-submit'),
+          onPressed: () => Navigator.of(
+            context,
+          ).pop((name: _name.text.trim(), city: _city.text.trim())),
+          child: Text(l10n.saveLabel),
+        ),
       ],
     );
   }

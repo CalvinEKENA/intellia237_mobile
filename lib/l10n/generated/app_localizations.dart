@@ -7455,6 +7455,96 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Nouveau code généré.'**
   String get studentLinkCodeRotated;
+
+  /// No description provided for @createClassLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer une classe'**
+  String get createClassLabel;
+
+  /// No description provided for @classLevelLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau académique'**
+  String get classLevelLabel;
+
+  /// No description provided for @classSeriesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Série (optionnel)'**
+  String get classSeriesLabel;
+
+  /// No description provided for @classTrackLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filière (optionnel)'**
+  String get classTrackLabel;
+
+  /// No description provided for @classSeriesNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune'**
+  String get classSeriesNone;
+
+  /// No description provided for @deleteClassLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la classe'**
+  String get deleteClassLabel;
+
+  /// No description provided for @deleteClassConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer « {name} » ? Cette classe est vide.'**
+  String deleteClassConfirm(String name);
+
+  /// No description provided for @deleteClassBlocked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe non vide : retirez d’abord les élèves.'**
+  String get deleteClassBlocked;
+
+  /// No description provided for @classCreatedMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe créée.'**
+  String get classCreatedMessage;
+
+  /// No description provided for @classDeletedMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe supprimée.'**
+  String get classDeletedMessage;
+
+  /// No description provided for @editEstablishmentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier l’école'**
+  String get editEstablishmentLabel;
+
+  /// No description provided for @archiveEstablishmentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Archiver l’école'**
+  String get archiveEstablishmentLabel;
+
+  /// No description provided for @unarchiveEstablishmentLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réactiver l’école'**
+  String get unarchiveEstablishmentLabel;
+
+  /// No description provided for @establishmentArchivedBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Archivée'**
+  String get establishmentArchivedBadge;
+
+  /// No description provided for @establishmentCityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ville'**
+  String get establishmentCityLabel;
 }
 
 class _AppLocalizationsDelegate

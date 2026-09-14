@@ -1246,3 +1246,71 @@ describe("Child link codes stay server-authoritative (section C)", () => {
     }
   });
 });
+
+describe("Admin school/class management (section E)", () => {
+  it("an admin creates an empty class in their own school, never with students", async () => {
+    await seedFirestore();
+    const db = dbFor("admin-a");
+    await assertSucceeds(
+      setDoc(doc(db, "classes/new-empty"), {
+        name: "5e B",
+        classLevel: "5eme",
+        establishmentId: "school-a",
+        studentIds: [],
+        teacherIds: [],
+      }),
+    );
+    // Impossible de créer une classe déjà peuplée (pas de rattachement furtif).
+    await assertFails(
+      setDoc(doc(db, "classes/new-full"), {
+        name: "5e C",
+        classLevel: "5eme",
+        establishmentId: "school-a",
+        studentIds: ["student-a"],
+        teacherIds: [],
+      }),
+    );
+    // Ni dans une autre école.
+    await assertFails(
+      setDoc(doc(db, "classes/foreign"), {
+        name: "Form 3",
+        classLevel: "Form3",
+        establishmentId: "school-b",
+        studentIds: [],
+        teacherIds: [],
+      }),
+    );
+  });
+
+  it("an admin deletes an empty class but not one with students", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, "classes/empty-a"), {
+        establishmentId: "school-a",
+        studentIds: [],
+        teacherIds: [],
+      });
+    });
+    const db = dbFor("admin-a");
+    // class-a (seed) a un élève → suppression refusée.
+    await assertFails(deleteDoc(doc(db, "classes/class-a")));
+    await assertSucceeds(deleteDoc(doc(db, "classes/empty-a")));
+  });
+
+  it("an admin edits their establishment; a foreign admin cannot", async () => {
+    await seedFirestore();
+    await assertSucceeds(
+      updateDoc(doc(dbFor("admin-a"), "establishments/school-a"), {
+        name: "School A renamed",
+        city: "Douala",
+        status: "active",
+      }),
+    );
+    await assertFails(
+      updateDoc(doc(dbFor("admin-b"), "establishments/school-a"), {
+        name: "hijacked",
+      }),
+    );
+  });
+});

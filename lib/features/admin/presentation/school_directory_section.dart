@@ -5,6 +5,7 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
+import '../../student_registration/domain/academic_rules.dart';
 import 'admin_presentation_localization.dart';
 import '../../auth/application/auth_controller.dart';
 import 'account_management_controls.dart';
@@ -200,11 +201,23 @@ class SchoolClassesSection extends ConsumerWidget {
       key: const ValueKey('school-classes'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          l10n.schoolClassesTitle,
-          style: Theme.of(
-            context,
-          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.schoolClassesTitle,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+              ),
+            ),
+            TextButton.icon(
+              key: const ValueKey('create-class'),
+              onPressed: () => _create(context, ref),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(l10n.createClassLabel),
+            ),
+          ],
         ),
         const SizedBox(height: IntelliaSpacing.sm),
         ref
@@ -236,18 +249,46 @@ class SchoolClassesSection extends ConsumerWidget {
                                 [
                                   if (schoolClass.levelLabel.isNotEmpty)
                                     schoolClass.levelLabel,
+                                  if (schoolClass.series != null &&
+                                      schoolClass.series!.isNotEmpty)
+                                    'Série ${schoolClass.series}',
+                                  if (schoolClass.track != null &&
+                                      schoolClass.track!.isNotEmpty)
+                                    schoolClass.track!,
                                   l10n.schoolClassCounts(
                                     schoolClass.studentCount,
                                     schoolClass.teacherCount,
                                   ),
                                 ].join(' · '),
                               ),
-                              trailing: IconButton(
-                                key: ValueKey('rename-class-${schoolClass.id}'),
-                                tooltip: l10n.renameClassLabel,
-                                icon: const Icon(Icons.edit_outlined),
-                                onPressed: () =>
-                                    _rename(context, ref, schoolClass),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    key: ValueKey(
+                                      'rename-class-${schoolClass.id}',
+                                    ),
+                                    tooltip: l10n.renameClassLabel,
+                                    icon: const Icon(Icons.edit_outlined),
+                                    onPressed: () =>
+                                        _rename(context, ref, schoolClass),
+                                  ),
+                                  IconButton(
+                                    key: ValueKey(
+                                      'delete-class-${schoolClass.id}',
+                                    ),
+                                    tooltip: schoolClass.isEmpty
+                                        ? l10n.deleteClassLabel
+                                        : l10n.deleteClassBlocked,
+                                    icon: const Icon(Icons.delete_outline),
+                                    // Désactivé si la classe a des élèves : on
+                                    // n'orpheline jamais un élève.
+                                    onPressed: schoolClass.isEmpty
+                                        ? () =>
+                                              _delete(context, ref, schoolClass)
+                                        : null,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -277,6 +318,197 @@ class SchoolClassesSection extends ConsumerWidget {
     } catch (_) {
       messenger.showSnackBar(SnackBar(content: Text(failure)));
     }
+  }
+
+  Future<void> _create(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final created = l10n.classCreatedMessage;
+    final failure = l10n.accountReviewFailed;
+    final draft = await showDialog<_NewClassDraft>(
+      context: context,
+      builder: (_) => const _CreateClassDialog(),
+    );
+    if (draft == null) return;
+    try {
+      await ref
+          .read(adminActionsProvider)
+          .createSchoolClass(
+            name: draft.name,
+            classLevel: draft.classLevel,
+            series: draft.series,
+            track: draft.track,
+            establishmentId: establishmentId,
+          );
+      messenger.showSnackBar(SnackBar(content: Text(created)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(failure)));
+    }
+  }
+
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    SchoolClassSummary schoolClass,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final deleted = l10n.classDeletedMessage;
+    final failure = l10n.accountReviewFailed;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.deleteClassLabel),
+        content: Text(l10n.deleteClassConfirm(schoolClass.name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.cancelLabel),
+          ),
+          FilledButton(
+            key: const ValueKey('delete-class-confirm'),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.deleteClassLabel),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ref
+          .read(adminActionsProvider)
+          .deleteSchoolClass(classId: schoolClass.id);
+      messenger.showSnackBar(SnackBar(content: Text(deleted)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(failure)));
+    }
+  }
+}
+
+class _NewClassDraft {
+  const _NewClassDraft({
+    required this.name,
+    required this.classLevel,
+    this.series,
+    this.track,
+  });
+  final String name;
+  final String classLevel;
+  final String? series;
+  final String? track;
+}
+
+/// Création d'une classe d'établissement : le nom d'usage (« 6e A ») est libre,
+/// mais le niveau est choisi dans la liste **canonique** (jamais saisi à la
+/// main), ce qui évite toute confusion classe ⇄ niveau académique.
+class _CreateClassDialog extends StatefulWidget {
+  const _CreateClassDialog();
+
+  @override
+  State<_CreateClassDialog> createState() => _CreateClassDialogState();
+}
+
+class _CreateClassDialogState extends State<_CreateClassDialog> {
+  final _name = TextEditingController();
+  final _track = TextEditingController();
+  SchoolClass _level = SchoolClass.sixieme;
+  SchoolSeries? _series;
+  String? _error;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _track.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return AlertDialog(
+      title: Text(l10n.createClassLabel),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              key: const ValueKey('create-class-name'),
+              controller: _name,
+              autofocus: true,
+              maxLength: 60,
+              decoration: InputDecoration(
+                labelText: l10n.classNameLabel,
+                errorText: _error,
+              ),
+            ),
+            const SizedBox(height: IntelliaSpacing.sm),
+            DropdownButtonFormField<SchoolClass>(
+              key: const ValueKey('create-class-level'),
+              initialValue: _level,
+              isExpanded: true,
+              decoration: InputDecoration(labelText: l10n.classLevelLabel),
+              items: [
+                for (final level in SchoolClass.values)
+                  DropdownMenuItem(value: level, child: Text(level.label)),
+              ],
+              onChanged: (value) => setState(() => _level = value ?? _level),
+            ),
+            const SizedBox(height: IntelliaSpacing.sm),
+            DropdownButtonFormField<SchoolSeries?>(
+              key: const ValueKey('create-class-series'),
+              initialValue: _series,
+              isExpanded: true,
+              decoration: InputDecoration(labelText: l10n.classSeriesLabel),
+              items: [
+                DropdownMenuItem(
+                  value: null,
+                  child: Text(l10n.classSeriesNone),
+                ),
+                for (final series in SchoolSeries.values)
+                  DropdownMenuItem(
+                    value: series,
+                    child: Text(series.name.toUpperCase()),
+                  ),
+              ],
+              onChanged: (value) => setState(() => _series = value),
+            ),
+            const SizedBox(height: IntelliaSpacing.sm),
+            TextField(
+              key: const ValueKey('create-class-track'),
+              controller: _track,
+              maxLength: 40,
+              decoration: InputDecoration(labelText: l10n.classTrackLabel),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancelLabel),
+        ),
+        FilledButton(
+          key: const ValueKey('create-class-submit'),
+          onPressed: () {
+            final name = _name.text.trim();
+            if (name.length < 2) {
+              setState(() => _error = l10n.classNameLabel);
+              return;
+            }
+            Navigator.of(context).pop(
+              _NewClassDraft(
+                name: name,
+                classLevel: _level.catalogKey,
+                series: _series?.name.toUpperCase(),
+                track: _track.text.trim().isEmpty ? null : _track.text.trim(),
+              ),
+            );
+          },
+          child: Text(l10n.createClassLabel),
+        ),
+      ],
+    );
   }
 }
 

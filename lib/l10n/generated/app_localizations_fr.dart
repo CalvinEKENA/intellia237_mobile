@@ -4311,4 +4311,52 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get studentLinkCodeRotated => 'Nouveau code généré.';
+
+  @override
+  String get createClassLabel => 'Créer une classe';
+
+  @override
+  String get classLevelLabel => 'Niveau académique';
+
+  @override
+  String get classSeriesLabel => 'Série (optionnel)';
+
+  @override
+  String get classTrackLabel => 'Filière (optionnel)';
+
+  @override
+  String get classSeriesNone => 'Aucune';
+
+  @override
+  String get deleteClassLabel => 'Supprimer la classe';
+
+  @override
+  String deleteClassConfirm(String name) {
+    return 'Supprimer « $name » ? Cette classe est vide.';
+  }
+
+  @override
+  String get deleteClassBlocked =>
+      'Classe non vide : retirez d’abord les élèves.';
+
+  @override
+  String get classCreatedMessage => 'Classe créée.';
+
+  @override
+  String get classDeletedMessage => 'Classe supprimée.';
+
+  @override
+  String get editEstablishmentLabel => 'Modifier l’école';
+
+  @override
+  String get archiveEstablishmentLabel => 'Archiver l’école';
+
+  @override
+  String get unarchiveEstablishmentLabel => 'Réactiver l’école';
+
+  @override
+  String get establishmentArchivedBadge => 'Archivée';
+
+  @override
+  String get establishmentCityLabel => 'Ville';
 }

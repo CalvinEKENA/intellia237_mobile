@@ -101,6 +101,57 @@ class AdminActions {
     _ref.invalidate(schoolClassesProvider);
   }
 
+  Future<String> createSchoolClass({
+    required String name,
+    required String classLevel,
+    String? series,
+    String? track,
+    String? establishmentId,
+  }) async {
+    final id = await _ref
+        .read(adminRepositoryProvider)
+        .createSchoolClass(
+          adminUid: _ref.read(_adminUidProvider),
+          name: name,
+          classLevel: classLevel,
+          series: series,
+          track: track,
+          establishmentId: establishmentId,
+        );
+    _ref.invalidate(schoolClassesProvider);
+    return id;
+  }
+
+  Future<void> updateSchoolClass({
+    required String classId,
+    String? name,
+    String? classLevel,
+    String? series,
+    String? track,
+  }) async {
+    await _ref
+        .read(adminRepositoryProvider)
+        .updateSchoolClass(
+          adminUid: _ref.read(_adminUidProvider),
+          classId: classId,
+          name: name,
+          classLevel: classLevel,
+          series: series,
+          track: track,
+        );
+    _ref.invalidate(schoolClassesProvider);
+  }
+
+  Future<void> deleteSchoolClass({required String classId}) async {
+    await _ref
+        .read(adminRepositoryProvider)
+        .deleteSchoolClass(
+          adminUid: _ref.read(_adminUidProvider),
+          classId: classId,
+        );
+    _ref.invalidate(schoolClassesProvider);
+  }
+
   Future<String> createEstablishment({
     required String name,
     required String city,
@@ -114,6 +165,36 @@ class AdminActions {
         );
     _ref.invalidate(adminEstablishmentsProvider);
     return id;
+  }
+
+  Future<void> updateEstablishment({
+    required String establishmentId,
+    required String name,
+    required String city,
+  }) async {
+    await _ref
+        .read(adminRepositoryProvider)
+        .updateEstablishment(
+          adminUid: _ref.read(_adminUidProvider),
+          establishmentId: establishmentId,
+          name: name,
+          city: city,
+        );
+    _ref.invalidate(adminEstablishmentsProvider);
+  }
+
+  Future<void> setEstablishmentArchived({
+    required String establishmentId,
+    required bool archived,
+  }) async {
+    await _ref
+        .read(adminRepositoryProvider)
+        .setEstablishmentArchived(
+          adminUid: _ref.read(_adminUidProvider),
+          establishmentId: establishmentId,
+          archived: archived,
+        );
+    _ref.invalidate(adminEstablishmentsProvider);
   }
 
   Future<void> attachStaffToEstablishment({

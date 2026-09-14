@@ -2186,5 +2186,23 @@
   "studentLinkCodeRotate": "Régénérer le code",
   "studentLinkCodeRotateConfirmTitle": "Régénérer le code ?",
   "studentLinkCodeRotateConfirmBody": "L’ancien code cessera immédiatement de fonctionner. Les parents déjà liés le restent.",
-  "studentLinkCodeRotated": "Nouveau code généré."
+  "studentLinkCodeRotated": "Nouveau code généré.",
+  "createClassLabel": "Créer une classe",
+  "classLevelLabel": "Niveau académique",
+  "classSeriesLabel": "Série (optionnel)",
+  "classTrackLabel": "Filière (optionnel)",
+  "classSeriesNone": "Aucune",
+  "deleteClassLabel": "Supprimer la classe",
+  "deleteClassConfirm": "Supprimer « {name} » ? Cette classe est vide.",
+  "@deleteClassConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "deleteClassBlocked": "Classe non vide : retirez d’abord les élèves.",
+  "classCreatedMessage": "Classe créée.",
+  "classDeletedMessage": "Classe supprimée.",
+  "editEstablishmentLabel": "Modifier l’école",
+  "archiveEstablishmentLabel": "Archiver l’école",
+  "unarchiveEstablishmentLabel": "Réactiver l’école",
+  "establishmentArchivedBadge": "Archivée",
+  "establishmentCityLabel": "Ville"
 }

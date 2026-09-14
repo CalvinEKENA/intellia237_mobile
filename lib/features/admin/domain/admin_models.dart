@@ -52,13 +52,22 @@ class SchoolClassSummary {
     required this.levelLabel,
     required this.studentCount,
     required this.teacherCount,
+    this.series,
+    this.track,
   });
 
   final String id;
   final String name;
+
+  /// Niveau académique canonique (6eme…UpperSixth), distinct du nom d'usage.
   final String levelLabel;
   final int studentCount;
   final int teacherCount;
+  final String? series;
+  final String? track;
+
+  /// Vrai si la classe peut être supprimée en toute sécurité (aucun élève).
+  bool get isEmpty => studentCount == 0;
 }
 
 class AdminKpi {
@@ -105,11 +114,15 @@ class EstablishmentOption {
     required this.id,
     required this.name,
     required this.city,
+    this.archived = false,
   });
 
   final String id;
   final String name;
   final String city;
+
+  /// Établissement désactivé (conservé, mais retiré de l'usage courant).
+  final bool archived;
 }
 
 /// Un membre du personnel approuvé avant que son école existe dans INTELLIA.

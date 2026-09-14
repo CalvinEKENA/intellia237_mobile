@@ -4286,4 +4286,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studentLinkCodeRotated => 'New code generated.';
+
+  @override
+  String get createClassLabel => 'Create a class';
+
+  @override
+  String get classLevelLabel => 'Academic level';
+
+  @override
+  String get classSeriesLabel => 'Series (optional)';
+
+  @override
+  String get classTrackLabel => 'Track (optional)';
+
+  @override
+  String get classSeriesNone => 'None';
+
+  @override
+  String get deleteClassLabel => 'Delete class';
+
+  @override
+  String deleteClassConfirm(String name) {
+    return 'Delete \"$name\"? This class is empty.';
+  }
+
+  @override
+  String get deleteClassBlocked =>
+      'Class not empty: remove the students first.';
+
+  @override
+  String get classCreatedMessage => 'Class created.';
+
+  @override
+  String get classDeletedMessage => 'Class deleted.';
+
+  @override
+  String get editEstablishmentLabel => 'Edit school';
+
+  @override
+  String get archiveEstablishmentLabel => 'Archive school';
+
+  @override
+  String get unarchiveEstablishmentLabel => 'Reactivate school';
+
+  @override
+  String get establishmentArchivedBadge => 'Archived';
+
+  @override
+  String get establishmentCityLabel => 'City';
 }
