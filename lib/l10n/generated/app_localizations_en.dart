@@ -4416,4 +4416,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get studyReserveUnavailable => 'Study reserve unavailable right now.';
+
+  @override
+  String get studyReserveNotifTitle => 'Study reserve';
+
+  @override
+  String studyReserveNotifInfo(int percent) {
+    return '$percent% of the study reserve is left this cycle.';
+  }
+
+  @override
+  String studyReserveNotifLow(int percent) {
+    return 'The study reserve is at $percent%. Pace it for the tutor.';
+  }
+
+  @override
+  String studyReserveNotifCritical(int percent) {
+    return 'The study reserve is almost empty ($percent%).';
+  }
+
+  @override
+  String get studyReserveNotifDepleted =>
+      'The study reserve is empty; it renews next cycle. Lessons and quizzes stay available.';
 }

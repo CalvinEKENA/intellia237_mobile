@@ -1,5 +1,13 @@
 /// Statut produit de la réserve d'étude (dérivé du pourcentage restant).
-enum StudyReserveStatus { healthy, warning, low, critical, depleted }
+/// [unavailable] = aucun plan/réserve configuré (jamais présenté comme 100 %).
+enum StudyReserveStatus {
+  healthy,
+  warning,
+  low,
+  critical,
+  depleted,
+  unavailable,
+}
 
 /// Vue **product-safe** de la réserve d'étude d'un élève. Ne contient jamais de
 /// comptes techniques (token, XP, crédits) : uniquement un pourcentage, un
@@ -26,11 +34,16 @@ class StudyReserve {
     'warning' => StudyReserveStatus.warning,
     'low' => StudyReserveStatus.low,
     'critical' => StudyReserveStatus.critical,
-    _ => StudyReserveStatus.depleted,
+    'depleted' => StudyReserveStatus.depleted,
+    // Inconnu / non configuré → état sûr « indisponible », jamais 100 %.
+    _ => StudyReserveStatus.unavailable,
   };
 
   /// Vrai quand seules les opérations consommatrices (tuteur IA) sont bloquées.
   bool get isDepleted => status == StudyReserveStatus.depleted;
+
+  /// Aucun plan/réserve configuré : on n'affiche ni pourcentage ni jauge.
+  bool get isUnavailable => status == StudyReserveStatus.unavailable;
 
   factory StudyReserve.fromMap(String fallbackId, Map<String, dynamic> data) {
     DateTime? parseDate(Object? value) =>

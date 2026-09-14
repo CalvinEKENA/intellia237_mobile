@@ -7683,6 +7683,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Réserve d’étude indisponible pour le moment.'**
   String get studyReserveUnavailable;
+
+  /// No description provided for @studyReserveNotifTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve d’étude'**
+  String get studyReserveNotifTitle;
+
+  /// No description provided for @studyReserveNotifInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste {percent} % de la réserve d’étude ce cycle.'**
+  String studyReserveNotifInfo(int percent);
+
+  /// No description provided for @studyReserveNotifLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'La réserve d’étude est à {percent} %. Pense à la ménager pour le tuteur.'**
+  String studyReserveNotifLow(int percent);
+
+  /// No description provided for @studyReserveNotifCritical.
+  ///
+  /// In fr, this message translates to:
+  /// **'La réserve d’étude est presque épuisée ({percent} %).'**
+  String studyReserveNotifCritical(int percent);
+
+  /// No description provided for @studyReserveNotifDepleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'La réserve d’étude est épuisée ; elle se renouvelle au prochain cycle. Les cours et quiz restent accessibles.'**
+  String get studyReserveNotifDepleted;
 }
 
 class _AppLocalizationsDelegate

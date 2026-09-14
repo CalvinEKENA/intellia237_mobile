@@ -25,6 +25,7 @@ import 'widgets/add_child_button.dart';
 import 'widgets/parent_premium_nav_bar.dart';
 import 'widgets/parent_learning_overview.dart';
 import '../../mastery/presentation/mastery_style.dart';
+import '../../study_reserve/presentation/study_reserve_card.dart';
 
 class ParentHomeScreen extends ConsumerStatefulWidget {
   const ParentHomeScreen({super.key});
@@ -390,6 +391,9 @@ class _ChildrenTab extends StatelessWidget {
                   ),
                   const SizedBox(height: IntelliaSpacing.xxs),
                   Text(child.classLabel),
+                  const SizedBox(height: IntelliaSpacing.sm),
+                  // Réserve d'étude INDÉPENDANTE de cet enfant (jamais agrégée).
+                  StudyReserveCard(studentId: child.id, compact: true),
                   const SizedBox(height: IntelliaSpacing.sm),
                   Row(
                     children: [

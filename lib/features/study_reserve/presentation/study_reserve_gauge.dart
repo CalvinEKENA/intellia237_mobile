@@ -24,6 +24,7 @@ class StudyReserveGauge extends StatelessWidget {
     StudyReserveStatus.low => IntelliaColors.warning,
     StudyReserveStatus.critical => IntelliaColors.error,
     StudyReserveStatus.depleted => IntelliaColors.error,
+    StudyReserveStatus.unavailable => IntelliaColors.textTertiary,
   };
 
   String _statusLabel(BuildContext context) {
@@ -34,6 +35,7 @@ class StudyReserveGauge extends StatelessWidget {
       StudyReserveStatus.low => l10n.studyReserveStatusLow,
       StudyReserveStatus.critical => l10n.studyReserveStatusCritical,
       StudyReserveStatus.depleted => l10n.studyReserveStatusDepleted,
+      StudyReserveStatus.unavailable => l10n.studyReserveUnavailable,
     };
   }
 
@@ -61,37 +63,58 @@ class StudyReserveGauge extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.studyReserveTitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(
                     context,
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
-              Text(
-                l10n.studyReserveRemaining(reserve.percentRemaining),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w800,
+              // Aucun pourcentage inventé quand la réserve n'est pas configurée.
+              if (!reserve.isUnavailable) ...[
+                const SizedBox(width: IntelliaSpacing.xs),
+                Flexible(
+                  child: Text(
+                    l10n.studyReserveRemaining(reserve.percentRemaining),
+                    textAlign: TextAlign.end,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(IntelliaRadii.full),
-            child: LinearProgressIndicator(
-              value: reserve.percentRemaining / 100,
-              minHeight: 8,
-              backgroundColor: color.withValues(alpha: 0.12),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
+          if (reserve.isUnavailable) ...[
+            const SizedBox(height: IntelliaSpacing.xs),
+            Text(
+              l10n.studyReserveUnavailable,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: color),
             ),
-          ),
-          const SizedBox(height: IntelliaSpacing.xs),
-          Text(
-            _statusLabel(context),
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: color),
-          ),
+          ] else ...[
+            const SizedBox(height: IntelliaSpacing.sm),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(IntelliaRadii.full),
+              child: LinearProgressIndicator(
+                value: reserve.percentRemaining / 100,
+                minHeight: 8,
+                backgroundColor: color.withValues(alpha: 0.12),
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+            ),
+            const SizedBox(height: IntelliaSpacing.xs),
+            Text(
+              _statusLabel(context),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: color),
+            ),
+          ],
           if (reserve.isDepleted && !compact) ...[
             const SizedBox(height: IntelliaSpacing.xs),
             Text(

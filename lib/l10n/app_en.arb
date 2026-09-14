@@ -2209,5 +2209,10 @@
   "studyReserveStatusCritical": "Almost empty",
   "studyReserveStatusDepleted": "Reserve empty",
   "studyReserveDepletedHelp": "The AI tutor rests until renewal. Lessons, quizzes and readings stay available.",
-  "studyReserveUnavailable": "Study reserve unavailable right now."
+  "studyReserveUnavailable": "Study reserve unavailable right now.",
+  "studyReserveNotifTitle": "Study reserve",
+  "studyReserveNotifInfo": "{percent}% of the study reserve is left this cycle.",
+  "studyReserveNotifLow": "The study reserve is at {percent}%. Pace it for the tutor.",
+  "studyReserveNotifCritical": "The study reserve is almost empty ({percent}%).",
+  "studyReserveNotifDepleted": "The study reserve is empty; it renews next cycle. Lessons and quizzes stay available."
 }

@@ -88,4 +88,121 @@ void main() {
     expect(text, contains('Réserve épuisée'));
     expect(text, contains('cours'));
   });
+
+  testWidgets('unavailable state never fabricates a percentage', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const StudyReserve(
+        studentId: 's1',
+        percentRemaining: 0,
+        status: StudyReserveStatus.unavailable,
+      ),
+      locale: const Locale('fr'),
+    );
+    final text = _allText(tester);
+    expect(text, contains('Réserve d’étude'));
+    expect(text, contains('indisponible'));
+    // Ni « 100 % » ni « 0 % » : aucune donnée inventée.
+    expect(text.contains('%'), isFalse);
+  });
+
+  // États visuels imposés : 100/75/50/25/5/0.
+  final visualStates = <(int, StudyReserveStatus)>[
+    (100, StudyReserveStatus.healthy),
+    (75, StudyReserveStatus.healthy),
+    (50, StudyReserveStatus.warning),
+    (25, StudyReserveStatus.low),
+    (5, StudyReserveStatus.critical),
+    (0, StudyReserveStatus.depleted),
+  ];
+  for (final (percent, status) in visualStates) {
+    for (final locale in const [Locale('fr'), Locale('en')]) {
+      testWidgets('visual state $percent% (${locale.languageCode})', (
+        tester,
+      ) async {
+        await _pump(tester, reserve(percent, status), locale: locale);
+        expect(tester.takeException(), isNull);
+        expect(
+          find.byKey(const ValueKey('study-reserve-gauge')),
+          findsOneWidget,
+        );
+      });
+    }
+  }
+
+  // Responsive + textScale : aucun débordement.
+  for (final width in const [320.0, 360.0, 390.0, 412.0, 480.0, 600.0]) {
+    for (final scale in const [1.0, 1.3, 1.5, 2.0]) {
+      testWidgets('no overflow ${width.toInt()}px @${scale}x', (tester) async {
+        tester.view.physicalSize = Size(width, 400);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('fr'),
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            home: MediaQuery(
+              data: MediaQueryData(
+                size: Size(width, 400),
+                textScaler: TextScaler.linear(scale),
+              ),
+              child: Scaffold(
+                body: SingleChildScrollView(
+                  child: StudyReserveGauge(
+                    reserve: reserve(5, StudyReserveStatus.critical),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+
+  testWidgets('multiple children each render their own distinct reserve', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('fr'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: Scaffold(
+          body: ListView(
+            children: [
+              StudyReserveGauge(
+                reserve: reserve(82, StudyReserveStatus.healthy),
+              ),
+              StudyReserveGauge(reserve: reserve(31, StudyReserveStatus.low)),
+              StudyReserveGauge(
+                reserve: reserve(4, StudyReserveStatus.critical),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    // Trois réserves indépendantes, jamais agrégées.
+    expect(find.textContaining('82 %'), findsOneWidget);
+    expect(find.textContaining('31 %'), findsOneWidget);
+    expect(find.textContaining('4 %'), findsOneWidget);
+  });
 }

@@ -2239,5 +2239,19 @@
   "studyReserveStatusCritical": "Presque épuisée",
   "studyReserveStatusDepleted": "Réserve épuisée",
   "studyReserveDepletedHelp": "Le tuteur IA se repose jusqu’au renouvellement. Les cours, quiz et lectures restent accessibles.",
-  "studyReserveUnavailable": "Réserve d’étude indisponible pour le moment."
+  "studyReserveUnavailable": "Réserve d’étude indisponible pour le moment.",
+  "studyReserveNotifTitle": "Réserve d’étude",
+  "studyReserveNotifInfo": "Il reste {percent} % de la réserve d’étude ce cycle.",
+  "@studyReserveNotifInfo": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "studyReserveNotifLow": "La réserve d’étude est à {percent} %. Pense à la ménager pour le tuteur.",
+  "@studyReserveNotifLow": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "studyReserveNotifCritical": "La réserve d’étude est presque épuisée ({percent} %).",
+  "@studyReserveNotifCritical": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "studyReserveNotifDepleted": "La réserve d’étude est épuisée ; elle se renouvelle au prochain cycle. Les cours et quiz restent accessibles."
 }

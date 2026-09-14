@@ -55,6 +55,7 @@ import 'widgets/streak_motivation_card.dart';
 import 'widgets/student_home_header.dart';
 import 'widgets/student_home_skeleton.dart';
 import 'widgets/subjects_carousel.dart';
+import '../../study_reserve/presentation/study_reserve_card.dart';
 
 /// Compteur de taps de navigation : outil de diagnostic de terrain.
 ///
@@ -846,6 +847,9 @@ class StudentProfileTab extends ConsumerWidget {
       const StudentLearningIdentity(),
       const SizedBox(height: 12),
       _TutorSection(classLevel: academicAsync.valueOrNull?.classLevel),
+      const SizedBox(height: 16),
+      // Réserve d'étude de l'élève (product-safe) : gouverne le tuteur IA.
+      const StudyReserveCard(),
       const SizedBox(height: 24),
       const StudentMasterySummary(),
       const SizedBox(height: 28),

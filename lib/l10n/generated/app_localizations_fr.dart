@@ -4444,4 +4444,26 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get studyReserveUnavailable =>
       'Réserve d’étude indisponible pour le moment.';
+
+  @override
+  String get studyReserveNotifTitle => 'Réserve d’étude';
+
+  @override
+  String studyReserveNotifInfo(int percent) {
+    return 'Il reste $percent % de la réserve d’étude ce cycle.';
+  }
+
+  @override
+  String studyReserveNotifLow(int percent) {
+    return 'La réserve d’étude est à $percent %. Pense à la ménager pour le tuteur.';
+  }
+
+  @override
+  String studyReserveNotifCritical(int percent) {
+    return 'La réserve d’étude est presque épuisée ($percent %).';
+  }
+
+  @override
+  String get studyReserveNotifDepleted =>
+      'La réserve d’étude est épuisée ; elle se renouvelle au prochain cycle. Les cours et quiz restent accessibles.';
 }
