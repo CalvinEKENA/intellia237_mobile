@@ -8,6 +8,7 @@ import 'package:intellia237/core/localization/app_locale_controller.dart';
 import 'package:intellia237/core/widgets/intellia_text_wordmark.dart';
 import 'package:intellia237/features/auth/presentation/register_screen.dart';
 import 'package:intellia237/features/intellia_pass/domain/household_profile.dart';
+import 'package:intellia237/features/parent/presentation/parent_entry_screen.dart';
 import 'package:intellia237/features/intellia_pass/presentation/widgets/household_learner_selector.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -80,20 +81,33 @@ void main() {
     await _disposeAnimatedSurface(tester);
   });
 
-  testWidgets('parent identity routes through phone-first authentication', (
-    tester,
-  ) async {
-    final router = await _pumpPass(tester);
-    addTearDown(router.dispose);
+  // Device QA round 2 : le parent commence par le code de son enfant, puis
+  // s'authentifie par téléphone sous son intention de parent.
+  testWidgets(
+    'parent identity routes through the child code, then phone-first authentication',
+    (tester) async {
+      final router = await _pumpPass(tester);
+      addTearDown(router.dispose);
 
-    await tester.tap(find.byKey(const ValueKey('pass-role-parent')));
-    await tester.pump();
-    await tester.ensureVisible(find.text('Continuer'));
-    await tester.tap(find.text('Continuer'));
-    await tester.pumpAndSettle();
-    expect(find.text('Authentification téléphone parent'), findsOneWidget);
-    await _disposeAnimatedSurface(tester);
-  });
+      await tester.tap(find.byKey(const ValueKey('pass-role-parent')));
+      await tester.pump();
+      await tester.ensureVisible(find.text('Continuer'));
+      await tester.tap(find.text('Continuer'));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('parent-entry-code-field')),
+        findsOneWidget,
+      );
+
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('parent-entry-existing')),
+      );
+      await tester.tap(find.byKey(const ValueKey('parent-entry-existing')));
+      await tester.pumpAndSettle();
+      expect(find.text('Authentification téléphone parent'), findsOneWidget);
+      await _disposeAnimatedSurface(tester);
+    },
+  );
 
   testWidgets('Pass switches its real copy to English', (tester) async {
     final router = await _pumpPass(tester);
@@ -163,6 +177,10 @@ Future<GoRouter> _pumpPass(WidgetTester tester) async {
       GoRoute(
         path: AppRoutes.parentRegistration,
         builder: (_, _) => const Scaffold(body: Text('Route parent réelle')),
+      ),
+      GoRoute(
+        path: AppRoutes.parentEntry,
+        builder: (_, _) => const ParentEntryScreen(),
       ),
       GoRoute(
         path: AppRoutes.phoneAuth,

@@ -13,6 +13,7 @@ import '../../auth/presentation/widgets/pass_auth_progress.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../application/parent_registration_controller.dart';
 import '../../legal/presentation/legal_links.dart';
+import '../../parent/application/pending_child_link.dart';
 import '../application/parent_registration_state.dart';
 
 class ParentRegistrationScreen extends ConsumerStatefulWidget {
@@ -37,6 +38,17 @@ class _ParentRegistrationScreenState
   void initState() {
     super.initState();
     final draft = ref.read(parentRegistrationControllerProvider);
+    // Le code enfant saisi à l'entrée figure déjà parmi les enfants à relier.
+    // Ajouté après la première image : un provider ne se modifie pas pendant
+    // la construction de l'arbre, et la liste n'apparaît qu'à l'étape 2.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final pendingCode = ref.read(pendingChildLinkProvider).code;
+      if (pendingCode == null) return;
+      ref
+          .read(parentRegistrationControllerProvider.notifier)
+          .addChildIdentifier(pendingCode);
+    });
     _firstNameController.text = draft.firstName;
     _lastNameController.text = draft.lastName;
     _firstNameController.addListener(() {

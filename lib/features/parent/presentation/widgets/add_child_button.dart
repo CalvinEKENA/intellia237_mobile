@@ -37,7 +37,7 @@ class AddChildButton extends ConsumerWidget {
     }
     final label = Text(context.l10n.addChildTitle);
     const icon = Icon(Icons.person_add_alt_1_outlined);
-    void open() => _showAddChildDialog(context, ref);
+    void open() => showAddChildDialog(context, ref);
 
     return expanded
         ? FilledButton.icon(
@@ -55,7 +55,8 @@ class AddChildButton extends ConsumerWidget {
   }
 }
 
-Future<void> _showAddChildDialog(BuildContext context, WidgetRef ref) {
+/// Saisie d'un code de liaison depuis l'espace parent.
+Future<void> showAddChildDialog(BuildContext context, WidgetRef ref) {
   return showDialog<void>(
     context: context,
     builder: (dialogContext) => _AddChildDialog(parentRef: ref),

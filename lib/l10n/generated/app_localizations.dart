@@ -7725,6 +7725,156 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ta réserve d’étude est épuisée pour ce cycle. {name} reprendra au renouvellement ; tes cours et quiz restent accessibles.'**
   String companionStudyReserveDepleted(String name);
+
+  /// No description provided for @parentEntryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reliez votre enfant'**
+  String get parentEntryTitle;
+
+  /// No description provided for @parentEntrySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez son code, puis connectez-vous avec votre propre numéro.'**
+  String get parentEntrySubtitle;
+
+  /// No description provided for @parentEntryHaveCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un code enfant'**
+  String get parentEntryHaveCode;
+
+  /// No description provided for @parentEntryCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code de l’enfant'**
+  String get parentEntryCodeLabel;
+
+  /// No description provided for @parentEntryCodeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. K7MP2QXA'**
+  String get parentEntryCodeHint;
+
+  /// No description provided for @parentEntryCodeHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre enfant le trouve dans son profil, rubrique « Mon code parent ».'**
+  String get parentEntryCodeHelp;
+
+  /// No description provided for @parentEntryCodeInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un code enfant compte 8 lettres et chiffres. Vérifiez-le avec votre enfant.'**
+  String get parentEntryCodeInvalid;
+
+  /// No description provided for @parentEntryPaste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coller'**
+  String get parentEntryPaste;
+
+  /// No description provided for @parentEntryAlreadyParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis déjà parent'**
+  String get parentEntryAlreadyParent;
+
+  /// No description provided for @parentEntryPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code sert uniquement à relier votre enfant, une fois votre connexion établie.'**
+  String get parentEntryPrivacy;
+
+  /// No description provided for @phonePendingChildCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code enfant prêt : il sera relié après votre connexion.'**
+  String get phonePendingChildCode;
+
+  /// No description provided for @phoneLinkingChild.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rattachement de votre enfant…'**
+  String get phoneLinkingChild;
+
+  /// No description provided for @passNumberAlreadyUsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro déjà associé'**
+  String get passNumberAlreadyUsed;
+
+  /// No description provided for @roleConflictStudentAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est déjà associé à un compte élève.'**
+  String get roleConflictStudentAccount;
+
+  /// No description provided for @roleConflictParentAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est déjà associé à un compte parent.'**
+  String get roleConflictParentAccount;
+
+  /// No description provided for @roleConflictStaffAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est déjà associé à un compte de l’établissement.'**
+  String get roleConflictStaffAccount;
+
+  /// No description provided for @roleConflictCredentialsStudentAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces identifiants ouvrent un compte élève.'**
+  String get roleConflictCredentialsStudentAccount;
+
+  /// No description provided for @roleConflictCredentialsParentAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces identifiants ouvrent un compte parent.'**
+  String get roleConflictCredentialsParentAccount;
+
+  /// No description provided for @roleConflictCredentialsStaffAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces identifiants ouvrent un compte de l’établissement.'**
+  String get roleConflictCredentialsStaffAccount;
+
+  /// No description provided for @roleConflictUseParentCredentials.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour créer ou ouvrir un espace parent, utilisez les identifiants du parent.'**
+  String get roleConflictUseParentCredentials;
+
+  /// No description provided for @roleConflictUseStudentCredentials.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour ouvrir l’espace élève, utilisez les identifiants de l’élève.'**
+  String get roleConflictUseStudentCredentials;
+
+  /// No description provided for @roleConflictChildCodeKept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code enfant reste enregistré.'**
+  String get roleConflictChildCodeKept;
+
+  /// No description provided for @roleConflictUseAnotherNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser un autre numéro'**
+  String get roleConflictUseAnotherNumber;
+
+  /// No description provided for @childLinkReportFailedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code enfant n’a pas pu être relié'**
+  String get childLinkReportFailedTitle;
+
+  /// No description provided for @childLinkBatchSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 enfant relié à votre compte.} other{{count} enfants reliés à votre compte.}}'**
+  String childLinkBatchSuccess(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -215,6 +215,19 @@ class PhoneAuthController extends StateNotifier<PhoneAuthState> {
     _startCooldown();
   }
 
+  /// Recommence avec un autre numéro, par exemple après un conflit de rôle.
+  ///
+  /// Contrairement à [changePhoneNumber], aucun délai du numéro précédent
+  /// n'est reporté sur le nouveau : le garde-fou d'envoi reste attaché à
+  /// chaque numéro et s'applique si l'ancien est ressaisi.
+  void restartWithAnotherNumber() {
+    if (_closed || state.isLoading) return;
+    _requestGeneration++;
+    _cancelPendingVerification();
+    _cooldownTimer?.cancel();
+    state = const PhoneAuthState();
+  }
+
   void showProfileMissing() {
     state = state.copyWith(
       stage: PhoneAuthStage.codeEntry,

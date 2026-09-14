@@ -10,6 +10,7 @@ import 'package:intellia237/features/auth/presentation/forgot_password_screen.da
 import 'package:intellia237/features/auth/presentation/login_screen.dart';
 import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
 import 'package:intellia237/features/auth/presentation/register_screen.dart';
+import 'package:intellia237/features/parent/presentation/parent_entry_screen.dart';
 import 'package:intellia237/features/parent_registration/presentation/parent_registration_screen.dart';
 import 'package:intellia237/features/student_registration/presentation/student_registration_flow_screen.dart';
 import 'package:intellia237/features/teacher_registration/presentation/teacher_registration_screen.dart';
@@ -56,6 +57,11 @@ void main() {
       final memory = await _pumpPreview(tester);
       await _tap(tester, 'pass-role-${role.name}');
       await _tap(tester, 'pass-continue');
+      if (role == AppRole.parent) {
+        // Le parent passe d'abord par l'entrée « code enfant ».
+        expect(find.byType(ParentEntryScreen), findsOneWidget);
+        await _tap(tester, 'parent-entry-existing');
+      }
       expect(find.byType(PhoneAuthScreen), findsOneWidget);
       expect(
         find.textContaining('Code démo : 123456 · aucun SMS'),

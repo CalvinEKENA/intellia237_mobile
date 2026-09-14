@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/domain/auth_input_validators.dart';
-import '../../parent/data/child_link_service.dart';
+import '../../parent/application/pending_child_link.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
 import '../../role_registration/data/firebase_role_registration_repository.dart';
 import '../../role_registration/data/role_registration_repository.dart';
@@ -125,6 +125,15 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
         ),
       );
 
+      // Consomme les codes saisis — à l'entrée comme à l'inscription — en liens
+      // réels et canoniques (children_links approuvés) **avant** d'ouvrir
+      // l'espace : le tableau de bord lit alors les enfants dès sa première
+      // image, sans rafraîchissement manuel. Un code refusé n'interrompt pas
+      // l'inscription ; le compte rendu est présenté dans l'espace parent.
+      await ref
+          .read(pendingChildLinkProvider.notifier)
+          .linkCodes(state.childIdentifiers);
+
       ref
           .read(authControllerProvider.notifier)
           .setAuthenticatedUser(
@@ -133,19 +142,6 @@ class ParentRegistrationController extends Notifier<ParentRegistrationState> {
             email: result.email,
             firstName: result.firstName,
           );
-
-      // Consomme les codes saisis à l'inscription en liens réels et canoniques
-      // (children_links approuvés), au lieu de laisser des identifiants
-      // orphelins. Best-effort : un code invalide n'interrompt pas l'inscription
-      // — il pourra être re-saisi depuis « Mes enfants ».
-      final linkService = ref.read(childLinkServiceProvider);
-      for (final code in state.childIdentifiers) {
-        try {
-          await linkService.linkChildByCode(code);
-        } catch (_) {
-          // Re-saisissable ultérieurement depuis l'espace parent.
-        }
-      }
 
       state = state.copyWith(isSubmitting: false, clearError: true);
       await IntelliaTelemetry.registrationCompleted(role: 'parent');

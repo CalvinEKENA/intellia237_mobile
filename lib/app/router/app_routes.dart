@@ -9,6 +9,10 @@ abstract final class AppRoutes {
   static const login = '/login';
   static const emailLogin = '/login/email';
   static const phoneAuth = '/auth/phone';
+
+  /// Entrée « Parent ou responsable » : code enfant d'abord, puis
+  /// authentification du parent.
+  static const parentEntry = '/auth/parent';
   static const register = '/register';
   static const studentRegistration = '/register/student';
   static const parentRegistration = '/register/parent';
@@ -60,6 +64,7 @@ abstract final class AppRoutes {
     login,
     emailLogin,
     phoneAuth,
+    parentEntry,
     register,
     studentRegistration,
     parentRegistration,
@@ -83,8 +88,23 @@ abstract final class AppRoutes {
 
   static String quizPlay(String quizId) => '/quiz/play/$quizId';
 
+  /// Authentification téléphone sous l'intention d'entrée [role].
   static String phoneRegistration(AppRole role) =>
       '$phoneAuth?role=${role.name}';
+
+  /// Connexion par e-mail, sous l'intention d'entrée [intent] s'il y en a une.
+  static String emailSignIn(AppRole? intent) =>
+      intent == null ? emailLogin : '$emailLogin?role=${intent.name}';
+
+  /// Intention d'entrée portée par le paramètre `role` d'une route, jamais
+  /// un rôle de compte.
+  static AppRole? entryIntentFrom(Uri uri) {
+    final name = uri.queryParameters['role'];
+    for (final role in AppRole.values) {
+      if (role.name == name) return role;
+    }
+    return null;
+  }
 
   static String childOverview(String childId) => '/parent/child/$childId';
   static String childProgress(String childId) =>

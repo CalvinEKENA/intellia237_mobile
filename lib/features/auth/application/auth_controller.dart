@@ -9,6 +9,7 @@ import '../../tutor/application/tutor_preference_provider.dart';
 import '../data/auth_entry_preferences.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../domain/app_role.dart';
+import '../domain/auth_entry_intent.dart';
 import '../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 
@@ -43,10 +44,14 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  /// Connexion email/mot de passe
-  Future<void> signInWithEmail({
+  /// Connexion email/mot de passe.
+  ///
+  /// Sous une intention d'entrée ([intent]), un compte d'un autre rôle n'est
+  /// jamais ouvert : la session est refermée et le conflit est renvoyé.
+  Future<AuthEntryAdoption> signInWithEmail({
     required String email,
     required String password,
+    AppRole? intent,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -55,6 +60,12 @@ class AuthController extends Notifier<AuthState> {
         email: email,
         password: password,
       );
+
+      if (matchAuthEntry(intent: intent, accountRole: user.role) ==
+          AuthEntryMatch.conflict) {
+        await signOut();
+        return AuthEntryRoleConflict(intent: intent!, accountRole: user.role);
+      }
 
       await _markOnboardingSeen();
       await _markAuthenticatedBefore();
@@ -79,6 +90,62 @@ class AuthController extends Notifier<AuthState> {
         fallbackErrorCode: _safeErrorCode(error),
       );
     }
+    return const AuthEntryAdopted();
+  }
+
+  /// Adopte la session Firebase issue d'une vérification téléphone seulement
+  /// si le rôle enregistré du compte correspond à l'espace choisi à l'entrée.
+  ///
+  /// Registre de décisions (QA appareil, round 2) : la session était adoptée
+  /// sans condition, puis l'écran suivait le rôle enregistré ; un parent qui
+  /// saisissait le numéro d'un élève ouvrait l'espace de cet élève. La
+  /// compatibilité est désormais tranchée **avant** que l'état global ne
+  /// change. Sur un conflit, aucun espace ne s'ouvre et le routeur ne voit
+  /// jamais le compte de l'autre rôle ; le rôle enregistré n'est pas touché ;
+  /// la session Firebase est refermée, pour qu'un redémarrage ne rouvre pas
+  /// l'autre espace. Sans intention, le comportement historique est conservé.
+  Future<AuthEntryAdoption> adoptSessionForIntent(AppRole? intent) async {
+    if (intent == null) {
+      await adoptCurrentFirebaseSession();
+      return const AuthEntryAdopted();
+    }
+
+    state = state.copyWith(isLoading: true, error: null);
+    final AuthSessionResolution resolution;
+    try {
+      resolution = await _resolveCurrentSession().timeout(
+        const Duration(seconds: 8),
+      );
+    } catch (error) {
+      // Le rôle est inconnu : rien n'est adopté, l'intention reste entière.
+      state = state.copyWith(isLoading: false, error: null);
+      return AuthEntryUnresolved(_safeErrorCode(error));
+    }
+
+    final AppRole? accountRole;
+    if (resolution.kind == AuthSessionResolutionKind.retryableProfileFailure) {
+      // Seul le dernier profil valide de cette même identité peut dire son
+      // rôle ; sans lui, on ne devine pas.
+      final cached = await _readCachedUser(expectedUid: resolution.firebaseUid);
+      if (cached == null) {
+        state = state.copyWith(isLoading: false, error: null);
+        return AuthEntryUnresolved(
+          resolution.errorCode ?? 'profile-resolution-failed',
+        );
+      }
+      accountRole = cached.role;
+    } else {
+      accountRole = resolution.user?.role;
+    }
+
+    if (matchAuthEntry(intent: intent, accountRole: accountRole) ==
+        AuthEntryMatch.conflict) {
+      await signOut();
+      return AuthEntryRoleConflict(intent: intent, accountRole: accountRole!);
+    }
+
+    await _applyResolution(resolution);
+    return const AuthEntryAdopted();
   }
 
   /// Adopts a Firebase session created by phone verification without ever

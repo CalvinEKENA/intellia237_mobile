@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../core/localization/localization_extensions.dart';
+import '../../parent/application/pending_child_link.dart';
 import '../domain/app_role.dart';
 import 'widgets/auth_choices.dart';
 import 'widgets/auth_experience_scaffold.dart';
@@ -18,11 +20,11 @@ import 'widgets/school_head_access.dart';
 ///
 /// Cet écran ne crée aucun mécanisme d'authentification : chaque rôle rejoint
 /// le parcours qui existait déjà.
-class AuthGatewayScreen extends StatelessWidget {
+class AuthGatewayScreen extends ConsumerWidget {
   const AuthGatewayScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
 
     return AuthExperienceScaffold(
@@ -55,8 +57,13 @@ class AuthGatewayScreen extends StatelessWidget {
             icon: Icons.school_rounded,
             accent: AuthExperienceColors.indigo,
             isSelected: false,
-            // L'élève garde son authentification par téléphone.
-            onTap: () => context.push(AppRoutes.login),
+            // L'élève garde son authentification par téléphone, sous son
+            // intention : un compte d'un autre rôle n'y ouvre rien. Choisir
+            // l'élève abandonne tout code enfant retenu pour un parent.
+            onTap: () {
+              ref.read(pendingChildLinkProvider.notifier).clear();
+              context.push(AppRoutes.phoneRegistration(AppRole.student));
+            },
           ),
           const SizedBox(height: 12),
           AuthChoiceCard(
@@ -66,8 +73,8 @@ class AuthGatewayScreen extends StatelessWidget {
             icon: Icons.family_restroom_rounded,
             accent: AuthExperienceColors.purple,
             isSelected: false,
-            onTap: () =>
-                context.push(AppRoutes.phoneRegistration(AppRole.parent)),
+            // Le parent commence par le code de son enfant.
+            onTap: () => context.push(AppRoutes.parentEntry),
           ),
           const SizedBox(height: 12),
           AuthChoiceCard(

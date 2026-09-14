@@ -34,6 +34,7 @@ import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/parent/application/parent_preview.dart';
 import '../../features/parent/presentation/child_overview_screen.dart';
 import '../../features/parent/presentation/child_progress_screen.dart';
+import '../../features/parent/presentation/parent_entry_screen.dart';
 import '../../features/parent/presentation/parent_home_screen.dart';
 import '../../features/parent_registration/presentation/parent_registration_screen.dart';
 import '../../features/quiz/domain/quiz_result_payload.dart';
@@ -92,23 +93,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.emailLogin,
-        pageBuilder: (context, state) =>
-            buildAppTransitionPage(state: state, child: const LoginScreen()),
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: LoginScreen(authIntent: AppRoutes.entryIntentFrom(state.uri)),
+        ),
       ),
       GoRoute(
         path: AppRoutes.phoneAuth,
         pageBuilder: (context, state) {
-          final roleName = state.uri.queryParameters['role'];
-          final roles = AppRole.values.where((item) => item.name == roleName);
           final link = state.uri.queryParameters['mode'] == 'link';
           return buildAppTransitionPage(
             state: state,
             child: PhoneAuthScreen(
-              registrationRole: roles.isEmpty ? null : roles.first,
+              authIntent: AppRoutes.entryIntentFrom(state.uri),
               linkCurrentUser: link,
             ),
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.parentEntry,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: const ParentEntryScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.register,

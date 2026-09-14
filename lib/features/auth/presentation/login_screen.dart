@@ -5,14 +5,21 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/auth_controller.dart';
+import '../domain/app_role.dart';
+import '../domain/auth_entry_intent.dart';
 import '../domain/auth_input_validators.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
 import 'widgets/pass_auth_progress.dart';
+import 'widgets/role_conflict_copy.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({this.authIntent, super.key});
+
+  /// Espace choisi avant de passer à l'e-mail, s'il y en a un : un compte
+  /// d'un autre rôle n'est alors pas ouvert.
+  final AppRole? authIntent;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -27,6 +34,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _passwordController,
   ]);
   final _passwordFocus = FocusNode();
+  AuthEntryRoleConflict? _conflict;
 
   @override
   void dispose() {
@@ -40,12 +48,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (ref.read(authControllerProvider).isLoading) return;
     FocusManager.instance.primaryFocus?.unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    await ref
+    setState(() => _conflict = null);
+    final adoption = await ref
         .read(authControllerProvider.notifier)
         .signInWithEmail(
           email: _emailController.text,
           password: _passwordController.text,
+          intent: widget.authIntent,
         );
+    if (!mounted || adoption is! AuthEntryRoleConflict) return;
+    setState(() => _conflict = adoption);
   }
 
   @override
@@ -131,6 +143,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Text(l10n.forgotPassword),
                       ),
                     ),
+                    if (_conflict case final conflict?)
+                      Padding(
+                        key: const ValueKey('login-role-conflict'),
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: AuthErrorBanner(
+                          message:
+                              '${roleConflictTitle(l10n, accountRole: conflict.accountRole, viaPhone: false)}\n'
+                              '${roleConflictGuidance(l10n, intent: conflict.intent)}',
+                          onDismiss: () => setState(() => _conflict = null),
+                        ),
+                      ),
                     AnimatedSwitcher(
                       duration: MediaQuery.disableAnimationsOf(context)
                           ? Duration.zero

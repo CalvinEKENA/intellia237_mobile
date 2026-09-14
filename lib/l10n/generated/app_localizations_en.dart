@@ -4447,4 +4447,100 @@ class AppLocalizationsEn extends AppLocalizations {
   String companionStudyReserveDepleted(String name) {
     return 'Your study reserve is depleted for this cycle. $name will be back at renewal; your lessons and quizzes stay available.';
   }
+
+  @override
+  String get parentEntryTitle => 'Link your child';
+
+  @override
+  String get parentEntrySubtitle =>
+      'Enter their code, then sign in with your own phone number.';
+
+  @override
+  String get parentEntryHaveCode => 'I have a child code';
+
+  @override
+  String get parentEntryCodeLabel => 'Child code';
+
+  @override
+  String get parentEntryCodeHint => 'e.g. K7MP2QXA';
+
+  @override
+  String get parentEntryCodeHelp =>
+      'Your child finds it in their profile, under “My parent code”.';
+
+  @override
+  String get parentEntryCodeInvalid =>
+      'A child code has 8 letters and digits. Check it with your child.';
+
+  @override
+  String get parentEntryPaste => 'Paste';
+
+  @override
+  String get parentEntryAlreadyParent => 'I already have a parent account';
+
+  @override
+  String get parentEntryPrivacy =>
+      'The code is only used to link your child once you are signed in.';
+
+  @override
+  String get phonePendingChildCode =>
+      'Child code ready: it will be linked once you are signed in.';
+
+  @override
+  String get phoneLinkingChild => 'Linking your child…';
+
+  @override
+  String get passNumberAlreadyUsed => 'Number already in use';
+
+  @override
+  String get roleConflictStudentAccount =>
+      'This phone number is already associated with a student account.';
+
+  @override
+  String get roleConflictParentAccount =>
+      'This phone number is already associated with a parent account.';
+
+  @override
+  String get roleConflictStaffAccount =>
+      'This phone number is already associated with a school staff account.';
+
+  @override
+  String get roleConflictCredentialsStudentAccount =>
+      'These credentials open a student account.';
+
+  @override
+  String get roleConflictCredentialsParentAccount =>
+      'These credentials open a parent account.';
+
+  @override
+  String get roleConflictCredentialsStaffAccount =>
+      'These credentials open a school staff account.';
+
+  @override
+  String get roleConflictUseParentCredentials =>
+      'To create or open a parent space, use the parent’s credentials.';
+
+  @override
+  String get roleConflictUseStudentCredentials =>
+      'To open the student space, use the student’s credentials.';
+
+  @override
+  String get roleConflictChildCodeKept => 'The child code is still saved.';
+
+  @override
+  String get roleConflictUseAnotherNumber => 'Use another number';
+
+  @override
+  String get childLinkReportFailedTitle => 'The child code could not be linked';
+
+  @override
+  String childLinkBatchSuccess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count children linked to your account.',
+      one: '1 child linked to your account.',
+    );
+    return '$_temp0';
+  }
 }

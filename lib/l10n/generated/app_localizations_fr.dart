@@ -4475,4 +4475,101 @@ class AppLocalizationsFr extends AppLocalizations {
   String companionStudyReserveDepleted(String name) {
     return 'Ta réserve d’étude est épuisée pour ce cycle. $name reprendra au renouvellement ; tes cours et quiz restent accessibles.';
   }
+
+  @override
+  String get parentEntryTitle => 'Reliez votre enfant';
+
+  @override
+  String get parentEntrySubtitle =>
+      'Saisissez son code, puis connectez-vous avec votre propre numéro.';
+
+  @override
+  String get parentEntryHaveCode => 'J’ai un code enfant';
+
+  @override
+  String get parentEntryCodeLabel => 'Code de l’enfant';
+
+  @override
+  String get parentEntryCodeHint => 'Ex. K7MP2QXA';
+
+  @override
+  String get parentEntryCodeHelp =>
+      'Votre enfant le trouve dans son profil, rubrique « Mon code parent ».';
+
+  @override
+  String get parentEntryCodeInvalid =>
+      'Un code enfant compte 8 lettres et chiffres. Vérifiez-le avec votre enfant.';
+
+  @override
+  String get parentEntryPaste => 'Coller';
+
+  @override
+  String get parentEntryAlreadyParent => 'Je suis déjà parent';
+
+  @override
+  String get parentEntryPrivacy =>
+      'Le code sert uniquement à relier votre enfant, une fois votre connexion établie.';
+
+  @override
+  String get phonePendingChildCode =>
+      'Code enfant prêt : il sera relié après votre connexion.';
+
+  @override
+  String get phoneLinkingChild => 'Rattachement de votre enfant…';
+
+  @override
+  String get passNumberAlreadyUsed => 'Numéro déjà associé';
+
+  @override
+  String get roleConflictStudentAccount =>
+      'Ce numéro est déjà associé à un compte élève.';
+
+  @override
+  String get roleConflictParentAccount =>
+      'Ce numéro est déjà associé à un compte parent.';
+
+  @override
+  String get roleConflictStaffAccount =>
+      'Ce numéro est déjà associé à un compte de l’établissement.';
+
+  @override
+  String get roleConflictCredentialsStudentAccount =>
+      'Ces identifiants ouvrent un compte élève.';
+
+  @override
+  String get roleConflictCredentialsParentAccount =>
+      'Ces identifiants ouvrent un compte parent.';
+
+  @override
+  String get roleConflictCredentialsStaffAccount =>
+      'Ces identifiants ouvrent un compte de l’établissement.';
+
+  @override
+  String get roleConflictUseParentCredentials =>
+      'Pour créer ou ouvrir un espace parent, utilisez les identifiants du parent.';
+
+  @override
+  String get roleConflictUseStudentCredentials =>
+      'Pour ouvrir l’espace élève, utilisez les identifiants de l’élève.';
+
+  @override
+  String get roleConflictChildCodeKept => 'Le code enfant reste enregistré.';
+
+  @override
+  String get roleConflictUseAnotherNumber => 'Utiliser un autre numéro';
+
+  @override
+  String get childLinkReportFailedTitle =>
+      'Le code enfant n’a pas pu être relié';
+
+  @override
+  String childLinkBatchSuccess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count enfants reliés à votre compte.',
+      one: '1 enfant relié à votre compte.',
+    );
+    return '$_temp0';
+  }
 }

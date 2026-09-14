@@ -11,6 +11,8 @@ import 'package:intellia237/features/mobile_money/presentation/mobile_money_pare
 import 'package:intellia237/features/notifications/data/notification_repository.dart';
 import 'package:intellia237/features/parent/application/parent_preview.dart';
 import 'package:intellia237/features/parent/application/parent_providers.dart';
+import 'package:intellia237/features/parent/application/pending_child_link.dart';
+import 'package:intellia237/features/parent/data/child_link_service.dart';
 import 'package:intellia237/features/parent/data/parent_repository.dart';
 import 'package:intellia237/features/parent/domain/parent_dashboard.dart';
 import 'package:intellia237/features/parent/presentation/parent_home_screen.dart';
@@ -124,4 +126,80 @@ void main() {
       expect(find.text('ADMIN-HOME'), findsOneWidget);
     },
   );
+
+  // Device QA round 2 : le parcours « code enfant » n'existe que pour un vrai
+  // parent authentifié. La prévisualisation du super-administrateur ne relie
+  // rien, n'affiche aucun compte rendu de liaison, et garde son rôle réel.
+  testWidgets(
+    'la prévisualisation n’affiche ni ajout d’enfant ni compte rendu de liaison',
+    (tester) async {
+      final container = ProviderContainer(
+        overrides: [
+          authControllerProvider.overrideWith(_TestAuthController.new),
+          parentRepositoryProvider.overrideWithValue(_EmptyParentRepository()),
+          unreadNotificationCountProvider.overrideWithValue(0),
+          tourGuideRepositoryProvider.overrideWithValue(_SeenTourRepository()),
+          childLinkServiceProvider.overrideWithValue(_FailingLinkService()),
+        ],
+      );
+      addTearDown(container.dispose);
+      expect(
+        container.read(parentPreviewControllerProvider.notifier).enter(),
+        isTrue,
+      );
+      // Un compte rendu d'échec en mémoire ne doit pas s'afficher en aperçu.
+      final pending = container.read(pendingChildLinkProvider.notifier);
+      expect(pending.hold('K7MP2QXA'), isTrue);
+      await pending.linkPending();
+      expect(container.read(pendingChildLinkProvider).report, isNotNull);
+
+      final router = GoRouter(
+        initialLocation: AppRoutes.parentHome,
+        routes: [
+          GoRoute(
+            path: AppRoutes.parentHome,
+            builder: (_, _) => const ParentHomeScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp.router(
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('fr'),
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.byKey(const ValueKey('parent-preview-exit')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('parent-child-link-report')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const ValueKey('parent-add-child'), skipOffstage: false),
+        findsNothing,
+      );
+      final auth = container.read(authControllerProvider);
+      expect(auth.role, AppRole.admin);
+      expect(auth.isSuperAdmin, isTrue);
+    },
+  );
+}
+
+class _FailingLinkService extends ChildLinkService {
+  @override
+  Future<ChildLinkResult> linkChildByCode(String code) async =>
+      throw const ChildLinkException('permission-denied');
 }

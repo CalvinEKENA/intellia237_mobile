@@ -22,6 +22,7 @@ import 'package:intellia237/features/auth/presentation/widgets/auth_experience_s
 import 'package:intellia237/features/auth/presentation/widgets/pass_home_arrival.dart';
 import 'package:intellia237/features/legal/presentation/legal_document_screen.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:intellia237/features/parent/presentation/parent_entry_screen.dart';
 import 'package:intellia237/features/parent_registration/application/parent_registration_controller.dart';
 import 'package:intellia237/features/parent_registration/presentation/parent_registration_screen.dart';
 import 'package:intellia237/features/student_registration/application/student_registration_controller.dart';
@@ -84,19 +85,23 @@ class _OnboardingPreviewAppState extends ConsumerState<OnboardingPreviewApp> {
         _authRoute(AppRoutes.register, (_) => const RegisterScreen()),
         _authRoute(AppRoutes.authGateway, (_) => const AuthGatewayScreen()),
         _authRoute(AppRoutes.login, (_) => const PhoneAuthScreen()),
-        _authRoute(AppRoutes.emailLogin, (_) => const LoginScreen()),
+        _authRoute(
+          AppRoutes.emailLogin,
+          (state) =>
+              LoginScreen(authIntent: AppRoutes.entryIntentFrom(state.uri)),
+        ),
         _authRoute(
           AppRoutes.forgotPassword,
           (_) => const ForgotPasswordScreen(),
         ),
-        _authRoute(AppRoutes.phoneAuth, (state) {
-          final name = state.uri.queryParameters['role'];
-          final roles = AppRole.values.where((role) => role.name == name);
-          return PhoneAuthScreen(
-            registrationRole: roles.isEmpty ? null : roles.first,
+        _authRoute(
+          AppRoutes.phoneAuth,
+          (state) => PhoneAuthScreen(
+            authIntent: AppRoutes.entryIntentFrom(state.uri),
             linkCurrentUser: state.uri.queryParameters['mode'] == 'link',
-          );
-        }),
+          ),
+        ),
+        _authRoute(AppRoutes.parentEntry, (_) => const ParentEntryScreen()),
         _authRoute(
           AppRoutes.studentRegistration,
           (_) => const StudentRegistrationFlowScreen(),

@@ -8,6 +8,7 @@ import '../../../app/router/app_routes.dart';
 import '../../../core/localization/app_locale_controller.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_text_wordmark.dart';
+import '../../parent/application/pending_child_link.dart';
 import '../domain/app_role.dart';
 import 'widgets/auth_choices.dart';
 import 'widgets/auth_controls.dart';
@@ -27,9 +28,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   AppRole? _selectedRole;
 
   void _continue() {
+    if (_selectedRole != AppRole.parent) {
+      // Un autre espace que parent abandonne tout code enfant retenu.
+      ref.read(pendingChildLinkProvider.notifier).clear();
+    }
     final route = switch (_selectedRole) {
-      AppRole.student ||
-      AppRole.parent => AppRoutes.phoneRegistration(_selectedRole!),
+      AppRole.student => AppRoutes.phoneRegistration(AppRole.student),
+      // Le parent commence par le code de son enfant.
+      AppRole.parent => AppRoutes.parentEntry,
       AppRole.teacher => AppRoutes.teacherRegistration,
       AppRole.admin || null => null,
     };

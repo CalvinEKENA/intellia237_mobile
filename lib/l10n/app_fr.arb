@@ -2258,5 +2258,37 @@
   "companionStudyReserveDepleted": "Ta réserve d’étude est épuisée pour ce cycle. {name} reprendra au renouvellement ; tes cours et quiz restent accessibles.",
   "@companionStudyReserveDepleted": {
     "placeholders": { "name": { "type": "String" } }
+  },
+  "parentEntryTitle": "Reliez votre enfant",
+  "parentEntrySubtitle": "Saisissez son code, puis connectez-vous avec votre propre numéro.",
+  "parentEntryHaveCode": "J’ai un code enfant",
+  "parentEntryCodeLabel": "Code de l’enfant",
+  "parentEntryCodeHint": "Ex. K7MP2QXA",
+  "parentEntryCodeHelp": "Votre enfant le trouve dans son profil, rubrique « Mon code parent ».",
+  "parentEntryCodeInvalid": "Un code enfant compte 8 lettres et chiffres. Vérifiez-le avec votre enfant.",
+  "parentEntryPaste": "Coller",
+  "parentEntryAlreadyParent": "Je suis déjà parent",
+  "parentEntryPrivacy": "Le code sert uniquement à relier votre enfant, une fois votre connexion établie.",
+  "phonePendingChildCode": "Code enfant prêt : il sera relié après votre connexion.",
+  "phoneLinkingChild": "Rattachement de votre enfant…",
+  "passNumberAlreadyUsed": "Numéro déjà associé",
+  "roleConflictStudentAccount": "Ce numéro est déjà associé à un compte élève.",
+  "roleConflictParentAccount": "Ce numéro est déjà associé à un compte parent.",
+  "roleConflictStaffAccount": "Ce numéro est déjà associé à un compte de l’établissement.",
+  "roleConflictCredentialsStudentAccount": "Ces identifiants ouvrent un compte élève.",
+  "roleConflictCredentialsParentAccount": "Ces identifiants ouvrent un compte parent.",
+  "roleConflictCredentialsStaffAccount": "Ces identifiants ouvrent un compte de l’établissement.",
+  "roleConflictUseParentCredentials": "Pour créer ou ouvrir un espace parent, utilisez les identifiants du parent.",
+  "roleConflictUseStudentCredentials": "Pour ouvrir l’espace élève, utilisez les identifiants de l’élève.",
+  "roleConflictChildCodeKept": "Le code enfant reste enregistré.",
+  "roleConflictUseAnotherNumber": "Utiliser un autre numéro",
+  "childLinkReportFailedTitle": "Le code enfant n’a pas pu être relié",
+  "childLinkBatchSuccess": "{count, plural, =1{1 enfant relié à votre compte.} other{{count} enfants reliés à votre compte.}}",
+  "@childLinkBatchSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

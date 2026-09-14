@@ -9,25 +9,35 @@ import '../../../app/router/app_routes.dart';
 import '../../../core/localization/app_locale_controller.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../parent/application/pending_child_link.dart';
 import '../application/auth_controller.dart';
 import '../application/auth_state.dart';
 import '../application/phone_auth_controller.dart';
+import '../data/auth_entry_preferences.dart';
 import '../domain/app_role.dart';
+import '../domain/auth_entry_intent.dart';
 import '../domain/firebase_error_mapper.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
 import 'widgets/pass_auth_progress.dart';
 import 'widgets/pass_otp_field.dart';
+import 'widgets/role_conflict_copy.dart';
 
 class PhoneAuthScreen extends ConsumerStatefulWidget {
   const PhoneAuthScreen({
-    this.registrationRole,
+    this.authIntent,
     this.linkCurrentUser = false,
     super.key,
   });
 
-  final AppRole? registrationRole;
+  /// Espace choisi à l'entrée pour ce parcours (« Élève », « Parent ou
+  /// responsable »…), ou null pour l'accès téléphone neutre.
+  ///
+  /// Ce n'est jamais le rôle du compte : celui-ci est lu après la
+  /// vérification du numéro, et un écart entre les deux est un conflit
+  /// expliqué, pas une redirection.
+  final AppRole? authIntent;
   final bool linkCurrentUser;
 
   @override
@@ -46,6 +56,14 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
   bool _completionHandled = false;
   bool _profileChoiceRequired = false;
 
+  /// Rôle du compte vérifié, quand il n'est pas celui de l'espace choisi.
+  AppRole? _conflictingRole;
+
+  /// Erreur de lecture du rôle du compte : rien n'a été ouvert.
+  String? _unresolvedCode;
+  bool _resolving = false;
+  bool _linkingChild = false;
+
   @override
   void dispose() {
     _phoneController.dispose();
@@ -63,6 +81,11 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     final l10n = context.l10n;
     final selectedLanguage = ref.watch(appLocaleProvider).languageCode;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final intent = widget.authIntent;
+    final conflictingRole = _conflictingRole;
+    final childCodePending =
+        intent == AppRole.parent &&
+        ref.watch(pendingChildLinkProvider.select((link) => link.code != null));
 
     ref.listen<PhoneAuthState>(provider, (previous, next) {
       if (next.stage == PhoneAuthStage.codeEntry &&
@@ -80,7 +103,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     });
 
     return AuthExperienceScaffold(
-      showBackButton: widget.linkCurrentUser || widget.registrationRole != null,
+      showBackButton: widget.linkCurrentUser || intent != null,
       topBar: Align(
         alignment: Alignment.centerRight,
         child: SegmentedButton<String>(
@@ -101,25 +124,32 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       pass: ListenableBuilder(
         listenable: _passInputs,
         builder: (context, _) => LivingPass(
-          role: widget.registrationRole,
+          role: intent,
           detail: state.stage == PhoneAuthStage.phoneEntry
               ? (_phoneController.text.trim().isEmpty
                     ? null
                     : _phoneController.text.trim())
               : state.phoneNumber,
-          phase: switch (state.stage) {
-            PhoneAuthStage.phoneEntry => context.l10n.passYourNumber,
-            PhoneAuthStage.codeEntry => context.l10n.passVerificationInProgress,
-            PhoneAuthStage.success => context.l10n.passNumberVerified,
-          },
+          phase: conflictingRole != null
+              ? context.l10n.passNumberAlreadyUsed
+              : switch (state.stage) {
+                  PhoneAuthStage.phoneEntry => context.l10n.passYourNumber,
+                  PhoneAuthStage.codeEntry =>
+                    context.l10n.passVerificationInProgress,
+                  PhoneAuthStage.success => context.l10n.passNumberVerified,
+                },
           // Le numéro colore « 2 » (vert), le code « 3 » (rouge), la réussite
-          // « 7 » (jaune) + pulsation — chacun au fil de la saisie.
-          progress: PassAuthProgress.phone(
-            stage: state.stage,
-            phoneInput: _phoneController.text,
-            codeInput: _codeController.text,
-          ),
-          verified: state.stage == PhoneAuthStage.success,
+          // « 7 » (jaune) + pulsation — chacun au fil de la saisie. Un numéro
+          // vérifié qui n'ouvre pas l'espace choisi n'atteint pas le « 7 ».
+          progress: conflictingRole != null
+              ? PassAuthProgress.secret
+              : PassAuthProgress.phone(
+                  stage: state.stage,
+                  phoneInput: _phoneController.text,
+                  codeInput: _codeController.text,
+                ),
+          verified:
+              conflictingRole == null && state.stage == PhoneAuthStage.success,
         ),
       ),
       child: Column(
@@ -127,11 +157,13 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
         children: [
           AuthHeader(
             showBrand: false,
-            eyebrow: widget.registrationRole == null
+            eyebrow: intent == null
                 ? context.l10n.passPhoneAccess
-                : passRoleLabel(context, widget.registrationRole!),
+                : passRoleLabel(context, intent),
             title: widget.linkCurrentUser
                 ? l10n.phoneLinkTitle
+                : conflictingRole != null
+                ? context.l10n.passNumberAlreadyUsed
                 : state.stage == PhoneAuthStage.codeEntry
                 ? context.l10n.passSixDigitsThenWeContinue
                 : state.stage == PhoneAuthStage.success
@@ -139,59 +171,86 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                 : context.l10n.passYourNumberYourAccess,
             subtitle: widget.linkCurrentUser
                 ? l10n.phoneLinkSubtitle
+                : conflictingRole != null
+                ? ''
                 : state.stage == PhoneAuthStage.codeEntry
                 ? l10n.phoneCodeSubtitle(state.phoneNumber)
                 : state.stage == PhoneAuthStage.success
                 ? l10n.phoneVerificationSuccessBody
                 : l10n.phoneAuthSubtitle,
           ),
+          if (childCodePending &&
+              conflictingRole == null &&
+              state.stage != PhoneAuthStage.success) ...[
+            const SizedBox(height: 16),
+            const _PendingChildCodeNote(),
+          ],
           const SizedBox(height: 24),
           AuthGlassPanel(
             child: AnimatedSwitcher(
               duration: reduceMotion
                   ? Duration.zero
                   : const Duration(milliseconds: 220),
-              child: switch (state.stage) {
-                PhoneAuthStage.phoneEntry => _PhoneEntry(
-                  key: const ValueKey('phone-entry-stage'),
-                  controller: _phoneController,
-                  focusNode: _phoneFocus,
-                  isLoading: state.isLoading,
-                  cooldownSeconds: state.cooldownSeconds,
-                  onSubmit: () => controller.sendCode(_phoneController.text),
-                ),
-                PhoneAuthStage.codeEntry => _CodeEntry(
-                  key: const ValueKey('phone-code-stage'),
-                  controller: _codeController,
-                  focusNode: _codeFocus,
-                  state: state,
-                  onSubmit: () {
-                    if (ref.read(provider).stage != PhoneAuthStage.codeEntry ||
-                        ref.read(provider).isLoading) {
-                      return;
-                    }
-                    controller.confirmCode(_codeController.text);
-                  },
-                  onResend: controller.resendCode,
-                  onChangePhone: () {
-                    _completionHandled = false;
-                    _codeController.clear();
-                    controller.changePhoneNumber();
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) _phoneFocus.requestFocus();
-                    });
-                  },
-                ),
-                PhoneAuthStage.success => _PhoneSuccess(
-                  key: const ValueKey('phone-success-stage'),
-                  linking: widget.linkCurrentUser,
-                  profileChoiceRequired: _profileChoiceRequired,
-                  onCreateStudentProfile: () =>
-                      context.go(AppRoutes.studentRegistration),
-                  onCreateParentProfile: () =>
-                      context.go(AppRoutes.parentRegistration),
-                ),
-              },
+              child: conflictingRole != null && intent != null
+                  ? _RoleConflictPanel(
+                      key: const ValueKey('phone-role-conflict'),
+                      intent: intent,
+                      accountRole: conflictingRole,
+                      childCodeKept: childCodePending,
+                      onUseAnotherNumber: _useAnotherNumber,
+                      onCancel: _cancelEntry,
+                    )
+                  : _unresolvedCode != null
+                  ? _EntryUnresolvedPanel(
+                      key: const ValueKey('phone-entry-unresolved'),
+                      busy: _resolving,
+                      onRetry: _enterAccountSpace,
+                      onCancel: _cancelEntry,
+                    )
+                  : switch (state.stage) {
+                      PhoneAuthStage.phoneEntry => _PhoneEntry(
+                        key: const ValueKey('phone-entry-stage'),
+                        controller: _phoneController,
+                        focusNode: _phoneFocus,
+                        isLoading: state.isLoading,
+                        cooldownSeconds: state.cooldownSeconds,
+                        onSubmit: () =>
+                            controller.sendCode(_phoneController.text),
+                      ),
+                      PhoneAuthStage.codeEntry => _CodeEntry(
+                        key: const ValueKey('phone-code-stage'),
+                        controller: _codeController,
+                        focusNode: _codeFocus,
+                        state: state,
+                        onSubmit: () {
+                          if (ref.read(provider).stage !=
+                                  PhoneAuthStage.codeEntry ||
+                              ref.read(provider).isLoading) {
+                            return;
+                          }
+                          controller.confirmCode(_codeController.text);
+                        },
+                        onResend: controller.resendCode,
+                        onChangePhone: () {
+                          _completionHandled = false;
+                          _codeController.clear();
+                          controller.changePhoneNumber();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) _phoneFocus.requestFocus();
+                          });
+                        },
+                      ),
+                      PhoneAuthStage.success => _PhoneSuccess(
+                        key: const ValueKey('phone-success-stage'),
+                        linking: widget.linkCurrentUser,
+                        linkingChild: _linkingChild,
+                        profileChoiceRequired: _profileChoiceRequired,
+                        onCreateStudentProfile: () =>
+                            context.go(AppRoutes.studentRegistration),
+                        onCreateParentProfile: () =>
+                            context.go(AppRoutes.parentRegistration),
+                      ),
+                    },
             ),
           ),
           if (state.errorCode != null) ...[
@@ -204,14 +263,21 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
               onDismiss: controller.clearError,
             ),
           ],
-          if (!widget.linkCurrentUser && widget.registrationRole == null) ...[
+          // Les parents s'identifient par téléphone : l'e-mail n'est proposé
+          // qu'aux autres entrées, et garde l'espace choisi.
+          if (!widget.linkCurrentUser &&
+              intent != AppRole.parent &&
+              conflictingRole == null) ...[
             const SizedBox(height: 18),
             TextButton(
+              key: const ValueKey('phone-use-email'),
               onPressed: state.isLoading
                   ? null
-                  : () => context.push(AppRoutes.emailLogin),
+                  : () => context.push(AppRoutes.emailSignIn(intent)),
               child: Text(l10n.useEmailCompatibility),
             ),
+          ],
+          if (!widget.linkCurrentUser && intent == null)
             TextButton.icon(
               key: const ValueKey('phone-change-access'),
               onPressed: state.isLoading
@@ -220,7 +286,6 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
               icon: const Icon(Icons.arrow_back_rounded, size: 16),
               label: Text(context.l10n.passChooseAnotherWayIn),
             ),
-          ],
           const SizedBox(height: 20),
         ],
       ),
@@ -235,16 +300,56 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       context.pop(true);
       return;
     }
+    await _enterAccountSpace();
+  }
 
-    final restored = await ref
+  /// Tranche la compatibilité du compte vérifié avec l'espace choisi, puis
+  /// ouvre l'écran qui lui revient.
+  ///
+  /// Registre de décisions (QA appareil, round 2) : « le rôle réel l'emporte
+  /// toujours sur l'entrée choisie » menait un parent, entré avec le numéro
+  /// d'un élève, dans l'espace de cet élève. Sous une intention, un compte
+  /// d'un autre rôle n'ouvre plus rien : le conflit est expliqué ici, sans
+  /// quitter le parcours choisi et sans toucher au rôle enregistré.
+  Future<void> _enterAccountSpace() async {
+    setState(() {
+      _resolving = true;
+      _unresolvedCode = null;
+    });
+    final adoption = await ref
         .read(authControllerProvider.notifier)
-        .adoptCurrentFirebaseSession();
+        .adoptSessionForIntent(widget.authIntent);
     if (!mounted) return;
 
+    switch (adoption) {
+      case AuthEntryRoleConflict(:final accountRole):
+        setState(() {
+          _resolving = false;
+          _conflictingRole = accountRole;
+        });
+        return;
+      case AuthEntryUnresolved(:final errorCode):
+        setState(() {
+          _resolving = false;
+          _unresolvedCode = errorCode;
+        });
+        return;
+      case AuthEntryAdopted():
+        break;
+    }
+
     final auth = ref.read(authControllerProvider);
-    final recoveredRole = auth.role;
-    if (restored && recoveredRole != null && auth.profileCompleted) {
-      context.go(recoveredRole.homePath);
+    final accountRole = auth.role;
+    if (auth.isAuthenticated && accountRole != null && auth.profileCompleted) {
+      if (accountRole == AppRole.parent &&
+          ref.read(pendingChildLinkProvider).code != null) {
+        // Le code saisi avant l'authentification est relié maintenant, pour
+        // que l'enfant soit visible dès l'arrivée dans l'espace parent.
+        setState(() => _linkingChild = true);
+        await ref.read(pendingChildLinkProvider.notifier).linkPending();
+        if (!mounted) return;
+      }
+      context.go(accountRole.homePath);
       return;
     }
     if (auth.status == AuthStatus.retryableProfileFailure ||
@@ -252,10 +357,10 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       context.go(AppRoutes.authProfileRecovery);
       return;
     }
-    // A real recovered role always wins over the entrance selected on a
-    // shared device. An incomplete existing profile resumes its own setup.
-    if (recoveredRole != null) {
-      context.go(switch (recoveredRole) {
+    // Un profil existant mais incomplet reprend sa propre inscription. Sous
+    // une intention, ce rôle est forcément celui qui a été choisi.
+    if (accountRole != null) {
+      context.go(switch (accountRole) {
         AppRole.student => AppRoutes.studentRegistration,
         AppRole.parent => AppRoutes.parentRegistration,
         AppRole.teacher || AppRole.admin => AppRoutes.authProfileRecovery,
@@ -263,7 +368,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       return;
     }
 
-    final route = switch (widget.registrationRole) {
+    final route = switch (widget.authIntent) {
       AppRole.student => AppRoutes.studentRegistration,
       AppRole.parent => AppRoutes.parentRegistration,
       AppRole.teacher => AppRoutes.teacherRegistration,
@@ -272,8 +377,230 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
     if (route != null) {
       context.go(route);
     } else {
-      setState(() => _profileChoiceRequired = true);
+      setState(() {
+        _resolving = false;
+        _profileChoiceRequired = true;
+      });
     }
+  }
+
+  /// Corrige l'identifiant sans quitter le parcours : le code enfant retenu
+  /// reste en attente.
+  void _useAnotherNumber() {
+    setState(() {
+      _conflictingRole = null;
+      _unresolvedCode = null;
+      _completionHandled = false;
+      _profileChoiceRequired = false;
+    });
+    _phoneController.clear();
+    _codeController.clear();
+    ref
+        .read(phoneAuthControllerProvider(widget.linkCurrentUser).notifier)
+        .restartWithAnotherNumber();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _phoneFocus.requestFocus();
+    });
+  }
+
+  /// Abandon explicite du parcours : le code enfant retenu disparaît, et une
+  /// session vérifiée mais non adoptée est refermée.
+  Future<void> _cancelEntry() async {
+    ref.read(pendingChildLinkProvider.notifier).clear();
+    if (_unresolvedCode != null) {
+      await ref.read(authControllerProvider.notifier).signOut();
+    }
+    if (!mounted) return;
+    context.go(
+      ref.read(hasAuthenticatedBeforeProvider)
+          ? AppRoutes.authGateway
+          : AppRoutes.register,
+    );
+  }
+}
+
+class _PendingChildCodeNote extends StatelessWidget {
+  const _PendingChildCodeNote();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: const ValueKey('phone-pending-child-code'),
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+    decoration: BoxDecoration(
+      color: AuthExperienceColors.surfaceSoft,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AuthExperienceColors.border),
+    ),
+    child: Row(
+      children: [
+        const Icon(
+          Icons.link_rounded,
+          size: 18,
+          color: AuthExperienceColors.indigo,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            context.l10n.phonePendingChildCode,
+            style: const TextStyle(
+              fontFamily: 'CampaignBody',
+              fontSize: 12.5,
+              height: 1.4,
+              fontWeight: FontWeight.w600,
+              color: AuthExperienceColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _RoleConflictPanel extends StatelessWidget {
+  const _RoleConflictPanel({
+    required this.intent,
+    required this.accountRole,
+    required this.childCodeKept,
+    required this.onUseAnotherNumber,
+    required this.onCancel,
+    super.key,
+  });
+
+  final AppRole intent;
+  final AppRole accountRole;
+  final bool childCodeKept;
+  final VoidCallback onUseAnotherNumber;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Semantics(
+      liveRegion: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Icon(
+            Icons.manage_accounts_outlined,
+            color: AuthExperienceColors.indigo,
+            size: 42,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            roleConflictTitle(l10n, accountRole: accountRole, viaPhone: true),
+            key: const ValueKey('phone-role-conflict-title'),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AuthExperienceColors.textPrimary,
+              fontSize: 18,
+              height: 1.3,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            roleConflictGuidance(l10n, intent: intent),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AuthExperienceColors.textSecondary,
+              height: 1.45,
+            ),
+          ),
+          if (childCodeKept) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.link_rounded,
+                  size: 16,
+                  color: AuthExperienceColors.indigo,
+                ),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    l10n.roleConflictChildCodeKept,
+                    key: const ValueKey('phone-role-conflict-code-kept'),
+                    style: const TextStyle(
+                      color: AuthExperienceColors.textPrimary,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 18),
+          AuthPrimaryButton(
+            key: const ValueKey('phone-conflict-use-another-number'),
+            label: l10n.roleConflictUseAnotherNumber,
+            icon: Icons.phone_iphone_rounded,
+            onTap: onUseAnotherNumber,
+          ),
+          const SizedBox(height: 6),
+          TextButton(
+            key: const ValueKey('phone-conflict-cancel'),
+            onPressed: onCancel,
+            child: Text(l10n.cancelLabel),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EntryUnresolvedPanel extends StatelessWidget {
+  const _EntryUnresolvedPanel({
+    required this.busy,
+    required this.onRetry,
+    required this.onCancel,
+    super.key,
+  });
+
+  final bool busy;
+  final VoidCallback onRetry;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Semantics(
+      liveRegion: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Icon(
+            Icons.sync_problem_rounded,
+            color: AuthExperienceColors.error,
+            size: 40,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.authProfileSyncFailureBody,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AuthExperienceColors.textPrimary,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 18),
+          AuthPrimaryButton(
+            key: const ValueKey('phone-entry-retry'),
+            label: l10n.retryLabel,
+            icon: Icons.refresh_rounded,
+            isLoading: busy,
+            onTap: busy ? null : onRetry,
+          ),
+          const SizedBox(height: 6),
+          TextButton(
+            key: const ValueKey('phone-entry-cancel'),
+            onPressed: busy ? null : onCancel,
+            child: Text(l10n.cancelLabel),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -474,6 +801,7 @@ class _CodeEntry extends StatelessWidget {
 class _PhoneSuccess extends StatelessWidget {
   const _PhoneSuccess({
     required this.linking,
+    required this.linkingChild,
     required this.profileChoiceRequired,
     required this.onCreateStudentProfile,
     required this.onCreateParentProfile,
@@ -481,6 +809,9 @@ class _PhoneSuccess extends StatelessWidget {
   });
 
   final bool linking;
+
+  /// Le code enfant retenu est en cours de liaison, avant l'arrivée.
+  final bool linkingChild;
   final bool profileChoiceRequired;
   final VoidCallback onCreateStudentProfile;
   final VoidCallback onCreateParentProfile;
@@ -518,6 +849,29 @@ class _PhoneSuccess extends StatelessWidget {
               height: 1.45,
             ),
           ),
+          if (linkingChild) ...[
+            const SizedBox(height: 14),
+            Row(
+              key: const ValueKey('phone-linking-child'),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox.square(
+                  dimension: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    l10n.phoneLinkingChild,
+                    style: const TextStyle(
+                      color: AuthExperienceColors.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           if (profileChoiceRequired) ...[
             const SizedBox(height: 20),
             Text(

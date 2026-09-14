@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
+import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import '../../support/intellia_fonts.dart';
@@ -28,6 +29,7 @@ void main() {
           AppRoutes.login,
           AppRoutes.emailLogin,
           AppRoutes.phoneAuth,
+          AppRoutes.parentEntry,
           AppRoutes.register,
         ])
           GoRoute(
@@ -69,16 +71,19 @@ void main() {
     return pushed;
   }
 
+  // Device QA round 2 : chaque entrée porte son intention. L'élève rejoint
+  // l'authentification téléphone *en tant qu'élève* : un compte d'un autre
+  // rôle n'y ouvre rien.
   testWidgets('l’élève rejoint son authentification téléphone', (tester) async {
-    expect(await tapRole(tester, 'gateway-role-student'), AppRoutes.login);
+    expect(
+      await tapRole(tester, 'gateway-role-student'),
+      AppRoutes.phoneRegistration(AppRole.student),
+    );
   });
 
-  testWidgets('le parent rejoint l’authentification téléphone de son rôle', (
-    tester,
-  ) async {
-    final pushed = await tapRole(tester, 'gateway-role-parent');
-    expect(pushed, startsWith(AppRoutes.phoneAuth));
-    expect(pushed, contains('role=parent'));
+  // Le parent commence par le code de son enfant, pas par un numéro.
+  testWidgets('le parent rejoint l’entrée par code enfant', (tester) async {
+    expect(await tapRole(tester, 'gateway-role-parent'), AppRoutes.parentEntry);
   });
 
   testWidgets('l’enseignant rejoint l’authentification par e-mail', (

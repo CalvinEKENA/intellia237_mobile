@@ -2216,5 +2216,37 @@
   "studyReserveNotifCritical": "The study reserve is almost empty ({percent}%).",
   "studyReserveNotifDepleted": "The study reserve is empty; it renews next cycle. Lessons and quizzes stay available.",
   "studyReserveLoadError": "Couldn’t load the study reserve right now.",
-  "companionStudyReserveDepleted": "Your study reserve is depleted for this cycle. {name} will be back at renewal; your lessons and quizzes stay available."
+  "companionStudyReserveDepleted": "Your study reserve is depleted for this cycle. {name} will be back at renewal; your lessons and quizzes stay available.",
+  "parentEntryTitle": "Link your child",
+  "parentEntrySubtitle": "Enter their code, then sign in with your own phone number.",
+  "parentEntryHaveCode": "I have a child code",
+  "parentEntryCodeLabel": "Child code",
+  "parentEntryCodeHint": "e.g. K7MP2QXA",
+  "parentEntryCodeHelp": "Your child finds it in their profile, under “My parent code”.",
+  "parentEntryCodeInvalid": "A child code has 8 letters and digits. Check it with your child.",
+  "parentEntryPaste": "Paste",
+  "parentEntryAlreadyParent": "I already have a parent account",
+  "parentEntryPrivacy": "The code is only used to link your child once you are signed in.",
+  "phonePendingChildCode": "Child code ready: it will be linked once you are signed in.",
+  "phoneLinkingChild": "Linking your child…",
+  "passNumberAlreadyUsed": "Number already in use",
+  "roleConflictStudentAccount": "This phone number is already associated with a student account.",
+  "roleConflictParentAccount": "This phone number is already associated with a parent account.",
+  "roleConflictStaffAccount": "This phone number is already associated with a school staff account.",
+  "roleConflictCredentialsStudentAccount": "These credentials open a student account.",
+  "roleConflictCredentialsParentAccount": "These credentials open a parent account.",
+  "roleConflictCredentialsStaffAccount": "These credentials open a school staff account.",
+  "roleConflictUseParentCredentials": "To create or open a parent space, use the parent’s credentials.",
+  "roleConflictUseStudentCredentials": "To open the student space, use the student’s credentials.",
+  "roleConflictChildCodeKept": "The child code is still saved.",
+  "roleConflictUseAnotherNumber": "Use another number",
+  "childLinkReportFailedTitle": "The child code could not be linked",
+  "childLinkBatchSuccess": "{count, plural, =1{1 child linked to your account.} other{{count} children linked to your account.}}",
+  "@childLinkBatchSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
