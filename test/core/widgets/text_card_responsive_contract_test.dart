@@ -55,6 +55,9 @@ const _coveredPublicCardTypes = {
   // Dedicated test (needs a ProviderScope for the link-code provider):
   // test/features/student_home/student_link_code_card_test.dart.
   'StudentLinkCodeCard',
+  // Dedicated test (provider-backed; the rendered gauge is covered at 360 px /
+  // textScale 1.5): test/features/study_reserve/study_reserve_gauge_test.dart.
+  'StudyReserveCard',
 };
 
 const _longQuestion = QuizQuestion(
