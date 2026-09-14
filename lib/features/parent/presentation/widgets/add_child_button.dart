@@ -3,9 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/localization/localization_extensions.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../application/parent_preview.dart';
 import '../../application/parent_providers.dart';
 import '../../data/child_link_service.dart';
+
+/// Traduit un code d'erreur de liaison stable en message FR/EN. Le service ne
+/// renvoie qu'un code ; l'UI choisit la langue.
+String childLinkErrorMessage(AppLocalizations l10n, String code) =>
+    switch (code) {
+      'not-found' => l10n.childLinkErrorNotFound,
+      'invalid-argument' => l10n.childLinkErrorInvalid,
+      'permission-denied' => l10n.childLinkErrorPermission,
+      'unauthenticated' => l10n.childLinkErrorUnauthenticated,
+      'resource-exhausted' => l10n.childLinkErrorTooMany,
+      _ => l10n.childLinkErrorGeneric,
+    };
 
 /// Bouton « Ajouter un enfant » : ouvre une saisie de code de liaison, appelle
 /// le callable serveur, puis rafraîchit immédiatement le tableau de bord.
@@ -104,7 +117,7 @@ class _AddChildDialogState extends State<_AddChildDialog> {
       if (!mounted) return;
       setState(() {
         _submitting = false;
-        _error = error.message;
+        _error = childLinkErrorMessage(l10n, error.code);
       });
     }
   }

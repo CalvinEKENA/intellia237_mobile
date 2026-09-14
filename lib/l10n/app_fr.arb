@@ -2217,5 +2217,11 @@
   "@flowExpectedOrder": {
     "placeholders": { "order": { "type": "String" } }
   },
-  "flowSwipeToContinue": "Balayez vers le haut pour continuer"
+  "flowSwipeToContinue": "Balayez vers le haut pour continuer",
+  "childLinkErrorNotFound": "Ce code enfant est introuvable. Vérifie-le avec ton enfant.",
+  "childLinkErrorInvalid": "Saisis le code de liaison de ton enfant.",
+  "childLinkErrorPermission": "Seul un compte parent peut rattacher un enfant.",
+  "childLinkErrorUnauthenticated": "Ta session a expiré. Reconnecte-toi puis réessaie.",
+  "childLinkErrorTooMany": "Trop de tentatives. Réessaie un peu plus tard.",
+  "childLinkErrorGeneric": "La liaison n’a pas abouti. Réessaie dans un instant."
 }

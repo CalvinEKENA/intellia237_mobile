@@ -7587,6 +7587,42 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Balayez vers le haut pour continuer'**
   String get flowSwipeToContinue;
+
+  /// No description provided for @childLinkErrorNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code enfant est introuvable. Vérifie-le avec ton enfant.'**
+  String get childLinkErrorNotFound;
+
+  /// No description provided for @childLinkErrorInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis le code de liaison de ton enfant.'**
+  String get childLinkErrorInvalid;
+
+  /// No description provided for @childLinkErrorPermission.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul un compte parent peut rattacher un enfant.'**
+  String get childLinkErrorPermission;
+
+  /// No description provided for @childLinkErrorUnauthenticated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta session a expiré. Reconnecte-toi puis réessaie.'**
+  String get childLinkErrorUnauthenticated;
+
+  /// No description provided for @childLinkErrorTooMany.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Réessaie un peu plus tard.'**
+  String get childLinkErrorTooMany;
+
+  /// No description provided for @childLinkErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'La liaison n’a pas abouti. Réessaie dans un instant.'**
+  String get childLinkErrorGeneric;
 }
 
 class _AppLocalizationsDelegate

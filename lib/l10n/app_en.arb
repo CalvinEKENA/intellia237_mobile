@@ -2193,5 +2193,11 @@
   "flowFeedbackCorrect": "Correct!",
   "flowFeedbackIncorrect": "Not yet.",
   "flowExpectedOrder": "Expected order: {order}",
-  "flowSwipeToContinue": "Swipe up to continue"
+  "flowSwipeToContinue": "Swipe up to continue",
+  "childLinkErrorNotFound": "This child code was not found. Check it with your child.",
+  "childLinkErrorInvalid": "Enter your child's link code.",
+  "childLinkErrorPermission": "Only a parent account can link a child.",
+  "childLinkErrorUnauthenticated": "Your session expired. Sign in again and retry.",
+  "childLinkErrorTooMany": "Too many attempts. Try again a little later.",
+  "childLinkErrorGeneric": "Linking failed. Try again in a moment."
 }

@@ -4384,4 +4384,28 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get flowSwipeToContinue => 'Balayez vers le haut pour continuer';
+
+  @override
+  String get childLinkErrorNotFound =>
+      'Ce code enfant est introuvable. Vérifie-le avec ton enfant.';
+
+  @override
+  String get childLinkErrorInvalid =>
+      'Saisis le code de liaison de ton enfant.';
+
+  @override
+  String get childLinkErrorPermission =>
+      'Seul un compte parent peut rattacher un enfant.';
+
+  @override
+  String get childLinkErrorUnauthenticated =>
+      'Ta session a expiré. Reconnecte-toi puis réessaie.';
+
+  @override
+  String get childLinkErrorTooMany =>
+      'Trop de tentatives. Réessaie un peu plus tard.';
+
+  @override
+  String get childLinkErrorGeneric =>
+      'La liaison n’a pas abouti. Réessaie dans un instant.';
 }

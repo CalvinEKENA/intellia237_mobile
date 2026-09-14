@@ -4359,4 +4359,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get flowSwipeToContinue => 'Swipe up to continue';
+
+  @override
+  String get childLinkErrorNotFound =>
+      'This child code was not found. Check it with your child.';
+
+  @override
+  String get childLinkErrorInvalid => 'Enter your child\'s link code.';
+
+  @override
+  String get childLinkErrorPermission =>
+      'Only a parent account can link a child.';
+
+  @override
+  String get childLinkErrorUnauthenticated =>
+      'Your session expired. Sign in again and retry.';
+
+  @override
+  String get childLinkErrorTooMany =>
+      'Too many attempts. Try again a little later.';
+
+  @override
+  String get childLinkErrorGeneric => 'Linking failed. Try again in a moment.';
 }
