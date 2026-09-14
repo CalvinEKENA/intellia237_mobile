@@ -928,6 +928,44 @@ describe("Firestore security rules", () => {
     await assertFails(updateDoc(reference, { userId: "student-b" }));
   });
 
+  it("keeps Study Reserve aggregates, ledger and plan configuration server-only", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, "study_reserve/student-a"), {
+        allowanceInternal: 600000,
+        consumed: 1000,
+        cycleId: "school-a_1780000000000_0",
+        holds: {},
+      });
+      await setDoc(doc(db, "study_reserve/student-a/ledger/school-a_1780000000000_0__req-1"), {
+        billableUnits: 1000,
+      });
+      await setDoc(doc(db, "study_reserve_plans/school-a"), {
+        allowanceInternal: 600000,
+        cycleDays: 30,
+      });
+    });
+
+    // Même l'élève et son parent lié ne lisent la réserve que via le callable
+    // product-safe : l'allocation interne n'est jamais exposée au client.
+    for (const uid of ["student-a", "parent-a", "student-b", "root"]) {
+      const db = dbFor(uid);
+      await assertFails(getDoc(doc(db, "study_reserve/student-a")));
+      await assertFails(
+        getDoc(doc(db, "study_reserve/student-a/ledger/school-a_1780000000000_0__req-1")),
+      );
+      await assertFails(getDoc(doc(db, "study_reserve_plans/school-a")));
+      await assertFails(updateDoc(doc(db, "study_reserve/student-a"), { consumed: 0 }));
+      await assertFails(
+        setDoc(doc(db, "study_reserve_plans/school-a"), { allowanceInternal: 9999999, cycleDays: 30 }),
+      );
+    }
+    await assertFails(
+      setDoc(doc(dbFor("student-b"), "study_reserve/student-b"), { allowanceInternal: 9999999, consumed: 0 }),
+    );
+  });
+
   it("scopes notification device tokens to the authenticated owner", async () => {
     await seedFirestore();
     const ownerDb = dbFor("student-a");
