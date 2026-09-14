@@ -114,17 +114,28 @@ class LivingPass extends StatelessWidget {
             flightShuttleBuilder: (_, animation, direction, from, to) {
               final source = (from.widget as Hero).child as _PassSurface;
               final target = (to.widget as Hero).child as _PassSurface;
-              return AnimatedBuilder(
-                animation: animation,
-                builder: (context, _) {
-                  final raw = direction == HeroFlightDirection.push
-                      ? animation.value
-                      : 1 - animation.value;
-                  final t = Curves.easeInOutCubic.transform(raw);
-                  return target.withExpansion(
-                    lerpDouble(source.expansion, target.expansion, t)!,
-                  );
-                },
+              // Le rectangle de vol interpole deux hauteurs de carte, mais le
+              // contenu est celui de la destination : il garde sa hauteur
+              // naturelle et le vol le découpe, au lieu de le comprimer — ce
+              // qui débordait dès que la destination portait plus de texte.
+              return ClipRect(
+                child: OverflowBox(
+                  alignment: Alignment.topCenter,
+                  minHeight: 0,
+                  maxHeight: double.infinity,
+                  child: AnimatedBuilder(
+                    animation: animation,
+                    builder: (context, _) {
+                      final raw = direction == HeroFlightDirection.push
+                          ? animation.value
+                          : 1 - animation.value;
+                      final t = Curves.easeInOutCubic.transform(raw);
+                      return target.withExpansion(
+                        lerpDouble(source.expansion, target.expansion, t)!,
+                      );
+                    },
+                  ),
+                ),
               );
             },
             child: surface,
