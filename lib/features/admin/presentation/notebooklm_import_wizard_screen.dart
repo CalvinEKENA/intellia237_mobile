@@ -1,37 +1,35 @@
-import 'video_import_screen.dart';
-import '../domain/admin_content_models.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/design_tokens.dart';
-import '../../learn/domain/content_block.dart';
-import '../application/flow_composer_providers.dart';
+import '../application/admin_content_providers.dart';
+import '../application/notebook_import_service.dart';
+import '../data/educational_media_service.dart';
+import '../domain/admin_content_models.dart';
 import '../domain/educational_media.dart';
-import '../domain/notebooklm_import.dart';
 
-/// Assistant d'import des productions NotebookLM.
+/// Assistant d'import des productions NotebookLM (image / audio / MP4 / PDF).
 ///
-/// Registre de décisions : NotebookLM produit, INTELLIA valide. L'assistant ne
-/// suppose donc aucune structure d'export — l'auteur désigne ses fichiers, les
-/// classe, déclare leur provenance, vérifie ce qui sera créé, puis importe.
-///
-/// Rien n'entre publié. Un artefact importé arrive en brouillon et suit le
-/// même parcours éditorial que le reste : c'est ce qui distingue un atelier
-/// d'un canal de diffusion directe.
+/// Registre de décisions : NotebookLM produit, INTELLIA valide. L'import
+/// **persiste réellement** — chaque fichier choisi est téléversé vers son chemin
+/// canonique dans Storage, puis rattaché comme bloc à une **leçon brouillon**,
+/// enregistrée sans être publiée. Aucun faux succès, aucune donnée fictive :
+/// s'il n'y a pas de leçon cible, on le dit et on n'invente rien.
 class NotebookLmImportWizardScreen extends ConsumerStatefulWidget {
   const NotebookLmImportWizardScreen({
     required this.classLevel,
     this.targetLesson,
-    this.artifacts = const <NotebookArtifact>[],
+    this.initialFiles = const <PickedNotebookFile>[],
     super.key,
   });
 
   final String classLevel;
   final AdminLessonModel? targetLesson;
 
-  /// Artefacts déjà choisis. Le sélecteur de fichiers les fournit en usage
-  /// réel ; les tests les injectent directement.
-  final List<NotebookArtifact> artifacts;
+  /// Fichiers déjà choisis. Le sélecteur les fournit en usage réel ; les tests
+  /// les injectent directement (avec leurs octets), sans plugin natif.
+  final List<PickedNotebookFile> initialFiles;
 
   @override
   ConsumerState<NotebookLmImportWizardScreen> createState() =>
@@ -40,428 +38,324 @@ class NotebookLmImportWizardScreen extends ConsumerStatefulWidget {
 
 class _NotebookLmImportWizardScreenState
     extends ConsumerState<NotebookLmImportWizardScreen> {
-  late List<NotebookArtifact> _artifacts = widget.artifacts;
-  int _step = 0;
+  late List<PickedNotebookFile> _files = [...widget.initialFiles];
+  bool _importing = false;
+  String? _error;
+  AdminLessonModel? _imported;
 
-  final _subject = TextEditingController();
-  final _chapter = TextEditingController();
-  final _lesson = TextEditingController();
-  final _notebookId = TextEditingController();
-  final _sourceTitle = TextEditingController();
-  final _model = TextEditingController();
-  final _notes = TextEditingController();
+  static const _allowedExtensions = <String>[
+    'mp4',
+    'mp3',
+    'm4a',
+    'aac',
+    'png',
+    'jpg',
+    'jpeg',
+    'webp',
+    'pdf',
+  ];
 
-  final bool _importing = false;
-  String? _outcome;
+  List<PickedNotebookFile> get _accepted => [
+    for (final file in _files)
+      if (NotebookImportService.mediaTypeFor(file.mimeType) != null) file,
+  ];
 
-  @override
-  void dispose() {
-    for (final controller in [
-      _subject,
-      _chapter,
-      _lesson,
-      _notebookId,
-      _sourceTitle,
-      _model,
-      _notes,
-    ]) {
-      controller.dispose();
-    }
-    super.dispose();
+  List<PickedNotebookFile> get _rejected => [
+    for (final file in _files)
+      if (NotebookImportService.mediaTypeFor(file.mimeType) == null) file,
+  ];
+
+  static String _mimeForExtension(String name) {
+    final lower = name.toLowerCase();
+    if (lower.endsWith('.mp4')) return 'video/mp4';
+    if (lower.endsWith('.mp3')) return 'audio/mpeg';
+    if (lower.endsWith('.m4a')) return 'audio/m4a';
+    if (lower.endsWith('.aac')) return 'audio/aac';
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    if (lower.endsWith('.pdf')) return 'application/pdf';
+    return 'application/octet-stream';
   }
 
-  List<NotebookArtifact> get _accepted => [
-    for (final artifact in _artifacts)
-      if (NotebookImportPolicy.inspect(artifact).isAccepted) artifact,
-  ];
+  Future<void> _choose() async {
+    try {
+      final files = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: _allowedExtensions,
+      );
+      if (!mounted || files.isEmpty) return;
+      final picked = <PickedNotebookFile>[];
+      for (final file in files) {
+        picked.add(
+          PickedNotebookFile(
+            name: file.name,
+            bytes: await file.readAsBytes(),
+            mimeType: _mimeForExtension(file.name),
+          ),
+        );
+      }
+      if (!mounted) return;
+      setState(() => _files = [..._files, ...picked]);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _error = 'La sélection de fichiers a échoué.');
+    }
+  }
 
-  List<NotebookArtifact> get _rejected => [
-    for (final artifact in _artifacts)
-      if (!NotebookImportPolicy.inspect(artifact).isAccepted) artifact,
-  ];
-
-  String _storagePathFor(
-    NotebookArtifact artifact,
-  ) => EducationalAssetPath.build(
-    scope: ref.read(contentAuthoringScopeProvider),
-    classLevel: widget.classLevel,
-    subjectId: _subject.text.trim().isEmpty ? 'divers' : _subject.text.trim(),
-    lessonId: _lesson.text.trim().isEmpty ? 'sans-lecon' : _lesson.text.trim(),
-    assetId: 'nb-${artifact.fileName.hashCode.abs()}',
-    fileName: artifact.fileName,
-  );
-
-  List<ContentBlock> get _plannedBlocks => NotebookImportPolicy.plannedBlocks(
-    artifacts: _accepted,
-    storagePathFor: _storagePathFor,
-  );
-
-  bool get _canContinue => switch (_step) {
-    0 => _accepted.isNotEmpty,
-    1 => _subject.text.trim().isNotEmpty,
-    _ => true,
-  };
-
-  Future<void> _import() async {
+  Future<void> _import(AdminLessonModel lesson) async {
+    if (_accepted.isEmpty) return;
     setState(() {
-      _outcome =
-          'Aucun fichier enregistré. Ouvrez une leçon en brouillon dans le Studio, puis choisissez « Importer depuis NotebookLM ».';
-      _step = 4;
+      _importing = true;
+      _error = null;
     });
+    try {
+      final service = NotebookImportService(
+        ref.read(educationalMediaServiceProvider),
+      );
+      final updated = await service.importInto(lesson, _accepted);
+      await ref.read(adminContentActionsProvider).saveLesson(updated);
+      if (!mounted) return;
+      setState(() {
+        _importing = false;
+        _imported = updated;
+      });
+    } on MediaRejectedException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _importing = false;
+        _error = error.reason;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _importing = false;
+        _error = 'L’import n’a pas abouti. Réessaie.';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.targetLesson case final lesson?) {
-      if (lesson.isPublished) {
-        return const Scaffold(
-          body: Center(child: Text('Choisissez une leçon en brouillon.')),
-        );
-      }
-      return VideoImportScreen(lesson: lesson, notebook: true);
+    final lesson = widget.targetLesson;
+    if (lesson == null) {
+      return const _NoTargetLessonView();
+    }
+    if (lesson.isPublished) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Importer depuis NotebookLM')),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(IntelliaSpacing.xl),
+            child: Text(
+              'Choisissez une leçon en brouillon : on n’ajoute jamais de '
+              'contenu à une leçon déjà publiée.',
+              key: ValueKey('notebook-needs-draft'),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Importer depuis NotebookLM')),
-      body: Column(
-        children: [
-          _StepIndicator(step: _step),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(IntelliaSpacing.md),
-              child: switch (_step) {
-                0 => _FilesStep(
-                  accepted: _accepted,
-                  rejected: _rejected,
-                  onRemove: (artifact) => setState(
-                    () => _artifacts = [..._artifacts]..remove(artifact),
-                  ),
-                ),
-                1 => _ClassificationStep(
-                  classLevel: widget.classLevel,
-                  subject: _subject,
-                  chapter: _chapter,
-                  lesson: _lesson,
-                  onChanged: () => setState(() {}),
-                ),
-                2 => _ProvenanceStep(
-                  notebookId: _notebookId,
-                  sourceTitle: _sourceTitle,
-                  model: _model,
-                  notes: _notes,
-                ),
-                3 => _PreviewStep(blocks: _plannedBlocks),
-                _ => _DoneStep(message: _outcome ?? ''),
-              },
-            ),
-          ),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.all(IntelliaSpacing.md),
-              // Les libellés grandissent avec l'échelle de texte : une ligne
-              // rigide déborderait sur un téléphone étroit.
-              child: Wrap(
-                alignment: WrapAlignment.end,
-                spacing: IntelliaSpacing.sm,
-                runSpacing: IntelliaSpacing.xs,
-                children: [
-                  if (_step > 0 && _step < 4)
-                    TextButton(
-                      key: const ValueKey('notebook-back'),
-                      onPressed: () => setState(() => _step -= 1),
-                      child: const Text('Retour'),
-                    ),
-                  if (_step < 3)
-                    FilledButton(
-                      key: const ValueKey('notebook-next'),
-                      onPressed: _canContinue
-                          ? () => setState(() => _step += 1)
-                          : null,
-                      child: const Text('Continuer'),
-                    )
-                  else if (_step == 3)
-                    FilledButton(
-                      key: const ValueKey('notebook-import'),
-                      onPressed: _importing ? null : _import,
-                      child: const Text('Importer en brouillon'),
-                    )
-                  else
-                    FilledButton(
-                      key: const ValueKey('notebook-close'),
-                      onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Terminer'),
-                    ),
-                ],
+      body: SafeArea(
+        child: _imported != null
+            ? _ImportedView(lesson: _imported!)
+            : _PickView(
+                lesson: lesson,
+                accepted: _accepted,
+                rejected: _rejected,
+                importing: _importing,
+                error: _error,
+                onChoose: _choose,
+                onRemove: (file) =>
+                    setState(() => _files = [..._files]..remove(file)),
+                onImport: () => _import(lesson),
               ),
-            ),
-          ),
-        ],
       ),
     );
   }
 }
 
-class _StepIndicator extends StatelessWidget {
-  const _StepIndicator({required this.step});
-
-  final int step;
-
-  static const _labels = [
-    'Fichiers',
-    'Classement',
-    'Provenance',
-    'Aperçu',
-    'Import',
-  ];
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(
-      horizontal: IntelliaSpacing.md,
-      vertical: IntelliaSpacing.sm,
-    ),
-    child: Row(
-      children: [
-        for (var i = 0; i < _labels.length; i++)
-          Expanded(
-            child: Column(
-              children: [
-                Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: i <= step
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _labels[i],
-                  style: Theme.of(context).textTheme.labelSmall,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-      ],
-    ),
-  );
-}
-
-class _FilesStep extends StatelessWidget {
-  const _FilesStep({
+class _PickView extends StatelessWidget {
+  const _PickView({
+    required this.lesson,
     required this.accepted,
     required this.rejected,
+    required this.importing,
+    required this.error,
+    required this.onChoose,
     required this.onRemove,
+    required this.onImport,
   });
 
-  final List<NotebookArtifact> accepted;
-  final List<NotebookArtifact> rejected;
-  final ValueChanged<NotebookArtifact> onRemove;
+  final AdminLessonModel lesson;
+  final List<PickedNotebookFile> accepted;
+  final List<PickedNotebookFile> rejected;
+  final bool importing;
+  final String? error;
+  final VoidCallback onChoose;
+  final ValueChanged<PickedNotebookFile> onRemove;
+  final VoidCallback onImport;
 
   @override
   Widget build(BuildContext context) {
-    if (accepted.isEmpty && rejected.isEmpty) {
-      return const Text(
-        'Choisis les fichiers exportés depuis NotebookLM : Audio Overview, '
-        'infographie, fiche de synthèse, vidéo.',
-        key: ValueKey('notebook-files-empty'),
-      );
-    }
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final artifact in accepted)
-          ListTile(
-            key: ValueKey('notebook-accepted-${artifact.fileName}'),
-            leading: const Icon(Icons.check_circle_outline),
-            title: Text(artifact.fileName),
-            subtitle: Text(artifact.mimeType),
-            trailing: IconButton(
-              onPressed: () => onRemove(artifact),
-              icon: const Icon(Icons.close),
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
+            children: [
+              Text(
+                'Les fichiers seront rattachés en brouillon à « ${lesson.title} ». '
+                'Formats : image, audio, MP4, PDF.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: IntelliaSpacing.sm),
+              OutlinedButton.icon(
+                key: const ValueKey('notebook-choose-files'),
+                onPressed: importing ? null : onChoose,
+                icon: const Icon(Icons.upload_file_outlined),
+                label: const Text('Choisir des fichiers'),
+              ),
+              const SizedBox(height: IntelliaSpacing.sm),
+              if (accepted.isEmpty && rejected.isEmpty)
+                const Text(
+                  'Aucun fichier choisi pour l’instant.',
+                  key: ValueKey('notebook-files-empty'),
+                ),
+              for (final file in accepted)
+                ListTile(
+                  key: ValueKey('notebook-accepted-${file.name}'),
+                  leading: const Icon(Icons.check_circle_outline),
+                  title: Text(file.name),
+                  subtitle: Text(file.mimeType),
+                  trailing: IconButton(
+                    onPressed: importing ? null : () => onRemove(file),
+                    icon: const Icon(Icons.close),
+                  ),
+                ),
+              for (final file in rejected)
+                ListTile(
+                  key: ValueKey('notebook-rejected-${file.name}'),
+                  leading: Icon(
+                    Icons.block,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  title: Text(file.name),
+                  subtitle: const Text('Format non pris en charge'),
+                  trailing: IconButton(
+                    onPressed: importing ? null : () => onRemove(file),
+                    icon: const Icon(Icons.close),
+                  ),
+                ),
+              if (error != null) ...[
+                const SizedBox(height: IntelliaSpacing.sm),
+                Text(
+                  error!,
+                  key: const ValueKey('notebook-error'),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ],
+            ],
+          ),
+        ),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(IntelliaSpacing.md),
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                key: const ValueKey('notebook-import'),
+                onPressed: (importing || accepted.isEmpty) ? null : onImport,
+                child: importing
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Importer en brouillon'),
+              ),
             ),
           ),
-        if (rejected.isNotEmpty) ...[
-          const SizedBox(height: IntelliaSpacing.sm),
+        ),
+      ],
+    );
+  }
+}
+
+class _ImportedView extends StatelessWidget {
+  const _ImportedView({required this.lesson});
+
+  final AdminLessonModel lesson;
+
+  @override
+  Widget build(BuildContext context) {
+    final count = lesson.effectiveBlocks.length;
+    return Padding(
+      padding: const EdgeInsets.all(IntelliaSpacing.xl),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.task_alt_rounded, size: 48),
+          const SizedBox(height: IntelliaSpacing.md),
           Text(
-            'Non importables',
+            'Import réussi : la leçon « ${lesson.title} » compte maintenant '
+            '$count bloc(s), enregistrée en brouillon.',
+            key: const ValueKey('notebook-outcome'),
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleSmall,
           ),
-          for (final artifact in rejected)
-            ListTile(
-              key: ValueKey('notebook-rejected-${artifact.fileName}'),
-              leading: Icon(
-                Icons.block,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              title: Text(artifact.fileName),
-              subtitle: Text(
-                NotebookImportPolicy.inspect(artifact).rejection ?? '',
-              ),
-            ),
+          const SizedBox(height: IntelliaSpacing.xs),
+          const Text(
+            'Rien n’est publié : ces blocs suivent le parcours éditorial comme '
+            'tout autre contenu.',
+            key: ValueKey('notebook-draft-notice'),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: IntelliaSpacing.lg),
+          FilledButton(
+            key: const ValueKey('notebook-close'),
+            onPressed: () => Navigator.of(context).pop(lesson),
+            child: const Text('Terminer'),
+          ),
         ],
-      ],
+      ),
     );
   }
 }
 
-class _ClassificationStep extends StatelessWidget {
-  const _ClassificationStep({
-    required this.classLevel,
-    required this.subject,
-    required this.chapter,
-    required this.lesson,
-    required this.onChanged,
-  });
-
-  final String classLevel;
-  final TextEditingController subject;
-  final TextEditingController chapter;
-  final TextEditingController lesson;
-  final VoidCallback onChanged;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      TextField(
-        decoration: InputDecoration(
-          labelText: 'Niveau',
-          hintText: classLevel,
-          enabled: false,
-        ),
-      ),
-      TextField(
-        key: const ValueKey('notebook-subject'),
-        controller: subject,
-        decoration: const InputDecoration(labelText: 'Matière'),
-        onChanged: (_) => onChanged(),
-      ),
-      TextField(
-        key: const ValueKey('notebook-chapter'),
-        controller: chapter,
-        decoration: const InputDecoration(labelText: 'Chapitre'),
-      ),
-      TextField(
-        key: const ValueKey('notebook-lesson'),
-        controller: lesson,
-        decoration: const InputDecoration(
-          labelText: 'Leçon existante, ou vide pour une nouvelle',
-        ),
-      ),
-    ],
-  );
-}
-
-class _ProvenanceStep extends StatelessWidget {
-  const _ProvenanceStep({
-    required this.notebookId,
-    required this.sourceTitle,
-    required this.model,
-    required this.notes,
-  });
-
-  final TextEditingController notebookId;
-  final TextEditingController sourceTitle;
-  final TextEditingController model;
-  final TextEditingController notes;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        'Ce qui n’est pas connu reste vide : la provenance ne se devine pas.',
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-      const SizedBox(height: IntelliaSpacing.xs),
-      TextField(
-        key: const ValueKey('notebook-id'),
-        controller: notebookId,
-        decoration: const InputDecoration(labelText: 'Notebook source'),
-      ),
-      TextField(
-        key: const ValueKey('notebook-source-title'),
-        controller: sourceTitle,
-        decoration: const InputDecoration(labelText: 'Titre source'),
-      ),
-      TextField(
-        key: const ValueKey('notebook-model'),
-        controller: model,
-        decoration: const InputDecoration(labelText: 'Modèle utilisé'),
-      ),
-      TextField(
-        key: const ValueKey('notebook-notes'),
-        controller: notes,
-        maxLines: 2,
-        decoration: const InputDecoration(labelText: 'Notes internes'),
-      ),
-    ],
-  );
-}
-
-class _PreviewStep extends StatelessWidget {
-  const _PreviewStep({required this.blocks});
-
-  final List<ContentBlock> blocks;
+/// État honnête quand aucune leçon brouillon n'est ciblée : on n'invente pas de
+/// leçon, on oriente vers l'ouverture d'un brouillon dans le Studio.
+class _NoTargetLessonView extends StatelessWidget {
+  const _NoTargetLessonView();
 
   @override
   Widget build(BuildContext context) {
-    if (blocks.isEmpty) {
-      return const Text(
-        'Aucun bloc ne sera créé : vérifie les fichiers choisis.',
-        key: ValueKey('notebook-preview-empty'),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '${blocks.length} bloc(s) seront créés en brouillon.',
-          key: const ValueKey('notebook-preview-count'),
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-        const SizedBox(height: IntelliaSpacing.xs),
-        for (final block in blocks)
-          ListTile(
-            key: ValueKey('notebook-preview-${block.id}'),
-            leading: const Icon(Icons.widgets_outlined),
-            title: Text(block.type.name),
-            subtitle: Text(
-              block is MediaBlock ? block.storagePath : 'Bloc de texte',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Importer depuis NotebookLM')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(IntelliaSpacing.xl),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.menu_book_outlined, size: 48),
+              const SizedBox(height: IntelliaSpacing.md),
+              Text(
+                'L’import NotebookLM rattache des fichiers à une leçon en '
+                'brouillon. Ouvre une leçon en brouillon dans le Studio, puis '
+                'choisis « Importer depuis NotebookLM ».',
+                key: const ValueKey('notebook-no-lesson'),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
           ),
-      ],
+        ),
+      ),
     );
   }
-}
-
-class _DoneStep extends StatelessWidget {
-  const _DoneStep({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        message,
-        key: const ValueKey('notebook-outcome'),
-        style: Theme.of(context).textTheme.titleSmall,
-      ),
-      const SizedBox(height: IntelliaSpacing.xs),
-      const Text(
-        'Rien n’est publié : ces blocs suivent le parcours éditorial comme '
-        'tout autre contenu.',
-        key: ValueKey('notebook-draft-notice'),
-      ),
-    ],
-  );
 }
