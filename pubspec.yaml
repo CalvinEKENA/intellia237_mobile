@@ -1,7 +1,7 @@
 name: intellia237
 description: "Application e-learning Intellia 237."
 publish_to: "none"
-version: 3.2.1+27
+version: 3.2.1+28
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
