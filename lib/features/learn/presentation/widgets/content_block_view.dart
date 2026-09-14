@@ -1,4 +1,6 @@
+import 'audio_overview_player.dart';
 import 'educational_video_player.dart';
+import 'lesson_pdf_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -142,10 +144,12 @@ class _MediaSurface extends ConsumerWidget {
       case MediaType.image:
         return _RemoteImage(storagePath: block.storagePath);
       case MediaType.audio:
-        return _MediaPlaceholder(
-          icon: Icons.headphones_rounded,
-          label: 'Capsule audio',
-          durationSeconds: block.durationSeconds,
+        final caption = block.caption?.trim();
+        return AudioOverviewPlayer(
+          storagePath: block.storagePath,
+          title: (caption != null && caption.isNotEmpty)
+              ? caption
+              : 'Capsule audio',
         );
       case MediaType.video:
         return EducationalVideoPlayer(
@@ -154,10 +158,9 @@ class _MediaSurface extends ConsumerWidget {
           fileSizeBytes: block.fileSizeBytes,
         );
       case MediaType.pdf:
-        return _MediaPlaceholder(
-          icon: Icons.picture_as_pdf_rounded,
-          label: 'Document',
-          durationSeconds: null,
+        return LessonPdfView(
+          storagePath: block.storagePath,
+          caption: block.caption,
         );
     }
   }
@@ -218,53 +221,6 @@ class _MediaLoading extends StatelessWidget {
     ),
     child: const CircularProgressIndicator(),
   );
-}
-
-class _MediaPlaceholder extends StatelessWidget {
-  const _MediaPlaceholder({
-    required this.icon,
-    required this.label,
-    required this.durationSeconds,
-  });
-
-  final IconData icon;
-  final String label;
-  final int? durationSeconds;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final seconds = durationSeconds;
-
-    return Container(
-      padding: const EdgeInsets.all(IntelliaSpacing.md),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: theme.colorScheme.primary),
-          const SizedBox(width: IntelliaSpacing.sm),
-          Expanded(child: Text(label, style: theme.textTheme.titleSmall)),
-          if (seconds != null && seconds > 0)
-            Text(
-              _durationLabel(seconds),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  static String _durationLabel(int seconds) {
-    final minutes = seconds ~/ 60;
-    final rest = seconds % 60;
-    if (minutes == 0) return '$rest s';
-    return rest == 0 ? '$minutes min' : '$minutes min $rest';
-  }
 }
 
 class _QuizBlockView extends StatelessWidget {
