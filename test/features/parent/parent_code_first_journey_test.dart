@@ -489,6 +489,60 @@ void main() {
     },
   );
 
+  testWidgets(
+    'rôle illisible après l’OTP : rien ne s’ouvre, « Réessayer » sans nouveau SMS',
+    (tester) async {
+      final backend = _Backend();
+      final journey = await _Journey.start(tester, backend);
+      // Le démarrage a déjà lu la session ; c'est la lecture après l'OTP qui
+      // échoue.
+      backend.failNextResolutions = 1;
+
+      await journey.enterParentCode('K7MP2QXA');
+      await journey.verifyPhone(_parentPhone);
+
+      expect(journey.location, AppRoutes.phoneAuth);
+      expect(
+        find.byKey(const ValueKey('phone-entry-unresolved')),
+        findsOneWidget,
+      );
+      expect(journey.auth.isAuthenticated, isFalse);
+      expect(backend.currentUid, isNotNull, reason: 'session gardée');
+      expect(journey.pending.code, 'K7MP2QXA');
+      expect(backend.linkCalls, isEmpty);
+
+      await journey.tap('phone-entry-retry');
+
+      expect(journey.location, AppRoutes.parentHome);
+      expect(backend.otpConfirmations, 1, reason: 'aucun nouveau code SMS');
+      expect(find.text('Awa'), findsWidgets);
+      expect(journey.pending.code, isNull);
+    },
+  );
+
+  testWidgets(
+    'rôle illisible puis « Annuler » : session refermée, code abandonné',
+    (tester) async {
+      final backend = _Backend();
+      final journey = await _Journey.start(tester, backend);
+      backend.failNextResolutions = 1;
+
+      await journey.enterParentCode('K7MP2QXA');
+      await journey.verifyPhone(_studentPhone);
+      expect(
+        find.byKey(const ValueKey('phone-entry-unresolved')),
+        findsOneWidget,
+      );
+
+      await journey.tap('phone-entry-cancel');
+
+      expect(journey.location, AppRoutes.authGateway);
+      expect(backend.currentUid, isNull);
+      expect(journey.pending.code, isNull);
+      expect(backend.accountFor(_studentPhone)!.role, AppRole.student);
+    },
+  );
+
   testWidgets('retour arrière depuis l’entrée parent : le code est abandonné', (
     tester,
   ) async {
@@ -726,7 +780,11 @@ class _Backend {
   final linkCalls = <String>[];
   String? currentUid;
   int signOuts = 0;
+  int otpConfirmations = 0;
   bool linkNetworkDown = false;
+
+  /// Lectures de profil qui échouent (réseau) avant de réussir.
+  int failNextResolutions = 0;
 
   /// Codes actifs. `H4NR8TBZ` est l'ancien code d'Awa, régénéré depuis.
   static const codes = {'K7MP2QXA': 'Awa', 'P3RT9WXY': 'Noah'};
@@ -769,6 +827,7 @@ class _PhoneRepository implements PhoneAuthRepository {
     required String smsCode,
     required bool linkCurrentUser,
   }) async {
+    backend.otpConfirmations++;
     backend.signInWithPhone(verificationId);
     return PhoneAuthSession(
       uid: backend.currentUid!,
@@ -798,6 +857,10 @@ class _AuthRepository implements AuthRepository, AuthSessionResolver {
 
   @override
   Future<AuthSessionResolution> resolveCurrentSession() async {
+    if (backend.failNextResolutions > 0) {
+      backend.failNextResolutions--;
+      throw Exception('profile read failed');
+    }
     final uid = backend.currentUid;
     if (uid == null) {
       return const AuthSessionResolution(
