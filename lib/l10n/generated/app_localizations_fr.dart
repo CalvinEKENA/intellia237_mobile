@@ -4466,4 +4466,13 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get studyReserveNotifDepleted =>
       'La réserve d’étude est épuisée ; elle se renouvelle au prochain cycle. Les cours et quiz restent accessibles.';
+
+  @override
+  String get studyReserveLoadError =>
+      'Impossible de charger la réserve d’étude pour le moment.';
+
+  @override
+  String companionStudyReserveDepleted(String name) {
+    return 'Ta réserve d’étude est épuisée pour ce cycle. $name reprendra au renouvellement ; tes cours et quiz restent accessibles.';
+  }
 }

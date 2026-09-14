@@ -2214,5 +2214,7 @@
   "studyReserveNotifInfo": "{percent}% of the study reserve is left this cycle.",
   "studyReserveNotifLow": "The study reserve is at {percent}%. Pace it for the tutor.",
   "studyReserveNotifCritical": "The study reserve is almost empty ({percent}%).",
-  "studyReserveNotifDepleted": "The study reserve is empty; it renews next cycle. Lessons and quizzes stay available."
+  "studyReserveNotifDepleted": "The study reserve is empty; it renews next cycle. Lessons and quizzes stay available.",
+  "studyReserveLoadError": "Couldn’t load the study reserve right now.",
+  "companionStudyReserveDepleted": "Your study reserve is depleted for this cycle. {name} will be back at renewal; your lessons and quizzes stay available."
 }

@@ -24,6 +24,8 @@ import 'package:intellia237/features/parent/domain/parent_dashboard.dart';
 import 'package:intellia237/features/student_home/data/student_home_repository.dart';
 import 'package:intellia237/features/student_home/domain/student_home_snapshot.dart';
 import 'package:intellia237/features/student_home/presentation/student_home_screen.dart';
+import 'package:intellia237/features/study_reserve/data/study_reserve_service.dart';
+import 'package:intellia237/features/study_reserve/domain/study_reserve.dart';
 import 'package:intellia237/features/tutor/application/tutor_preference_provider.dart';
 import 'package:intellia237/features/tutor/domain/tutor_persona.dart';
 import 'package:intellia237/features/tour_guide/data/firestore_tour_guide_repository.dart';
@@ -179,6 +181,15 @@ Future<ProviderContainer> pumpMasteryHarness(
             const ParentDashboard(children: [childFixture], announcements: []),
       ),
       parentMasterySubjectsProvider.overrideWith((ref, id) async => subjects),
+      // Le profil élève embarque la Réserve d'étude : réponse serveur réelle
+      // « unavailable » (aucun pourcentage), sans appel Firebase en test.
+      studyReserveProvider.overrideWith(
+        (ref, id) async => StudyReserve(
+          studentId: id ?? 'learner',
+          percentRemaining: 0,
+          status: StudyReserveStatus.unavailable,
+        ),
+      ),
       buildIdentityProvider.overrideWith(
         (ref) async => const BuildIdentity(
           version: '3.0.0',

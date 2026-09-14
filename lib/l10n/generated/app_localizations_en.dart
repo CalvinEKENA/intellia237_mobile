@@ -4438,4 +4438,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get studyReserveNotifDepleted =>
       'The study reserve is empty; it renews next cycle. Lessons and quizzes stay available.';
+
+  @override
+  String get studyReserveLoadError =>
+      'Couldn’t load the study reserve right now.';
+
+  @override
+  String companionStudyReserveDepleted(String name) {
+    return 'Your study reserve is depleted for this cycle. $name will be back at renewal; your lessons and quizzes stay available.';
+  }
 }

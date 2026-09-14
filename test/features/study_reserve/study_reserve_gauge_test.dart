@@ -132,42 +132,89 @@ void main() {
     }
   }
 
-  // Responsive + textScale : aucun débordement.
-  for (final width in const [320.0, 360.0, 390.0, 412.0, 480.0, 600.0]) {
-    for (final scale in const [1.0, 1.3, 1.5, 2.0]) {
-      testWidgets('no overflow ${width.toInt()}px @${scale}x', (tester) async {
-        tester.view.physicalSize = Size(width, 400);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        await tester.pumpWidget(
-          MaterialApp(
-            locale: const Locale('fr'),
-            supportedLocales: AppLocalizations.supportedLocales,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            home: MediaQuery(
-              data: MediaQueryData(
-                size: Size(width, 400),
-                textScaler: TextScaler.linear(scale),
-              ),
-              child: Scaffold(
-                body: SingleChildScrollView(
-                  child: StudyReserveGauge(
-                    reserve: reserve(5, StudyReserveStatus.critical),
+  for (final locale in const [Locale('fr'), Locale('en')]) {
+    testWidgets('visual state unavailable (${locale.languageCode})', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const StudyReserve(
+          studentId: 's1',
+          percentRemaining: 0,
+          status: StudyReserveStatus.unavailable,
+        ),
+        locale: locale,
+      );
+      final text = _allText(tester);
+      expect(tester.takeException(), isNull);
+      expect(
+        text,
+        contains(locale.languageCode == 'fr' ? 'indisponible' : 'unavailable'),
+      );
+      expect(text.contains('%'), isFalse);
+    });
+  }
+
+  // Responsive + textScale : aucun débordement, pour l'état le plus chargé en
+  // texte (épuisé + aide + renouvellement) et l'état indisponible, FR et EN.
+  final layoutCases = <(String, Locale, StudyReserve)>[
+    (
+      'critical-fr',
+      const Locale('fr'),
+      reserve(5, StudyReserveStatus.critical),
+    ),
+    (
+      'depleted-en',
+      const Locale('en'),
+      reserve(0, StudyReserveStatus.depleted),
+    ),
+    (
+      'unavailable-fr',
+      const Locale('fr'),
+      const StudyReserve(
+        studentId: 's1',
+        percentRemaining: 0,
+        status: StudyReserveStatus.unavailable,
+      ),
+    ),
+  ];
+  for (final (name, locale, layoutReserve) in layoutCases) {
+    for (final width in const [320.0, 360.0, 390.0, 412.0, 480.0, 600.0]) {
+      for (final scale in const [1.0, 1.3, 1.5, 2.0]) {
+        testWidgets('no overflow $name ${width.toInt()}px @${scale}x', (
+          tester,
+        ) async {
+          tester.view.physicalSize = Size(width, 400);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          await tester.pumpWidget(
+            MaterialApp(
+              locale: locale,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              home: MediaQuery(
+                data: MediaQueryData(
+                  size: Size(width, 400),
+                  textScaler: TextScaler.linear(scale),
+                ),
+                child: Scaffold(
+                  body: SingleChildScrollView(
+                    child: StudyReserveGauge(reserve: layoutReserve),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-        await tester.pump();
-        expect(tester.takeException(), isNull);
-      });
+          );
+          await tester.pump();
+          expect(tester.takeException(), isNull);
+        });
+      }
     }
   }
 

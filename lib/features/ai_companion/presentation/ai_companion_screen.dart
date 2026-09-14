@@ -471,7 +471,7 @@ String _localizedCompanionError(BuildContext context, AICompanionState state) {
       name,
     ),
     AICompanionFailureKind.studyReserveExhausted =>
-      context.l10n.studyReserveDepletedHelp,
+      context.l10n.companionStudyReserveDepleted(name),
     AICompanionFailureKind.authorizationProfile =>
       context.l10n.companionProfileSync(name),
     AICompanionFailureKind.invalidRequest =>

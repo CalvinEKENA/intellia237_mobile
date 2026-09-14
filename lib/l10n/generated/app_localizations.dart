@@ -7713,6 +7713,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'La réserve d’étude est épuisée ; elle se renouvelle au prochain cycle. Les cours et quiz restent accessibles.'**
   String get studyReserveNotifDepleted;
+
+  /// No description provided for @studyReserveLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger la réserve d’étude pour le moment.'**
+  String get studyReserveLoadError;
+
+  /// No description provided for @companionStudyReserveDepleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réserve d’étude est épuisée pour ce cycle. {name} reprendra au renouvellement ; tes cours et quiz restent accessibles.'**
+  String companionStudyReserveDepleted(String name);
 }
 
 class _AppLocalizationsDelegate
