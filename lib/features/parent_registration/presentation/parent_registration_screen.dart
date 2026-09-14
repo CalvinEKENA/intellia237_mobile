@@ -9,6 +9,7 @@ import '../../auth/presentation/widgets/auth_controls.dart';
 import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/presentation/widgets/auth_registration_frame.dart';
 import '../../auth/presentation/widgets/living_pass.dart';
+import '../../auth/presentation/widgets/pass_auth_progress.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../application/parent_registration_controller.dart';
 import '../../legal/presentation/legal_links.dart';
@@ -82,6 +83,8 @@ class _ParentRegistrationScreenState
               ),
         phase: labels[state.currentStep],
         progress: 0.42 + state.currentStep * 0.23,
+        // Le numéro est déjà vérifié : le sceau reste complet.
+        sealProgress: PassAuthProgress.verified,
       ),
       currentStep: state.currentStep,
       labels: labels,

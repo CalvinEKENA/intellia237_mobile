@@ -9,6 +9,7 @@ import '../domain/auth_input_validators.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
+import 'widgets/pass_auth_progress.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +22,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late final _passInputs = Listenable.merge([
+    _emailController,
+    _passwordController,
+  ]);
   final _passwordFocus = FocusNode();
 
   @override
@@ -51,12 +56,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return AuthExperienceScaffold(
       showBackButton: false,
-      pass: ValueListenableBuilder<TextEditingValue>(
-        valueListenable: _emailController,
-        builder: (context, value, _) => LivingPass(
-          detail: value.text.trim().isEmpty ? null : value.text.trim(),
+      pass: ListenableBuilder(
+        listenable: _passInputs,
+        builder: (context, _) => LivingPass(
+          detail: _emailController.text.trim().isEmpty
+              ? null
+              : _emailController.text.trim(),
           phase: context.l10n.passSignIn,
-          progress: .65,
+          // L'adresse colore « 2 », le mot de passe « 3 » ; l'espace d'arrivée
+          // présente le sceau vérifié.
+          progress: PassAuthProgress.emailSignIn(
+            email: _emailController.text,
+            password: _passwordController.text,
+          ),
         ),
       ),
       child: AutofillGroup(

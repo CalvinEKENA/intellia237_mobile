@@ -12,6 +12,7 @@ import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/presentation/widgets/auth_selection_pill.dart';
 import '../../auth/presentation/widgets/auth_success_screen.dart';
 import '../../auth/presentation/widgets/living_pass.dart';
+import '../../auth/presentation/widgets/pass_auth_progress.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../application/student_registration_controller.dart';
@@ -99,6 +100,8 @@ class _StudentRegistrationFlowScreenState
             : companion.imagePath,
         phase: labels[state.currentStep],
         progress: 0.42 + state.currentStep * 0.15,
+        // Le numéro est déjà vérifié : le sceau reste complet.
+        sealProgress: PassAuthProgress.verified,
       ),
       onBack: state.isFirstStep
           ? () => context.pop()

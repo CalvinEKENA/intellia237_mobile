@@ -10,6 +10,8 @@ import 'auth_experience_scaffold.dart';
 /// Purement calculatoire (aucun état, aucun contexte) → testable de façon
 /// déterministe. Les chiffres et les couches de membrane héritent
 /// progressivement du tricolore de marque : 2 → vert, 3 → rouge, 7 → jaune.
+/// Les étapes d'authentification posent la progression sur les tiers exacts
+/// (voir `PassAuthProgress`).
 abstract final class Intellia237Palette {
   static const Color base = AuthExperienceColors.indigo;
   static const List<Color> digitTargets = [
@@ -27,6 +29,15 @@ abstract final class Intellia237Palette {
     final reveal = _clamp01((progress - start) / (1 / 3));
     return Color.lerp(base, digitTargets[digitIndex], reveal)!;
   }
+
+  /// Couleurs peintes pour « 2 », « 3 » et « 7 », dans cet ordre.
+  ///
+  /// Le sceau montre toujours ses trois chiffres, réussite comprise : la
+  /// vérification se lit dans le « 7 » devenu jaune et dans la pulsation,
+  /// jamais dans un glyphe qui les remplacerait.
+  static List<Color> digitColors(double progress) => [
+    for (var i = 0; i < digitTargets.length; i++) digitColor(i, progress),
+  ];
 
   /// Cible tricolore d'une couche selon sa position 0(intérieur)..1(extérieur) :
   /// vert → rouge → jaune, de l'intérieur vers l'extérieur.
@@ -61,7 +72,17 @@ abstract final class Intellia237Palette {
 /// (CustomPainter), 60 fps, avec un très léger mouvement de filament au repos.
 ///
 /// - [progress] 0..1 colore séquentiellement 2/3/7 et propage le tricolore ;
-/// - [verified] déclenche une pulsation douce à la réussite ;
+/// - [verified] déclenche une pulsation douce à la réussite. Le sceau garde
+///   ses trois chiffres : à la réussite, « 2 » vert, « 3 » rouge, « 7 » jaune.
+///
+/// Registre de décisions (QA appareil, round 2) : à la réussite, le peintre
+/// remplaçait « 237 » par une coche peinte dans la couleur de succès — un
+/// vert. Toutes les réussites posant `progress: 1` et `verified: true` dans
+/// la même image, le « 7 » jaune n'était jamais affiché : l'élève voyait le
+/// « 2 » verdir, le « 3 » rougir, puis la dernière étape virer au vert. La
+/// coche venait de l'ancien sceau statique ; son glyphe n'existe même pas
+/// dans la police embarquée, et s'affichait par substitution.
+///
 /// - respecte « animations réduites » (filament figé, pas de pulsation animée) ;
 /// - se met en pause quand la route n'est pas visible (TickerMode de Flutter).
 class Intellia237Membrane extends StatefulWidget {
@@ -130,15 +151,12 @@ class _Intellia237MembraneState extends State<Intellia237Membrane>
       animation: Listenable.merge([_idle, _pulse]),
       builder: (context, _) {
         // Pulsation : une respiration brève (0 → léger agrandissement → 0).
-        final pulse = _motion
-            ? math.sin(_pulse.value * math.pi) * 0.06
-            : (widget.verified ? 0.0 : 0.0);
+        final pulse = _motion ? math.sin(_pulse.value * math.pi) * 0.06 : 0.0;
         return CustomPaint(
           painter: _Membrane237Painter(
             progress: widget.progress.clamp(0.0, 1.0),
             phase: _motion ? _idle.value : 0.0,
             pulse: pulse,
-            verified: widget.verified,
           ),
         );
       },
@@ -151,13 +169,11 @@ class _Membrane237Painter extends CustomPainter {
     required this.progress,
     required this.phase,
     required this.pulse,
-    required this.verified,
   });
 
   final double progress;
   final double phase;
   final double pulse;
-  final bool verified;
 
   static const _rings = 11;
 
@@ -185,15 +201,12 @@ class _Membrane237Painter extends CustomPainter {
       canvas.drawPath(path..close(), paint);
     }
 
-    if (verified && progress >= 0.999) {
-      _paintCheck(canvas, center, unit);
-    } else {
-      _paintDigits(canvas, center, unit);
-    }
+    _paintDigits(canvas, center, unit);
   }
 
   void _paintDigits(Canvas canvas, Offset center, double unit) {
     const digits = ['2', '3', '7'];
+    final colors = Intellia237Palette.digitColors(progress);
     final painters = <TextPainter>[];
     var totalWidth = 0.0;
     for (var i = 0; i < 3; i++) {
@@ -205,7 +218,7 @@ class _Membrane237Painter extends CustomPainter {
             fontWeight: FontWeight.w800,
             fontSize: unit * 0.67,
             height: 0.98,
-            color: Intellia237Palette.digitColor(i, progress),
+            color: colors[i],
           ),
         ),
         textDirection: TextDirection.ltr,
@@ -220,26 +233,7 @@ class _Membrane237Painter extends CustomPainter {
     }
   }
 
-  void _paintCheck(Canvas canvas, Offset center, double unit) {
-    final tp = TextPainter(
-      text: TextSpan(
-        text: '✓',
-        style: TextStyle(
-          fontFamily: 'BarlowCondensed',
-          fontWeight: FontWeight.w800,
-          fontSize: unit * 0.67,
-          color: AuthExperienceColors.success,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    tp.paint(canvas, center - Offset(tp.width / 2, tp.height / 2));
-  }
-
   @override
   bool shouldRepaint(_Membrane237Painter old) =>
-      old.progress != progress ||
-      old.phase != phase ||
-      old.pulse != pulse ||
-      old.verified != verified;
+      old.progress != progress || old.phase != phase || old.pulse != pulse;
 }

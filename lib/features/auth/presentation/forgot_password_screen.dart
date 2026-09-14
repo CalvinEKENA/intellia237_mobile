@@ -8,6 +8,7 @@ import '../domain/auth_input_validators.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
+import 'widgets/pass_auth_progress.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -51,7 +52,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           phase: _emailSent
               ? context.l10n.passLinkSent
               : context.l10n.passRecoverMyAccess,
-          progress: _emailSent ? .65 : .35,
+          progress: PassAuthProgress.passwordReset(
+            email: value.text,
+            linkSent: _emailSent,
+          ),
         ),
       ),
       child: Form(

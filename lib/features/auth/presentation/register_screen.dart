@@ -13,6 +13,7 @@ import 'widgets/auth_choices.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
+import 'widgets/pass_auth_progress.dart';
 import 'widgets/school_head_access.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -73,6 +74,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         role: _selectedRole,
         phase: context.l10n.passChooseYourSpace,
         progress: _selectedRole == null ? 0 : .12,
+        // Choisir un espace n'est pas encore s'identifier.
+        sealProgress: PassAuthProgress.start,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

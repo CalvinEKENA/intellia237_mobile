@@ -17,6 +17,7 @@ import '../domain/firebase_error_mapper.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
+import 'widgets/pass_auth_progress.dart';
 import 'widgets/pass_otp_field.dart';
 
 class PhoneAuthScreen extends ConsumerStatefulWidget {
@@ -36,6 +37,10 @@ class PhoneAuthScreen extends ConsumerStatefulWidget {
 class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
   final _phoneController = TextEditingController();
   final _codeController = TextEditingController();
+  late final _passInputs = Listenable.merge([
+    _phoneController,
+    _codeController,
+  ]);
   final _phoneFocus = FocusNode();
   final _codeFocus = FocusNode();
   bool _completionHandled = false;
@@ -93,30 +98,27 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
           },
         ),
       ),
-      pass: ValueListenableBuilder<TextEditingValue>(
-        valueListenable: _phoneController,
-        builder: (context, value, _) => LivingPass(
+      pass: ListenableBuilder(
+        listenable: _passInputs,
+        builder: (context, _) => LivingPass(
           role: widget.registrationRole,
           detail: state.stage == PhoneAuthStage.phoneEntry
-              ? (value.text.trim().isEmpty ? null : value.text.trim())
+              ? (_phoneController.text.trim().isEmpty
+                    ? null
+                    : _phoneController.text.trim())
               : state.phoneNumber,
           phase: switch (state.stage) {
             PhoneAuthStage.phoneEntry => context.l10n.passYourNumber,
             PhoneAuthStage.codeEntry => context.l10n.passVerificationInProgress,
             PhoneAuthStage.success => context.l10n.passNumberVerified,
           },
-          // Progression 0..1 : le numéro colore « 2 » (vert), la vérification
-          // « 3 » (rouge), et la réussite « 7 » (jaune) + pulsation.
-          progress: switch (state.stage) {
-            PhoneAuthStage.phoneEntry =>
-              (value.text.replaceAll(RegExp(r'\D'), '').length / 9).clamp(
-                    0.0,
-                    1.0,
-                  ) *
-                  0.33,
-            PhoneAuthStage.codeEntry => .66,
-            PhoneAuthStage.success => 1.0,
-          },
+          // Le numéro colore « 2 » (vert), le code « 3 » (rouge), la réussite
+          // « 7 » (jaune) + pulsation — chacun au fil de la saisie.
+          progress: PassAuthProgress.phone(
+            stage: state.stage,
+            phoneInput: _phoneController.text,
+            codeInput: _codeController.text,
+          ),
           verified: state.stage == PhoneAuthStage.success,
         ),
       ),

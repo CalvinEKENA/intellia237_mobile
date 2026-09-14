@@ -55,6 +55,7 @@ class LivingPass extends StatelessWidget {
     this.companionAsset,
     this.phase,
     this.progress = 0,
+    this.sealProgress,
     this.verified = false,
     this.compact = false,
     this.heroEnabled = true,
@@ -67,7 +68,15 @@ class LivingPass extends StatelessWidget {
   final String? detail;
   final String? companionAsset;
   final String? phase;
+
+  /// Avancement du parcours en cours, gravé au bas de la carte.
   final double progress;
+
+  /// Avancement de l'authentification porté par le sceau « 237 », quand il
+  /// diffère du parcours : une inscription ouverte après un numéro vérifié
+  /// garde un sceau complet au lieu de le décolorer à sa première étape.
+  /// Par défaut, [progress].
+  final double? sealProgress;
   final bool verified;
   final bool compact;
   final bool heroEnabled;
@@ -93,6 +102,7 @@ class LivingPass extends StatelessWidget {
       emptyName: context.l10n.passAPlaceForYou,
       readyLabel: context.l10n.passPassReady,
       progress: progress.clamp(0, 1),
+      sealProgress: (sealProgress ?? progress).clamp(0, 1),
       verified: verified,
       expansion: small ? 0 : 1,
     );
@@ -141,6 +151,7 @@ class _PassSurface extends StatelessWidget {
     required this.emptyName,
     required this.readyLabel,
     required this.progress,
+    required this.sealProgress,
     required this.verified,
     required this.expansion,
   });
@@ -154,6 +165,7 @@ class _PassSurface extends StatelessWidget {
   final String emptyName;
   final String readyLabel;
   final double progress;
+  final double sealProgress;
   final bool verified;
   final double expansion;
 
@@ -167,6 +179,7 @@ class _PassSurface extends StatelessWidget {
     emptyName: emptyName,
     readyLabel: readyLabel,
     progress: progress,
+    sealProgress: sealProgress,
     verified: verified,
     expansion: value,
   );
@@ -267,7 +280,7 @@ class _PassSurface extends StatelessWidget {
                 child: asset == null
                     ? ExcludeSemantics(
                         child: Intellia237Membrane(
-                          progress: progress,
+                          progress: sealProgress,
                           verified: verified,
                         ),
                       )
@@ -277,7 +290,7 @@ class _PassSurface extends StatelessWidget {
                         excludeFromSemantics: true,
                         errorBuilder: (_, _, _) => ExcludeSemantics(
                           child: Intellia237Membrane(
-                            progress: progress,
+                            progress: sealProgress,
                             verified: verified,
                           ),
                         ),
