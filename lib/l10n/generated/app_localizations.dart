@@ -7545,6 +7545,48 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ville'**
   String get establishmentCityLabel;
+
+  /// No description provided for @flowChoiceTrue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vrai'**
+  String get flowChoiceTrue;
+
+  /// No description provided for @flowChoiceFalse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux'**
+  String get flowChoiceFalse;
+
+  /// No description provided for @flowHintPrefix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indice : {hint}'**
+  String flowHintPrefix(String hint);
+
+  /// No description provided for @flowFeedbackCorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exact !'**
+  String get flowFeedbackCorrect;
+
+  /// No description provided for @flowFeedbackIncorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore.'**
+  String get flowFeedbackIncorrect;
+
+  /// No description provided for @flowExpectedOrder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordre attendu : {order}'**
+  String flowExpectedOrder(String order);
+
+  /// No description provided for @flowSwipeToContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Balayez vers le haut pour continuer'**
+  String get flowSwipeToContinue;
 }
 
 class _AppLocalizationsDelegate

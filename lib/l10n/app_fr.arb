@@ -2204,5 +2204,18 @@
   "archiveEstablishmentLabel": "Archiver l’école",
   "unarchiveEstablishmentLabel": "Réactiver l’école",
   "establishmentArchivedBadge": "Archivée",
-  "establishmentCityLabel": "Ville"
+  "establishmentCityLabel": "Ville",
+  "flowChoiceTrue": "Vrai",
+  "flowChoiceFalse": "Faux",
+  "flowHintPrefix": "Indice : {hint}",
+  "@flowHintPrefix": {
+    "placeholders": { "hint": { "type": "String" } }
+  },
+  "flowFeedbackCorrect": "Exact !",
+  "flowFeedbackIncorrect": "Pas encore.",
+  "flowExpectedOrder": "Ordre attendu : {order}",
+  "@flowExpectedOrder": {
+    "placeholders": { "order": { "type": "String" } }
+  },
+  "flowSwipeToContinue": "Balayez vers le haut pour continuer"
 }

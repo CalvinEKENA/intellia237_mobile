@@ -2186,5 +2186,12 @@
   "archiveEstablishmentLabel": "Archive school",
   "unarchiveEstablishmentLabel": "Reactivate school",
   "establishmentArchivedBadge": "Archived",
-  "establishmentCityLabel": "City"
+  "establishmentCityLabel": "City",
+  "flowChoiceTrue": "True",
+  "flowChoiceFalse": "False",
+  "flowHintPrefix": "Hint: {hint}",
+  "flowFeedbackCorrect": "Correct!",
+  "flowFeedbackIncorrect": "Not yet.",
+  "flowExpectedOrder": "Expected order: {order}",
+  "flowSwipeToContinue": "Swipe up to continue"
 }

@@ -4334,4 +4334,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get establishmentCityLabel => 'City';
+
+  @override
+  String get flowChoiceTrue => 'True';
+
+  @override
+  String get flowChoiceFalse => 'False';
+
+  @override
+  String flowHintPrefix(String hint) {
+    return 'Hint: $hint';
+  }
+
+  @override
+  String get flowFeedbackCorrect => 'Correct!';
+
+  @override
+  String get flowFeedbackIncorrect => 'Not yet.';
+
+  @override
+  String flowExpectedOrder(String order) {
+    return 'Expected order: $order';
+  }
+
+  @override
+  String get flowSwipeToContinue => 'Swipe up to continue';
 }

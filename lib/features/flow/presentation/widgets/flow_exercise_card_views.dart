@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/localization/localization_extensions.dart';
@@ -54,41 +53,41 @@ class _FlowTrueFalseCardViewState extends ConsumerState<FlowTrueFalseCardView> {
               explanation: widget.card.explanation,
             )
           : null,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ExerciseTitle(widget.card.statement),
-            const SizedBox(height: IntelliaSpacing.xl),
-            Row(
-              children: [
-                Expanded(
-                  child: _ChoiceButton(
-                    label: 'Vrai',
-                    icon: Icons.check_rounded,
-                    selected: _answer == true,
-                    revealedCorrect: locked && widget.card.correctValue,
-                    revealedWrong:
-                        locked && _answer == true && !widget.card.correctValue,
-                    onTap: locked ? null : () => _submit(true),
-                  ),
+      // Pas de scroll imbriqué : le châssis fournit déjà le défilement interne
+      // (et le transfert de geste vers le pager Flow à la limite).
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _ExerciseTitle(widget.card.statement),
+          const SizedBox(height: IntelliaSpacing.xl),
+          Row(
+            children: [
+              Expanded(
+                child: _ChoiceButton(
+                  label: context.l10n.flowChoiceTrue,
+                  icon: Icons.check_rounded,
+                  selected: _answer == true,
+                  revealedCorrect: locked && widget.card.correctValue,
+                  revealedWrong:
+                      locked && _answer == true && !widget.card.correctValue,
+                  onTap: locked ? null : () => _submit(true),
                 ),
-                const SizedBox(width: IntelliaSpacing.sm),
-                Expanded(
-                  child: _ChoiceButton(
-                    label: 'Faux',
-                    icon: Icons.close_rounded,
-                    selected: _answer == false,
-                    revealedCorrect: locked && !widget.card.correctValue,
-                    revealedWrong:
-                        locked && _answer == false && widget.card.correctValue,
-                    onTap: locked ? null : () => _submit(false),
-                  ),
+              ),
+              const SizedBox(width: IntelliaSpacing.sm),
+              Expanded(
+                child: _ChoiceButton(
+                  label: context.l10n.flowChoiceFalse,
+                  icon: Icons.close_rounded,
+                  selected: _answer == false,
+                  revealedCorrect: locked && !widget.card.correctValue,
+                  revealedWrong:
+                      locked && _answer == false && widget.card.correctValue,
+                  onTap: locked ? null : () => _submit(false),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -150,56 +149,50 @@ class _FlowFillBlankCardViewState extends ConsumerState<FlowFillBlankCardView> {
                     ),
             )
           : null,
-      child: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ExerciseTitle(widget.card.prompt),
-            if (widget.card.hint != null) ...[
-              const SizedBox(height: IntelliaSpacing.sm),
-              Text(
-                'Indice : ${widget.card.hint}',
-                style: GoogleFonts.montserrat(
-                  color: IntelliaColors.textSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-            const SizedBox(height: IntelliaSpacing.xl),
-            TextField(
-              controller: _controller,
-              enabled: !locked,
-              textInputAction: TextInputAction.done,
-              autocorrect: false,
-              onSubmitted: (_) => _submit(),
-              decoration: InputDecoration(
-                labelText: context.l10n.yourAnswerLabel,
-                hintText: context.l10n.missingAnswerHint,
-                prefixIcon: const Icon(Icons.edit_rounded),
-                suffixIcon: locked
-                    ? Icon(
-                        _correct!
-                            ? Icons.check_circle_rounded
-                            : Icons.cancel_rounded,
-                        color: _correct!
-                            ? IntelliaColors.success
-                            : IntelliaColors.error,
-                      )
-                    : null,
-              ),
-            ),
-            const SizedBox(height: IntelliaSpacing.md),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: locked ? null : _submit,
-                icon: const Icon(Icons.check_rounded),
-                label: Text(context.l10n.submitMyAnswer),
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _ExerciseTitle(widget.card.prompt),
+          if (widget.card.hint != null) ...[
+            const SizedBox(height: IntelliaSpacing.sm),
+            Text(
+              context.l10n.flowHintPrefix(widget.card.hint!),
+              style: FlowTypography.body(context),
             ),
           ],
-        ),
+          const SizedBox(height: IntelliaSpacing.xl),
+          TextField(
+            controller: _controller,
+            enabled: !locked,
+            textInputAction: TextInputAction.done,
+            autocorrect: false,
+            onSubmitted: (_) => _submit(),
+            decoration: InputDecoration(
+              labelText: context.l10n.yourAnswerLabel,
+              hintText: context.l10n.missingAnswerHint,
+              prefixIcon: const Icon(Icons.edit_rounded),
+              suffixIcon: locked
+                  ? Icon(
+                      _correct!
+                          ? Icons.check_circle_rounded
+                          : Icons.cancel_rounded,
+                      color: _correct!
+                          ? IntelliaColors.success
+                          : IntelliaColors.error,
+                    )
+                  : null,
+            ),
+          ),
+          const SizedBox(height: IntelliaSpacing.md),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: locked ? null : _submit,
+              icon: const Icon(Icons.check_rounded),
+              label: Text(context.l10n.submitMyAnswer),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -258,7 +251,9 @@ class _FlowOrderingCardViewState extends ConsumerState<FlowOrderingCardView> {
               explanation: widget.card.explanation,
               correction: _correct!
                   ? null
-                  : 'Ordre attendu : ${widget.card.items.join(' → ')}',
+                  : context.l10n.flowExpectedOrder(
+                      widget.card.items.join(' → '),
+                    ),
             )
           : null,
       child: Column(
@@ -312,7 +307,7 @@ class _ExerciseTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     text,
-    style: FlowTypography.title(context),
+    style: FlowTypography.question(context),
   ).animate().fadeIn(duration: 420.ms).slideY(begin: 0.1, end: 0);
 }
 
@@ -358,15 +353,9 @@ class _ChoiceButton extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: color, size: 28),
+              Icon(icon, color: color, size: 26),
               const SizedBox(height: 6),
-              Text(
-                label,
-                style: GoogleFonts.montserrat(
-                  color: IntelliaColors.textPrimary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+              Text(label, style: FlowTypography.choice(context)),
             ],
           ),
         ),
@@ -412,14 +401,19 @@ class _ExerciseFeedback extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    correct ? 'Exact !' : 'Pas encore.',
-                    style: GoogleFonts.montserrat(
-                      color: color,
-                      fontWeight: FontWeight.w800,
-                    ),
+                    correct
+                        ? context.l10n.flowFeedbackCorrect
+                        : context.l10n.flowFeedbackIncorrect,
+                    style: FlowTypography.choice(
+                      context,
+                    ).copyWith(color: color),
                   ),
-                  if (correction != null) Text(correction!),
-                  Text(explanation),
+                  const SizedBox(height: 4),
+                  if (correction != null) ...[
+                    Text(correction!, style: FlowTypography.body(context)),
+                    const SizedBox(height: 4),
+                  ],
+                  Text(explanation, style: FlowTypography.explanation(context)),
                 ],
               ),
             ),

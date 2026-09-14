@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
@@ -17,6 +15,7 @@ import 'widgets/flow_card_view.dart';
 import 'widgets/flow_celebration_overlay.dart';
 import 'widgets/flow_hud.dart';
 import 'widgets/flow_empty_view.dart';
+import 'widgets/flow_swipe_affordance.dart';
 
 /// L'expérience Flow : un feed vertical plein écran de cartes-leçons.
 ///
@@ -73,6 +72,19 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
   FlowAward? _celebration;
   Timer? _dwell;
 
+  /// Invite de balayage visible : au démarrage (carte 0) et après une réponse
+  /// révélée. Elle se retire seule après quelques secondes.
+  bool _showAffordance = true;
+  Timer? _affordanceTimer;
+
+  void _flashAffordance() {
+    _affordanceTimer?.cancel();
+    if (!_showAffordance) setState(() => _showAffordance = true);
+    _affordanceTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) setState(() => _showAffordance = false);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -93,6 +105,7 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
   @override
   void dispose() {
     _dwell?.cancel();
+    _affordanceTimer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
@@ -191,13 +204,22 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
             scrollDirection: Axis.vertical,
             itemCount: _cards.length,
             onPageChanged: (i) {
-              setState(() => _index = i);
+              // Chaque changement de page est un balayage démontré : l'invite
+              // se réduira après plusieurs gestes.
+              ref.read(flowSwipeTutorProvider.notifier).recordSwipe();
+              setState(() {
+                _index = i;
+                _showAffordance = false;
+              });
+              _affordanceTimer?.cancel();
               _handleSettled(i);
             },
             itemBuilder: (context, i) => FlowCardView(
               card: _cards[i],
               onAward: (award) {
                 _handleAward(award);
+                // Après une réponse révélée, on rappelle discrètement le geste.
+                if (_cards[i] is FlowExerciseCard) _flashAffordance();
               },
             ),
           ),
@@ -208,8 +230,11 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
             child: FlowHud(onClose: _close),
           ),
 
-          // Indice de glissement (premier écran uniquement).
-          if (_index == 0) const _ScrollHint(),
+          // Invite de balayage : au démarrage et après chaque réponse révélée.
+          if (_showAffordance && _index < _cards.length - 1)
+            FlowSwipeAffordance(
+              prominent: ref.watch(flowSwipeTutorProvider.notifier).prominent,
+            ),
 
           // Célébration discrète d'une récompense.
           if (_celebration != null)
@@ -223,48 +248,6 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _ScrollHint extends StatelessWidget {
-  const _ScrollHint();
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: MediaQuery.of(context).padding.bottom + IntelliaSpacing.lg,
-      child: IgnorePointer(
-        child:
-            Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.keyboard_arrow_up_rounded,
-                      color: IntelliaColors.textTertiary,
-                      size: 26,
-                    ),
-                    Text(
-                      'Glisse vers le haut',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: IntelliaColors.textTertiary,
-                      ),
-                    ),
-                  ],
-                )
-                .animate(onPlay: (c) => c.repeat(reverse: true))
-                .moveY(
-                  begin: 6,
-                  end: -6,
-                  duration: 1100.ms,
-                  curve: Curves.easeInOut,
-                )
-                .fadeIn(duration: 500.ms),
       ),
     );
   }
