@@ -17,6 +17,10 @@ import {
   type StudyReserveConsumptionStore,
   type ThresholdNotifier,
 } from "../services/studyReserveConsumption";
+import type {
+  ReserveAggregate,
+} from "../services/studyReserve";
+import type { StudyReserveProvisioningStore } from "../services/studyReserveProvisioning";
 import type { AskTutorCallableInput } from "../utils/validation";
 
 /** Réserve non configurée : le tuteur s'exécute sans toucher à Firestore. */
@@ -37,10 +41,29 @@ class NoopNotifier implements ThresholdNotifier {
   async emit(): Promise<void> {}
 }
 
+class NoopProvisioningStore implements StudyReserveProvisioningStore {
+  async resolveEntitlement() {
+    return null;
+  }
+  async planConfig() {
+    return null;
+  }
+  async updateAllowance() {
+    return null;
+  }
+  async readAggregate() {
+    return null;
+  }
+  async provisionCycle(_studentId: string, fresh: ReserveAggregate) {
+    return fresh;
+  }
+}
+
 function passthroughStudyReserve(): StudyReserveConsumption {
   return new StudyReserveConsumption(
     new NotConfiguredConsumptionStore(),
     new NoopNotifier(),
+    new NoopProvisioningStore(),
   );
 }
 

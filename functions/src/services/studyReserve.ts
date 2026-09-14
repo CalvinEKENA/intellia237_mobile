@@ -2,6 +2,17 @@ import { FieldValue } from "firebase-admin/firestore";
 import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
 
 import { db } from "../config/firebase";
+import {
+  ensureCurrentStudyReserveCycle,
+  FirestoreStudyReserveProvisioningStore,
+  type StudyReserveProvisioningStore,
+} from "./studyReserveProvisioning";
+import {
+  RESERVE_THRESHOLDS,
+  safeUnits,
+  sanitizeThreshold,
+  type ReserveThreshold,
+} from "./studyReserveUnits";
 
 /**
  * Réserve d'étude — comptabilité d'usage **autoritaire côté serveur**, par élève
@@ -15,9 +26,12 @@ import { db } from "../config/firebase";
  * Chaque enfant a une réserve indépendante (aucun quota partagé au foyer).
  */
 
-/** Seuils d'alerte, du plus haut au plus bas (une seule émission par cycle). */
-export const RESERVE_THRESHOLDS = [75, 50, 25, 5, 0] as const;
-export type ReserveThreshold = (typeof RESERVE_THRESHOLDS)[number];
+export {
+  RESERVE_THRESHOLDS,
+  safeUnits,
+  sanitizeThreshold,
+  type ReserveThreshold,
+};
 
 export type ReserveStatus =
   | "healthy"
@@ -155,12 +169,12 @@ export class FirestoreStudyReserveStore implements StudyReserveStore {
     const data = snapshot.data();
     if (!data) return null;
     return {
-      allowanceInternal: Number(data.allowanceInternal ?? 0),
-      consumed: Number(data.consumed ?? 0),
-      cycleId: String(data.cycleId ?? ""),
-      cycleStart: (data.cycleStart as string | undefined) ?? null,
-      cycleEnd: (data.cycleEnd as string | undefined) ?? null,
-      latestThresholdEmitted: (data.latestThresholdEmitted ?? null) as ReserveThreshold | null,
+      allowanceInternal: safeUnits(data.allowanceInternal),
+      consumed: safeUnits(data.consumed),
+      cycleId: typeof data.cycleId === "string" ? data.cycleId : "",
+      cycleStart: typeof data.cycleStart === "string" ? data.cycleStart : null,
+      cycleEnd: typeof data.cycleEnd === "string" ? data.cycleEnd : null,
+      latestThresholdEmitted: sanitizeThreshold(data.latestThresholdEmitted),
     };
   }
 
@@ -177,13 +191,12 @@ export class FirestoreStudyReserveStore implements StudyReserveStore {
       ]);
       const data = aggregateSnap.data();
       const aggregate: ReserveAggregate = {
-        allowanceInternal: Number(data?.allowanceInternal ?? 0),
-        consumed: Number(data?.consumed ?? 0),
-        cycleId: String(data?.cycleId ?? record.cycleId),
-        cycleStart: (data?.cycleStart as string | undefined) ?? null,
-        cycleEnd: (data?.cycleEnd as string | undefined) ?? null,
-        latestThresholdEmitted:
-          (data?.latestThresholdEmitted ?? null) as ReserveThreshold | null,
+        allowanceInternal: safeUnits(data?.allowanceInternal),
+        consumed: safeUnits(data?.consumed),
+        cycleId: typeof data?.cycleId === "string" ? data.cycleId : record.cycleId,
+        cycleStart: typeof data?.cycleStart === "string" ? data.cycleStart : null,
+        cycleEnd: typeof data?.cycleEnd === "string" ? data.cycleEnd : null,
+        latestThresholdEmitted: sanitizeThreshold(data?.latestThresholdEmitted),
       };
 
       // Idempotence : une requestId déjà comptabilisée n'est jamais rejouée.
@@ -242,6 +255,7 @@ export class FirestoreStudyReserveStore implements StudyReserveStore {
  * lié (parent). Jamais d'accès à un élève non lié. */
 export function createGetStudyReserveHandler(
   store: StudyReserveStore = new FirestoreStudyReserveStore(),
+  provisioning: StudyReserveProvisioningStore = new FirestoreStudyReserveProvisioningStore(),
 ) {
   return async (
     request: CallableRequest<{ studentId?: unknown }>,
@@ -267,7 +281,13 @@ export function createGetStudyReserveHandler(
         );
       }
     }
-    return toView(requested, await store.getAggregate(requested));
+    // Provisionne/renouvelle depuis l'entitlement réel (jamais inventé) avant
+    // de renvoyer la vue product-safe.
+    const aggregate = await ensureCurrentStudyReserveCycle(
+      requested,
+      provisioning,
+    );
+    return toView(requested, aggregate);
   };
 }
 
