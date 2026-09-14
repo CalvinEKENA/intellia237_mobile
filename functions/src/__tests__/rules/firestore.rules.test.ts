@@ -1229,4 +1229,20 @@ describe("Child link codes stay server-authoritative (section C)", () => {
       getDoc(doc(dbFor("parent-b"), "children_links/parent-a_student-a")),
     );
   });
+
+  it("no client can read or write the anti-bruteforce counter", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), "link_attempts/parent-a"), {
+        failures: 3,
+      });
+    });
+    for (const uid of ["parent-a", "admin-a", undefined]) {
+      const db = dbFor(uid);
+      await assertFails(getDoc(doc(db, "link_attempts/parent-a")));
+      await assertFails(
+        setDoc(doc(db, "link_attempts/parent-a"), { failures: 0 }),
+      );
+    }
+  });
 });

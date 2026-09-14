@@ -13,9 +13,14 @@ class StudentLinkCodeService {
   FirebaseFunctions get _functions =>
       _override ?? FirebaseFunctions.instanceFor(region: 'europe-west1');
 
-  Future<String> ensureLinkCode() async {
+  Future<String> ensureLinkCode() => _callForCode('ensureStudentLinkCode');
+
+  /// Révoque le code actuel et en génère un nouveau (l'ancien devient invalide).
+  Future<String> rotateLinkCode() => _callForCode('rotateStudentLinkCode');
+
+  Future<String> _callForCode(String name) async {
     final response = await _functions
-        .httpsCallable('ensureStudentLinkCode')
+        .httpsCallable(name)
         .call<dynamic>(<String, dynamic>{});
     final data = Map<String, dynamic>.from(response.data as Map);
     return (data['code'] as String?)?.trim() ?? '';

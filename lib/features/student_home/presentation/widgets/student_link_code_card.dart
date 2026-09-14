@@ -61,10 +61,57 @@ class StudentLinkCodeCard extends ConsumerWidget {
               ),
               data: (code) => _CodeRow(code: code),
             ),
+            if (codeAsync.hasValue) ...[
+              const SizedBox(height: IntelliaSpacing.xs),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  key: const ValueKey('student-link-code-rotate'),
+                  onPressed: () => _confirmRotate(context, ref),
+                  icon: const Icon(Icons.autorenew_rounded, size: 18),
+                  label: Text(l10n.studentLinkCodeRotate),
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _confirmRotate(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    // Capturés avant tout await : ce widget n'a pas de `mounted` à interroger.
+    final messenger = ScaffoldMessenger.of(context);
+    final rotatedMessage = l10n.studentLinkCodeRotated;
+    final errorMessage = l10n.studentLinkCodeError;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.studentLinkCodeRotateConfirmTitle),
+        content: Text(l10n.studentLinkCodeRotateConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.cancelLabel),
+          ),
+          FilledButton(
+            key: const ValueKey('student-link-code-rotate-confirm'),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(l10n.studentLinkCodeRotate),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await ref.read(studentLinkCodeServiceProvider).rotateLinkCode();
+      ref.invalidate(studentLinkCodeProvider);
+      messenger.showSnackBar(SnackBar(content: Text(rotatedMessage)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(errorMessage)));
+    }
   }
 }
 

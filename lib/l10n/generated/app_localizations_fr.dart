@@ -4298,4 +4298,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get studentLinkCodeError =>
       'Le code n’a pas pu être généré. Réessaie.';
+
+  @override
+  String get studentLinkCodeRotate => 'Régénérer le code';
+
+  @override
+  String get studentLinkCodeRotateConfirmTitle => 'Régénérer le code ?';
+
+  @override
+  String get studentLinkCodeRotateConfirmBody =>
+      'L’ancien code cessera immédiatement de fonctionner. Les parents déjà liés le restent.';
+
+  @override
+  String get studentLinkCodeRotated => 'Nouveau code généré.';
 }

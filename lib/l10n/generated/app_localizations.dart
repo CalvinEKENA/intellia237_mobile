@@ -7431,6 +7431,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Le code n’a pas pu être généré. Réessaie.'**
   String get studentLinkCodeError;
+
+  /// No description provided for @studentLinkCodeRotate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régénérer le code'**
+  String get studentLinkCodeRotate;
+
+  /// No description provided for @studentLinkCodeRotateConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régénérer le code ?'**
+  String get studentLinkCodeRotateConfirmTitle;
+
+  /// No description provided for @studentLinkCodeRotateConfirmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ancien code cessera immédiatement de fonctionner. Les parents déjà liés le restent.'**
+  String get studentLinkCodeRotateConfirmBody;
+
+  /// No description provided for @studentLinkCodeRotated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau code généré.'**
+  String get studentLinkCodeRotated;
 }
 
 class _AppLocalizationsDelegate

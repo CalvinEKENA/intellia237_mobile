@@ -2167,5 +2167,9 @@
   "studentLinkCodeBody": "Share this code with your parent so they can follow your progress.",
   "studentLinkCodeCopy": "Copy code",
   "studentLinkCodeCopied": "Code copied.",
-  "studentLinkCodeError": "The code could not be generated. Try again."
+  "studentLinkCodeError": "The code could not be generated. Try again.",
+  "studentLinkCodeRotate": "Regenerate code",
+  "studentLinkCodeRotateConfirmTitle": "Regenerate the code?",
+  "studentLinkCodeRotateConfirmBody": "The old code will stop working immediately. Parents already linked stay linked.",
+  "studentLinkCodeRotated": "New code generated."
 }

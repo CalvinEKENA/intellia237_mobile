@@ -31,7 +31,7 @@ import {
 } from "./utils/validation";
 import { AskTutorUseCase } from "./services/askTutorUseCase";
 import { requestAccountDeletionHandler } from "./services/accountDeletionCallable";
-import { linkChildByCodeHandler, ensureStudentLinkCodeHandler } from "./services/childLinkCallable";
+import { linkChildByCodeHandler, ensureStudentLinkCodeHandler, rotateStudentLinkCodeHandler } from "./services/childLinkCallable";
 import { reviewStaffAccountHandler } from "./services/staffAccountReviewCallable";
 import { manageAccountHandler } from "./services/adminAccountManagementCallable";
 import { saveLessonPublicationHandler, deleteCatalogContentHandler, createCatalogChapterHandler, createListEditorialFlowHandler } from "./services/lessonPublicationCallable";
@@ -368,4 +368,13 @@ export const ensureStudentLinkCode = onCall(
     memory: "256MiB",
   },
   ensureStudentLinkCodeHandler,
+);
+
+export const rotateStudentLinkCode = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  rotateStudentLinkCodeHandler,
 );
