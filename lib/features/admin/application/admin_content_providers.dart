@@ -7,7 +7,6 @@ import '../domain/content_origin.dart';
 import '../domain/content_scope.dart';
 import '../../learn/domain/learn_lesson.dart';
 import 'flow_composer_providers.dart';
-import '../../../features/quiz/domain/quiz_question.dart';
 import '../data/admin_catalog_denormalization.dart';
 import '../domain/admin_content_models.dart';
 
@@ -398,28 +397,6 @@ class AdminContentActions {
     required String chapterId,
     required String lessonId,
   }) => _deleteContent(classLevel, subjectId, chapterId, lessonId);
-
-  // ── AI generation ─────────────────────────────────────────
-
-  /// Génère un cours complet (sections) pour une leçon puis la sauvegarde.
-  Future<AdminLessonModel> generateLessonContent(
-    AdminLessonModel lesson,
-  ) async {
-    throw UnsupportedError(
-      'La génération IA côté client a été supprimée. '
-      'Utilisez le backend Firebase sécurisé pour ce flux.',
-    );
-  }
-
-  /// Génère des questions de quiz à partir d'une leçon.
-  Future<List<QuizQuestion>> generateQuizQuestions(
-    AdminLessonModel lesson,
-  ) async {
-    throw UnsupportedError(
-      'La génération IA côté client a été supprimée. '
-      'Utilisez le backend Firebase sécurisé pour ce flux.',
-    );
-  }
 
   // ── Quizzes ───────────────────────────────────────────────
 

@@ -4316,7 +4316,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get createClassLabel => 'Créer une classe';
 
   @override
-  String get classLevelLabel => 'Niveau académique';
+  String get classLevelLabel => 'Niveau';
 
   @override
   String get classSeriesLabel => 'Série (optionnel)';

@@ -517,7 +517,7 @@ class FirestoreAdminRepository implements AdminRepository {
     }
     final level = classLevel.trim();
     if (level.isEmpty) {
-      throw ArgumentError('Choisissez un niveau académique.');
+      throw ArgumentError('Choisissez un niveau.');
     }
     final context = await _fetchAdminContext(adminUid);
     final school = _schoolToRead(context, establishmentId);
@@ -560,7 +560,7 @@ class FirestoreAdminRepository implements AdminRepository {
     }
     if (classLevel != null) {
       final level = classLevel.trim();
-      if (level.isEmpty) throw ArgumentError('Niveau académique invalide.');
+      if (level.isEmpty) throw ArgumentError('Niveau invalide.');
       update['classLevel'] = level;
     }
     if (series != null) {

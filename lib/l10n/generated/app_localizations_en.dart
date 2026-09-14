@@ -4291,7 +4291,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createClassLabel => 'Create a class';
 
   @override
-  String get classLevelLabel => 'Academic level';
+  String get classLevelLabel => 'Level';
 
   @override
   String get classSeriesLabel => 'Series (optional)';

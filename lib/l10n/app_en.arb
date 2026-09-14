@@ -2173,7 +2173,7 @@
   "studentLinkCodeRotateConfirmBody": "The old code will stop working immediately. Parents already linked stay linked.",
   "studentLinkCodeRotated": "New code generated.",
   "createClassLabel": "Create a class",
-  "classLevelLabel": "Academic level",
+  "classLevelLabel": "Level",
   "classSeriesLabel": "Series (optional)",
   "classTrackLabel": "Track (optional)",
   "classSeriesNone": "None",

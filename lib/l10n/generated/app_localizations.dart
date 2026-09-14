@@ -7465,7 +7465,7 @@ abstract class AppLocalizations {
   /// No description provided for @classLevelLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Niveau académique'**
+  /// **'Niveau'**
   String get classLevelLabel;
 
   /// No description provided for @classSeriesLabel.
