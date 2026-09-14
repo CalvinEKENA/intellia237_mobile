@@ -26,8 +26,13 @@ Firestore (server-only, Admin SDK; no client writes, no rule weakened):
 
 ### What exists in the product today
 
-- `entitlements/{parentId}_{establishmentId}` — written when a Mobile Money payment
-  is approved: `status`, `startsAt`, `endsAt`, `offerId` (= establishmentId).
+- `entitlements/{parentId}_{establishmentId}` — written by
+  `FirestoreMobileMoneyStore.reviewPayment` (`functions/src/services/mobileMoneyCallables.ts`)
+  when a payment is approved: `status`, `startsAt`, `endsAt`,
+  `offerId = paymentRequest.offerId`. The request's `offerId` is written by
+  `submitParentPayment` as `offer.id`, the document id of
+  `mobile_money_offers/{establishmentId}`, and the callable rejects any
+  `input.offerId !== establishmentId` — so **`offerId === establishmentId`**.
   Scope is **parent + establishment**, not student. An early renewal **keeps
   `startsAt` and extends `endsAt`**.
 - `mobile_money_offers/{establishmentId}` — title, XAF amount, duration.
@@ -40,18 +45,19 @@ Firestore (server-only, Admin SDK; no client writes, no rule weakened):
 **Conclusion: there is no canonical per-plan Study Reserve allowance.** No number
 is invented in code.
 
-### Owner decision required
+### Owner decision (V1)
 
-Create one document per offer the reserve should apply to:
+Each child receives an **independent** reserve (no household pool) with:
 
 ```
-study_reserve_plans/{offerId}
-  allowanceInternal: integer > 0      // required — internal units per cycle
-  cycleDays:         integer 1..366   // optional — omit = one cycle per paid window
+study_reserve_plans/<existing establishmentId used as Mobile Money offerId>
+  allowanceInternal: 600000   // INTERNAL ONLY — never shown in any client
+  cycleDays: 30
 ```
 
-Also confirm that each linked child receives the full allowance derived from the
-family entitlement (current implementation: yes, independent per child).
+The value lives only in this server document (no constant in Functions or
+Flutter), so INTELLIA Studio can edit it later. Clients cannot read or write
+`study_reserve*` (Firestore rules test).
 
 Until that document exists (or if it is malformed), the reserve is
 `unavailable`: the gauge shows the unavailable state, the tutor keeps running
@@ -62,27 +68,34 @@ under the daily question limit, nothing is deducted.
 Called by **both** `getStudyReserve` and `StudyReserveConsumption.run` (before any
 reservation).
 
-1. Resolve the student's establishment (`student_profiles` → `users`), their
+1. Resolve the student's establishment (`users/{studentId}.establishmentId` —
+   the same source Mobile Money uses to scope the parent — then
+   `student_profiles` as a legacy fallback), their
    approved `children_links` parents, and each `entitlements/{parentId}_{establishmentId}`.
    Malformed documents (missing/unreadable `endsAt`, missing `startsAt`,
    start after end) are ignored. Active = `status == "active"` and
    `startsAt <= now < endsAt`. Several paying parents → the window ending last.
-2. No active entitlement, or no valid plan config → return the stored aggregate
-   unchanged (never grant, never reset).
+2. No active entitlement, or no valid plan config → `null` → **unavailable**.
+   The stored aggregate and ledger are neither modified nor deleted, but an old
+   cycle is never shown as a live reserve and never debited.
 3. Current cycle: whole paid window (`cycleDays` absent) or the `cycleDays` slice
    containing `now`, capped at `endsAt`.
    `cycleId = {offerId}_{windowStartMs}[_{sliceIndex}]`.
 4. Same `cycleId` → **never reset** consumption. If the configured allowance
-   changed, only `allowanceInternal` is updated (transaction, cycle-checked).
+   changed (e.g. 600000 → 700000 with 300000 consumed → 57 %), or an early
+   renewal pushed back the end of a short final slice, only `allowanceInternal`
+   / `cycleEnd` are updated (transaction, cycle-checked).
 5. Missing aggregate, expired cycle, new window or different offer → transactional
    new cycle: `allowanceInternal` from config, `consumed = 0`, new
    `cycleId/cycleStart/cycleEnd`, `latestThresholdEmitted = null`, `holds = {}`.
    A concurrent call that already opened the same cycle wins (no double reset).
    The ledger is kept.
 
-Because Mobile Money early renewal keeps `startsAt`, a whole-window cycle only
-refills when a *new* window starts. Owners who want a monthly refill inside a long
-paid window must set `cycleDays`.
+Because Mobile Money early renewal keeps `startsAt` and extends `endsAt`, a
+whole-window cycle would only refill when a *new* window starts; with
+`cycleDays: 30` the extended window is sliced into days 0–29, 30–59, … (the last
+slice capped at `endsAt`). Boundary: `startsAt + 30 d − 1 ms` is still cycle 0,
+`startsAt + 30 d` opens cycle 1.
 
 ## 2. Concurrency & overspend policy
 
@@ -101,7 +114,11 @@ paid window must set `cycleDays`.
     bounded by the requests already in flight that each passed the
     `remaining >= estimate` check — never unbounded.
 - **Failure**: provider error → hold released, nothing charged.
-- **Retry**: same `requestId` → ledger hit, no second charge.
+- **Retry**: same `requestId` → ledger hit, no second charge (the provider is
+  called again; the response is not cached).
+- **Hold writes** always replace the whole `holds` map (`mergeFields`). A
+  `merge: true` write merges maps key by key and left committed holds in place
+  while another request was in flight (caught by the emulator test).
 
 The client maps `study_reserve_exhausted` to its own state (localized
 "reserve depleted" copy), distinct from the daily question limit which shares the
@@ -144,9 +161,16 @@ audience}, route: "/notifications", sourceId, createdAt, deliveryMode`.
 
 - `StudyReserve` domain model (`unavailable` default), `studyReserveProvider(studentId)`.
 - `StudyReserveGauge` / `StudyReserveCard` — student home and per-child parent
-  views; bilingual; responsive at 320 px / 2.0× text.
+  views; bilingual; responsive 320–600 px, text scale 1.0–2.0.
+- Card states: loading frame, call failure ("couldn't load" + retry) and the
+  server's legitimate `unavailable` are three distinct, visible states.
 - Notifications screen renders `study_reserve_threshold` from ARB.
-- Tutor screen shows the depleted status/help for `studyReserveExhausted`.
+- Tutor screen shows `companionStudyReserveDepleted` for `studyReserveExhausted`,
+  distinct from the daily question limit.
+- Student language is stored at registration
+  (`student_profiles.preferences.interfaceLanguage`) → FR/EN push. Parent
+  profiles store a hard-coded `language: "fr"` that is not a user choice and is
+  not read → parents receive inbox-only threshold notifications.
 
 ## Tests
 
@@ -162,11 +186,20 @@ audience}, route: "/notifications", sourceId, createdAt, deliveryMode`.
   ordinary invalid, inbox-only without user, stable id, locale normalization.
 - `studyReserve.test.ts` — view/status, ledger idempotency, callable authorization.
 
-The Firestore transaction code is exercised through in-memory doubles that mirror
-the same rules; no emulator test covers the transactions themselves.
+- `rules/studyReserve.integration.test.ts` (emulator, production stores) — real
+  Mobile Money submit + approval → entitlement → offerId join → plan;
+  auto-provisioning via `getStudyReserve` and via `askTutor`; two children of one
+  parent (300000 consumed → 50 % vs 100 %); concurrent holds, hold cleanup;
+  estimate > remaining without provider call; actual > hold → 0 % then blocked;
+  provider failure; mid-cycle 600000 → 700000; malformed config → unavailable;
+  early renewal → 30-day cycles, ledger kept, sibling untouched; expiry →
+  unavailable. Run with `npm run test:integration:study-reserve`.
+- `rules/firestore.rules.test.ts` — `study_reserve`, its ledger and
+  `study_reserve_plans` are server-only.
 
 ## Deployment (not done)
 
 Functions affected: `getStudyReserve` (new), `askTutor` (modified),
-`deliverNotificationPush` (modified). Then create `study_reserve_plans/{offerId}`
-documents once the owner fixes allowance and cadence.
+`deliverNotificationPush` (modified). Then create
+`study_reserve_plans/<establishmentId>` = `{ allowanceInternal: 600000, cycleDays: 30 }`
+for each establishment whose `mobile_money_offers/<establishmentId>` is active.
