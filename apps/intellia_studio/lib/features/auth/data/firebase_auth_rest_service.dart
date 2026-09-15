@@ -44,7 +44,7 @@ class FirebaseAuthRestService {
     final expiresAt = DateTime.now().add(Duration(seconds: expiresIn - 60));
 
     // Fetch authoritative user profile to verify administrative role
-    final profile = await _fetchUserProfile(uid, idToken);
+    final profile = await fetchUserProfile(uid, idToken);
     final role = profile['role'] as String? ?? '';
     final accountStatus = profile['accountStatus'] as String? ?? 'active';
 
@@ -99,7 +99,7 @@ class FirebaseAuthRestService {
     );
   }
 
-  Future<Map<String, dynamic>> _fetchUserProfile(
+  Future<Map<String, dynamic>> fetchUserProfile(
     String uid,
     String idToken,
   ) async {

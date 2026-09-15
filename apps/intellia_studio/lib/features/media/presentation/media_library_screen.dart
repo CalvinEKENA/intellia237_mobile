@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/academic/academic_context_bar.dart';
+import '../../../core/academic/academic_context_provider.dart';
 import '../../../core/api/studio_providers.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
@@ -74,7 +76,16 @@ class MediaLibraryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final assets = ref.watch(mediaAssetsProvider);
+    final academicContext = ref.watch(academicContextProvider);
+    final allAssets = ref.watch(mediaAssetsProvider);
+    final assets = academicContext.showAllClasses
+        ? allAssets
+        : (academicContext.selectedClass == null
+            ? allAssets
+            : allAssets.where((a) {
+                final clKey = academicContext.selectedClass!.catalogKey.toLowerCase();
+                return a.storagePath.toLowerCase().contains('/$clKey/');
+              }).toList());
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -103,7 +114,9 @@ class MediaLibraryScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          const AcademicContextBar(allowGlobalView: true),
+          const SizedBox(height: 16),
           Card(
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -253,10 +266,11 @@ class MediaLibraryScreen extends ConsumerWidget {
   }
 
   void _uploadAssetDialog(BuildContext context, WidgetRef ref) {
+    final academicCtx = ref.read(academicContextProvider);
     final scopeCtrl = TextEditingController(text: 'global');
-    final classCtrl = TextEditingController(text: 'terminale');
-    final subjectCtrl = TextEditingController(text: 'mathematiques');
-    final lessonCtrl = TextEditingController(text: 'complexes');
+    final classCtrl = TextEditingController(text: academicCtx.selectedClass?.catalogKey ?? 'terminale');
+    final subjectCtrl = TextEditingController(text: academicCtx.subject?.id ?? 'mathematiques');
+    final lessonCtrl = TextEditingController(text: 'cours_1');
     final fileCtrl = TextEditingController(text: 'figure_1.png');
 
     showDialog(

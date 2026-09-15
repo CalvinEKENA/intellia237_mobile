@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/academic/academic_context_bar.dart';
+import '../../../core/academic/academic_context_provider.dart';
+import '../../../core/academic/academic_hierarchy.dart';
 import '../../../core/api/studio_providers.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
@@ -54,7 +57,9 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          const AcademicContextBar(allowGlobalView: false),
+          const SizedBox(height: 16),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,23 +82,59 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const Divider(height: 24),
-                          DropdownButtonFormField<String>(
-                            initialValue: selectedClassLevel,
-                            decoration: const InputDecoration(
-                              labelText: 'Niveau Scolaire',
-                              prefixIcon: Icon(Icons.school_rounded),
-                            ),
-                            items: const [
-                              DropdownMenuItem(value: 'terminale', child: Text('Terminale')),
-                              DropdownMenuItem(value: 'premiere', child: Text('Première')),
-                              DropdownMenuItem(value: 'seconde', child: Text('Seconde')),
-                              DropdownMenuItem(value: '3eme', child: Text('3ème')),
-                            ],
-                            onChanged: (val) {
-                              if (val != null) setState(() => selectedClassLevel = val);
+                          Builder(
+                            builder: (context) {
+                              final academicCtx = ref.watch(academicContextProvider);
+                              final classes = AcademicHierarchy.classesForSystem(academicCtx.system);
+                              return DropdownButtonFormField<String>(
+                                value: academicCtx.selectedClass?.catalogKey,
+                                decoration: const InputDecoration(
+                                  labelText: 'Classe Cible (Canonique)',
+                                  prefixIcon: Icon(Icons.school_rounded),
+                                ),
+                                hint: const Text('Choisir une classe'),
+                                items: classes.map((cl) {
+                                  return DropdownMenuItem(
+                                    value: cl.catalogKey,
+                                    child: Text('${cl.order}. ${cl.label}'),
+                                  );
+                                }).toList(),
+                                onChanged: (val) {
+                                  if (val != null) {
+                                    ref.read(academicContextProvider.notifier).setClassByCatalogKey(val);
+                                  }
+                                },
+                              );
                             },
                           ),
                           const SizedBox(height: 16),
+                          Builder(
+                            builder: (context) {
+                              final academicCtx = ref.watch(academicContextProvider);
+                              final allowedSeries = academicCtx.selectedClass?.allowedSeries ?? [];
+                              if (allowedSeries.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: DropdownButtonFormField<String>(
+                                  value: academicCtx.series,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Série / Filière',
+                                    prefixIcon: Icon(Icons.category_rounded),
+                                  ),
+                                  hint: const Text('Toutes séries ou choisir'),
+                                  items: [
+                                    const DropdownMenuItem(value: null, child: Text('Tronc Commun / Toutes')),
+                                    ...allowedSeries.map((s) => DropdownMenuItem(value: s, child: Text('Série $s'))),
+                                  ],
+                                  onChanged: (val) {
+                                    ref.read(academicContextProvider.notifier).setSeries(val);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                           TextField(
                             controller: subjectCtrl,
                             decoration: const InputDecoration(
@@ -294,6 +335,14 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
   }
 
   Future<void> _triggerRealImport() async {
+    final academicCtx = ref.read(academicContextProvider);
+    if (academicCtx.selectedClass == null) {
+      setState(() {
+        errorMessage = 'Veuillez d\'abord sélectionner une classe canonique cible avant de lancer l\'ingestion.';
+      });
+      return;
+    }
+
     setState(() {
       isAnalyzing = true;
       errorMessage = null;
@@ -307,7 +356,7 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
         pages: [
           {'storagePath': path, 'pageNumber': 1}
         ],
-        classLevel: selectedClassLevel,
+        classLevel: academicCtx.selectedClass!.catalogKey,
         subjectId: subjectCtrl.text.trim(),
       );
 

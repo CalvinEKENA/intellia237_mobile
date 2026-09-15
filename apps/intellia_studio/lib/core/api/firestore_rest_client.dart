@@ -86,11 +86,17 @@ class FirestoreRestClient {
     http.Client? httpClient,
     this.projectId = 'edunova-aabd1',
     required this.sessionProvider,
+    this.tokenRefresher,
+    this.onSessionExpired,
   }) : _http = httpClient ?? http.Client();
 
   final http.Client _http;
   final String projectId;
   final AuthSession? Function() sessionProvider;
+  final Future<AuthSession?> Function()? tokenRefresher;
+  final Future<void> Function()? onSessionExpired;
+
+  Future<AuthSession?>? _inFlightRefresh;
 
   String get _databaseRoot =>
       'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents';
@@ -100,15 +106,66 @@ class FirestoreRestClient {
         'Authorization': 'Bearer $token',
       };
 
+  bool _isUnauthenticated(http.Response res) {
+    if (res.statusCode == 401) return true;
+    if (res.statusCode == 400 && res.body.contains('INVALID_ID_TOKEN')) return true;
+    if (res.statusCode == 403 && res.body.contains('UNAUTHENTICATED')) return true;
+    return false;
+  }
+
+  Future<AuthSession?> _performSingleRefresh() {
+    if (_inFlightRefresh != null) return _inFlightRefresh!;
+    if (tokenRefresher == null) return Future.value(null);
+
+    _inFlightRefresh = tokenRefresher!().whenComplete(() {
+      _inFlightRefresh = null;
+    });
+    return _inFlightRefresh!;
+  }
+
+  Future<http.Response> _sendAuthenticated(
+    Future<http.Response> Function(String token) requestFn,
+  ) async {
+    final session = sessionProvider();
+    if (session == null) throw Exception('Non authentifié.');
+
+    var response = await requestFn(session.idToken);
+
+    if (_isUnauthenticated(response)) {
+      if (tokenRefresher == null) {
+        if (onSessionExpired != null) await onSessionExpired!();
+        return response;
+      }
+
+      final refreshed = await _performSingleRefresh();
+      if (refreshed == null) {
+        if (onSessionExpired != null) await onSessionExpired!();
+        return response;
+      }
+
+      // Retry original request ONCE with newly acquired token
+      response = await requestFn(refreshed.idToken);
+
+      // If STILL unauthenticated, do NOT retry again (prevents infinite loops)
+      if (_isUnauthenticated(response)) {
+        if (onSessionExpired != null) await onSessionExpired!();
+      }
+    }
+
+    return response;
+  }
+
+  // =========================================================================
+  // BOUNDED READ OPERATIONS ONLY
+  // (Zero direct client writes: all administrative mutations pass through authoritative callables)
+  // =========================================================================
+
   Future<List<FirestoreDocument>> listDocuments(
     String collectionPath, {
     int pageSize = 100,
     String? pageToken,
     String? orderBy,
   }) async {
-    final session = sessionProvider();
-    if (session == null) throw Exception('Non authentifié.');
-
     var url = '$_databaseRoot/$collectionPath?pageSize=$pageSize';
     if (pageToken != null && pageToken.isNotEmpty) {
       url += '&pageToken=${Uri.encodeComponent(pageToken)}';
@@ -117,9 +174,8 @@ class FirestoreRestClient {
       url += '&orderBy=${Uri.encodeComponent(orderBy)}';
     }
 
-    final response = await _http.get(
-      Uri.parse(url),
-      headers: _headers(session.idToken),
+    final response = await _sendAuthenticated(
+      (token) => _http.get(Uri.parse(url), headers: _headers(token)),
     );
 
     if (response.statusCode != 200) {
@@ -133,12 +189,11 @@ class FirestoreRestClient {
   }
 
   Future<FirestoreDocument?> getDocument(String documentPath) async {
-    final session = sessionProvider();
-    if (session == null) throw Exception('Non authentifié.');
-
-    final response = await _http.get(
-      Uri.parse('$_databaseRoot/$documentPath'),
-      headers: _headers(session.idToken),
+    final response = await _sendAuthenticated(
+      (token) => _http.get(
+        Uri.parse('$_databaseRoot/$documentPath'),
+        headers: _headers(token),
+      ),
     );
 
     if (response.statusCode == 404) return null;
@@ -150,84 +205,6 @@ class FirestoreRestClient {
     return FirestoreDocument.fromJson(body);
   }
 
-  Future<FirestoreDocument> createDocument(
-    String collectionPath, {
-    String? documentId,
-    required Map<String, dynamic> data,
-  }) async {
-    final session = sessionProvider();
-    if (session == null) throw Exception('Non authentifié.');
-
-    var url = '$_databaseRoot/$collectionPath';
-    if (documentId != null && documentId.isNotEmpty) {
-      url += '?documentId=${Uri.encodeComponent(documentId)}';
-    }
-
-    final payload = {
-      'fields': FirestoreValueCodec.encodeFields(data),
-    };
-
-    final response = await _http.post(
-      Uri.parse(url),
-      headers: _headers(session.idToken),
-      body: jsonEncode(payload),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Erreur Firestore (${response.statusCode}): ${response.body}');
-    }
-
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    return FirestoreDocument.fromJson(body);
-  }
-
-  Future<FirestoreDocument> patchDocument(
-    String documentPath, {
-    required Map<String, dynamic> data,
-    List<String>? updateMaskFields,
-  }) async {
-    final session = sessionProvider();
-    if (session == null) throw Exception('Non authentifié.');
-
-    var url = '$_databaseRoot/$documentPath';
-    final mask = updateMaskFields ?? data.keys.toList();
-    if (mask.isNotEmpty) {
-      final queryParams = mask.map((f) => 'updateMask.fieldPaths=${Uri.encodeComponent(f)}').join('&');
-      url += '?$queryParams';
-    }
-
-    final payload = {
-      'fields': FirestoreValueCodec.encodeFields(data),
-    };
-
-    final response = await _http.patch(
-      Uri.parse(url),
-      headers: _headers(session.idToken),
-      body: jsonEncode(payload),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Erreur Firestore (${response.statusCode}): ${response.body}');
-    }
-
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    return FirestoreDocument.fromJson(body);
-  }
-
-  Future<void> deleteDocument(String documentPath) async {
-    final session = sessionProvider();
-    if (session == null) throw Exception('Non authentifié.');
-
-    final response = await _http.delete(
-      Uri.parse('$_databaseRoot/$documentPath'),
-      headers: _headers(session.idToken),
-    );
-
-    if (response.statusCode != 200 && response.statusCode != 404) {
-      throw Exception('Erreur Firestore (${response.statusCode}): ${response.body}');
-    }
-  }
-
   Future<List<FirestoreDocument>> runQuery({
     required String fromCollection,
     Map<String, dynamic>? whereFilter,
@@ -235,9 +212,6 @@ class FirestoreRestClient {
     String? orderByField,
     bool descending = false,
   }) async {
-    final session = sessionProvider();
-    if (session == null) throw Exception('Non authentifié.');
-
     final structuredQuery = <String, dynamic>{
       'from': [
         {'collectionId': fromCollection}
@@ -261,10 +235,12 @@ class FirestoreRestClient {
       ];
     }
 
-    final response = await _http.post(
-      Uri.parse('$_databaseRoot:runQuery'),
-      headers: _headers(session.idToken),
-      body: jsonEncode({'structuredQuery': structuredQuery}),
+    final response = await _sendAuthenticated(
+      (token) => _http.post(
+        Uri.parse('$_databaseRoot:runQuery'),
+        headers: _headers(token),
+        body: jsonEncode({'structuredQuery': structuredQuery}),
+      ),
     );
 
     if (response.statusCode != 200) {
@@ -287,9 +263,6 @@ class FirestoreRestClient {
     String collectionId, {
     Map<String, dynamic>? whereFilter,
   }) async {
-    final session = sessionProvider();
-    if (session == null) return null;
-
     final structuredAggregationQuery = <String, dynamic>{
       'structuredQuery': {
         'from': [
@@ -303,10 +276,12 @@ class FirestoreRestClient {
     };
 
     try {
-      final response = await _http.post(
-        Uri.parse('$_databaseRoot:runAggregationQuery'),
-        headers: _headers(session.idToken),
-        body: jsonEncode({'structuredAggregationQuery': structuredAggregationQuery}),
+      final response = await _sendAuthenticated(
+        (token) => _http.post(
+          Uri.parse('$_databaseRoot:runAggregationQuery'),
+          headers: _headers(token),
+          body: jsonEncode({'structuredAggregationQuery': structuredAggregationQuery}),
+        ),
       );
 
       if (response.statusCode != 200) {

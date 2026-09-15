@@ -6,20 +6,23 @@ import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 import '../../../core/widgets/studio_data_table.dart';
 import '../../audit/presentation/widgets/confirmation_dialog.dart';
+import '../../control_plane/control_plane_client.dart';
 import '../domain/establishment_models.dart';
 
 final establishmentsProvider =
     StateNotifierProvider<EstablishmentsNotifier, AsyncValue<List<EstablishmentModel>>>((ref) {
   final fs = ref.watch(firestoreRestClientProvider);
-  return EstablishmentsNotifier(fs);
+  final cp = ref.watch(controlPlaneClientProvider);
+  return EstablishmentsNotifier(fs, cp);
 });
 
 class EstablishmentsNotifier extends StateNotifier<AsyncValue<List<EstablishmentModel>>> {
-  EstablishmentsNotifier(this._firestore) : super(const AsyncValue.loading()) {
+  EstablishmentsNotifier(this._firestore, this._controlPlane) : super(const AsyncValue.loading()) {
     loadEstablishments();
   }
 
   final FirestoreRestClient _firestore;
+  final ControlPlaneClient _controlPlane;
 
   Future<void> loadEstablishments() async {
     state = const AsyncValue.loading();
@@ -36,18 +39,22 @@ class EstablishmentsNotifier extends StateNotifier<AsyncValue<List<Establishment
     final currentList = state.value ?? [];
     final target = currentList.firstWhere((e) => e.id == id, orElse: () => currentList.first);
     final newActive = !target.active;
+    final newStatus = newActive ? 'approved' : 'suspended';
 
     try {
-      await _firestore.patchDocument(
-        'establishments/$id',
-        data: {'active': newActive},
+      await _controlPlane.manageEstablishment(
+        action: 'updateStatus',
+        establishmentId: id,
+        status: newStatus,
+        reason: newActive
+            ? 'Réactivation par administrateur Studio'
+            : 'Suspension administrative Studio',
       );
       state = AsyncValue.data([
         for (final est in currentList)
           if (est.id == id) est.copyWith(active: newActive) else est,
       ]);
     } catch (e) {
-      // Re-throw or reload
       await loadEstablishments();
       rethrow;
     }
@@ -59,28 +66,17 @@ class EstablishmentsNotifier extends StateNotifier<AsyncValue<List<Establishment
     required String city,
   }) async {
     final docId = 'est_${DateTime.now().millisecondsSinceEpoch}';
-    final newModel = EstablishmentModel(
-      id: docId,
-      name: name,
-      code: code,
-      city: city,
-      address: '',
-      phone: '',
-      email: '',
-      active: true,
-      studentCount: 0,
-      classCount: 0,
-      staffCount: 0,
-    );
 
     try {
-      await _firestore.createDocument(
-        'establishments',
-        documentId: docId,
-        data: newModel.toFirestore(),
+      await _controlPlane.manageEstablishment(
+        action: 'create',
+        id: docId,
+        name: name,
+        code: code,
+        city: city,
+        status: 'approved',
       );
-      final currentList = state.value ?? [];
-      state = AsyncValue.data([...currentList, newModel]);
+      await loadEstablishments();
     } catch (e) {
       await loadEstablishments();
       rethrow;

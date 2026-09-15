@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/academic/academic_context_bar.dart';
+import '../../../core/academic/academic_context_provider.dart';
+import '../../../core/academic/academic_hierarchy.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 import '../domain/flow_models.dart';
@@ -111,11 +114,27 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final items = ref.watch(flowItemsProvider);
-    final selectedItem = items.firstWhere(
-      (it) => it.id == selectedItemId,
-      orElse: () => items.first,
-    );
+    final academicContext = ref.watch(academicContextProvider);
+    final allItems = ref.watch(flowItemsProvider);
+    final items = academicContext.showAllClasses
+        ? allItems
+        : (academicContext.selectedClass == null
+            ? <StudioFlowItem>[]
+            : allItems.where((it) {
+                final targetKey = academicContext.selectedClass!.catalogKey.toLowerCase();
+                final targetId = academicContext.selectedClass!.id.toLowerCase();
+                return it.classLevels.any((lvl) {
+                  final l = lvl.toLowerCase();
+                  return l == targetKey || l == targetId;
+                });
+              }).toList());
+
+    final selectedItem = items.isEmpty
+        ? (allItems.isNotEmpty ? allItems.first : null)
+        : items.firstWhere(
+            (it) => it.id == selectedItemId,
+            orElse: () => items.first,
+          );
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -144,7 +163,14 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          AcademicContextBar(
+            allowGlobalView: true,
+            onContextChanged: () {
+              setState(() => selectedItemId = null);
+            },
+          ),
+          const SizedBox(height: 16),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +209,7 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                               separatorBuilder: (_, _) => const SizedBox(height: 8),
                               itemBuilder: (context, idx) {
                                 final item = items[idx];
-                                final isSelected = item.id == selectedItem.id;
+                                final isSelected = item.id == selectedItem?.id;
                                 return ListTile(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -268,100 +294,119 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                           ),
                           const Divider(height: 24),
                           // Phone frame
-                          Container(
-                            width: 280,
-                            height: 480,
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: StudioColors.navyPrimary,
-                              borderRadius: BorderRadius.circular(28),
-                              border: Border.all(color: Colors.black87, width: 6),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
+                          if (selectedItem == null)
+                            Container(
+                              width: 280,
+                              height: 480,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: StudioColors.navyPrimary,
+                                borderRadius: BorderRadius.circular(28),
+                                border: Border.all(color: Colors.black87, width: 6),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'Sélectionnez une carte pour prévisualiser.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.white54, fontSize: 13),
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: StudioColors.goldAccent,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        selectedItem.type.name.toUpperCase(),
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
+                              ),
+                            )
+                          else
+                            Container(
+                              width: 280,
+                              height: 480,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: StudioColors.navyPrimary,
+                                borderRadius: BorderRadius.circular(28),
+                                border: Border.all(color: Colors.black87, width: 6),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: StudioColors.goldAccent,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          selectedItem.type.name.toUpperCase(),
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black87,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const Icon(Icons.bookmark_border_rounded, color: Colors.white70, size: 20),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  selectedItem.title,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  selectedItem.hook,
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 13,
-                                    height: 1.4,
-                                  ),
-                                ),
-                                const Spacer(),
-                                if (selectedItem.type == FlowCardType.quiz) ...[
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          selectedItem.payload['question'] as String? ?? 'Question ?',
-                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        const Text('• Option A', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                                        const Text('• Option B', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                                      ],
-                                    ),
+                                      const Icon(Icons.bookmark_border_rounded, color: Colors.white70, size: 20),
+                                    ],
                                   ),
                                   const SizedBox(height: 16),
-                                ],
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Niveaux: ${selectedItem.classLevels.join(", ")}',
-                                      style: const TextStyle(color: Colors.white54, fontSize: 10),
+                                  Text(
+                                    selectedItem.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    const Icon(Icons.arrow_forward_ios_rounded, color: StudioColors.goldAccent, size: 14),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    selectedItem.hook,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 13,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  if (selectedItem.type == FlowCardType.quiz) ...[
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            selectedItem.payload['question'] as String? ?? 'Question ?',
+                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const Text('• Option A', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                          const Text('• Option B', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
                                   ],
-                                ),
-                              ],
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Niveaux: ${selectedItem.classLevels.join(", ")}',
+                                        style: const TextStyle(color: Colors.white54, fontSize: 10),
+                                      ),
+                                      const Icon(Icons.arrow_forward_ios_rounded, color: StudioColors.goldAccent, size: 14),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -419,55 +464,110 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
   void _openCreateDialog(BuildContext context) {
     final titleCtrl = TextEditingController();
     final hookCtrl = TextEditingController();
+    final academicContext = ref.read(academicContextProvider);
+
+    // Initial selected classes from current context, or empty
+    final initialClasses = <String>{};
+    if (academicContext.selectedClass != null) {
+      initialClasses.add(academicContext.selectedClass!.catalogKey);
+    }
+
+    final availableClasses = AcademicHierarchy.classesForSystem(academicContext.system);
+
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Créer une Carte FLOW'),
-        content: SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleCtrl,
-                decoration: const InputDecoration(labelText: 'Titre de la carte (accroche concise)'),
+      builder: (ctx) {
+        final selectedSet = Set<String>.from(initialClasses);
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Créer une Carte FLOW (Class-First)'),
+              content: SizedBox(
+                width: 480,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: titleCtrl,
+                      decoration: const InputDecoration(labelText: 'Titre de la carte (accroche concise)'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: hookCtrl,
+                      maxLines: 3,
+                      decoration: const InputDecoration(labelText: 'Contenu synthétique / Hook'),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Classes Cibles (Obligatoire, multi-classes autorisé) :',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: availableClasses.map((cl) {
+                        final isChecked = selectedSet.contains(cl.catalogKey);
+                        return FilterChip(
+                          label: Text(cl.label),
+                          selected: isChecked,
+                          selectedColor: StudioColors.goldAccent.withValues(alpha: 0.25),
+                          onSelected: (val) {
+                            setDialogState(() {
+                              if (val) {
+                                selectedSet.add(cl.catalogKey);
+                              } else {
+                                selectedSet.remove(cl.catalogKey);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    if (selectedSet.isEmpty) ...[
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Au moins une classe doit être sélectionnée.',
+                        style: TextStyle(color: StudioColors.error, fontSize: 11),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: hookCtrl,
-                maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Contenu synthétique / Hook'),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
-          FilledButton(
-            onPressed: () {
-              if (titleCtrl.text.trim().isNotEmpty && hookCtrl.text.trim().isNotEmpty) {
-                ref.read(flowItemsProvider.notifier).addItem(
-                  StudioFlowItem(
-                    id: 'flw_${DateTime.now().millisecondsSinceEpoch}',
-                    type: FlowCardType.notion,
-                    title: titleCtrl.text.trim(),
-                    hook: hookCtrl.text.trim(),
-                    subjectId: 'sub_math_t',
-                    classLevels: const ['Terminale'],
-                    status: FlowStatus.draft,
-                    payload: {'insight': hookCtrl.text.trim()},
-                    createdBy: 'usr_admin_01',
-                    createdAt: DateTime.now().toIso8601String(),
-                    updatedAt: DateTime.now().toIso8601String(),
-                  ),
-                );
-                Navigator.pop(ctx);
-              }
-            },
-            child: const Text('Créer Brouillon'),
-          ),
-        ],
-      ),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+                FilledButton(
+                  onPressed: () {
+                    if (titleCtrl.text.trim().isNotEmpty &&
+                        hookCtrl.text.trim().isNotEmpty &&
+                        selectedSet.isNotEmpty) {
+                      final targetSubject = academicContext.subject?.id ?? 'sub_math_t';
+                      ref.read(flowItemsProvider.notifier).addItem(
+                        StudioFlowItem(
+                          id: 'flw_${DateTime.now().millisecondsSinceEpoch}',
+                          type: FlowCardType.notion,
+                          title: titleCtrl.text.trim(),
+                          hook: hookCtrl.text.trim(),
+                          subjectId: targetSubject,
+                          classLevels: selectedSet.toList(),
+                          status: FlowStatus.draft,
+                          payload: {'insight': hookCtrl.text.trim()},
+                          createdBy: 'usr_admin_01',
+                          createdAt: DateTime.now().toIso8601String(),
+                          updatedAt: DateTime.now().toIso8601String(),
+                        ),
+                      );
+                      Navigator.pop(ctx);
+                    }
+                  },
+                  child: const Text('Créer Brouillon'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

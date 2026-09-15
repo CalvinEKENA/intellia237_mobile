@@ -48,6 +48,8 @@ import {
 } from "./services/mobileMoneyCallables";
 import { deliverNotificationPushHandler } from "./services/notificationDelivery";
 import { fanoutAnnouncementHandler } from "./services/announcementNotificationFanout";
+import { manageEstablishmentHandler } from "./services/establishmentManagementCallable";
+import { manageSchoolClassHandler } from "./services/classManagementCallable";
 
 const env = getEnv();
 setGlobalOptions({
@@ -66,6 +68,8 @@ export const deleteCatalogContent = onCall({ timeoutSeconds: 300, memory: "512Mi
 export const listRegistrationEstablishments = onCall({ timeoutSeconds: 30, region: env.FUNCTIONS_REGION }, listRegistrationEstablishmentsHandler);
 export const createCatalogChapter = onCall({ timeoutSeconds: 60, region: env.FUNCTIONS_REGION }, createCatalogChapterHandler());
 export const listEditorialFlow = onCall({ timeoutSeconds: 30, region: env.FUNCTIONS_REGION }, createListEditorialFlowHandler());
+export const manageEstablishment = onCall({ timeoutSeconds: 30, region: env.FUNCTIONS_REGION }, manageEstablishmentHandler);
+export const manageSchoolClass = onCall({ timeoutSeconds: 30, region: env.FUNCTIONS_REGION }, manageSchoolClassHandler);
 
 const generateQuizUseCase = new GenerateQuizUseCase();
 const generateSummaryUseCase = new GenerateSummaryUseCase();

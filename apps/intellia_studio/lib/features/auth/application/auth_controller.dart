@@ -72,8 +72,32 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthSession?>> {
     }
   }
 
+  Future<AuthSession?> refreshSession() async {
+    final current = state.asData?.value;
+    if (current == null || current.refreshToken.isEmpty) {
+      await signOut();
+      return null;
+    }
+    try {
+      final refreshed = await _rest.refreshSession(current);
+      final profile = await _rest.fetchUserProfile(refreshed.uid, refreshed.idToken);
+      final accountStatus = profile['accountStatus'] as String? ?? 'active';
+      if (accountStatus == 'suspended' || accountStatus == 'deleted') {
+        await signOut();
+        return null;
+      }
+      await _store.saveSession(refreshed);
+      state = AsyncValue.data(refreshed);
+      return refreshed;
+    } catch (_) {
+      await signOut();
+      return null;
+    }
+  }
+
   Future<void> signOut() async {
     await _store.clearSession();
     state = const AsyncValue.data(null);
   }
 }
+

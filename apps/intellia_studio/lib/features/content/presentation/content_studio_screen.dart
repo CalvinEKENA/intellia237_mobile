@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/academic/academic_context_bar.dart';
+import '../../../core/academic/academic_context_provider.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 import '../domain/content_models.dart';
@@ -124,16 +126,21 @@ class ContentStudioScreen extends ConsumerStatefulWidget {
 class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen> {
   String? selectedSubjectId;
 
-  static const classLevels = [
-    '6eme', '5eme', '4eme', '3eme', 'Seconde', 'Premiere', 'Terminale',
-    'Form1', 'Form2', 'Form3', 'Form4', 'Form5', 'LowerSixth', 'UpperSixth',
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final currentLevel = ref.watch(selectedClassLevelProvider);
+    final academicContext = ref.watch(academicContextProvider);
     final allSubjects = ref.watch(subjectsProvider);
-    final subjects = allSubjects.where((s) => s.classLevel == currentLevel).toList();
+    final subjects = academicContext.showAllClasses
+        ? allSubjects
+        : (academicContext.selectedClass == null
+            ? <StudioSubject>[]
+            : allSubjects
+                .where((s) =>
+                    s.classLevel.toLowerCase() ==
+                        academicContext.selectedClass!.catalogKey.toLowerCase() ||
+                    s.classLevel.toLowerCase() ==
+                        academicContext.selectedClass!.id.toLowerCase())
+                .toList());
     final allChapters = ref.watch(chaptersProvider);
     final chapters = selectedSubjectId == null
         ? <StudioChapter>[]
@@ -166,35 +173,14 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 42,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: classLevels.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 8),
-              itemBuilder: (context, idx) {
-                final lvl = classLevels[idx];
-                final isSelected = lvl == currentLevel;
-                return ChoiceChip(
-                  label: Text(lvl),
-                  selected: isSelected,
-                  onSelected: (val) {
-                    if (val) {
-                      ref.read(selectedClassLevelProvider.notifier).state = lvl;
-                      setState(() => selectedSubjectId = null);
-                    }
-                  },
-                  selectedColor: StudioColors.navyPrimary,
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : StudioColors.textPrimaryLight,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  ),
-                );
-              },
-            ),
+          const SizedBox(height: 16),
+          AcademicContextBar(
+            allowGlobalView: true,
+            onContextChanged: () {
+              setState(() => selectedSubjectId = null);
+            },
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +202,7 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Matières ($currentLevel)',
+                                'Matières (${academicContext.selectedClass?.label ?? "Toutes"})',
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               StudioBadge(
@@ -394,17 +380,36 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen> {
   }
 
   void _openAddSubjectDialog(BuildContext context) {
+    final academicContext = ref.read(academicContextProvider);
+    if (academicContext.selectedClass == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez d\'abord sélectionner une classe dans la barre académique avant de créer une matière.'),
+          backgroundColor: StudioColors.warning,
+        ),
+      );
+      return;
+    }
+
+    final targetClass = academicContext.selectedClass!;
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Nouvelle Matière'),
+        title: Text('Nouvelle Matière (${targetClass.label})'),
         content: SizedBox(
-          width: 400,
+          width: 420,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                'Système: ${academicContext.system.shortLabel} • Classe cible: ${targetClass.label}',
+                style: const TextStyle(fontSize: 12, color: StudioColors.textSecondaryLight),
+              ),
+              const SizedBox(height: 12),
               TextField(
                 controller: titleCtrl,
                 decoration: const InputDecoration(labelText: 'Titre de la matière (ex: Sciences de la Vie)'),
@@ -422,11 +427,10 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen> {
           FilledButton(
             onPressed: () {
               if (titleCtrl.text.trim().isNotEmpty) {
-                final currentLvl = ref.read(selectedClassLevelProvider);
                 ref.read(subjectsProvider.notifier).addSubject(
                   StudioSubject(
                     id: 'sub_${DateTime.now().millisecondsSinceEpoch}',
-                    classLevel: currentLvl,
+                    classLevel: targetClass.catalogKey,
                     title: titleCtrl.text.trim(),
                     description: descCtrl.text.trim(),
                     colorHex: 0xFF1451E1,
@@ -434,7 +438,7 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen> {
                     order: 5,
                     status: 'draft',
                     chapterCount: 0,
-                    allowedSeries: ['A', 'C', 'D'],
+                    allowedSeries: targetClass.allowedSeries,
                   ),
                 );
                 Navigator.pop(ctx);

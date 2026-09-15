@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/academic/academic_context_bar.dart';
+import '../../../core/academic/academic_context_provider.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 import '../../../core/widgets/studio_data_table.dart';
@@ -77,7 +79,24 @@ class _QuizStudioScreenState extends ConsumerState<QuizStudioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final questions = ref.watch(questionsProvider);
+    final academicContext = ref.watch(academicContextProvider);
+    final allQuestions = ref.watch(questionsProvider);
+    final questions = academicContext.showAllClasses
+        ? allQuestions
+        : (academicContext.selectedClass == null
+            ? <StudioQuizQuestion>[]
+            : allQuestions.where((q) {
+                final targetKey = academicContext.selectedClass!.catalogKey.toLowerCase();
+                final targetId = academicContext.selectedClass!.id.toLowerCase();
+                final matchClass = q.classLevel.toLowerCase() == targetKey ||
+                    q.classLevel.toLowerCase() == targetId;
+                if (!matchClass) return false;
+                if (academicContext.subject != null) {
+                  return q.subjectId == academicContext.subject!.id;
+                }
+                return true;
+              }).toList());
+
     final currentPreview = previewQuestion ?? (questions.isNotEmpty ? questions.first : null);
 
     return Padding(
@@ -107,7 +126,14 @@ class _QuizStudioScreenState extends ConsumerState<QuizStudioScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          AcademicContextBar(
+            allowGlobalView: true,
+            onContextChanged: () {
+              setState(() => previewQuestion = null);
+            },
+          ),
+          const SizedBox(height: 16),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,14 +348,25 @@ class _QuizStudioScreenState extends ConsumerState<QuizStudioScreen> {
             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
             FilledButton(
               onPressed: () {
+                final academicCtx = ref.read(academicContextProvider);
+                if (academicCtx.selectedClass == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Veuillez d\'abord sélectionner une classe dans la barre académique.'),
+                      backgroundColor: StudioColors.warning,
+                    ),
+                  );
+                  return;
+                }
+
                 if (promptCtrl.text.trim().isNotEmpty &&
                     opt1Ctrl.text.trim().isNotEmpty &&
                     opt2Ctrl.text.trim().isNotEmpty) {
                   ref.read(questionsProvider.notifier).addQuestion(
                     StudioQuizQuestion(
                       id: 'q_${DateTime.now().millisecondsSinceEpoch}',
-                      subjectId: 'sub_math_t',
-                      classLevel: 'Terminale',
+                      subjectId: academicCtx.subject?.id ?? 'sub_math_t',
+                      classLevel: academicCtx.selectedClass!.catalogKey,
                       prompt: promptCtrl.text.trim(),
                       options: [opt1Ctrl.text.trim(), opt2Ctrl.text.trim()],
                       correctIndex: correctIndex,

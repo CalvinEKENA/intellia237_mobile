@@ -8,12 +8,16 @@ import 'firestore_rest_client.dart';
 final firestoreRestClientProvider = Provider<FirestoreRestClient>((ref) {
   return FirestoreRestClient(
     sessionProvider: () => ref.read(authSessionProvider).asData?.value,
+    tokenRefresher: () => ref.read(authSessionProvider.notifier).refreshSession(),
+    onSessionExpired: () => ref.read(authSessionProvider.notifier).signOut(),
   );
 });
 
 final controlPlaneClientProvider = Provider<ControlPlaneClient>((ref) {
   return ControlPlaneClient(
     sessionProvider: () => ref.read(authSessionProvider).asData?.value,
+    tokenRefresher: () => ref.read(authSessionProvider.notifier).refreshSession(),
+    onSessionExpired: () => ref.read(authSessionProvider.notifier).signOut(),
   );
 });
 

@@ -18,15 +18,31 @@ class ControlPlaneClient {
     this.region = 'europe-west1',
     this.projectId = 'edunova-aabd1',
     required this.sessionProvider,
+    this.tokenRefresher,
+    this.onSessionExpired,
   }) : _http = httpClient ?? http.Client();
 
   final http.Client _http;
   final String region;
   final String projectId;
   final AuthSession? Function() sessionProvider;
+  final Future<AuthSession?> Function()? tokenRefresher;
+  final Future<void> Function()? onSessionExpired;
+
+  Future<AuthSession?>? _inFlightRefresh;
 
   String get _functionsBaseUrl =>
       'https://$region-$projectId.cloudfunctions.net';
+
+  Future<AuthSession?> _performSingleRefresh() {
+    if (_inFlightRefresh != null) return _inFlightRefresh!;
+    if (tokenRefresher == null) return Future.value(null);
+
+    _inFlightRefresh = tokenRefresher!().whenComplete(() {
+      _inFlightRefresh = null;
+    });
+    return _inFlightRefresh!;
+  }
 
   Future<T> call<T>({
     required String functionName,
@@ -42,14 +58,36 @@ class ControlPlaneClient {
     }
 
     final uri = Uri.parse('$_functionsBaseUrl/$functionName');
-    final response = await _http.post(
+    final payload = jsonEncode({'data': data});
+
+    var response = await _http.post(
       uri,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${session.idToken}',
       },
-      body: jsonEncode({'data': data}),
+      body: payload,
     );
+
+    if (response.statusCode == 401 || (response.statusCode == 403 && response.body.contains('UNAUTHENTICATED'))) {
+      if (tokenRefresher != null) {
+        final refreshed = await _performSingleRefresh();
+        if (refreshed != null) {
+          response = await _http.post(
+            uri,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ${refreshed.idToken}',
+            },
+            body: payload,
+          );
+        } else if (onSessionExpired != null) {
+          await onSessionExpired!();
+        }
+      } else if (onSessionExpired != null) {
+        await onSessionExpired!();
+      }
+    }
 
     if (response.statusCode >= 400) {
       _handleHttpError(response);
@@ -358,4 +396,61 @@ class ControlPlaneClient {
       parser: (res) => (res as Map<String, dynamic>? ?? {}),
     );
   }
+
+  /// manageEstablishment
+  Future<Map<String, dynamic>> manageEstablishment({
+    required String action,
+    String? id,
+    String? establishmentId,
+    String? name,
+    String? code,
+    String? city,
+    String? region,
+    String? address,
+    String? status,
+    String? reason,
+  }) async {
+    return call<Map<String, dynamic>>(
+      functionName: 'manageEstablishment',
+      data: {
+        'action': action,
+        if (id != null) 'id': id,
+        if (establishmentId != null) 'establishmentId': establishmentId,
+        if (name != null) 'name': name,
+        if (code != null) 'code': code,
+        if (city != null) 'city': city,
+        if (region != null) 'region': region,
+        if (address != null) 'address': address,
+        if (status != null) 'status': status,
+        if (reason != null) 'reason': reason,
+      },
+      parser: (res) => (res as Map<String, dynamic>? ?? {}),
+    );
+  }
+
+  /// manageSchoolClass
+  Future<Map<String, dynamic>> manageSchoolClass({
+    required String action,
+    String? name,
+    String? classLevel,
+    String? series,
+    String? establishmentId,
+    String? classId,
+    String? reason,
+  }) async {
+    return call<Map<String, dynamic>>(
+      functionName: 'manageSchoolClass',
+      data: {
+        'action': action,
+        if (name != null) 'name': name,
+        if (classLevel != null) 'classLevel': classLevel,
+        if (series != null) 'series': series,
+        if (establishmentId != null) 'establishmentId': establishmentId,
+        if (classId != null) 'classId': classId,
+        if (reason != null) 'reason': reason,
+      },
+      parser: (res) => (res as Map<String, dynamic>? ?? {}),
+    );
+  }
 }
+

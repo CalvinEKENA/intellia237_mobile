@@ -1,27 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/academic/academic_hierarchy.dart';
 import '../../../core/api/firestore_rest_client.dart';
 import '../../../core/api/studio_providers.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_data_table.dart';
 import '../../audit/presentation/widgets/confirmation_dialog.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../control_plane/control_plane_client.dart';
 import '../../establishments/domain/establishment_models.dart';
 
 final schoolClassesProvider =
     StateNotifierProvider<SchoolClassesNotifier, AsyncValue<List<SchoolClassModel>>>((ref) {
   final fs = ref.watch(firestoreRestClientProvider);
+  final cp = ref.watch(controlPlaneClientProvider);
   final session = ref.watch(authSessionProvider).asData?.value;
-  return SchoolClassesNotifier(fs, session?.establishmentId ?? '', session?.isSuperAdmin ?? false);
+  return SchoolClassesNotifier(fs, cp, session?.establishmentId ?? '', session?.isSuperAdmin ?? false);
 });
 
 class SchoolClassesNotifier extends StateNotifier<AsyncValue<List<SchoolClassModel>>> {
-  SchoolClassesNotifier(this._firestore, this._adminEstablishmentId, this._isSuperAdmin)
+  SchoolClassesNotifier(this._firestore, this._controlPlane, this._adminEstablishmentId, this._isSuperAdmin)
       : super(const AsyncValue.loading()) {
     loadClasses();
   }
 
   final FirestoreRestClient _firestore;
+  final ControlPlaneClient _controlPlane;
   final String _adminEstablishmentId;
   final bool _isSuperAdmin;
 
@@ -52,12 +56,26 @@ class SchoolClassesNotifier extends StateNotifier<AsyncValue<List<SchoolClassMod
   }
 
   Future<void> addClass(Map<String, dynamic> data) async {
-    await _firestore.createDocument('classes', data: data);
+    final establishment = (data['establishmentId'] as String?)?.isNotEmpty == true
+        ? data['establishmentId'] as String?
+        : _adminEstablishmentId;
+
+    await _controlPlane.manageSchoolClass(
+      action: 'create',
+      name: data['name'] as String?,
+      classLevel: data['classLevel'] as String?,
+      series: data['series'] as String?,
+      establishmentId: establishment,
+    );
     await loadClasses();
   }
 
   Future<void> deleteClass(String id) async {
-    await _firestore.deleteDocument('classes/$id');
+    await _controlPlane.manageSchoolClass(
+      action: 'delete',
+      classId: id,
+      reason: 'Suppression administrative Studio',
+    );
     await loadClasses();
   }
 }
@@ -218,70 +236,140 @@ class ClassesScreen extends ConsumerWidget {
 
   void _showAddClassDialog(BuildContext context, WidgetRef ref) {
     final nameCtrl = TextEditingController();
-    final levelCtrl = TextEditingController(text: 'Terminale');
-    final seriesCtrl = TextEditingController(text: 'C');
+    var selectedSystem = StudioEducationSystem.francophone;
+    CanonicalClassLevel? selectedClassLevel = AcademicHierarchy.francophoneClasses.first;
+    String? selectedSeries = selectedClassLevel.hasSeries ? selectedClassLevel.allowedSeries.first : null;
     final session = ref.read(authSessionProvider).asData?.value;
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Créer une Nouvelle Classe'),
-        content: SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Nom de la classe (ex: Terminale C1)'),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final classes = AcademicHierarchy.classesForSystem(selectedSystem);
+          final hasSeries = selectedClassLevel?.hasSeries ?? false;
+          final seriesList = selectedClassLevel?.allowedSeries ?? const <String>[];
+
+          return AlertDialog(
+            title: const Text('Créer une Nouvelle Classe'),
+            content: SizedBox(
+              width: 440,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<StudioEducationSystem>(
+                          value: selectedSystem,
+                          decoration: const InputDecoration(labelText: 'Système'),
+                          items: StudioEducationSystem.values.map((s) {
+                            return DropdownMenuItem(value: s, child: Text(s.shortLabel));
+                          }).toList(),
+                          onChanged: (newSys) {
+                            if (newSys != null && newSys != selectedSystem) {
+                              setDialogState(() {
+                                selectedSystem = newSys;
+                                final newClasses = AcademicHierarchy.classesForSystem(newSys);
+                                selectedClassLevel = newClasses.first;
+                                selectedSeries = selectedClassLevel!.hasSeries
+                                    ? selectedClassLevel!.allowedSeries.first
+                                    : null;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: selectedClassLevel?.id,
+                          decoration: const InputDecoration(labelText: 'Niveau Canonique'),
+                          items: classes.map((c) {
+                            return DropdownMenuItem(
+                              value: c.id,
+                              child: Text('${c.label} (${c.order})'),
+                            );
+                          }).toList(),
+                          onChanged: (cid) {
+                            final resolved = AcademicHierarchy.resolveClass(cid);
+                            setDialogState(() {
+                              selectedClassLevel = resolved;
+                              selectedSeries = (resolved?.hasSeries ?? false)
+                                  ? resolved!.allowedSeries.first
+                                  : null;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (hasSeries) ...[
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String?>(
+                      value: selectedSeries,
+                      decoration: InputDecoration(
+                        labelText: selectedSystem == StudioEducationSystem.anglophone
+                            ? 'Stream (obligatoire)'
+                            : 'Série (obligatoire)',
+                      ),
+                      items: seriesList.map((s) {
+                        return DropdownMenuItem(
+                          value: s,
+                          child: Text('Série $s'),
+                        );
+                      }).toList(),
+                      onChanged: (s) {
+                        setDialogState(() {
+                          selectedSeries = s;
+                        });
+                      },
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: InputDecoration(
+                      labelText: 'Nom de la classe (ex: ${selectedClassLevel?.label ?? "3e"} A)',
+                      hintText: 'ex: ${selectedClassLevel?.shortLabel ?? "3e"} 1',
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: levelCtrl,
-                decoration: const InputDecoration(labelText: 'Niveau (ex: Terminale)'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: seriesCtrl,
-                decoration: const InputDecoration(labelText: 'Série (Optionnel, ex: C, D, A4)'),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+              FilledButton(
+                onPressed: () async {
+                  final name = nameCtrl.text.trim();
+                  if (name.isNotEmpty && selectedClassLevel != null) {
+                    Navigator.pop(ctx);
+                    try {
+                      await ref.read(schoolClassesProvider.notifier).addClass({
+                        'name': name,
+                        'classLevel': selectedClassLevel!.catalogKey,
+                        'series': selectedSeries ?? '',
+                        'establishmentId': session?.establishmentId ?? '',
+                      });
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Classe $name créée avec succès.')),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Échec création: $e'), backgroundColor: StudioColors.error),
+                        );
+                      }
+                    }
+                  }
+                },
+                child: const Text('Créer'),
               ),
             ],
-          ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
-          FilledButton(
-            onPressed: () async {
-              final name = nameCtrl.text.trim();
-              if (name.isNotEmpty) {
-                Navigator.pop(ctx);
-                try {
-                  await ref.read(schoolClassesProvider.notifier).addClass({
-                    'name': name,
-                    'levelLabel': levelCtrl.text.trim(),
-                    'series': seriesCtrl.text.trim(),
-                    'establishmentId': session?.establishmentId ?? '',
-                    'studentCount': 0,
-                    'teacherCount': 0,
-                    'createdAt': DateTime.now().toIso8601String(),
-                  });
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Classe $name créée avec succès.')),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Échec création: $e'), backgroundColor: StudioColors.error),
-                    );
-                  }
-                }
-              }
-            },
-            child: const Text('Créer'),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/academic/academic_context_provider.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 import '../domain/content_models.dart';
@@ -101,7 +102,7 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'ID: ${widget.lessonId} • Terminale • Mathématiques',
+                        'ID: ${widget.lessonId} • ${ref.watch(academicContextProvider).fullTargetDescription}',
                         style: const TextStyle(color: StudioColors.textSecondaryLight),
                       ),
                     ],
@@ -330,10 +331,32 @@ class _LessonEditorScreenState extends ConsumerState<LessonEditorScreen> {
   }
 
   void _publishLesson(BuildContext context) {
+    final academicCtx = ref.read(academicContextProvider);
+    if (!academicCtx.isPublicationReady) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Cible Académique Incomplète'),
+          content: Text(
+            'Publication impossible : une leçon officielle ne peut pas être publiée sans classe et matière valides.\n\n'
+            'Cible actuelle : ${academicCtx.fullTargetDescription}.\n\n'
+            'Veuillez définir une classe et une matière dans la barre de contexte Studio.',
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Compris'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     setState(() => currentStatus = 'published');
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Leçon publiée avec succès via le Control Plane.'),
+      SnackBar(
+        content: Text('Leçon publiée pour ${academicCtx.fullTargetDescription}.'),
         backgroundColor: StudioColors.success,
       ),
     );
