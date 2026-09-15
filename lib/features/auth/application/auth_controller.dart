@@ -4,6 +4,10 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../family_access/application/family_access_providers.dart';
+import '../../family_access/data/family_access_repository.dart';
+import '../../family_access/domain/family_access_models.dart';
+import '../../family_access/domain/family_access_outcomes.dart';
 import '../../onboarding/data/onboarding_preferences.dart';
 import '../../tutor/application/tutor_preference_provider.dart';
 import '../data/auth_entry_preferences.dart';
@@ -25,7 +29,18 @@ final authControllerProvider = NotifierProvider<AuthController, AuthState>(
 
 class AuthController extends Notifier<AuthState> {
   static const _lastValidSessionKey = 'auth_last_valid_profile_v1';
+
+  /// UID élève d'une session vérifiée sous l'entrée parent, en attente de la
+  /// décision du parent. Un redémarrage pendant cette attente referme la
+  /// session au lieu d'ouvrir l'espace de l'élève.
+  static const _pendingFamilyPhoneOfferKey = 'auth_family_phone_offer_uid_v1';
+
+  /// Migration confirmée que le serveur n'a pas pu achever : le numéro, resté
+  /// libre, doit être vérifié à nouveau pour terminer l'espace parent.
+  static const _familyPhoneResumeKey = 'auth_family_phone_resume_v1';
   AuthRepository get _repo => ref.read(authRepositoryProvider);
+  FamilyAccessRepository get _familyAccess =>
+      ref.read(familyAccessRepositoryProvider);
 
   @override
   AuthState build() => const AuthState.bootstrapping();
@@ -38,6 +53,10 @@ class AuthController extends Notifier<AuthState> {
       final resolution = await _resolveCurrentSession().timeout(
         const Duration(seconds: 8),
       );
+      if (await _isPendingFamilyPhoneOffer(resolution.firebaseUid)) {
+        await signOut();
+        return;
+      }
       await _applyResolution(resolution);
     } catch (error) {
       await _applyRetryableFailure(errorCode: _safeErrorCode(error));
@@ -163,6 +182,20 @@ class AuthController extends Notifier<AuthState> {
 
     if (matchAuthEntry(intent: intent, accountRole: accountRole) ==
         AuthEntryMatch.conflict) {
+      // Le téléphone de la famille ouvre l'accès de l'élève : le parent peut
+      // le reprendre. Seul un profil lu à l'instant le permet, jamais un rôle
+      // tiré du cache.
+      if (intent == AppRole.parent &&
+          accountRole == AppRole.student &&
+          resolution.user != null) {
+        state = state.copyWith(isLoading: false, error: null);
+        await _rememberFamilyPhoneOffer(
+          resolution.firebaseUid ?? resolution.user!.uid,
+        );
+        return AuthEntryFamilyPhoneInUse(
+          studentFirstName: resolution.user!.firstName,
+        );
+      }
       await signOut();
       return AuthEntryRoleConflict(intent: intent, accountRole: accountRole!);
     }
@@ -171,6 +204,96 @@ class AuthController extends Notifier<AuthState> {
     await _beforeOpening(beforeOpening, opening);
     await _applyResolution(resolution, resolved: opening);
     return const AuthEntryAdopted();
+  }
+
+  /// Cède le numéro vérifié — session élève ouverte mais non adoptée — au
+  /// compte parent, après la confirmation explicite de l'écran.
+  ///
+  /// L'état global ne change pas ici : le code d'accès de l'élève doit être
+  /// montré avant que la session du parent ne s'ouvre et que le routeur ne
+  /// réagisse.
+  Future<FamilyPhoneMigrationOutcome> migrateFamilyPhoneToParent() async {
+    try {
+      final result = await _familyAccess.migrateStudentPhoneToParent();
+      await _setFamilyPhoneResume(false);
+      return FamilyPhoneMigrated(result);
+    } on FamilyAccessException catch (error) {
+      final failed = FamilyPhoneMigrationFailed.from(error);
+      if (failed.failure == FamilyPhoneMigrationFailure.verifyAgainToFinish) {
+        await _setFamilyPhoneResume(true);
+      }
+      return failed;
+    } catch (_) {
+      return const FamilyPhoneMigrationFailed(
+        FamilyPhoneMigrationFailure.unavailable,
+      );
+    }
+  }
+
+  /// Termine, après une nouvelle vérification du numéro, une migration que
+  /// le parent a déjà confirmée et que le serveur n'a pas pu achever.
+  ///
+  /// Ce n'est jamais une nouvelle migration silencieuse : sans migration
+  /// confirmée en attente sur cet appareil, rien n'est appelé ; et le serveur
+  /// n'adopte l'identité fraîche que si son journal attend précisément cette
+  /// reprise pour ce numéro.
+  Future<bool> resumeConfirmedFamilyPhoneMigration() async {
+    if (!await _isFamilyPhoneResumePending()) return false;
+    return await migrateFamilyPhoneToParent() is FamilyPhoneMigrated;
+  }
+
+  /// Ouvre la session du parent issue de la migration, sous l'entrée parent.
+  Future<AuthEntryAdoption> openParentAfterFamilyPhoneMigration(
+    FamilyPhoneMigrationResult result, {
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) async {
+    final token = result.parentToken;
+    if (token != null) {
+      try {
+        await _familyAccess.signInWithCustomToken(token);
+      } catch (error) {
+        return AuthEntryUnresolved(
+          error is FamilyAccessException ? error.code : 'custom-token-failed',
+        );
+      }
+    }
+    // La session est désormais celle du parent : plus rien à refermer.
+    await _forgetFamilyPhoneOffer();
+    return adoptSessionForIntent(AppRole.parent, beforeOpening: beforeOpening);
+  }
+
+  /// Connexion d'un élève par son code d'accès INTELLIA, sans SMS : le
+  /// serveur renvoie une session du **même** UID élève que son téléphone.
+  Future<StudentAccessCodeSignIn> signInWithStudentAccessCode(
+    String code, {
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await _familyAccess.signInWithStudentAccessCode(code);
+    } on FamilyAccessException catch (error) {
+      state = state.copyWith(isLoading: false, error: null);
+      return StudentAccessCodeRejected.from(error);
+    } catch (_) {
+      state = state.copyWith(isLoading: false, error: null);
+      return const StudentAccessCodeRejected(
+        StudentAccessCodeRejection.unavailable,
+      );
+    }
+    final adoption = await adoptSessionForIntent(
+      AppRole.student,
+      beforeOpening: beforeOpening,
+    );
+    return switch (adoption) {
+      AuthEntryAdopted() => const StudentAccessCodeAdopted(),
+      AuthEntryUnresolved(:final errorCode) => StudentAccessCodeUnresolved(
+        errorCode,
+      ),
+      // Un code d'accès n'appartient qu'à un élève : tout autre rôle est
+      // une incohérence serveur, jamais un espace à ouvrir.
+      AuthEntryRoleConflict() || AuthEntryFamilyPhoneInUse() =>
+        const StudentAccessCodeRejected(StudentAccessCodeRejection.invalid),
+    };
   }
 
   static Future<void> _beforeOpening(
@@ -284,6 +407,7 @@ class AuthController extends Notifier<AuthState> {
     await ref.read(tutorPreferenceProvider.notifier).clear();
     final preferences = await SharedPreferences.getInstance();
     await preferences.remove(_lastValidSessionKey);
+    await preferences.remove(_pendingFamilyPhoneOfferKey);
     // La purge de l'état élève n'est volontairement pas déclenchée ici : un
     // provider ne peut pas invalider ceux qui dépendent de lui, et le
     // contrôleur d'authentification n'a pas à connaître les providers de
@@ -515,6 +639,52 @@ class AuthController extends Notifier<AuthState> {
       establishmentId: cached?.establishmentId,
       error: 'Le profil ne peut pas être synchronisé pour le moment.',
     );
+  }
+
+  Future<void> _rememberFamilyPhoneOffer(String uid) async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(_pendingFamilyPhoneOfferKey, uid);
+    } catch (_) {
+      // Sans stockage, l'écran referme encore la session à sa sortie.
+    }
+  }
+
+  Future<void> _setFamilyPhoneResume(bool pending) async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      if (pending) {
+        await preferences.setBool(_familyPhoneResumeKey, true);
+      } else {
+        await preferences.remove(_familyPhoneResumeKey);
+      }
+    } catch (_) {}
+  }
+
+  Future<bool> _isFamilyPhoneResumePending() async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      return preferences.getBool(_familyPhoneResumeKey) ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _forgetFamilyPhoneOffer() async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.remove(_pendingFamilyPhoneOfferKey);
+    } catch (_) {}
+  }
+
+  Future<bool> _isPendingFamilyPhoneOffer(String? uid) async {
+    if (uid == null || uid.isEmpty) return false;
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      return preferences.getString(_pendingFamilyPhoneOfferKey) == uid;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _cacheValidUser(AuthUserData user) async {

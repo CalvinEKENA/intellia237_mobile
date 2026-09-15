@@ -5,13 +5,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_state_view.dart';
+import '../../parent/application/parent_providers.dart';
 import '../application/mobile_money_providers.dart';
 import '../data/mobile_money_repository.dart';
 import '../domain/mobile_money_models.dart';
 import 'mobile_money_localization.dart';
 
+/// Paiement d'un abonnement, enfant par enfant.
+///
+/// Registre de décisions (mission famille, enfants dans plusieurs écoles) :
+/// le serveur devinait l'école du parent et refusait tout paiement dès que
+/// ses enfants étaient dans deux écoles. Le parent choisit désormais l'enfant ;
+/// l'enfant désigne l'école, donc l'offre, et l'écran dit explicitement quels
+/// enfants le paiement couvre.
 class MobileMoneyParentTab extends ConsumerStatefulWidget {
-  const MobileMoneyParentTab({super.key});
+  const MobileMoneyParentTab({this.initialChildId, super.key});
+
+  /// Enfant présélectionné (action « Abonnement » d'une carte enfant).
+  final String? initialChildId;
 
   @override
   ConsumerState<MobileMoneyParentTab> createState() =>
@@ -24,10 +35,12 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
   String? _operatorCode;
   String? _clientRequestId;
   bool _submitting = false;
+  String? _childId;
 
   @override
   void initState() {
     super.initState();
+    _childId = widget.initialChildId;
     _phoneController.addListener(_resetIdempotencyKey);
     _referenceController.addListener(_resetIdempotencyKey);
   }
@@ -43,31 +56,80 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(covariant MobileMoneyParentTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final initial = widget.initialChildId;
+    if (initial != null && initial != oldWidget.initialChildId) {
+      _selectChild(initial);
+    }
+  }
+
   void _resetIdempotencyKey() {
     _clientRequestId = null;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final overview = ref.watch(parentMobileMoneyOverviewProvider);
-    return overview.when(
-      loading: () => IntelliaStateView(
-        kind: IntelliaStateKind.loading,
-        title: context.l10n.loadingOffer,
-      ),
-      error: (error, stackTrace) => IntelliaStateView(
-        kind: IntelliaStateKind.errorRetryable,
-        title: context.l10n.serviceUnavailable,
-        message: mobileMoneyErrorMessage(context, error),
-        primaryLabel: context.l10n.retryLabel,
-        onPrimary: () => ref.invalidate(parentMobileMoneyOverviewProvider),
-      ),
-      data: (data) => _buildOverview(context, data),
-    );
+  void _selectChild(String studentId) {
+    setState(() {
+      _childId = studentId;
+      _operatorCode = null;
+      _clientRequestId = null;
+    });
   }
 
-  Widget _buildOverview(BuildContext context, MobileMoneyOverview overview) {
-    final offer = overview.offer;
+  Widget _async(
+    AsyncValue<MobileMoneyOverview> value,
+    Widget Function(MobileMoneyOverview) data,
+  ) => value.when(
+    loading: () => IntelliaStateView(
+      kind: IntelliaStateKind.loading,
+      title: context.l10n.loadingOffer,
+    ),
+    error: (error, stackTrace) => IntelliaStateView(
+      kind: IntelliaStateKind.errorRetryable,
+      title: context.l10n.serviceUnavailable,
+      message: mobileMoneyErrorMessage(context, error),
+      primaryLabel: context.l10n.retryLabel,
+      onPrimary: () => ref.invalidate(parentMobileMoneyOverviewProvider),
+    ),
+    data: data,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return _async(ref.watch(parentMobileMoneyOverviewProvider(null)), (family) {
+      // Serveur antérieur : pas de bénéficiaire explicite, comportement
+      // historique.
+      if (!family.supportsBeneficiary) return _buildOverview(context, family);
+      final children = family.children;
+      final chosen = children.any((child) => child.studentId == _childId)
+          ? _childId
+          : children.length == 1
+          ? children.first.studentId
+          : null;
+      if (chosen == null) {
+        return _buildOverview(context, family, children: children);
+      }
+      return _async(
+        ref.watch(parentMobileMoneyOverviewProvider(chosen)),
+        (overview) => _buildOverview(
+          context,
+          overview,
+          children: children,
+          beneficiaryId: chosen,
+        ),
+      );
+    });
+  }
+
+  Widget _buildOverview(
+    BuildContext context,
+    MobileMoneyOverview overview, {
+    List<MobileMoneyChild> children = const [],
+    String? beneficiaryId,
+  }) {
+    final choosing = overview.supportsBeneficiary && beneficiaryId == null;
+    final offer = choosing ? null : overview.offer;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         IntelliaSpacing.lg,
@@ -88,10 +150,42 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: IntelliaSpacing.md),
-        if (offer == null)
+        if (children.length > 1) ...[
+          Text(
+            context.l10n.mobileMoneyChooseChild,
+            key: const ValueKey('mobile-money-choose-child'),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: IntelliaSpacing.xs),
+          Wrap(
+            spacing: IntelliaSpacing.xs,
+            runSpacing: IntelliaSpacing.xs,
+            children: [
+              for (final child in children)
+                ChoiceChip(
+                  key: ValueKey('mobile-money-child-${child.studentId}'),
+                  label: Text(child.firstName),
+                  selected: child.studentId == beneficiaryId,
+                  onSelected: (_) => _selectChild(child.studentId),
+                ),
+            ],
+          ),
+          const SizedBox(height: IntelliaSpacing.md),
+        ],
+        if (choosing)
+          const SizedBox.shrink()
+        else if (offer == null)
           _UnavailableOffer(availability: overview.availability)
-        else
-          _buildOfferForm(context, offer),
+        else ...[
+          _OfferContext(
+            beneficiaryId: beneficiaryId,
+            overview: overview,
+            children: children,
+          ),
+          _buildOfferForm(context, offer, beneficiaryId: beneficiaryId),
+        ],
         if (overview.recentRequests.isNotEmpty) ...[
           const SizedBox(height: IntelliaSpacing.lg),
           Text(
@@ -110,7 +204,11 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
     );
   }
 
-  Widget _buildOfferForm(BuildContext context, MobileMoneyOffer offer) {
+  Widget _buildOfferForm(
+    BuildContext context,
+    MobileMoneyOffer offer, {
+    String? beneficiaryId,
+  }) {
     final operator = offer.operators.cast<MobileMoneyOperator?>().firstWhere(
       (item) => item?.code == _operatorCode,
       orElse: () => offer.operators.isEmpty ? null : offer.operators.first,
@@ -275,7 +373,11 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
                 FilledButton.icon(
                   onPressed: _submitting
                       ? null
-                      : () => _confirmAndSubmit(offer, operator),
+                      : () => _confirmAndSubmit(
+                          offer,
+                          operator,
+                          beneficiaryId: beneficiaryId,
+                        ),
                   icon: _submitting
                       ? const SizedBox.square(
                           dimension: 18,
@@ -298,8 +400,9 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
 
   Future<void> _confirmAndSubmit(
     MobileMoneyOffer offer,
-    MobileMoneyOperator operator,
-  ) async {
+    MobileMoneyOperator operator, {
+    String? beneficiaryId,
+  }) async {
     final phone = _phoneController.text.trim();
     final reference = _referenceController.text.trim();
     if (phone.isEmpty || reference.length < 4) {
@@ -340,6 +443,7 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
       await ref
           .read(mobileMoneyActionsProvider)
           .submit(
+            beneficiaryStudentId: beneficiaryId,
             offer: offer,
             operator: operator,
             payerPhone: phone,
@@ -360,6 +464,57 @@ class _MobileMoneyParentTabState extends ConsumerState<MobileMoneyParentTab> {
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
+  }
+}
+
+/// L'école de l'enfant choisi et les enfants que le paiement couvre, dits
+/// avant de payer.
+class _OfferContext extends ConsumerWidget {
+  const _OfferContext({
+    required this.beneficiaryId,
+    required this.overview,
+    required this.children,
+  });
+
+  final String? beneficiaryId;
+  final MobileMoneyOverview overview;
+  final List<MobileMoneyChild> children;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final id = beneficiaryId;
+    if (id == null) return const SizedBox.shrink();
+    final school = ref
+        .watch(parentChildByIdProvider(id))
+        .value
+        ?.establishmentName
+        ?.trim();
+    final covered = [
+      for (final child in children)
+        if (overview.coveredStudentIds.contains(child.studentId))
+          child.firstName,
+    ];
+    return Padding(
+      padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (school != null && school.isNotEmpty)
+            Text(
+              context.l10n.mobileMoneyOfferOfSchool(school),
+              key: const ValueKey('mobile-money-offer-school'),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+            ),
+          if (covered.isNotEmpty)
+            Text(
+              context.l10n.mobileMoneyCoversChildren(covered.join(', ')),
+              key: const ValueKey('mobile-money-covered-children'),
+            ),
+        ],
+      ),
+    );
   }
 }
 

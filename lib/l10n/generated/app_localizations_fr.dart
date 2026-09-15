@@ -2808,7 +2808,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get mobileMoneyParentDescription =>
-      'Paiement Mobile Money déclaré puis vérifié manuellement par votre établissement.';
+      'Paiement Mobile Money déclaré, puis vérifié manuellement par l’établissement de l’enfant concerné.';
 
   @override
   String get myPaymentRequests => 'Mes demandes';
@@ -2878,11 +2878,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get multipleSchoolsLinked =>
-      'Plusieurs établissements sont liés. Contactez l’assistance pour choisir celui qui facturera l’accès.';
+      'Vos enfants sont inscrits dans plusieurs établissements : choisissez l’enfant pour qui vous payez.';
 
   @override
   String get noActiveMobileMoneyOffer =>
-      'Votre établissement n’a pas encore publié d’offre Mobile Money active.';
+      'L’établissement de cet enfant n’a pas encore publié d’offre Mobile Money active.';
 
   @override
   String get offerUnavailable => 'Offre indisponible';
@@ -4572,4 +4572,308 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get parentEntryCodePurpose =>
+      'Ce code permet de rattacher l’enfant.\nVotre numéro de téléphone sert à vous identifier comme parent.';
+
+  @override
+  String get passFamilyNumber => 'Numéro de la famille';
+
+  @override
+  String get familyPhoneMigrationPrompt =>
+      'Ce numéro est actuellement utilisé pour l’accès d’un élève. Souhaitez-vous l’utiliser comme numéro du parent ? L’élève conservera son profil et utilisera désormais son code d’accès INTELLIA.';
+
+  @override
+  String get familyPhoneMigrationConfirm => 'Utiliser ce numéro pour le parent';
+
+  @override
+  String get familyPhoneMigrationNothingChanged =>
+      'Le transfert n’a pas abouti. Rien n’a changé : réessayez.';
+
+  @override
+  String get familyPhoneMigrationVerifyAgain =>
+      'Pour votre sécurité, vérifiez à nouveau ce numéro avant de le transférer.';
+
+  @override
+  String get familyPhoneMigrationVerifyAgainAction =>
+      'Vérifier à nouveau le numéro';
+
+  @override
+  String get familyPhoneMigrationInProgress =>
+      'Un transfert est déjà en cours pour ce numéro. Patientez un instant puis réessayez.';
+
+  @override
+  String get familyPhoneMigrationVerifyAgainToFinish =>
+      'L’élève a déjà son code d’accès. Vérifiez à nouveau ce numéro pour terminer l’ouverture de votre espace parent.';
+
+  @override
+  String get familyPhoneMigrationRefused =>
+      'Ce numéro ne peut pas être transféré depuis ce compte. Utilisez un autre numéro ou contactez l’établissement.';
+
+  @override
+  String get familyPhoneMigrationUnavailable =>
+      'Le transfert du numéro n’est pas encore disponible. Réessayez plus tard ou utilisez un autre numéro.';
+
+  @override
+  String get familyPhoneMigratedTitle => 'Ce numéro est désormais le vôtre';
+
+  @override
+  String get familyPhoneMigratedContinue =>
+      'J’ai noté le code, ouvrir mon espace parent';
+
+  @override
+  String get studentNoPhoneUseAccessCode =>
+      'Pas de téléphone ? Entre avec ton code d’accès INTELLIA';
+
+  @override
+  String get studentAccessCodePhase => 'Ton code d’accès';
+
+  @override
+  String get studentAccessCodeTitle => 'Entre avec ton code d’accès';
+
+  @override
+  String get studentAccessCodeSubtitle =>
+      'Saisis les 12 caractères que ton parent ou ton établissement t’a donnés. Pas besoin de téléphone.';
+
+  @override
+  String get studentAccessCodeLabel => 'Code d’accès INTELLIA';
+
+  @override
+  String get studentAccessCodeSubmit => 'Entrer dans mon espace';
+
+  @override
+  String get studentAccessCodePrivacy =>
+      'Garde ce code pour toi : il ouvre ton espace. Si tu l’as perdu, demande un nouveau code à ton parent ou à ton établissement.';
+
+  @override
+  String get studentAccessCodeUsePhone => 'J’ai un téléphone : recevoir un SMS';
+
+  @override
+  String get studentAccessCodeInvalid =>
+      'Ce code ne fonctionne pas. Vérifie-le, ou demande un nouveau code à ton parent ou à ton établissement.';
+
+  @override
+  String get studentAccessCodeTooManyAttempts =>
+      'Trop d’essais. Attends quelques minutes avant de réessayer.';
+
+  @override
+  String get studentAccessCodeUnavailable =>
+      'Le service ne répond pas pour le moment. Réessaie dans un instant.';
+
+  @override
+  String studentAccessCodeRevealTitle(String name) {
+    return 'Code d’accès INTELLIA de $name';
+  }
+
+  @override
+  String get studentAccessCodeRevealTitleGeneric =>
+      'Code d’accès INTELLIA de l’élève';
+
+  @override
+  String studentAccessCodeRevealBody(String name) {
+    return 'Notez ce code et remettez-le à $name : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.';
+  }
+
+  @override
+  String get studentAccessCodeRevealBodyGeneric =>
+      'Notez ce code et remettez-le à l’élève : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.';
+
+  @override
+  String get studentAccessCodeNotShownAgain =>
+      'Le code d’accès de l’élève a déjà été créé. Pour sa sécurité, il n’est jamais affiché à nouveau : générez-en un nouveau depuis sa fiche.';
+
+  @override
+  String get studentAccessCodeCopy => 'Copier le code';
+
+  @override
+  String get studentAccessCodeCopied => 'Code copié';
+
+  @override
+  String get studentAccessCodeSheetBody =>
+      'Ce code permet à votre enfant d’ouvrir son espace INTELLIA sans téléphone. Pour sa sécurité, il n’est jamais affiché à nouveau : générer un nouveau code remplace l’ancien, qui cesse aussitôt de fonctionner.';
+
+  @override
+  String get studentAccessCodeGenerate =>
+      'Afficher / générer un nouveau code d’accès';
+
+  @override
+  String get studentAccessCodeReplaceTitle => 'Remplacer le code d’accès ?';
+
+  @override
+  String studentAccessCodeReplaceBody(String name) {
+    return 'L’ancien code de $name cessera immédiatement de fonctionner.';
+  }
+
+  @override
+  String get studentAccessCodeReplaceConfirm => 'Générer le nouveau code';
+
+  @override
+  String get studentAccessCodeDone => 'J’ai noté le code';
+
+  @override
+  String get studentAccessCodeIssueFailed =>
+      'Le code n’a pas pu être généré. Réessayez.';
+
+  @override
+  String studentAccessCodeActiveSince(String date) {
+    return 'Code d’accès actif depuis le $date';
+  }
+
+  @override
+  String get studentAccessCodeActive => 'Code d’accès actif';
+
+  @override
+  String get studentAccessCodeNone => 'Aucun code d’accès pour l’instant';
+
+  @override
+  String get childAccessOwnPhone => 'Connecté avec son propre accès INTELLIA';
+
+  @override
+  String get childAccessCodeOnly =>
+      'Se connecte avec son code d’accès INTELLIA';
+
+  @override
+  String get childAccessUnknown =>
+      'Accès de l’enfant non disponible pour le moment';
+
+  @override
+  String get childAccessNone =>
+      'Aucun accès personnel : générez son code d’accès';
+
+  @override
+  String get childActionViewProfile => 'Voir le profil';
+
+  @override
+  String get childActionViewActivity => 'Voir son activité';
+
+  @override
+  String get childActionAccessCode => 'Code d’accès élève';
+
+  @override
+  String get childActionSubscription => 'Abonnement';
+
+  @override
+  String childSubscriptionActiveUntil(String date) {
+    return 'Abonnement actif jusqu’au $date';
+  }
+
+  @override
+  String get childSubscriptionPaidByAnotherGuardian =>
+      'Réglé par un autre responsable de l’enfant';
+
+  @override
+  String get childSubscriptionInactive =>
+      'Aucun abonnement actif pour cet enfant';
+
+  @override
+  String get childSchoolUnknown => 'Établissement non renseigné';
+
+  @override
+  String parentChildrenCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count enfants',
+      one: '1 enfant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String parentModeProfileBanner(String name) {
+    return 'MODE PARENT — PROFIL DE $name';
+  }
+
+  @override
+  String get parentModeProfileNote =>
+      'Vous consultez ce profil avec votre compte parent. Vous ne pouvez rien y modifier au nom de votre enfant.';
+
+  @override
+  String get childProfileTitle => 'Profil de l’enfant';
+
+  @override
+  String get childProfileClass => 'Classe';
+
+  @override
+  String get childProfileSchool => 'Établissement';
+
+  @override
+  String get childProfileAccess => 'Accès INTELLIA';
+
+  @override
+  String get childProfileSubscription => 'Abonnement';
+
+  @override
+  String get parentSchoolsAnnouncements => 'Annonces des écoles de vos enfants';
+
+  @override
+  String get mobileMoneyChooseChild => 'Pour quel enfant payez-vous ?';
+
+  @override
+  String mobileMoneyOfferOfSchool(String school) {
+    return 'Offre de $school';
+  }
+
+  @override
+  String mobileMoneyCoversChildren(String names) {
+    return 'Ce paiement couvre : $names';
+  }
+
+  @override
+  String get childPendingFirstSignIn => 'En attente de sa première connexion';
+
+  @override
+  String get addChildNoAccountAction =>
+      'Mon enfant n’a pas encore de compte INTELLIA';
+
+  @override
+  String get addChildNoAccountTitle => 'Ouvrir l’accès de votre enfant';
+
+  @override
+  String get addChildNoAccountBody =>
+      'Votre enfant n’a pas besoin de téléphone. Vous recevrez son code d’accès INTELLIA ; il complétera lui-même son profil scolaire à sa première connexion.';
+
+  @override
+  String get addChildNoAccountNameLabel => 'Prénom de l’enfant';
+
+  @override
+  String get addChildNoAccountNameRequired =>
+      'Indiquez le prénom de votre enfant.';
+
+  @override
+  String get addChildNoAccountSubmit => 'Créer son code d’accès';
+
+  @override
+  String get addChildNoAccountFailed =>
+      'L’accès n’a pas pu être ouvert. Réessayez.';
+
+  @override
+  String get adminStudentAccessRecoveryTitle => 'Récupérer l’accès de l’élève';
+
+  @override
+  String get adminStudentAccessRecoveryBody =>
+      'Un nouveau code d’accès INTELLIA remplace le précédent, qui cesse aussitôt de fonctionner. Remettez-le à l’élève ou à sa famille en main propre : il ne sera plus affiché.';
+
+  @override
+  String get adminStudentPhoneOptional => 'Téléphone de l’élève (facultatif)';
+
+  @override
+  String get childActionLinkCode => 'Code de liaison parent';
+
+  @override
+  String guardianLinkCodeBody(String name) {
+    return 'Ce code permet à un autre parent ou responsable de rattacher $name à son propre compte. Il n’ouvre pas l’espace de l’élève : pour cela, utilisez le code d’accès élève.';
+  }
+
+  @override
+  String get guardianLinkCodeRotate => 'Remplacer ce code';
+
+  @override
+  String get guardianLinkCodeRotateBody =>
+      'L’ancien code de liaison cessera immédiatement de fonctionner. Les responsables déjà rattachés le restent.';
+
+  @override
+  String get guardianLinkCodeUnavailable =>
+      'Le code de liaison n’a pas pu être obtenu. Réessayez.';
 }

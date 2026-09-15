@@ -9,6 +9,8 @@ import '../../student_registration/domain/academic_rules.dart';
 import 'admin_presentation_localization.dart';
 import '../../auth/application/auth_controller.dart';
 import 'account_management_controls.dart';
+import '../../family_access/presentation/guardian_link_code_sheet.dart';
+import 'student_access_recovery_sheet.dart';
 
 /// L'annuaire de toute l'école, en lecture.
 ///
@@ -170,18 +172,49 @@ class _MemberTile extends ConsumerWidget {
         leading: CircleAvatar(child: Text(initial)),
         title: Text(member.fullName),
         subtitle: details.isEmpty ? null : Text(details),
-        trailing: ref.watch(authControllerProvider).isSuperAdmin
-            ? AccountManagementMenu(
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Récupération d'accès d'un élève : un nouveau code, jamais
+            // l'ancien. Le serveur n'autorise que la direction de SON école et
+            // la super-administration.
+            if (member.role == AdminRoleType.student &&
+                member.accountStatus != 'deleted')
+              IconButton(
+                key: ValueKey('directory-member-link-code-${member.id}'),
+                tooltip: context.l10n.childActionLinkCode,
+                icon: const Icon(Icons.link_rounded),
+                onPressed: () => showGuardianLinkCodeSheet(
+                  context,
+                  studentId: member.id,
+                  studentName: member.fullName,
+                ),
+              ),
+            if (member.role == AdminRoleType.student &&
+                member.accountStatus != 'deleted')
+              IconButton(
+                key: ValueKey('directory-member-access-code-${member.id}'),
+                tooltip: context.l10n.childActionAccessCode,
+                icon: const Icon(Icons.key_rounded),
+                onPressed: () => showStudentAccessRecoverySheet(
+                  context,
+                  studentId: member.id,
+                  studentName: member.fullName,
+                ),
+              ),
+            if (ref.watch(authControllerProvider).isSuperAdmin)
+              AccountManagementMenu(
                 accountId: member.id,
                 name: member.fullName,
                 status: member.accountStatus,
               )
-            : member.accountStatus == 'pending_validation'
-            ? Tooltip(
+            else if (member.accountStatus == 'pending_validation')
+              Tooltip(
                 message: context.l10n.schoolDirectoryPending,
                 child: const Icon(Icons.hourglass_top_rounded),
-              )
-            : null,
+              ),
+          ],
+        ),
       ),
     );
   }

@@ -7,6 +7,10 @@ import 'package:intellia237/features/auth/application/auth_state.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/domain/auth_entry_intent.dart';
 import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
+import 'package:intellia237/features/family_access/application/family_access_providers.dart';
+import 'package:intellia237/features/family_access/data/family_access_repository.dart';
+import 'package:intellia237/features/family_access/domain/family_access_models.dart';
+import 'package:intellia237/features/family_access/domain/family_access_outcomes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Device QA round 2 : l'espace choisi à l'entrée (intention) et le rôle
@@ -62,27 +66,33 @@ void main() {
 
   group('AuthController.adoptSessionForIntent', () {
     test(
-      'parent intent + student account: nothing adopted, session closed',
+      'parent intent + student account: nothing adopted, the verified session '
+      'stays open for an explicit family phone offer',
       () async {
         final repository = _SessionRepository(
           _user(AppRole.student, completed: true),
         );
         final container = _container(repository);
         addTearDown(container.dispose);
+        await container.read(authControllerProvider.notifier).signOut();
+        repository.signOutCalls = 0;
 
         final adoption = await container
             .read(authControllerProvider.notifier)
             .adoptSessionForIntent(AppRole.parent);
 
-        expect(adoption, isA<AuthEntryRoleConflict>());
-        final conflict = adoption as AuthEntryRoleConflict;
-        expect(conflict.intent, AppRole.parent);
-        expect(conflict.accountRole, AppRole.student);
+        expect(adoption, isA<AuthEntryFamilyPhoneInUse>());
+        expect(
+          (adoption as AuthEntryFamilyPhoneInUse).studentFirstName,
+          'Amina',
+        );
         final auth = container.read(authControllerProvider);
         expect(auth.status, AuthStatus.unauthenticated);
         expect(auth.userId, isNull);
         expect(auth.role, isNull);
-        expect(repository.signOutCalls, 1);
+        expect(auth.isLoading, isFalse);
+        // La preuve SMS récente reste disponible pour la migration.
+        expect(repository.signOutCalls, 0);
         // Le routeur ne voit jamais l'élève : aucun espace ne peut s'ouvrir.
         expect(_redirect(auth, AppRoutes.phoneAuth), isNull);
         expect(_redirect(auth, AppRoutes.studentHome), AppRoutes.authGateway);
@@ -103,11 +113,27 @@ void main() {
           .read(authControllerProvider.notifier)
           .adoptSessionForIntent(AppRole.parent);
 
+      expect(adoption, isA<AuthEntryFamilyPhoneInUse>());
+      expect(container.read(authControllerProvider).isAuthenticated, isFalse);
+    });
+
+    test('a student role known only from the cache is never offered: conflict, '
+        'session closed', () async {
+      SharedPreferences.setMockInitialValues({
+        'auth_last_valid_profile_v1':
+            '{"uid":"account-uid","email":"","role":"student",'
+            '"firstName":"Amina","lastName":"","profileCompleted":true}',
+      });
+      final repository = _SessionRepository(null)..retryable = true;
+      final container = _container(repository);
+      addTearDown(container.dispose);
+
+      final adoption = await container
+          .read(authControllerProvider.notifier)
+          .adoptSessionForIntent(AppRole.parent);
+
       expect(adoption, isA<AuthEntryRoleConflict>());
-      expect(
-        container.read(authControllerProvider).status,
-        AuthStatus.unauthenticated,
-      );
+      expect(repository.signOutCalls, 1);
     });
 
     test('student intent + parent account: conflict as well', () async {
@@ -208,6 +234,124 @@ void main() {
     });
   });
 
+  group('family phone migration and student access code', () {
+    test('a confirmed migration returns the code without opening anything; '
+        'the parent session then opens under the parent intent', () async {
+      final repository = _SessionRepository(
+        _user(AppRole.student, completed: true),
+      );
+      final family = _FamilyAccess()
+        ..migration = const FamilyPhoneMigrationResult(
+          studentId: 'account-uid',
+          studentFirstName: 'Amina',
+          parentUid: 'parent-uid',
+          parentToken: 'parent-token',
+          studentAccessCode: 'ABCD-EFGH-JKMN',
+        );
+      final container = _container(repository, family: family);
+      addTearDown(container.dispose);
+      final controller = container.read(authControllerProvider.notifier);
+      await controller.signOut();
+
+      expect(
+        await controller.adoptSessionForIntent(AppRole.parent),
+        isA<AuthEntryFamilyPhoneInUse>(),
+      );
+      final outcome = await controller.migrateFamilyPhoneToParent();
+      expect(outcome, isA<FamilyPhoneMigrated>());
+      // Rien n'a encore changé pour le routeur.
+      expect(container.read(authControllerProvider).isAuthenticated, isFalse);
+
+      // Le jeton parent ouvre une identité distincte, sans profil encore.
+      repository.current = null;
+      final states = <AuthState>[];
+      final adoption = await controller.openParentAfterFamilyPhoneMigration(
+        (outcome as FamilyPhoneMigrated).result,
+        beforeOpening: (opening) async => states.add(opening),
+      );
+      expect(family.customTokens, ['parent-token']);
+      expect(adoption, isA<AuthEntryAdopted>());
+      expect(states.single.status, AuthStatus.needsOnboarding);
+      expect(
+        container.read(authControllerProvider).status,
+        AuthStatus.needsOnboarding,
+      );
+    });
+
+    test('a failed migration maps each server reason without adopting', () {
+      FamilyPhoneMigrationFailure failure(String code, [String? reason]) =>
+          FamilyPhoneMigrationFailed.from(
+            FamilyAccessException(code, reason: reason),
+          ).failure;
+      expect(
+        failure('unavailable', 'migration-compensated'),
+        FamilyPhoneMigrationFailure.nothingChanged,
+      );
+      expect(
+        failure('failed-precondition', 'recent-phone-verification-required'),
+        FamilyPhoneMigrationFailure.verificationExpired,
+      );
+      expect(
+        failure('unavailable', 'migration-needs-recovery'),
+        FamilyPhoneMigrationFailure.verifyAgainToFinish,
+      );
+      expect(failure('aborted'), FamilyPhoneMigrationFailure.inProgress);
+      expect(
+        failure('failed-precondition'),
+        FamilyPhoneMigrationFailure.refused,
+      );
+      expect(failure('not-found'), FamilyPhoneMigrationFailure.unavailable);
+    });
+
+    test('an access code opens the SAME student UID under the student '
+        'intent, and a rejected code opens nothing', () async {
+      final repository = _SessionRepository(null);
+      final family = _FamilyAccess();
+      final container = _container(repository, family: family);
+      addTearDown(container.dispose);
+      final controller = container.read(authControllerProvider.notifier);
+      await controller.signOut();
+
+      family.rejectWith = const FamilyAccessException('permission-denied');
+      expect(
+        await controller.signInWithStudentAccessCode('ZZZZ-ZZZZ-ZZZZ'),
+        isA<StudentAccessCodeRejected>().having(
+          (r) => r.rejection,
+          'rejection',
+          StudentAccessCodeRejection.invalid,
+        ),
+      );
+      expect(container.read(authControllerProvider).isAuthenticated, isFalse);
+
+      family.rejectWith = const FamilyAccessException('resource-exhausted');
+      expect(
+        await controller.signInWithStudentAccessCode('ZZZZ-ZZZZ-ZZZZ'),
+        isA<StudentAccessCodeRejected>().having(
+          (r) => r.rejection,
+          'rejection',
+          StudentAccessCodeRejection.tooManyAttempts,
+        ),
+      );
+
+      family.rejectWith = null;
+      family.onCodeSignIn = () =>
+          repository.current = _user(AppRole.student, completed: true);
+      final opened = <AuthState>[];
+      expect(
+        await controller.signInWithStudentAccessCode(
+          'abcd efgh jkmn',
+          beforeOpening: (opening) async => opened.add(opening),
+        ),
+        isA<StudentAccessCodeAdopted>(),
+      );
+      expect(family.codes, ['abcd efgh jkmn']);
+      expect(opened.single.role, AppRole.student);
+      final auth = container.read(authControllerProvider);
+      expect(auth.role, AppRole.student);
+      expect(auth.userId, 'account-uid');
+    });
+  });
+
   group('AuthController.signInWithEmail under an intent', () {
     test('student intent + parent credentials: conflict, signed out', () async {
       final repository = _SessionRepository(
@@ -275,9 +419,50 @@ void main() {
   });
 }
 
-ProviderContainer _container(AuthRepository repository) => ProviderContainer(
-  overrides: [authRepositoryProvider.overrideWithValue(repository)],
+ProviderContainer _container(
+  AuthRepository repository, {
+  FamilyAccessRepository? family,
+}) => ProviderContainer(
+  overrides: [
+    authRepositoryProvider.overrideWithValue(repository),
+    familyAccessRepositoryProvider.overrideWithValue(family ?? _FamilyAccess()),
+  ],
 );
+
+class _FamilyAccess implements FamilyAccessRepository {
+  FamilyPhoneMigrationResult? migration;
+  FamilyAccessException? rejectWith;
+  void Function()? onCodeSignIn;
+  final customTokens = <String>[];
+  final codes = <String>[];
+
+  @override
+  Future<FamilyPhoneMigrationResult> migrateStudentPhoneToParent() async =>
+      migration ?? (throw const FamilyAccessException('not-found'));
+
+  @override
+  Future<void> signInWithCustomToken(String token) async =>
+      customTokens.add(token);
+
+  @override
+  Future<void> signInWithStudentAccessCode(String code) async {
+    if (rejectWith case final error?) throw error;
+    codes.add(code);
+    onCodeSignIn?.call();
+  }
+
+  @override
+  Future<IssuedStudentAccessCode> issueStudentAccessCode(String studentId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<ParentChildSummary>> listParentChildren({String? parentUid}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<CreatedChildAccess> createChildStudentAccess(String firstName) =>
+      throw UnimplementedError();
+}
 
 AuthUserData _user(AppRole role, {required bool completed}) => AuthUserData(
   uid: 'account-uid',
@@ -298,13 +483,21 @@ String? _redirect(AuthState auth, String location) => resolveAppRedirect(
 class _SessionRepository implements AuthRepository, AuthSessionResolver {
   _SessionRepository(this.current);
 
-  final AuthUserData? current;
+  AuthUserData? current;
   bool failResolution = false;
+  bool retryable = false;
   int signOutCalls = 0;
 
   @override
   Future<AuthSessionResolution> resolveCurrentSession() async {
     if (failResolution) throw Exception('network');
+    if (retryable) {
+      return const AuthSessionResolution(
+        kind: AuthSessionResolutionKind.retryableProfileFailure,
+        firebaseUid: 'account-uid',
+        errorCode: 'unavailable',
+      );
+    }
     final user = current;
     return AuthSessionResolution(
       kind: user == null || !user.profileCompleted

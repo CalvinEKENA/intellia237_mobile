@@ -198,6 +198,12 @@ Pannes et reprise (testées sur les émulateurs Auth et Firestore) :
 | création du parent (5) | numéro **réattaché** à l'élève, état `compensated` | nouvel essai : repart de zéro |
 | création du parent **et** réattachement | état `needs_recovery` ; le code d'accès part dans le détail de l'erreur et ouvre l'élève | le numéro est libre : un nouveau SMS crée une identité vierge, **adoptée** comme parent |
 | lien (6) après 3 essais | le parent existe et porte le numéro ; le code est dans le détail de l'erreur | le prochain SMS aboutit sur le parent, qui termine |
+
+Côté application, une migration confirmée mais inachevée est mémorisée sur
+l'appareil : l'écran montre d'abord le code d'accès de l'élève, puis propose de
+vérifier à nouveau le numéro ; la nouvelle session parent appelle la reprise
+avant l'inscription parent. Sans migration confirmée en attente, aucun appel
+n'est fait : rien n'est jamais migré en silence.
 | réponse perdue | journal `completed` | même résultat, nouveau jeton parent, **sans** second code (il n'est pas stocké) |
 
 À chaque instant, la famille garde soit un accès parent, soit un accès élève.
@@ -212,6 +218,27 @@ liens existants sont conservés. Seuls la propriété du numéro et le champ
 Le profil parent est ensuite créé par l'inscription parent existante (le compte
 parent porte le numéro vérifié ; consentements donnés par le parent lui-même),
 puis l'espace parent s'ouvre avec l'enfant déjà lié.
+
+## 5 bis. Nouvelle famille : enfant sans téléphone ni compte
+
+Le parent, déjà identifié par son propre numéro, choisit « Mon enfant n'a pas
+encore de compte INTELLIA » et saisit le prénom. `createChildStudentAccess` :
+
+- exige un compte parent actif, rejoue une même demande (`requestId`) sans
+  créer un second enfant ni révéler un second code, et plafonne à 5 créations
+  par parent sur 24 h ;
+- crée une identité Firebase Auth **sans téléphone ni e-mail** ;
+- écrit `children_links/{parentId}_{studentId}` approuvé
+  (`linkedVia: parent_created_access`) et `pending_student_accounts/{studentId}`
+  (prénom, auteur) ;
+- émet le code d'accès, montré une seule fois au parent.
+
+L'enfant entre avec ce code ; sans profil, il complète lui-même son inscription
+scolaire (école, classe) — le parent ne choisit jamais l'école à sa place.
+L'inscription élève accepte une session ouverte par jeton serveur (ni
+téléphone ni e-mail) pour écrire le profil de **sa propre** identité. En
+attendant, « Mes enfants » affiche l'enfant « en attente de sa première
+connexion », avec l'action « Code d'accès élève ».
 
 ## 6. Vue parent d'un enfant
 
@@ -263,15 +290,29 @@ de leur propre profil. Le tableau de bord parent lit les annonces des écoles de
 
 ## 10. Routeur
 
-La redirection évalue l'**écran actif** (sommet de la pile) quand go_router se
-rafraîchit, jamais un écran caché dessous. Un changement d'état Firebase ne
-démonte plus un parcours parent ou élève en cours ; les écrans d'authentification
-restent maîtres de leur navigation après adoption.
+Cause exacte : à chaque changement d'un état observé (session adoptée,
+préférences, prévisualisation), go_router ré-analyse la configuration en place ;
+l'adresse transmise à la redirection de premier niveau est celle de la route
+**de base** d'une pile poussée (`/auth` sous `/auth/parent` sous `/auth/phone`).
+Une décision prise pour cet écran caché remplaçait toute la pile.
+
+Correction à la source (`AppRouterNotifier.activeLocation`) : lors de ce
+rafraîchissement — reconnu parce que l'information de route n'est pas une
+navigation `go`/`push` — la redirection décide pour le **sommet** de la pile.
+Une navigation explicite garde sa propre cible. La redirection travaille ainsi
+sur l'identité authentifiée, le rôle autoritaire du compte et l'expérience
+demandée (intention d'entrée), sans écran caché qui décide.
+
+Les tests d'intégration du routeur utilisent la **vraie table de routes**
+(`appRouterProvider`) ; seuls les contenus d'écrans sont remplaçables
+(`appRouteSlotsProvider`). Le harnais « appareil » des parcours famille et du
+sceau 237 tourne désormais lui aussi sur cette table.
 
 ## 11. Règles Firestore
 
-`student_access_credentials`, `student_access_codes` et
-`student_access_attempts` : aucun accès client, super-administration comprise.
+`student_access_credentials`, `student_access_codes`,
+`student_access_attempts`, `pending_student_accounts`, `child_access_requests`
+et `child_access_quotas` : aucun accès client, super-administration comprise.
 `student_access_audit` et `auth_phone_migrations` (sans secret) : lecture par la
 seule super-administration, aucune écriture client. Aucune règle existante n'est
 affaiblie ; les tests de règles vérifient aussi qu'une direction A ne lit jamais
@@ -287,7 +328,7 @@ l'élève B, même quand un même parent est lié aux deux écoles.
    signés sans clé).
 3. Déployer les Functions ajoutées (`issueStudentAccessCode`,
    `signInWithStudentAccessCode`, `migrateStudentPhoneToParent`,
-   `listParentChildren`) et modifiées (`ensureStudentLinkCode`,
+   `createChildStudentAccess`, `listParentChildren`) et modifiées (`ensureStudentLinkCode`,
    `rotateStudentLinkCode`, `getMobileMoneyOverview`,
    `submitMobileMoneyPayment`, `reviewMobileMoneyPayment`,
    `fanoutAnnouncementNotifications`), puis les règles Firestore.

@@ -158,7 +158,10 @@ class FirebaseStudentRegistrationRepository
       final verifiedPhone = currentUser.phoneNumber?.trim() ?? '';
       final currentEmail = currentUser.email?.trim().toLowerCase() ?? '';
       if (verifiedPhone.isNotEmpty ||
-          (normalizedEmail.isNotEmpty && currentEmail == normalizedEmail)) {
+          (normalizedEmail.isNotEmpty && currentEmail == normalizedEmail) ||
+          // Élève sans téléphone entré avec son code d'accès : il complète le
+          // profil de SA propre identité, sans créer de compte e-mail.
+          (normalizedEmail.isEmpty && currentUser.openedByServerToken)) {
         return currentUser;
       }
     }

@@ -131,36 +131,39 @@ void main() {
     expect(journey.pending.code, isNull);
   });
 
-  testWidgets('D · code → numéro de l’élève → conflit, aucun espace élève', (
-    tester,
-  ) async {
-    final backend = _Backend();
-    final journey = await _Journey.start(tester, backend);
+  testWidgets(
+    'D · code → numéro de l’élève → proposition explicite, aucun espace élève',
+    (tester) async {
+      final backend = _Backend();
+      final journey = await _Journey.start(tester, backend);
 
-    await journey.enterParentCode('K7MP2QXA');
-    await journey.verifyPhone(_studentPhone);
+      await journey.enterParentCode('K7MP2QXA');
+      await journey.verifyPhone(_studentPhone);
 
-    expect(journey.location, AppRoutes.phoneAuth);
-    expect(find.byKey(const ValueKey('phone-role-conflict')), findsOneWidget);
-    expect(
-      find.text('Ce numéro est déjà associé à un compte élève.'),
-      findsOneWidget,
-    );
-    expect(
-      find.text(
-        'Pour créer ou ouvrir un espace parent, utilisez les identifiants du parent.',
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('Le code enfant reste enregistré.'), findsOneWidget);
-    expect(journey.pending.code, 'K7MP2QXA');
-    // Le compte élève est intact, sa session refermée, rien n'est relié.
-    expect(backend.accountFor(_studentPhone)!.role, AppRole.student);
-    expect(backend.currentUid, isNull);
-    expect(backend.signOuts, 1);
-    expect(backend.linkCalls, isEmpty);
-    expect(journey.auth.isAuthenticated, isFalse);
-  });
+      expect(journey.location, AppRoutes.phoneAuth);
+      expect(find.byKey(const ValueKey('family-phone-offer')), findsOneWidget);
+      expect(
+        find.text(
+          'Ce numéro est actuellement utilisé pour l’accès d’un élève. '
+          'Souhaitez-vous l’utiliser comme numéro du parent ? L’élève '
+          'conservera son profil et utilisera désormais son code d’accès '
+          'INTELLIA.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('family-phone-offer-confirm')),
+        findsOneWidget,
+      );
+      expect(journey.pending.code, 'K7MP2QXA');
+      // Rien n'est fait en silence : compte élève intact, rien de relié, aucun
+      // espace ouvert. La session vérifiée attend la décision du parent.
+      expect(backend.accountFor(_studentPhone)!.role, AppRole.student);
+      expect(backend.signOuts, 0);
+      expect(backend.linkCalls, isEmpty);
+      expect(journey.auth.isAuthenticated, isFalse);
+    },
+  );
 
   testWidgets('E · après le conflit → autre numéro parent → enfant relié', (
     tester,
@@ -169,9 +172,10 @@ void main() {
     final journey = await _Journey.start(tester, backend);
     await journey.enterParentCode('K7MP2QXA');
     await journey.verifyPhone(_studentPhone);
-    expect(find.byKey(const ValueKey('phone-role-conflict')), findsOneWidget);
+    expect(find.byKey(const ValueKey('family-phone-offer')), findsOneWidget);
 
-    await journey.tap('phone-conflict-use-another-number');
+    await journey.tap('family-phone-offer-another-number');
+    expect(backend.signOuts, 1);
     expect(find.byKey(const ValueKey('phone-entry-stage')), findsOneWidget);
     expect(journey.phoneFieldText, isEmpty);
     expect(
@@ -195,10 +199,11 @@ void main() {
     await journey.enterParentCode('K7MP2QXA');
     await journey.verifyPhone(_studentPhone);
 
-    await journey.tap('phone-conflict-cancel');
+    await journey.tap('family-phone-offer-cancel');
 
     expect(journey.location, AppRoutes.authGateway);
     expect(journey.pending.code, isNull);
+    expect(backend.currentUid, isNull);
   });
 
   testWidgets(
@@ -434,18 +439,14 @@ void main() {
 
     expect(
       find.text(
-        'This phone number is already associated with a student account.',
+        'This number is currently used for a student’s access. Would you '
+        'like to use it as the parent’s number? The student will keep their '
+        'profile and will now use their INTELLIA access code.',
       ),
       findsOneWidget,
     );
-    expect(
-      find.text(
-        "To create or open a parent space, use the parent’s credentials.",
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Use this number for the parent'), findsOneWidget);
     expect(find.text('Use another number'), findsOneWidget);
-    expect(find.text('The child code is still saved.'), findsOneWidget);
   });
 
   testWidgets(
@@ -473,14 +474,23 @@ void main() {
   );
 
   testWidgets(
-    'M · un conflit ne laisse aucune session à rouvrir au démarrage',
+    'M · une proposition non tranchée ne laisse aucune session à rouvrir au '
+    'démarrage',
     (tester) async {
       final backend = _Backend();
       final journey = await _Journey.start(tester, backend);
       await journey.enterParentCode('K7MP2QXA');
       await journey.verifyPhone(_studentPhone);
-      expect(find.byKey(const ValueKey('phone-role-conflict')), findsOneWidget);
+      expect(find.byKey(const ValueKey('family-phone-offer')), findsOneWidget);
+      final preferences = await SharedPreferences.getInstance();
+      final pending = preferences.getString('auth_family_phone_offer_uid_v1');
+      expect(pending, 'student-uid');
+      final verifiedSession = backend.currentUid;
       await tester.pumpWidget(const SizedBox.shrink());
+      // L'application est tuée pendant la décision : rien de ce qui suit
+      // n'a pu s'exécuter, la session Firebase de l'élève est encore là.
+      await preferences.setString('auth_family_phone_offer_uid_v1', pending!);
+      backend.currentUid = verifiedSession;
 
       // Redémarrage de l'application sur le même appareil.
       final relaunch = await _Journey.start(tester, backend);

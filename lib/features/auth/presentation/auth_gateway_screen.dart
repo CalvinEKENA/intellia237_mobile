@@ -69,7 +69,21 @@ class AuthGatewayScreen extends ConsumerWidget {
               context.push(AppRoutes.phoneRegistration(AppRole.student));
             },
           ),
-          const SizedBox(height: 12),
+          // Un élève sans téléphone entre avec le code d'accès que son parent
+          // ou son établissement lui a remis.
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              key: const ValueKey('gateway-student-access-code'),
+              onPressed: () {
+                ref.read(pendingChildLinkProvider.notifier).clear();
+                context.push(AppRoutes.studentAccessCode);
+              },
+              icon: const Icon(Icons.key_rounded, size: 16),
+              label: Text(l10n.studentNoPhoneUseAccessCode),
+            ),
+          ),
+          const SizedBox(height: 4),
           AuthChoiceCard(
             key: const ValueKey('gateway-role-parent'),
             title: l10n.parentRole,

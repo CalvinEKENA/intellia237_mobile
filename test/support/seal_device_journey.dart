@@ -12,39 +12,33 @@ import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/app/theme/app_theme.dart';
-import 'package:intellia237/core/animations/app_page_transitions.dart';
 import 'package:intellia237/core/localization/app_locale_controller.dart';
 import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/application/auth_state.dart';
+import 'package:intellia237/features/auth/application/phone_auth_controller.dart';
 import 'package:intellia237/features/auth/data/auth_entry_preferences.dart';
 import 'package:intellia237/features/auth/data/repositories/firebase_phone_auth_repository.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
 import 'package:intellia237/features/auth/domain/repositories/phone_auth_repository.dart';
-import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
-import 'package:intellia237/features/auth/presentation/forgot_password_screen.dart';
-import 'package:intellia237/features/auth/presentation/login_screen.dart';
-import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
-import 'package:intellia237/features/auth/presentation/register_screen.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import 'package:intellia237/features/auth/presentation/widgets/intellia_237_membrane.dart';
-import 'package:intellia237/features/auth/presentation/widgets/pass_home_arrival.dart';
+import 'package:intellia237/features/family_access/application/family_access_providers.dart';
+import 'package:intellia237/features/family_access/data/family_access_repository.dart';
+import 'package:intellia237/features/family_access/domain/family_access_models.dart';
 import 'package:intellia237/features/notifications/data/notification_repository.dart';
 import 'package:intellia237/features/onboarding/data/onboarding_preferences.dart';
 import 'package:intellia237/features/parent/application/parent_providers.dart';
 import 'package:intellia237/features/parent/data/child_link_service.dart';
 import 'package:intellia237/features/parent/data/parent_repository.dart';
+import 'package:intellia237/features/parent/domain/parent_child_profile.dart';
 import 'package:intellia237/features/parent/domain/parent_dashboard.dart';
-import 'package:intellia237/features/parent/presentation/parent_entry_screen.dart';
-import 'package:intellia237/features/parent_registration/presentation/parent_registration_screen.dart';
 import 'package:intellia237/features/role_registration/data/firebase_role_registration_repository.dart';
 import 'package:intellia237/features/role_registration/data/role_registration_repository.dart';
 import 'package:intellia237/features/role_registration/domain/admin_registration_payload.dart';
 import 'package:intellia237/features/role_registration/domain/parent_registration_payload.dart';
 import 'package:intellia237/features/role_registration/domain/registration_result.dart';
 import 'package:intellia237/features/role_registration/domain/teacher_registration_payload.dart';
-import 'package:intellia237/features/student_registration/presentation/student_registration_flow_screen.dart';
-import 'package:intellia237/features/teacher_registration/presentation/teacher_registration_screen.dart';
 import 'package:intellia237/features/tour_guide/data/firestore_tour_guide_repository.dart';
 import 'package:intellia237/features/tour_guide/data/tour_guide_repository.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
@@ -76,6 +70,10 @@ class SealJourney {
   final SealTrace trace;
   final SealDevice device;
 
+  /// Relève du sceau à chaque image. Les parcours qui ne vérifient pas le
+  /// sceau s'en passent : le relevé parcourt tout l'arbre à chaque image.
+  bool traceSeal = true;
+
   static Future<SealJourney> start(
     WidgetTester tester,
     DeviceBackend backend, {
@@ -85,6 +83,9 @@ class SealJourney {
     String? signedInPhone,
     ThemeData? theme,
     SealDevice device = SealDevice.midRange,
+    List<String> extraSlots = const [],
+    bool realParentHome = false,
+    bool traceSeal = true,
   }) async {
     tester.view.physicalSize = device.physicalSize;
     tester.view.devicePixelRatio = device.pixelRatio;
@@ -93,14 +94,24 @@ class SealJourney {
     addTearDown(tester.view.reset);
     if (signedInPhone != null) backend.signInWithPhone(signedInPhone);
 
+    Widget home(String label) => Material(
+      color: AuthExperienceColors.canvas,
+      child: Center(child: Text(label)),
+    );
     final container = ProviderContainer(
       overrides: [
         authRepositoryProvider.overrideWithValue(DeviceAuthRepository(backend)),
         phoneAuthRepositoryProvider.overrideWithValue(
           DevicePhoneRepository(backend),
         ),
+        phoneRequestGateProvider.overrideWithValue(backend.requestGate),
+        familyAccessRepositoryProvider.overrideWithValue(
+          DeviceFamilyAccess(backend),
+        ),
         childLinkServiceProvider.overrideWithValue(_LinkService(backend)),
-        parentRepositoryProvider.overrideWithValue(_ParentRepository()),
+        parentRepositoryProvider.overrideWithValue(
+          DeviceParentRepository(backend),
+        ),
         roleRegistrationRepositoryProvider.overrideWithValue(
           _RegistrationRepository(backend),
         ),
@@ -108,6 +119,25 @@ class SealJourney {
         tourGuideRepositoryProvider.overrideWithValue(_SeenTour()),
         hasSeenOnboardingProvider.overrideWith((ref) => true),
         hasAuthenticatedBeforeProvider.overrideWith((ref) => true),
+        appRouterInitialLocationProvider.overrideWithValue(initialLocation),
+        // Table de routes, pages de transition, vol du Pass et redirection de
+        // production ; seuls les écrans d'accueil et leurs services sont
+        // remplacés.
+        appRouteSlotsProvider.overrideWithValue({
+          for (final path in [
+            AppRoutes.bootstrap,
+            AppRoutes.onboarding,
+            AppRoutes.adminRegistration,
+            AppRoutes.authProfileRecovery,
+            AppRoutes.adminHome,
+            AppRoutes.tutorSelection,
+            AppRoutes.studentHome,
+            if (!realParentHome) AppRoutes.parentHome,
+            AppRoutes.teacherHome,
+            ...extraSlots,
+          ])
+            path: (_, _) => home(path),
+        }),
       ],
     );
     addTearDown(container.dispose);
@@ -117,109 +147,7 @@ class SealJourney {
     await container.read(authControllerProvider.notifier).completeBootstrap();
     backend.networkDelays = true;
 
-    final notifier = container.read(_routerNotifierProvider);
-    Widget home(String label) => Material(
-      color: AuthExperienceColors.canvas,
-      child: Center(child: Text(label)),
-    );
-    Page<void> page(GoRouterState state, Widget child) =>
-        buildAppTransitionPage(state: state, child: child);
-
-    final router = GoRouter(
-      initialLocation: initialLocation,
-      refreshListenable: notifier,
-      redirect: notifier.redirect,
-      routes: [
-        GoRoute(
-          path: AppRoutes.bootstrap,
-          pageBuilder: (_, state) => page(state, home('bootstrap')),
-        ),
-        GoRoute(
-          path: AppRoutes.onboarding,
-          pageBuilder: (_, state) => page(state, home('onboarding')),
-        ),
-        GoRoute(
-          path: AppRoutes.authGateway,
-          pageBuilder: (_, state) => page(state, const AuthGatewayScreen()),
-        ),
-        GoRoute(
-          path: AppRoutes.login,
-          pageBuilder: (_, state) => page(state, const PhoneAuthScreen()),
-        ),
-        GoRoute(
-          path: AppRoutes.emailLogin,
-          pageBuilder: (_, state) => page(
-            state,
-            LoginScreen(authIntent: AppRoutes.entryIntentFrom(state.uri)),
-          ),
-        ),
-        GoRoute(
-          path: AppRoutes.phoneAuth,
-          pageBuilder: (_, state) => page(
-            state,
-            PhoneAuthScreen(
-              authIntent: AppRoutes.entryIntentFrom(state.uri),
-              linkCurrentUser: state.uri.queryParameters['mode'] == 'link',
-            ),
-          ),
-        ),
-        GoRoute(
-          path: AppRoutes.parentEntry,
-          pageBuilder: (_, state) => page(state, const ParentEntryScreen()),
-        ),
-        GoRoute(
-          path: AppRoutes.register,
-          pageBuilder: (_, state) => buildAppTransitionPage(
-            state: state,
-            transitionBackground: const AuthAmbientBackground(),
-            child: const RegisterScreen(),
-          ),
-        ),
-        GoRoute(
-          path: AppRoutes.studentRegistration,
-          pageBuilder: (_, state) =>
-              page(state, const StudentRegistrationFlowScreen()),
-        ),
-        GoRoute(
-          path: AppRoutes.parentRegistration,
-          pageBuilder: (_, state) =>
-              page(state, const ParentRegistrationScreen()),
-        ),
-        GoRoute(
-          path: AppRoutes.teacherRegistration,
-          pageBuilder: (_, state) =>
-              page(state, const TeacherRegistrationScreen()),
-        ),
-        GoRoute(
-          path: AppRoutes.forgotPassword,
-          pageBuilder: (_, state) => page(state, const ForgotPasswordScreen()),
-        ),
-        for (final path in [
-          AppRoutes.adminRegistration,
-          AppRoutes.authProfileRecovery,
-          AppRoutes.adminHome,
-          AppRoutes.tutorSelection,
-        ])
-          GoRoute(
-            path: path,
-            pageBuilder: (_, state) => page(state, home(path)),
-          ),
-        for (final (path, role) in const [
-          (AppRoutes.studentHome, AppRole.student),
-          (AppRoutes.parentHome, AppRole.parent),
-          (AppRoutes.teacherHome, AppRole.teacher),
-        ])
-          GoRoute(
-            path: path,
-            pageBuilder: (_, state) => buildPassHomePage(
-              state: state,
-              role: role,
-              duration: notifier.homeArrivalDuration,
-              child: home(path),
-            ),
-          ),
-      ],
-    );
+    final router = container.read(appRouterProvider);
     addTearDown(router.dispose);
 
     // La langue suit le même provider que l'application : un changement de
@@ -262,7 +190,8 @@ class SealJourney {
       () => router.state.uri.path,
       () => journey.unobscured,
     );
-    journey = SealJourney._(tester, container, router, trace, device);
+    journey = SealJourney._(tester, container, router, trace, device)
+      ..traceSeal = traceSeal;
     await journey.wait(const Duration(milliseconds: 600));
     return journey;
   }
@@ -303,7 +232,7 @@ class SealJourney {
       _syncKeyboard();
       await tester.pump(frame);
       elapsed += frame;
-      trace.sample(tester, frame);
+      if (traceSeal) trace.sample(tester, frame);
     }
   }
 
@@ -668,6 +597,181 @@ class DeviceBackend {
     final key = e164OrLocal.startsWith('+') ? e164OrLocal : '+237$e164OrLocal';
     currentUid = uidsByPhone.putIfAbsent(key, () => 'uid-$key');
   }
+
+  /// Codes d'accès élève actifs : code normalisé → UID élève. Une émission
+  /// remplace le code précédent du même élève.
+  final accessCodes = <String, String>{};
+  final parentLinks = <String, Set<String>>{};
+
+  /// École de chaque élève (nom affiché).
+  final schoolOf = <String, String>{};
+
+  /// Espacement des SMS par numéro, comme en production, sur une horloge que
+  /// le parcours peut avancer : une famille attend avant de redemander un
+  /// SMS pour le même numéro.
+  final requestGate = DevicePhoneRequestGate();
+
+  /// Codes de liaison parent actifs : code → UID élève.
+  final linkCodes = <String, String>{'K7MP2QXA': 'student-uid'};
+
+  /// Enfants dont le parent a ouvert l'accès : identité et code, mais aucun
+  /// profil tant que l'enfant ne s'est pas connecté (UID → prénom).
+  final pendingChildren = <String, String>{};
+
+  /// Crée un élève sans téléphone : seul un code d'accès l'ouvre.
+  void createStudentWithoutPhone(String uid, String name) {
+    accounts[uid] = DeviceAccount(uid: uid, role: AppRole.student, name: name);
+  }
+
+  int _issued = 0;
+
+  /// Double panne simulée pendant la migration : le numéro quitte l'élève,
+  /// l'identité parent n'est pas créée, la compensation échoue aussi. Le
+  /// serveur renvoie alors le code d'accès de l'élève et attend une nouvelle
+  /// vérification du numéro.
+  bool failMigrationAfterDetach = false;
+  String? migrationAwaitingRecovery;
+
+  /// Délai de la migration côté serveur (plusieurs appels Admin).
+  Duration migrationDelay = const Duration(milliseconds: 1400);
+
+  String issueAccessCode(String studentUid) {
+    accessCodes.removeWhere((_, uid) => uid == studentUid);
+    const alphabet = StudentAccessCodeFormat.alphabet;
+    final seed = (++_issued * 7919 + studentUid.hashCode).abs();
+    final code = List.generate(
+      StudentAccessCodeFormat.length,
+      (i) => alphabet[(seed ~/ (i + 1) + i * 13) % alphabet.length],
+    ).join();
+    accessCodes[code] = studentUid;
+    return StudentAccessCodeFormat.format(code);
+  }
+}
+
+/// Espacement des demandes de SMS de production, sur une horloge avançable.
+class DevicePhoneRequestGate extends PhoneRequestGate {
+  final _deadlines = <String, DateTime>{};
+  Duration _offset = Duration.zero;
+
+  DateTime get _now => DateTime.now().add(_offset);
+
+  /// Le temps passe pour la famille (en temps réel, comme l'espacement).
+  void advance(Duration duration) => _offset += duration;
+
+  @override
+  int remaining(String phone) {
+    final deadline = _deadlines[phone];
+    if (deadline == null) return 0;
+    final milliseconds = deadline.difference(_now).inMilliseconds;
+    return milliseconds <= 0 ? 0 : (milliseconds / 1000).ceil();
+  }
+
+  @override
+  void reserve(String phone, int seconds) {
+    _deadlines.removeWhere((_, deadline) => deadline.isBefore(_now));
+    _deadlines[phone] = _now.add(Duration(seconds: seconds));
+  }
+}
+
+/// Accès famille simulé comme le serveur : migration du téléphone familial,
+/// codes d'accès élève, jetons personnalisés.
+class DeviceFamilyAccess implements FamilyAccessRepository {
+  DeviceFamilyAccess(this.backend);
+  final DeviceBackend backend;
+
+  @override
+  Future<FamilyPhoneMigrationResult> migrateStudentPhoneToParent() async {
+    await backend.network(backend.migrationDelay);
+    final awaiting = backend.migrationAwaitingRecovery;
+    final caller = backend.currentUid;
+    if (awaiting != null &&
+        caller != null &&
+        backend.accounts[caller] == null) {
+      // Reprise : l'identité fraîche, vérifiée par SMS, devient le parent.
+      backend.migrationAwaitingRecovery = null;
+      backend.parentLinks.putIfAbsent(caller, () => {}).add(awaiting);
+      return FamilyPhoneMigrationResult(
+        studentId: awaiting,
+        studentFirstName: backend.accounts[awaiting]!.name,
+        parentUid: caller,
+      );
+    }
+    final studentUid = backend.currentUid;
+    final student = backend.accounts[studentUid];
+    final phone = backend.uidsByPhone.entries
+        .where((entry) => entry.value == studentUid)
+        .map((entry) => entry.key)
+        .firstOrNull;
+    if (studentUid == null ||
+        student?.role != AppRole.student ||
+        phone == null) {
+      throw const FamilyAccessException('failed-precondition');
+    }
+    if (backend.failMigrationAfterDetach) {
+      backend.uidsByPhone.remove(phone);
+      backend.migrationAwaitingRecovery = studentUid;
+      throw FamilyAccessException(
+        'unavailable',
+        reason: 'migration-needs-recovery',
+        studentAccessCode: backend.issueAccessCode(studentUid),
+      );
+    }
+    final parentUid = 'parent-of-$studentUid';
+    backend.uidsByPhone[phone] = parentUid;
+    backend.parentLinks.putIfAbsent(parentUid, () => {}).add(studentUid);
+    return FamilyPhoneMigrationResult(
+      studentId: studentUid,
+      studentFirstName: student!.name,
+      parentUid: parentUid,
+      parentToken: 'token:$parentUid',
+      studentAccessCode: backend.issueAccessCode(studentUid),
+    );
+  }
+
+  @override
+  Future<void> signInWithCustomToken(String token) async {
+    await backend.network(backend.confirmDelay);
+    backend.currentUid = token.substring('token:'.length);
+  }
+
+  @override
+  Future<void> signInWithStudentAccessCode(String code) async {
+    await backend.network(backend.confirmDelay);
+    final uid = backend.accessCodes[StudentAccessCodeFormat.normalize(code)];
+    if (uid == null) throw const FamilyAccessException('permission-denied');
+    backend.currentUid = uid;
+  }
+
+  @override
+  Future<IssuedStudentAccessCode> issueStudentAccessCode(
+    String studentId,
+  ) async {
+    await backend.network(backend.confirmDelay);
+    final parent = backend.currentUid;
+    if (!(backend.parentLinks[parent]?.contains(studentId) ?? false)) {
+      throw const FamilyAccessException('permission-denied');
+    }
+    return IssuedStudentAccessCode(code: backend.issueAccessCode(studentId));
+  }
+
+  @override
+  Future<List<ParentChildSummary>> listParentChildren({
+    String? parentUid,
+  }) async => const [];
+
+  @override
+  Future<CreatedChildAccess> createChildStudentAccess(String firstName) async {
+    await backend.network(backend.confirmDelay);
+    final parent = backend.currentUid!;
+    final uid = 'child-${backend.pendingChildren.length + 1}';
+    backend.pendingChildren[uid] = firstName;
+    backend.parentLinks.putIfAbsent(parent, () => {}).add(uid);
+    return CreatedChildAccess(
+      studentId: uid,
+      firstName: firstName,
+      code: backend.issueAccessCode(uid),
+    );
+  }
 }
 
 class DevicePhoneRepository implements PhoneAuthRepository {
@@ -793,30 +897,85 @@ class DeviceAuthRepository implements AuthRepository, AuthSessionResolver {
   }) => throw UnimplementedError();
 }
 
-final _routerNotifierProvider = Provider<AppRouterNotifier>((ref) {
-  final notifier = AppRouterNotifier(ref);
-  ref.onDispose(notifier.dispose);
-  return notifier;
-});
-
+/// Liaison par code comme le serveur : le code désigne un élève, le lien est
+/// créé pour le parent connecté, idempotent.
 class _LinkService extends ChildLinkService {
   _LinkService(this.backend);
   final DeviceBackend backend;
 
   @override
-  Future<ChildLinkResult> linkChildByCode(String code) async =>
-      const ChildLinkResult(
-        studentId: 'student-Awa',
-        firstName: 'Awa',
-        classLevel: '3eme',
-        alreadyLinked: false,
-      );
+  Future<ChildLinkResult> linkChildByCode(String code) async {
+    await backend.network(backend.confirmDelay);
+    final parent = backend.currentUid;
+    final studentUid = backend.linkCodes[code.trim().toUpperCase()];
+    final student = backend.accounts[studentUid];
+    if (parent == null || backend.accounts[parent]?.role != AppRole.parent) {
+      throw const ChildLinkException('permission-denied');
+    }
+    if (studentUid == null || student == null) {
+      throw const ChildLinkException('not-found');
+    }
+    final links = backend.parentLinks.putIfAbsent(parent, () => {});
+    final already = !links.add(studentUid);
+    return ChildLinkResult(
+      studentId: studentUid,
+      firstName: student.name,
+      classLevel: 'Terminale',
+      alreadyLinked: already,
+    );
+  }
 }
 
-class _ParentRepository implements ParentRepository {
+/// Enfants liés au parent, lus comme le serveur les projette.
+class DeviceParentRepository implements ParentRepository {
+  DeviceParentRepository(this.backend);
+  final DeviceBackend backend;
+
   @override
-  Future<ParentDashboard> fetchDashboard({required String parentUid}) async =>
-      const ParentDashboard(children: [], announcements: []);
+  Future<ParentDashboard> fetchDashboard({required String parentUid}) async {
+    return ParentDashboard(
+      children: [
+        for (final uid in backend.parentLinks[parentUid] ?? const <String>{})
+          if (backend.pendingChildren[uid] case final firstName?)
+            ParentChildProfile(
+              id: uid,
+              firstName: firstName,
+              classLevel: '',
+              series: null,
+              globalProgress: 0,
+              studyMinutesToday: 0,
+              studyMinutesTarget: 0,
+              strongSubjects: const [],
+              weakSubjects: const [],
+              weeklyProgress: const [],
+              access: const ChildAccessMethods(
+                ownPhone: false,
+                accessCode: true,
+              ),
+              pendingFirstSignIn: true,
+            )
+          else if (backend.accounts[uid] case final account?)
+            ParentChildProfile(
+              id: uid,
+              firstName: account.name,
+              establishmentName: backend.schoolOf[uid],
+              classLevel: 'Terminale',
+              series: null,
+              globalProgress: 0,
+              studyMinutesToday: 0,
+              studyMinutesTarget: 45,
+              strongSubjects: const [],
+              weakSubjects: const [],
+              weeklyProgress: const [],
+              access: ChildAccessMethods(
+                ownPhone: backend.uidsByPhone.containsValue(uid),
+                accessCode: backend.accessCodes.containsValue(uid),
+              ),
+            ),
+      ],
+      announcements: const [],
+    );
+  }
 }
 
 class _RegistrationRepository implements RoleRegistrationRepository {

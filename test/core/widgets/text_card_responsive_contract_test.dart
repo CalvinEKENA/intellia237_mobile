@@ -58,6 +58,9 @@ const _coveredPublicCardTypes = {
   // Dedicated test (provider-backed; the rendered gauge is covered at 360 px /
   // textScale 1.5): test/features/study_reserve/study_reserve_gauge_test.dart.
   'StudyReserveCard',
+  // Dedicated FR/EN test at 360 px / textScale 1.5 (provider-backed reserve,
+  // pending first sign-in): test/features/parent/parent_child_card_test.dart.
+  'ParentChildCard',
 };
 
 const _longQuestion = QuizQuestion(

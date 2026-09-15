@@ -4883,7 +4883,7 @@ abstract class AppLocalizations {
   /// No description provided for @mobileMoneyParentDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Paiement Mobile Money déclaré puis vérifié manuellement par votre établissement.'**
+  /// **'Paiement Mobile Money déclaré, puis vérifié manuellement par l’établissement de l’enfant concerné.'**
   String get mobileMoneyParentDescription;
 
   /// No description provided for @myPaymentRequests.
@@ -5001,13 +5001,13 @@ abstract class AppLocalizations {
   /// No description provided for @multipleSchoolsLinked.
   ///
   /// In fr, this message translates to:
-  /// **'Plusieurs établissements sont liés. Contactez l’assistance pour choisir celui qui facturera l’accès.'**
+  /// **'Vos enfants sont inscrits dans plusieurs établissements : choisissez l’enfant pour qui vous payez.'**
   String get multipleSchoolsLinked;
 
   /// No description provided for @noActiveMobileMoneyOffer.
   ///
   /// In fr, this message translates to:
-  /// **'Votre établissement n’a pas encore publié d’offre Mobile Money active.'**
+  /// **'L’établissement de cet enfant n’a pas encore publié d’offre Mobile Money active.'**
   String get noActiveMobileMoneyOffer;
 
   /// No description provided for @offerUnavailable.
@@ -7875,6 +7875,492 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{count, plural, =1{1 enfant relié à votre compte.} other{{count} enfants reliés à votre compte.}}'**
   String childLinkBatchSuccess(int count);
+
+  /// No description provided for @parentEntryCodePurpose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code permet de rattacher l’enfant.\nVotre numéro de téléphone sert à vous identifier comme parent.'**
+  String get parentEntryCodePurpose;
+
+  /// No description provided for @passFamilyNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de la famille'**
+  String get passFamilyNumber;
+
+  /// No description provided for @familyPhoneMigrationPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est actuellement utilisé pour l’accès d’un élève. Souhaitez-vous l’utiliser comme numéro du parent ? L’élève conservera son profil et utilisera désormais son code d’accès INTELLIA.'**
+  String get familyPhoneMigrationPrompt;
+
+  /// No description provided for @familyPhoneMigrationConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser ce numéro pour le parent'**
+  String get familyPhoneMigrationConfirm;
+
+  /// No description provided for @familyPhoneMigrationNothingChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le transfert n’a pas abouti. Rien n’a changé : réessayez.'**
+  String get familyPhoneMigrationNothingChanged;
+
+  /// No description provided for @familyPhoneMigrationVerifyAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour votre sécurité, vérifiez à nouveau ce numéro avant de le transférer.'**
+  String get familyPhoneMigrationVerifyAgain;
+
+  /// No description provided for @familyPhoneMigrationVerifyAgainAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier à nouveau le numéro'**
+  String get familyPhoneMigrationVerifyAgainAction;
+
+  /// No description provided for @familyPhoneMigrationInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un transfert est déjà en cours pour ce numéro. Patientez un instant puis réessayez.'**
+  String get familyPhoneMigrationInProgress;
+
+  /// No description provided for @familyPhoneMigrationVerifyAgainToFinish.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’élève a déjà son code d’accès. Vérifiez à nouveau ce numéro pour terminer l’ouverture de votre espace parent.'**
+  String get familyPhoneMigrationVerifyAgainToFinish;
+
+  /// No description provided for @familyPhoneMigrationRefused.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro ne peut pas être transféré depuis ce compte. Utilisez un autre numéro ou contactez l’établissement.'**
+  String get familyPhoneMigrationRefused;
+
+  /// No description provided for @familyPhoneMigrationUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le transfert du numéro n’est pas encore disponible. Réessayez plus tard ou utilisez un autre numéro.'**
+  String get familyPhoneMigrationUnavailable;
+
+  /// No description provided for @familyPhoneMigratedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est désormais le vôtre'**
+  String get familyPhoneMigratedTitle;
+
+  /// No description provided for @familyPhoneMigratedContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai noté le code, ouvrir mon espace parent'**
+  String get familyPhoneMigratedContinue;
+
+  /// No description provided for @studentNoPhoneUseAccessCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de téléphone ? Entre avec ton code d’accès INTELLIA'**
+  String get studentNoPhoneUseAccessCode;
+
+  /// No description provided for @studentAccessCodePhase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton code d’accès'**
+  String get studentAccessCodePhase;
+
+  /// No description provided for @studentAccessCodeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre avec ton code d’accès'**
+  String get studentAccessCodeTitle;
+
+  /// No description provided for @studentAccessCodeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis les 12 caractères que ton parent ou ton établissement t’a donnés. Pas besoin de téléphone.'**
+  String get studentAccessCodeSubtitle;
+
+  /// No description provided for @studentAccessCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès INTELLIA'**
+  String get studentAccessCodeLabel;
+
+  /// No description provided for @studentAccessCodeSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrer dans mon espace'**
+  String get studentAccessCodeSubmit;
+
+  /// No description provided for @studentAccessCodePrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garde ce code pour toi : il ouvre ton espace. Si tu l’as perdu, demande un nouveau code à ton parent ou à ton établissement.'**
+  String get studentAccessCodePrivacy;
+
+  /// No description provided for @studentAccessCodeUsePhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un téléphone : recevoir un SMS'**
+  String get studentAccessCodeUsePhone;
+
+  /// No description provided for @studentAccessCodeInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code ne fonctionne pas. Vérifie-le, ou demande un nouveau code à ton parent ou à ton établissement.'**
+  String get studentAccessCodeInvalid;
+
+  /// No description provided for @studentAccessCodeTooManyAttempts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop d’essais. Attends quelques minutes avant de réessayer.'**
+  String get studentAccessCodeTooManyAttempts;
+
+  /// No description provided for @studentAccessCodeUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le service ne répond pas pour le moment. Réessaie dans un instant.'**
+  String get studentAccessCodeUnavailable;
+
+  /// No description provided for @studentAccessCodeRevealTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès INTELLIA de {name}'**
+  String studentAccessCodeRevealTitle(String name);
+
+  /// No description provided for @studentAccessCodeRevealTitleGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès INTELLIA de l’élève'**
+  String get studentAccessCodeRevealTitleGeneric;
+
+  /// No description provided for @studentAccessCodeRevealBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notez ce code et remettez-le à {name} : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.'**
+  String studentAccessCodeRevealBody(String name);
+
+  /// No description provided for @studentAccessCodeRevealBodyGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notez ce code et remettez-le à l’élève : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.'**
+  String get studentAccessCodeRevealBodyGeneric;
+
+  /// No description provided for @studentAccessCodeNotShownAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code d’accès de l’élève a déjà été créé. Pour sa sécurité, il n’est jamais affiché à nouveau : générez-en un nouveau depuis sa fiche.'**
+  String get studentAccessCodeNotShownAgain;
+
+  /// No description provided for @studentAccessCodeCopy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier le code'**
+  String get studentAccessCodeCopy;
+
+  /// No description provided for @studentAccessCodeCopied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code copié'**
+  String get studentAccessCodeCopied;
+
+  /// No description provided for @studentAccessCodeSheetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code permet à votre enfant d’ouvrir son espace INTELLIA sans téléphone. Pour sa sécurité, il n’est jamais affiché à nouveau : générer un nouveau code remplace l’ancien, qui cesse aussitôt de fonctionner.'**
+  String get studentAccessCodeSheetBody;
+
+  /// No description provided for @studentAccessCodeGenerate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher / générer un nouveau code d’accès'**
+  String get studentAccessCodeGenerate;
+
+  /// No description provided for @studentAccessCodeReplaceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer le code d’accès ?'**
+  String get studentAccessCodeReplaceTitle;
+
+  /// No description provided for @studentAccessCodeReplaceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ancien code de {name} cessera immédiatement de fonctionner.'**
+  String studentAccessCodeReplaceBody(String name);
+
+  /// No description provided for @studentAccessCodeReplaceConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Générer le nouveau code'**
+  String get studentAccessCodeReplaceConfirm;
+
+  /// No description provided for @studentAccessCodeDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai noté le code'**
+  String get studentAccessCodeDone;
+
+  /// No description provided for @studentAccessCodeIssueFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code n’a pas pu être généré. Réessayez.'**
+  String get studentAccessCodeIssueFailed;
+
+  /// No description provided for @studentAccessCodeActiveSince.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès actif depuis le {date}'**
+  String studentAccessCodeActiveSince(String date);
+
+  /// No description provided for @studentAccessCodeActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès actif'**
+  String get studentAccessCodeActive;
+
+  /// No description provided for @studentAccessCodeNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun code d’accès pour l’instant'**
+  String get studentAccessCodeNone;
+
+  /// No description provided for @childAccessOwnPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecté avec son propre accès INTELLIA'**
+  String get childAccessOwnPhone;
+
+  /// No description provided for @childAccessCodeOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecte avec son code d’accès INTELLIA'**
+  String get childAccessCodeOnly;
+
+  /// No description provided for @childAccessUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès de l’enfant non disponible pour le moment'**
+  String get childAccessUnknown;
+
+  /// No description provided for @childAccessNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun accès personnel : générez son code d’accès'**
+  String get childAccessNone;
+
+  /// No description provided for @childActionViewProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le profil'**
+  String get childActionViewProfile;
+
+  /// No description provided for @childActionViewActivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir son activité'**
+  String get childActionViewActivity;
+
+  /// No description provided for @childActionAccessCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès élève'**
+  String get childActionAccessCode;
+
+  /// No description provided for @childActionSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement'**
+  String get childActionSubscription;
+
+  /// No description provided for @childSubscriptionActiveUntil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement actif jusqu’au {date}'**
+  String childSubscriptionActiveUntil(String date);
+
+  /// No description provided for @childSubscriptionPaidByAnotherGuardian.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglé par un autre responsable de l’enfant'**
+  String get childSubscriptionPaidByAnotherGuardian;
+
+  /// No description provided for @childSubscriptionInactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun abonnement actif pour cet enfant'**
+  String get childSubscriptionInactive;
+
+  /// No description provided for @childSchoolUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Établissement non renseigné'**
+  String get childSchoolUnknown;
+
+  /// No description provided for @parentChildrenCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 enfant} other{{count} enfants}}'**
+  String parentChildrenCount(int count);
+
+  /// No description provided for @parentModeProfileBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'MODE PARENT — PROFIL DE {name}'**
+  String parentModeProfileBanner(String name);
+
+  /// No description provided for @parentModeProfileNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous consultez ce profil avec votre compte parent. Vous ne pouvez rien y modifier au nom de votre enfant.'**
+  String get parentModeProfileNote;
+
+  /// No description provided for @childProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil de l’enfant'**
+  String get childProfileTitle;
+
+  /// No description provided for @childProfileClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe'**
+  String get childProfileClass;
+
+  /// No description provided for @childProfileSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Établissement'**
+  String get childProfileSchool;
+
+  /// No description provided for @childProfileAccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès INTELLIA'**
+  String get childProfileAccess;
+
+  /// No description provided for @childProfileSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement'**
+  String get childProfileSubscription;
+
+  /// No description provided for @parentSchoolsAnnouncements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annonces des écoles de vos enfants'**
+  String get parentSchoolsAnnouncements;
+
+  /// No description provided for @mobileMoneyChooseChild.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour quel enfant payez-vous ?'**
+  String get mobileMoneyChooseChild;
+
+  /// No description provided for @mobileMoneyOfferOfSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offre de {school}'**
+  String mobileMoneyOfferOfSchool(String school);
+
+  /// No description provided for @mobileMoneyCoversChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce paiement couvre : {names}'**
+  String mobileMoneyCoversChildren(String names);
+
+  /// No description provided for @childPendingFirstSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de sa première connexion'**
+  String get childPendingFirstSignIn;
+
+  /// No description provided for @addChildNoAccountAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon enfant n’a pas encore de compte INTELLIA'**
+  String get addChildNoAccountAction;
+
+  /// No description provided for @addChildNoAccountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir l’accès de votre enfant'**
+  String get addChildNoAccountTitle;
+
+  /// No description provided for @addChildNoAccountBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre enfant n’a pas besoin de téléphone. Vous recevrez son code d’accès INTELLIA ; il complétera lui-même son profil scolaire à sa première connexion.'**
+  String get addChildNoAccountBody;
+
+  /// No description provided for @addChildNoAccountNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom de l’enfant'**
+  String get addChildNoAccountNameLabel;
+
+  /// No description provided for @addChildNoAccountNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez le prénom de votre enfant.'**
+  String get addChildNoAccountNameRequired;
+
+  /// No description provided for @addChildNoAccountSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer son code d’accès'**
+  String get addChildNoAccountSubmit;
+
+  /// No description provided for @addChildNoAccountFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’accès n’a pas pu être ouvert. Réessayez.'**
+  String get addChildNoAccountFailed;
+
+  /// No description provided for @adminStudentAccessRecoveryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupérer l’accès de l’élève'**
+  String get adminStudentAccessRecoveryTitle;
+
+  /// No description provided for @adminStudentAccessRecoveryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un nouveau code d’accès INTELLIA remplace le précédent, qui cesse aussitôt de fonctionner. Remettez-le à l’élève ou à sa famille en main propre : il ne sera plus affiché.'**
+  String get adminStudentAccessRecoveryBody;
+
+  /// No description provided for @adminStudentPhoneOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone de l’élève (facultatif)'**
+  String get adminStudentPhoneOptional;
+
+  /// No description provided for @childActionLinkCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code de liaison parent'**
+  String get childActionLinkCode;
+
+  /// No description provided for @guardianLinkCodeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code permet à un autre parent ou responsable de rattacher {name} à son propre compte. Il n’ouvre pas l’espace de l’élève : pour cela, utilisez le code d’accès élève.'**
+  String guardianLinkCodeBody(String name);
+
+  /// No description provided for @guardianLinkCodeRotate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer ce code'**
+  String get guardianLinkCodeRotate;
+
+  /// No description provided for @guardianLinkCodeRotateBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ancien code de liaison cessera immédiatement de fonctionner. Les responsables déjà rattachés le restent.'**
+  String get guardianLinkCodeRotateBody;
+
+  /// No description provided for @guardianLinkCodeUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code de liaison n’a pas pu être obtenu. Réessayez.'**
+  String get guardianLinkCodeUnavailable;
 }
 
 class _AppLocalizationsDelegate

@@ -13,6 +13,9 @@ abstract final class AppRoutes {
   /// Entrée « Parent ou responsable » : code enfant d'abord, puis
   /// authentification du parent.
   static const parentEntry = '/auth/parent';
+
+  /// Connexion d'un élève par son code d'accès INTELLIA, sans téléphone.
+  static const studentAccessCode = '/auth/student/code';
   static const register = '/register';
   static const studentRegistration = '/register/student';
   static const parentRegistration = '/register/parent';
@@ -43,6 +46,13 @@ abstract final class AppRoutes {
   static const parentHome = '/parent';
   static const childOverviewRoute = '/parent/child/:childId';
   static const childProgressRoute = '/parent/child/:childId/progress';
+
+  /// Fiche d'un enfant vue par un parent lié : activité, puis profil. Le
+  /// parent reste connecté sous son propre UID.
+  static const parentChildRoute = '/parent/children/:studentId';
+  static const parentChildProfileRoute = '/parent/children/:studentId/profile';
+  static const parentChildSubscriptionRoute =
+      '/parent/children/:studentId/subscription';
   static const teacherHome = '/teacher';
   static const teacherClassRoute = '/teacher/class/:classId';
   static const adminHome = '/admin';
@@ -65,6 +75,7 @@ abstract final class AppRoutes {
     emailLogin,
     phoneAuth,
     parentEntry,
+    studentAccessCode,
     register,
     studentRegistration,
     parentRegistration,
@@ -110,6 +121,12 @@ abstract final class AppRoutes {
   static String childProgress(String childId) =>
       '/parent/child/$childId/progress';
 
+  static String parentChild(String studentId) => '/parent/children/$studentId';
+  static String parentChildProfile(String studentId) =>
+      '/parent/children/$studentId/profile';
+  static String parentChildSubscription(String studentId) =>
+      '/parent/children/$studentId/subscription';
+
   static String teacherClassDetail(String classId) => '/teacher/class/$classId';
 
   static bool isStudentPath(String location) {
@@ -129,6 +146,8 @@ abstract final class AppRoutes {
   }
 
   static bool isParentPath(String location) {
-    return location == parentHome || location.startsWith('/parent/child/');
+    return location == parentHome ||
+        location.startsWith('/parent/child/') ||
+        location.startsWith('/parent/children/');
   }
 }

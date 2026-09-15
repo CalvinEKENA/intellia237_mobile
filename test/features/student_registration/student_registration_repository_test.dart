@@ -343,6 +343,9 @@ class _FakeAuthGateway implements RegistrationAuthGateway {
 }
 
 class _FakeAuthUser implements RegistrationAuthUser {
+  @override
+  bool get openedByServerToken => false;
+
   _FakeAuthUser({this.email = 'amina.ndi@example.com', this.phoneNumber});
 
   @override

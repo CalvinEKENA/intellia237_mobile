@@ -53,20 +53,65 @@ void main() {
     }
   }
 
+  // Entrée parent, numéro de l'accès d'un élève : le téléphone de la famille.
+  // Aucun espace ne s'ouvre ; la migration est proposée, jamais imposée.
+  for (final completed in [true, false]) {
+    testWidgets(
+      'parent entrance, student account complete=$completed offers the family '
+      'phone migration without opening anything',
+      (tester) async {
+        final harness = await _pump(
+          tester,
+          intent: AppRole.parent,
+          accountRole: AppRole.student,
+          completed: completed,
+        );
+        await harness.verifyPhone(tester);
+
+        expect(harness.location, AppRoutes.phoneAuth);
+        expect(
+          find.byKey(const ValueKey('family-phone-offer')),
+          findsOneWidget,
+        );
+        expect(
+          find.text(
+            'Ce numéro est actuellement utilisé pour l’accès d’un élève. '
+            'Souhaitez-vous l’utiliser comme numéro du parent ? L’élève '
+            'conservera son profil et utilisera désormais son code d’accès '
+            'INTELLIA.',
+          ),
+          findsOneWidget,
+        );
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(PhoneAuthScreen)),
+        );
+        final auth = container.read(authControllerProvider);
+        expect(auth.isAuthenticated, isFalse);
+        expect(auth.role, isNull);
+        // La session vérifiée reste ouverte le temps de la décision.
+        expect(harness.repository.signOutCalls, 0);
+
+        // Le parent garde le numéro à l'élève : la session se referme.
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('family-phone-offer-another-number')),
+        );
+        await tester.tap(
+          find.byKey(const ValueKey('family-phone-offer-another-number')),
+        );
+        await tester.pumpAndSettle();
+        expect(harness.repository.signOutCalls, 1);
+        expect(
+          find.byKey(const ValueKey('phone-number-field')),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
+
   // Rôle différent de l'entrée : aucun espace, conflit expliqué, rôle intact.
   for (final (intent, accountRole, completed, title) in const [
-    (
-      AppRole.parent,
-      AppRole.student,
-      true,
-      'Ce numéro est déjà associé à un compte élève.',
-    ),
-    (
-      AppRole.parent,
-      AppRole.student,
-      false,
-      'Ce numéro est déjà associé à un compte élève.',
-    ),
     (
       AppRole.student,
       AppRole.parent,

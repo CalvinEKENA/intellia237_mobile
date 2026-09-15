@@ -63,6 +63,21 @@ final class AuthEntryRoleConflict extends AuthEntryAdoption {
   final AppRole accountRole;
 }
 
+/// Sous l'entrée parent, le numéro vérifié ouvre aujourd'hui l'accès d'un
+/// élève : le cas d'une famille qui n'a qu'un téléphone.
+///
+/// Registre de décisions (mission famille) : ce conflit se terminait par
+/// « utilisez un autre numéro » et l'espace parent restait inatteignable.
+/// Rien n'est adopté et le rôle enregistré est intact, mais la session
+/// vérifiée reste ouverte : c'est la preuve récente de possession du numéro
+/// qu'exige le serveur pour le céder au parent. L'écran demande une
+/// confirmation explicite ; s'il y renonce, la session est refermée.
+final class AuthEntryFamilyPhoneInUse extends AuthEntryAdoption {
+  const AuthEntryFamilyPhoneInUse({this.studentFirstName});
+
+  final String? studentFirstName;
+}
+
 /// Le rôle du compte n'a pas pu être lu (réseau, délai). Rien n'a été
 /// adopté ; la session reste ouverte pour réessayer sans nouveau SMS.
 final class AuthEntryUnresolved extends AuthEntryAdoption {

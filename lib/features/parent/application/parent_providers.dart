@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../family_access/application/family_access_providers.dart';
 import '../data/firestore_parent_repository.dart';
 import '../data/parent_repository.dart';
 import '../domain/parent_child_profile.dart';
@@ -7,7 +8,9 @@ import '../domain/parent_dashboard.dart';
 import 'parent_preview.dart';
 
 final parentRepositoryProvider = Provider<ParentRepository>((ref) {
-  return FirestoreParentRepository();
+  return FirestoreParentRepository(
+    familyAccess: ref.read(familyAccessRepositoryProvider),
+  );
 });
 
 final parentDashboardProvider = FutureProvider<ParentDashboard>((ref) async {

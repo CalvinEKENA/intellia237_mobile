@@ -1,3 +1,4 @@
+import '../../../family_access/domain/family_access_models.dart';
 import '../../application/auth_state.dart';
 import '../../application/phone_auth_controller.dart';
 import '../../domain/auth_input_validators.dart';
@@ -60,6 +61,21 @@ abstract final class PassAuthProgress {
     return AuthInputValidators.password(password) == null
         ? PassSealStage.secret
         : PassSealStage.identifier;
+  }
+
+  /// Code d'accès INTELLIA d'un élève. « 2 » : douze symboles valides, la
+  /// même règle que le serveur. « 3 » : [codeAccepted], le serveur a reconnu
+  /// le code et ouvert la session. « 7 » : [accessOpened], l'espace s'ouvre.
+  static PassSealStage studentAccessCode({
+    required String codeInput,
+    required bool codeAccepted,
+    required bool accessOpened,
+  }) {
+    if (accessOpened) return PassSealStage.verified;
+    if (codeAccepted) return PassSealStage.secret;
+    return StudentAccessCodeFormat.isWellFormed(codeInput)
+        ? PassSealStage.identifier
+        : PassSealStage.neutral;
   }
 
   /// Réinitialisation du mot de passe. Aucun accès n'est ouvert ici : le
@@ -140,6 +156,17 @@ abstract final class PassAuthProgress {
       return email.trim().isEmpty ? empty : _third(0, 0.5);
     }
     return _third(1, password.length / _passwordLength);
+  }
+
+  static double accessCodeLine({
+    required String codeInput,
+    required bool codeAccepted,
+    required bool accessOpened,
+  }) {
+    if (accessOpened) return complete;
+    if (codeAccepted) return 2 / 3;
+    final typed = StudentAccessCodeFormat.normalize(codeInput).length;
+    return _third(0, typed / StudentAccessCodeFormat.length);
   }
 
   static double resetLine({required String email, required bool linkSent}) =>

@@ -445,8 +445,9 @@ void main() {
     await _dispose(journey);
   });
 
-  testWidgets('CONFLICT · parent space, student number: 7 never lights and '
-      'nothing falls back; another number restarts explicitly', (tester) async {
+  testWidgets('FAMILY PHONE · parent space, student number: 7 never lights '
+      'during the offer and nothing falls back; another number restarts '
+      'explicitly', (tester) async {
     final journey = await SealJourney.start(tester, DeviceBackend());
     await journey.tap('gateway-role-parent');
     await journey.wait(const Duration(milliseconds: 400));
@@ -456,7 +457,7 @@ void main() {
     await _verifyPhone(journey, DeviceBackend.studentPhone);
     await journey.waitUntil(
       () => find
-          .byKey(const ValueKey('phone-role-conflict'))
+          .byKey(const ValueKey('family-phone-offer'))
           .evaluate()
           .isNotEmpty,
     );
@@ -465,7 +466,7 @@ void main() {
     expect(journey.trace.stages, [neutral, identifier, secret]);
     expect(journey.seal!.stage, secret);
 
-    await journey.tap('phone-conflict-use-another-number');
+    await journey.tap('family-phone-offer-another-number');
     expect(journey.seal!.stage, neutral, reason: 'explicit restart');
     await _verifyPhone(journey, DeviceBackend.parentPhone);
     await journey.waitUntil(() => journey.location == AppRoutes.parentHome);

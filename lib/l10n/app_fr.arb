@@ -221,7 +221,13 @@
   "phoneErrorAppVerification": "Cette version de l’application n’a pas pu être vérifiée. Contacte l’assistance avec la référence ci-dessous.",
   "phoneErrorCaptcha": "La vérification de sécurité n’a pas abouti. Réessaie depuis l’application.",
   "phoneRequestPause": "Nouvelle demande dans {seconds} s",
-  "@phoneRequestPause": {"placeholders": {"seconds": {"type": "int"}}},
+  "@phoneRequestPause": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "phoneErrorQuota": "L’envoi de SMS est momentanément indisponible. Réessayez plus tard.",
   "phoneErrorNetwork": "La connexion est interrompue. Vérifiez Internet puis réessayez.",
   "phoneErrorDisabled": "La connexion par téléphone doit être activée dans Firebase Authentication.",
@@ -1440,7 +1446,7 @@
   "loadingOffer": "Chargement de l’offre",
   "serviceUnavailable": "Service indisponible",
   "subscriptionTitle": "Abonnement",
-  "mobileMoneyParentDescription": "Paiement Mobile Money déclaré puis vérifié manuellement par votre établissement.",
+  "mobileMoneyParentDescription": "Paiement Mobile Money déclaré, puis vérifié manuellement par l’établissement de l’enfant concerné.",
   "myPaymentRequests": "Mes demandes",
   "accessDaysAfterApproval": "Accès pendant {days} jours après validation",
   "@accessDaysAfterApproval": {
@@ -1479,8 +1485,8 @@
   },
   "paymentRequestSubmitted": "Demande transmise. L’accès sera activé uniquement après vérification.",
   "noValidatedSchoolLinked": "Aucun établissement validé n’est encore lié à ce compte parent.",
-  "multipleSchoolsLinked": "Plusieurs établissements sont liés. Contactez l’assistance pour choisir celui qui facturera l’accès.",
-  "noActiveMobileMoneyOffer": "Votre établissement n’a pas encore publié d’offre Mobile Money active.",
+  "multipleSchoolsLinked": "Vos enfants sont inscrits dans plusieurs établissements : choisissez l’enfant pour qui vous payez.",
+  "noActiveMobileMoneyOffer": "L’établissement de cet enfant n’a pas encore publié d’offre Mobile Money active.",
   "offerUnavailable": "Offre indisponible",
   "referenceValue": "Référence {reference}",
   "@referenceValue": {
@@ -2151,7 +2157,9 @@
   "parentPreviewViewingParent": "Espace de {name}",
   "@parentPreviewViewingParent": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "parentPreviewOwnAccountNote": "Aperçu de votre propre espace Parent.",
@@ -2169,13 +2177,17 @@
   "addChildSuccess": "{name} est maintenant lié à ton compte.",
   "@addChildSuccess": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "addChildAlready": "{name} est déjà lié à ton compte.",
   "@addChildAlready": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "studentLinkCodeTitle": "Mon code parent",
@@ -2195,7 +2207,11 @@
   "deleteClassLabel": "Supprimer la classe",
   "deleteClassConfirm": "Supprimer « {name} » ? Cette classe est vide.",
   "@deleteClassConfirm": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "deleteClassBlocked": "Classe non vide : retirez d’abord les élèves.",
   "classCreatedMessage": "Classe créée.",
@@ -2209,13 +2225,21 @@
   "flowChoiceFalse": "Faux",
   "flowHintPrefix": "Indice : {hint}",
   "@flowHintPrefix": {
-    "placeholders": { "hint": { "type": "String" } }
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
   },
   "flowFeedbackCorrect": "Exact !",
   "flowFeedbackIncorrect": "Pas encore.",
   "flowExpectedOrder": "Ordre attendu : {order}",
   "@flowExpectedOrder": {
-    "placeholders": { "order": { "type": "String" } }
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
   },
   "flowSwipeToContinue": "Balayez vers le haut pour continuer",
   "childLinkErrorNotFound": "Ce code enfant est introuvable. Vérifie-le avec ton enfant.",
@@ -2227,11 +2251,19 @@
   "studyReserveTitle": "Réserve d’étude",
   "studyReserveRemaining": "{percent} % restants",
   "@studyReserveRemaining": {
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "studyReserveRenews": "Renouvellement le {date}",
   "@studyReserveRenews": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "studyReserveStatusHealthy": "Bonne réserve",
   "studyReserveStatusWarning": "À surveiller",
@@ -2243,21 +2275,37 @@
   "studyReserveNotifTitle": "Réserve d’étude",
   "studyReserveNotifInfo": "Il reste {percent} % de la réserve d’étude ce cycle.",
   "@studyReserveNotifInfo": {
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "studyReserveNotifLow": "La réserve d’étude est à {percent} %. Pense à la ménager pour le tuteur.",
   "@studyReserveNotifLow": {
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "studyReserveNotifCritical": "La réserve d’étude est presque épuisée ({percent} %).",
   "@studyReserveNotifCritical": {
-    "placeholders": { "percent": { "type": "int" } }
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "studyReserveNotifDepleted": "La réserve d’étude est épuisée ; elle se renouvelle au prochain cycle. Les cours et quiz restent accessibles.",
   "studyReserveLoadError": "Impossible de charger la réserve d’étude pour le moment.",
   "companionStudyReserveDepleted": "Ta réserve d’étude est épuisée pour ce cycle. {name} reprendra au renouvellement ; tes cours et quiz restent accessibles.",
   "@companionStudyReserveDepleted": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "parentEntryTitle": "Reliez votre enfant",
   "parentEntrySubtitle": "Saisissez son code, puis connectez-vous avec votre propre numéro.",
@@ -2290,5 +2338,156 @@
         "type": "int"
       }
     }
-  }
+  },
+  "parentEntryCodePurpose": "Ce code permet de rattacher l’enfant.\nVotre numéro de téléphone sert à vous identifier comme parent.",
+  "passFamilyNumber": "Numéro de la famille",
+  "familyPhoneMigrationPrompt": "Ce numéro est actuellement utilisé pour l’accès d’un élève. Souhaitez-vous l’utiliser comme numéro du parent ? L’élève conservera son profil et utilisera désormais son code d’accès INTELLIA.",
+  "familyPhoneMigrationConfirm": "Utiliser ce numéro pour le parent",
+  "familyPhoneMigrationNothingChanged": "Le transfert n’a pas abouti. Rien n’a changé : réessayez.",
+  "familyPhoneMigrationVerifyAgain": "Pour votre sécurité, vérifiez à nouveau ce numéro avant de le transférer.",
+  "familyPhoneMigrationVerifyAgainAction": "Vérifier à nouveau le numéro",
+  "familyPhoneMigrationInProgress": "Un transfert est déjà en cours pour ce numéro. Patientez un instant puis réessayez.",
+  "familyPhoneMigrationVerifyAgainToFinish": "L’élève a déjà son code d’accès. Vérifiez à nouveau ce numéro pour terminer l’ouverture de votre espace parent.",
+  "familyPhoneMigrationRefused": "Ce numéro ne peut pas être transféré depuis ce compte. Utilisez un autre numéro ou contactez l’établissement.",
+  "familyPhoneMigrationUnavailable": "Le transfert du numéro n’est pas encore disponible. Réessayez plus tard ou utilisez un autre numéro.",
+  "familyPhoneMigratedTitle": "Ce numéro est désormais le vôtre",
+  "familyPhoneMigratedContinue": "J’ai noté le code, ouvrir mon espace parent",
+  "studentNoPhoneUseAccessCode": "Pas de téléphone ? Entre avec ton code d’accès INTELLIA",
+  "studentAccessCodePhase": "Ton code d’accès",
+  "studentAccessCodeTitle": "Entre avec ton code d’accès",
+  "studentAccessCodeSubtitle": "Saisis les 12 caractères que ton parent ou ton établissement t’a donnés. Pas besoin de téléphone.",
+  "studentAccessCodeLabel": "Code d’accès INTELLIA",
+  "studentAccessCodeSubmit": "Entrer dans mon espace",
+  "studentAccessCodePrivacy": "Garde ce code pour toi : il ouvre ton espace. Si tu l’as perdu, demande un nouveau code à ton parent ou à ton établissement.",
+  "studentAccessCodeUsePhone": "J’ai un téléphone : recevoir un SMS",
+  "studentAccessCodeInvalid": "Ce code ne fonctionne pas. Vérifie-le, ou demande un nouveau code à ton parent ou à ton établissement.",
+  "studentAccessCodeTooManyAttempts": "Trop d’essais. Attends quelques minutes avant de réessayer.",
+  "studentAccessCodeUnavailable": "Le service ne répond pas pour le moment. Réessaie dans un instant.",
+  "studentAccessCodeRevealTitle": "Code d’accès INTELLIA de {name}",
+  "@studentAccessCodeRevealTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeRevealTitleGeneric": "Code d’accès INTELLIA de l’élève",
+  "studentAccessCodeRevealBody": "Notez ce code et remettez-le à {name} : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.",
+  "@studentAccessCodeRevealBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeRevealBodyGeneric": "Notez ce code et remettez-le à l’élève : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.",
+  "studentAccessCodeNotShownAgain": "Le code d’accès de l’élève a déjà été créé. Pour sa sécurité, il n’est jamais affiché à nouveau : générez-en un nouveau depuis sa fiche.",
+  "studentAccessCodeCopy": "Copier le code",
+  "studentAccessCodeCopied": "Code copié",
+  "studentAccessCodeSheetBody": "Ce code permet à votre enfant d’ouvrir son espace INTELLIA sans téléphone. Pour sa sécurité, il n’est jamais affiché à nouveau : générer un nouveau code remplace l’ancien, qui cesse aussitôt de fonctionner.",
+  "studentAccessCodeGenerate": "Afficher / générer un nouveau code d’accès",
+  "studentAccessCodeReplaceTitle": "Remplacer le code d’accès ?",
+  "studentAccessCodeReplaceBody": "L’ancien code de {name} cessera immédiatement de fonctionner.",
+  "@studentAccessCodeReplaceBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeReplaceConfirm": "Générer le nouveau code",
+  "studentAccessCodeDone": "J’ai noté le code",
+  "studentAccessCodeIssueFailed": "Le code n’a pas pu être généré. Réessayez.",
+  "studentAccessCodeActiveSince": "Code d’accès actif depuis le {date}",
+  "@studentAccessCodeActiveSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeActive": "Code d’accès actif",
+  "studentAccessCodeNone": "Aucun code d’accès pour l’instant",
+  "childAccessOwnPhone": "Connecté avec son propre accès INTELLIA",
+  "childAccessCodeOnly": "Se connecte avec son code d’accès INTELLIA",
+  "childAccessUnknown": "Accès de l’enfant non disponible pour le moment",
+  "childAccessNone": "Aucun accès personnel : générez son code d’accès",
+  "childActionViewProfile": "Voir le profil",
+  "childActionViewActivity": "Voir son activité",
+  "childActionAccessCode": "Code d’accès élève",
+  "childActionSubscription": "Abonnement",
+  "childSubscriptionActiveUntil": "Abonnement actif jusqu’au {date}",
+  "@childSubscriptionActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "childSubscriptionPaidByAnotherGuardian": "Réglé par un autre responsable de l’enfant",
+  "childSubscriptionInactive": "Aucun abonnement actif pour cet enfant",
+  "childSchoolUnknown": "Établissement non renseigné",
+  "parentChildrenCount": "{count, plural, =1{1 enfant} other{{count} enfants}}",
+  "@parentChildrenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentModeProfileBanner": "MODE PARENT — PROFIL DE {name}",
+  "@parentModeProfileBanner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parentModeProfileNote": "Vous consultez ce profil avec votre compte parent. Vous ne pouvez rien y modifier au nom de votre enfant.",
+  "childProfileTitle": "Profil de l’enfant",
+  "childProfileClass": "Classe",
+  "childProfileSchool": "Établissement",
+  "childProfileAccess": "Accès INTELLIA",
+  "childProfileSubscription": "Abonnement",
+  "parentSchoolsAnnouncements": "Annonces des écoles de vos enfants",
+  "mobileMoneyChooseChild": "Pour quel enfant payez-vous ?",
+  "mobileMoneyOfferOfSchool": "Offre de {school}",
+  "@mobileMoneyOfferOfSchool": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "mobileMoneyCoversChildren": "Ce paiement couvre : {names}",
+  "@mobileMoneyCoversChildren": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "childPendingFirstSignIn": "En attente de sa première connexion",
+  "addChildNoAccountAction": "Mon enfant n’a pas encore de compte INTELLIA",
+  "addChildNoAccountTitle": "Ouvrir l’accès de votre enfant",
+  "addChildNoAccountBody": "Votre enfant n’a pas besoin de téléphone. Vous recevrez son code d’accès INTELLIA ; il complétera lui-même son profil scolaire à sa première connexion.",
+  "addChildNoAccountNameLabel": "Prénom de l’enfant",
+  "addChildNoAccountNameRequired": "Indiquez le prénom de votre enfant.",
+  "addChildNoAccountSubmit": "Créer son code d’accès",
+  "addChildNoAccountFailed": "L’accès n’a pas pu être ouvert. Réessayez.",
+  "adminStudentAccessRecoveryTitle": "Récupérer l’accès de l’élève",
+  "adminStudentAccessRecoveryBody": "Un nouveau code d’accès INTELLIA remplace le précédent, qui cesse aussitôt de fonctionner. Remettez-le à l’élève ou à sa famille en main propre : il ne sera plus affiché.",
+  "adminStudentPhoneOptional": "Téléphone de l’élève (facultatif)",
+  "childActionLinkCode": "Code de liaison parent",
+  "guardianLinkCodeBody": "Ce code permet à un autre parent ou responsable de rattacher {name} à son propre compte. Il n’ouvre pas l’espace de l’élève : pour cela, utilisez le code d’accès élève.",
+  "@guardianLinkCodeBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "guardianLinkCodeRotate": "Remplacer ce code",
+  "guardianLinkCodeRotateBody": "L’ancien code de liaison cessera immédiatement de fonctionner. Les responsables déjà rattachés le restent.",
+  "guardianLinkCodeUnavailable": "Le code de liaison n’a pas pu être obtenu. Réessayez."
 }

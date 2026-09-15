@@ -221,7 +221,13 @@
   "phoneErrorAppVerification": "This app version could not be verified. Contact support with the reference below.",
   "phoneErrorCaptcha": "The security check did not complete. Try again from the app.",
   "phoneRequestPause": "Request again in {seconds}s",
-  "@phoneRequestPause": {"placeholders": {"seconds": {"type": "int"}}},
+  "@phoneRequestPause": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "phoneErrorQuota": "SMS delivery is temporarily unavailable. Try again later.",
   "phoneErrorNetwork": "The connection was interrupted. Check your internet connection and try again.",
   "phoneErrorDisabled": "Phone sign-in must be enabled in Firebase Authentication.",
@@ -1440,7 +1446,7 @@
   "loadingOffer": "Loading offer",
   "serviceUnavailable": "Service unavailable",
   "subscriptionTitle": "Subscription",
-  "mobileMoneyParentDescription": "Mobile Money payment declared and then manually verified by your school.",
+  "mobileMoneyParentDescription": "Mobile Money payment declared, then manually verified by the school of the child concerned.",
   "myPaymentRequests": "My requests",
   "accessDaysAfterApproval": "Access for {days} days after approval",
   "@accessDaysAfterApproval": {
@@ -1479,8 +1485,8 @@
   },
   "paymentRequestSubmitted": "Request submitted. Access will be activated only after verification.",
   "noValidatedSchoolLinked": "No approved school is linked to this parent account yet.",
-  "multipleSchoolsLinked": "Several schools are linked. Contact support to choose which school will bill for access.",
-  "noActiveMobileMoneyOffer": "Your school has not published an active Mobile Money offer yet.",
+  "multipleSchoolsLinked": "Your children attend different schools: choose the child you are paying for.",
+  "noActiveMobileMoneyOffer": "This child’s school has not published an active Mobile Money offer yet.",
   "offerUnavailable": "Offer unavailable",
   "referenceValue": "Reference {reference}",
   "@referenceValue": {
@@ -2248,5 +2254,156 @@
         "type": "int"
       }
     }
-  }
+  },
+  "parentEntryCodePurpose": "This code links the child.\nYour phone number is used to identify you as the parent.",
+  "passFamilyNumber": "Family number",
+  "familyPhoneMigrationPrompt": "This number is currently used for a student’s access. Would you like to use it as the parent’s number? The student will keep their profile and will now use their INTELLIA access code.",
+  "familyPhoneMigrationConfirm": "Use this number for the parent",
+  "familyPhoneMigrationNothingChanged": "The transfer did not go through. Nothing changed: please try again.",
+  "familyPhoneMigrationVerifyAgain": "For your security, verify this number again before transferring it.",
+  "familyPhoneMigrationVerifyAgainAction": "Verify the number again",
+  "familyPhoneMigrationInProgress": "A transfer is already in progress for this number. Wait a moment, then try again.",
+  "familyPhoneMigrationVerifyAgainToFinish": "The student already has their access code. Verify this number again to finish opening your parent space.",
+  "familyPhoneMigrationRefused": "This number cannot be transferred from this account. Use another number or contact the school.",
+  "familyPhoneMigrationUnavailable": "Transferring the number is not available yet. Try again later or use another number.",
+  "familyPhoneMigratedTitle": "This number is now yours",
+  "familyPhoneMigratedContinue": "I noted the code, open my parent space",
+  "studentNoPhoneUseAccessCode": "No phone? Sign in with your INTELLIA access code",
+  "studentAccessCodePhase": "Your access code",
+  "studentAccessCodeTitle": "Sign in with your access code",
+  "studentAccessCodeSubtitle": "Enter the 12 characters your parent or your school gave you. No phone needed.",
+  "studentAccessCodeLabel": "INTELLIA access code",
+  "studentAccessCodeSubmit": "Enter my space",
+  "studentAccessCodePrivacy": "Keep this code to yourself: it opens your space. If you lost it, ask your parent or your school for a new one.",
+  "studentAccessCodeUsePhone": "I have a phone: receive an SMS",
+  "studentAccessCodeInvalid": "This code does not work. Check it, or ask your parent or your school for a new code.",
+  "studentAccessCodeTooManyAttempts": "Too many attempts. Wait a few minutes before trying again.",
+  "studentAccessCodeUnavailable": "The service is not responding right now. Try again in a moment.",
+  "studentAccessCodeRevealTitle": "INTELLIA access code for {name}",
+  "@studentAccessCodeRevealTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeRevealTitleGeneric": "Student’s INTELLIA access code",
+  "studentAccessCodeRevealBody": "Write this code down and give it to {name}: it opens their space without a phone. It will not be shown again; you can generate a new one from their card.",
+  "@studentAccessCodeRevealBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeRevealBodyGeneric": "Write this code down and give it to the student: it opens their space without a phone. It will not be shown again; you can generate a new one from their card.",
+  "studentAccessCodeNotShownAgain": "The student’s access code was already created. For their security it is never shown again: generate a new one from their card.",
+  "studentAccessCodeCopy": "Copy code",
+  "studentAccessCodeCopied": "Code copied",
+  "studentAccessCodeSheetBody": "This code lets your child open their INTELLIA space without a phone. For their security it is never shown again: generating a new code replaces the old one, which stops working at once.",
+  "studentAccessCodeGenerate": "Show / generate a new access code",
+  "studentAccessCodeReplaceTitle": "Replace the access code?",
+  "studentAccessCodeReplaceBody": "{name}’s previous code will stop working immediately.",
+  "@studentAccessCodeReplaceBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeReplaceConfirm": "Generate the new code",
+  "studentAccessCodeDone": "I noted the code",
+  "studentAccessCodeIssueFailed": "The code could not be generated. Please try again.",
+  "studentAccessCodeActiveSince": "Access code active since {date}",
+  "@studentAccessCodeActiveSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeActive": "Access code active",
+  "studentAccessCodeNone": "No access code yet",
+  "childAccessOwnPhone": "Signed in with their own INTELLIA access",
+  "childAccessCodeOnly": "Signs in with their INTELLIA access code",
+  "childAccessUnknown": "Child’s access is not available right now",
+  "childAccessNone": "No personal access yet: generate their access code",
+  "childActionViewProfile": "View profile",
+  "childActionViewActivity": "View activity",
+  "childActionAccessCode": "Student access code",
+  "childActionSubscription": "Subscription",
+  "childSubscriptionActiveUntil": "Subscription active until {date}",
+  "@childSubscriptionActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "childSubscriptionPaidByAnotherGuardian": "Paid by another guardian of the child",
+  "childSubscriptionInactive": "No active subscription for this child",
+  "childSchoolUnknown": "School not provided",
+  "parentChildrenCount": "{count, plural, =1{1 child} other{{count} children}}",
+  "@parentChildrenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentModeProfileBanner": "PARENT MODE — {name}’S PROFILE",
+  "@parentModeProfileBanner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parentModeProfileNote": "You are viewing this profile with your parent account. You cannot change anything on your child’s behalf.",
+  "childProfileTitle": "Child profile",
+  "childProfileClass": "Class",
+  "childProfileSchool": "School",
+  "childProfileAccess": "INTELLIA access",
+  "childProfileSubscription": "Subscription",
+  "parentSchoolsAnnouncements": "Announcements from your children’s schools",
+  "mobileMoneyChooseChild": "Which child are you paying for?",
+  "mobileMoneyOfferOfSchool": "{school} offer",
+  "@mobileMoneyOfferOfSchool": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "mobileMoneyCoversChildren": "This payment covers: {names}",
+  "@mobileMoneyCoversChildren": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "childPendingFirstSignIn": "Waiting for their first sign-in",
+  "addChildNoAccountAction": "My child has no INTELLIA account yet",
+  "addChildNoAccountTitle": "Open your child’s access",
+  "addChildNoAccountBody": "Your child does not need a phone. You will receive their INTELLIA access code; they will complete their school profile at their first sign-in.",
+  "addChildNoAccountNameLabel": "Child’s first name",
+  "addChildNoAccountNameRequired": "Enter your child’s first name.",
+  "addChildNoAccountSubmit": "Create their access code",
+  "addChildNoAccountFailed": "The access could not be opened. Please try again.",
+  "adminStudentAccessRecoveryTitle": "Recover the student’s access",
+  "adminStudentAccessRecoveryBody": "A new INTELLIA access code replaces the previous one, which stops working at once. Hand it to the student or their family in person: it will not be shown again.",
+  "adminStudentPhoneOptional": "Student phone (optional)",
+  "childActionLinkCode": "Parent link code",
+  "guardianLinkCodeBody": "This code lets another parent or guardian link {name} to their own account. It does not open the student’s space: use the student access code for that.",
+  "@guardianLinkCodeBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "guardianLinkCodeRotate": "Replace this code",
+  "guardianLinkCodeRotateBody": "The previous link code will stop working immediately. Guardians already linked stay linked.",
+  "guardianLinkCodeUnavailable": "The link code could not be retrieved. Please try again."
 }

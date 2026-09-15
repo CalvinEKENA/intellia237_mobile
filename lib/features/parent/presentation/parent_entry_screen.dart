@@ -217,15 +217,20 @@ class _ParentEntryScreenState extends ConsumerState<ParentEntryScreen> {
                 const Padding(
                   padding: EdgeInsets.only(top: 1),
                   child: Icon(
-                    Icons.lock_outline_rounded,
+                    Icons.info_outline_rounded,
                     size: 15,
                     color: AuthExperienceColors.textTertiary,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
+                  // Registre de décisions (mission famille) : le parent
+                  // croyait que le numéro demandé devait être celui de
+                  // l'enfant. Le code relie l'enfant ; le numéro identifie le
+                  // parent.
                   child: Text(
-                    l10n.parentEntryPrivacy,
+                    l10n.parentEntryCodePurpose,
+                    key: const ValueKey('parent-entry-code-purpose'),
                     style: const TextStyle(
                       fontFamily: 'CampaignBody',
                       fontSize: 12,
