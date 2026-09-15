@@ -126,7 +126,14 @@ export class FirestoreStudentAccessStore implements StudentAccessStore {
 
   async readAccount(uid: string): Promise<AccountSnapshot | null> {
     const snapshot = await this.firestore.collection("users").doc(uid).get();
-    if (!snapshot.exists) return null;
+    if (!snapshot.exists) {
+      // Accès ouvert par un parent pour un enfant sans téléphone : l'élève
+      // n'a pas encore rempli son profil, mais son identité existe.
+      const pending = await this.firestore.collection("pending_student_accounts").doc(uid).get();
+      return pending.exists
+        ? { role: "student", accountStatus: "active", establishmentId: "" }
+        : null;
+    }
     const data = snapshot.data() ?? {};
     return {
       role: normalized(data.role),

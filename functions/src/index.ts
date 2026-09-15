@@ -40,6 +40,7 @@ import {
 } from "./services/studentAccessCode";
 import { createDefaultMigrateStudentPhoneToParentHandler } from "./services/familyPhoneMigration";
 import { createListParentChildrenHandler } from "./services/parentChildrenCallable";
+import { createDefaultCreateChildStudentAccessHandler } from "./services/childStudentAccessCallable";
 import { reviewStaffAccountHandler } from "./services/staffAccountReviewCallable";
 import { manageAccountHandler } from "./services/adminAccountManagementCallable";
 import { saveLessonPublicationHandler, deleteCatalogContentHandler, createCatalogChapterHandler, createListEditorialFlowHandler } from "./services/lessonPublicationCallable";
@@ -429,6 +430,16 @@ export const migrateStudentPhoneToParent = onCall(
     secrets: [studentAccessCodePepper],
   },
   createDefaultMigrateStudentPhoneToParentHandler(configuredStudentAccessPepper),
+);
+
+export const createChildStudentAccess = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 30,
+    memory: "256MiB",
+    secrets: [studentAccessCodePepper],
+  },
+  createDefaultCreateChildStudentAccessHandler(configuredStudentAccessPepper),
 );
 
 export const listParentChildren = onCall(

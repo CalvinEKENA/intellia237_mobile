@@ -12,6 +12,15 @@ import {
   type MigrationAuthPort,
 } from "../../services/familyPhoneMigration";
 import {
+  AdminChildIdentityPort,
+  createCreateChildStudentAccessHandler,
+  FirestoreChildAccessCreationStore,
+} from "../../services/childStudentAccessCallable";
+import {
+  createListParentChildrenHandler,
+  FirestoreParentChildrenStore,
+} from "../../services/parentChildrenCallable";
+import {
   createIssueStudentAccessCodeHandler,
   createSignInWithStudentAccessCodeHandler,
   FirestoreStudentAccessStore,
@@ -230,6 +239,54 @@ describe("failure halfway through, on real Auth", () => {
     expect(resumed).toMatchObject({ parentUid: fresh.uid, parentToken: null, studentId: "student-old" });
     expect((await firestore.doc(`children_links/${fresh.uid}_student-old`).get()).data()?.status).toBe("approved");
     expect(tokenUid((await signIn(code)).token)).toBe("student-old");
+  });
+});
+
+describe("a new family whose child has no phone, on real Auth", () => {
+  it("the parent opens the child's access: phoneless identity, approved link, a code that signs the child in, and a pending child in the parent's list", async () => {
+    await auth.createUser({ uid: "parent-p", phoneNumber: "+237699000555" });
+    await firestore.doc("users/parent-p").set({ role: "parent", accountStatus: "active" });
+    const create = createCreateChildStudentAccessHandler({
+      pepper: () => pepper,
+      store: new FirestoreChildAccessCreationStore(firestore),
+      access: accessStore,
+      identities: new AdminChildIdentityPort(() => auth),
+    });
+    const payload = { firstName: "Awa", requestId: "7c9e6679-7425-40de-944b-e07fc1f90ae7" };
+    const created = await create({ auth: { uid: "parent-p" }, data: payload } as never);
+
+    // Une identité élève sans téléphone ni e-mail.
+    const identity = await auth.getUser(created.studentId);
+    expect(identity.phoneNumber).toBeUndefined();
+    expect(identity.email).toBeUndefined();
+    expect((await firestore.doc(`children_links/parent-p_${created.studentId}`).get()).data())
+      .toMatchObject({ status: "approved", linkedVia: "parent_created_access" });
+
+    // Le code ouvre cet élève, sans SMS.
+    expect(tokenUid((await signIn(created.code!)).token)).toBe(created.studentId);
+
+    // Le parent le voit, en attente de première connexion.
+    const listChildren = createListParentChildrenHandler(new FirestoreParentChildrenStore(firestore, () => auth));
+    const { children } = await listChildren({ auth: { uid: "parent-p" }, data: {} } as never);
+    expect(children).toHaveLength(1);
+    expect(children[0]).toMatchObject({
+      studentId: created.studentId,
+      status: "pending_first_sign_in",
+      firstName: "Awa",
+      access: { ownPhone: false, accessCode: true },
+    });
+
+    // Réponse perdue : pas de second enfant, pas de second code révélé.
+    const replay = await create({ auth: { uid: "parent-p" }, data: payload } as never);
+    expect(replay).toEqual({ studentId: created.studentId, firstName: "Awa", code: null });
+    expect((await auth.listUsers()).users).toHaveLength(2);
+
+    // Le parent remplace le code : l'ancien cesse aussitôt de fonctionner.
+    const rotated = await createIssueStudentAccessCodeHandler(() => pepper, accessStore)(
+      { auth: { uid: "parent-p" }, data: { studentId: created.studentId } } as never,
+    );
+    await expect(signIn(created.code!, "203.0.113.77")).rejects.toMatchObject({ code: "permission-denied" });
+    expect(tokenUid((await signIn(rotated.code, "203.0.113.78")).token)).toBe(created.studentId);
   });
 });
 

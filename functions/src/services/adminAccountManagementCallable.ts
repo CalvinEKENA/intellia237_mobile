@@ -13,7 +13,8 @@ export const accountManagementInput = z.discriminatedUnion("action", [
     requestId: z.string().uuid(),
     firstName: z.string().trim().min(1).max(80),
     lastName: z.string().trim().min(1).max(80),
-    phoneNumber: z.string().regex(/^\+2376\d{8}$/),
+    // Un élève n'a pas à posséder de téléphone : il entre avec un code d'accès.
+    phoneNumber: z.string().regex(/^\+2376\d{8}$/).optional(),
     email: z.string().trim().toLowerCase().email().optional(),
     establishmentId: id,
   }).strict(),
@@ -116,7 +117,7 @@ export class AdminAccountManagementStore {
     const existing = await userRef.get();
     if (existing.exists) {
       if (existing.data()?.createdBy !== actorId ||
-          existing.data()?.phoneNumber !== input.phoneNumber) {
+          (existing.data()?.phoneNumber ?? undefined) !== input.phoneNumber) {
         throw new HttpsError("already-exists", "Request already used.");
       }
       const status = existing.data()?.accountStatus || "active";
@@ -125,7 +126,8 @@ export class AdminAccountManagementStore {
     }
     try {
       await this.auth.createUser({
-        uid, phoneNumber: input.phoneNumber,
+        uid,
+        ...(input.phoneNumber ? {phoneNumber: input.phoneNumber} : {}),
         disabled: true,
         ...(input.email ? {email: input.email} : {}),
         displayName: `${input.firstName} ${input.lastName}`,
@@ -152,7 +154,8 @@ export class AdminAccountManagementStore {
       if (freshUser.exists) return;
       transaction.create(userRef, {
         uid, role: "student", firstName: input.firstName, lastName: input.lastName,
-        phoneNumber: input.phoneNumber, email: input.email || "",
+        ...(input.phoneNumber ? {phoneNumber: input.phoneNumber} : {}),
+        email: input.email || "",
         establishmentId: input.establishmentId, accountStatus: "active",
         // The student chooses their own class and learning preferences.
         profileCompleted: false, createdBy: actorId,

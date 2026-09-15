@@ -26,6 +26,8 @@ import { parseEntitlementDocument } from "./studyReserveProvisioning";
 
 export interface ParentChildSummary {
   studentId: string;
+  /** `pending_first_sign_in` : accès ouvert par le parent, profil à compléter. */
+  status: "active" | "pending_first_sign_in";
   firstName: string;
   lastName: string;
   classLevel: string;
@@ -55,6 +57,7 @@ export interface ParentChildrenStore {
   readStudent(studentId: string): Promise<{
     role: string;
     accountStatus: string;
+    pending?: boolean;
     firstName: string;
     lastName: string;
     classLevel: string;
@@ -98,6 +101,7 @@ export async function listParentChildren(
       ]);
       return {
         studentId: id,
+        status: data.pending ? "pending_first_sign_in" : "active",
         firstName: data.firstName,
         lastName: data.lastName,
         classLevel: data.classLevel,
@@ -209,7 +213,20 @@ export class FirestoreParentChildrenStore implements ParentChildrenStore {
       this.firestore.collection("users").doc(studentId).get(),
       this.firestore.collection("student_profiles").doc(studentId).get(),
     ]);
-    if (!user.exists) return null;
+    if (!user.exists) {
+      const pending = await this.firestore.collection("pending_student_accounts").doc(studentId).get();
+      if (!pending.exists) return null;
+      return {
+        role: "student",
+        accountStatus: "active",
+        pending: true,
+        firstName: text(pending.data()?.firstName),
+        lastName: "",
+        classLevel: "",
+        series: null,
+        establishmentId: "",
+      };
+    }
     const userData = user.data() ?? {};
     const profileData = profile.data() ?? {};
     const pick = (key: string) => text(userData[key]) || text(profileData[key]);

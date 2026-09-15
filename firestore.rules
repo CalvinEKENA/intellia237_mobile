@@ -808,6 +808,20 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Enfant sans telephone dont le parent a ouvert l'acces : identite en
+    // attente de profil, creations et quotas. Serveur seulement.
+    match /pending_student_accounts/{studentId} {
+      allow read, write: if false;
+    }
+
+    match /child_access_requests/{requestId} {
+      allow read, write: if false;
+    }
+
+    match /child_access_quotas/{parentId} {
+      allow read, write: if false;
+    }
+
     // Journaux sans secret : emissions, rotations, migrations du telephone
     // familial. Lisibles par la seule super-administration, pour le support.
     match /student_access_audit/{eventId} {

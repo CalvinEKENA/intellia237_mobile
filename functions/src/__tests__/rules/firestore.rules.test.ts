@@ -1311,6 +1311,9 @@ describe("Family access stays server-only and school-scoped", () => {
         version: 1,
       });
       await setDoc(doc(db, "student_access_attempts/client-key"), { failures: 2 });
+      await setDoc(doc(db, "pending_student_accounts/child-x"), { firstName: "Awa", createdBy: "parent-x" });
+      await setDoc(doc(db, "child_access_requests/parent-x_req"), { studentId: "child-x" });
+      await setDoc(doc(db, "child_access_quotas/parent-x"), { count: 1 });
       await setDoc(doc(db, "student_access_audit/event-1"), {
         type: "issued",
         studentId: "student-a",
@@ -1348,6 +1351,11 @@ describe("Family access stays server-only and school-scoped", () => {
       await assertFails(getDoc(doc(db, "student_access_credentials/student-a")));
       await assertFails(getDoc(doc(db, `student_access_codes/${"f".repeat(64)}`)));
       await assertFails(getDoc(doc(db, "student_access_attempts/client-key")));
+      await assertFails(getDoc(doc(db, "pending_student_accounts/child-x")));
+      await assertFails(getDoc(doc(db, "child_access_requests/parent-x_req")));
+      await assertFails(getDoc(doc(db, "child_access_quotas/parent-x")));
+      await assertFails(setDoc(doc(db, "pending_student_accounts/child-y"), { firstName: "Forged" }));
+      await assertFails(setDoc(doc(db, "child_access_quotas/parent-x"), { count: 0 }));
       await assertFails(getDocs(collection(db, "student_access_codes")));
       await assertFails(setDoc(doc(db, "student_access_credentials/student-a"), { lookupKey: "x" }));
       await assertFails(setDoc(doc(db, "student_access_codes/guess"), { studentId: "student-a" }));
