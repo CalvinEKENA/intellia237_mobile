@@ -5,6 +5,14 @@ import 'features/users/presentation/students_screen.dart';
 import 'features/users/presentation/parents_screen.dart';
 import 'features/users/presentation/teachers_screen.dart';
 import 'features/users/presentation/accounts_screen.dart';
+import 'features/content/presentation/content_studio_screen.dart';
+import 'features/content/presentation/lesson_editor_screen.dart';
+import 'features/content/presentation/notebooklm_screen.dart';
+import 'features/media/presentation/media_library_screen.dart';
+import 'features/flow/presentation/flow_studio_screen.dart';
+import 'features/quiz/presentation/quiz_studio_screen.dart';
+import 'features/audiences/presentation/audiences_screen.dart';
+import 'features/publishing/presentation/publishing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,38 +84,37 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/content',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: '12 Content Studio'),
+            builder: (context, state) => const ContentStudioScreen(),
+          ),
+          GoRoute(
+            path: '/content/lesson/:id',
+            builder: (context, state) => LessonEditorScreen(
+              lessonId: state.pathParameters['id'] ?? 'default',
+            ),
           ),
           GoRoute(
             path: '/notebooklm',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: '14 NotebookLM Import Center'),
+            builder: (context, state) => const NotebookLmScreen(),
           ),
           GoRoute(
             path: '/media',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: '15 Media Library'),
+            builder: (context, state) => const MediaLibraryScreen(),
           ),
           GoRoute(
             path: '/flow',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: '16 FLOW Studio'),
+            builder: (context, state) => const FlowStudioScreen(),
           ),
           GoRoute(
             path: '/quiz',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: '17 Quiz Studio'),
+            builder: (context, state) => const QuizStudioScreen(),
           ),
           GoRoute(
             path: '/audiences',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: '18 Audiences & Rules'),
+            builder: (context, state) => const AudiencesScreen(),
           ),
           GoRoute(
             path: '/publishing',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: '19 Publishing Center'),
+            builder: (context, state) => const PublishingCenterScreen(),
           ),
           GoRoute(
             path: '/companions',
