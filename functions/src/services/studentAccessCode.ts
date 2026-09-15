@@ -29,8 +29,18 @@ import { db } from "../config/firebase";
 export const studentAccessCodeAlphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 export const studentAccessCodeLength = 12;
 
+/**
+ * Verrou par client (IP ajoutée par Google + application App Check).
+ *
+ * Registre de décisions : au Cameroun, beaucoup d'utilisateurs partagent une
+ * même IP publique (NAT des opérateurs mobiles, Wi-Fi d'école). Un seuil de 5
+ * échecs bloquait toute une classe pour quelques fautes de frappe. Avec 31^12
+ * combinaisons, même 20 essais par quart d'heure et par IP laissent une
+ * probabilité de réussite négligeable ; le verrou sert à freiner l'abus, pas à
+ * porter seul la sécurité.
+ */
 export const studentAccessRateLimit = {
-  maxFailures: 5,
+  maxFailures: 20,
   windowMs: 15 * 60 * 1000,
   blockMs: 15 * 60 * 1000,
 };

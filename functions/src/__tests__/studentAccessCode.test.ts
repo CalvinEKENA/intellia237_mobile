@@ -125,6 +125,13 @@ describe("student access code format", () => {
     expect(studentAccessCodeAlphabet).not.toMatch(/[01IOL]/);
   });
 
+  it("keeps the per-client lock tolerant of shared IPs (school Wi-Fi, carrier NAT)", () => {
+    // 20 essais par quart d'heure et par IP : probabilité de deviner un code
+    // parmi 31^12 inférieure à 10^-16 par fenêtre.
+    expect(studentAccessRateLimit.maxFailures).toBe(20);
+    expect(studentAccessRateLimit.maxFailures / 31 ** 12).toBeLessThan(1e-16);
+  });
+
   it("offers far more than a PIN: 31^12 ≈ 2^59", () => {
     const bits = studentAccessCodeLength * Math.log2(studentAccessCodeAlphabet.length);
     expect(bits).toBeGreaterThan(59);
@@ -231,14 +238,15 @@ describe("signInWithStudentAccessCode", () => {
     ]);
   });
 
-  it("answers every failure the same way and blocks the client after 5 failures", async () => {
+  it("answers every failure the same way and blocks the client after the failure threshold", async () => {
     const store = seededStore();
     const { code } = await createIssueStudentAccessCodeHandler(() => pepper, store)(
       { auth: { uid: "parent-a" }, data: { studentId: "student-a" } } as never,
     );
     const signIn = createSignInWithStudentAccessCodeHandler(() => pepper, store, new TokenRecorder());
-    const misses = ["", "short", "ZZZZZZZZZZZZ", 42, "ABCDEFGHJKMN"];
-    for (const miss of misses) {
+    const kinds = ["", "short", "ZZZZZZZZZZZZ", 42, "ABCDEFGHJKMN"];
+    for (let attempt = 0; attempt < studentAccessRateLimit.maxFailures; attempt++) {
+      const miss = kinds[attempt % kinds.length];
       await expect(signIn(signInRequest(miss))).rejects.toMatchObject({ code: "permission-denied" });
     }
     // Même le bon code est refusé tant que le client est bloqué.

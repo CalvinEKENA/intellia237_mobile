@@ -142,8 +142,10 @@ Distinct du code de liaison :
   personnalisé** Firebase pour l'UID élève. Le client appelle
   `signInWithCustomToken`.
 - Anti-bruteforce : échecs comptés par client (empreinte HMAC de l'adresse IP
-  et de l'application App Check, jamais l'IP en clair) — 5 échecs par
-  15 minutes, blocage 15 minutes, message identique pour un code inconnu,
+  et de l'application App Check, jamais l'IP en clair) — 20 échecs par
+  15 minutes, blocage 15 minutes (beaucoup de familles partagent une IP
+  publique : NAT des opérateurs mobiles, Wi-Fi d'école ; 20 essais parmi 31¹²
+  restent négligeables), message identique pour un code inconnu,
   remplacé ou mal formé, et pour un compte suspendu. L'adresse retenue est la
   **dernière** valeur de `X-Forwarded-For` (celle qu'ajoute l'infrastructure
   Google) : les valeurs précédentes viennent du client et changeraient à chaque
