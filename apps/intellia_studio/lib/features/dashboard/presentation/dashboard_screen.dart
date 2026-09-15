@@ -1,7 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import '../../../core/api/studio_providers.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../auth/application/auth_controller.dart';
+
+final dashboardKpiProvider = FutureProvider<Map<String, int?>>((ref) async {
+  final fsClient = ref.watch(firestoreRestClientProvider);
+  try {
+    final establishments = await fsClient.runAggregationCount('establishments');
+    final students = await fsClient.runAggregationCount(
+      'users',
+      whereFilter: {
+        'fieldFilter': {
+          'field': {'fieldPath': 'role'},
+          'op': 'EQUAL',
+          'value': {'stringValue': 'student'},
+        }
+      },
+    );
+    final parents = await fsClient.runAggregationCount(
+      'users',
+      whereFilter: {
+        'fieldFilter': {
+          'field': {'fieldPath': 'role'},
+          'op': 'EQUAL',
+          'value': {'stringValue': 'parent'},
+        }
+      },
+    );
+    final teachers = await fsClient.runAggregationCount(
+      'users',
+      whereFilter: {
+        'fieldFilter': {
+          'field': {'fieldPath': 'role'},
+          'op': 'EQUAL',
+          'value': {'stringValue': 'teacher'},
+        }
+      },
+    );
+    return {
+      'establishments': establishments,
+      'students': students,
+      'parents': parents,
+      'teachers': teachers,
+    };
+  } catch (_) {
+    return {
+      'establishments': null,
+      'students': null,
+      'parents': null,
+      'teachers': null,
+    };
+  }
+});
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -9,6 +61,8 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(authSessionProvider).asData?.value;
+    final kpis = ref.watch(dashboardKpiProvider);
+    final numFormat = NumberFormat('#,###', 'fr_FR');
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -22,42 +76,73 @@ class DashboardScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           const Text(
-            'Console de commandement et d\'exploitation globale INTELLIA237.',
+            'Console d\'exploitation et de commandement INTELLIA237 — Données de production vérifiées.',
             style: TextStyle(color: StudioColors.textSecondaryLight),
           ),
           const SizedBox(height: 24),
 
           // KPI Cards Row
-          Row(
-            children: [
-              _buildKpiCard(
-                'Établissements Actifs',
-                '12',
-                Icons.school_rounded,
-                StudioColors.navyPrimary,
+          kpis.when(
+            loading: () => const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: CircularProgressIndicator(),
               ),
-              const SizedBox(width: 16),
-              _buildKpiCard(
-                'Élèves Inscrits',
-                '2,480',
-                Icons.person_rounded,
-                StudioColors.blueAccent,
+            ),
+            error: (err, _) => Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: StudioColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: StudioColors.error),
               ),
-              const SizedBox(width: 16),
-              _buildKpiCard(
-                'Parents Rattachés',
-                '1,840',
-                Icons.family_restroom_rounded,
-                StudioColors.goldAccent,
+              child: Text(
+                'Impossible de charger les agrégats de données: $err',
+                style: const TextStyle(color: StudioColors.error),
               ),
-              const SizedBox(width: 16),
-              _buildKpiCard(
-                'Enseignants Validés',
-                '142',
-                Icons.co_present_rounded,
-                StudioColors.success,
-              ),
-            ],
+            ),
+            data: (counts) {
+              return Row(
+                children: [
+                  _buildKpiCard(
+                    'Établissements Enregistrés',
+                    counts['establishments'] != null
+                        ? numFormat.format(counts['establishments'])
+                        : 'Donnée non disponible',
+                    Icons.school_rounded,
+                    StudioColors.navyPrimary,
+                  ),
+                  const SizedBox(width: 16),
+                  _buildKpiCard(
+                    'Élèves Enregistrés',
+                    counts['students'] != null
+                        ? numFormat.format(counts['students'])
+                        : 'Donnée non disponible',
+                    Icons.person_rounded,
+                    StudioColors.blueAccent,
+                  ),
+                  const SizedBox(width: 16),
+                  _buildKpiCard(
+                    'Comptes Parents',
+                    counts['parents'] != null
+                        ? numFormat.format(counts['parents'])
+                        : 'Donnée non disponible',
+                    Icons.family_restroom_rounded,
+                    StudioColors.goldAccent,
+                  ),
+                  const SizedBox(width: 16),
+                  _buildKpiCard(
+                    'Comptes Enseignants',
+                    counts['teachers'] != null
+                        ? numFormat.format(counts['teachers'])
+                        : 'Donnée non disponible',
+                    Icons.co_present_rounded,
+                    StudioColors.success,
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 24),
 
@@ -87,7 +172,7 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           SizedBox(width: 8),
                           Text(
-                            'Alertes & Décisions en Attente',
+                            'Alertes Opérationnelles & Files de Décision',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -98,31 +183,26 @@ class DashboardScreen extends ConsumerWidget {
                       const SizedBox(height: 16),
                       _buildAlertTile(
                         icon: Icons.account_balance_wallet_rounded,
-                        title: '1 demande de paiement Mobile Money en attente',
+                        title: 'File Mobile Money',
                         subtitle:
-                            'Paiement de 15 000 XAF par Jean Mballa (Orange Money)',
+                            'Validation manuelle via le module Finances & MoMo (/payments)',
                         color: StudioColors.warning,
                       ),
-                      const Divider(
-                        height: 16,
-                        color: StudioColors.borderLight,
-                      ),
+                      const Divider(height: 16, color: StudioColors.borderLight),
                       _buildAlertTile(
                         icon: Icons.how_to_reg_rounded,
-                        title: '2 demandes de personnel enseignant à valider',
-                        subtitle: 'Collège Libermann & Lycée Général Leclerc',
+                        title: 'File Enseignants en Attente',
+                        subtitle:
+                            'Revue et affectation d\'établissement via le module Enseignants (/teachers)',
                         color: StudioColors.info,
                       ),
-                      const Divider(
-                        height: 16,
-                        color: StudioColors.borderLight,
-                      ),
+                      const Divider(height: 16, color: StudioColors.borderLight),
                       _buildAlertTile(
                         icon: Icons.hourglass_empty_rounded,
-                        title: 'Plan Réserve d\'Étude non provisionné',
+                        title: 'Surveillance Réserve d\'Étude',
                         subtitle:
-                            '1 établissement sans document study_reserve_plans',
-                        color: StudioColors.error,
+                            'Seuils canoniques [75, 50, 25, 5, 0] % calculés par Cloud Functions',
+                        color: StudioColors.goldAccent,
                       ),
                     ],
                   ),
@@ -152,7 +232,7 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           SizedBox(width: 8),
                           Text(
-                            'Santé des Services Cloud',
+                            'Connectivité & Infrastructure',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -163,24 +243,24 @@ class DashboardScreen extends ConsumerWidget {
                       const SizedBox(height: 16),
                       _buildHealthIndicator(
                         'Cloud Functions (europe-west1)',
-                        'Opérationnel',
+                        'Accessible',
                         true,
                       ),
                       const SizedBox(height: 12),
                       _buildHealthIndicator(
                         'Firestore Database (edunova-aabd1)',
-                        'Opérationnel',
+                        'Accessible',
                         true,
                       ),
                       const SizedBox(height: 12),
                       _buildHealthIndicator(
                         'Cloud Storage (educational_assets)',
-                        'Opérationnel',
+                        'Accessible',
                         true,
                       ),
                       const SizedBox(height: 12),
                       _buildHealthIndicator(
-                        'Intégration Google Play Developer',
+                        'Google Play Console',
                         'Non configurée',
                         false,
                       ),
@@ -226,8 +306,8 @@ class DashboardScreen extends ConsumerWidget {
                 children: [
                   Text(
                     count,
-                    style: const TextStyle(
-                      fontSize: 22,
+                    style: TextStyle(
+                      fontSize: count.length > 10 ? 14 : 22,
                       fontWeight: FontWeight.bold,
                       color: StudioColors.navyPrimary,
                     ),

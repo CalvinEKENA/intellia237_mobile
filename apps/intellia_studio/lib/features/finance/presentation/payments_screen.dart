@@ -1,145 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/firestore_rest_client.dart';
+import '../../../core/api/studio_providers.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 import '../../../core/widgets/studio_data_table.dart';
 import '../../audit/presentation/widgets/confirmation_dialog.dart';
+import '../../control_plane/control_plane_client.dart';
 import '../domain/finance_models.dart';
 
-final paymentRequestsProvider = StateNotifierProvider<PaymentRequestsNotifier, List<StudioPaymentRequest>>((ref) {
-  return PaymentRequestsNotifier();
+final paymentRequestsProvider =
+    StateNotifierProvider<PaymentRequestsNotifier, AsyncValue<List<StudioPaymentRequest>>>((ref) {
+  final fs = ref.watch(firestoreRestClientProvider);
+  final cp = ref.watch(controlPlaneClientProvider);
+  return PaymentRequestsNotifier(fs, cp);
 });
 
-class PaymentRequestsNotifier extends StateNotifier<List<StudioPaymentRequest>> {
-  PaymentRequestsNotifier() : super([
-    const StudioPaymentRequest(
-      id: 'pay_req_01',
-      parentId: 'usr_par_01',
-      parentName: 'Mme Ekena Suzanne',
-      establishmentId: 'est_douala_01',
-      amountXaf: 5000,
-      operator: PaymentOperator.orangeMoney,
-      reference: 'OM-2026-98124',
-      phoneNumber: '+237 699 01 23 45',
-      status: PaymentRequestStatus.pending,
-      createdAt: '2026-03-15 08:30',
-    ),
-    const StudioPaymentRequest(
-      id: 'pay_req_02',
-      parentId: 'usr_par_02',
-      parentName: 'M. Kamga Jean',
-      establishmentId: 'est_douala_01',
-      amountXaf: 2500,
-      operator: PaymentOperator.mtnMomo,
-      reference: 'MTN-2026-44321',
-      phoneNumber: '+237 677 89 12 34',
-      status: PaymentRequestStatus.approved,
-      createdAt: '2026-03-14 14:15',
-      reviewedAt: '2026-03-14 15:00',
-      reviewedByUid: 'usr_admin_01',
-    ),
-    const StudioPaymentRequest(
-      id: 'pay_req_03',
-      parentId: 'usr_par_04',
-      parentName: 'Mme Noah Christine',
-      establishmentId: 'est_douala_01',
-      amountXaf: 5000,
-      operator: PaymentOperator.orangeMoney,
-      reference: 'OM-2026-11223',
-      phoneNumber: '+237 695 44 33 22',
-      status: PaymentRequestStatus.rejected,
-      createdAt: '2026-03-13 11:20',
-      reviewedAt: '2026-03-13 12:05',
-      reviewedByUid: 'usr_admin_01',
-      rejectionReason: 'Numéro de transaction introuvable sur le relevé Orange Money.',
-    ),
-  ]);
-
-  void approve(String id) {
-    state = [
-      for (final req in state)
-        if (req.id == id)
-          StudioPaymentRequest(
-            id: req.id,
-            parentId: req.parentId,
-            parentName: req.parentName,
-            establishmentId: req.establishmentId,
-            amountXaf: req.amountXaf,
-            operator: req.operator,
-            reference: req.reference,
-            phoneNumber: req.phoneNumber,
-            status: PaymentRequestStatus.approved,
-            createdAt: req.createdAt,
-            reviewedAt: DateTime.now().toIso8601String(),
-            reviewedByUid: 'usr_admin_01',
-          )
-        else
-          req,
-    ];
+class PaymentRequestsNotifier extends StateNotifier<AsyncValue<List<StudioPaymentRequest>>> {
+  PaymentRequestsNotifier(this._firestore, this._controlPlane)
+      : super(const AsyncValue.loading()) {
+    loadPayments();
   }
 
-  void reject(String id, String reason) {
-    state = [
-      for (final req in state)
-        if (req.id == id)
-          StudioPaymentRequest(
-            id: req.id,
-            parentId: req.parentId,
-            parentName: req.parentName,
-            establishmentId: req.establishmentId,
-            amountXaf: req.amountXaf,
-            operator: req.operator,
-            reference: req.reference,
-            phoneNumber: req.phoneNumber,
-            status: PaymentRequestStatus.rejected,
-            createdAt: req.createdAt,
-            reviewedAt: DateTime.now().toIso8601String(),
-            reviewedByUid: 'usr_admin_01',
-            rejectionReason: reason,
-          )
-        else
-          req,
-    ];
+  final FirestoreRestClient _firestore;
+  final ControlPlaneClient _controlPlane;
+
+  Future<void> loadPayments() async {
+    state = const AsyncValue.loading();
+    try {
+      // 1. Attempt to fetch via Cloud Function callable
+      try {
+        final res = await _controlPlane.listMobileMoneyPayments();
+        final list = res.map((m) => StudioPaymentRequest.fromMap(m['id']?.toString() ?? '', m)).toList();
+        state = AsyncValue.data(list);
+        return;
+      } catch (_) {
+        // Fallback to bounded Firestore REST read on mobile_money_requests or payments
+      }
+
+      final docs = await _firestore.listDocuments('mobile_money_requests', pageSize: 50);
+      final list = docs.map((d) => StudioPaymentRequest.fromFirestore(d)).toList();
+      state = AsyncValue.data(list);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> approve(String id) async {
+    try {
+      await _controlPlane.reviewMobileMoneyPayment(
+        requestId: id,
+        decision: 'approved',
+      );
+      await loadPayments();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> reject(String id, String reason) async {
+    try {
+      await _controlPlane.reviewMobileMoneyPayment(
+        requestId: id,
+        decision: 'rejected',
+        reviewNote: reason,
+      );
+      await loadPayments();
+    } catch (e) {
+      rethrow;
+    }
   }
 }
-
-final legacyRecordsProvider = Provider<List<LegacyFinancialRecord>>((ref) {
-  return [
-    const LegacyFinancialRecord(
-      id: 'cred_old_01',
-      collectionName: 'Credit',
-      userId: 'usr_std_01',
-      rawData: {'balance': 150, 'source': 'initial_grant'},
-      classification: DataCollectionClassification.legacyRequiresClassification,
-      timestamp: '2025-09-12',
-    ),
-    const LegacyFinancialRecord(
-      id: 'tok_old_02',
-      collectionName: 'tokenBalances',
-      userId: 'usr_std_02',
-      rawData: {'tokens': 500, 'updatedAt': '2025-11-04'},
-      classification: DataCollectionClassification.legacyRequiresClassification,
-      timestamp: '2025-11-04',
-    ),
-    const LegacyFinancialRecord(
-      id: 'txn_old_03',
-      collectionName: 'transactions',
-      userId: 'usr_par_01',
-      rawData: {'amount': 2500, 'type': 'sub_monthly', 'status': 'completed'},
-      classification: DataCollectionClassification.observedInProduction,
-      timestamp: '2025-12-10',
-    ),
-  ];
-});
 
 class PaymentsScreen extends ConsumerWidget {
   const PaymentsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final requests = ref.watch(paymentRequestsProvider);
-    final legacyRecords = ref.watch(legacyRecordsProvider);
+    final state = ref.watch(paymentRequestsProvider);
 
     return DefaultTabController(
       length: 2,
@@ -157,11 +96,16 @@ class PaymentsScreen extends ConsumerWidget {
                       Text('Paiements & Mobile Money', style: Theme.of(context).textTheme.headlineMedium),
                       const SizedBox(height: 4),
                       const Text(
-                        'Validation des transferts Orange Money / MTN MoMo et registre des collections financières.',
+                        'Validation des transferts Orange Money / MTN MoMo via reviewMobileMoneyPayment et réconciliation.',
                         style: TextStyle(color: StudioColors.textSecondaryLight),
                       ),
                     ],
                   ),
+                ),
+                IconButton(
+                  tooltip: 'Actualiser la file',
+                  icon: const Icon(Icons.refresh_rounded),
+                  onPressed: () => ref.read(paymentRequestsProvider.notifier).loadPayments(),
                 ),
               ],
             ),
@@ -172,8 +116,8 @@ class PaymentsScreen extends ConsumerWidget {
               labelColor: StudioColors.navyPrimary,
               indicatorColor: StudioColors.goldAccent,
               tabs: [
-                Tab(text: 'File de Revue Mobile Money (Canonique)'),
-                Tab(text: 'Collections Historiques & Réconciliation (Lecture Seule)'),
+                Tab(text: 'File de Revue Mobile Money (reviewMobileMoneyPayment)'),
+                Tab(text: 'Audit des Collections Financières Historiques'),
               ],
             ),
             const SizedBox(height: 16),
@@ -181,118 +125,191 @@ class PaymentsScreen extends ConsumerWidget {
               child: TabBarView(
                 children: [
                   // Tab 1: Payment requests review
-                  StudioDataTable<StudioPaymentRequest>(
-                    items: requests,
-                    filterPredicate: (r, term) =>
-                        r.parentName.toLowerCase().contains(term) ||
-                        r.reference.toLowerCase().contains(term) ||
-                        r.phoneNumber.contains(term),
-                    columns: [
-                      StudioTableColumn(
-                        header: 'Demandeur / Téléphone',
-                        flex: 3,
-                        cellBuilder: (r) => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(r.parentName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Text(r.phoneNumber, style: const TextStyle(fontSize: 11, color: StudioColors.textSecondaryLight)),
-                          ],
-                        ),
+                  state.when(
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (err, _) => Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline_rounded, color: StudioColors.error, size: 48),
+                          const SizedBox(height: 12),
+                          Text('Erreur chargement file Mobile Money:\n$err',
+                              textAlign: TextAlign.center, style: const TextStyle(color: StudioColors.error)),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => ref.read(paymentRequestsProvider.notifier).loadPayments(),
+                            child: const Text('Réessayer'),
+                          ),
+                        ],
                       ),
-                      StudioTableColumn(
-                        header: 'Opérateur',
-                        flex: 2,
-                        cellBuilder: (r) => StudioBadge(
-                          label: r.operator == PaymentOperator.orangeMoney ? 'ORANGE MONEY' : 'MTN MOMO',
-                          variant: r.operator == PaymentOperator.orangeMoney
-                              ? StudioBadgeVariant.warning
-                              : StudioBadgeVariant.info,
-                        ),
-                      ),
-                      StudioTableColumn(
-                        header: 'Référence TX',
-                        flex: 2,
-                        cellBuilder: (r) => Text(r.reference, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w600)),
-                      ),
-                      StudioTableColumn(
-                        header: 'Montant',
-                        flex: 2,
-                        cellBuilder: (r) => Text(
-                          r.formattedAmount,
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: StudioColors.navyPrimary),
-                        ),
-                      ),
-                      StudioTableColumn(
-                        header: 'Statut',
-                        flex: 1,
-                        cellBuilder: (r) => StudioBadge(
-                          label: r.status.name.toUpperCase(),
-                          variant: r.status == PaymentRequestStatus.approved
-                              ? StudioBadgeVariant.success
-                              : r.status == PaymentRequestStatus.pending
-                              ? StudioBadgeVariant.warning
-                              : StudioBadgeVariant.error,
-                        ),
-                      ),
-                      StudioTableColumn(
-                        header: 'Actions',
-                        flex: 2,
-                        cellBuilder: (r) => r.status == PaymentRequestStatus.pending
-                            ? Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.check_circle_outline, color: StudioColors.success),
-                                    tooltip: 'Approuver (Émettre Entitlement)',
-                                    onPressed: () => _confirmApproval(context, ref, r),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.cancel_outlined, color: StudioColors.error),
-                                    tooltip: 'Rejeter avec motif',
-                                    onPressed: () => _confirmRejection(context, ref, r),
-                                  ),
-                                ],
-                              )
-                            : const Text('Traité', style: TextStyle(fontSize: 12, color: StudioColors.textSecondaryLight)),
-                      ),
-                    ],
+                    ),
+                    data: (requests) {
+                      if (requests.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.check_circle_outline_rounded, size: 48, color: StudioColors.success),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Aucune demande Mobile Money en attente de validation.',
+                                style: TextStyle(color: StudioColors.textSecondaryLight),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      return StudioDataTable<StudioPaymentRequest>(
+                        items: requests,
+                        filterPredicate: (r, term) =>
+                            r.parentName.toLowerCase().contains(term) ||
+                            r.reference.toLowerCase().contains(term) ||
+                            r.phoneNumber.contains(term),
+                        columns: [
+                          StudioTableColumn(
+                            header: 'Demandeur / Téléphone',
+                            flex: 3,
+                            cellBuilder: (r) => Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(r.parentName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(r.phoneNumber,
+                                    style: const TextStyle(fontSize: 11, color: StudioColors.textSecondaryLight)),
+                              ],
+                            ),
+                          ),
+                          StudioTableColumn(
+                            header: 'Opérateur',
+                            flex: 2,
+                            cellBuilder: (r) => StudioBadge(
+                              label: r.operator == PaymentOperator.orangeMoney ? 'ORANGE MONEY' : 'MTN MOMO',
+                              variant: r.operator == PaymentOperator.orangeMoney
+                                  ? StudioBadgeVariant.warning
+                                  : StudioBadgeVariant.info,
+                            ),
+                          ),
+                          StudioTableColumn(
+                            header: 'Référence TX',
+                            flex: 2,
+                            cellBuilder: (r) => Text(r.reference,
+                                style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w600)),
+                          ),
+                          StudioTableColumn(
+                            header: 'Montant',
+                            flex: 2,
+                            cellBuilder: (r) => Text(
+                              r.formattedAmount,
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: StudioColors.navyPrimary),
+                            ),
+                          ),
+                          StudioTableColumn(
+                            header: 'Statut',
+                            flex: 1,
+                            cellBuilder: (r) => StudioBadge(
+                              label: r.status.name.toUpperCase(),
+                              variant: r.status == PaymentRequestStatus.approved
+                                  ? StudioBadgeVariant.success
+                                  : r.status == PaymentRequestStatus.pending
+                                      ? StudioBadgeVariant.warning
+                                      : StudioBadgeVariant.error,
+                            ),
+                          ),
+                          StudioTableColumn(
+                            header: 'Actions',
+                            flex: 2,
+                            cellBuilder: (r) => r.status == PaymentRequestStatus.pending
+                                ? Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.check_circle_outline, color: StudioColors.success),
+                                        tooltip: 'Approuver (reviewMobileMoneyPayment)',
+                                        onPressed: () => _confirmApproval(context, ref, r),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.cancel_outlined, color: StudioColors.error),
+                                        tooltip: 'Rejeter',
+                                        onPressed: () => _confirmRejection(context, ref, r),
+                                      ),
+                                    ],
+                                  )
+                                : const Text('Traité', style: TextStyle(color: StudioColors.textSecondaryLight)),
+                          ),
+                        ],
+                      );
+                    },
                   ),
-                  // Tab 2: Legacy collections audit
-                  StudioDataTable<LegacyFinancialRecord>(
-                    items: legacyRecords,
-                    filterPredicate: (rec, term) =>
-                        rec.collectionName.toLowerCase().contains(term) ||
-                        rec.userId.toLowerCase().contains(term),
-                    columns: [
-                      StudioTableColumn(
-                        header: 'Collection Source',
-                        flex: 2,
-                        cellBuilder: (rec) => Text(rec.collectionName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      StudioTableColumn(
-                        header: 'Document ID',
-                        flex: 2,
-                        cellBuilder: (rec) => Text(rec.id, style: const TextStyle(fontFamily: 'monospace', fontSize: 11)),
-                      ),
-                      StudioTableColumn(
-                        header: 'User ID',
-                        flex: 2,
-                        cellBuilder: (rec) => Text(rec.userId),
-                      ),
-                      StudioTableColumn(
-                        header: 'Données Brutes',
-                        flex: 3,
-                        cellBuilder: (rec) => Text(rec.rawData.toString(), style: const TextStyle(fontSize: 11, fontFamily: 'monospace')),
-                      ),
-                      StudioTableColumn(
-                        header: 'Classification',
-                        flex: 2,
-                        cellBuilder: (rec) => const StudioBadge(
-                          label: 'HISTORIQUE (LECTURE SEULE)',
-                          variant: StudioBadgeVariant.neutral,
+
+                  // Tab 2: Historical Collections Read-only
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: StudioColors.info.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: StudioColors.info.withValues(alpha: 0.3)),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.history_rounded, color: StudioColors.navyPrimary, size: 20),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Classification financière : les collections Credit, payments, subscriptions, tokenBalances et transactions sont issues d\'itérations antérieures du produit. Elles sont consultables en lecture seule à des fins de réconciliation.',
+                                  style: TextStyle(fontSize: 12, color: StudioColors.navyPrimary),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: ListView(
+                            children: const [
+                              ListTile(
+                                leading: Icon(Icons.folder_outlined),
+                                title: Text('Credit'),
+                                subtitle: Text('Statut: LEGACY / HISTORIQUE — Soldes accordés par l\'ancienne logique de jetons'),
+                                trailing: StudioBadge(label: 'LECTURE SEULE', variant: StudioBadgeVariant.neutral),
+                              ),
+                              Divider(),
+                              ListTile(
+                                leading: Icon(Icons.folder_outlined),
+                                title: Text('payments'),
+                                subtitle: Text('Statut: HISTORIQUE — Transactions et reçus de paiement antérieurs'),
+                                trailing: StudioBadge(label: 'LECTURE SEULE', variant: StudioBadgeVariant.neutral),
+                              ),
+                              Divider(),
+                              ListTile(
+                                leading: Icon(Icons.folder_outlined),
+                                title: Text('subscriptions'),
+                                subtitle: Text('Statut: MIGRÉ VERS ENTITLEMENTS — Souscriptions préexistantes'),
+                                trailing: StudioBadge(label: 'ARCHIVÉ', variant: StudioBadgeVariant.neutral),
+                              ),
+                              Divider(),
+                              ListTile(
+                                leading: Icon(Icons.folder_outlined),
+                                title: Text('tokenBalances'),
+                                subtitle: Text('Statut: DÉPRÉCIÉ — Précédent système d\'unités d\'IA'),
+                                trailing: StudioBadge(label: 'DÉPRÉCIÉ', variant: StudioBadgeVariant.neutral),
+                              ),
+                              Divider(),
+                              ListTile(
+                                leading: Icon(Icons.folder_outlined),
+                                title: Text('transactions'),
+                                subtitle: Text('Statut: JOURNAL HISTORIQUE — Relevé de tous les flux entrants/sortants'),
+                                trailing: StudioBadge(label: 'AUDITABLE', variant: StudioBadgeVariant.neutral),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -303,49 +320,56 @@ class PaymentsScreen extends ConsumerWidget {
     );
   }
 
-  void _confirmApproval(BuildContext context, WidgetRef ref, StudioPaymentRequest req) async {
-    final reason = await ConfirmationDialog.show(
+  Future<void> _confirmApproval(BuildContext context, WidgetRef ref, StudioPaymentRequest req) async {
+    final confirmed = await ConfirmationDialog.show(
       context,
-      title: 'Validation Paiement Mobile Money',
-      message: 'Confirmez-vous la réception de ${req.formattedAmount} via ${req.operator.name} (Réf: ${req.reference}) ? '
-          'Cette action émettra immédiatement un droit d\'accès pour le parent.',
-      confirmLabel: 'Approuver et Activer',
-      requireReason: false,
+      title: 'Validation de paiement Mobile Money',
+      message:
+          'Confirmez-vous la réception du paiement de ${req.formattedAmount} (Réf: ${req.reference}) pour ${req.parentName} ? Cette action appellera reviewMobileMoneyPayment et activera les droits.',
+      confirmLabel: 'Approuver sur le serveur',
     );
-
-    if (reason != null) {
-      ref.read(paymentRequestsProvider.notifier).approve(req.id);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Paiement approuvé. Entitlement émis avec succès.'),
-            backgroundColor: StudioColors.success,
-          ),
-        );
+    if (confirmed != null) {
+      try {
+        await ref.read(paymentRequestsProvider.notifier).approve(req.id);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Paiement ${req.reference} approuvé avec succès.')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Échec: $e'), backgroundColor: StudioColors.error),
+          );
+        }
       }
     }
   }
 
-  void _confirmRejection(BuildContext context, WidgetRef ref, StudioPaymentRequest req) async {
+  Future<void> _confirmRejection(BuildContext context, WidgetRef ref, StudioPaymentRequest req) async {
     final reason = await ConfirmationDialog.show(
       context,
-      title: 'Rejet du Paiement Mobile Money',
-      message: 'Veuillez saisir le motif obligatoire du rejet (ex: transaction introuvable).',
-      confirmLabel: 'Confirmer le Rejet',
+      title: 'Rejet de la demande de paiement',
+      message: 'Veuillez saisir le motif du rejet pour ${req.parentName} (${req.reference}).',
       requireReason: true,
-      reasonLabel: 'Motif du rejet (visible par l\'administration)',
+      reasonLabel: 'Motif du rejet (transmis au parent)',
+      confirmLabel: 'Rejeter',
       isDestructive: true,
     );
-
-    if (reason != null) {
-      ref.read(paymentRequestsProvider.notifier).reject(req.id, reason);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Paiement rejeté avec motif enregistré.'),
-            backgroundColor: StudioColors.error,
-          ),
-        );
+    if (reason != null && reason.trim().isNotEmpty) {
+      try {
+        await ref.read(paymentRequestsProvider.notifier).reject(req.id, reason.trim());
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Demande rejetée: $reason')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Échec: $e'), backgroundColor: StudioColors.error),
+          );
+        }
       }
     }
   }

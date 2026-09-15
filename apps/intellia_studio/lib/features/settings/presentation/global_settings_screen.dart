@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/studio_theme.dart';
+import '../../../core/widgets/studio_badge.dart';
 
 class GlobalSettingsScreen extends ConsumerWidget {
   const GlobalSettingsScreen({super.key});
@@ -13,13 +14,49 @@ class GlobalSettingsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Paramètres Généraux du Système', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 4),
-          const Text(
-            'Configuration de l\'année académique, des quotas globaux et des modes opératoires.',
-            style: TextStyle(color: StudioColors.textSecondaryLight),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Paramètres Généraux du Système',
+                      style: Theme.of(context).textTheme.headlineMedium),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Constantes académiques et quotas nominaux d\'infrastructure (Mode Lecture Seule / Consultation).',
+                    style: TextStyle(color: StudioColors.textSecondaryLight),
+                  ),
+                ],
+              ),
+              const StudioBadge(
+                label: 'LECTURE SEULE / PARTIEL',
+                variant: StudioBadgeVariant.neutral,
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: StudioColors.warning.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: StudioColors.warning.withValues(alpha: 0.3)),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.shield_outlined, color: StudioColors.warning, size: 22),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Précision d\'Architecture : La collection Firestore settings/{uid} est réservée aux préférences par utilisateur. Aucun modèle de configuration globale modifiable n\'est provisionné sur le backend. Ces valeurs reflètent les constantes du système MINESEC et ne peuvent être modifiées sans un endpoint Cloud dédié.',
+                    style: TextStyle(fontSize: 12, color: StudioColors.navyPrimary),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
           Expanded(
             child: ListView(
               children: [
@@ -34,30 +71,21 @@ class GlobalSettingsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Année Scolaire & Calendrier Académique', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const SizedBox(height: 12),
-                        const TextField(
-                          decoration: InputDecoration(
-                            labelText: 'Année scolaire courante',
-                            helperText: 'Programme MINESEC Cameroun en vigueur',
-                          ),
-                          controller: null,
+                        const Text('Année Scolaire & Calendrier Académique',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const Divider(height: 24),
+                        const ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text('Année académique en vigueur'),
+                          subtitle: Text('2025 - 2026 (Calendrier officiel MINESEC Cameroun)'),
+                          trailing: StudioBadge(label: 'ACTIF', variant: StudioBadgeVariant.success),
                         ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            const Text('Trimestre actif :'),
-                            const SizedBox(width: 16),
-                            DropdownButton<String>(
-                              value: 'T3',
-                              items: const [
-                                DropdownMenuItem(value: 'T1', child: Text('1er Trimestre')),
-                                DropdownMenuItem(value: 'T2', child: Text('2ème Trimestre')),
-                                DropdownMenuItem(value: 'T3', child: Text('3ème Trimestre (Examens Bacc & BEPC)')),
-                              ],
-                              onChanged: (_) {},
-                            ),
-                          ],
+                        const Divider(),
+                        const ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text('Période académique courante'),
+                          subtitle: Text('3ème Trimestre (Préparation aux épreuves nationales Bacc & BEPC)'),
+                          trailing: StudioBadge(label: 'TRIMESTRE 3', variant: StudioBadgeVariant.info),
                         ),
                       ],
                     ),
@@ -75,11 +103,29 @@ class GlobalSettingsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Quotas Nominales Tuteur IA', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        SizedBox(height: 12),
-                        Text('TUTOR_DAILY_QUESTION_LIMIT par défaut : 20 questions / jour / élève'),
-                        SizedBox(height: 6),
-                        Text('Study Reserve Unit Standard : 600 000 unités par cycle de 30 jours'),
+                        Text('Quotas Nominales & Paramètres IA Serveur',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        Divider(height: 24),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text('Limite journalière Kira & Léo (TUTOR_DAILY_QUESTION_LIMIT)'),
+                          subtitle: Text('20 questions par jour et par élève (défini dans backend Functions)'),
+                          trailing: Text('20 req/j', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        Divider(),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text('Seuils canoniques Réserve d\'Étude'),
+                          subtitle: Text('[75%, 50%, 25%, 5%, 0%] avec émission d\'alerte FCM'),
+                          trailing: Text('Canonicaux', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        Divider(),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text('Région de calcul Cloud Functions'),
+                          subtitle: Text('europe-west1 (Projet Firebase edunova-aabd1)'),
+                          trailing: Text('europe-west1', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
                       ],
                     ),
                   ),

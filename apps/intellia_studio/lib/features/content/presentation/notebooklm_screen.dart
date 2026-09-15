@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/studio_providers.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 
@@ -12,10 +13,15 @@ class NotebookLmScreen extends ConsumerStatefulWidget {
 }
 
 class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
-  final notebookIdCtrl = TextEditingController(text: 'ntb_cameroun_bacc_2026');
-  final docNameCtrl = TextEditingController(text: 'Epreuve_Math_Zero_2026.pdf');
+  final storagePathCtrl = TextEditingController(
+    text: 'educational_assets/global/terminale/mathematiques/cours_chapitre_1.png',
+  );
+  final subjectCtrl = TextEditingController(text: 'Mathématiques');
+  String selectedClassLevel = 'terminale';
+
   bool isAnalyzing = false;
-  bool isExtracted = false;
+  String? errorMessage;
+  Map<String, dynamic>? extractionResult;
 
   @override
   Widget build(BuildContext context) {
@@ -30,17 +36,20 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('NotebookLM Import Center', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Import de Cours & Documents Structurés (importCoursePages)',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
-                      'Ingestion de documents de cours, manuels officiels et génération de brouillons supervisés.',
+                      'Ingestion multimodale via Cloud Function (Gemini) : compatible exports NotebookLM et numérisations officielles.',
                       style: TextStyle(color: StudioColors.textSecondaryLight),
                     ),
                   ],
                 ),
               ),
               const StudioBadge(
-                label: 'PROVENANCE TRACKING ACTIF',
+                label: 'MULTIMODAL GEMINI PIPELINE',
                 variant: StudioBadgeVariant.info,
               ),
             ],
@@ -51,7 +60,7 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 420,
+                  width: 440,
                   child: Card(
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -64,67 +73,94 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Paramètres de la source',
+                            'Paramètres d\'Ingestion Server-Side',
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           const Divider(height: 24),
-                          TextField(
-                            controller: notebookIdCtrl,
+                          DropdownButtonFormField<String>(
+                            initialValue: selectedClassLevel,
                             decoration: const InputDecoration(
-                              labelText: 'Identifiant NotebookLM / Projet',
-                              prefixIcon: Icon(Icons.auto_awesome),
+                              labelText: 'Niveau Scolaire',
+                              prefixIcon: Icon(Icons.school_rounded),
+                            ),
+                            items: const [
+                              DropdownMenuItem(value: 'terminale', child: Text('Terminale')),
+                              DropdownMenuItem(value: 'premiere', child: Text('Première')),
+                              DropdownMenuItem(value: 'seconde', child: Text('Seconde')),
+                              DropdownMenuItem(value: '3eme', child: Text('3ème')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) setState(() => selectedClassLevel = val);
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: subjectCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Discipline / Matière',
+                              prefixIcon: Icon(Icons.book_rounded),
                             ),
                           ),
                           const SizedBox(height: 16),
                           TextField(
-                            controller: docNameCtrl,
+                            controller: storagePathCtrl,
                             decoration: const InputDecoration(
-                              labelText: 'Nom du document source',
-                              prefixIcon: Icon(Icons.picture_as_pdf),
+                              labelText: 'Chemin Cloud Storage (educational_assets/...)',
+                              prefixIcon: Icon(Icons.cloud_done_rounded),
+                              hintText: 'educational_assets/{scope}/{class}/{subject}/...',
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 16),
                           Container(
-                            height: 140,
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              border: Border.all(
-                                color: StudioColors.goldAccent.withValues(alpha: 0.5),
-                                style: BorderStyle.solid,
-                              ),
+                              color: StudioColors.goldAccent.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
-                              color: StudioColors.goldAccent.withValues(alpha: 0.04),
-                            ),
-                            child: const Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.cloud_upload_outlined, size: 36, color: StudioColors.navyPrimary),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'Déposez votre PDF ou scan de cours ici',
-                                    style: TextStyle(fontWeight: FontWeight.w600),
-                                  ),
-                                  Text(
-                                    'PDF jusqu’à 14 MB (conforme quota serveur)',
-                                    style: TextStyle(fontSize: 11, color: StudioColors.textSecondaryLight),
-                                  ),
-                                ],
+                              border: Border.all(
+                                color: StudioColors.goldAccent.withValues(alpha: 0.3),
                               ),
+                            ),
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.info_outline_rounded,
+                                        size: 16, color: StudioColors.navyPrimary),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Contrat Multimodal Autoritaire',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          color: StudioColors.navyPrimary),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Les fichiers doivent résider dans le bucket sécurisé sous educational_assets/. Le callable analyse les pages en une passe avec Gemini 2.5 et synthétise leçon, quiz et cartes FLOW.',
+                                  style: TextStyle(fontSize: 11, color: StudioColors.navyPrimary),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 20),
                           SizedBox(
                             width: double.infinity,
                             child: FilledButton.icon(
-                              onPressed: isAnalyzing ? null : _simulateExtraction,
+                              onPressed: isAnalyzing ? null : _triggerRealImport,
                               icon: isAnalyzing
                                   ? const SizedBox(
                                       width: 16,
                                       height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2, color: Colors.white),
                                     )
                                   : const Icon(Icons.bolt_rounded),
-                              label: Text(isAnalyzing ? 'Extraction Gemini en cours...' : 'Analyser avec Gemini'),
+                              label: Text(isAnalyzing
+                                  ? 'Appel Cloud Function en cours...'
+                                  : 'Ingérer via importCoursePages'),
                             ),
                           ),
                         ],
@@ -149,64 +185,95 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'Brouillons générés (Revue requise)',
+                                'Résultat de la Synthèse Multimodale',
                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
-                              if (isExtracted)
-                                FilledButton.icon(
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Leçon et Quiz créés en statut Brouillon avec étiquette NotebookLM.'),
-                                        backgroundColor: StudioColors.success,
-                                      ),
-                                    );
-                                  },
-                                  icon: const Icon(Icons.done_all_rounded),
-                                  label: const Text('Transférer dans le Curriculum'),
+                              if (extractionResult != null)
+                                const StudioBadge(
+                                  label: 'SYNTHÈSE DISPONIBLE',
+                                  variant: StudioBadgeVariant.success,
                                 ),
                             ],
                           ),
                           const Divider(height: 24),
+                          if (errorMessage != null)
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              margin: const EdgeInsets.only(bottom: 16),
+                              decoration: BoxDecoration(
+                                color: StudioColors.error.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: StudioColors.error),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.error_outline, color: StudioColors.error),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      errorMessage!,
+                                      style: const TextStyle(
+                                          color: StudioColors.error, fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           Expanded(
-                            child: !isExtracted
+                            child: extractionResult == null
                                 ? const Center(
                                     child: Text(
-                                      'Lancez l’analyse pour prévisualiser la leçon et le QCM proposés.',
+                                      'Spécifiez le chemin d\'un actif dans Storage et lancez l\'ingestion pour obtenir la synthèse Gemini.',
                                       style: TextStyle(color: StudioColors.textSecondaryLight),
                                     ),
                                   )
                                 : ListView(
                                     children: [
-                                      const ListTile(
+                                      ListTile(
                                         tileColor: StudioColors.backgroundLight,
-                                        leading: Icon(Icons.menu_book, color: StudioColors.navyPrimary),
-                                        title: Text('Brouillon de Leçon : Nombres Complexes et Géométrie'),
-                                        subtitle: Text('3 blocs textuels • 1 formule clé • Est. 25 min'),
-                                        trailing: StudioBadge(
-                                          label: 'ORIGINE: NOTEBOOKLM',
+                                        leading: const Icon(Icons.menu_book,
+                                            color: StudioColors.navyPrimary),
+                                        title: Text(
+                                          extractionResult?['lessonTitle'] as String? ??
+                                              'Brouillon de Leçon Généré',
+                                        ),
+                                        subtitle: Text(
+                                          'Niveau: $selectedClassLevel • Matière: ${subjectCtrl.text}',
+                                        ),
+                                        trailing: const StudioBadge(
+                                          label: 'LEÇON',
                                           variant: StudioBadgeVariant.info,
                                         ),
                                       ),
                                       const SizedBox(height: 12),
-                                      const ListTile(
+                                      ListTile(
                                         tileColor: StudioColors.backgroundLight,
-                                        leading: Icon(Icons.quiz, color: StudioColors.navyPrimary),
-                                        title: Text('Banque QCM : 5 questions à choix multiple'),
-                                        subtitle: Text('Solutions argumentées et indices d’apprentissage inclus'),
-                                        trailing: StudioBadge(
-                                          label: 'DIFFICULTÉ : MOYENNE',
-                                          variant: StudioBadgeVariant.neutral,
+                                        leading: const Icon(Icons.quiz,
+                                            color: StudioColors.navyPrimary),
+                                        title: Text(
+                                          'Questions QCM : ${(extractionResult?['quizzes'] as List?)?.length ?? 0} générée(s)',
+                                        ),
+                                        subtitle: const Text(
+                                          'Solutions argumentées avec distracteurs canoniques',
+                                        ),
+                                        trailing: const StudioBadge(
+                                          label: 'QUIZ',
+                                          variant: StudioBadgeVariant.success,
                                         ),
                                       ),
                                       const SizedBox(height: 12),
-                                      const ListTile(
+                                      ListTile(
                                         tileColor: StudioColors.backgroundLight,
-                                        leading: Icon(Icons.view_carousel, color: StudioColors.navyPrimary),
-                                        title: Text('Carte FLOW candidate : Notion clé sur le module complexe'),
-                                        subtitle: Text('Accroche brève pour révision mobile rapide'),
-                                        trailing: StudioBadge(
-                                          label: 'FLOW CANDIDAT',
+                                        leading: const Icon(Icons.view_carousel,
+                                            color: StudioColors.navyPrimary),
+                                        title: Text(
+                                          'Cartes FLOW : ${(extractionResult?['flowCards'] as List?)?.length ?? 0} candidate(s)',
+                                        ),
+                                        subtitle: const Text(
+                                          'Micro-notions synthétisées pour l\'app mobile',
+                                        ),
+                                        trailing: const StudioBadge(
+                                          label: 'FLOW',
                                           variant: StudioBadgeVariant.warning,
                                         ),
                                       ),
@@ -226,15 +293,37 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
     );
   }
 
-  void _simulateExtraction() {
-    setState(() => isAnalyzing = true);
-    Future.delayed(const Duration(seconds: 1), () {
+  Future<void> _triggerRealImport() async {
+    setState(() {
+      isAnalyzing = true;
+      errorMessage = null;
+    });
+
+    final controlPlane = ref.read(controlPlaneClientProvider);
+    final path = storagePathCtrl.text.trim();
+
+    try {
+      final res = await controlPlane.importCoursePages(
+        pages: [
+          {'storagePath': path, 'pageNumber': 1}
+        ],
+        classLevel: selectedClassLevel,
+        subjectId: subjectCtrl.text.trim(),
+      );
+
       if (mounted) {
         setState(() {
           isAnalyzing = false;
-          isExtracted = true;
+          extractionResult = res;
         });
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          isAnalyzing = false;
+          errorMessage = 'Erreur lors de l\'ingestion Cloud Function : $e';
+        });
+      }
+    }
   }
 }

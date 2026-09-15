@@ -1,14 +1,131 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
+
+enum ServiceProbeStatus { checking, reachable, unreachable, unknown }
+
+class ServiceHealthProbe {
+  final String serviceName;
+  final String targetUrl;
+  final ServiceProbeStatus status;
+  final int? latencyMs;
+  final String details;
+
+  const ServiceHealthProbe({
+    required this.serviceName,
+    required this.targetUrl,
+    required this.status,
+    this.latencyMs,
+    required this.details,
+  });
+}
+
+final connectivityHealthProvider =
+    StateNotifierProvider<ConnectivityHealthNotifier, List<ServiceHealthProbe>>((ref) {
+  return ConnectivityHealthNotifier();
+});
+
+class ConnectivityHealthNotifier extends StateNotifier<List<ServiceHealthProbe>> {
+  ConnectivityHealthNotifier()
+      : super([
+          const ServiceHealthProbe(
+            serviceName: 'Firebase Authentication REST API',
+            targetUrl: 'https://identitytoolkit.googleapis.com',
+            status: ServiceProbeStatus.checking,
+            details: 'Vérification du service d\'authentification...',
+          ),
+          const ServiceHealthProbe(
+            serviceName: 'Cloud Firestore REST Gateway',
+            targetUrl: 'https://firestore.googleapis.com',
+            status: ServiceProbeStatus.checking,
+            details: 'Vérification de la passerelle Firestore...',
+          ),
+          const ServiceHealthProbe(
+            serviceName: 'Control Plane Functions (europe-west1)',
+            targetUrl: 'https://europe-west1-edunova-aabd1.cloudfunctions.net',
+            status: ServiceProbeStatus.checking,
+            details: 'Vérification du point d\'accès Cloud Functions...',
+          ),
+          const ServiceHealthProbe(
+            serviceName: 'Cloud Storage Bucket (Assets Éducatifs)',
+            targetUrl: 'https://storage.googleapis.com',
+            status: ServiceProbeStatus.checking,
+            details: 'Vérification de la disponibilité du bucket...',
+          ),
+        ]) {
+    runProbes();
+  }
+
+  Future<void> runProbes() async {
+    final updated = <ServiceHealthProbe>[];
+
+    for (final probe in state) {
+      final sw = Stopwatch()..start();
+      try {
+        final uri = Uri.parse(probe.targetUrl);
+        final response = await http.get(uri).timeout(const Duration(seconds: 4));
+        sw.stop();
+        final latency = sw.elapsedMilliseconds;
+
+        // Even if 404 or 403, the endpoint is reachable at network level
+        final isReachable = response.statusCode > 0 && response.statusCode < 500;
+        updated.add(ServiceHealthProbe(
+          serviceName: probe.serviceName,
+          targetUrl: probe.targetUrl,
+          status: isReachable ? ServiceProbeStatus.reachable : ServiceProbeStatus.unknown,
+          latencyMs: latency,
+          details: isReachable
+              ? 'Point d\'accès joignable (HTTP ${response.statusCode})'
+              : 'Réponse anormale (HTTP ${response.statusCode})',
+        ));
+      } on SocketException catch (e) {
+        sw.stop();
+        updated.add(ServiceHealthProbe(
+          serviceName: probe.serviceName,
+          targetUrl: probe.targetUrl,
+          status: ServiceProbeStatus.unreachable,
+          latencyMs: sw.elapsedMilliseconds,
+          details: 'Erreur réseau socket : ${e.osError?.message ?? e.message}',
+        ));
+      } on TimeoutException {
+        sw.stop();
+        updated.add(ServiceHealthProbe(
+          serviceName: probe.serviceName,
+          targetUrl: probe.targetUrl,
+          status: ServiceProbeStatus.unreachable,
+          latencyMs: sw.elapsedMilliseconds,
+          details: 'Délai d\'attente dépassé (> 4s)',
+        ));
+      } catch (e) {
+        sw.stop();
+        updated.add(ServiceHealthProbe(
+          serviceName: probe.serviceName,
+          targetUrl: probe.targetUrl,
+          status: ServiceProbeStatus.unknown,
+          latencyMs: sw.elapsedMilliseconds,
+          details: 'Erreur de sonde: $e',
+        ));
+      }
+    }
+
+    state = updated;
+  }
+}
 
 class SystemHealthScreen extends ConsumerWidget {
   const SystemHealthScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final probes = ref.watch(connectivityHealthProvider);
+    final allReachable = probes.every((p) => p.status == ServiceProbeStatus.reachable);
+    final hasUnreachable = probes.any((p) => p.status == ServiceProbeStatus.unreachable);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -17,69 +134,126 @@ class SystemHealthScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('État de Santé du Système (System Health)', style: Theme.of(context).textTheme.headlineMedium),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Surveillance en temps réel des services Cloud, latences API, quotas et erreurs d\'infrastructure.',
-                    style: TextStyle(color: StudioColors.textSecondaryLight),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Santé de Connectivité & Configuration',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Mesure objective de latence et joignabilité des services cloud (Production edunova-aabd1).',
+                      style: TextStyle(color: StudioColors.textSecondaryLight),
+                    ),
+                  ],
+                ),
               ),
-              const StudioBadge(label: 'TOUS SYSTÈMES OPÉRATIONNELS', variant: StudioBadgeVariant.success),
+              IconButton(
+                tooltip: 'Relancer les sondes',
+                icon: const Icon(Icons.refresh_rounded),
+                onPressed: () => ref.read(connectivityHealthProvider.notifier).runProbes(),
+              ),
+              const SizedBox(width: 8),
+              StudioBadge(
+                label: allReachable
+                    ? 'POINTS D\'ACCÈS JOIGNABLES'
+                    : (hasUnreachable ? 'CONNECTIVITÉ DÉGRADÉE' : 'VÉRIFICATION EN COURS'),
+                variant: allReachable
+                    ? StudioBadgeVariant.success
+                    : (hasUnreachable ? StudioBadgeVariant.error : StudioBadgeVariant.warning),
+              ),
             ],
           ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: ListView(
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: StudioColors.navyPrimary.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: StudioColors.navyPrimary.withValues(alpha: 0.2)),
+            ),
+            child: const Row(
               children: [
-                _buildServiceCard('Firebase Authentication', 'Opérationnel', '99.99%', '35 ms', StudioBadgeVariant.success),
-                const SizedBox(height: 12),
-                _buildServiceCard('Cloud Firestore (Production edunova-aabd1)', 'Opérationnel', '100%', '42 ms', StudioBadgeVariant.success),
-                const SizedBox(height: 12),
-                _buildServiceCard('Cloud Functions (Node.js 20)', 'Opérationnel', '99.95%', '180 ms', StudioBadgeVariant.success),
-                const SizedBox(height: 12),
-                _buildServiceCard('Vertex AI & Gemini API (Kira & Léo)', 'Opérationnel', '99.88%', '820 ms', StudioBadgeVariant.success),
-                const SizedBox(height: 12),
-                _buildServiceCard('Firebase Cloud Messaging (FCM Push)', 'Opérationnel', '99.91%', '110 ms', StudioBadgeVariant.success),
-                const SizedBox(height: 12),
-                _buildServiceCard('Cloud Storage (Assets éducatifs)', 'Opérationnel', '100%', '65 ms', StudioBadgeVariant.success),
+                Icon(Icons.info_outline_rounded, color: StudioColors.navyPrimary, size: 20),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Transparence d\'Infrastructure : La joignabilité HTTP mesure l\'accessibilité réseau client-serveur et la latence aller-retour réelle. Elle ne remplace pas le monitoring interne des métriques Google Cloud.',
+                    style: TextStyle(fontSize: 12, color: StudioColors.navyPrimary),
+                  ),
+                ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildServiceCard(String serviceName, String status, String uptime, String latency, StudioBadgeVariant variant) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: StudioColors.borderLight),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            const Icon(Icons.check_circle_rounded, color: StudioColors.success, size: 24),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(serviceName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  const SizedBox(height: 2),
-                  Text('Disponibilité : $uptime • Latence moyenne : $latency', style: const TextStyle(fontSize: 12, color: StudioColors.textSecondaryLight)),
-                ],
-              ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: ListView.separated(
+              itemCount: probes.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
+              itemBuilder: (ctx, idx) {
+                final probe = probes[idx];
+                return Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: StudioColors.borderLight),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(
+                          probe.status == ServiceProbeStatus.reachable
+                              ? Icons.check_circle_rounded
+                              : (probe.status == ServiceProbeStatus.checking
+                                  ? Icons.hourglass_top_rounded
+                                  : Icons.cancel_rounded),
+                          color: probe.status == ServiceProbeStatus.reachable
+                              ? StudioColors.success
+                              : (probe.status == ServiceProbeStatus.checking
+                                  ? StudioColors.warning
+                                  : StudioColors.error),
+                          size: 24,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(probe.serviceName,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold, fontSize: 14)),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${probe.details} • Latence : ${probe.latencyMs != null ? "${probe.latencyMs} ms" : "—"}',
+                                style: const TextStyle(
+                                    fontSize: 12, color: StudioColors.textSecondaryLight),
+                              ),
+                            ],
+                          ),
+                        ),
+                        StudioBadge(
+                          label: probe.status == ServiceProbeStatus.reachable
+                              ? 'JOIGNABLE'
+                              : (probe.status == ServiceProbeStatus.checking
+                                  ? 'SONDE...'
+                                  : 'INACCESSIBLE'),
+                          variant: probe.status == ServiceProbeStatus.reachable
+                              ? StudioBadgeVariant.success
+                              : (probe.status == ServiceProbeStatus.checking
+                                  ? StudioBadgeVariant.warning
+                                  : StudioBadgeVariant.error),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-            StudioBadge(label: status.toUpperCase(), variant: variant),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

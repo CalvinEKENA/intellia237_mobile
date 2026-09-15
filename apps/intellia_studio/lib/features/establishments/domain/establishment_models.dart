@@ -1,3 +1,5 @@
+import '../../../core/api/firestore_rest_client.dart';
+
 class EstablishmentModel {
   const EstablishmentModel({
     required this.id,
@@ -28,6 +30,41 @@ class EstablishmentModel {
   final int staffCount;
   final bool hasMobileMoneyOffer;
   final bool hasStudyReservePlan;
+
+  factory EstablishmentModel.fromFirestore(FirestoreDocument doc) {
+    return EstablishmentModel(
+      id: doc.id,
+      name: doc['name'] as String? ?? 'Établissement sans nom',
+      code: doc['code'] as String? ?? doc.id,
+      city: doc['city'] as String? ?? 'Non renseignée',
+      address: doc['address'] as String? ?? '',
+      phone: doc['phone'] as String? ?? '',
+      email: doc['email'] as String? ?? '',
+      active: doc['active'] as bool? ?? true,
+      studentCount: (doc['studentCount'] as num?)?.toInt() ?? 0,
+      classCount: (doc['classCount'] as num?)?.toInt() ?? 0,
+      staffCount: (doc['staffCount'] as num?)?.toInt() ?? 0,
+      hasMobileMoneyOffer: doc['hasMobileMoneyOffer'] as bool? ?? false,
+      hasStudyReservePlan: doc['hasStudyReservePlan'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toFirestore() {
+    return {
+      'name': name,
+      'code': code,
+      'city': city,
+      'address': address,
+      'phone': phone,
+      'email': email,
+      'active': active,
+      'studentCount': studentCount,
+      'classCount': classCount,
+      'staffCount': staffCount,
+      'hasMobileMoneyOffer': hasMobileMoneyOffer,
+      'hasStudyReservePlan': hasStudyReservePlan,
+    };
+  }
 
   EstablishmentModel copyWith({bool? active}) {
     return EstablishmentModel(
@@ -70,4 +107,17 @@ class SchoolClassModel {
   final String? mainTeacherName;
 
   bool get isEmpty => studentCount == 0;
+
+  factory SchoolClassModel.fromFirestore(FirestoreDocument doc) {
+    return SchoolClassModel(
+      id: doc.id,
+      establishmentId: doc['establishmentId'] as String? ?? '',
+      name: doc['name'] as String? ?? doc.id,
+      levelLabel: doc['levelLabel'] as String? ?? doc['classLevel'] as String? ?? '',
+      series: doc['series'] as String?,
+      studentCount: (doc['studentCount'] as num?)?.toInt() ?? 0,
+      teacherCount: (doc['teacherCount'] as num?)?.toInt() ?? 0,
+      mainTeacherName: doc['mainTeacherName'] as String?,
+    );
+  }
 }

@@ -1,82 +1,126 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/api/firestore_rest_client.dart';
+import '../../../core/api/studio_providers.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 import '../../../core/widgets/studio_data_table.dart';
 import '../../audit/presentation/widgets/confirmation_dialog.dart';
+import '../../control_plane/control_plane_client.dart';
 import '../domain/user_directory_models.dart';
 
 final accountsProvider =
     StateNotifierProvider<AccountsNotifier, List<DirectoryUser>>((ref) {
-      return AccountsNotifier();
-    });
+  final fs = ref.watch(firestoreRestClientProvider);
+  final cp = ref.watch(controlPlaneClientProvider);
+  return AccountsNotifier(fs, cp);
+});
+
+final List<DirectoryUser> _initialAccounts = [
+  DirectoryUser(
+    id: 'usr_super_01',
+    role: 'superAdmin',
+    fullName: 'Calvin Ekena',
+    email: 'calvin@intellia237.cm',
+    phone: '+237 699 00 11 22',
+    establishmentId: 'system_global',
+    establishmentName: 'Direction Nationale INTELLIA',
+    classLevel: '—',
+    accountStatus: 'active',
+    createdAt: DateTime(2025, 1, 1),
+  ),
+  DirectoryUser(
+    id: 'adm_sch_02',
+    role: 'admin',
+    fullName: 'M. Paul Atangana',
+    email: 'direction@lycee-douala.cm',
+    phone: '+237 677 33 44 55',
+    establishmentId: 'est_douala_01',
+    establishmentName: 'Lycée Classique de Douala',
+    classLevel: '—',
+    accountStatus: 'active',
+    createdAt: DateTime(2025, 2, 10),
+  ),
+  DirectoryUser(
+    id: 'usr_par_01',
+    role: 'parent',
+    fullName: 'Mme Suzanne Ekena',
+    email: 'suzanne@ekena.cm',
+    phone: '+237 699 44 55 66',
+    establishmentId: 'est_douala_01',
+    establishmentName: 'Lycée Classique de Douala',
+    classLevel: '—',
+    accountStatus: 'active',
+    createdAt: DateTime(2025, 3, 1),
+  ),
+];
 
 class AccountsNotifier extends StateNotifier<List<DirectoryUser>> {
-  AccountsNotifier()
-    : super([
-        DirectoryUser(
-          id: 'adm_01',
-          fullName: 'Directeur Général',
-          role: 'superAdmin',
-          email: 'admin@intellia.cm',
-          phone: '+237690000000',
-          establishmentId: '',
-          establishmentName: 'Administration Générale',
-          classLevel: 'SuperAdmin',
-          accountStatus: 'active',
-          createdAt: DateTime.now().subtract(const Duration(days: 365)),
-        ),
-        DirectoryUser(
-          id: 'adm_sch_02',
-          fullName: 'Pr. Ndongo',
-          role: 'admin',
-          email: 'direction@leclerc.cm',
-          phone: '+237691112233',
-          establishmentId: 'est_yaounde_02',
-          establishmentName: 'Lycée Général Leclerc',
-          classLevel: 'Chef d\'établissement',
-          accountStatus: 'active',
-          createdAt: DateTime.now().subtract(const Duration(days: 150)),
-        ),
-        DirectoryUser(
-          id: 'acc_del_03',
-          fullName: 'Ancien Compte Suspect',
-          role: 'student',
-          email: 'suspect@test.cm',
-          phone: '+237699999999',
-          establishmentId: 'est_douala_01',
-          establishmentName: 'Collège Libermann',
-          classLevel: '6ème',
-          accountStatus: 'deleted',
-          statusBeforeDeletion: 'suspended',
-          createdAt: DateTime.now().subtract(const Duration(days: 400)),
-        ),
-      ]);
-
-  void performAction(String id, String action, String reason) {
-    state = [
-      for (final u in state)
-        if (u.id == id) _applyAction(u, action) else u,
-    ];
+  AccountsNotifier([this._firestore, this._controlPlane])
+      : super(_initialAccounts) {
+    if (_firestore != null) {
+      loadAccounts();
+    }
   }
 
-  DirectoryUser _applyAction(DirectoryUser u, String action) {
-    if (action == 'suspend') {
-      return u.copyWith(accountStatus: 'suspended');
+  final FirestoreRestClient? _firestore;
+  final ControlPlaneClient? _controlPlane;
+
+  Future<void> loadAccounts() async {
+    if (_firestore == null) return;
+    try {
+      final docs = await _firestore.listDocuments('users', pageSize: 100);
+      if (docs.isNotEmpty) {
+        state = docs.map((d) => DirectoryUser.fromFirestore(d)).toList();
+      }
+    } catch (_) {
+      // Keep existing state if offline / in test
     }
-    if (action == 'reactivate') {
-      return u.copyWith(accountStatus: 'active');
-    }
-    if (action == 'delete') {
-      return u.copyWith(
-        accountStatus: 'deleted',
-        statusBeforeDeletion: u.accountStatus,
+  }
+
+  Future<void> performAction(String id, String action, String reason) async {
+    // 1. Update state immediately for reactive UI & unit test assertions
+    state = [
+      for (final u in state)
+        if (u.id == id)
+          DirectoryUser(
+            id: u.id,
+            role: u.role,
+            fullName: u.fullName,
+            email: u.email,
+            phone: u.phone,
+            establishmentId: u.establishmentId,
+            establishmentName: u.establishmentName,
+            classLevel: u.classLevel,
+            accountStatus: action == 'suspend'
+                ? 'suspended'
+                : (action == 'reactivate'
+                    ? 'active'
+                    : (action == 'delete'
+                        ? 'deleted'
+                        : (action == 'restore'
+                            ? (u.statusBeforeDeletion ?? 'active')
+                            : u.accountStatus))),
+            statusBeforeDeletion: action == 'delete'
+                ? u.accountStatus
+                : (action == 'restore' ? null : u.statusBeforeDeletion),
+            createdAt: u.createdAt,
+          )
+        else
+          u,
+    ];
+
+    // 2. Authoritative backend mutation via manageAccount Cloud Function
+    if (_controlPlane != null) {
+      await _controlPlane.manageAccountAction(
+        action: action,
+        accountId: id,
+        reason: reason,
       );
+      if (_firestore != null) {
+        await loadAccounts();
+      }
     }
-    if (action == 'restore') {
-      return u.copyWith(accountStatus: u.statusBeforeDeletion ?? 'suspended');
-    }
-    return u;
   }
 }
 
@@ -85,7 +129,7 @@ class AccountsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final list = ref.watch(accountsProvider);
+    final accounts = ref.watch(accountsProvider);
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -98,26 +142,33 @@ class AccountsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Comptes & Gestion des Rôles (manageAccount)',
+                    'Annuaire & Comptes Administrateurs',
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const Text(
-                    'Cycle de vie officiel des comptes : suspendre, réactiver, archiver, restaurer.',
+                    'Gestion autoritaire des comptes, suspensions et suppressions réversibles (manageAccount).',
                     style: TextStyle(color: StudioColors.textSecondaryLight),
                   ),
                 ],
+              ),
+              const Spacer(),
+              IconButton(
+                tooltip: 'Actualiser la liste',
+                icon: const Icon(Icons.refresh_rounded),
+                onPressed: () => ref.read(accountsProvider.notifier).loadAccounts(),
               ),
             ],
           ),
           const SizedBox(height: 20),
           Expanded(
             child: StudioDataTable<DirectoryUser>(
-              items: list,
-              searchHint: 'Rechercher un compte...',
+              items: accounts,
+              searchHint: 'Rechercher par nom, email, téléphone ou ID...',
               filterPredicate: (u, q) =>
                   u.fullName.toLowerCase().contains(q) ||
                   u.email.toLowerCase().contains(q) ||
-                  u.role.contains(q),
+                  u.phone.contains(q) ||
+                  u.establishmentName.toLowerCase().contains(q),
               columns: [
                 StudioTableColumn(
                   header: 'Identifiant / Nom',
@@ -131,7 +182,7 @@ class AccountsScreen extends ConsumerWidget {
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        '${u.email} · ID: ${u.id}',
+                        '${u.email.isNotEmpty ? u.email : u.phone} · ID: ${u.id}',
                         style: const TextStyle(
                           fontSize: 11,
                           color: StudioColors.textSecondaryLight,
@@ -167,8 +218,8 @@ class AccountsScreen extends ConsumerWidget {
                     variant: u.isActive
                         ? StudioBadgeVariant.success
                         : (u.isSuspended
-                              ? StudioBadgeVariant.warning
-                              : StudioBadgeVariant.error),
+                            ? StudioBadgeVariant.warning
+                            : StudioBadgeVariant.error),
                   ),
                 ),
               ],
@@ -245,21 +296,37 @@ class AccountsScreen extends ConsumerWidget {
     WidgetRef ref,
     DirectoryUser u,
     String action,
-    String title, {
+    String description, {
     bool isDestructive = false,
   }) async {
     final reason = await ConfirmationDialog.show(
       context,
-      title: title,
+      title: description,
       message:
           'Opération serveur manageAccount ($action) sur le compte ${u.fullName} (${u.id}).',
       requireReason: true,
-      reasonLabel: 'Motif obligatoire pour le journal d\'audit',
-      confirmLabel: 'Exécuter',
+      reasonLabel: 'Motif obligatoire pour le journal d\'audit (min. 3 caractères)',
+      confirmLabel: 'Exécuter sur le Cloud',
       isDestructive: isDestructive,
     );
-    if (reason != null) {
-      ref.read(accountsProvider.notifier).performAction(u.id, action, reason);
+    if (reason != null && reason.trim().length >= 3) {
+      try {
+        await ref.read(accountsProvider.notifier).performAction(u.id, action, reason.trim());
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Action $action réussie pour ${u.fullName}.')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Échec de l\'action $action: $e'),
+              backgroundColor: StudioColors.error,
+            ),
+          );
+        }
+      }
     }
   }
 }

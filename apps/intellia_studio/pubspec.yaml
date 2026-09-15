@@ -16,11 +16,11 @@ dependencies:
   flutter_riverpod: ^2.6.1
   go_router: ^17.1.0
   google_fonts: ^6.2.1
-  flutter_secure_storage: ^9.2.4
   http: ^1.3.0
   intl: any
   shared_preferences: ^2.5.4
   crypto: ^3.0.6
+  ffi: ^2.2.0
 
 dev_dependencies:
   flutter_test:
