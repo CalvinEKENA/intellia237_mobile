@@ -790,6 +790,36 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // =============================================
+    // FAMILY ACCESS (server-only)
+    // =============================================
+    // Code d'acces eleve : empreintes HMAC, index inverse et compteur
+    // anti-bruteforce. Aucun client, pas meme l'eleve, son parent ou la
+    // super-administration, ne lit une empreinte : tout passe par les callables.
+    match /student_access_credentials/{studentId} {
+      allow read, write: if false;
+    }
+
+    match /student_access_codes/{lookupKey} {
+      allow read, write: if false;
+    }
+
+    match /student_access_attempts/{clientKey} {
+      allow read, write: if false;
+    }
+
+    // Journaux sans secret : emissions, rotations, migrations du telephone
+    // familial. Lisibles par la seule super-administration, pour le support.
+    match /student_access_audit/{eventId} {
+      allow read: if isSuperAdmin();
+      allow write: if false;
+    }
+
+    match /auth_phone_migrations/{phoneKey} {
+      allow read: if isSuperAdmin();
+      allow write: if false;
+    }
+
     match /settings/{uid} {
       allow read: if isOwner(uid);
       allow create: if isOwner(uid);

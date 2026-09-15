@@ -1285,6 +1285,135 @@ describe("Child link codes stay server-authoritative (section C)", () => {
   });
 });
 
+describe("Family access stays server-only and school-scoped", () => {
+  async function seedFamilyAcrossSchools() {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      // Un parent sans école, lié à un enfant dans chaque école.
+      await setDoc(doc(db, "users/parent-x"), { role: "parent" });
+      for (const studentId of ["student-a", "student-b"]) {
+        await setDoc(doc(db, `children_links/parent-x_${studentId}`), {
+          parentId: "parent-x",
+          studentId,
+          status: "approved",
+          linkedVia: "code",
+        });
+      }
+      await setDoc(doc(db, "student_access_credentials/student-a"), {
+        studentId: "student-a",
+        lookupKey: "f".repeat(64),
+        version: 1,
+        status: "active",
+      });
+      await setDoc(doc(db, `student_access_codes/${"f".repeat(64)}`), {
+        studentId: "student-a",
+        version: 1,
+      });
+      await setDoc(doc(db, "student_access_attempts/client-key"), { failures: 2 });
+      await setDoc(doc(db, "student_access_audit/event-1"), {
+        type: "issued",
+        studentId: "student-a",
+        actorUid: "parent-a",
+      });
+      await setDoc(doc(db, "auth_phone_migrations/phone-key"), {
+        studentUid: "student-a",
+        parentUid: "parent-x",
+        status: "completed",
+      });
+      await setDoc(doc(db, "mobile_money_payment_requests/payment-x-a"), {
+        parentId: "parent-x",
+        establishmentId: "school-a",
+        beneficiaryStudentId: "student-a",
+        status: "pending",
+      });
+      await setDoc(doc(db, "mobile_money_payment_requests/payment-x-b"), {
+        parentId: "parent-x",
+        establishmentId: "school-b",
+        beneficiaryStudentId: "student-b",
+        status: "pending",
+      });
+      await setDoc(doc(db, "entitlements/parent-x_school-b"), {
+        userId: "parent-x",
+        establishmentId: "school-b",
+        status: "active",
+      });
+    });
+  }
+
+  it("no client ever reads or writes a student access credential, its index or its counter", async () => {
+    await seedFamilyAcrossSchools();
+    for (const uid of ["student-a", "parent-a", "parent-x", "teacher-a", "admin-a", "root", undefined]) {
+      const db = dbFor(uid);
+      await assertFails(getDoc(doc(db, "student_access_credentials/student-a")));
+      await assertFails(getDoc(doc(db, `student_access_codes/${"f".repeat(64)}`)));
+      await assertFails(getDoc(doc(db, "student_access_attempts/client-key")));
+      await assertFails(getDocs(collection(db, "student_access_codes")));
+      await assertFails(setDoc(doc(db, "student_access_credentials/student-a"), { lookupKey: "x" }));
+      await assertFails(setDoc(doc(db, "student_access_codes/guess"), { studentId: "student-a" }));
+      await assertFails(setDoc(doc(db, "student_access_attempts/client-key"), { failures: 0 }));
+      await assertFails(setDoc(doc(db, "auth_phone_migrations/phone-key"), { status: "started" }));
+      await assertFails(setDoc(doc(db, "student_access_audit/forged"), { type: "issued" }));
+    }
+  });
+
+  it("access audits and phone migration journals are for the general administration only", async () => {
+    await seedFamilyAcrossSchools();
+    await assertSucceeds(getDoc(doc(dbFor("root"), "student_access_audit/event-1")));
+    await assertSucceeds(getDoc(doc(dbFor("root"), "auth_phone_migrations/phone-key")));
+    for (const uid of ["student-a", "parent-a", "parent-x", "admin-a", undefined]) {
+      await assertFails(getDoc(doc(dbFor(uid), "student_access_audit/event-1")));
+      await assertFails(getDoc(doc(dbFor(uid), "auth_phone_migrations/phone-key")));
+    }
+  });
+
+  it("school head A never inspects student B, even through a parent linked to both schools", async () => {
+    await seedFamilyAcrossSchools();
+    const headA = dbFor("admin-a");
+    await assertSucceeds(getDoc(doc(headA, "users/student-a")));
+    await assertSucceeds(getDoc(doc(headA, "children_links/parent-x_student-a")));
+    await assertFails(getDoc(doc(headA, "users/student-b")));
+    await assertFails(getDoc(doc(headA, "student_profiles/student-b")));
+    await assertFails(getDoc(doc(headA, "children_links/parent-x_student-b")));
+    await assertFails(getDoc(doc(headA, "mobile_money_payment_requests/payment-x-b")));
+    await assertFails(getDoc(doc(headA, "entitlements/parent-x_school-b")));
+    // La super-administration voit les deux écoles. Les paiements et
+    // abonnements lui parviennent par la callable de revue (non restreinte),
+    // jamais par une lecture directe : la règle existante n'est pas élargie.
+    const root = dbFor("root");
+    for (const path of [
+      "users/student-a",
+      "users/student-b",
+      "student_profiles/student-b",
+      "children_links/parent-x_student-a",
+      "children_links/parent-x_student-b",
+    ]) {
+      await assertSucceeds(getDoc(doc(root, path)));
+    }
+  });
+
+  it("a parent sees each of their children across schools, and never a child linked only to another parent", async () => {
+    await seedFamilyAcrossSchools();
+    const parentX = dbFor("parent-x");
+    for (const path of [
+      "users/student-a",
+      "users/student-b",
+      "student_profiles/student-a",
+      "student_profiles/student-b",
+      "mobile_money_payment_requests/payment-x-a",
+      "mobile_money_payment_requests/payment-x-b",
+      "entitlements/parent-x_school-b",
+    ]) {
+      await assertSucceeds(getDoc(doc(parentX, path)));
+    }
+    const parentA = dbFor("parent-a");
+    await assertFails(getDoc(doc(parentA, "users/student-b")));
+    await assertFails(getDoc(doc(parentA, "student_profiles/student-b")));
+    await assertFails(getDoc(doc(parentA, "children_links/parent-x_student-b")));
+    await assertFails(getDoc(doc(parentA, "mobile_money_payment_requests/payment-x-b")));
+  });
+});
+
 describe("Admin school/class management (section E)", () => {
   it("an admin creates an empty class in their own school, never with students", async () => {
     await seedFirestore();

@@ -96,6 +96,11 @@ async function fanoutEstablishmentRecipients(
   roles: ReadonlySet<string> | null,
   writePage: (recipients: DocumentSnapshot[]) => Promise<void>,
 ): Promise<number> {
+  // Un parent n'appartient pas à UNE école : il suit l'école de chacun de ses
+  // enfants. Les parents sont donc atteints par leurs liens approuvés avec les
+  // élèves de cette école, en plus d'un éventuel rattachement direct hérité.
+  const reachParents = roles === null || roles.has("parent");
+  const reached = new Set<string>();
   let lastDocument: DocumentSnapshot | undefined;
   let recipientCount = 0;
   do {
@@ -108,14 +113,53 @@ async function fanoutEstablishmentRecipients(
     const page = await query.get();
     const recipients = page.docs.filter((user) => {
       const role = normalizedString(user.get("role"));
-      return roles === null || roles.has(role);
+      return (roles === null || roles.has(role)) && !reached.has(user.id);
     });
-    await writePage(recipients);
-    recipientCount += recipients.length;
+    const guardians = reachParents
+      ? await linkedGuardians(
+        page.docs
+          .filter((user) => normalizedString(user.get("role")) === "student")
+          .map((user) => user.id),
+      )
+      : [];
+    const all = [...recipients, ...guardians].filter((user) => {
+      if (reached.has(user.id)) return false;
+      reached.add(user.id);
+      return true;
+    });
+    await writePage(all);
+    recipientCount += all.length;
     lastDocument = page.docs.at(-1);
     if (page.size < announcementFanoutPageSize) break;
   } while (lastDocument);
   return recipientCount;
+}
+
+/** Comptes parents actifs liés (lien approuvé) à au moins un de ces élèves. */
+export async function linkedGuardians(studentIds: string[]): Promise<DocumentSnapshot[]> {
+  const parentIds = new Set<string>();
+  // Firestore limite `in` à 30 valeurs.
+  for (let offset = 0; offset < studentIds.length; offset += 30) {
+    // Filtre de statut en mémoire : aucun index composite à déployer.
+    const links = await db
+      .collection("children_links")
+      .where("studentId", "in", studentIds.slice(offset, offset + 30))
+      .get();
+    for (const link of links.docs) {
+      if (normalizedString(link.get("status")) !== "approved") continue;
+      const parentId = normalizedString(link.get("parentId"));
+      if (parentId) parentIds.add(parentId);
+    }
+  }
+  if (parentIds.size === 0) return [];
+  const parents = await db.getAll(
+    ...[...parentIds].map((id) => db.collection("users").doc(id)),
+  );
+  return parents.filter((parent) =>
+    parent.exists &&
+    normalizedString(parent.get("role")) === "parent" &&
+    !["suspended", "deleted"].includes(normalizedString(parent.get("accountStatus"))),
+  );
 }
 
 async function fanoutClassRecipients(
@@ -153,6 +197,35 @@ async function fanoutClassRecipients(
 }
 
 async function writeNotificationPage({
+  announcementId,
+  establishmentId,
+  title,
+  body,
+  recipients,
+  createdAt,
+}: {
+  announcementId: string;
+  establishmentId: string;
+  title: string;
+  body: string;
+  recipients: DocumentSnapshot[];
+  createdAt: unknown;
+}): Promise<void> {
+  // Une page d'élèves peut entraîner plus de parents que d'élèves : les
+  // écritures sont découpées sous le plafond de 500 opérations par lot.
+  for (let offset = 0; offset < recipients.length; offset += announcementFanoutPageSize) {
+    await writeNotificationBatch({
+      announcementId,
+      establishmentId,
+      title,
+      body,
+      recipients: recipients.slice(offset, offset + announcementFanoutPageSize),
+      createdAt,
+    });
+  }
+}
+
+async function writeNotificationBatch({
   announcementId,
   establishmentId,
   title,

@@ -33,6 +33,13 @@ import { AskTutorUseCase } from "./services/askTutorUseCase";
 import { requestAccountDeletionHandler } from "./services/accountDeletionCallable";
 import { linkChildByCodeHandler, ensureStudentLinkCodeHandler, rotateStudentLinkCodeHandler } from "./services/childLinkCallable";
 import { getStudyReserveHandler } from "./services/studyReserve";
+import { defineSecret } from "firebase-functions/params";
+import {
+  createIssueStudentAccessCodeHandler,
+  createSignInWithStudentAccessCodeHandler,
+} from "./services/studentAccessCode";
+import { createDefaultMigrateStudentPhoneToParentHandler } from "./services/familyPhoneMigration";
+import { createListParentChildrenHandler } from "./services/parentChildrenCallable";
 import { reviewStaffAccountHandler } from "./services/staffAccountReviewCallable";
 import { manageAccountHandler } from "./services/adminAccountManagementCallable";
 import { saveLessonPublicationHandler, deleteCatalogContentHandler, createCatalogChapterHandler, createListEditorialFlowHandler } from "./services/lessonPublicationCallable";
@@ -378,6 +385,59 @@ export const rotateStudentLinkCode = onCall(
     memory: "256MiB",
   },
   rotateStudentLinkCodeHandler,
+);
+
+// Accès famille : code d'accès élève, migration du téléphone familial, enfants
+// d'un parent. Le poivre HMAC vit dans Secret Manager ; sans lui, rien ne
+// s'émet ni ne s'ouvre (voir docs/architecture/FAMILY_IDENTITY_ACCESS_BILLING.md).
+const studentAccessCodePepper = defineSecret("STUDENT_ACCESS_CODE_PEPPER");
+
+function configuredStudentAccessPepper(): string {
+  const value = studentAccessCodePepper.value();
+  if (typeof value !== "string" || value.length < 32) {
+    logger.error("STUDENT_ACCESS_CODE_PEPPER is missing or too short.");
+    throw new HttpsError("failed-precondition", "Student access is not configured.");
+  }
+  return value;
+}
+
+export const issueStudentAccessCode = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+    secrets: [studentAccessCodePepper],
+  },
+  createIssueStudentAccessCodeHandler(configuredStudentAccessPepper),
+);
+
+export const signInWithStudentAccessCode = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+    secrets: [studentAccessCodePepper],
+  },
+  createSignInWithStudentAccessCodeHandler(configuredStudentAccessPepper),
+);
+
+export const migrateStudentPhoneToParent = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 60,
+    memory: "256MiB",
+    secrets: [studentAccessCodePepper],
+  },
+  createDefaultMigrateStudentPhoneToParentHandler(configuredStudentAccessPepper),
+);
+
+export const listParentChildren = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  createListParentChildrenHandler(),
 );
 
 export const getStudyReserve = onCall(

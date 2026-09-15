@@ -280,6 +280,62 @@ describe("rotateStudentLinkCode", () => {
   });
 });
 
+describe("link codes through trusted guardians", () => {
+  const guardians = {
+    accounts: new Map([
+      ["student-1", { role: "student", accountStatus: "active", establishmentId: "school-a" }],
+      ["parent-1", { role: "parent", accountStatus: "active", establishmentId: "" }],
+      ["parent-2", { role: "parent", accountStatus: "active", establishmentId: "" }],
+      ["head-a", { role: "admin", accountStatus: "active", establishmentId: "school-a" }],
+      ["head-b", { role: "admin", accountStatus: "active", establishmentId: "school-b" }],
+      ["root", { role: "superAdmin", accountStatus: "active", establishmentId: "" }],
+    ]),
+    async readAccount(uid: string) {
+      return this.accounts.get(uid) ?? null;
+    },
+    async isLinkedParent(parentId: string, studentId: string) {
+      return parentId === "parent-1" && studentId === "student-1";
+    },
+  };
+
+  it.each(["parent-1", "head-a", "root"])(
+    "%s obtains the child's link code to share with a second parent",
+    async (uid) => {
+      const store = seededStore();
+      const handler = createEnsureStudentLinkCodeHandler(store, guardians);
+      await expect(
+        handler({ auth: { uid }, data: { studentId: "student-1" } } as never),
+      ).resolves.toEqual({ code: "ABCDEFGH" });
+    },
+  );
+
+  it.each(["parent-2", "head-b"])(
+    "%s, not a trusted guardian of this child, is refused",
+    async (uid) => {
+      const store = seededStore();
+      for (const handler of [
+        createEnsureStudentLinkCodeHandler(store, guardians),
+        createRotateStudentLinkCodeHandler(store, guardians),
+      ]) {
+        await expect(
+          handler({ auth: { uid }, data: { studentId: "student-1" } } as never),
+        ).rejects.toMatchObject({ code: "permission-denied" });
+      }
+      expect(store.studentCodes.get("student-1")).toBe("ABCDEFGH");
+    },
+  );
+
+  it("a linked parent can rotate a leaked link code", async () => {
+    const store = seededStore();
+    const rotated = await createRotateStudentLinkCodeHandler(store, guardians)({
+      auth: { uid: "parent-1" },
+      data: { studentId: "student-1" },
+    } as never);
+    expect(rotated.code).not.toBe("ABCDEFGH");
+    expect(store.codes.has("ABCDEFGH")).toBe(false);
+  });
+});
+
 describe("code helpers", () => {
   it("normalizes case, spaces and dashes", () => {
     expect(normalizeLinkCode("  ab cd-ef gh ")).toBe("ABCDEFGH");
