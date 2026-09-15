@@ -124,10 +124,21 @@ class AcademicContextNotifier extends StateNotifier<StudioAcademicContext> {
         ? state.series
         : (newClass.hasSeries ? newClass.allowedSeries.first : null);
 
+    // Validate if current subject remains valid in the new academic class & series context
+    final validSubjects = AcademicHierarchy.getSubjectsFor(
+      system: system,
+      classLevel: newClass,
+      series: validSeries,
+    );
+    final validSubject = (state.subject != null && validSubjects.any((s) => s.id == state.subject!.id))
+        ? state.subject
+        : null;
+
     state = state.copyWith(
       system: system,
       selectedClass: () => newClass,
       series: () => validSeries,
+      subject: () => validSubject,
       showAllClasses: false,
     );
   }
@@ -149,14 +160,42 @@ class AcademicContextNotifier extends StateNotifier<StudioAcademicContext> {
       state = state.copyWith(series: () => null);
       return;
     }
-    if (series != null && currentClass.allowedSeries.contains(series)) {
-      state = state.copyWith(series: () => series);
-    } else {
-      state = state.copyWith(series: () => null);
-    }
+    final targetSeries = (series != null && currentClass.allowedSeries.contains(series))
+        ? series
+        : null;
+
+    // Validate if current subject remains valid with the updated series
+    final validSubjects = AcademicHierarchy.getSubjectsFor(
+      system: state.system,
+      classLevel: currentClass,
+      series: targetSeries,
+    );
+    final validSubject = (state.subject != null && validSubjects.any((s) => s.id == state.subject!.id))
+        ? state.subject
+        : null;
+
+    state = state.copyWith(
+      series: () => targetSeries,
+      subject: () => validSubject,
+    );
   }
 
   void setSubject(CanonicalSubject? subject) {
+    if (subject == null) {
+      state = state.copyWith(subject: () => null);
+      return;
+    }
+    if (state.selectedClass != null) {
+      final validSubjects = AcademicHierarchy.getSubjectsFor(
+        system: state.system,
+        classLevel: state.selectedClass,
+        series: state.series,
+      );
+      if (!validSubjects.any((s) => s.id == subject.id)) {
+        // Disallow subjects not in the canonical curriculum for the current class
+        return;
+      }
+    }
     state = state.copyWith(subject: () => subject);
   }
 
@@ -165,11 +204,13 @@ class AcademicContextNotifier extends StateNotifier<StudioAcademicContext> {
       setSubject(null);
       return;
     }
-    final sub = CanonicalSubject.standardCatalog.cast<CanonicalSubject?>().firstWhere(
-          (s) => s?.id == subjectId || s?.name.toLowerCase() == subjectId.toLowerCase(),
-          orElse: () => null,
-        );
-    setSubject(sub);
+    final resolved = AcademicHierarchy.resolveSubject(
+      subjectId,
+      system: state.system,
+      classLevel: state.selectedClass,
+      series: state.series,
+    );
+    setSubject(resolved);
   }
 
   void setChapterId(String? chapterId) {

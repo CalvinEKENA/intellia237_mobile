@@ -212,4 +212,170 @@ void main() {
       }
     });
   });
+
+  group('AcademicHierarchy Class-Aware Subject Derivation', () {
+    test('6ème subjects do NOT include Philosophie or separate Physique-Chimie', () {
+      final sixieme = AcademicHierarchy.findByKey('6eme');
+      expect(sixieme, isNotNull);
+
+      final subjects = AcademicHierarchy.getSubjectsFor(classLevel: sixieme);
+      final subjectIds = subjects.map((s) => s.id).toList();
+
+      // Core subjects present
+      expect(subjectIds, contains('maths'));
+      expect(subjectIds, contains('svt'));
+      expect(subjectIds, contains('informatique'));
+      expect(subjectIds, contains('francais'));
+      expect(subjectIds, contains('anglais'));
+      expect(subjectIds, contains('histoire_geo'));
+      expect(subjectIds, contains('ecm'));
+
+      // Prohibited subjects strictly excluded
+      expect(subjectIds, isNot(contains('philosophie')),
+          reason: 'Philosophie must NOT be offered in 6ème');
+      expect(subjectIds, isNot(contains('physique')),
+          reason: 'PCT/Physique-Chimie only begins in 4ème');
+      expect(subjectIds, isNot(contains('economie')),
+          reason: 'Economie is not in lower secondary');
+    });
+
+    test('3ème subjects include PCT (physique) but NOT Philosophie', () {
+      final troisieme = AcademicHierarchy.findByKey('3eme');
+      expect(troisieme, isNotNull);
+
+      final subjects = AcademicHierarchy.getSubjectsFor(classLevel: troisieme);
+      final subjectIds = subjects.map((s) => s.id).toList();
+
+      expect(subjectIds, contains('physique')); // PCT
+      expect(subjectIds, isNot(contains('philosophie')),
+          reason: 'Philosophie only exists in Terminale');
+    });
+
+    test('Première subjects do NOT include Philosophie', () {
+      final premiere = AcademicHierarchy.findByKey('premiere');
+      expect(premiere, isNotNull);
+
+      for (final series in ['A', 'C', 'D', 'TI']) {
+        final subjects = AcademicHierarchy.getSubjectsFor(classLevel: premiere, series: series);
+        final subjectIds = subjects.map((s) => s.id).toList();
+
+        expect(subjectIds, isNot(contains('philosophie')),
+            reason: 'Philosophie must NEVER appear in Première (series $series)');
+      }
+    });
+
+    test('Terminale subjects include Philosophie for all valid series', () {
+      final terminale = AcademicHierarchy.findByKey('terminale');
+      expect(terminale, isNotNull);
+
+      for (final series in ['A', 'C', 'D', 'TI']) {
+        final subjects = AcademicHierarchy.getSubjectsFor(classLevel: terminale, series: series);
+        final subjectIds = subjects.map((s) => s.id).toList();
+
+        expect(subjectIds, contains('philosophie'),
+            reason: 'Philosophie is mandatory in Terminale series $series');
+      }
+    });
+
+    test('Anglophone Form 1 excludes Philosophy, Upper Sixth includes Philosophy', () {
+      final form1 = AcademicHierarchy.findByKey('Form1');
+      final upperSixth = AcademicHierarchy.findByKey('UpperSixth');
+
+      expect(form1, isNotNull);
+      expect(upperSixth, isNotNull);
+
+      final f1Subjects = AcademicHierarchy.getSubjectsFor(classLevel: form1);
+      expect(f1Subjects.map((s) => s.id), isNot(contains('philosophie')));
+
+      final u6Subjects = AcademicHierarchy.getSubjectsFor(classLevel: upperSixth, series: 'Arts');
+      expect(u6Subjects.map((s) => s.id), contains('philosophie'));
+    });
+  });
+
+  group('AcademicContextNotifier Class-Aware Subject State Transitions', () {
+    test('Switching class from Terminale to 6e resets invalid subject (Philosophie) to null', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(academicContextProvider.notifier);
+
+      // Select Terminale -> Philosophie
+      notifier.setClassById('Terminale');
+      notifier.setSubjectById('philosophie');
+
+      expect(container.read(academicContextProvider).subject?.id, 'philosophie');
+      expect(container.read(academicContextProvider).isPublicationReady, isTrue);
+
+      // Switch to 6e
+      notifier.setClassById('6eme');
+
+      final ctx = container.read(academicContextProvider);
+      expect(ctx.selectedClass?.id, '6eme');
+      expect(ctx.subject, isNull,
+          reason: 'Philosophie is invalid for 6e and must be automatically reset to null');
+      expect(ctx.isPublicationReady, isFalse,
+          reason: 'Cannot publish without valid subject selection for 6e');
+    });
+
+    test('Switching class preserves subject if subject is valid in both classes', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(academicContextProvider.notifier);
+
+      // Select 3e -> Mathématiques
+      notifier.setClassById('3eme');
+      notifier.setSubjectById('maths');
+
+      expect(container.read(academicContextProvider).subject?.id, 'maths');
+
+      // Switch to 6e (Mathématiques is valid in 6e too)
+      notifier.setClassById('6eme');
+
+      expect(container.read(academicContextProvider).subject?.id, 'maths',
+          reason: 'Maths is valid in both 3e and 6e, so it should be preserved');
+    });
+
+    test('Directly attempting to set invalid subject for a class is rejected', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(academicContextProvider.notifier);
+
+      // Select 6e
+      notifier.setClassById('6eme');
+
+      // Attempt to set Philosophie by ID
+      notifier.setSubjectById('philosophie');
+      expect(container.read(academicContextProvider).subject, isNull);
+
+      // Attempt to set Philosophie directly
+      const philo = CanonicalSubject(id: 'philosophie', name: 'Philosophie', iconName: 'psychology');
+      notifier.setSubject(philo);
+      expect(container.read(academicContextProvider).subject, isNull);
+    });
+  });
+
+  group('Class Label UI Hygiene', () {
+    test('Class labels display strictly clean designations without internal numeric orders', () {
+      final francophone = AcademicHierarchy.francophoneClasses;
+      final anglophone = AcademicHierarchy.anglophoneClasses;
+
+      for (final c in [...francophone, ...anglophone]) {
+        // Labels must NOT contain parentheses enclosing numbers like (10), (20)
+        expect(c.label, isNot(matches(r'\(\d+\)')),
+            reason: 'Class label "${c.label}" should not display internal order number');
+      }
+
+      expect(francophone.map((c) => c.label).toList(), [
+        '6ème',
+        '5ème',
+        '4ème',
+        '3ème',
+        '2nde (Seconde)',
+        '1ère (Première)',
+        'Terminale',
+      ]);
+    });
+  });
 }

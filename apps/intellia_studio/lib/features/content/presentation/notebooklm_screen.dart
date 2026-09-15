@@ -96,7 +96,7 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                                 items: classes.map((cl) {
                                   return DropdownMenuItem(
                                     value: cl.catalogKey,
-                                    child: Text('${cl.order}. ${cl.label}'),
+                                    child: Text(cl.label),
                                   );
                                 }).toList(),
                                 onChanged: (val) {

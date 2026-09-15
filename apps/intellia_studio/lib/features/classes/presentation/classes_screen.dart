@@ -288,7 +288,7 @@ class ClassesScreen extends ConsumerWidget {
                           items: classes.map((c) {
                             return DropdownMenuItem(
                               value: c.id,
-                              child: Text('${c.label} (${c.order})'),
+                              child: Text(c.label),
                             );
                           }).toList(),
                           onChanged: (cid) {

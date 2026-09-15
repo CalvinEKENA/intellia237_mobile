@@ -24,25 +24,30 @@ class AcademicContextBar extends ConsumerWidget {
     final allowedSeries = selectedClass?.allowedSeries ?? const <String>[];
     final selectedSeries = academicCtx.series;
     final selectedSubject = academicCtx.subject;
+    final availableSubjects = AcademicHierarchy.getSubjectsFor(
+      system: currentSystem,
+      classLevel: selectedClass,
+      series: selectedSeries,
+    );
 
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
             const Color(0xFF0D1B2A),
-            const Color(0xFF1B263B).withOpacity(0.95),
+            const Color(0xFF1B263B).withValues(alpha: 0.95),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: selectedClass != null ? const Color(0xFFD4AF37).withOpacity(0.6) : Colors.white12,
+          color: selectedClass != null ? const Color(0xFFD4AF37).withValues(alpha: 0.6) : Colors.white12,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -58,7 +63,7 @@ class AcademicContextBar extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD4AF37).withOpacity(0.15),
+                  color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
                   border: Border.all(color: const Color(0xFFD4AF37), width: 0.8),
                 ),
@@ -96,7 +101,7 @@ class AcademicContextBar extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.amber.shade900.withOpacity(0.3),
+                    color: Colors.amber.shade900.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: Colors.amber.shade600, width: 0.8),
                   ),
@@ -161,7 +166,7 @@ class AcademicContextBar extends ConsumerWidget {
                         return DropdownMenuItem<String?>(
                           value: c.id,
                           child: Text(
-                            '${c.label} (${c.order})',
+                            c.label,
                             style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         );
@@ -206,12 +211,15 @@ class AcademicContextBar extends ConsumerWidget {
                   ),
                 ),
 
-              // 4. Matière
+              // 4. Matière (Class-aware canonical catalog)
               _SelectorContainer(
                 label: 'Matière',
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String?>(
-                    value: selectedSubject?.id,
+                    value: (selectedSubject != null &&
+                            availableSubjects.any((s) => s.id == selectedSubject.id))
+                        ? selectedSubject.id
+                        : null,
                     hint: const Text('Toutes matières', style: TextStyle(color: Colors.white54, fontSize: 13)),
                     isDense: true,
                     dropdownColor: const Color(0xFF1E2A38),
@@ -221,7 +229,7 @@ class AcademicContextBar extends ConsumerWidget {
                         value: null,
                         child: Text('Toutes matières', style: TextStyle(color: Colors.white54)),
                       ),
-                      ...CanonicalSubject.standardCatalog.map((subj) {
+                      ...availableSubjects.map((subj) {
                         return DropdownMenuItem<String?>(
                           value: subj.id,
                           child: Text(subj.name),
@@ -248,8 +256,8 @@ class AcademicContextBar extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: academicCtx.showAllClasses
-                          ? const Color(0xFFD4AF37).withOpacity(0.2)
-                          : Colors.white.withOpacity(0.04),
+                          ? const Color(0xFFD4AF37).withValues(alpha: 0.2)
+                          : Colors.white.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
                         color: academicCtx.showAllClasses ? const Color(0xFFD4AF37) : Colors.white12,

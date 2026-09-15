@@ -262,6 +262,128 @@ class AcademicHierarchy {
     return list;
   }
 
+  /// Derives valid canonical subjects for a specific academic context (System -> Class -> Series)
+  /// adhering to the official INTELLIA Cameroon curriculum catalog rules.
+  static List<CanonicalSubject> getSubjectsFor({
+    StudioEducationSystem? system,
+    CanonicalClassLevel? classLevel,
+    String? series,
+  }) {
+    final effectiveSystem = system ?? classLevel?.system ?? StudioEducationSystem.francophone;
+
+    // If no class selected yet, return all subjects valid for the education system
+    if (classLevel == null) {
+      return CanonicalSubject.standardCatalog
+          .where((s) => s.applicableSystems.contains(effectiveSystem))
+          .toList();
+    }
+
+    final order = classLevel.order;
+    final normSeries = series?.trim().toUpperCase();
+
+    if (effectiveSystem == StudioEducationSystem.francophone) {
+      // Francophone Cameroon MINESEC Rules:
+      return CanonicalSubject.standardCatalog.where((subject) {
+        if (!subject.applicableSystems.contains(StudioEducationSystem.francophone)) {
+          return false;
+        }
+
+        switch (subject.id) {
+          case 'philosophie':
+            // Rule: Philosophy ONLY appears in Terminale (order == 70)
+            return order == 70;
+
+          case 'physique':
+            // Rule: PCT/Physique-Chimie starts in 4e (order >= 30)
+            // Excluded from lower first cycle (6e, 5e) and literary series A
+            if (order < 30) return false;
+            if (normSeries == 'A') return false;
+            return true;
+
+          case 'economie':
+            // Rule: Economics is not in general secondary first cycle
+            return order >= 50 && (normSeries == null || normSeries == 'A' || normSeries == 'TI');
+
+          case 'svt':
+            // SVTEEHB is in all classes except specialized technical series
+            if (normSeries == 'TI') return false;
+            return true;
+
+          case 'maths':
+          case 'informatique':
+          case 'francais':
+          case 'anglais':
+          case 'histoire_geo':
+          case 'ecm':
+            // Core curriculum (tronc commun) across all secondary levels
+            return true;
+
+          default:
+            return true;
+        }
+      }).toList();
+    } else {
+      // Anglophone Subsystem Rules:
+      return CanonicalSubject.standardCatalog.where((subject) {
+        if (!subject.applicableSystems.contains(StudioEducationSystem.anglophone)) {
+          return false;
+        }
+
+        switch (subject.id) {
+          case 'philosophie':
+            // Philosophy only appears in Sixth Form (order >= 60) Arts
+            return order >= 60 && (normSeries == null || normSeries == 'ARTS');
+
+          case 'physique':
+            // Physics & Chemistry separate starts at Form 3 (order >= 30)
+            if (order < 30) return false;
+            if (normSeries == 'ARTS') return false;
+            return true;
+
+          case 'economie':
+            // Economics starts at Form 3 (order >= 30)
+            return order >= 30;
+
+          case 'svt':
+            return true;
+
+          case 'maths':
+          case 'informatique':
+          case 'francais':
+          case 'anglais':
+          case 'histoire_geo':
+          case 'ecm':
+            return true;
+
+          default:
+            return true;
+        }
+      }).toList();
+    }
+  }
+
+  /// Resolves a subject by ID or name within the valid subjects for the given context
+  static CanonicalSubject? resolveSubject(
+    String? idOrName, {
+    StudioEducationSystem? system,
+    CanonicalClassLevel? classLevel,
+    String? series,
+  }) {
+    if (idOrName == null || idOrName.trim().isEmpty) return null;
+    final valid = getSubjectsFor(
+      system: system,
+      classLevel: classLevel,
+      series: series,
+    );
+    final clean = _normalize(idOrName);
+    for (final s in valid) {
+      if (s.id == idOrName || _normalize(s.id) == clean || _normalize(s.name) == clean) {
+        return s;
+      }
+    }
+    return null;
+  }
+
   static String _normalize(String s) => s
       .trim()
       .toLowerCase()
