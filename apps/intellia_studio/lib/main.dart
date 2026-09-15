@@ -13,6 +13,9 @@ import 'features/flow/presentation/flow_studio_screen.dart';
 import 'features/quiz/presentation/quiz_studio_screen.dart';
 import 'features/audiences/presentation/audiences_screen.dart';
 import 'features/publishing/presentation/publishing_screen.dart';
+import 'features/finance/presentation/plans_screen.dart';
+import 'features/finance/presentation/study_reserve_screen.dart';
+import 'features/finance/presentation/payments_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -124,20 +127,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/plans',
-            builder: (context, state) =>
-                const _PlaceholderScreen(title: '21 Plans & Subscriptions'),
+            builder: (context, state) => const PlansScreen(),
           ),
           GoRoute(
             path: '/study-reserve',
-            builder: (context, state) => const _PlaceholderScreen(
-              title: '22 Study Reserve Administration',
-            ),
+            builder: (context, state) => const StudyReserveScreen(),
           ),
           GoRoute(
             path: '/payments',
-            builder: (context, state) => const _PlaceholderScreen(
-              title: '23 Payments & Mobile Money Review',
-            ),
+            builder: (context, state) => const PaymentsScreen(),
           ),
           GoRoute(
             path: '/notifications',
