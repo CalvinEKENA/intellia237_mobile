@@ -64,6 +64,10 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
   bool _resolving = false;
   bool _linkingChild = false;
 
+  /// L'espace adopté s'ouvre : « 7 » est allumé et reste à l'écran le temps
+  /// de `PassSealTiming.completionHold`.
+  bool _accessOpened = false;
+
   @override
   void dispose() {
     _phoneController.dispose();
@@ -98,6 +102,9 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
           previous?.stage != PhoneAuthStage.success &&
           !_completionHandled) {
         _completionHandled = true;
+        // Le clavier se referme : le Pass reprend sa pleine taille pour la
+        // fin du sceau, y compris quand Android a lu le SMS seul.
+        FocusManager.instance.primaryFocus?.unfocus();
         unawaited(_finishAuthentication());
       }
     });
@@ -138,18 +145,21 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
                     context.l10n.passVerificationInProgress,
                   PhoneAuthStage.success => context.l10n.passNumberVerified,
                 },
-          // Le numéro colore « 2 » (vert), le code « 3 » (rouge), la réussite
-          // « 7 » (jaune) + pulsation — chacun au fil de la saisie. Un numéro
-          // vérifié qui n'ouvre pas l'espace choisi n'atteint pas le « 7 ».
-          progress: conflictingRole != null
-              ? PassAuthProgress.secret
-              : PassAuthProgress.phone(
-                  stage: state.stage,
-                  phoneInput: _phoneController.text,
-                  codeInput: _codeController.text,
-                ),
-          verified:
-              conflictingRole == null && state.stage == PhoneAuthStage.success,
+          // Numéro valide : « 2 » vert. Code complet ou validé : « 3 » rouge.
+          // Espace ouvert : « 7 » jaune. Un numéro vérifié qui n'ouvre pas
+          // l'espace choisi s'arrête au « 3 », sans jamais rééteindre « 7 ».
+          seal: PassAuthProgress.phone(
+            stage: state.stage,
+            phoneInput: _phoneController.text,
+            codeInput: _codeController.text,
+            accessOpened: _accessOpened && conflictingRole == null,
+          ),
+          progress: PassAuthProgress.phoneLine(
+            stage: state.stage,
+            phoneInput: _phoneController.text,
+            codeInput: _codeController.text,
+            accessOpened: _accessOpened && conflictingRole == null,
+          ),
         ),
       ),
       child: Column(
@@ -293,14 +303,31 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
   }
 
   Future<void> _finishAuthentication() async {
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-    if (!mounted) return;
-
+    // Firebase vient de valider le numéro : « 3 » est allumé. Quand le code
+    // n'a pas été tapé — SMS lu par Android, validation immédiate —, ce rouge
+    // apparaît à l'instant : il reste seul lisible avant que « 7 » s'allume.
+    final secretHold = PassAuthProgress.isCompleteCode(_codeController.text)
+        ? null
+        : Future<void>.delayed(PassSealTiming.stageHold);
     if (widget.linkCurrentUser) {
-      context.pop(true);
+      await secretHold;
+      if (!mounted) return;
+      await _openWithCompletedSeal();
+      if (mounted) context.pop(true);
       return;
     }
-    await _enterAccountSpace();
+    await _enterAccountSpace(secretHold: secretHold);
+  }
+
+  /// Allume « 7 » et le laisse à l'écran avant d'ouvrir l'espace.
+  ///
+  /// Registre de décisions (QA appareil, round 3) : l'écran partait 350 ms
+  /// après la réussite Firebase, pendant que le clavier se refermait et que
+  /// le panneau changeait ; sur appareil, le sceau complet vivait moins d'une
+  /// seconde et le « 7 » jaune n'était pas perçu.
+  Future<void> _openWithCompletedSeal() async {
+    setState(() => _accessOpened = true);
+    await Future<void>.delayed(PassSealTiming.completionHold);
   }
 
   /// Tranche la compatibilité du compte vérifié avec l'espace choisi, puis
@@ -311,14 +338,28 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
   /// d'un élève, dans l'espace de cet élève. Sous une intention, un compte
   /// d'un autre rôle n'ouvre plus rien : le conflit est expliqué ici, sans
   /// quitter le parcours choisi et sans toucher au rôle enregistré.
-  Future<void> _enterAccountSpace() async {
+  ///
+  /// Le sceau complet est montré avant l'adoption : dès que l'état global
+  /// change, le routeur peut emporter cet écran.
+  Future<void> _enterAccountSpace({Future<void>? secretHold}) async {
     setState(() {
       _resolving = true;
       _unresolvedCode = null;
     });
+    String? destination;
     final adoption = await ref
         .read(authControllerProvider.notifier)
-        .adoptSessionForIntent(widget.authIntent);
+        .adoptSessionForIntent(
+          widget.authIntent,
+          beforeOpening: (opening) async {
+            destination = _destinationFor(opening);
+            // Un profil illisible n'ouvre aucun espace : le sceau reste au
+            // « 3 ».
+            if (destination == AppRoutes.authProfileRecovery) return;
+            await secretHold;
+            if (mounted) await _openWithCompletedSeal();
+          },
+        );
     if (!mounted) return;
 
     switch (adoption) {
@@ -338,50 +379,51 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
         break;
     }
 
-    final auth = ref.read(authControllerProvider);
+    final target =
+        destination ?? _destinationFor(ref.read(authControllerProvider));
+    if (target == AppRoutes.parentHome &&
+        ref.read(pendingChildLinkProvider).code != null) {
+      // Le code saisi avant l'authentification est relié maintenant, pour
+      // que l'enfant soit visible dès l'arrivée dans l'espace parent.
+      setState(() => _linkingChild = true);
+      await ref.read(pendingChildLinkProvider.notifier).linkPending();
+      if (!mounted) return;
+    }
+    if (target != null) {
+      context.go(target);
+      return;
+    }
+    setState(() {
+      _resolving = false;
+      _profileChoiceRequired = true;
+    });
+  }
+
+  /// Écran qu'ouvre l'état d'authentification [auth] sous l'espace choisi.
+  String? _destinationFor(AuthState auth) {
     final accountRole = auth.role;
     if (auth.isAuthenticated && accountRole != null && auth.profileCompleted) {
-      if (accountRole == AppRole.parent &&
-          ref.read(pendingChildLinkProvider).code != null) {
-        // Le code saisi avant l'authentification est relié maintenant, pour
-        // que l'enfant soit visible dès l'arrivée dans l'espace parent.
-        setState(() => _linkingChild = true);
-        await ref.read(pendingChildLinkProvider.notifier).linkPending();
-        if (!mounted) return;
-      }
-      context.go(accountRole.homePath);
-      return;
+      return accountRole.homePath;
     }
     if (auth.status == AuthStatus.retryableProfileFailure ||
         auth.status == AuthStatus.legacyProfileRecovery) {
-      context.go(AppRoutes.authProfileRecovery);
-      return;
+      return AppRoutes.authProfileRecovery;
     }
     // Un profil existant mais incomplet reprend sa propre inscription. Sous
     // une intention, ce rôle est forcément celui qui a été choisi.
     if (accountRole != null) {
-      context.go(switch (accountRole) {
+      return switch (accountRole) {
         AppRole.student => AppRoutes.studentRegistration,
         AppRole.parent => AppRoutes.parentRegistration,
         AppRole.teacher || AppRole.admin => AppRoutes.authProfileRecovery,
-      });
-      return;
+      };
     }
-
-    final route = switch (widget.authIntent) {
+    return switch (widget.authIntent) {
       AppRole.student => AppRoutes.studentRegistration,
       AppRole.parent => AppRoutes.parentRegistration,
       AppRole.teacher => AppRoutes.teacherRegistration,
       AppRole.admin || null => null,
     };
-    if (route != null) {
-      context.go(route);
-    } else {
-      setState(() {
-        _resolving = false;
-        _profileChoiceRequired = true;
-      });
-    }
   }
 
   /// Corrige l'identifiant sans quitter le parcours : le code enfant retenu
@@ -392,6 +434,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       _unresolvedCode = null;
       _completionHandled = false;
       _profileChoiceRequired = false;
+      _accessOpened = false;
     });
     _phoneController.clear();
     _codeController.clear();
@@ -819,16 +862,14 @@ class _PhoneSuccess extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    // Registre de décisions (QA appareil, round 3) : une coche verte de
+    // 54 px s'affichait sous le Pass à l'instant même où « 7 » devenait
+    // jaune ; l'œil lisait une fin verte. Le sceau complet est le seul signe
+    // de réussite.
     return Semantics(
       liveRegion: true,
       child: Column(
         children: [
-          const Icon(
-            Icons.check_circle_rounded,
-            color: AuthExperienceColors.success,
-            size: 54,
-          ),
-          const SizedBox(height: 14),
           Text(
             l10n.phoneVerificationSuccess,
             textAlign: TextAlign.center,

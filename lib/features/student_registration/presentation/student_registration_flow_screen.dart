@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
+import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/presentation/widgets/auth_choices.dart';
@@ -68,6 +69,8 @@ class _StudentRegistrationFlowScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(studentRegistrationControllerProvider);
     final controller = ref.read(studentRegistrationControllerProvider.notifier);
+    // Le sceau dit la session réellement établie, pas l'étape du formulaire.
+    final seal = PassAuthProgress.session(ref.watch(authControllerProvider));
     final companion = TutorPersona.resolve(state.selectedTutorId);
     final l10n = context.l10n;
     final labels = [
@@ -83,6 +86,7 @@ class _StudentRegistrationFlowScreenState
         companionName: companion.name,
         companionAsset: companion.imagePath,
         onContinue: controller.completeRegistration,
+        seal: seal,
       );
     }
 
@@ -99,9 +103,11 @@ class _StudentRegistrationFlowScreenState
             ? null
             : companion.imagePath,
         phase: labels[state.currentStep],
-        progress: 0.42 + state.currentStep * 0.15,
-        // Le numéro est déjà vérifié : le sceau reste complet.
-        sealProgress: PassAuthProgress.verified,
+        progress: PassAuthProgress.registrationLine(
+          step: state.currentStep,
+          steps: labels.length,
+        ),
+        seal: seal,
       ),
       onBack: state.isFirstStep
           ? () => context.pop()

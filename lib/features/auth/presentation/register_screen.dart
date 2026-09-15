@@ -13,6 +13,7 @@ import '../domain/app_role.dart';
 import 'widgets/auth_choices.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
+import 'widgets/intellia_237_membrane.dart';
 import 'widgets/living_pass.dart';
 import 'widgets/pass_auth_progress.dart';
 import 'widgets/school_head_access.dart';
@@ -79,9 +80,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       pass: LivingPass(
         role: _selectedRole,
         phase: context.l10n.passChooseYourSpace,
-        progress: _selectedRole == null ? 0 : .12,
+        progress: _selectedRole == null
+            ? PassAuthProgress.empty
+            : PassAuthProgress.spaceChosen,
         // Choisir un espace n'est pas encore s'identifier.
-        sealProgress: PassAuthProgress.start,
+        seal: PassSealStage.neutral,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

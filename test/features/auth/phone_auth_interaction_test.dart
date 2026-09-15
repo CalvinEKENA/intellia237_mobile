@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/data/repositories/firebase_phone_auth_repository.dart';
+import 'package:intellia237/features/auth/domain/app_role.dart';
+import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
 import 'package:intellia237/features/auth/domain/repositories/phone_auth_repository.dart';
 import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_controls.dart';
+import 'package:intellia237/features/auth/presentation/widgets/intellia_237_membrane.dart';
 import 'package:intellia237/features/auth/presentation/widgets/living_pass.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
@@ -68,9 +72,11 @@ void main() {
         ),
       );
       await tester.pump();
+      // Device QA round 3 : le numéro validé allume « 3 ». « 7 » attend
+      // l'ouverture d'un espace, que ce test ne résout pas.
       expect(
-        tester.widget<LivingPass>(find.byType(LivingPass)).verified,
-        isTrue,
+        tester.widget<LivingPass>(find.byType(LivingPass)).seal,
+        PassSealStage.secret,
       );
       expect(
         tester.widget<LivingPass>(find.byType(LivingPass)).phase,
@@ -78,7 +84,8 @@ void main() {
       );
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pump(const Duration(seconds: 1));
+      // Délai de lecture du profil (8 s) laissé en suspens par ce test.
+      await tester.pump(const Duration(seconds: 9));
     },
   );
 
@@ -136,7 +143,12 @@ Widget _screen(
   _PendingVerificationRepository repository, {
   bool compact = false,
 }) => ProviderScope(
-  overrides: [phoneAuthRepositoryProvider.overrideWithValue(repository)],
+  // La lecture du profil ne répond jamais : l'écran reste sur la réussite
+  // du numéro, sans espace à ouvrir.
+  overrides: [
+    phoneAuthRepositoryProvider.overrideWithValue(repository),
+    authRepositoryProvider.overrideWithValue(_UnresolvedProfile()),
+  ],
   child: MaterialApp(
     locale: const Locale('en'),
     localizationsDelegates: const [
@@ -159,6 +171,36 @@ Widget _screen(
     ),
   ),
 );
+
+class _UnresolvedProfile implements AuthRepository, AuthSessionResolver {
+  @override
+  Future<AuthSessionResolution> resolveCurrentSession() =>
+      Completer<AuthSessionResolution>().future;
+
+  @override
+  Future<AuthUserData?> getCurrentUser() async => null;
+
+  @override
+  Future<void> signOut() async {}
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {}
+
+  @override
+  Future<AuthUserData> signInWithEmail({
+    required String email,
+    required String password,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<AuthUserData> register({
+    required String email,
+    required String password,
+    required String firstName,
+    required String lastName,
+    required AppRole role,
+  }) => throw UnimplementedError();
+}
 
 class _PendingVerificationRepository implements PhoneAuthRepository {
   int confirmCalls = 0;

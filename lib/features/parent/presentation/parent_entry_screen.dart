@@ -8,6 +8,7 @@ import '../../../core/localization/localization_extensions.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/presentation/widgets/auth_controls.dart';
 import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
+import '../../auth/presentation/widgets/intellia_237_membrane.dart';
 import '../../auth/presentation/widgets/living_pass.dart';
 import '../application/pending_child_link.dart';
 import '../domain/child_link_code.dart';
@@ -93,7 +94,12 @@ class _ParentEntryScreenState extends ConsumerState<ParentEntryScreen> {
         if (didPop) ref.read(pendingChildLinkProvider.notifier).clear();
       },
       child: AuthExperienceScaffold(
-        pass: LivingPass(role: AppRole.parent, phase: l10n.parentEntryHaveCode),
+        // Le code enfant n'identifie pas le parent : le sceau reste neutre.
+        pass: LivingPass(
+          role: AppRole.parent,
+          phase: l10n.parentEntryHaveCode,
+          seal: PassSealStage.neutral,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/app_role.dart';
 import 'auth_experience_scaffold.dart';
 import 'intellia_237_membrane.dart';
+import 'pass_auth_progress.dart';
 
 String passRoleLabel(BuildContext context, AppRole? role) => switch (role) {
   AppRole.student => context.l10n.studentRole,
@@ -47,16 +49,15 @@ class PassRoom extends InheritedWidget {
   bool updateShouldNotify(PassRoom oldWidget) => tight != oldWidget.tight;
 }
 
-class LivingPass extends StatelessWidget {
+class LivingPass extends StatefulWidget {
   const LivingPass({
+    required this.seal,
     this.role,
     this.name,
     this.detail,
     this.companionAsset,
     this.phase,
-    this.progress = 0,
-    this.sealProgress,
-    this.verified = false,
+    this.progress = PassAuthProgress.empty,
     this.compact = false,
     this.heroEnabled = true,
     super.key,
@@ -69,46 +70,120 @@ class LivingPass extends StatelessWidget {
   final String? companionAsset;
   final String? phase;
 
-  /// Avancement du parcours en cours, gravé au bas de la carte.
-  final double progress;
+  /// Étape du sceau « 237 », toujours calculée par `PassAuthProgress` à
+  /// partir de l'état réel du parcours.
+  ///
+  /// Registre de décisions (QA appareil, round 3) : le sceau retombait sur
+  /// [progress] quand un écran ne le précisait pas, si bien que l'avancement
+  /// d'un formulaire colorait « 237 ». Il n'y a plus de valeur par défaut :
+  /// chaque écran dit explicitement où en est l'authentification.
+  final PassSealStage seal;
 
-  /// Avancement de l'authentification porté par le sceau « 237 », quand il
-  /// diffère du parcours : une inscription ouverte après un numéro vérifié
-  /// garde un sceau complet au lieu de le décolorer à sa première étape.
-  /// Par défaut, [progress].
-  final double? sealProgress;
-  final bool verified;
+  /// Avancement du parcours en cours, gravé au bas de la carte. Ne touche
+  /// jamais le sceau.
+  final double progress;
   final bool compact;
   final bool heroEnabled;
 
+  bool get verified => seal.isComplete;
+
+  @override
+  State<LivingPass> createState() => _LivingPassState();
+}
+
+class _LivingPassState extends State<LivingPass> with WidgetsBindingObserver {
+  /// Un chiffre s'est allumé pendant que le clavier couvrait l'écran.
+  bool _revealPending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Registre de décisions (QA appareil, round 3) : sur un petit Android au
+  /// texte agrandi, la page défile pour garder le champ au-dessus du clavier
+  /// et reste défilée quand il se referme. Le sceau était alors entièrement
+  /// hors de l'écran à chaque étape, réussite comprise. Le Pass revient donc
+  /// à l'écran :
+  /// - quand le clavier se referme après qu'un chiffre s'est allumé pendant
+  ///   la frappe — le formulaire vient d'être envoyé ;
+  /// - aussitôt quand l'accès s'ouvre : il n'y a plus rien à toucher.
+  /// Jamais pendant la frappe, et jamais sous le doigt de quelqu'un qui
+  /// s'apprête à toucher un bouton, clavier fermé.
+  @override
+  void didUpdateWidget(LivingPass oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.seal.index <= oldWidget.seal.index) return;
+    if (View.of(context).viewInsets.bottom > 0) {
+      _revealPending = true;
+    } else if (widget.seal.isComplete) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _reveal());
+    }
+  }
+
+  @override
+  void didChangeMetrics() {
+    if (!_revealPending) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_revealPending) return;
+      if (View.of(context).viewInsets.bottom > 0) return;
+      _revealPending = false;
+      _reveal();
+    });
+  }
+
+  void _reveal() {
+    if (!mounted) return;
+    unawaited(
+      Scrollable.ensureVisible(
+        context,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 320),
+        curve: Curves.easeInOutCubic,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final widget = this.widget;
+    final compact = widget.compact;
+    final seal = widget.seal;
     final small =
         compact ||
         PassRoom.of(context) ||
         MediaQuery.viewInsetsOf(context).bottom > 0;
     final reduced = MediaQuery.disableAnimationsOf(context);
     final surface = _PassSurface(
-      name: name?.trim().isNotEmpty == true ? name!.trim() : null,
-      role: passRoleLabel(context, role),
-      roleChosen: role != null,
-      detail: detail,
-      asset: companionAsset,
+      name: widget.name?.trim().isNotEmpty == true ? widget.name!.trim() : null,
+      role: passRoleLabel(context, widget.role),
+      roleChosen: widget.role != null,
+      detail: widget.detail,
+      asset: widget.companionAsset,
       phase:
-          phase ??
-          (verified
+          widget.phase ??
+          (seal.isComplete
               ? context.l10n.passPassReady
               : context.l10n.passTakingShape),
       emptyName: context.l10n.passAPlaceForYou,
       readyLabel: context.l10n.passPassReady,
-      progress: progress.clamp(0, 1),
-      sealProgress: (sealProgress ?? progress).clamp(0, 1),
-      verified: verified,
+      progress: widget.progress.clamp(0, 1),
+      seal: seal,
+      breathing: !compact,
       expansion: small ? 0 : 1,
     );
-    final card = heroEnabled
+    final card = widget.heroEnabled
         ? Hero(
-            tag: heroTag,
+            tag: LivingPass.heroTag,
             createRectTween: (begin, end) =>
                 MaterialRectArcTween(begin: begin, end: end),
             flightShuttleBuilder: (_, animation, direction, from, to) {
@@ -162,8 +237,8 @@ class _PassSurface extends StatelessWidget {
     required this.emptyName,
     required this.readyLabel,
     required this.progress,
-    required this.sealProgress,
-    required this.verified,
+    required this.seal,
+    required this.breathing,
     required this.expansion,
   });
 
@@ -176,8 +251,8 @@ class _PassSurface extends StatelessWidget {
   final String emptyName;
   final String readyLabel;
   final double progress;
-  final double sealProgress;
-  final bool verified;
+  final PassSealStage seal;
+  final bool breathing;
   final double expansion;
 
   _PassSurface withExpansion(double value) => _PassSurface(
@@ -190,8 +265,8 @@ class _PassSurface extends StatelessWidget {
     emptyName: emptyName,
     readyLabel: readyLabel,
     progress: progress,
-    sealProgress: sealProgress,
-    verified: verified,
+    seal: seal,
+    breathing: breathing,
     expansion: value,
   );
 
@@ -267,13 +342,16 @@ class _PassSurface extends StatelessWidget {
                               opacity: e,
                               child: Text(
                                 phase.toUpperCase(),
+                                // À l'ouverture, la phase passe à l'encre,
+                                // pas au vert : à cet instant le vert
+                                // appartient au « 2 » du sceau.
                                 style: TextStyle(
                                   fontFamily: 'CampaignBody',
                                   fontSize: 9,
                                   letterSpacing: 1.5,
                                   fontWeight: FontWeight.w800,
-                                  color: verified
-                                      ? AuthExperienceColors.success
+                                  color: seal.isComplete
+                                      ? AuthExperienceColors.textPrimary
                                       : AuthExperienceColors.textSecondary,
                                 ),
                               ),
@@ -291,8 +369,8 @@ class _PassSurface extends StatelessWidget {
                 child: asset == null
                     ? ExcludeSemantics(
                         child: Intellia237Membrane(
-                          progress: sealProgress,
-                          verified: verified,
+                          stage: seal,
+                          breathing: breathing,
                         ),
                       )
                     : Image.asset(
@@ -301,8 +379,8 @@ class _PassSurface extends StatelessWidget {
                         excludeFromSemantics: true,
                         errorBuilder: (_, _, _) => ExcludeSemantics(
                           child: Intellia237Membrane(
-                            progress: sealProgress,
-                            verified: verified,
+                            stage: seal,
+                            breathing: breathing,
                           ),
                         ),
                       ),

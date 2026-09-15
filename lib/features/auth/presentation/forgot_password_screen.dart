@@ -52,7 +52,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           phase: _emailSent
               ? context.l10n.passLinkSent
               : context.l10n.passRecoverMyAccess,
-          progress: PassAuthProgress.passwordReset(
+          seal: PassAuthProgress.passwordReset(
+            email: value.text,
+            linkSent: _emailSent,
+          ),
+          progress: PassAuthProgress.resetLine(
             email: value.text,
             linkSent: _emailSent,
           ),

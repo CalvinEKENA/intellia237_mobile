@@ -1,306 +1,507 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/app/theme/design_tokens.dart';
 import 'package:intellia237/features/auth/presentation/widgets/intellia_237_membrane.dart';
-import 'package:intellia237/features/auth/presentation/widgets/pass_auth_progress.dart';
 
+import '../../support/contrast.dart';
 import '../../support/intellia_fonts.dart';
 
+/// Device QA round 3 : le sceau « 237 » vu par son peintre, par son
+/// mouvement, et par ses pixels à la taille réelle du Pass.
 void main() {
   setUpAll(loadIntelliaFonts);
 
-  group('Intellia237Palette — deterministic progress states', () {
-    test('progress 0 keeps every digit at the neutral base (indigo)', () {
-      for (var i = 0; i < 3; i++) {
-        expect(Intellia237Palette.digitColor(i, 0.0), Intellia237Palette.base);
-      }
-    });
+  const base = Intellia237Palette.base;
+  const green = IntelliaFlag.green;
+  const red = IntelliaFlag.red;
+  const yellow = IntelliaFlag.yellow;
 
-    test('progress .33: 2 is (near) green, 3 and 7 still base', () {
-      expect(Intellia237Palette.digitColor(0, 1 / 3), IntelliaColors.cmVert);
-      expect(Intellia237Palette.digitColor(1, 1 / 3), Intellia237Palette.base);
-      expect(Intellia237Palette.digitColor(2, 1 / 3), Intellia237Palette.base);
-    });
-
-    test('progress .66: 2 green, 3 red, 7 still base', () {
-      expect(Intellia237Palette.digitColor(0, 2 / 3), IntelliaColors.cmVert);
-      expect(Intellia237Palette.digitColor(1, 2 / 3), IntelliaColors.cmRouge);
-      expect(Intellia237Palette.digitColor(2, 2 / 3), Intellia237Palette.base);
-    });
-
-    test('progress 1.0: 2 green, 3 red, 7 yellow', () {
-      expect(Intellia237Palette.digitColor(0, 1.0), IntelliaColors.cmVert);
-      expect(Intellia237Palette.digitColor(1, 1.0), IntelliaColors.cmRouge);
-      expect(Intellia237Palette.digitColor(2, 1.0), IntelliaColors.cmJaune);
-    });
-
-    test('the painted digits follow 2 → green, 3 → red, 7 → yellow', () {
-      expect(Intellia237Palette.digitTargets, const [
-        IntelliaColors.cmVert,
-        IntelliaColors.cmRouge,
-        IntelliaColors.cmJaune,
+  group('Intellia237Palette', () {
+    test('each stage lights exactly its digits, in order', () {
+      expect(Intellia237Palette.digitColors(PassSealStage.neutral), [
+        base,
+        base,
+        base,
       ]);
-      expect(Intellia237Palette.digitColors(PassAuthProgress.start), [
-        Intellia237Palette.base,
-        Intellia237Palette.base,
-        Intellia237Palette.base,
+      expect(Intellia237Palette.digitColors(PassSealStage.identifier), [
+        green,
+        base,
+        base,
       ]);
-      expect(Intellia237Palette.digitColors(PassAuthProgress.identifier), [
-        IntelliaColors.cmVert,
-        Intellia237Palette.base,
-        Intellia237Palette.base,
+      expect(Intellia237Palette.digitColors(PassSealStage.secret), [
+        green,
+        red,
+        base,
       ]);
-      expect(Intellia237Palette.digitColors(PassAuthProgress.secret), [
-        IntelliaColors.cmVert,
-        IntelliaColors.cmRouge,
-        Intellia237Palette.base,
-      ]);
-      expect(Intellia237Palette.digitColors(PassAuthProgress.verified), [
-        IntelliaColors.cmVert,
-        IntelliaColors.cmRouge,
-        IntelliaColors.cmJaune,
+      expect(Intellia237Palette.digitColors(PassSealStage.verified), [
+        green,
+        red,
+        yellow,
       ]);
     });
 
-    test('7 never leans green while it fills', () {
-      for (var step = 0; step <= 30; step++) {
-        final progress = 2 / 3 + step / 90;
-        final seven = Intellia237Palette.digitColor(2, progress);
+    test('the 7 never inherits green, at any stage', () {
+      for (final stage in PassSealStage.values) {
+        expect(Intellia237Palette.digitColor(2, stage), isNot(green));
         expect(
-          seven.g,
-          lessThanOrEqualTo(IntelliaColors.cmJaune.g + 1e-9),
-          reason: 'progress $progress',
-        );
-        expect(
-          seven.r,
-          greaterThanOrEqualTo(Intellia237Palette.base.r - 1e-9),
-          reason: 'progress $progress',
+          Intellia237Palette.bandColor(2, stage).withValues(alpha: 1),
+          isNot(green),
         );
       }
     });
 
-    test('digit reveal is monotonic in progress', () {
-      double greenness(double p) => Intellia237Palette.digitColor(0, p).g;
-      expect(greenness(0.0), lessThanOrEqualTo(greenness(0.2)));
-      expect(greenness(0.2), lessThanOrEqualTo(greenness(1 / 3)));
+    test(
+      'the seal uses the flag declined for cream paper, like the wordmark',
+      () {
+        expect(
+          Intellia237Palette.digitTargets,
+          IntelliaFlag.digits(onInk: false),
+        );
+        // Cause racine consignée : le jaune officiel sur le papier du Pass.
+        final official = Contrast.ratio(
+          IntelliaColors.cmJaune,
+          Intellia237Palette.paper,
+        );
+        final cream = Contrast.ratio(yellow, Intellia237Palette.paper);
+        expect(official, lessThan(1.3));
+        expect(cream, greaterThan(official + 0.4));
+      },
+    );
+
+    test('a membrane band lights with its digit, and never before', () {
+      for (final stage in PassSealStage.values) {
+        for (var band = 0; band < 3; band++) {
+          final color = Intellia237Palette.bandColor(band, stage);
+          if (band < stage.litDigits) {
+            expect(
+              color,
+              Intellia237Palette.digitTargets[band].withValues(alpha: 0.7),
+            );
+          } else {
+            expect(color, base.withValues(alpha: 0.35), reason: '$stage');
+          }
+        }
+      }
     });
 
-    test('rings spread the tricolor from inner to outer with progress', () {
-      // À faible progression, seule la couche intérieure a viré ; l'extérieure
-      // reste proche de la base.
-      final innerLow = Intellia237Palette.ringColor(0.0, 0.2);
-      final outerLow = Intellia237Palette.ringColor(1.0, 0.2);
+    test('nine rings, three per digit, inside out', () {
+      expect(Intellia237Palette.rings, 9);
       expect(
-        (innerLow.g - Intellia237Palette.base.g).abs(),
-        greaterThan((outerLow.g - Intellia237Palette.base.g).abs()),
+        [
+          for (var ring = 0; ring < 9; ring++)
+            Intellia237Palette.ringBand(ring),
+        ],
+        [0, 0, 0, 1, 1, 1, 2, 2, 2],
       );
     });
 
-    test('at completion the rings reach green inside, yellow outside', () {
-      final inner = Intellia237Palette.ringColor(0, 1);
-      final outer = Intellia237Palette.ringColor(1, 1);
-      expect(inner.withValues(alpha: 1), IntelliaColors.cmVert);
-      expect(outer.withValues(alpha: 1), IntelliaColors.cmJaune);
+    test('stages are ordered and complete only at verified', () {
+      expect(PassSealStage.values.map((s) => s.progress), [0, 1 / 3, 2 / 3, 1]);
+      expect(PassSealStage.values.where((s) => s.isComplete), [
+        PassSealStage.verified,
+      ]);
     });
   });
 
-  group('Intellia237Membrane widget', () {
-    for (final progress in const [0.0, 1 / 3, 2 / 3, 1.0]) {
-      testWidgets('renders at progress ${progress.toStringAsFixed(2)}', (
-        tester,
-      ) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: Center(
-                child: SizedBox(
-                  width: 74,
-                  height: 102,
-                  child: Intellia237Membrane(progress: progress),
-                ),
-              ),
-            ),
-          ),
-        );
-        await tester.pump(const Duration(milliseconds: 100));
-        expect(find.byType(Intellia237Membrane), findsOneWidget);
-        expect(tester.takeException(), isNull);
-        await tester.pumpWidget(const SizedBox.shrink());
+  group('observability hook', () {
+    for (final stage in PassSealStage.values) {
+      testWidgets('${stage.name}: the painter receives the stage and its '
+          'exact colours', (tester) async {
+        await _pumpSeal(tester, stage: stage, reduceMotion: true);
+        final painter = _painter(tester);
+        expect(painter.stage, stage);
+        expect(painter.digitColors, Intellia237Palette.digitColors(stage));
+        expect(painter.bandColors, Intellia237Palette.bandColors(stage));
       });
     }
+  });
 
-    testWidgets('reduced motion renders without a running idle animation', (
+  group('stage changes', () {
+    testWidgets('a digit fades in, then lands exactly on its colour', (
       tester,
     ) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: MediaQuery(
-            data: MediaQueryData(disableAnimations: true),
-            child: Scaffold(
-              body: Center(
-                child: SizedBox(
-                  width: 74,
-                  height: 102,
-                  child: Intellia237Membrane(progress: 1.0, verified: true),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.pump(const Duration(seconds: 2));
-      expect(tester.takeException(), isNull);
-      await tester.pumpWidget(const SizedBox.shrink());
+      final stage = ValueNotifier(PassSealStage.neutral);
+      await _pumpSeal(tester, listenable: stage);
+      stage.value = PassSealStage.identifier;
+      await tester.pump();
+      await tester.pump(Intellia237Motion.colorChange ~/ 2);
+      final midway = _painter(tester).digitColors;
+      expect(midway[0], isNot(base));
+      expect(midway[0], isNot(green));
+      // Les chiffres qui ne changent pas gardent leur couleur exacte.
+      expect(midway.sublist(1), [base, base]);
+
+      await tester.pump(Intellia237Motion.colorChange);
+      expect(_painter(tester).digitColors, [green, base, base]);
+    });
+
+    testWidgets('reduced motion: the new colours are painted at once', (
+      tester,
+    ) async {
+      final stage = ValueNotifier(PassSealStage.secret);
+      await _pumpSeal(tester, listenable: stage, reduceMotion: true);
+      stage.value = PassSealStage.verified;
+      await tester.pump();
+      expect(_painter(tester).digitColors, [green, red, yellow]);
+    });
+
+    testWidgets('a change during a fade starts from what is painted', (
+      tester,
+    ) async {
+      final stage = ValueNotifier(PassSealStage.identifier);
+      await _pumpSeal(tester, listenable: stage);
+      stage.value = PassSealStage.secret;
+      await tester.pump();
+      await tester.pump(Intellia237Motion.colorChange ~/ 2);
+      final painted = _painter(tester).digitColors[1];
+
+      stage.value = PassSealStage.identifier;
+      await tester.pump();
+      // Aucun saut : le « 3 » repart de sa couleur intermédiaire.
+      expect(_painter(tester).digitColors[1], painted);
+      await tester.pump(Intellia237Motion.colorChange);
+      expect(_painter(tester).digitColors, [green, base, base]);
     });
   });
 
-  /// Device QA round 2 : à la réussite, le « 7 » devenait vert. Le peintre
-  /// remplaçait « 237 » par une coche de couleur succès dès que `verified`
-  /// et `progress: 1` arrivaient ensemble — ce que font toutes les réussites.
-  /// Ces tests lisent les pixels réellement peints.
-  group('rendered seal (pixels)', () {
-    Future<Map<String, Map<String, int>>> render(
-      WidgetTester tester, {
-      required double progress,
-      required bool verified,
-      bool reduceMotion = false,
-    }) async {
-      final key = GlobalKey();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: MediaQuery(
-            data: MediaQueryData(disableAnimations: reduceMotion),
-            child: Center(
-              child: RepaintBoundary(
-                key: key,
-                child: Container(
-                  color: const Color(0xFFF0EADB),
-                  width: 296,
-                  height: 408,
-                  child: Intellia237Membrane(
-                    progress: progress,
-                    verified: verified,
+  group('organic motion', () {
+    testWidgets('the seal breathes: frames keep coming and the transform '
+        'changes (the old filament never moved)', (tester) async {
+      await _pumpSeal(tester, stage: PassSealStage.verified);
+      expect(SchedulerBinding.instance.hasScheduledFrame, isTrue);
+      final first = _motion(tester);
+      await tester.pump(const Duration(milliseconds: 1600));
+      expect(_motion(tester), isNot(first));
+    });
+
+    testWidgets('breathing and drift stay slow and within their bounds', (
+      tester,
+    ) async {
+      await _pumpSeal(tester, stage: PassSealStage.identifier);
+      var minScale = double.infinity;
+      var maxScale = 0.0;
+      var maxDrift = 0.0;
+      Matrix4? previous;
+      var largestStep = 0.0;
+      // Une boucle complète, image par image au dixième de seconde.
+      for (var i = 0; i < 520; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+        final matrix = _motion(tester);
+        final scale = matrix.entry(0, 0);
+        minScale = math.min(minScale, scale);
+        maxScale = math.max(maxScale, scale);
+        maxDrift = math.max(maxDrift, matrix.getTranslation().y.abs());
+        if (previous != null) {
+          largestStep = math.max(
+            largestStep,
+            (scale - previous.entry(0, 0)).abs(),
+          );
+        }
+        previous = matrix;
+      }
+      const height = 102.0;
+      expect(
+        maxScale,
+        lessThanOrEqualTo(1 + Intellia237Motion.breathAmplitude + 1e-9),
+      );
+      expect(
+        minScale,
+        greaterThanOrEqualTo(1 - Intellia237Motion.breathAmplitude - 1e-9),
+      );
+      // Le mouvement existe : il n'est pas imperceptible au point d'être nul.
+      expect(
+        maxScale - minScale,
+        greaterThan(Intellia237Motion.breathAmplitude),
+      );
+      expect(
+        maxDrift,
+        lessThanOrEqualTo(Intellia237Motion.driftAmplitude * height + 1e-9),
+      );
+      expect(maxDrift, greaterThan(0.5));
+      // Jamais un tremblement : 100 ms déplacent l'échelle de moins de 0,3 %.
+      expect(largestStep, lessThan(0.003));
+    });
+
+    testWidgets('motion never repaints the seal nor changes its colours', (
+      tester,
+    ) async {
+      await _pumpSeal(tester, stage: PassSealStage.verified);
+      await tester.pump(Intellia237Motion.pulse);
+      final paint = tester.widget<CustomPaint>(
+        find.byKey(Intellia237Membrane.paintKey),
+      );
+      for (var i = 0; i < 30; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+        // Même widget de peinture : la respiration ne reconstruit ni ne
+        // repeint le sceau, elle déplace son calque.
+        expect(
+          tester.widget<CustomPaint>(find.byKey(Intellia237Membrane.paintKey)),
+          same(paint),
+        );
+      }
+      expect(_painter(tester).digitColors, [green, red, yellow]);
+    });
+
+    testWidgets('the seal moves as a whole: one transform above one painting', (
+      tester,
+    ) async {
+      await _pumpSeal(tester, stage: PassSealStage.secret);
+      expect(
+        find.descendant(
+          of: find.byKey(Intellia237Membrane.motionKey),
+          matching: find.byKey(Intellia237Membrane.paintKey),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(Intellia237Membrane.paintKey),
+          matching: find.byType(Transform),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('reduced motion: still, no frame requested, same colours', (
+      tester,
+    ) async {
+      await _pumpSeal(
+        tester,
+        stage: PassSealStage.verified,
+        reduceMotion: true,
+      );
+      await tester.pump(const Duration(seconds: 3));
+      expect(_motion(tester), Matrix4.identity());
+      expect(SchedulerBinding.instance.hasScheduledFrame, isFalse);
+      expect(_painter(tester).digitColors, [green, red, yellow]);
+    });
+
+    testWidgets('opening access pulses once, then returns to breathing', (
+      tester,
+    ) async {
+      final stage = ValueNotifier(PassSealStage.secret);
+      await _pumpSeal(tester, listenable: stage);
+      stage.value = PassSealStage.verified;
+      await tester.pump();
+      await tester.pump(Intellia237Motion.pulse ~/ 2);
+      // Au sommet de la pulsation, au-dessus de toute respiration.
+      expect(
+        _motion(tester).entry(0, 0),
+        greaterThan(
+          1 +
+              Intellia237Motion.pulseAmplitude -
+              Intellia237Motion.breathAmplitude -
+              0.005,
+        ),
+      );
+      await tester.pump(Intellia237Motion.pulse);
+      expect(
+        _motion(tester).entry(0, 0),
+        lessThanOrEqualTo(1 + Intellia237Motion.breathAmplitude + 1e-9),
+      );
+    });
+
+    testWidgets('a still seal (home header) requests no frame, yet still '
+        'pulses once when access opens', (tester) async {
+      final stage = ValueNotifier(PassSealStage.secret);
+      await _pumpSeal(tester, listenable: stage, breathing: false);
+      await tester.pump(const Duration(seconds: 2));
+      expect(_motion(tester), Matrix4.identity());
+      expect(SchedulerBinding.instance.hasScheduledFrame, isFalse);
+
+      stage.value = PassSealStage.verified;
+      await tester.pump();
+      await tester.pump(Intellia237Motion.pulse ~/ 2);
+      expect(_motion(tester).entry(0, 0), greaterThan(1.05));
+      await tester.pump(Intellia237Motion.pulse);
+      expect(_motion(tester), Matrix4.identity());
+      expect(SchedulerBinding.instance.hasScheduledFrame, isFalse);
+      expect(_painter(tester).digitColors, [green, red, yellow]);
+    });
+
+    testWidgets('turning reduced motion on stops the seal, colours kept', (
+      tester,
+    ) async {
+      final reduce = ValueNotifier(false);
+      await _pumpSeal(
+        tester,
+        stage: PassSealStage.secret,
+        reduceListenable: reduce,
+      );
+      await tester.pump(const Duration(seconds: 2));
+      reduce.value = true;
+      await tester.pump();
+      expect(_motion(tester), Matrix4.identity());
+      expect(_painter(tester).digitColors, [green, red, base]);
+    });
+
+    testWidgets('a hidden route pauses the breathing', (tester) async {
+      final enabled = ValueNotifier(true);
+      await _pumpSeal(
+        tester,
+        stage: PassSealStage.identifier,
+        tickerListenable: enabled,
+      );
+      enabled.value = false;
+      await tester.pump();
+      final paused = _motion(tester);
+      await tester.pump(const Duration(seconds: 2));
+      expect(_motion(tester), paused);
+    });
+  });
+
+  /// Pixels du sceau à la taille réelle du Pass, à la densité d'un Android
+  /// courant, sur le papier du Pass et dans la police livrée.
+  group('rendered at the real Pass sizes', () {
+    for (final (name, size) in const [
+      ('compact 42×52', Size(42, 52)),
+      ('full 74×102', Size(74, 102)),
+    ]) {
+      testWidgets('$name: each stage shows its colours and no later one', (
+        tester,
+      ) async {
+        for (final stage in PassSealStage.values) {
+          final counts = await _renderCounts(tester, stage: stage, size: size);
+          final area = size.width * size.height * 2.625 * 2.625;
+          // Seuil : 0,6 % de la surface du sceau en couleur pleine.
+          final visible = area * 0.006;
+          expect(
+            counts.green > visible,
+            stage.litDigits > 0,
+            reason: '$stage green $counts',
+          );
+          expect(
+            counts.red > visible,
+            stage.litDigits > 1,
+            reason: '$stage red $counts',
+          );
+          expect(
+            counts.yellow > visible,
+            stage.litDigits > 2,
+            reason: '$stage yellow $counts',
+          );
+          if (stage.litDigits <= 2) {
+            expect(counts.yellow, 0, reason: '$stage yellow $counts');
+          }
+        }
+      });
+    }
+  });
+}
+
+Intellia237SealPainter _painter(WidgetTester tester) =>
+    tester
+            .widget<CustomPaint>(find.byKey(Intellia237Membrane.paintKey))
+            .painter!
+        as Intellia237SealPainter;
+
+Matrix4 _motion(WidgetTester tester) => tester
+    .widget<Transform>(find.byKey(Intellia237Membrane.motionKey))
+    .transform;
+
+Future<void> _pumpSeal(
+  WidgetTester tester, {
+  PassSealStage stage = PassSealStage.neutral,
+  ValueListenable<PassSealStage>? listenable,
+  bool reduceMotion = false,
+  ValueListenable<bool>? reduceListenable,
+  ValueListenable<bool>? tickerListenable,
+  bool breathing = true,
+}) async {
+  Widget seal(PassSealStage value) =>
+      Intellia237Membrane(stage: value, breathing: breathing);
+  final stageListenable = listenable ?? ValueNotifier(stage);
+  final reduce = reduceListenable ?? ValueNotifier(reduceMotion);
+  final ticker = tickerListenable ?? ValueNotifier(true);
+  await tester.pumpWidget(
+    MaterialApp(
+      home: ValueListenableBuilder<bool>(
+        valueListenable: reduce,
+        builder: (context, reduced, _) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(disableAnimations: reduced),
+          child: ValueListenableBuilder<bool>(
+            valueListenable: ticker,
+            builder: (_, enabled, _) => TickerMode(
+              enabled: enabled,
+              child: Center(
+                child: SizedBox(
+                  width: 74,
+                  height: 102,
+                  child: ValueListenableBuilder<PassSealStage>(
+                    valueListenable: stageListenable,
+                    builder: (_, value, _) => seal(value),
                   ),
                 ),
               ),
             ),
           ),
         ),
-      );
-      // Au-delà de la pulsation de réussite (900 ms).
-      await tester.pump(const Duration(seconds: 1));
-      final boundary =
-          key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-      final image = (await tester.runAsync(() => boundary.toImage()))!;
-      final bytes = (await tester.runAsync(
-        () => image.toByteData(format: ui.ImageByteFormat.rawRgba),
-      ))!;
-      final bands = <String, Map<String, int>>{};
-      for (final band in const {
-        '2': (0.27, 0.42),
-        '3': (0.43, 0.57),
-        '7': (0.58, 0.74),
-      }.entries) {
-        final counts = <String, int>{};
-        final (from, to) = band.value;
-        for (
-          var y = (image.height * 0.40).round();
-          y < (image.height * 0.60).round();
-          y++
-        ) {
-          for (
-            var x = (image.width * from).round();
-            x < (image.width * to).round();
-            x++
-          ) {
-            final offset = (y * image.width + x) * 4;
-            final r = bytes.getUint8(offset);
-            final g = bytes.getUint8(offset + 1);
-            final b = bytes.getUint8(offset + 2);
-            final kind = r > 200 && g > 170 && b < 90
-                ? 'yellow'
-                : r > 150 && g < 80 && b < 80
-                ? 'red'
-                : g > r + 30 && g > b
-                ? 'green'
-                : 'other';
-            counts[kind] = (counts[kind] ?? 0) + 1;
-          }
-        }
-        bands[band.key] = counts;
-      }
-      await tester.pumpWidget(const SizedBox.shrink());
-      return bands;
-    }
+      ),
+    ),
+  );
+  await tester.pump();
+}
 
-    void expectTricolor(Map<String, Map<String, int>> bands) {
-      expect(bands['2']!['green'] ?? 0, greaterThan(800), reason: '$bands');
-      expect(bands['3']!['red'] ?? 0, greaterThan(800), reason: '$bands');
-      expect(bands['7']!['yellow'] ?? 0, greaterThan(800), reason: '$bands');
-      // Seuls les filets fins des couches intérieures peuvent être verts
-      // dans la zone du « 7 » : jamais le chiffre lui-même.
-      expect(bands['7']!['green'] ?? 0, lessThan(120), reason: '$bands');
-    }
-
-    testWidgets('verified completion paints 2 green, 3 red, 7 yellow', (
-      tester,
-    ) async {
-      expectTricolor(
-        await render(
-          tester,
-          progress: PassAuthProgress.verified,
-          verified: true,
+Future<({int green, int red, int yellow})> _renderCounts(
+  WidgetTester tester, {
+  required PassSealStage stage,
+  required Size size,
+}) async {
+  const dpr = 2.625;
+  final key = GlobalKey();
+  await tester.pumpWidget(
+    MediaQuery(
+      data: const MediaQueryData(disableAnimations: true),
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Center(
+          child: RepaintBoundary(
+            key: key,
+            child: ColoredBox(
+              color: Intellia237Palette.paper,
+              child: SizedBox.fromSize(
+                size: size,
+                child: Intellia237Membrane(stage: stage),
+              ),
+            ),
+          ),
         ),
-      );
-    });
-
-    testWidgets('verified completion under reduced motion stays tricolor', (
-      tester,
-    ) async {
-      expectTricolor(
-        await render(
-          tester,
-          progress: PassAuthProgress.verified,
-          verified: true,
-          reduceMotion: true,
-        ),
-      );
-    });
-
-    testWidgets('code complete (≈0.66): 3 red, 7 not yet yellow', (
-      tester,
-    ) async {
-      final bands = await render(
-        tester,
-        progress: PassAuthProgress.secret,
-        verified: false,
-      );
-      expect(bands['2']!['green'] ?? 0, greaterThan(800), reason: '$bands');
-      expect(bands['3']!['red'] ?? 0, greaterThan(800), reason: '$bands');
-      expect(bands['7']!['yellow'] ?? 0, 0, reason: '$bands');
-    });
-
-    testWidgets('number complete (≈0.33): only 2 is green', (tester) async {
-      final bands = await render(
-        tester,
-        progress: PassAuthProgress.identifier,
-        verified: false,
-      );
-      expect(bands['2']!['green'] ?? 0, greaterThan(800), reason: '$bands');
-      expect(bands['3']!['red'] ?? 0, 0, reason: '$bands');
-      expect(bands['7']!['yellow'] ?? 0, 0, reason: '$bands');
-    });
-
-    testWidgets('start (0.00): no digit carries the tricolor yet', (
-      tester,
-    ) async {
-      final bands = await render(tester, progress: 0, verified: false);
-      expect(bands['2']!['green'] ?? 0, lessThan(120), reason: '$bands');
-      expect(bands['3']!['red'] ?? 0, 0, reason: '$bands');
-      expect(bands['7']!['yellow'] ?? 0, 0, reason: '$bands');
-    });
+      ),
+    ),
+  );
+  await tester.pump();
+  final boundary =
+      key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+  final bytes = await tester.runAsync(() async {
+    final image = await boundary.toImage(pixelRatio: dpr);
+    return (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
   });
+  final pixels = bytes!;
+  int near(Color color) {
+    final r = (color.r * 255).round();
+    final g = (color.g * 255).round();
+    final b = (color.b * 255).round();
+    var count = 0;
+    for (var offset = 0; offset < pixels.lengthInBytes; offset += 4) {
+      final dr = pixels.getUint8(offset) - r;
+      final dg = pixels.getUint8(offset + 1) - g;
+      final db = pixels.getUint8(offset + 2) - b;
+      if (dr * dr + dg * dg + db * db <= 40 * 40) count++;
+    }
+    return count;
+  }
+
+  final counts = (
+    green: near(IntelliaFlag.green),
+    red: near(IntelliaFlag.red),
+    yellow: near(IntelliaFlag.yellow),
+  );
+  await tester.pumpWidget(const SizedBox.shrink());
+  return counts;
 }

@@ -15,6 +15,7 @@ import 'package:intellia237/features/auth/domain/repositories/auth_repository.da
 import 'package:intellia237/features/auth/domain/repositories/phone_auth_repository.dart';
 import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
 import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
+import 'package:intellia237/features/auth/presentation/widgets/pass_auth_progress.dart';
 import 'package:intellia237/features/notifications/data/notification_repository.dart';
 import 'package:intellia237/features/onboarding/data/onboarding_preferences.dart';
 import 'package:intellia237/features/parent/application/parent_providers.dart';
@@ -717,8 +718,13 @@ class _Journey {
       .text;
 
   /// Laisse passer l'anti-rebond des boutons, puis stabilise l'écran.
+  ///
+  /// Device QA round 3 : un espace s'ouvre après que le Pass a montré son
+  /// sceau complet (`PassSealTiming.completionHold`).
   Future<void> settle() async {
     await tester.pump(const Duration(milliseconds: 450));
+    await tester.pumpAndSettle();
+    await tester.pump(PassSealTiming.completionHold);
     await tester.pumpAndSettle();
   }
 

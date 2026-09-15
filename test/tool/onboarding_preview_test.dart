@@ -8,6 +8,7 @@ import 'package:intellia237/features/auth/application/phone_auth_controller.dart
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/presentation/forgot_password_screen.dart';
 import 'package:intellia237/features/auth/presentation/login_screen.dart';
+import 'package:intellia237/features/auth/presentation/widgets/pass_auth_progress.dart';
 import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
 import 'package:intellia237/features/auth/presentation/register_screen.dart';
 import 'package:intellia237/features/parent/presentation/parent_entry_screen.dart';
@@ -153,6 +154,8 @@ void main() {
       previewPassword,
     );
     await _tap(tester, 'login-submit');
+    // Device QA round 3 : l'espace s'ouvre après le sceau complet.
+    await tester.pump(PassSealTiming.completionHold);
     await _settle(tester);
     expect(
       find.byKey(const ValueKey('preview-complete-restart')),

@@ -7,6 +7,7 @@ import 'package:intellia237/features/auth/application/auth_state.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_success_screen.dart';
+import 'package:intellia237/features/auth/presentation/widgets/intellia_237_membrane.dart';
 import 'package:intellia237/features/student_registration/application/student_registration_controller.dart';
 import 'package:intellia237/features/student_registration/data/firebase_student_registration_repository.dart';
 import 'package:intellia237/features/student_registration/data/student_registration_repository.dart';
@@ -29,6 +30,7 @@ void main() {
     String asset = 'assets/companions/kira.png',
     String companionName = 'Kira',
     VoidCallback? onContinue,
+    bool settle = true,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -44,11 +46,18 @@ void main() {
             companionName: companionName,
             companionAsset: asset,
             onContinue: onContinue ?? () {},
+            seal: PassSealStage.verified,
           ),
         ),
       ),
     );
-    await tester.pumpAndSettle();
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      // Le sceau respire sans fin : l'écran ne « s'installe » jamais.
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+    }
   }
 
   void expectCoreContent() {
@@ -125,6 +134,7 @@ void main() {
       tester,
       asset: 'assets/companions/__inexistant__.png',
       companionName: 'Kira',
+      settle: false,
     );
     // Le repli n'est plus une initiale mais le sceau gravé du Pass. Ce que ce
     // test garde n'a pas changé : une image absente ne laisse jamais un écran

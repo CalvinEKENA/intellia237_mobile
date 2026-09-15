@@ -8,6 +8,7 @@ import '../../application/auth_controller.dart';
 import '../../domain/app_role.dart';
 import 'auth_experience_scaffold.dart';
 import 'living_pass.dart';
+import 'pass_auth_progress.dart';
 
 /// The identity card lands here and remains a useful home header. The home
 /// content stays live beneath it, including real loading and error states.
@@ -40,8 +41,8 @@ class PassHomeArrival extends ConsumerWidget {
                     companionAsset: companionId == null
                         ? null
                         : TutorPersona.resolve(companionId).imagePath,
-                    progress: 1,
-                    verified: auth.isAuthenticated && auth.profileCompleted,
+                    progress: PassAuthProgress.complete,
+                    seal: PassAuthProgress.session(auth),
                     compact: true,
                   ),
                 ),

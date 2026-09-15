@@ -10,6 +10,7 @@ import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../../auth/presentation/widgets/auth_registration_frame.dart';
 import '../../auth/presentation/widgets/living_pass.dart';
+import '../../auth/presentation/widgets/pass_auth_progress.dart';
 import '../../role_registration/domain/teacher_catalogs.dart';
 import '../../student_registration/presentation/widgets/subject_multi_selector.dart';
 import '../application/teacher_registration_controller.dart';
@@ -105,7 +106,21 @@ class _TeacherRegistrationScreenState
       phase: state.awaitsValidation
           ? context.l10n.passValidationPending
           : labels[state.currentStep],
-      progress: state.awaitsValidation ? 0.94 : 0.20 + state.currentStep * 0.34,
+      progress: state.accountCreated
+          ? PassAuthProgress.complete
+          : PassAuthProgress.registrationLine(
+              step: state.currentStep,
+              steps: labels.length,
+            ),
+      // Registre de décisions (QA appareil, round 3) : le sceau suivait les
+      // étapes du formulaire (0,20 · 0,54 · 0,88 · 0,94), jamais un chiffre
+      // plein. Il suit désormais les identifiants saisis, puis le compte créé.
+      seal: PassAuthProgress.accountCreation(
+        email: state.email,
+        password: state.password,
+        confirmation: state.confirmPassword,
+        accountOpened: state.accountCreated,
+      ),
     );
 
     if (state.awaitsValidation) {
@@ -145,7 +160,9 @@ class _TeacherRegistrationScreenState
             },
       errorMessage: state.errorMessage,
       onDismissError: controller.clearError,
-      onRetry: state.isLastStep ? () => controller.submit() : null,
+      onRetry: state.isLastStep
+          ? () => controller.submit(beforeOpening: _holdCompletedSeal)
+          : null,
       content: AnimatedSwitcher(
         duration: MediaQuery.of(context).disableAnimations
             ? Duration.zero
@@ -354,6 +371,11 @@ class _TeacherRegistrationScreenState
     );
   }
 
+  /// Le compte existe : « 7 » est allumé et reste à l'écran avant que
+  /// l'espace enseignant ne s'ouvre.
+  Future<void> _holdCompletedSeal() =>
+      Future<void>.delayed(PassSealTiming.completionHold);
+
   Future<void> _onPrimaryAction(TeacherRegistrationState state) async {
     FocusManager.instance.primaryFocus?.unfocus();
     final controller = ref.read(teacherRegistrationControllerProvider.notifier);
@@ -383,7 +405,7 @@ class _TeacherRegistrationScreenState
     }
 
     if (state.isLastStep) {
-      await controller.submit();
+      await controller.submit(beforeOpening: _holdCompletedSeal);
       return;
     }
 

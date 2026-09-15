@@ -48,10 +48,16 @@ class AuthController extends Notifier<AuthState> {
   ///
   /// Sous une intention d'entrée ([intent]), un compte d'un autre rôle n'est
   /// jamais ouvert : la session est refermée et le conflit est renvoyé.
+  ///
+  /// [beforeOpening] s'exécute une fois les identifiants acceptés et l'espace
+  /// jugé compatible, juste avant que l'état global — et donc le routeur —
+  /// n'ouvre l'espace : l'écran y montre le sceau complet. Son échec
+  /// n'empêche jamais la connexion.
   Future<AuthEntryAdoption> signInWithEmail({
     required String email,
     required String password,
     AppRole? intent,
+    Future<void> Function()? beforeOpening,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -67,6 +73,13 @@ class AuthController extends Notifier<AuthState> {
         return AuthEntryRoleConflict(intent: intent!, accountRole: user.role);
       }
 
+      if (beforeOpening != null) {
+        try {
+          await beforeOpening();
+        } catch (_) {
+          // L'ouverture de l'espace ne dépend pas de sa mise en scène.
+        }
+      }
       await _markOnboardingSeen();
       await _markAuthenticatedBefore();
       state = AuthState.authenticated(
@@ -104,9 +117,19 @@ class AuthController extends Notifier<AuthState> {
   /// jamais le compte de l'autre rôle ; le rôle enregistré n'est pas touché ;
   /// la session Firebase est refermée, pour qu'un redémarrage ne rouvre pas
   /// l'autre espace. Sans intention, le comportement historique est conservé.
-  Future<AuthEntryAdoption> adoptSessionForIntent(AppRole? intent) async {
+  ///
+  /// [beforeOpening] reçoit l'état qui va être adopté, avant qu'il ne le
+  /// soit : l'écran y montre le sceau complet. Registre de décisions (QA
+  /// appareil, round 3) : dès que l'état global change, le routeur réévalue
+  /// la route de base de la pile (`/auth`, `/register`) et emporte l'écran
+  /// téléphone poussé par-dessus ; toute mise en scène placée après
+  /// l'adoption était coupée. Son échec n'empêche jamais l'adoption.
+  Future<AuthEntryAdoption> adoptSessionForIntent(
+    AppRole? intent, {
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) async {
     if (intent == null) {
-      await adoptCurrentFirebaseSession();
+      await adoptCurrentFirebaseSession(beforeOpening: beforeOpening);
       return const AuthEntryAdopted();
     }
 
@@ -144,8 +167,22 @@ class AuthController extends Notifier<AuthState> {
       return AuthEntryRoleConflict(intent: intent, accountRole: accountRole!);
     }
 
-    await _applyResolution(resolution);
+    final opening = await _stateFor(resolution);
+    await _beforeOpening(beforeOpening, opening);
+    await _applyResolution(resolution, resolved: opening);
     return const AuthEntryAdopted();
+  }
+
+  static Future<void> _beforeOpening(
+    Future<void> Function(AuthState opening)? hook,
+    AuthState opening,
+  ) async {
+    if (hook == null) return;
+    try {
+      await hook(opening);
+    } catch (_) {
+      // L'ouverture de l'espace ne dépend pas de sa mise en scène.
+    }
   }
 
   /// Adopts a Firebase session created by phone verification without ever
@@ -153,13 +190,17 @@ class AuthController extends Notifier<AuthState> {
   ///
   /// Returns false when the phone credential is valid but registration has
   /// not created a profile yet.
-  Future<bool> adoptCurrentFirebaseSession() async {
+  Future<bool> adoptCurrentFirebaseSession({
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final resolution = await _resolveCurrentSession().timeout(
         const Duration(seconds: 8),
       );
-      await _applyResolution(resolution);
+      final opening = await _stateFor(resolution);
+      await _beforeOpening(beforeOpening, opening);
+      await _applyResolution(resolution, resolved: opening);
       return state.isAuthenticated;
     } catch (error) {
       await _applyRetryableFailure(errorCode: _safeErrorCode(error));
@@ -344,34 +385,23 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  Future<void> _applyResolution(AuthSessionResolution resolution) async {
+  /// État que [resolution] donnera une fois appliquée, sans rien appliquer.
+  Future<AuthState> _stateFor(AuthSessionResolution resolution) async {
     final user = resolution.user;
-    switch (resolution.kind) {
-      case AuthSessionResolutionKind.unauthenticated:
-        final preferences = await SharedPreferences.getInstance();
-        await preferences.remove(_lastValidSessionKey);
-        state = AuthState.unauthenticated(
-          error: resolution.errorCode == 'user-disabled'
-              ? 'Ce compte est désactivé. Contacte l’assistance Intellia 237.'
-              : null,
-        );
-      case AuthSessionResolutionKind.needsOnboarding:
-        await _markOnboardingSeen();
-        await _markAuthenticatedBefore();
-        state = AuthState.needsOnboarding(
-          userId: resolution.firebaseUid ?? user?.uid ?? '',
-          email: resolution.firebaseEmail ?? user?.email,
-          firstName: user?.firstName,
-          recoveredRole: user?.role,
-        );
-      case AuthSessionResolutionKind.authenticated:
-        if (user == null) {
-          await _applyRetryableFailure(errorCode: 'profile-empty');
-          return;
-        }
-        await _markOnboardingSeen();
-        await _markAuthenticatedBefore();
-        state = AuthState.authenticated(
+    return switch (resolution.kind) {
+      AuthSessionResolutionKind.unauthenticated => AuthState.unauthenticated(
+        error: resolution.errorCode == 'user-disabled'
+            ? 'Ce compte est désactivé. Contacte l’assistance Intellia 237.'
+            : null,
+      ),
+      AuthSessionResolutionKind.needsOnboarding => AuthState.needsOnboarding(
+        userId: resolution.firebaseUid ?? user?.uid ?? '',
+        email: resolution.firebaseEmail ?? user?.email,
+        firstName: user?.firstName,
+        recoveredRole: user?.role,
+      ),
+      AuthSessionResolutionKind.authenticated when user != null =>
+        AuthState.authenticated(
           role: user.role,
           userId: user.uid,
           email: user.email,
@@ -379,18 +409,18 @@ class AuthController extends Notifier<AuthState> {
           profileCompleted: user.profileCompleted,
           isSuperAdmin: user.isSuperAdmin,
           establishmentId: user.establishmentId,
-        );
-        await _cacheValidUser(user);
-      case AuthSessionResolutionKind.retryableProfileFailure:
-        await _applyRetryableFailure(
+        ),
+      AuthSessionResolutionKind.authenticated => await _retryableState(
+        errorCode: 'profile-empty',
+      ),
+      AuthSessionResolutionKind.retryableProfileFailure =>
+        await _retryableState(
           userId: resolution.firebaseUid,
           email: resolution.firebaseEmail,
           errorCode: resolution.errorCode,
-        );
-      case AuthSessionResolutionKind.legacyProfileRecovery:
-        await _markOnboardingSeen();
-        await _markAuthenticatedBefore();
-        state = AuthState.legacyProfileRecovery(
+        ),
+      AuthSessionResolutionKind.legacyProfileRecovery =>
+        AuthState.legacyProfileRecovery(
           userId: resolution.firebaseUid ?? user?.uid ?? '',
           email: resolution.firebaseEmail ?? user?.email,
           firstName: user?.firstName,
@@ -401,9 +431,42 @@ class AuthController extends Notifier<AuthState> {
           error: user == null
               ? 'Le profil utilise un rôle historique non reconnu.'
               : null,
-        );
-        if (user != null && user.profileCompleted) await _cacheValidUser(user);
+        ),
+    };
+  }
+
+  /// Applique [resolution] : préférences locales, état global, cache du
+  /// dernier profil valide. [resolved] est l'état déjà calculé par
+  /// [_stateFor] pour cette même résolution.
+  Future<void> _applyResolution(
+    AuthSessionResolution resolution, {
+    AuthState? resolved,
+  }) async {
+    final user = resolution.user;
+    final next = resolved ?? await _stateFor(resolution);
+    switch (resolution.kind) {
+      case AuthSessionResolutionKind.unauthenticated:
+        final preferences = await SharedPreferences.getInstance();
+        await preferences.remove(_lastValidSessionKey);
+      case AuthSessionResolutionKind.needsOnboarding ||
+          AuthSessionResolutionKind.legacyProfileRecovery:
+        await _markOnboardingSeen();
+        await _markAuthenticatedBefore();
+      case AuthSessionResolutionKind.authenticated when user != null:
+        await _markOnboardingSeen();
+        await _markAuthenticatedBefore();
+      case AuthSessionResolutionKind.authenticated ||
+          AuthSessionResolutionKind.retryableProfileFailure:
+        break;
     }
+    state = next;
+    final cacheable = switch (resolution.kind) {
+      AuthSessionResolutionKind.authenticated => user != null,
+      AuthSessionResolutionKind.legacyProfileRecovery =>
+        user != null && user.profileCompleted,
+      _ => false,
+    };
+    if (cacheable) await _cacheValidUser(user!);
   }
 
   Future<AuthSessionResolution> _resolveCurrentSession() async {
@@ -429,8 +492,20 @@ class AuthController extends Notifier<AuthState> {
     String? email,
     String? errorCode,
   }) async {
+    state = await _retryableState(
+      userId: userId,
+      email: email,
+      errorCode: errorCode,
+    );
+  }
+
+  Future<AuthState> _retryableState({
+    String? userId,
+    String? email,
+    String? errorCode,
+  }) async {
     final cached = await _readCachedUser(expectedUid: userId);
-    state = AuthState.retryableProfileFailure(
+    return AuthState.retryableProfileFailure(
       userId: userId ?? cached?.uid,
       email: email ?? cached?.email,
       firstName: cached?.firstName,

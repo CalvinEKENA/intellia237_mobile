@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
+import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/presentation/widgets/auth_controls.dart';
 import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
@@ -94,9 +95,13 @@ class _ParentRegistrationScreenState
                 state.childIdentifiers.length,
               ),
         phase: labels[state.currentStep],
-        progress: 0.42 + state.currentStep * 0.23,
-        // Le numéro est déjà vérifié : le sceau reste complet.
-        sealProgress: PassAuthProgress.verified,
+        progress: PassAuthProgress.registrationLine(
+          step: state.currentStep,
+          steps: labels.length,
+        ),
+        // Le sceau dit la session réellement établie, pas l'étape du
+        // formulaire.
+        seal: PassAuthProgress.session(ref.watch(authControllerProvider)),
       ),
       currentStep: state.currentStep,
       labels: labels,

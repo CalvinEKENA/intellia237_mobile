@@ -10,6 +10,7 @@ import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
 import 'package:intellia237/features/auth/domain/repositories/phone_auth_repository.dart';
 import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
+import 'package:intellia237/features/auth/presentation/widgets/pass_auth_progress.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -165,6 +166,9 @@ class _Harness {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    // Device QA round 3 : l'espace s'ouvre après le sceau complet.
+    await tester.pump(PassSealTiming.completionHold);
     await tester.pumpAndSettle();
   }
 }

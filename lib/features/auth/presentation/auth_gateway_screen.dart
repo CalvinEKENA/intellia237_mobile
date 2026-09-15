@@ -8,6 +8,7 @@ import '../../parent/application/pending_child_link.dart';
 import '../domain/app_role.dart';
 import 'widgets/auth_choices.dart';
 import 'widgets/auth_experience_scaffold.dart';
+import 'widgets/intellia_237_membrane.dart';
 import 'widgets/living_pass.dart';
 import 'widgets/school_head_access.dart';
 
@@ -29,7 +30,10 @@ class AuthGatewayScreen extends ConsumerWidget {
 
     return AuthExperienceScaffold(
       showBackButton: false,
-      pass: LivingPass(phase: context.l10n.passWelcomeBack),
+      pass: LivingPass(
+        seal: PassSealStage.neutral,
+        phase: context.l10n.passWelcomeBack,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

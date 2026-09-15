@@ -4,7 +4,9 @@ import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/app_role.dart';
 import 'auth_controls.dart';
 import 'auth_experience_scaffold.dart';
+import 'intellia_237_membrane.dart';
 import 'living_pass.dart';
+import 'pass_auth_progress.dart';
 
 /// The completed PASS is the source of the shared-element flight into home.
 /// Navigation starts on the tap; the destination owns the entire transition.
@@ -14,9 +16,12 @@ class AuthSuccessScreen extends StatefulWidget {
     required this.companionName,
     required this.companionAsset,
     required this.onContinue,
+    required this.seal,
     super.key,
   });
 
+  /// Étape du sceau, calculée par l'écran appelant depuis la session réelle.
+  final PassSealStage seal;
   final String firstName;
   final String companionName;
   final String companionAsset;
@@ -59,8 +64,8 @@ class _AuthSuccessScreenState extends State<AuthSuccessScreen> {
             name: widget.firstName,
             detail: context.l10n.passWithCompanion(widget.companionName),
             companionAsset: widget.companionAsset,
-            progress: 1,
-            verified: true,
+            progress: PassAuthProgress.complete,
+            seal: widget.seal,
           ),
           const SizedBox(height: 28),
           Text(

@@ -36,6 +36,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordFocus = FocusNode();
   AuthEntryRoleConflict? _conflict;
 
+  /// Identifiants acceptés, espace compatible : « 7 » est allumé.
+  bool _accessOpened = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -55,9 +58,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           email: _emailController.text,
           password: _passwordController.text,
           intent: widget.authIntent,
+          beforeOpening: _holdCompletedSeal,
         );
-    if (!mounted || adoption is! AuthEntryRoleConflict) return;
-    setState(() => _conflict = adoption);
+    if (!mounted) return;
+    setState(() {
+      if (adoption is AuthEntryRoleConflict) _conflict = adoption;
+      // Un écran encore là après la connexion n'a rien ouvert.
+      if (!ref.read(authControllerProvider).isAuthenticated) {
+        _accessOpened = false;
+      }
+    });
+  }
+
+  /// Registre de décisions (QA appareil, round 3) : l'état authentifié
+  /// emportait aussitôt l'écran vers l'accueil ; la connexion par e-mail
+  /// n'a jamais montré « 7 » sur son propre Pass. Le sceau complet reste
+  /// désormais à l'écran avant l'ouverture de l'espace.
+  Future<void> _holdCompletedSeal() async {
+    if (!mounted) return;
+    setState(() => _accessOpened = true);
+    await Future<void>.delayed(PassSealTiming.completionHold);
   }
 
   @override
@@ -75,11 +95,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ? null
               : _emailController.text.trim(),
           phase: context.l10n.passSignIn,
-          // L'adresse colore « 2 », le mot de passe « 3 » ; l'espace d'arrivée
-          // présente le sceau vérifié.
-          progress: PassAuthProgress.emailSignIn(
+          // Adresse valide : « 2 ». Mot de passe recevable : « 3 ».
+          // Identifiants acceptés : « 7 », tenu avant l'ouverture.
+          seal: PassAuthProgress.emailSignIn(
             email: _emailController.text,
             password: _passwordController.text,
+            accessOpened: _accessOpened,
+          ),
+          progress: PassAuthProgress.emailLine(
+            email: _emailController.text,
+            password: _passwordController.text,
+            accessOpened: _accessOpened,
           ),
         ),
       ),
