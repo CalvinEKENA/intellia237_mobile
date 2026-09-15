@@ -36,13 +36,15 @@ describe("Functions runtime environment isolation", () => {
     );
   });
 
-  it("uses the verified Gemini 3.8 Flash production model by default", async () => {
+  it("uses the verified Gemini 3.8 Flash production model with HIGH tutor thinking by default", async () => {
     process.env.GOOGLE_CLOUD_PROJECT = "edunova-aabd1";
 
     const { getEnv } = await import("../config/env");
 
     expect(getEnv().VERTEX_AI_LOCATION).toBe("global");
     expect(getEnv().GEMINI_MODEL).toBe("gemini-3.8-flash");
+    expect(getEnv().GEMINI_TUTOR_THINKING_LEVEL).toBe("HIGH");
+    expect(getEnv().GEMINI_STRUCTURED_THINKING_LEVEL).toBe("MEDIUM");
   });
 
   it("supports GCLOUD_PROJECT as the legacy runtime fallback", async () => {

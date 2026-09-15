@@ -452,5 +452,13 @@ class ControlPlaneClient {
       parser: (res) => (res as Map<String, dynamic>? ?? {}),
     );
   }
+
+  /// getCompanionRuntimeConfig
+  Future<Map<String, dynamic>> getCompanionRuntimeConfig() async {
+    return call<Map<String, dynamic>>(
+      functionName: 'getCompanionRuntimeConfig',
+      parser: (res) => (res as Map<String, dynamic>? ?? {}),
+    );
+  }
 }
 

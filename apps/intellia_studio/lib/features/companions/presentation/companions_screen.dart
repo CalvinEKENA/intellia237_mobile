@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/api/studio_providers.dart';
 import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
+
+final companionRuntimeConfigProvider =
+    FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
+  final client = ref.watch(controlPlaneClientProvider);
+  return client.getCompanionRuntimeConfig();
+});
 
 class CompanionsScreen extends ConsumerStatefulWidget {
   const CompanionsScreen({super.key});
@@ -14,8 +21,46 @@ class CompanionsScreen extends ConsumerStatefulWidget {
 class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
   String _selectedCompanion = 'kira';
 
+  static const String _kiraSpecification =
+      'SPÉCIFICATION DU COMPAGNON — KIRA\n\n'
+      '1. POSITIONNEMENT &\n   RÔLE ÉDUCATIF :\n'
+      '   - Compagne d\'étude bienveillante, rigoureuse et patiente.\n'
+      '   - Accompagne les élèves camerounais (de la 6ème à la Terminale, sous-systèmes francophone et anglophone).\n'
+      '   - Axée sur la compréhension en profondeur, la méthodologie et le déblocage pas-à-pas.\n\n'
+      '2. SIGNATURE ÉDITORIALE :\n'
+      '   - Nom : Kira\n'
+      '   - Spécialité : Méthodologie & Accompagnement\n'
+      '   - Tempérament : Patiente & Explicative\n'
+      '   - Devise : "Apprenons avec calme et sérénité."\n\n'
+      '3. DIRECTIVES PÉDAGOGIQUES :\n'
+      '   - Méthode socratique : ne jamais donner directement la solution brute d\'un exercice.\n'
+      '   - S\'appuyer exclusivement sur le contexte académique officiel du MINESEC Cameroun fourni par le backend.\n'
+      '   - Clarté mathématique et scientifique sans dispersion.\n\n'
+      'NOTE ARCHITECTURALE :\n'
+      'Le prompt système d\'inférence actif est assemblé dynamiquement par le backend (askTutor) avec le contexte académique vérifié de l\'élève. Il n\'est pas dupliqué statiquement dans Studio.';
+
+  static const String _leoSpecification =
+      'SPÉCIFICATION DU COMPAGNON — LÉO\n\n'
+      '1. POSITIONNEMENT &\n   RÔLE ÉDUCATIF :\n'
+      '   - Guide d\'entraînement, de défi et de performance académique.\n'
+      '   - Stimule les élèves par des challenges progressifs et l\'auto-dépassement.\n'
+      '   - Prépare activement aux examens officiels et grands concours (Polytechnique, ENSP, FMSB, ENS).\n\n'
+      '2. SIGNATURE ÉDITORIALE :\n'
+      '   - Nom : Léo\n'
+      '   - Spécialité : Défis & Performance\n'
+      '   - Tempérament : Dynamique & Challengeur\n'
+      '   - Devise : "Dépasse tes limites et bats tes records !"\n\n'
+      '3. DIRECTIVES PÉDAGOGIQUES :\n'
+      '   - Exigeant, énergique et constructif.\n'
+      '   - Valorise l\'effort, l\'esprit critique et la rigueur de raisonnement.\n'
+      '   - Reste toujours arrimé aux programmes officiels du MINESEC Cameroun.\n\n'
+      'NOTE ARCHITECTURALE :\n'
+      'Le prompt système d\'inférence actif est assemblé dynamiquement par le backend (askTutor) avec le contexte académique vérifié de l\'élève. Il n\'est pas dupliqué statiquement dans Studio.';
+
   @override
   Widget build(BuildContext context) {
+    final configAsync = ref.watch(companionRuntimeConfigProvider);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -27,22 +72,33 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Opérations Compagnons IA (Kira & Léo)', style: Theme.of(context).textTheme.headlineMedium),
+                    Text('Opérations Compagnons IA (Kira & Léo)',
+                        style: Theme.of(context).textTheme.headlineMedium),
                     const SizedBox(height: 4),
                     const Text(
-                      'Configuration des prompts système, garde-fous pédagogiques et télémétrie des tuteurs.',
+                      'Spécifications des compagnons, garde-fous pédagogiques et métadonnées de runtime.',
                       style: TextStyle(color: StudioColors.textSecondaryLight),
                     ),
                   ],
                 ),
               ),
+              IconButton(
+                tooltip: 'Actualiser la configuration serveur',
+                icon: const Icon(Icons.refresh),
+                onPressed: () => ref.invalidate(companionRuntimeConfigProvider),
+              ),
+              const SizedBox(width: 12),
               SegmentedButton<String>(
                 segments: const [
-                  ButtonSegment(value: 'kira', label: Text('Kira (Tuteur Académique)')),
-                  ButtonSegment(value: 'leo', label: Text('Léo (Orientation)')),
+                  ButtonSegment(
+                      value: 'kira',
+                      label: Text('Kira (Méthodologie & Accompagnement)')),
+                  ButtonSegment(
+                      value: 'leo', label: Text('Léo (Défis & Performance)')),
                 ],
                 selected: {_selectedCompanion},
-                onSelectionChanged: (val) => setState(() => _selectedCompanion = val.first),
+                onSelectionChanged: (val) =>
+                    setState(() => _selectedCompanion = val.first),
               ),
             ],
           ),
@@ -69,37 +125,43 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                             children: [
                               Text(
                                 _selectedCompanion == 'kira'
-                                    ? 'Prompt Système — Kira v3.2 (Production)'
-                                    : 'Prompt Système — Léo v2.1 (Production)',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ? 'Spécification du compagnon — Kira'
+                                    : 'Spécification du compagnon — Léo',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
                               ),
-                              const StudioBadge(label: 'ACTIF SUR MOBILE', variant: StudioBadgeVariant.success),
+                              const StudioBadge(
+                                  label: 'SPÉCIFICATION ÉDITORIALE',
+                                  variant: StudioBadgeVariant.info),
                             ],
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Spécification éditoriale et rôle pédagogique. Le prompt d\'inférence actif est assemblé dynamiquement par le backend askTutor.',
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: StudioColors.textSecondaryLight),
                           ),
                           const SizedBox(height: 12),
                           Expanded(
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: StudioColors.surfaceDark.withValues(alpha: 0.03),
+                                color: StudioColors.surfaceDark
+                                    .withValues(alpha: 0.03),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: StudioColors.borderLight),
+                                border:
+                                    Border.all(color: StudioColors.borderLight),
                               ),
                               child: SingleChildScrollView(
                                 child: Text(
                                   _selectedCompanion == 'kira'
-                                      ? 'Tu es Kira, la compagne d\'étude bienveillante et rigoureuse d\'INTELLIA 237.\n'
-                                        'Ton rôle est d\'aider les élèves camerounais (de la 6ème à la Terminale) à comprendre leurs cours.\n\n'
-                                        'RÈGLES INVIOLABLES :\n'
-                                        '1. Ne donne JAMAIS directement la réponse brute d\'un devoir. Guide pas-à-pas avec méthode socratique.\n'
-                                        '2. Utilise le programme officiel du MINESEC Cameroun.\n'
-                                        '3. Reste encourageante, respectueuse et concise.'
-                                      : 'Tu es Léo, le guide d\'orientation professionnelle et universitaire d\'INTELLIA 237.\n'
-                                        'Ton rôle est d\'orienter les élèves camerounais vers les filières adaptées à leurs compétences (Polytechnique, ENSP, FMSB, ENS, filières techniques et littéraires).\n\n'
-                                        'RÈGLES :\n'
-                                        '1. Présente les débouchés réels au Cameroun et en Afrique centrale.\n'
-                                        '2. Détaille les concours nationaux et les conditions d\'admission.',
-                                  style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.5),
+                                      ? _kiraSpecification
+                                      : _leoSpecification,
+                                  style: const TextStyle(
+                                      fontFamily: 'monospace',
+                                      fontSize: 13,
+                                      height: 1.5),
                                 ),
                               ),
                             ),
@@ -120,37 +182,149 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                           borderRadius: BorderRadius.circular(12),
                           side: const BorderSide(color: StudioColors.borderLight),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Paramètres Modèle Gemini', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                              SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Modèle sous-jacent :'),
-                                  Text('gemini-1.5-flash', style: TextStyle(fontWeight: FontWeight.bold)),
-                                ],
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: configAsync.when(
+                            loading: () => const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(24.0),
+                                child: CircularProgressIndicator(),
                               ),
-                              SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            ),
+                            error: (err, _) => const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('Configuration Runtime IA',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15)),
+                                    StudioBadge(
+                                      label: 'INDISPONIBLE',
+                                      variant: StudioBadgeVariant.warning,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                Text(
+                                  'Configuration serveur indisponible',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: StudioColors.warning,
+                                  ),
+                                ),
+                                SizedBox(height: 6),
+                                Text(
+                                  'L\'endpoint getCompanionRuntimeConfig n\'est pas encore joignable ou nécessite des droits SuperAdmin. Aucun modèle statique de secours n\'est affiché afin de garantir l\'exactitude des informations de production.',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: StudioColors.textSecondaryLight),
+                                ),
+                              ],
+                            ),
+                            data: (data) {
+                              final model = data['model']?.toString();
+                              if (model == null || model.isEmpty) {
+                                return const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text('Configuration Runtime IA',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15)),
+                                        StudioBadge(
+                                          label: 'INDISPONIBLE',
+                                          variant: StudioBadgeVariant.warning,
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 12),
+                                    Text(
+                                      'Configuration serveur indisponible',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        color: StudioColors.warning,
+                                      ),
+                                    ),
+                                    SizedBox(height: 6),
+                                    Text(
+                                      'Aucune configuration de modèle valide n\'a été renvoyée par le serveur.',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: StudioColors.textSecondaryLight),
+                                    ),
+                                  ],
+                                );
+                              }
+
+                              final provider =
+                                  data['provider']?.toString() ??
+                                      'Donnée non disponible';
+                              final tutorThinking =
+                                  data['tutorThinkingLevel']?.toString() ??
+                                      'Donnée non disponible';
+                              final structuredThinking =
+                                  data['structuredThinkingLevel']?.toString() ??
+                                      'Donnée non disponible';
+                              final location =
+                                  data['location']?.toString() ??
+                                      'Donnée non disponible';
+                              final isConfigured = data['configured'] == true;
+
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Température :'),
-                                  Text('0.2 (Faible hallucination)', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('Configuration Runtime IA',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 15)),
+                                      StudioBadge(
+                                        label: isConfigured
+                                            ? 'OPÉRATIONNEL'
+                                            : 'NON CONFIGURÉ',
+                                        variant: isConfigured
+                                            ? StudioBadgeVariant.success
+                                            : StudioBadgeVariant.warning,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  _buildConfigRow(
+                                      'Fournisseur d\'inférence :', provider),
+                                  const SizedBox(height: 8),
+                                  _buildConfigRow('Modèle sous-jacent :', model),
+                                  const SizedBox(height: 8),
+                                  _buildConfigRow(
+                                      'Réflexion tuteur (Kira & Léo) :',
+                                      tutorThinking),
+                                  const SizedBox(height: 8),
+                                  _buildConfigRow(
+                                      'Réflexion structurée :',
+                                      structuredThinking),
+                                  const SizedBox(height: 8),
+                                  _buildConfigRow(
+                                      'Région Vertex AI :', location),
+                                  const SizedBox(height: 8),
+                                  _buildConfigRow(
+                                    'Température :',
+                                    'valeur par défaut du modèle',
+                                  ),
                                 ],
-                              ),
-                              SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Filtres de sécurité :'),
-                                  StudioBadge(label: 'STRICT', variant: StudioBadgeVariant.info),
-                                ],
-                              ),
-                            ],
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -166,13 +340,26 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Télémétrie & Quotas', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                              Text('Télémétrie & Quotas',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15)),
                               SizedBox(height: 12),
-                              Text('Questions traitées aujourd\'hui : 14 280'),
+                              Text(
+                                  'Questions traitées aujourd\'hui : Donnée non disponible'),
                               SizedBox(height: 6),
-                              Text('Temps moyen de réponse : 820 ms'),
+                              Text(
+                                  'Temps moyen de réponse : Donnée non disponible'),
                               SizedBox(height: 6),
-                              Text('Taux de satisfaction tuteur : 98.4%'),
+                              Text(
+                                  'Taux de satisfaction tuteur : Donnée non disponible'),
+                              SizedBox(height: 12),
+                              Text(
+                                'Note : La télémétrie agrégée globale n\'est pas synthétisée. Chaque élève dispose d\'une Réserve d\'étude et d\'un quota journalier mesurés côté serveur.',
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: StudioColors.textSecondaryLight),
+                              ),
                             ],
                           ),
                         ),
@@ -185,6 +372,22 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildConfigRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 13)),
+        Text(
+          value,
+          style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: StudioColors.navyPrimary),
+        ),
+      ],
     );
   }
 }

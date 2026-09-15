@@ -23,7 +23,7 @@ const envSchema = z.object({
   VERTEX_AI_PROJECT_ID: z.string().trim().min(1).optional(),
   VERTEX_AI_LOCATION: z.string().trim().min(1).default("global"),
   GEMINI_MODEL: z.string().trim().min(1).default("gemini-3.8-flash"),
-  GEMINI_TUTOR_THINKING_LEVEL: thinkingLevelSchema.default("LOW"),
+  GEMINI_TUTOR_THINKING_LEVEL: thinkingLevelSchema.default("HIGH"),
   GEMINI_STRUCTURED_THINKING_LEVEL: thinkingLevelSchema.default("MEDIUM"),
   MAX_COURSE_IMAGES: z.coerce.number().int().min(0).max(20).default(8),
   TUTOR_DAILY_QUESTION_LIMIT: z.coerce.number().int().min(1).max(200).default(20),
