@@ -26,7 +26,7 @@ class PlansNotifier extends StateNotifier<List<StudioSubscriptionPlan>> {
       name: 'Formule Atelier',
       priceXaf: 5000,
       billingPeriod: 'Mensuel',
-      features: ['Tout Cahier', 'FLOW interactif', 'Compagnon IA Kira (Réserve 600k)', 'Quiz illimités'],
+      features: ['Tout Cahier', 'Parcours interactif', 'Compagnon IA Kira (Réserve 600k)', 'Quiz illimités'],
       isProvisionedInFirestore: false,
       establishmentId: 'est_douala_01',
     ),

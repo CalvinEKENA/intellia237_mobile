@@ -174,7 +174,7 @@ void main() {
       const item = PublishingReleaseItem(
         id: 'rel_test_1',
         title: 'TVI et stricte monotonie',
-        type: 'FLOW',
+        type: 'PARCOURS',
         system: 'Francophone',
         classLevels: ['Terminale'],
         series: ['C', 'D'],
@@ -187,7 +187,7 @@ void main() {
 
       expect(item.targetBadge, 'Francophone • Terminale [C/D] • Mathématiques');
       expect(item.academicPath,
-          'Terminale (C, D) > Mathématiques > Limites et continuité > FLOW > "TVI et stricte monotonie"');
+          'Terminale (C, D) > Mathématiques > Limites et continuité > PARCOURS > "TVI et stricte monotonie"');
     });
 
     test('Filtering strictly isolates classes without cross-class leakage', () {

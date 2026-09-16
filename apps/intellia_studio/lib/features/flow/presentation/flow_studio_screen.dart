@@ -147,10 +147,10 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('FLOW Studio', style: Theme.of(context).textTheme.headlineMedium),
+                    Text('Studio Parcours', style: Theme.of(context).textTheme.headlineMedium),
                     const SizedBox(height: 4),
                     const Text(
-                      'Création et publication des cartes micro-learning du flux mobile INTELLIA.',
+                      'Création et publication des cartes d’apprentissage du parcours mobile INTELLIA.',
                       style: TextStyle(color: StudioColors.textSecondaryLight),
                     ),
                   ],
@@ -159,7 +159,7 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
               FilledButton.icon(
                 onPressed: () => _openCreateDialog(context),
                 icon: const Icon(Icons.add_rounded),
-                label: const Text('Nouvelle Carte FLOW'),
+                label: const Text('Nouvelle carte de parcours'),
               ),
             ],
           ),
@@ -193,7 +193,7 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Publications FLOW (${items.length})',
+                                'Publications du parcours (${items.length})',
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               const StudioBadge(
@@ -286,7 +286,7 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Aperçu Mobile Écran FLOW',
+                                'Aperçu mobile — Parcours',
                                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                               ),
                               Icon(Icons.phone_android_rounded, color: StudioColors.textSecondaryLight),
@@ -455,7 +455,7 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
     ref.read(flowItemsProvider.notifier).updateStatus(item.id, FlowStatus.published);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Carte FLOW publiée conformément à saveFlowPublication.'),
+        content: Text('Carte de parcours publiée conformément à saveFlowPublication.'),
         backgroundColor: StudioColors.success,
       ),
     );
@@ -481,7 +481,7 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('Créer une Carte FLOW (Class-First)'),
+              title: const Text('Créer une carte de parcours (Class-First)'),
               content: SizedBox(
                 width: 480,
                 child: Column(

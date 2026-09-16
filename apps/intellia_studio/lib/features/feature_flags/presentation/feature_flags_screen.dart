@@ -39,7 +39,7 @@ class FeatureFlagsScreen extends ConsumerWidget {
           Expanded(
             child: ListView(
               children: [
-                _buildFlagCard('enable_flow_v2', 'Nouveau moteur de défilement immersif FLOW', 100, true),
+                _buildFlagCard('enable_flow_v2', 'Nouveau moteur de défilement immersif du parcours', 100, true),
                 const SizedBox(height: 12),
                 _buildFlagCard('enable_notebooklm_importer', 'Importateur automatique de cours par NotebookLM', 100, true),
                 const SizedBox(height: 12),

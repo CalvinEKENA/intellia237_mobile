@@ -126,7 +126,7 @@ class MobileReleaseScreen extends ConsumerWidget {
                             child: SingleChildScrollView(
                               child: Text(
                                 '- Intégration de la Réserve d\'Étude (Study Reserve) avec gestion autonome du quota IA\n'
-                                '- Ajout du défilement continu et des quiz interactifs dans FLOW\n'
+                                '- Ajout du défilement continu et des quiz interactifs dans le parcours\n'
                                 '- Optimisation des leçons hors-ligne et réduction de l\'empreinte cache\n'
                                 '- Correction du calcul des frais Mobile Money Orange / MTN\n'
                                 '- Amélioration des transitions d\'écran et respect de la palette institutionnelle',

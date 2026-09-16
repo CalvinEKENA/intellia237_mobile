@@ -180,7 +180,7 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Les fichiers doivent résider dans le bucket sécurisé sous educational_assets/. Le callable analyse les pages en une passe avec Gemini 2.5 et synthétise leçon, quiz et cartes FLOW.',
+                                  'Les fichiers doivent résider dans le bucket sécurisé sous educational_assets/. Le callable analyse les pages en une passe avec Gemini 2.5 et synthétise leçon, quiz et cartes de parcours.',
                                   style: TextStyle(fontSize: 11, color: StudioColors.navyPrimary),
                                 ),
                               ],
@@ -308,13 +308,13 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                                         leading: const Icon(Icons.view_carousel,
                                             color: StudioColors.navyPrimary),
                                         title: Text(
-                                          'Cartes FLOW : ${(extractionResult?['flowCards'] as List?)?.length ?? 0} candidate(s)',
+                                          'Cartes de parcours : ${(extractionResult?['flowCards'] as List?)?.length ?? 0} candidate(s)',
                                         ),
                                         subtitle: const Text(
                                           'Micro-notions synthétisées pour l\'app mobile',
                                         ),
                                         trailing: const StudioBadge(
-                                          label: 'FLOW',
+                                          label: 'PARCOURS',
                                           variant: StudioBadgeVariant.warning,
                                         ),
                                       ),

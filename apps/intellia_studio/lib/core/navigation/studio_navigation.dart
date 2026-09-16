@@ -98,7 +98,7 @@ enum StudioModule {
   ),
   flowStudio(
     '/flow',
-    '16 FLOW Studio',
+    '16 Studio Parcours',
     Icons.view_carousel_rounded,
     StudioSection.content,
   ),

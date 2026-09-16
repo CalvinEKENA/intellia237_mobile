@@ -302,7 +302,7 @@ class _ContentLessonEditorScreenState
               child: Text(
                 _lesson.isPublished
                     ? 'En ligne · Les modifications enregistrées actualisent la leçon et ses contenus associés.'
-                    : 'Brouillon · Invisible aux élèves. Publier met en ligne cette leçon, ses quiz et ses cartes FLOW associés.\nLe public est défini par les critères ci-dessous et ceux de la matière.',
+                    : 'Brouillon · Invisible aux élèves. Publier met en ligne cette leçon, ses quiz et ses cartes de parcours associées.\nLe public est défini par les critères ci-dessous et ceux de la matière.',
               ),
             ),
           ),

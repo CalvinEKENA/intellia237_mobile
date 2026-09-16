@@ -105,7 +105,7 @@ class _ContentStudioScreenState extends ConsumerState<ContentStudioScreen>
                       Tab(text: context.l10n.quizLabel),
                       const Tab(
                         key: ValueKey('studio-tab-flow'),
-                        text: 'Publications Flow',
+                        text: 'Publications du parcours',
                       ),
                     ],
                   ),

@@ -139,7 +139,7 @@ class _StudioShellScreenState extends ConsumerState<StudioShellScreen> {
                         height: 16,
                         color: StudioColors.borderLight,
                       ),
-                      _buildSectionHeader('CONTENUS & FLOW'),
+                      _buildSectionHeader('CONTENUS & PARCOURS'),
                       _buildNavItem(StudioModule.contentStudio),
                       _buildNavItem(StudioModule.flowStudio),
                       _buildNavItem(StudioModule.quizStudio),

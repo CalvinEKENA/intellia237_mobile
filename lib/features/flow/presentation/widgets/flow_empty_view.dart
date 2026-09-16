@@ -35,7 +35,7 @@ class FlowEmptyView extends ConsumerWidget {
               ),
               const SizedBox(height: IntelliaSpacing.md),
               Text(
-                'Le Flow arrive',
+                'Ton parcours se prépare',
                 key: const ValueKey('flow-empty-title'),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineSmall?.copyWith(

@@ -111,7 +111,7 @@ void main() {
         name: 'Formule Atelier',
         priceXaf: 5000,
         billingPeriod: 'Mensuel',
-        features: ['FLOW', 'Kira IA'],
+        features: ['Parcours', 'Kira IA'],
         isProvisionedInFirestore: false,
         establishmentId: 'est_01',
       );

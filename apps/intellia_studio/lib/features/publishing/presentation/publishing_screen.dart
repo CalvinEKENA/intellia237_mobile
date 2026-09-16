@@ -10,7 +10,7 @@ import '../../audit/presentation/widgets/confirmation_dialog.dart';
 class PublishingReleaseItem {
   final String id;
   final String title;
-  final String type; // 'LEÇON' | 'FLOW' | 'QUIZ'
+  final String type; // 'LEÇON' | 'PARCOURS' | 'QUIZ'
   final String system; // 'Francophone' | 'Anglophone'
   final List<String> classLevels;
   final List<String> series;
@@ -83,7 +83,7 @@ class ReleaseItemsNotifier extends StateNotifier<List<PublishingReleaseItem>> {
     const PublishingReleaseItem(
       id: 'rel_02',
       title: 'Piège classique TVI',
-      type: 'FLOW',
+      type: 'PARCOURS',
       system: 'Francophone',
       classLevels: ['Terminale'],
       series: ['C', 'D', 'TI'],

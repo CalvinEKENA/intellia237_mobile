@@ -125,7 +125,7 @@ void main() {
     await _pumpHub(tester, offline: true);
 
     expect(find.text('Quiz en pause hors connexion'), findsOneWidget);
-    expect(find.text('Ouvrir le Flow hors ligne'), findsOneWidget);
+    expect(find.text('Ouvrir mon parcours hors ligne'), findsOneWidget);
     expect(find.text('Voir mes leçons téléchargées'), findsOneWidget);
 
     await tester.scrollUntilVisible(

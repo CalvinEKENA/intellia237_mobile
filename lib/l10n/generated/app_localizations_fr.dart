@@ -1421,7 +1421,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizCatalogUnavailableBody =>
-      'Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec le Flow ou tes cours.';
+      'Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec ton parcours ou tes cours.';
 
   @override
   String get quizCatalogInvalidBody =>
@@ -1429,7 +1429,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizCatalogNetworkBody =>
-      'La connexion au catalogue est interrompue. Tes cours et le Flow restent disponibles.';
+      'La connexion au catalogue est interrompue. Tes cours et ton parcours restent disponibles.';
 
   @override
   String get quizLoadErrorTitle =>
@@ -1440,10 +1440,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizOfflineBody =>
-      'Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec le Flow ou une leçon téléchargée.';
+      'Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec ton parcours ou une leçon téléchargée.';
 
   @override
-  String get openOfflineFlow => 'Ouvrir le Flow hors ligne';
+  String get openOfflineFlow => 'Ouvrir mon parcours hors ligne';
 
   @override
   String get viewDownloadedLessons => 'Voir mes leçons téléchargées';
@@ -1485,7 +1485,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizComingBody =>
-      'De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance le Flow depuis l’accueil.';
+      'De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance ton parcours depuis l’accueil.';
 
   @override
   String get quizTrainingAction => 'S’entraîner';
@@ -1785,7 +1785,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get continueWithFlow => 'Continuer avec le Flow';
+  String get continueWithFlow => 'Continuer mon parcours';
 
   @override
   String get homeLabel => 'Accueil';
@@ -1801,7 +1801,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get flowSyncSignedOut =>
-      'Connecte-toi pour faire valider tes points FLOW.';
+      'Connecte-toi pour faire valider tes points du parcours.';
 
   @override
   String get flowSyncUnavailable =>
@@ -1813,22 +1813,23 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get flowSyncNotEligible =>
-      'La validation des points FLOW est réservée aux profils élèves.';
+      'La validation des points du parcours est réservée aux profils élèves.';
 
   @override
   String get flowSyncContentNotValidated =>
-      'Cette activité FLOW n’est pas encore validée par le serveur.';
+      'Cette activité du parcours n’est pas encore validée par le serveur.';
 
   @override
   String get flowSyncDuplicate =>
       'Cette validation a déjà été utilisée pour une autre activité.';
 
   @override
-  String get flowSyncInvalidAnswer => 'La réponse FLOW envoyée est invalide.';
+  String get flowSyncInvalidAnswer =>
+      'La réponse envoyée pour cette activité est invalide.';
 
   @override
   String get flowSyncUnknown =>
-      'Impossible de valider les points FLOW pour le moment.';
+      'Impossible de valider les points du parcours pour le moment.';
 
   @override
   String get flowDailyCapReached =>
@@ -1921,10 +1922,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get homeLessonsComingBody =>
-      'Les leçons de ta classe sont en cours de préparation. En attendant, découvre le Flow ou révise avec ton compagnon.';
+      'Les leçons de ta classe sont en cours de préparation. En attendant, découvre ton parcours ou révise avec ton compagnon.';
 
   @override
-  String get discoverFlow => 'Découvrir le Flow';
+  String get discoverFlow => 'Découvrir mon parcours';
 
   @override
   String get talkToCompanion => 'Parler à mon compagnon';

@@ -344,8 +344,8 @@ void main() {
   ) async {
     await _pumpHome(tester, size: const Size(390, 844));
 
-    await tester.ensureVisible(find.text('Flow'));
-    await tester.tap(find.text('Flow'));
+    await tester.ensureVisible(find.text('Mon parcours'));
+    await tester.tap(find.text('Mon parcours'));
     await tester.pumpAndSettle();
     expect(find.text('Flow destination'), findsOneWidget);
     tester.state<NavigatorState>(find.byType(Navigator)).pop();
