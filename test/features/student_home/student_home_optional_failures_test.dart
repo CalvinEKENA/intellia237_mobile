@@ -110,7 +110,7 @@ void main() {
 }
 
 void _expectCoreHome() {
-  expect(find.text('Flow'), findsOneWidget);
+  expect(find.text('Mon parcours'), findsOneWidget);
   expect(find.text('Tes cours arrivent'), findsOneWidget);
 }
 

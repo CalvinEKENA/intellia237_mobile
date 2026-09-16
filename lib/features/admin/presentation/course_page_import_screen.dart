@@ -432,7 +432,7 @@ class _CoursePageImportScreenState
         key: const ValueKey('page-import-flow-subject'),
         initialValue: _effectiveFlowSubject,
         decoration: const InputDecoration(
-          labelText: 'Matière des cartes FLOW et des exercices',
+          labelText: 'Matière des cartes de parcours et des exercices',
         ),
         items: [
           for (final subject in FlowSubjects.all)
@@ -646,7 +646,7 @@ class _CoursePageImportScreenState
 
       heading('Exercices (${draft.exercises.length})'),
       Text(
-        'Chaque exercice devient une carte FLOW : l’élève cherche, puis '
+        'Chaque exercice devient une carte de parcours : l’élève cherche, puis '
         'découvre le corrigé.',
         style: theme.textTheme.bodySmall,
       ),
@@ -675,7 +675,7 @@ class _CoursePageImportScreenState
           ],
         ),
 
-      heading('Cartes FLOW (${draft.flowCards.length})'),
+      heading('Cartes de parcours (${draft.flowCards.length})'),
       for (var index = 0; index < draft.flowCards.length; index++)
         _ReviewCard(
           keyName: 'page-import-flow-$index',
@@ -786,13 +786,13 @@ class _CoursePageImportScreenState
         const Text('• Le quiz d’entraînement, dans Quiz.'),
       if (outcome.flowItemsCreated > 0)
         Text(
-          '• ${outcome.flowItemsCreated} carte(s) FLOW et exercice(s), dans '
-          'Flow.',
+          '• ${outcome.flowItemsCreated} carte(s) de parcours et exercice(s), dans '
+          'Parcours.',
         ),
       const SizedBox(height: IntelliaSpacing.md),
       Text(
         'Rien n’est encore visible pour les élèves : relisez, puis publiez '
-        'la leçon depuis ce chapitre. Ses quiz et cartes FLOW associés seront publiés ensemble. Les contenus créés seuls se publient depuis leur rubrique du Studio.',
+        'la leçon depuis ce chapitre. Ses quiz et cartes de parcours associées seront publiés ensemble. Les contenus créés seuls se publient depuis leur rubrique du Studio.',
         style: theme.textTheme.bodyMedium,
       ),
       if (outcome.failures.isNotEmpty) ...[

@@ -2543,7 +2543,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizCatalogUnavailableBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec le Flow ou tes cours.'**
+  /// **'Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec ton parcours ou tes cours.'**
   String get quizCatalogUnavailableBody;
 
   /// No description provided for @quizCatalogInvalidBody.
@@ -2555,7 +2555,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizCatalogNetworkBody.
   ///
   /// In fr, this message translates to:
-  /// **'La connexion au catalogue est interrompue. Tes cours et le Flow restent disponibles.'**
+  /// **'La connexion au catalogue est interrompue. Tes cours et ton parcours restent disponibles.'**
   String get quizCatalogNetworkBody;
 
   /// No description provided for @quizLoadErrorTitle.
@@ -2573,13 +2573,13 @@ abstract class AppLocalizations {
   /// No description provided for @quizOfflineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec le Flow ou une leçon téléchargée.'**
+  /// **'Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec ton parcours ou une leçon téléchargée.'**
   String get quizOfflineBody;
 
   /// No description provided for @openOfflineFlow.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir le Flow hors ligne'**
+  /// **'Ouvrir mon parcours hors ligne'**
   String get openOfflineFlow;
 
   /// No description provided for @viewDownloadedLessons.
@@ -2657,7 +2657,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizComingBody.
   ///
   /// In fr, this message translates to:
-  /// **'De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance le Flow depuis l’accueil.'**
+  /// **'De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance ton parcours depuis l’accueil.'**
   String get quizComingBody;
 
   /// No description provided for @quizTrainingAction.
@@ -3143,7 +3143,7 @@ abstract class AppLocalizations {
   /// No description provided for @continueWithFlow.
   ///
   /// In fr, this message translates to:
-  /// **'Continuer avec le Flow'**
+  /// **'Continuer mon parcours'**
   String get continueWithFlow;
 
   /// No description provided for @homeLabel.
@@ -3173,7 +3173,7 @@ abstract class AppLocalizations {
   /// No description provided for @flowSyncSignedOut.
   ///
   /// In fr, this message translates to:
-  /// **'Connecte-toi pour faire valider tes points FLOW.'**
+  /// **'Connecte-toi pour faire valider tes points du parcours.'**
   String get flowSyncSignedOut;
 
   /// No description provided for @flowSyncUnavailable.
@@ -3191,13 +3191,13 @@ abstract class AppLocalizations {
   /// No description provided for @flowSyncNotEligible.
   ///
   /// In fr, this message translates to:
-  /// **'La validation des points FLOW est réservée aux profils élèves.'**
+  /// **'La validation des points du parcours est réservée aux profils élèves.'**
   String get flowSyncNotEligible;
 
   /// No description provided for @flowSyncContentNotValidated.
   ///
   /// In fr, this message translates to:
-  /// **'Cette activité FLOW n’est pas encore validée par le serveur.'**
+  /// **'Cette activité du parcours n’est pas encore validée par le serveur.'**
   String get flowSyncContentNotValidated;
 
   /// No description provided for @flowSyncDuplicate.
@@ -3209,13 +3209,13 @@ abstract class AppLocalizations {
   /// No description provided for @flowSyncInvalidAnswer.
   ///
   /// In fr, this message translates to:
-  /// **'La réponse FLOW envoyée est invalide.'**
+  /// **'La réponse envoyée pour cette activité est invalide.'**
   String get flowSyncInvalidAnswer;
 
   /// No description provided for @flowSyncUnknown.
   ///
   /// In fr, this message translates to:
-  /// **'Impossible de valider les points FLOW pour le moment.'**
+  /// **'Impossible de valider les points du parcours pour le moment.'**
   String get flowSyncUnknown;
 
   /// No description provided for @flowDailyCapReached.
@@ -3383,13 +3383,13 @@ abstract class AppLocalizations {
   /// No description provided for @homeLessonsComingBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les leçons de ta classe sont en cours de préparation. En attendant, découvre le Flow ou révise avec ton compagnon.'**
+  /// **'Les leçons de ta classe sont en cours de préparation. En attendant, découvre ton parcours ou révise avec ton compagnon.'**
   String get homeLessonsComingBody;
 
   /// No description provided for @discoverFlow.
   ///
   /// In fr, this message translates to:
-  /// **'Découvrir le Flow'**
+  /// **'Découvrir mon parcours'**
   String get discoverFlow;
 
   /// No description provided for @talkToCompanion.
