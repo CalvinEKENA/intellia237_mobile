@@ -31,7 +31,6 @@ const kAskTutorClientTimeout = Duration(seconds: 90);
 bool _hasReason(Object? details, String reason) =>
     details is Map && details['reason'] == reason;
 
-
 class TutorCallableFailure implements Exception {
   const TutorCallableFailure({required this.code, this.message, this.details});
 

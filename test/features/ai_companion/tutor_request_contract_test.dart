@@ -18,9 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// contrat de délais est vérifié des deux côtés, sur la même source.
 int _serverConstant(String name) {
   final source = File('functions/src/config/timeouts.ts').readAsStringSync();
-  final match = RegExp(
-    'export const $name = ([0-9_]+);',
-  ).firstMatch(source);
+  final match = RegExp('export const $name = ([0-9_]+);').firstMatch(source);
   expect(match, isNotNull, reason: '$name absent de timeouts.ts');
   return int.parse(match!.group(1)!.replaceAll('_', ''));
 }

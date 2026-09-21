@@ -25,17 +25,20 @@ void main() {
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
   });
 
-  test('a window follows at most two empty pages, never the whole catalog', () async {
-    final feed = _PagedFeed({
-      null: const FlowFeedPage(items: [], nextCursor: 'c1'),
-      'c1': const FlowFeedPage(items: [], nextCursor: 'c2'),
-      'c2': FlowFeedPage(items: _notions('late', 3), nextCursor: 'c3'),
-    });
-    final page = await fetchFlowWindow(feed, '3eme');
-    expect(feed.requests, hasLength(kFlowMaxPagesPerLoad));
-    expect(page.items, isEmpty);
-    expect(page.nextCursor, 'c2');
-  });
+  test(
+    'a window follows at most two empty pages, never the whole catalog',
+    () async {
+      final feed = _PagedFeed({
+        null: const FlowFeedPage(items: [], nextCursor: 'c1'),
+        'c1': const FlowFeedPage(items: [], nextCursor: 'c2'),
+        'c2': FlowFeedPage(items: _notions('late', 3), nextCursor: 'c3'),
+      });
+      final page = await fetchFlowWindow(feed, '3eme');
+      expect(feed.requests, hasLength(kFlowMaxPagesPerLoad));
+      expect(page.items, isEmpty);
+      expect(page.nextCursor, 'c2');
+    },
+  );
 
   test('an empty page followed by content is still served', () async {
     final feed = _PagedFeed({
@@ -95,9 +98,10 @@ void main() {
   testWidgets('a failing network stops asking after the retry budget', (
     tester,
   ) async {
-    final feed = _PagedFeed({
-      null: FlowFeedPage(items: _notions('p1', 6), nextCursor: 'c2'),
-    }, failingCursors: {'c2'});
+    final feed = _PagedFeed(
+      {null: FlowFeedPage(items: _notions('p1', 6), nextCursor: 'c2')},
+      failingCursors: {'c2'},
+    );
     await _pump(tester, feed);
     for (var i = 0; i < 5; i++) {
       await _swipe(tester);
@@ -128,7 +132,9 @@ List<FlowItem> _notions(String prefix, int count) => [
 ];
 
 int _pageCount(WidgetTester tester) =>
-    tester.widget<PageView>(find.byType(PageView)).childrenDelegate
+    tester
+        .widget<PageView>(find.byType(PageView))
+        .childrenDelegate
         .estimatedChildCount ??
     -1;
 

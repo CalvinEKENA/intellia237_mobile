@@ -86,33 +86,36 @@ void main() {
     expect(gateway.payload?['requestId'], 'req-00000042');
   });
 
-  test('an answer still in preparation is a retryable, uncounted wait', () async {
-    final repository = CloudAIRepository(
-      gateway: const _TutorGateway(
-        failure: TutorCallableFailure(
-          code: 'unavailable',
-          details: <String, dynamic>{'reason': tutorRequestInProgressReason},
+  test(
+    'an answer still in preparation is a retryable, uncounted wait',
+    () async {
+      final repository = CloudAIRepository(
+        gateway: const _TutorGateway(
+          failure: TutorCallableFailure(
+            code: 'unavailable',
+            details: <String, dynamic>{'reason': tutorRequestInProgressReason},
+          ),
         ),
-      ),
-    );
-    await expectLater(
-      _send(repository, kira),
-      throwsA(
-        isA<AICompanionException>()
-            .having((error) => error.retryable, 'retryable', isTrue)
-            .having(
-              (error) => error.diagnosticId,
-              'diagnosticId',
-              'TUTOR-PENDING-508',
-            )
-            .having(
-              (error) => error.message,
-              'message',
-              contains('ne sera pas recomptée'),
-            ),
-      ),
-    );
-  });
+      );
+      await expectLater(
+        _send(repository, kira),
+        throwsA(
+          isA<AICompanionException>()
+              .having((error) => error.retryable, 'retryable', isTrue)
+              .having(
+                (error) => error.diagnosticId,
+                'diagnosticId',
+                'TUTOR-PENDING-508',
+              )
+              .having(
+                (error) => error.message,
+                'message',
+                contains('ne sera pas recomptée'),
+              ),
+        ),
+      );
+    },
+  );
 
   test('a question retried too often asks to be posed again', () async {
     final repository = CloudAIRepository(
