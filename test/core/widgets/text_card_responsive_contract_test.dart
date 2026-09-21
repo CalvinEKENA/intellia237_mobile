@@ -61,6 +61,9 @@ const _coveredPublicCardTypes = {
   // Dedicated FR/EN test at 360 px / textScale 1.5 (provider-backed reserve,
   // pending first sign-in): test/features/parent/parent_child_card_test.dart.
   'ParentChildCard',
+  // Dedicated FR/EN test at 360 px up to textScale 2.0, word tiles and
+  // stacked steps: test/features/interactive_learning/ordering_exercise_view_test.dart.
+  'InteractiveExerciseCard',
 };
 
 const _longQuestion = QuizQuestion(
