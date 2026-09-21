@@ -334,8 +334,13 @@ service cloud.firestore {
                     || isSuperAdmin()
                     || (isAdmin() && isStaffForStudent(resource.data.studentId))
                   );
+      // Identifiant canonique {parentId}_{studentId} : c'est celui que
+      // isLinkedParent() interroge. Un lien a un autre identifiant pourrait
+      // etre approuve pour un autre parent que son createur.
       allow create: if isParent()
                     && request.auth.uid == request.resource.data.parentId
+                    && linkId == request.resource.data.parentId + '_' + request.resource.data.studentId
+                    && request.resource.data.studentId != request.auth.uid
                     && request.resource.data.keys().hasOnly([
                          'parentId',
                          'studentId',
@@ -446,25 +451,6 @@ service cloud.firestore {
         && (scopeId == 'global' || isSuperAdmin() || isSameEstablishment(scopeId));
     }
 
-    function editorialStatusOf(data) {
-      return data.get('status', data.get('editorialWorkflow', {}).get('status', 'draft'));
-    }
-
-    // Rendre un contenu visible aux eleves, le programmer ou l'archiver
-    // releve de l'administration, jamais d'un auteur.
-    function isPublicationTransition(nextStatus) {
-      return nextStatus in ['approved', 'scheduled', 'published', 'archived'];
-    }
-
-    function isAllowedEditorialTransition() {
-      let current = editorialStatusOf(resource.data);
-      let next = editorialStatusOf(request.resource.data);
-      // Un contenu en ligne ne redevient jamais un brouillon en place : il
-      // s'archive, ou une revision distincte nait a cote.
-      return !(current == 'published' && next == 'draft')
-        && (current == next || !isPublicationTransition(next) || isAdmin());
-    }
-
     // Publication and changes to published lessons must pass the server's
     // media validation. Direct authoring remains available for draft text.
     match /{path=**}/lessons/{lessonId} {
@@ -504,8 +490,14 @@ service cloud.firestore {
     // =============================================
     // COURSES FOR STRUCTURED AI GENERATION
     // =============================================
+    // Perimetres de contenu :
+    // - GLOBAL : programme national (scope absent ou 'global'), lisible par
+    //   tout le personnel ; les eleves le recoivent par les callables ;
+    // - ESTABLISHMENT : scope.establishmentId, personnel de cette ecole ;
+    // - CLASS : documents `classes` (studentIds), regles dediees plus haut.
+    // Aucun client eleve ne lit courses ni lesson_assets directement.
     match /courses/{courseId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
       allow create: if mayWriteLegacyCatalog(request.resource.data);
       allow update: if mayWriteLegacyCatalog(resource.data)
                     && mayWriteLegacyCatalog(request.resource.data);
@@ -514,7 +506,8 @@ service cloud.firestore {
     }
 
     match /courses/{courseId}/images/{imageId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(
+        get(/databases/$(database)/documents/courses/$(courseId)).data));
       allow create, update: if mayWriteLegacyCatalog(
         get(/databases/$(database)/documents/courses/$(courseId)).data);
       allow delete: if isSuperAdmin()
@@ -544,7 +537,7 @@ service cloud.firestore {
     // LESSON ASSETS
     // =============================================
     match /lesson_assets/{assetId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
       allow create: if mayWriteLegacyCatalog(request.resource.data);
       allow update: if mayWriteLegacyCatalog(resource.data)
                     && mayWriteLegacyCatalog(request.resource.data);
@@ -717,11 +710,11 @@ service cloud.firestore {
     // =============================================
     // AI CONVERSATIONS
     // =============================================
+    // Aucune version de l'application n'ecrit ici : l'historique du
+    // compagnon reste sur l'appareil. Ouvrir l'ecriture laissait stocker
+    // des documents arbitraires sans borne.
     match /ai_conversations/{conversationId} {
-      allow read: if isAuthenticated() && request.auth.uid == resource.data.userId;
-      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
-      allow update: if isAuthenticated() && request.auth.uid == resource.data.userId;
-      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow read, write: if false;
     }
 
     // =============================================
@@ -730,7 +723,9 @@ service cloud.firestore {
     match /recommendations/{recommendationId} {
       allow read: if isAuthenticated() && request.auth.uid == resource.data.studentId;
       allow create: if false; // Créées uniquement via Cloud Functions / AI
-      allow update: if isAuthenticated() && request.auth.uid == resource.data.studentId;
+      // Aucun client ne les modifie ; l'ancienne regle laissait reecrire tout
+      // le document, studentId compris.
+      allow update: if false;
       allow delete: if isSuperAdmin();
     }
 
@@ -857,11 +852,10 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Aucune version de l'application n'utilise settings/{uid} : les
+    // preferences vivent sur l'appareil ou dans student_profiles.
     match /settings/{uid} {
-      allow read: if isOwner(uid);
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid);
-      allow delete: if isSuperAdmin();
+      allow read, write: if false;
     }
   }
 }

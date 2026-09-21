@@ -1120,6 +1120,42 @@ describe("Firestore security rules", () => {
     );
   });
 
+  it("keeps unused client collections closed and content sources staff-only", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, "courses/global-course"), { title: "National", status: "published" });
+      await setDoc(doc(db, "courses/school-a-course"), {
+        title: "École A",
+        status: "published",
+        scope: { type: "establishment", establishmentId: "school-a" },
+      });
+      await setDoc(doc(db, "lesson_assets/asset-a"), {
+        title: "Résumé",
+        scope: { type: "establishment", establishmentId: "school-a" },
+      });
+      await setDoc(doc(db, "recommendations/reco-a"), { studentId: "student-a", title: "Révise" });
+      await setDoc(doc(db, "settings/student-a"), { theme: "light" });
+    });
+
+    const student = dbFor("student-a");
+    await assertFails(getDoc(doc(student, "courses/global-course")));
+    await assertFails(getDoc(doc(student, "lesson_assets/asset-a")));
+    await assertFails(setDoc(doc(student, "ai_conversations/mine"), { userId: "student-a", text: "x" }));
+    await assertFails(getDoc(doc(student, "settings/student-a")));
+    await assertFails(setDoc(doc(student, "settings/student-a"), { theme: "dark" }));
+    await assertSucceeds(getDoc(doc(student, "recommendations/reco-a")));
+    await assertFails(updateDoc(doc(student, "recommendations/reco-a"), { studentId: "student-b" }));
+
+    const teacherA = dbFor("teacher-a");
+    await assertSucceeds(getDoc(doc(teacherA, "courses/global-course")));
+    await assertSucceeds(getDoc(doc(teacherA, "courses/school-a-course")));
+    await assertSucceeds(getDoc(doc(teacherA, "lesson_assets/asset-a")));
+    const adminB = dbFor("admin-b");
+    await assertFails(getDoc(doc(adminB, "courses/school-a-course")));
+    await assertFails(getDoc(doc(adminB, "lesson_assets/asset-a")));
+  });
+
   it("scopes notification device tokens to the authenticated owner", async () => {
     await seedFirestore();
     const ownerDb = dbFor("student-a");
@@ -1410,6 +1446,23 @@ describe("Child link codes stay server-authoritative (section C)", () => {
         updatedAt: new Date(),
       }),
     );
+  });
+
+  it("forces the canonical link id and forbids linking oneself", async () => {
+    await seedFirestore();
+    const db = dbFor("parent-b");
+    const pending = (parentId: string, studentId: string) => ({
+      parentId,
+      studentId,
+      status: "pending",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    // Un lien au mauvais identifiant pourrait être approuvé pour un autre parent.
+    await assertFails(setDoc(doc(db, "children_links/parent-a_student-b"), pending("parent-b", "student-b")));
+    await assertFails(setDoc(doc(db, "children_links/random-id"), pending("parent-b", "student-b")));
+    await assertFails(setDoc(doc(db, "children_links/parent-b_parent-b"), pending("parent-b", "parent-b")));
+    await assertSucceeds(setDoc(doc(db, "children_links/parent-b_student-b"), pending("parent-b", "student-b")));
   });
 
   it("a linked parent can read their approved link; a stranger cannot", async () => {
