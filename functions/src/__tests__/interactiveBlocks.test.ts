@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -272,4 +275,26 @@ describe("askTutor with interactive blocks", () => {
     });
     expect(prompts[0]).toContain("[Activité précédente (word_order) : réussie, 2 essai(s), 1 indice(s).");
   });
+});
+
+/**
+ * Contrat partagé avec l'application : la même fixture est relue par
+ * test/features/interactive_learning/server_block_contract_test.dart.
+ */
+describe("server block contract shared with the app", () => {
+  const fixtures = JSON.parse(
+    readFileSync(join(__dirname, "..", "..", "..", "test", "fixtures", "interactive_learning", "server_blocks.json"), "utf8"),
+  ) as Array<{ name: string; proposal: unknown; block: unknown }>;
+
+  for (const fixture of fixtures) {
+    it(`emits exactly the shared fixture: ${fixture.name}`, () => {
+      const { block, rejection } = extractInteractiveBlock(reply(fixture.proposal), {
+        allowed: ALL,
+        language: "fr",
+        generateId: counterIds(),
+      });
+      expect(rejection).toBeUndefined();
+      expect(block).toEqual(fixture.block);
+    });
+  }
 });
