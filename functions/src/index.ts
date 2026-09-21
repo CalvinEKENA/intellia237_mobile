@@ -21,12 +21,8 @@ import {
   listPublishedQuizzesHandler,
 } from "./services/quizContentCallables";
 import { listQuizAttemptHistoryHandler } from "./services/quizAttemptHistoryCallable";
-import { GenerateQuizUseCase } from "./services/generateQuizUseCase";
-import { GenerateSummaryUseCase } from "./services/generateSummaryUseCase";
 import { toHttpsError } from "./utils/errors";
 import {
-  generateQuizCallableInputSchema,
-  generateSummaryCallableInputSchema,
   askTutorCallableInputSchema,
 } from "./utils/validation";
 import { AskTutorUseCase } from "./services/askTutorUseCase";
@@ -81,8 +77,6 @@ export const manageEstablishment = onCall({ timeoutSeconds: 30, region: env.FUNC
 export const manageSchoolClass = onCall({ timeoutSeconds: 30, region: env.FUNCTIONS_REGION }, manageSchoolClassHandler);
 export const getCompanionRuntimeConfig = onCall({ timeoutSeconds: 30, region: env.FUNCTIONS_REGION }, getCompanionRuntimeConfigHandler);
 
-const generateQuizUseCase = new GenerateQuizUseCase();
-const generateSummaryUseCase = new GenerateSummaryUseCase();
 const askTutorUseCase = new AskTutorUseCase();
 
 export const deliverNotificationPush = onDocumentCreated(
@@ -105,78 +99,10 @@ export const fanoutAnnouncementNotifications = onDocumentCreated(
   fanoutAnnouncementHandler,
 );
 
-export const generateQuiz = onCall(
-  {
-    region: env.FUNCTIONS_REGION,
-    timeoutSeconds: 120,
-    memory: "1GiB",
-  },
-  async (request) => {
-    if (!request.auth?.uid) {
-      throw new HttpsError("unauthenticated", "Firebase Auth is required.");
-    }
-
-    const traceId = randomUUID();
-
-    try {
-      const input = generateQuizCallableInputSchema.parse(request.data);
-      const result = await generateQuizUseCase.execute({
-        userId: request.auth.uid,
-        traceId,
-        courseId: input.courseId,
-        count: input.count,
-        difficulty: input.difficulty,
-      });
-
-      return {
-        traceId,
-        ...result,
-      };
-    } catch (error) {
-      logger.error("generateQuiz failed.", {
-        traceId,
-        error: error instanceof Error ? error.message : String(error),
-      });
-      throw toHttpsError(error);
-    }
-  },
-);
-
-export const generateSummary = onCall(
-  {
-    region: env.FUNCTIONS_REGION,
-    timeoutSeconds: 120,
-    memory: "1GiB",
-  },
-  async (request) => {
-    if (!request.auth?.uid) {
-      throw new HttpsError("unauthenticated", "Firebase Auth is required.");
-    }
-
-    const traceId = randomUUID();
-
-    try {
-      const input = generateSummaryCallableInputSchema.parse(request.data);
-      const result = await generateSummaryUseCase.execute({
-        userId: request.auth.uid,
-        traceId,
-        courseId: input.courseId,
-        level: input.level,
-      });
-
-      return {
-        traceId,
-        ...result,
-      };
-    } catch (error) {
-      logger.error("generateSummary failed.", {
-        traceId,
-        error: error instanceof Error ? error.message : String(error),
-      });
-      throw toHttpsError(error);
-    }
-  },
-);
+// generateQuiz et generateSummary ne sont plus exposées : aucune version de
+// l'application ni Studio ne les appelle, et elles laissaient tout compte
+// connecté déclencher une génération Gemini sans rôle ni quota. La logique
+// reste disponible pour les scripts d'administration (scripts/pregenerate.ts).
 
 export const askTutor = onCall(
   {
