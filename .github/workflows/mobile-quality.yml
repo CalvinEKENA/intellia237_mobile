@@ -1,0 +1,81 @@
+name: Mobile quality
+
+# Application Android/iOS (lib/, test/, tool/). Déclenché seulement quand un
+# fichier du périmètre mobile change : Studio et backend ont leurs workflows.
+# Le fichier timeouts.ts est inclus : un test Dart relit ce contrat.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "lib/**"
+      - "test/**"
+      - "tool/**"
+      - "assets/**"
+      - "android/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - "analysis_options.yaml"
+      - "l10n.yaml"
+      - "dart_test.yaml"
+      - "functions/src/config/timeouts.ts"
+      - ".github/workflows/mobile-quality.yml"
+  push:
+    branches:
+      - main
+      - "fix/**"
+      - "feat/**"
+      - "feature/**"
+      - "refactor/**"
+      - "edu/**"
+      - "release/**"
+      - "integration/**"
+    paths:
+      - "lib/**"
+      - "test/**"
+      - "tool/**"
+      - "assets/**"
+      - "android/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - "analysis_options.yaml"
+      - "l10n.yaml"
+      - "dart_test.yaml"
+      - "functions/src/config/timeouts.ts"
+      - ".github/workflows/mobile-quality.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter:
+    name: Analyze, format, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.44.2"
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Check Dart formatting
+        run: dart format --output=none --set-exit-if-changed lib test tool
+
+      - name: Check legacy brand references
+        run: dart run tool/check_brand_references.dart
+
+      - name: Analyze
+        run: flutter analyze --no-pub lib test tool
+
+      # Comprend le cliquet i18n (test/l10n) et les contrats de plateforme.
+      - name: Test
+        run: flutter test --no-pub

@@ -24,7 +24,8 @@ embedded by this repository.
 All callable Functions should eventually require App Check. Prioritize the
 expensive or security-sensitive endpoints:
 
-1. `askTutor`, `generateQuiz`, `generateSummary`;
+1. `askTutor` and `importCoursePages` (`generateQuiz` and `generateSummary`
+   are no longer exported, see `aiCallableExposure.test.ts`);
 2. `submitMobileMoneyPayment`, `reviewMobileMoneyPayment`,
    `listMobileMoneyPayments`, `getMobileMoneyOverview`;
 3. `reviewStaffAccount`, `submitStaffRegistration`,
@@ -38,6 +39,59 @@ step because its enforcement support and client-impact profile differ.
 No callable currently sets `enforceAppCheck: true`, and handlers do not reject
 requests based on `request.app`. The callable runtime will still verify and log
 App Check tokens when present, which supplies monitor-mode coverage data.
+
+## État au 21 septembre 2026 — ce qui empêche l'activation globale
+
+`ENFORCE_APP_CHECK` reste `false`, et **ne doit pas passer à `true`
+globalement** tant que les points suivants ne sont pas levés.
+
+1. **INTELLIA Studio (Windows) ne peut pas présenter de jeton App Check.**
+   Studio appelle les callables en HTTPS brut avec le seul jeton d'identité
+   Firebase (`ControlPlaneClient`). Firebase App Check ne fournit aucun
+   fournisseur d'attestation pour une application de bureau Windows. Un
+   fournisseur personnalisé suppose un serveur qui émet des jetons après sa
+   propre attestation ; pour un outil d'administration de bureau, il n'existe
+   pas d'attestation matérielle à vérifier : ce fournisseur ne ferait que
+   répéter l'authentification, sans garantie supplémentaire. On n'invente donc
+   pas de « App Check desktop ». Une activation globale couperait tout le
+   plan de contrôle Studio à la super-administration.
+
+2. **Les APK installés hors Google Play échouent Play Integrity.** Les
+   recettes appareil actuelles passent par des APK signés installés à la main :
+   ils seraient rejetés. Il faut d'abord une piste de test interne Play, ou des
+   jetons de débogage enregistrés sur staging.
+
+3. **Les versions déjà installées doivent envoyer des jetons valides.** La
+   couverture se mesure dans la console (VALID / INVALID / MISSING) avant toute
+   activation.
+
+### Stratégie retenue : activation par callable, jamais globale
+
+Les callables utilisées par Studio restent protégées par leurs contrôles de
+rôle serveur (super-administration, direction), sans App Check :
+
+`changeAccountEstablishment`, `createCatalogChapter`, `deleteCatalogContent`,
+`educationalMedia`, `ensureStudentLinkCode`, `getCompanionRuntimeConfig`,
+`getStudyReserve`, `importCoursePages`, `listEditorialFlow`,
+`listMobileMoneyPayments`, `manageAccount`, `manageEstablishment`,
+`manageSchoolClass`, `reviewMobileMoneyPayment`, `reviewStaffAccount`,
+`rotateStudentLinkCode`, `saveFlowPublication`, `saveLessonPublication`.
+
+Les callables appelées **uniquement par l'application mobile** pourront
+recevoir `enforceAppCheck: true` une par une, une fois la couverture mesurée :
+
+`askTutor`, `readLearningCatalog`, `submitFlowActivity`, `submitQuizAttempt`,
+`recordLessonProgress`, `submitMobileMoneyPayment`, `getMobileMoneyOverview`,
+`linkChildByCode`, `listRegistrationEstablishments`,
+`requestAccountDeletion`, `cancelAccountDeletion`, les callables quiz et
+famille.
+
+Une callable partagée entre mobile et Studio (liste ci-dessus) ne peut pas
+l'être sans casser Studio. Pour ces callables, la garde reste le rôle vérifié
+côté serveur et la journalisation d'audit.
+
+Ce changement demande une revue de code dédiée et un déploiement séparé ; il
+n'est pas fait dans la branche de durcissement.
 
 ## Manual Firebase and Google Play actions
 

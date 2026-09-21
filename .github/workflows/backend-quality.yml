@@ -1,0 +1,112 @@
+name: Backend quality
+
+# Cloud Functions, règles et index : une seule source déployable pour
+# l'application mobile et Studio.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "functions/**"
+      - "firestore.rules"
+      - "storage.rules"
+      - "firestore.indexes.json"
+      - "firebase.json"
+      - ".github/workflows/backend-quality.yml"
+  push:
+    branches:
+      - main
+      - "fix/**"
+      - "feat/**"
+      - "feature/**"
+      - "refactor/**"
+      - "edu/**"
+      - "release/**"
+      - "integration/**"
+    paths:
+      - "functions/**"
+      - "firestore.rules"
+      - "storage.rules"
+      - "firestore.indexes.json"
+      - "firebase.json"
+      - ".github/workflows/backend-quality.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  functions:
+    name: Unit tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: functions
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      - run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: TypeScript build
+        run: npm run build
+
+      - name: Audit high and critical npm vulnerabilities
+        run: npm audit --audit-level=high
+
+  emulators:
+    name: Rules and integration (emulators)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: functions
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      - run: npm ci
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools@15.16.0
+
+      # Chaque suite vide ses propres collections : elles tournent l'une
+      # après l'autre, jamais en parallèle sur le même émulateur.
+      - name: Firestore, Storage and asset rules
+        run: npm run test:rules
+
+      - name: Parent announcements
+        run: npm run test:integration:announcements
+
+      - name: Account deletion
+        run: npm run test:integration:account-deletion
+
+      - name: Parcours pagination
+        run: npm run test:integration:parcours
+
+      - name: Study Reserve
+        run: npm run test:integration:study-reserve
+
+      - name: Family access
+        run: npm run test:integration:family-access
