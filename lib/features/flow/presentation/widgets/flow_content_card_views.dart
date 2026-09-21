@@ -198,7 +198,7 @@ class FlowVideoCardView extends StatelessWidget {
             fileSizeBytes: card.fileSizeBytes,
           )
         else
-          const Text('Ce média ne possède pas encore de fichier vidéo.'),
+          Text(context.l10n.parcoursVideoPending),
         const SizedBox(height: 16),
         Text(card.description, style: _body(context)),
       ],

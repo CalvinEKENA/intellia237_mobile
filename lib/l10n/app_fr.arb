@@ -2272,7 +2272,7 @@
       }
     }
   },
-  "flowSwipeToContinue": "Balayez vers le haut pour continuer",
+  "flowSwipeToContinue": "Balaie vers le haut pour continuer",
   "childLinkErrorNotFound": "Ce code enfant est introuvable. Vérifie-le avec ton enfant.",
   "childLinkErrorInvalid": "Saisis le code de liaison de ton enfant.",
   "childLinkErrorPermission": "Seul un compte parent peut rattacher un enfant.",
@@ -2606,5 +2606,10 @@
   "ilbKiraWords": "Essaie de remettre cette phrase dans le bon ordre.",
   "ilbLeoWords": "À toi. Reconstruis cette phrase.",
   "ilbKiraSteps": "Prends ton temps : remets les étapes dans l’ordre.",
-  "ilbLeoSteps": "Défi : remets les étapes dans l’ordre, sans aide si tu peux."
+  "ilbLeoSteps": "Défi : remets les étapes dans l’ordre, sans aide si tu peux.",
+  "parcoursEmptyTitle": "Ton parcours se prépare",
+  "parcoursEmptyBody": "Aucune carte n’est encore publiée pour ta classe. Reviens après une synchronisation.",
+  "parcoursEmptyRefresh": "Actualiser",
+  "parcoursEmptyHome": "Revenir à l’accueil",
+  "parcoursVideoPending": "Cette vidéo n’est pas encore disponible."
 }

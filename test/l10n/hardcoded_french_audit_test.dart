@@ -35,7 +35,6 @@ void main() {
 const _hardcodedFrenchCeilings = <String, int>{
   'admin': 153,
   'campus': 158,
-  'flow': 5,
   'learn': 28,
   'onboarding': 28,
   'student_registration': 5,

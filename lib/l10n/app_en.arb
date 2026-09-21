@@ -2522,5 +2522,10 @@
   "ilbKiraWords": "Try to put this sentence back in order.",
   "ilbLeoWords": "Your turn. Rebuild this sentence.",
   "ilbKiraSteps": "Take your time: put the steps in order.",
-  "ilbLeoSteps": "Challenge: put the steps in order, without help if you can."
+  "ilbLeoSteps": "Challenge: put the steps in order, without help if you can.",
+  "parcoursEmptyTitle": "Your learning path is on its way",
+  "parcoursEmptyBody": "No card has been published for your class yet. Come back after a sync.",
+  "parcoursEmptyRefresh": "Refresh",
+  "parcoursEmptyHome": "Back to home",
+  "parcoursVideoPending": "This video isn’t available yet."
 }

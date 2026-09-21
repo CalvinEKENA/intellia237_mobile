@@ -43,7 +43,7 @@ void main() {
     tester,
   ) async {
     await _pump(tester, prominent: true, locale: const Locale('fr'));
-    expect(find.text('Balayez vers le haut pour continuer'), findsOneWidget);
+    expect(find.text('Balaie vers le haut pour continuer'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await _settle(tester);
   });
@@ -60,7 +60,7 @@ void main() {
     tester,
   ) async {
     await _pump(tester, prominent: false, locale: const Locale('fr'));
-    expect(find.text('Balayez vers le haut pour continuer'), findsNothing);
+    expect(find.text('Balaie vers le haut pour continuer'), findsNothing);
     expect(find.byIcon(Icons.keyboard_arrow_up_rounded), findsOneWidget);
     await _settle(tester);
   });

@@ -7687,7 +7687,7 @@ abstract class AppLocalizations {
   /// No description provided for @flowSwipeToContinue.
   ///
   /// In fr, this message translates to:
-  /// **'Balayez vers le haut pour continuer'**
+  /// **'Balaie vers le haut pour continuer'**
   String get flowSwipeToContinue;
 
   /// No description provided for @childLinkErrorNotFound.
@@ -8649,6 +8649,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Défi : remets les étapes dans l’ordre, sans aide si tu peux.'**
   String get ilbLeoSteps;
+
+  /// No description provided for @parcoursEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton parcours se prépare'**
+  String get parcoursEmptyTitle;
+
+  /// No description provided for @parcoursEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune carte n’est encore publiée pour ta classe. Reviens après une synchronisation.'**
+  String get parcoursEmptyBody;
+
+  /// No description provided for @parcoursEmptyRefresh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualiser'**
+  String get parcoursEmptyRefresh;
+
+  /// No description provided for @parcoursEmptyHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à l’accueil'**
+  String get parcoursEmptyHome;
+
+  /// No description provided for @parcoursVideoPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette vidéo n’est pas encore disponible.'**
+  String get parcoursVideoPending;
 }
 
 class _AppLocalizationsDelegate

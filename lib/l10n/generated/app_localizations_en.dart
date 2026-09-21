@@ -5024,4 +5024,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get ilbLeoSteps =>
       'Challenge: put the steps in order, without help if you can.';
+
+  @override
+  String get parcoursEmptyTitle => 'Your learning path is on its way';
+
+  @override
+  String get parcoursEmptyBody =>
+      'No card has been published for your class yet. Come back after a sync.';
+
+  @override
+  String get parcoursEmptyRefresh => 'Refresh';
+
+  @override
+  String get parcoursEmptyHome => 'Back to home';
+
+  @override
+  String get parcoursVideoPending => 'This video isn’t available yet.';
 }

@@ -459,7 +459,7 @@ void main() {
 const _uid = 'uid-flow';
 const _network = Duration(milliseconds: 350);
 const _cacheKey = '${_uid}_global_null_null_3eme';
-const _swipeFr = 'Balayez vers le haut pour continuer';
+const _swipeFr = 'Balaie vers le haut pour continuer';
 
 List<FlowItem> _notions(int count) => [
   for (var i = 0; i < count; i++)

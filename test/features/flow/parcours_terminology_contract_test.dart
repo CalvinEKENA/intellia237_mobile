@@ -112,5 +112,25 @@ void main() {
         expect(find.text('Le parcours arrive'), findsNothing);
       },
     );
+
+    testWidgets('an English learner reads "learning path", never "Flow"', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          locale: Locale('en'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: Scaffold(body: FlowEmptyView()),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Your learning path is on its way'), findsOneWidget);
+      expect(find.text('Refresh'), findsOneWidget);
+      expect(find.text('Back to home'), findsOneWidget);
+      expect(find.textContaining('Flow'), findsNothing);
+      expect(find.textContaining('parcours'), findsNothing);
+    });
   });
 }

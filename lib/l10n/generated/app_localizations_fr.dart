@@ -4447,7 +4447,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get flowSwipeToContinue => 'Balayez vers le haut pour continuer';
+  String get flowSwipeToContinue => 'Balaie vers le haut pour continuer';
 
   @override
   String get childLinkErrorNotFound =>
@@ -5059,4 +5059,20 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get ilbLeoSteps =>
       'Défi : remets les étapes dans l’ordre, sans aide si tu peux.';
+
+  @override
+  String get parcoursEmptyTitle => 'Ton parcours se prépare';
+
+  @override
+  String get parcoursEmptyBody =>
+      'Aucune carte n’est encore publiée pour ta classe. Reviens après une synchronisation.';
+
+  @override
+  String get parcoursEmptyRefresh => 'Actualiser';
+
+  @override
+  String get parcoursEmptyHome => 'Revenir à l’accueil';
+
+  @override
+  String get parcoursVideoPending => 'Cette vidéo n’est pas encore disponible.';
 }
