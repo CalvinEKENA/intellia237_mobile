@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 
+import '../../interactive_learning/domain/interactive_block.dart';
+
 /// Paramètres d'un tour de conversation avec le compagnon, hors message.
 ///
 /// [requestId] identifie la question logique : il est généré une fois puis
@@ -8,9 +10,12 @@ import 'dart:math';
 /// dépassé, pour que le serveur renvoie la réponse déjà produite au lieu de
 /// consommer une seconde question.
 class TutorTurnOptions {
-  const TutorTurnOptions({this.requestId});
+  const TutorTurnOptions({this.requestId, this.activityOutcome});
 
   final String? requestId;
+
+  /// Résultat de la dernière activité, pour que le compagnon s'adapte.
+  final ActivityOutcome? activityOutcome;
 }
 
 /// Identifiant d'idempotence : 16 octets aléatoires sûrs, en base64 URL.

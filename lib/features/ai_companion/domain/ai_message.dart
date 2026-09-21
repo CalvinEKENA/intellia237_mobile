@@ -1,3 +1,5 @@
+import '../../interactive_learning/domain/interactive_block.dart';
+
 enum AIMessageRole { user, assistant }
 
 class AIMessage {
@@ -7,6 +9,7 @@ class AIMessage {
     required this.text,
     required this.createdAt,
     this.companionId,
+    this.block,
   });
 
   final String id;
@@ -24,11 +27,16 @@ class AIMessage {
   /// messages de l'élève et pour l'historique antérieur à ce champ.
   final String? companionId;
 
+  /// Activité interactive proposée avec cette réponse, déjà validée par le
+  /// serveur puis relue strictement par l'application.
+  final InteractiveLearningBlock? block;
+
   AIMessage copyWith({String? text, String? companionId}) => AIMessage(
     id: id,
     role: role,
     text: text ?? this.text,
     createdAt: createdAt,
     companionId: companionId ?? this.companionId,
+    block: block,
   );
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../../interactive_learning/domain/interactive_block.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../domain/ai_companion_reply.dart';
 import '../domain/ai_message.dart';
@@ -125,6 +126,10 @@ class CloudAIRepository implements AIRepository {
         // Le serveur choisit seul la persona, le ton et les règles : le
         // téléphone ne transmet que l'identifiant du compagnon.
         'tutorId': tutor.id,
+        // Activités que cette version sait rendre ; le serveur ne proposera
+        // rien d'autre.
+        'activities': InteractiveBlockType.supportedWireNames,
+        'activityOutcome': ?options.activityOutcome?.toJson(),
       });
 
       if (rawData is! Map) {
@@ -145,6 +150,9 @@ class CloudAIRepository implements AIRepository {
           role: AIMessageRole.assistant,
           text: text.trim(),
           createdAt: DateTime.now(),
+          // Un bloc invalide ou d'un type inconnu est ignoré : la réponse
+          // texte reste servie.
+          block: InteractiveLearningBlock.tryParse(data['block']),
         ),
         quota: AICompanionQuota.fromMap(data),
       );

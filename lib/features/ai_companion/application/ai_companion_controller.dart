@@ -20,6 +20,7 @@ import '../domain/ai_message.dart';
 import '../domain/ai_companion_reply.dart';
 import '../domain/companion_conversation.dart';
 import '../domain/tutor_turn_options.dart';
+import '../../interactive_learning/domain/interactive_block.dart';
 
 final aiRepositoryProvider = Provider<AIRepository>((ref) {
   return CloudAIRepository();
@@ -142,6 +143,11 @@ class AICompanionState {
 
 class AICompanionController extends Notifier<AICompanionState> {
   bool _historyChanged = false;
+
+  /// Résultat de la dernière activité, joint au prochain message de l'élève
+  /// pour que le compagnon observe et s'adapte.
+  ActivityOutcome? _pendingActivityOutcome;
+  ActivityOutcome? get pendingActivityOutcome => _pendingActivityOutcome;
   String? _activeUserId;
   CompanionConversation? _conversation;
   AIService get _service => ref.read(aiServiceProvider);
@@ -160,6 +166,7 @@ class AICompanionController extends Notifier<AICompanionState> {
       _activeUserId = userId;
       _historyChanged = false;
       _conversation = null;
+      _pendingActivityOutcome = null;
     }
 
     // Listen to academic context changes
@@ -408,8 +415,13 @@ class AICompanionController extends Notifier<AICompanionState> {
         // history as well duplicates the prompt and wastes context tokens.
         history: requestHistory,
         userMessage: '$contextPrefix$cleaned',
-        options: TutorTurnOptions(requestId: turnRequestId),
+        options: TutorTurnOptions(
+          requestId: turnRequestId,
+          activityOutcome: _pendingActivityOutcome,
+        ),
       );
+      // Le compagnon a reçu le résultat : il ne sera pas renvoyé.
+      _pendingActivityOutcome = null;
 
       state = state.copyWith(
         messages: [
@@ -550,6 +562,15 @@ class AICompanionController extends Notifier<AICompanionState> {
       diagnosticId: state.diagnosticId,
     );
   }
+
+  /// L'élève a terminé une activité : le résultat part avec son prochain
+  /// message. Jamais une note : un signal pédagogique pour le compagnon.
+  void recordActivityOutcome(ActivityOutcome outcome) {
+    _pendingActivityOutcome = outcome;
+  }
+
+  /// « Continuer avec Kira » : relance l'échange avec le résultat joint.
+  Future<void> continueAfterActivity(String message) => send(message);
 
   Future<void> retryLastMessage() async {
     final message = state.lastFailedMessage;
