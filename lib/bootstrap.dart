@@ -62,6 +62,7 @@ Future<void> bootstrap({
         ('Montserrat', 'assets/fonts/OFL-Montserrat.txt'),
         ('Manrope', 'assets/fonts/OFL-Manrope.txt'),
         ('Playfair Display', 'assets/fonts/OFL-PlayfairDisplay.txt'),
+        ('Barlow Condensed', 'assets/fonts/OFL-BarlowCondensed.txt'),
       ]) {
         yield LicenseEntryWithLineBreaks(<String>[
           font.$1,

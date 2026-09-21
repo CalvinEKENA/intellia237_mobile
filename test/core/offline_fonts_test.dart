@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -32,14 +34,33 @@ void main() {
     },
   );
 
-  test('les licences OFL des trois familles sont embarquées', () async {
-    for (final asset in const [
-      'assets/fonts/OFL-Montserrat.txt',
-      'assets/fonts/OFL-Manrope.txt',
-      'assets/fonts/OFL-PlayfairDisplay.txt',
-    ]) {
+  test('les licences OFL des familles embarquées sont présentes', () async {
+    for (final asset in _fontLicenses) {
       final license = await rootBundle.loadString(asset);
       expect(license, contains('SIL OPEN FONT LICENSE Version 1.1'));
     }
   });
+
+  test('chaque licence de police embarquée est déclarée au démarrage', () {
+    // Une police livrée dans l'application doit figurer dans la page des
+    // licences : chaque fichier OFL du dossier est enregistré par bootstrap.
+    final bootstrap = File('lib/bootstrap.dart').readAsStringSync();
+    final shipped = Directory('assets/fonts')
+        .listSync()
+        .map((entity) => entity.uri.pathSegments.last)
+        .where((name) => name.startsWith('OFL-'))
+        .map((name) => 'assets/fonts/$name')
+        .toSet();
+    expect(shipped, _fontLicenses.toSet());
+    for (final asset in shipped) {
+      expect(bootstrap, contains("'$asset'"), reason: asset);
+    }
+  });
 }
+
+const _fontLicenses = [
+  'assets/fonts/OFL-Montserrat.txt',
+  'assets/fonts/OFL-Manrope.txt',
+  'assets/fonts/OFL-PlayfairDisplay.txt',
+  'assets/fonts/OFL-BarlowCondensed.txt',
+];
