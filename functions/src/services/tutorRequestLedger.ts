@@ -36,6 +36,8 @@ export interface CachedTutorResponse {
   limit: number;
   remaining: number;
   resetsAt: string;
+  /** Bloc interactif validé, rejoué tel quel en cas de relance. */
+  block?: Record<string, unknown>;
 }
 
 export interface TutorRequestRecord {
@@ -154,6 +156,9 @@ function recordFrom(data: FirebaseFirestore.DocumentData | undefined): TutorRequ
       limit: Number(data.response.limit ?? 0),
       remaining: Number(data.response.remaining ?? 0),
       resetsAt: String(data.response.resetsAt ?? ""),
+      ...(data.response.block && typeof data.response.block === "object"
+        ? { block: data.response.block as Record<string, unknown> }
+        : {}),
     }
     : undefined;
   return {

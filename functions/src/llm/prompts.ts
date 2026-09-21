@@ -114,7 +114,10 @@ export function buildAskTutorUserPrompt(params: {
   historyText: string;
   userMessage: string;
   language: "fr" | "en";
+  /** Compte rendu factuel de l'activité précédente, déjà borné. */
+  activityOutcome?: string;
 }): string {
+  const outcome = params.activityOutcome ? `${params.activityOutcome}\n\n` : "";
   if (params.language === "en") {
     return `LEARNER'S CLASS: ${params.classLevel}
 
@@ -126,7 +129,7 @@ ${params.contextText || "No lesson content retrieved."}
 ${params.historyText || "Start of the conversation."}
 ---------------------------
 
-LEARNER'S QUESTION:
+${outcome}LEARNER'S QUESTION:
 ${params.userMessage}`;
   }
   return `ÉLÈVE EN CLASSE DE : ${params.classLevel}
@@ -139,6 +142,6 @@ ${params.contextText || "Aucun contenu de cours récupéré."}
 ${params.historyText || "Début de conversation."}
 --------------------------
 
-QUESTION DE L'ELEVE :
+${outcome}QUESTION DE L'ELEVE :
 ${params.userMessage}`;
 }

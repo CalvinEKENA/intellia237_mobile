@@ -6,6 +6,7 @@ import {
   MAX_USER_MESSAGE_CHARS,
 } from "../llm/tutorBudget";
 import { resolveTutorId, type TutorId } from "../llm/tutorPersonas";
+import { activityOutcomeSchema } from "../llm/interactiveBlocks";
 
 export const difficultySchema = z.enum(["easy", "medium", "hard"]);
 export const summaryLevelSchema = z.enum(["basic", "standard", "advanced"]);
@@ -84,6 +85,11 @@ export const askTutorCallableInputSchema = z
     tutor: legacyTutorSchema.optional(),
     // Identifiant d'idempotence de la question logique, réutilisé à la relance.
     requestId: clientIdSchema.optional(),
+    // Types d'activités que ce téléphone sait rendre ; le serveur en retient
+    // l'intersection avec ce qu'il sait valider.
+    activities: z.array(z.string().max(40)).max(40).optional(),
+    // Résultat de l'activité précédente, pour que le compagnon s'adapte.
+    activityOutcome: activityOutcomeSchema.optional(),
   })
   .strict()
   .transform((input, context) => {
@@ -106,6 +112,8 @@ export const askTutorCallableInputSchema = z
       classLevel: input.classLevel,
       tutorId,
       ...(input.requestId !== undefined ? { requestId: input.requestId } : {}),
+      ...(input.activities !== undefined ? { activities: input.activities } : {}),
+      ...(input.activityOutcome !== undefined ? { activityOutcome: input.activityOutcome } : {}),
     };
   });
 

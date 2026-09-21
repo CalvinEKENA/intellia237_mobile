@@ -17,6 +17,13 @@ import {
   type TutorLanguage,
 } from "../llm/tutorPersonas";
 import {
+  buildActivityInstructions,
+  extractInteractiveBlock,
+  negotiateActivityTypes,
+  renderActivityOutcome,
+  type InteractiveBlock,
+} from "../llm/interactiveBlocks";
+import {
   ASK_TUTOR_CALLABLE_TIMEOUT_SECONDS,
   TUTOR_IN_PROGRESS_POLL_MS,
   TUTOR_IN_PROGRESS_WAIT_MS,
@@ -173,7 +180,7 @@ export class AskTutorUseCase {
     userId: string;
     traceId: string;
     input: AskTutorCallableInput;
-  }): Promise<{ text: string } & TutorQuotaSnapshot> {
+  }): Promise<TutorAnswer> {
     const requestId = params.input.requestId;
     if (requestId === undefined) {
       // Anciennes versions : pas d'identifiant, donc pas d'idempotence.
@@ -223,7 +230,7 @@ export class AskTutorUseCase {
   private async awaitRunningRequest(
     userId: string,
     requestId: string,
-  ): Promise<{ text: string } & TutorQuotaSnapshot> {
+  ): Promise<TutorAnswer> {
     const deadline = Date.now() + TUTOR_IN_PROGRESS_WAIT_MS;
     while (Date.now() < deadline) {
       await this.sleep(TUTOR_IN_PROGRESS_POLL_MS);
@@ -245,7 +252,7 @@ export class AskTutorUseCase {
     requestKey: string;
     quotaAlreadyCharged: boolean;
     onBilledFailure?: () => void;
-  }): Promise<{ text: string } & TutorQuotaSnapshot> {
+  }): Promise<TutorAnswer> {
     const { tutorId, history, userMessage } = params.input;
     const authorizedContext = await this.contextStore.loadAuthorizedContext({
       userId: params.userId,
@@ -254,7 +261,12 @@ export class AskTutorUseCase {
     const language = authorizedContext.language ?? "fr";
     // Le serveur choisit seul la persona et ses règles : le téléphone ne
     // transmet qu'un identifiant déjà validé (kira | leo).
-    const systemPrompt = buildTutorSystemPrompt(tutorId, language);
+    // Activités : seulement les types que ce téléphone sait rendre ET que le
+    // serveur sait valider. Un ancien client n'en déclare aucun.
+    const activityTypes = negotiateActivityTypes(params.input.activities);
+    const systemPrompt = buildTutorSystemPrompt(tutorId, language, {
+      activityInstructions: buildActivityInstructions(activityTypes, language),
+    });
     const userPrompt = assembleBoundedUserPrompt({
       systemPrompt,
       classLevel: authorizedContext.scope.classLevel,
@@ -262,6 +274,9 @@ export class AskTutorUseCase {
       history,
       userMessage,
       language,
+      activityOutcome: params.input.activityOutcome
+        ? renderActivityOutcome(params.input.activityOutcome, language)
+        : undefined,
     });
     try {
       if (!params.quotaAlreadyCharged) {
@@ -329,7 +344,13 @@ export class AskTutorUseCase {
         traceId: params.requestKey,
         limit: this.dailyQuestionLimit,
       });
-      return { text: responseText, ...quota };
+      // Le bloc éventuel est validé ici ; invalide, il est retiré et seule la
+      // réponse texte est servie.
+      const { text, block } = extractInteractiveBlock(responseText, {
+        allowed: activityTypes,
+        language,
+      });
+      return { text, ...quota, ...(block ? { block } : {}) };
     } catch (error) {
       // Never log the prompt, user message or history. A generation that
       // provably did not reach the provider does not consume the daily
@@ -353,6 +374,11 @@ export class AskTutorUseCase {
   }
 }
 
+/** Réponse du tuteur : texte, quota, et au plus un bloc interactif validé. */
+export type TutorAnswer = { text: string } & TutorQuotaSnapshot & {
+  block?: InteractiveBlock | Record<string, unknown>;
+};
+
 function tutorProviderTimeoutMs(): number {
   return Math.min(getEnv().LLM_SERVICE_TIMEOUT_MS, TUTOR_PROVIDER_TIMEOUT_MS);
 }
@@ -369,6 +395,7 @@ export function assembleBoundedUserPrompt(params: {
   history: readonly TutorHistoryItem[];
   userMessage: string;
   language: TutorLanguage;
+  activityOutcome?: string;
 }): string {
   let window = boundTutorHistory(params.history);
   let contextText = params.contextText.slice(0, MAX_ACADEMIC_CONTEXT_CHARS);
@@ -380,6 +407,7 @@ export function assembleBoundedUserPrompt(params: {
       .join("\n"),
     userMessage: params.userMessage,
     language: params.language,
+    activityOutcome: params.activityOutcome,
   });
   let prompt = render();
   while (params.systemPrompt.length + prompt.length > MAX_TOTAL_INPUT_CHARS && window.length > 0) {
