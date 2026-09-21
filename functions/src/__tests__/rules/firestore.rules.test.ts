@@ -21,6 +21,8 @@ import {
 } from "firebase/firestore";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
+import { resolveEmulatorAddress } from "./emulator-address";
+
 const projectId = "demo-intellia237";
 
 let testEnv: RulesTestEnvironment;
@@ -29,8 +31,7 @@ beforeAll(async () => {
   testEnv = await initializeTestEnvironment({
     projectId,
     firestore: {
-      host: "127.0.0.1",
-      port: 8085,
+      ...resolveEmulatorAddress("firestore", "FIRESTORE_EMULATOR_HOST"),
       rules: readFileSync(join(process.cwd(), "../firestore.rules"), "utf8"),
     },
   });
@@ -431,7 +432,6 @@ describe("Firestore security rules", () => {
         email: "student@example.com",
         firstName: "New",
         lastName: "Student",
-        establishmentId: "school-a",
         classLevel: "Terminale",
         series: "D",
         profileCompleted: true,
@@ -444,8 +444,6 @@ describe("Firestore security rules", () => {
         firstName: "New",
         lastName: "Student",
         email: "student@example.com",
-        establishmentId: "school-a",
-        establishmentName: "School A",
         classLevel: "Terminale",
         series: "D",
         points: 0,
@@ -473,6 +471,124 @@ describe("Firestore security rules", () => {
         level: 10,
       }),
     );
+  });
+
+  describe("no client self-assignment to a school", () => {
+    const newStudentUser = (uid: string) => ({
+      uid,
+      role: "student",
+      email: `${uid}@example.com`,
+      firstName: "New",
+      lastName: "Student",
+      classLevel: "Terminale",
+      profileCompleted: true,
+    });
+    const newStudentProfile = (uid: string) => ({
+      uid,
+      firstName: "New",
+      lastName: "Student",
+      classLevel: "Terminale",
+      points: 0,
+      level: 1,
+    });
+
+    it("denies a new account that names an arbitrary establishmentId", async () => {
+      await seedFirestore();
+      const db = dbFor("intruder");
+      await assertFails(
+        setDoc(doc(db, "users/intruder"), {
+          ...newStudentUser("intruder"),
+          establishmentId: "school-a",
+        }),
+      );
+      await assertFails(
+        setDoc(doc(dbFor("intruder-parent"), "users/intruder-parent"), {
+          ...newStudentUser("intruder-parent"),
+          role: "parent",
+          establishmentId: "school-a",
+        }),
+      );
+      // Same payload without the claim is accepted: the claim is the reason.
+      await assertSucceeds(
+        setDoc(doc(dbFor("intruder-parent"), "users/intruder-parent"), {
+          ...newStudentUser("intruder-parent"),
+          role: "parent",
+        }),
+      );
+      await assertFails(
+        setDoc(doc(db, "student_profiles/intruder"), {
+          ...newStudentProfile("intruder"),
+          establishmentId: "school-a",
+        }),
+      );
+      // The honest path still works, and grants nothing on school A.
+      await assertSucceeds(setDoc(doc(db, "users/intruder"), newStudentUser("intruder")));
+      await assertFails(getDoc(doc(db, "establishments/school-a")));
+      await assertFails(getDoc(doc(db, "classes/class-a")));
+    });
+
+    it("denies a new account that names an arbitrary establishmentName", async () => {
+      const db = dbFor("name-claim");
+      await assertFails(
+        setDoc(doc(db, "student_profiles/name-claim"), {
+          ...newStudentProfile("name-claim"),
+          establishmentName: "Lycée Général Leclerc",
+        }),
+      );
+      await assertFails(
+        setDoc(doc(dbFor("parent-claim"), "parent_profiles/parent-claim"), {
+          uid: "parent-claim",
+          firstName: "Parent",
+          establishmentId: "school-a",
+        }),
+      );
+      await assertFails(
+        setDoc(doc(dbFor("parent-verified"), "parent_profiles/parent-verified"), {
+          uid: "parent-verified",
+          establishmentVerified: true,
+        }),
+      );
+    });
+
+    it("honours an establishment attached by an authorized server workflow", async () => {
+      await seedFirestore();
+      const db = dbFor("attached");
+      await assertSucceeds(setDoc(doc(db, "users/attached"), newStudentUser("attached")));
+      await assertFails(getDoc(doc(db, "establishments/school-a")));
+      // changeAccountEstablishment / reviewStaffAccount write with the Admin SDK.
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await updateDoc(doc(context.firestore(), "users/attached"), {
+          establishmentId: "school-a",
+        });
+      });
+      await assertSucceeds(getDoc(doc(db, "establishments/school-a")));
+    });
+
+    it("denies a later direct change of school by the learner or a parent", async () => {
+      await seedFirestore();
+      const db = dbFor("student-a");
+      await assertFails(updateDoc(doc(db, "users/student-a"), { establishmentId: "school-b" }));
+      await assertFails(updateDoc(doc(db, "users/student-a"), { establishmentName: "School B" }));
+      await assertFails(
+        updateDoc(doc(db, "student_profiles/student-a"), { establishmentId: "school-b" }),
+      );
+      await assertFails(
+        updateDoc(doc(db, "student_profiles/student-a"), { establishmentName: "School B" }),
+      );
+      const parentDb = dbFor("parent-owner");
+      await assertSucceeds(
+        setDoc(doc(parentDb, "parent_profiles/parent-owner"), {
+          uid: "parent-owner",
+          firstName: "Parent",
+        }),
+      );
+      await assertFails(
+        updateDoc(doc(parentDb, "parent_profiles/parent-owner"), { establishmentId: "school-a" }),
+      );
+      await assertSucceeds(
+        updateDoc(doc(parentDb, "parent_profiles/parent-owner"), { firstName: "Parent B" }),
+      );
+    });
   });
 
   it("blocks public teacher and administrator role creation", async () => {

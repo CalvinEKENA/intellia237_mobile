@@ -54,6 +54,14 @@ service cloud.firestore {
       return isRole('student');
     }
 
+    // L'etablissement n'est jamais declare par l'utilisateur : il est attache
+    // par un workflow serveur (approbation du personnel, changement d'ecole
+    // par la super-administration, acces familial). establishmentId et
+    // establishmentName sont donc absents des cles de creation.
+    function establishmentAuthorityKeys() {
+      return ['establishmentId', 'establishmentName', 'establishmentVerified'];
+    }
+
     function userCreateKeys() {
       return [
         'uid',
@@ -64,7 +72,6 @@ service cloud.firestore {
         'role',
         'avatarId',
         'photoUrl',
-        'establishmentId',
         'classLevel',
         'series',
         'tutorId',
@@ -94,8 +101,6 @@ service cloud.firestore {
         'firstName',
         'lastName',
         'email',
-        'establishmentId',
-        'establishmentName',
         'classLevel',
         'series',
         'points',
@@ -282,8 +287,13 @@ service cloud.firestore {
     // =============================================
     match /parent_profiles/{uid} {
       allow read: if isOwner(uid) || isSuperAdmin();
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid) || isSuperAdmin();
+      // Un parent suit l'ecole de ses enfants : il ne s'en declare aucune.
+      allow create: if isOwner(uid)
+                    && !request.resource.data.keys().hasAny(establishmentAuthorityKeys());
+      allow update: if (isOwner(uid)
+                        && !request.resource.data.diff(resource.data).affectedKeys()
+                             .hasAny(establishmentAuthorityKeys()))
+                    || isSuperAdmin();
       allow delete: if isSuperAdmin();
     }
 
