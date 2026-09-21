@@ -110,3 +110,9 @@ jobs:
 
       - name: Family access
         run: npm run test:integration:family-access
+
+      - name: Admin account management
+        run: npm run test:integration:admin-accounts
+
+      - name: Lesson publication
+        run: npm run test:integration:lesson-publication
