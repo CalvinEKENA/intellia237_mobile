@@ -8,6 +8,9 @@ import { setGlobalOptions } from "firebase-functions/v2";
 import { HttpsError } from "firebase-functions/v2/https";
 import { onCallWithAccountAccess as onCall } from "./services/callableAccountAccess";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { getAuth } from "firebase-admin/auth";
+import { bucket, db } from "./config/firebase";
 
 import { getEnv } from "./config/env";
 import { ASK_TUTOR_CALLABLE_TIMEOUT_SECONDS } from "./config/timeouts";
@@ -27,7 +30,13 @@ import {
   askTutorCallableInputSchema,
 } from "./utils/validation";
 import { AskTutorUseCase } from "./services/askTutorUseCase";
-import { requestAccountDeletionHandler } from "./services/accountDeletionCallable";
+import {
+  AccountDeletionProcessor,
+  AdminDeletionAuthPort,
+  cancelAccountDeletionHandler,
+  requestAccountDeletionHandler,
+} from "./services/accountDeletionCallable";
+import { BucketDeletionStoragePort } from "./services/accountDeletionStorage";
 import { linkChildByCodeHandler, ensureStudentLinkCodeHandler, rotateStudentLinkCodeHandler } from "./services/childLinkCallable";
 import { getStudyReserveHandler } from "./services/studyReserve";
 import { defineSecret } from "firebase-functions/params";
@@ -212,6 +221,37 @@ export const requestAccountDeletion = onCall(
     memory: "256MiB",
   },
   requestAccountDeletionHandler,
+);
+
+export const cancelAccountDeletion = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 15,
+    memory: "256MiB",
+  },
+  cancelAccountDeletionHandler,
+);
+
+// Traitement des suppressions arrivées à échéance (délai de grâce de 7 jours),
+// idempotent et repris en cas d'échec : docs/architecture/ACCOUNT_DELETION.md.
+export const processAccountDeletions = onSchedule(
+  {
+    region: env.FUNCTIONS_REGION,
+    schedule: "every 60 minutes",
+    timeZone: "Africa/Douala",
+    timeoutSeconds: 540,
+    memory: "512MiB",
+    retryCount: 0,
+  },
+  async () => {
+    const processor = new AccountDeletionProcessor(
+      db,
+      new AdminDeletionAuthPort(getAuth()),
+      new BucketDeletionStoragePort(bucket),
+    );
+    const result = await processor.processDue();
+    logger.info("Account deletion run finished.", result);
+  },
 );
 
 export const reviewStaffAccount = onCall(

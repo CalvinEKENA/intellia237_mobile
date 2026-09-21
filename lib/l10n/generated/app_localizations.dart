@@ -1631,7 +1631,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequestBody.
   ///
   /// In fr, this message translates to:
-  /// **'La demande sera enregistrée pour vérification et traitement sécurisé. Cette action te déconnectera.'**
+  /// **'Le compte et ses données seront supprimés dans 7 jours. D’ici là, le compte reste utilisable et la demande peut être annulée depuis cet écran.'**
   String get deleteRequestBody;
 
   /// No description provided for @sendRequestLabel.
@@ -1645,6 +1645,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Impossible d’envoyer la demande maintenant. Réessaie plus tard.'**
   String get deleteRequestError;
+
+  /// No description provided for @deleteScheduledSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression prévue le {date}. Touchez pour annuler.'**
+  String deleteScheduledSubtitle(String date);
+
+  /// No description provided for @deleteScheduledConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression programmée le {date}. Elle peut être annulée d’ici là.'**
+  String deleteScheduledConfirmation(String date);
+
+  /// No description provided for @deleteInProgressSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression en cours de traitement.'**
+  String get deleteInProgressSubtitle;
+
+  /// No description provided for @cancelDeletionQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la suppression ?'**
+  String get cancelDeletionQuestion;
+
+  /// No description provided for @cancelDeletionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le compte sera conservé et la demande abandonnée.'**
+  String get cancelDeletionBody;
+
+  /// No description provided for @cancelDeletionAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la suppression'**
+  String get cancelDeletionAction;
+
+  /// No description provided for @cancelDeletionDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'La suppression est annulée.'**
+  String get cancelDeletionDone;
+
+  /// No description provided for @cancelDeletionError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’annuler la demande maintenant. Réessayez plus tard.'**
+  String get cancelDeletionError;
 
   /// No description provided for @chooseReminderTime.
   ///

@@ -342,9 +342,31 @@
   "signOutTitle": "Se déconnecter",
   "signOutDescription": "Tes données synchronisées seront disponibles à ta prochaine connexion.",
   "deleteRequestQuestion": "Demander la suppression ?",
-  "deleteRequestBody": "La demande sera enregistrée pour vérification et traitement sécurisé. Cette action te déconnectera.",
+  "deleteRequestBody": "Le compte et ses données seront supprimés dans 7 jours. D’ici là, le compte reste utilisable et la demande peut être annulée depuis cet écran.",
   "sendRequestLabel": "Envoyer la demande",
   "deleteRequestError": "Impossible d’envoyer la demande maintenant. Réessaie plus tard.",
+  "deleteScheduledSubtitle": "Suppression prévue le {date}. Touchez pour annuler.",
+  "@deleteScheduledSubtitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteScheduledConfirmation": "Suppression programmée le {date}. Elle peut être annulée d’ici là.",
+  "@deleteScheduledConfirmation": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteInProgressSubtitle": "Suppression en cours de traitement.",
+  "cancelDeletionQuestion": "Annuler la suppression ?",
+  "cancelDeletionBody": "Le compte sera conservé et la demande abandonnée.",
+  "cancelDeletionAction": "Annuler la suppression",
+  "cancelDeletionDone": "La suppression est annulée.",
+  "cancelDeletionError": "Impossible d’annuler la demande maintenant. Réessayez plus tard.",
   "chooseReminderTime": "Choisir l’heure du rappel",
   "signOutQuestion": "Se déconnecter ?",
   "emailVerificationTitle": "Vérification de l’adresse e-mail",

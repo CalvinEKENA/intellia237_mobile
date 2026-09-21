@@ -11,7 +11,7 @@ import '../../student_home/presentation/widgets/weekly_goal_card.dart';
 import '../application/user_preferences_controller.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../../auth/application/auth_controller.dart';
-import '../data/account_deletion_service.dart';
+import 'widgets/account_deletion_tile.dart';
 import '../data/email_verification_service.dart';
 
 final emailVerificationServiceProvider = Provider<EmailVerificationService>((
@@ -136,13 +136,7 @@ class SettingsScreen extends ConsumerWidget {
                   title: Text(l10n.personalDataTitle),
                   subtitle: Text(l10n.personalDataDescription),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.delete_outline_rounded),
-                  title: Text(l10n.deleteAccountTitle),
-                  subtitle: Text(l10n.deleteAccountDescription),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => _requestAccountDeletion(context, ref),
-                ),
+                const AccountDeletionTile(),
                 const LegalLinks(showEducationalData: true),
               ],
             ),
@@ -182,39 +176,6 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _requestAccountDeletion(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(context.l10n.deleteRequestQuestion),
-        content: Text(context.l10n.deleteRequestBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(context.l10n.cancelLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(context.l10n.sendRequestLabel),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !context.mounted) return;
-    try {
-      await AccountDeletionService().requestDeletion();
-      await ref.read(authControllerProvider.notifier).signOut();
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.deleteRequestError)));
-    }
   }
 
   Future<void> _chooseReminderTime(

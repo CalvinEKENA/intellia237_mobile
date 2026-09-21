@@ -855,7 +855,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteRequestBody =>
-      'The request will be recorded for secure review and processing. This will sign you out.';
+      'The account and its data will be deleted in 7 days. Until then, the account stays usable and the request can be cancelled from this screen.';
 
   @override
   String get sendRequestLabel => 'Send request';
@@ -863,6 +863,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteRequestError =>
       'The request cannot be sent right now. Try again later.';
+
+  @override
+  String deleteScheduledSubtitle(String date) {
+    return 'Deletion scheduled for $date. Tap to cancel.';
+  }
+
+  @override
+  String deleteScheduledConfirmation(String date) {
+    return 'Deletion scheduled for $date. It can be cancelled until then.';
+  }
+
+  @override
+  String get deleteInProgressSubtitle => 'Deletion is being processed.';
+
+  @override
+  String get cancelDeletionQuestion => 'Cancel the deletion?';
+
+  @override
+  String get cancelDeletionBody =>
+      'The account will be kept and the request dropped.';
+
+  @override
+  String get cancelDeletionAction => 'Cancel deletion';
+
+  @override
+  String get cancelDeletionDone => 'The deletion is cancelled.';
+
+  @override
+  String get cancelDeletionError =>
+      'The request cannot be cancelled right now. Try again later.';
 
   @override
   String get chooseReminderTime => 'Choose reminder time';

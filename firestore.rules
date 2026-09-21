@@ -801,6 +801,13 @@ service cloud.firestore {
     // =============================================
     // SETTINGS
     // =============================================
+    // Demande de suppression : le titulaire suit son echeance, la
+    // super-administration voit toutes les demandes. Ecriture serveur seule.
+    match /account_deletion_requests/{uid} {
+      allow read: if (request.auth != null && request.auth.uid == uid) || isSuperAdmin();
+      allow write: if false;
+    }
+
     match /account_management_audit/{eventId} {
       allow read: if isSuperAdmin();
       allow write: if false;

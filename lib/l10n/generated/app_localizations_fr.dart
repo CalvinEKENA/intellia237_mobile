@@ -861,7 +861,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get deleteRequestBody =>
-      'La demande sera enregistrée pour vérification et traitement sécurisé. Cette action te déconnectera.';
+      'Le compte et ses données seront supprimés dans 7 jours. D’ici là, le compte reste utilisable et la demande peut être annulée depuis cet écran.';
 
   @override
   String get sendRequestLabel => 'Envoyer la demande';
@@ -869,6 +869,36 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get deleteRequestError =>
       'Impossible d’envoyer la demande maintenant. Réessaie plus tard.';
+
+  @override
+  String deleteScheduledSubtitle(String date) {
+    return 'Suppression prévue le $date. Touchez pour annuler.';
+  }
+
+  @override
+  String deleteScheduledConfirmation(String date) {
+    return 'Suppression programmée le $date. Elle peut être annulée d’ici là.';
+  }
+
+  @override
+  String get deleteInProgressSubtitle => 'Suppression en cours de traitement.';
+
+  @override
+  String get cancelDeletionQuestion => 'Annuler la suppression ?';
+
+  @override
+  String get cancelDeletionBody =>
+      'Le compte sera conservé et la demande abandonnée.';
+
+  @override
+  String get cancelDeletionAction => 'Annuler la suppression';
+
+  @override
+  String get cancelDeletionDone => 'La suppression est annulée.';
+
+  @override
+  String get cancelDeletionError =>
+      'Impossible d’annuler la demande maintenant. Réessayez plus tard.';
 
   @override
   String get chooseReminderTime => 'Choisir l’heure du rappel';

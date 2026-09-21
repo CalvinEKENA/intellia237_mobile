@@ -1082,6 +1082,25 @@ describe("Firestore security rules", () => {
     );
   });
 
+  it("lets only the owner and the general administration read a deletion request", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), "account_deletion_requests/student-a"), {
+        uid: "student-a",
+        status: "scheduled",
+      });
+    });
+    await assertSucceeds(getDoc(doc(dbFor("student-a"), "account_deletion_requests/student-a")));
+    await assertFails(getDoc(doc(dbFor("student-b"), "account_deletion_requests/student-a")));
+    await assertFails(getDoc(doc(dbFor("admin-a"), "account_deletion_requests/student-a")));
+    await assertFails(
+      setDoc(doc(dbFor("student-a"), "account_deletion_requests/student-a"), {
+        uid: "student-a",
+        status: "cancelled",
+      }),
+    );
+  });
+
   it("keeps the tutor idempotency ledger server-only, even for its owner", async () => {
     await testEnv.withSecurityRulesDisabled(async (context) => {
       await setDoc(doc(context.firestore(), "tutor_requests/student-a__req-00000001"), {

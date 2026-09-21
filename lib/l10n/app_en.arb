@@ -342,9 +342,31 @@
   "signOutTitle": "Sign out",
   "signOutDescription": "Your synced data will be available the next time you sign in.",
   "deleteRequestQuestion": "Request deletion?",
-  "deleteRequestBody": "The request will be recorded for secure review and processing. This will sign you out.",
+  "deleteRequestBody": "The account and its data will be deleted in 7 days. Until then, the account stays usable and the request can be cancelled from this screen.",
   "sendRequestLabel": "Send request",
   "deleteRequestError": "The request cannot be sent right now. Try again later.",
+  "deleteScheduledSubtitle": "Deletion scheduled for {date}. Tap to cancel.",
+  "@deleteScheduledSubtitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteScheduledConfirmation": "Deletion scheduled for {date}. It can be cancelled until then.",
+  "@deleteScheduledConfirmation": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteInProgressSubtitle": "Deletion is being processed.",
+  "cancelDeletionQuestion": "Cancel the deletion?",
+  "cancelDeletionBody": "The account will be kept and the request dropped.",
+  "cancelDeletionAction": "Cancel deletion",
+  "cancelDeletionDone": "The deletion is cancelled.",
+  "cancelDeletionError": "The request cannot be cancelled right now. Try again later.",
   "chooseReminderTime": "Choose reminder time",
   "signOutQuestion": "Sign out?",
   "emailVerificationTitle": "Email address verification",
