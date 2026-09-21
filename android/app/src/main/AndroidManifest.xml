@@ -4,10 +4,16 @@
     <!-- Dictée du compagnon. La transcription est faite par le moteur du
          téléphone : aucun audio ne quitte l'appareil et rien n'est conservé. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Sauvegarde Android désactivée : l'appareil porte des données de
+         mineurs (historique du compagnon, identité en cache, fil Parcours) et
+         l'état de connexion. Voir res/xml/data_extraction_rules.xml. -->
     <application
         android:label="@string/app_name"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules">
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/ic_launcher" />
