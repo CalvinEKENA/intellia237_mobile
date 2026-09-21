@@ -20,7 +20,10 @@ class NotificationsScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Journal des Notifications & Diffusion', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Journal des Notifications & Diffusion',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
                       'Historique des envois FCM, notifications in-app et alertes seuils de quota.',
@@ -48,24 +51,45 @@ class NotificationsScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(12),
                 children: const [
                   ListTile(
-                    leading: Icon(Icons.notifications_active, color: StudioColors.goldAccent),
+                    leading: Icon(
+                      Icons.notifications_active,
+                      color: StudioColors.goldAccent,
+                    ),
                     title: Text('Alerte Réserve d\'Étude 80% — Calvin Ekena'),
-                    subtitle: Text('Mode : Inbox only • Déclenché par Cloud Functions • 15/03/2026 à 09:12'),
-                    trailing: StudioBadge(label: 'DÉLIVRÉ', variant: StudioBadgeVariant.success),
+                    subtitle: Text(
+                      'Mode : Inbox only • Déclenché par Cloud Functions • 15/03/2026 à 09:12',
+                    ),
+                    trailing: StudioBadge(
+                      label: 'DÉLIVRÉ',
+                      variant: StudioBadgeVariant.success,
+                    ),
                   ),
                   Divider(),
                   ListTile(
-                    leading: Icon(Icons.campaign_rounded, color: StudioColors.navyPrimary),
+                    leading: Icon(
+                      Icons.campaign_rounded,
+                      color: StudioColors.navyPrimary,
+                    ),
                     title: Text('Rappel Préparation Bacc Blanc Régional'),
-                    subtitle: Text('Cible : Terminale (Toutes séries) • Push + Inbox • 14/03/2026 à 18:00'),
-                    trailing: StudioBadge(label: 'DÉLIVRÉ (98.2%)', variant: StudioBadgeVariant.success),
+                    subtitle: Text(
+                      'Cible : Terminale (Toutes séries) • Push + Inbox • 14/03/2026 à 18:00',
+                    ),
+                    trailing: StudioBadge(
+                      label: 'DÉLIVRÉ (98.2%)',
+                      variant: StudioBadgeVariant.success,
+                    ),
                   ),
                   Divider(),
                   ListTile(
                     leading: Icon(Icons.payment, color: StudioColors.success),
                     title: Text('Confirmation Activation Abonnement Atelier'),
-                    subtitle: Text('Cible : Suzanne Ekena • Push + SMS • 15/03/2026 à 08:35'),
-                    trailing: StudioBadge(label: 'DÉLIVRÉ', variant: StudioBadgeVariant.success),
+                    subtitle: Text(
+                      'Cible : Suzanne Ekena • Push + SMS • 15/03/2026 à 08:35',
+                    ),
+                    trailing: StudioBadge(
+                      label: 'DÉLIVRÉ',
+                      variant: StudioBadgeVariant.success,
+                    ),
                   ),
                 ],
               ),

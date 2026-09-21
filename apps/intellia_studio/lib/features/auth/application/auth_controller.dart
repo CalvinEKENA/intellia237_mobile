@@ -80,7 +80,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthSession?>> {
     }
     try {
       final refreshed = await _rest.refreshSession(current);
-      final profile = await _rest.fetchUserProfile(refreshed.uid, refreshed.idToken);
+      final profile = await _rest.fetchUserProfile(
+        refreshed.uid,
+        refreshed.idToken,
+      );
       final accountStatus = profile['accountStatus'] as String? ?? 'active';
       if (accountStatus == 'suspended' || accountStatus == 'deleted') {
         await signOut();
@@ -100,4 +103,3 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthSession?>> {
     state = const AsyncValue.data(null);
   }
 }
-

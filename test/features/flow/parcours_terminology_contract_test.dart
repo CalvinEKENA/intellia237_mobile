@@ -51,7 +51,9 @@ void main() {
       expect(l10n.discoverFlow, 'Explore My Learning Path');
       expect(l10n.openOfflineFlow, 'Open my learning path offline');
 
-      final learningPathMatcher = contains(RegExp(r'learning path', caseSensitive: false));
+      final learningPathMatcher = contains(
+        RegExp(r'learning path', caseSensitive: false),
+      );
       expect(l10n.flowSyncSignedOut, learningPathMatcher);
       expect(l10n.flowSyncSignedOut, isNot(contains('FLOW')));
       expect(l10n.flowSyncNotEligible, learningPathMatcher);
@@ -78,18 +80,16 @@ void main() {
       expect(l10n.quizComingBody, isNot(contains('Flow')));
     });
 
-    testWidgets('FlowEntryCard displays "Mon parcours" instead of "Flow"', (tester) async {
+    testWidgets('FlowEntryCard displays "Mon parcours" instead of "Flow"', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: MediaQuery(
-            data: const MediaQueryData(
-              disableAnimations: true,
-            ),
-            child: Scaffold(
-              body: FlowEntryCard(onTap: () {}),
-            ),
+            data: const MediaQueryData(disableAnimations: true),
+            child: Scaffold(body: FlowEntryCard(onTap: () {})),
           ),
         ),
       );
@@ -99,19 +99,18 @@ void main() {
       expect(find.text('Flow'), findsNothing);
     });
 
-    testWidgets('FlowEmptyView displays "Ton parcours se prépare" instead of "Le Flow arrive"', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: FlowEmptyView(),
-          ),
-        ),
-      );
-      await tester.pump();
+    testWidgets(
+      'FlowEmptyView displays "Ton parcours se prépare" instead of "Le Flow arrive"',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(home: Scaffold(body: FlowEmptyView())),
+        );
+        await tester.pump();
 
-      expect(find.text('Ton parcours se prépare'), findsOneWidget);
-      expect(find.text('Le Flow arrive'), findsNothing);
-      expect(find.text('Le parcours arrive'), findsNothing);
-    });
+        expect(find.text('Ton parcours se prépare'), findsOneWidget);
+        expect(find.text('Le Flow arrive'), findsNothing);
+        expect(find.text('Le parcours arrive'), findsNothing);
+      },
+    );
   });
 }

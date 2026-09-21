@@ -12,48 +12,49 @@ import '../../audit/presentation/widgets/confirmation_dialog.dart';
 import '../../control_plane/control_plane_client.dart';
 import '../domain/media_models.dart';
 
-final mediaAssetsProvider = StateNotifierProvider<MediaAssetsNotifier, List<StudioMediaAsset>>((ref) {
-  final cp = ref.watch(controlPlaneClientProvider);
-  return MediaAssetsNotifier(cp);
-});
+final mediaAssetsProvider =
+    StateNotifierProvider<MediaAssetsNotifier, List<StudioMediaAsset>>((ref) {
+      final cp = ref.watch(controlPlaneClientProvider);
+      return MediaAssetsNotifier(cp);
+    });
 
 class MediaAssetsNotifier extends StateNotifier<List<StudioMediaAsset>> {
   MediaAssetsNotifier(this._controlPlane)
-      : super([
-          const StudioMediaAsset(
-            id: 'med_01',
-            name: 'schema_circulatoire.png',
-            mimeType: 'image/png',
-            sizeBytes: 1024 * 450,
-            storagePath:
-                'educational_assets/global/terminale/svt/circulatoire/asset_01/schema_circulatoire.png',
-            downloadUrl: 'https://storage.googleapis.com/...',
-            uploadedAt: '2026-03-01',
-            uploaderUid: 'usr_admin_01',
-          ),
-          const StudioMediaAsset(
-            id: 'med_02',
-            name: 'synthese_litt_francaise.pdf',
-            mimeType: 'application/pdf',
-            sizeBytes: 1024 * 1024 * 2,
-            storagePath:
-                'educational_assets/global/terminale/francais/synthese/asset_02/synthese_litt.pdf',
-            downloadUrl: 'https://storage.googleapis.com/...',
-            uploadedAt: '2026-03-05',
-            uploaderUid: 'usr_admin_01',
-          ),
-          const StudioMediaAsset(
-            id: 'med_03',
-            name: 'prononciation_anglais_u1.mp3',
-            mimeType: 'audio/mp3',
-            sizeBytes: 1024 * 1024 * 5,
-            storagePath:
-                'educational_assets/global/3eme/anglais/unit_1/asset_03/audio_u1.mp3',
-            downloadUrl: 'https://storage.googleapis.com/...',
-            uploadedAt: '2026-03-10',
-            uploaderUid: 'usr_teacher_04',
-          ),
-        ]);
+    : super([
+        const StudioMediaAsset(
+          id: 'med_01',
+          name: 'schema_circulatoire.png',
+          mimeType: 'image/png',
+          sizeBytes: 1024 * 450,
+          storagePath:
+              'educational_assets/global/terminale/svt/circulatoire/asset_01/schema_circulatoire.png',
+          downloadUrl: 'https://storage.googleapis.com/...',
+          uploadedAt: '2026-03-01',
+          uploaderUid: 'usr_admin_01',
+        ),
+        const StudioMediaAsset(
+          id: 'med_02',
+          name: 'synthese_litt_francaise.pdf',
+          mimeType: 'application/pdf',
+          sizeBytes: 1024 * 1024 * 2,
+          storagePath:
+              'educational_assets/global/terminale/francais/synthese/asset_02/synthese_litt.pdf',
+          downloadUrl: 'https://storage.googleapis.com/...',
+          uploadedAt: '2026-03-05',
+          uploaderUid: 'usr_admin_01',
+        ),
+        const StudioMediaAsset(
+          id: 'med_03',
+          name: 'prononciation_anglais_u1.mp3',
+          mimeType: 'audio/mp3',
+          sizeBytes: 1024 * 1024 * 5,
+          storagePath:
+              'educational_assets/global/3eme/anglais/unit_1/asset_03/audio_u1.mp3',
+          downloadUrl: 'https://storage.googleapis.com/...',
+          uploadedAt: '2026-03-10',
+          uploaderUid: 'usr_teacher_04',
+        ),
+      ]);
 
   final ControlPlaneClient _controlPlane;
 
@@ -64,7 +65,10 @@ class MediaAssetsNotifier extends StateNotifier<List<StudioMediaAsset>> {
   Future<void> deleteAsset(String storagePath) async {
     try {
       await _controlPlane.deleteEducationalMedia(storagePath: storagePath);
-      state = [for (final a in state) if (a.storagePath != storagePath) a];
+      state = [
+        for (final a in state)
+          if (a.storagePath != storagePath) a,
+      ];
     } catch (e) {
       rethrow;
     }
@@ -81,11 +85,12 @@ class MediaLibraryScreen extends ConsumerWidget {
     final assets = academicContext.showAllClasses
         ? allAssets
         : (academicContext.selectedClass == null
-            ? allAssets
-            : allAssets.where((a) {
-                final clKey = academicContext.selectedClass!.catalogKey.toLowerCase();
-                return a.storagePath.toLowerCase().contains('/$clKey/');
-              }).toList());
+              ? allAssets
+              : allAssets.where((a) {
+                  final clKey = academicContext.selectedClass!.catalogKey
+                      .toLowerCase();
+                  return a.storagePath.toLowerCase().contains('/$clKey/');
+                }).toList());
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -98,7 +103,10 @@ class MediaLibraryScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Media Library', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Media Library',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
                       'Gestionnaire centralisé des ressources multimédias (contrat canonique educational_assets/{scopeId}/{classLevel}/{subjectId}/{lessonId}/{assetId}/{fileName}).',
@@ -127,18 +135,27 @@ class MediaLibraryScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const Icon(Icons.cloud_done_rounded, color: StudioColors.navyPrimary, size: 32),
+                  const Icon(
+                    Icons.cloud_done_rounded,
+                    color: StudioColors.navyPrimary,
+                    size: 32,
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Stockage Cloud Éducatif (educational_assets)',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Stockage Cloud Éducatif (educational_assets)',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           '${assets.length} ressources déclarées • Suppression sécurisée via Cloud Function deleteEducationalMedia.',
-                          style: const TextStyle(fontSize: 12, color: StudioColors.textSecondaryLight),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: StudioColors.textSecondaryLight,
+                          ),
                         ),
                       ],
                     ),
@@ -168,10 +185,10 @@ class MediaLibraryScreen extends ConsumerWidget {
                         item.type == StudioMediaType.image
                             ? Icons.image_outlined
                             : item.type == StudioMediaType.audio
-                                ? Icons.audiotrack_outlined
-                                : item.type == StudioMediaType.video
-                                    ? Icons.videocam_outlined
-                                    : Icons.picture_as_pdf_outlined,
+                            ? Icons.audiotrack_outlined
+                            : item.type == StudioMediaType.video
+                            ? Icons.videocam_outlined
+                            : Icons.picture_as_pdf_outlined,
                         color: StudioColors.navyPrimary,
                         size: 20,
                       ),
@@ -200,7 +217,10 @@ class MediaLibraryScreen extends ConsumerWidget {
                   flex: 4,
                   cellBuilder: (item) => Text(
                     item.storagePath,
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 11,
+                    ),
                   ),
                 ),
                 StudioTableColumn(
@@ -212,16 +232,23 @@ class MediaLibraryScreen extends ConsumerWidget {
                         tooltip: 'Copier le chemin Storage',
                         icon: const Icon(Icons.copy_rounded, size: 16),
                         onPressed: () {
-                          Clipboard.setData(ClipboardData(text: item.storagePath));
+                          Clipboard.setData(
+                            ClipboardData(text: item.storagePath),
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Copié : ${item.storagePath}')),
+                            SnackBar(
+                              content: Text('Copié : ${item.storagePath}'),
+                            ),
                           );
                         },
                       ),
                       IconButton(
                         tooltip: 'Supprimer du Cloud (deleteEducationalMedia)',
-                        icon: const Icon(Icons.delete_outline_rounded,
-                            size: 18, color: StudioColors.error),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 18,
+                          color: StudioColors.error,
+                        ),
                         onPressed: () async {
                           final confirmed = await ConfirmationDialog.show(
                             context,
@@ -238,7 +265,11 @@ class MediaLibraryScreen extends ConsumerWidget {
                                   .deleteAsset(item.storagePath);
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Média ${item.name} supprimé.')),
+                                  SnackBar(
+                                    content: Text(
+                                      'Média ${item.name} supprimé.',
+                                    ),
+                                  ),
                                 );
                               }
                             } catch (e) {
@@ -268,8 +299,12 @@ class MediaLibraryScreen extends ConsumerWidget {
   void _uploadAssetDialog(BuildContext context, WidgetRef ref) {
     final academicCtx = ref.read(academicContextProvider);
     final scopeCtrl = TextEditingController(text: 'global');
-    final classCtrl = TextEditingController(text: academicCtx.selectedClass?.catalogKey ?? 'terminale');
-    final subjectCtrl = TextEditingController(text: academicCtx.subject?.id ?? 'mathematiques');
+    final classCtrl = TextEditingController(
+      text: academicCtx.selectedClass?.catalogKey ?? 'terminale',
+    );
+    final subjectCtrl = TextEditingController(
+      text: academicCtx.subject?.id ?? 'mathematiques',
+    );
     final lessonCtrl = TextEditingController(text: 'cours_1');
     final fileCtrl = TextEditingController(text: 'figure_1.png');
 
@@ -286,9 +321,10 @@ class MediaLibraryScreen extends ConsumerWidget {
               const Text(
                 'Chemin canonique obligatoire :\neducational_assets/{scopeId}/{classLevel}/{subjectId}/{lessonId}/{assetId}/{fileName}',
                 style: TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 11,
-                    color: StudioColors.navyPrimary),
+                  fontFamily: 'monospace',
+                  fontSize: 11,
+                  color: StudioColors.navyPrimary,
+                ),
               ),
               const SizedBox(height: 16),
               Row(
@@ -296,14 +332,18 @@ class MediaLibraryScreen extends ConsumerWidget {
                   Expanded(
                     child: TextField(
                       controller: scopeCtrl,
-                      decoration: const InputDecoration(labelText: 'Scope (ex: global)'),
+                      decoration: const InputDecoration(
+                        labelText: 'Scope (ex: global)',
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
                       controller: classCtrl,
-                      decoration: const InputDecoration(labelText: 'Niveau (ex: terminale)'),
+                      decoration: const InputDecoration(
+                        labelText: 'Niveau (ex: terminale)',
+                      ),
                     ),
                   ),
                 ],
@@ -330,30 +370,42 @@ class MediaLibraryScreen extends ConsumerWidget {
               TextField(
                 controller: fileCtrl,
                 decoration: const InputDecoration(
-                    labelText: 'Nom du fichier (ex: figure_1.png)'),
+                  labelText: 'Nom du fichier (ex: figure_1.png)',
+                ),
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
           FilledButton(
             onPressed: () {
               final fileName = fileCtrl.text.trim();
               if (fileName.isNotEmpty) {
-                final assetId = 'ast_${DateTime.now().millisecondsSinceEpoch % 10000}';
+                final assetId =
+                    'ast_${DateTime.now().millisecondsSinceEpoch % 10000}';
                 final storagePath =
                     'educational_assets/${scopeCtrl.text.trim()}/${classCtrl.text.trim()}/${subjectCtrl.text.trim()}/${lessonCtrl.text.trim()}/$assetId/$fileName';
 
-                ref.read(mediaAssetsProvider.notifier).addAsset(
+                ref
+                    .read(mediaAssetsProvider.notifier)
+                    .addAsset(
                       StudioMediaAsset(
                         id: 'med_${DateTime.now().millisecondsSinceEpoch}',
                         name: fileName,
-                        mimeType: fileName.endsWith('.pdf') ? 'application/pdf' : 'image/png',
+                        mimeType: fileName.endsWith('.pdf')
+                            ? 'application/pdf'
+                            : 'image/png',
                         sizeBytes: 1024 * 250,
                         storagePath: storagePath,
                         downloadUrl: 'https://storage.googleapis.com/...',
-                        uploadedAt: DateTime.now().toIso8601String().split('T').first,
+                        uploadedAt: DateTime.now()
+                            .toIso8601String()
+                            .split('T')
+                            .first,
                         uploaderUid: 'usr_admin',
                       ),
                     );

@@ -8,68 +8,76 @@ import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 import '../domain/flow_models.dart';
 
-final flowItemsProvider = StateNotifierProvider<FlowItemsNotifier, List<StudioFlowItem>>((ref) {
-  return FlowItemsNotifier();
-});
+final flowItemsProvider =
+    StateNotifierProvider<FlowItemsNotifier, List<StudioFlowItem>>((ref) {
+      return FlowItemsNotifier();
+    });
 
 class FlowItemsNotifier extends StateNotifier<List<StudioFlowItem>> {
-  FlowItemsNotifier() : super([
-    const StudioFlowItem(
-      id: 'flw_01',
-      type: FlowCardType.quiz,
-      title: 'Piège classique : TVI et stricte monotonie',
-      hook: 'Attention ! Le TVI garantit l\'existence, mais quand garantit-il l\'unicité ?',
-      subjectId: 'sub_math_t',
-      classLevels: ['Terminale'],
-      status: FlowStatus.published,
-      payload: {
-        'question': 'Pour garantir une solution UNIQUE dans [a, b], que doit vérifier f ?',
-        'options': [
-          'Être continue uniquement',
-          'Être continue et strictement monotone',
-          'Être dérivable d\'ordre 2',
-          'Avoir des limites positives',
-        ],
-        'correctIndex': 1,
-      },
-      createdBy: 'usr_admin_01',
-      createdAt: '2026-03-01',
-      updatedAt: '2026-03-01',
-      publishedAt: '2026-03-01',
-    ),
-    const StudioFlowItem(
-      id: 'flw_02',
-      type: FlowCardType.notion,
-      title: 'Loi de Newton en 30 secondes',
-      hook: 'La somme vectorielle des forces extérieures est égale à m * a.',
-      subjectId: 'sub_phy_t',
-      classLevels: ['Terminale'],
-      status: FlowStatus.published,
-      payload: {
-        'insight': 'Pensez toujours à définir précisément le référentiel d\'étude (galiléen) avant d\'appliquer la relation !',
-      },
-      createdBy: 'usr_admin_01',
-      createdAt: '2026-03-05',
-      updatedAt: '2026-03-05',
-      publishedAt: '2026-03-05',
-    ),
-    const StudioFlowItem(
-      id: 'flw_03',
-      type: FlowCardType.question,
-      title: 'Question Flash : Citoyenneté et Droits',
-      hook: 'Quelle est la différence fondamentale entre droit naturel et droit positif ?',
-      subjectId: 'sub_philo_t',
-      classLevels: ['Premiere', 'Terminale'],
-      status: FlowStatus.draft,
-      payload: {
-        'question': 'Droit naturel vs droit positif ?',
-        'answer': 'Le droit naturel est universel et inhérent à l\'humain, le droit positif dépend des lois écrites par l\'État.',
-      },
-      createdBy: 'usr_teacher_04',
-      createdAt: '2026-03-12',
-      updatedAt: '2026-03-12',
-    ),
-  ]);
+  FlowItemsNotifier()
+    : super([
+        const StudioFlowItem(
+          id: 'flw_01',
+          type: FlowCardType.quiz,
+          title: 'Piège classique : TVI et stricte monotonie',
+          hook:
+              'Attention ! Le TVI garantit l\'existence, mais quand garantit-il l\'unicité ?',
+          subjectId: 'sub_math_t',
+          classLevels: ['Terminale'],
+          status: FlowStatus.published,
+          payload: {
+            'question':
+                'Pour garantir une solution UNIQUE dans [a, b], que doit vérifier f ?',
+            'options': [
+              'Être continue uniquement',
+              'Être continue et strictement monotone',
+              'Être dérivable d\'ordre 2',
+              'Avoir des limites positives',
+            ],
+            'correctIndex': 1,
+          },
+          createdBy: 'usr_admin_01',
+          createdAt: '2026-03-01',
+          updatedAt: '2026-03-01',
+          publishedAt: '2026-03-01',
+        ),
+        const StudioFlowItem(
+          id: 'flw_02',
+          type: FlowCardType.notion,
+          title: 'Loi de Newton en 30 secondes',
+          hook:
+              'La somme vectorielle des forces extérieures est égale à m * a.',
+          subjectId: 'sub_phy_t',
+          classLevels: ['Terminale'],
+          status: FlowStatus.published,
+          payload: {
+            'insight':
+                'Pensez toujours à définir précisément le référentiel d\'étude (galiléen) avant d\'appliquer la relation !',
+          },
+          createdBy: 'usr_admin_01',
+          createdAt: '2026-03-05',
+          updatedAt: '2026-03-05',
+          publishedAt: '2026-03-05',
+        ),
+        const StudioFlowItem(
+          id: 'flw_03',
+          type: FlowCardType.question,
+          title: 'Question Flash : Citoyenneté et Droits',
+          hook:
+              'Quelle est la différence fondamentale entre droit naturel et droit positif ?',
+          subjectId: 'sub_philo_t',
+          classLevels: ['Premiere', 'Terminale'],
+          status: FlowStatus.draft,
+          payload: {
+            'question': 'Droit naturel vs droit positif ?',
+            'answer':
+                'Le droit naturel est universel et inhérent à l\'humain, le droit positif dépend des lois écrites par l\'État.',
+          },
+          createdBy: 'usr_teacher_04',
+          createdAt: '2026-03-12',
+          updatedAt: '2026-03-12',
+        ),
+      ]);
 
   void addItem(StudioFlowItem item) {
     state = [item, ...state];
@@ -94,7 +102,9 @@ class FlowItemsNotifier extends StateNotifier<List<StudioFlowItem>> {
             createdBy: item.createdBy,
             createdAt: item.createdAt,
             updatedAt: DateTime.now().toIso8601String(),
-            publishedAt: newStatus == FlowStatus.published ? DateTime.now().toIso8601String() : item.publishedAt,
+            publishedAt: newStatus == FlowStatus.published
+                ? DateTime.now().toIso8601String()
+                : item.publishedAt,
           )
         else
           item,
@@ -119,15 +129,17 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
     final items = academicContext.showAllClasses
         ? allItems
         : (academicContext.selectedClass == null
-            ? <StudioFlowItem>[]
-            : allItems.where((it) {
-                final targetKey = academicContext.selectedClass!.catalogKey.toLowerCase();
-                final targetId = academicContext.selectedClass!.id.toLowerCase();
-                return it.classLevels.any((lvl) {
-                  final l = lvl.toLowerCase();
-                  return l == targetKey || l == targetId;
-                });
-              }).toList());
+              ? <StudioFlowItem>[]
+              : allItems.where((it) {
+                  final targetKey = academicContext.selectedClass!.catalogKey
+                      .toLowerCase();
+                  final targetId = academicContext.selectedClass!.id
+                      .toLowerCase();
+                  return it.classLevels.any((lvl) {
+                    final l = lvl.toLowerCase();
+                    return l == targetKey || l == targetId;
+                  });
+                }).toList());
 
     final selectedItem = items.isEmpty
         ? (allItems.isNotEmpty ? allItems.first : null)
@@ -147,7 +159,10 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Studio Parcours', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Studio Parcours',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
                       'Création et publication des cartes d’apprentissage du parcours mobile INTELLIA.',
@@ -194,7 +209,10 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                             children: [
                               Text(
                                 'Publications du parcours (${items.length})',
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                               const StudioBadge(
                                 label: 'CONTRAT SERVEUR STRICT ACTIF',
@@ -206,7 +224,8 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                           Expanded(
                             child: ListView.separated(
                               itemCount: items.length,
-                              separatorBuilder: (_, _) => const SizedBox(height: 8),
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 8),
                               itemBuilder: (context, idx) {
                                 final item = items[idx];
                                 final isSelected = item.id == selectedItem?.id;
@@ -214,15 +233,20 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                     side: BorderSide(
-                                      color: isSelected ? StudioColors.goldAccent : Colors.transparent,
+                                      color: isSelected
+                                          ? StudioColors.goldAccent
+                                          : Colors.transparent,
                                       width: 1.5,
                                     ),
                                   ),
                                   tileColor: isSelected
-                                      ? StudioColors.goldAccent.withValues(alpha: 0.08)
+                                      ? StudioColors.goldAccent.withValues(
+                                          alpha: 0.08,
+                                        )
                                       : null,
                                   leading: CircleAvatar(
-                                    backgroundColor: StudioColors.navyPrimary.withValues(alpha: 0.1),
+                                    backgroundColor: StudioColors.navyPrimary
+                                        .withValues(alpha: 0.1),
                                     child: Icon(
                                       item.type == FlowCardType.quiz
                                           ? Icons.help_outline_rounded
@@ -233,7 +257,12 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                                       size: 20,
                                     ),
                                   ),
-                                  title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                  title: Text(
+                                    item.title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                   subtitle: Text(
                                     '${item.type.name.toUpperCase()} • Niveaux: ${item.classLevels.join(", ")}',
                                     style: const TextStyle(fontSize: 12),
@@ -243,14 +272,16 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                                     children: [
                                       StudioBadge(
                                         label: item.status.name.toUpperCase(),
-                                        variant: item.status == FlowStatus.published
+                                        variant:
+                                            item.status == FlowStatus.published
                                             ? StudioBadgeVariant.success
                                             : StudioBadgeVariant.warning,
                                       ),
                                       const SizedBox(width: 8),
                                       if (item.status != FlowStatus.published)
                                         FilledButton.tonal(
-                                          onPressed: () => _publishFlowItem(item),
+                                          onPressed: () =>
+                                              _publishFlowItem(item),
                                           child: const Text('Publier'),
                                         ),
                                     ],
@@ -287,9 +318,15 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                             children: [
                               Text(
                                 'Aperçu mobile — Parcours',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
                               ),
-                              Icon(Icons.phone_android_rounded, color: StudioColors.textSecondaryLight),
+                              Icon(
+                                Icons.phone_android_rounded,
+                                color: StudioColors.textSecondaryLight,
+                              ),
                             ],
                           ),
                           const Divider(height: 24),
@@ -302,13 +339,19 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                               decoration: BoxDecoration(
                                 color: StudioColors.navyPrimary,
                                 borderRadius: BorderRadius.circular(28),
-                                border: Border.all(color: Colors.black87, width: 6),
+                                border: Border.all(
+                                  color: Colors.black87,
+                                  width: 6,
+                                ),
                               ),
                               child: const Center(
                                 child: Text(
                                   'Sélectionnez une carte pour prévisualiser.',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.white54, fontSize: 13),
+                                  style: TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ),
                             )
@@ -320,7 +363,10 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                               decoration: BoxDecoration(
                                 color: StudioColors.navyPrimary,
                                 borderRadius: BorderRadius.circular(28),
-                                border: Border.all(color: Colors.black87, width: 6),
+                                border: Border.all(
+                                  color: Colors.black87,
+                                  width: 6,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.2),
@@ -333,13 +379,19 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: StudioColors.goldAccent,
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: Text(
                                           selectedItem.type.name.toUpperCase(),
@@ -350,7 +402,11 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                                           ),
                                         ),
                                       ),
-                                      const Icon(Icons.bookmark_border_rounded, color: Colors.white70, size: 20),
+                                      const Icon(
+                                        Icons.bookmark_border_rounded,
+                                        color: Colors.white70,
+                                        size: 20,
+                                      ),
                                     ],
                                   ),
                                   const SizedBox(height: 16),
@@ -372,36 +428,66 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                                     ),
                                   ),
                                   const Spacer(),
-                                  if (selectedItem.type == FlowCardType.quiz) ...[
+                                  if (selectedItem.type ==
+                                      FlowCardType.quiz) ...[
                                     Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.1),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.1,
+                                        ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            selectedItem.payload['question'] as String? ?? 'Question ?',
-                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
+                                            selectedItem.payload['question']
+                                                    as String? ??
+                                                'Question ?',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                            ),
                                           ),
                                           const SizedBox(height: 8),
-                                          const Text('• Option A', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                                          const Text('• Option B', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                          const Text(
+                                            '• Option A',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                          const Text(
+                                            '• Option B',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 11,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
                                     const SizedBox(height: 16),
                                   ],
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'Niveaux: ${selectedItem.classLevels.join(", ")}',
-                                        style: const TextStyle(color: Colors.white54, fontSize: 10),
+                                        style: const TextStyle(
+                                          color: Colors.white54,
+                                          fontSize: 10,
+                                        ),
                                       ),
-                                      const Icon(Icons.arrow_forward_ios_rounded, color: StudioColors.goldAccent, size: 14),
+                                      const Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        color: StudioColors.goldAccent,
+                                        size: 14,
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -445,17 +531,24 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
           title: const Text('Rejet par le Validateur Serveur'),
           content: Text(validationError),
           actions: [
-            FilledButton(onPressed: () => Navigator.pop(ctx), child: const Text('Compris')),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Compris'),
+            ),
           ],
         ),
       );
       return;
     }
 
-    ref.read(flowItemsProvider.notifier).updateStatus(item.id, FlowStatus.published);
+    ref
+        .read(flowItemsProvider.notifier)
+        .updateStatus(item.id, FlowStatus.published);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Carte de parcours publiée conformément à saveFlowPublication.'),
+        content: Text(
+          'Carte de parcours publiée conformément à saveFlowPublication.',
+        ),
         backgroundColor: StudioColors.success,
       ),
     );
@@ -472,7 +565,9 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
       initialClasses.add(academicContext.selectedClass!.catalogKey);
     }
 
-    final availableClasses = AcademicHierarchy.classesForSystem(academicContext.system);
+    final availableClasses = AcademicHierarchy.classesForSystem(
+      academicContext.system,
+    );
 
     showDialog(
       context: context,
@@ -490,18 +585,25 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                   children: [
                     TextField(
                       controller: titleCtrl,
-                      decoration: const InputDecoration(labelText: 'Titre de la carte (accroche concise)'),
+                      decoration: const InputDecoration(
+                        labelText: 'Titre de la carte (accroche concise)',
+                      ),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: hookCtrl,
                       maxLines: 3,
-                      decoration: const InputDecoration(labelText: 'Contenu synthétique / Hook'),
+                      decoration: const InputDecoration(
+                        labelText: 'Contenu synthétique / Hook',
+                      ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
                       'Classes Cibles (Obligatoire, multi-classes autorisé) :',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Wrap(
@@ -512,7 +614,9 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                         return FilterChip(
                           label: Text(cl.label),
                           selected: isChecked,
-                          selectedColor: StudioColors.goldAccent.withValues(alpha: 0.25),
+                          selectedColor: StudioColors.goldAccent.withValues(
+                            alpha: 0.25,
+                          ),
                           onSelected: (val) {
                             setDialogState(() {
                               if (val) {
@@ -529,35 +633,44 @@ class _FlowStudioScreenState extends ConsumerState<FlowStudioScreen> {
                       const SizedBox(height: 6),
                       const Text(
                         'Au moins une classe doit être sélectionnée.',
-                        style: TextStyle(color: StudioColors.error, fontSize: 11),
+                        style: TextStyle(
+                          color: StudioColors.error,
+                          fontSize: 11,
+                        ),
                       ),
                     ],
                   ],
                 ),
               ),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Annuler'),
+                ),
                 FilledButton(
                   onPressed: () {
                     if (titleCtrl.text.trim().isNotEmpty &&
                         hookCtrl.text.trim().isNotEmpty &&
                         selectedSet.isNotEmpty) {
-                      final targetSubject = academicContext.subject?.id ?? 'sub_math_t';
-                      ref.read(flowItemsProvider.notifier).addItem(
-                        StudioFlowItem(
-                          id: 'flw_${DateTime.now().millisecondsSinceEpoch}',
-                          type: FlowCardType.notion,
-                          title: titleCtrl.text.trim(),
-                          hook: hookCtrl.text.trim(),
-                          subjectId: targetSubject,
-                          classLevels: selectedSet.toList(),
-                          status: FlowStatus.draft,
-                          payload: {'insight': hookCtrl.text.trim()},
-                          createdBy: 'usr_admin_01',
-                          createdAt: DateTime.now().toIso8601String(),
-                          updatedAt: DateTime.now().toIso8601String(),
-                        ),
-                      );
+                      final targetSubject =
+                          academicContext.subject?.id ?? 'sub_math_t';
+                      ref
+                          .read(flowItemsProvider.notifier)
+                          .addItem(
+                            StudioFlowItem(
+                              id: 'flw_${DateTime.now().millisecondsSinceEpoch}',
+                              type: FlowCardType.notion,
+                              title: titleCtrl.text.trim(),
+                              hook: hookCtrl.text.trim(),
+                              subjectId: targetSubject,
+                              classLevels: selectedSet.toList(),
+                              status: FlowStatus.draft,
+                              payload: {'insight': hookCtrl.text.trim()},
+                              createdBy: 'usr_admin_01',
+                              createdAt: DateTime.now().toIso8601String(),
+                              updatedAt: DateTime.now().toIso8601String(),
+                            ),
+                          );
                       Navigator.pop(ctx);
                     }
                   },

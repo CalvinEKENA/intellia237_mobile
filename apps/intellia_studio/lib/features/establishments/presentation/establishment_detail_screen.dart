@@ -28,16 +28,24 @@ class EstablishmentDetailScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Lycée Général Leclerc', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Lycée Général Leclerc',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       'Établissement ID: $establishmentId • Yaoundé, Centre • Type: Public',
-                      style: const TextStyle(color: StudioColors.textSecondaryLight),
+                      style: const TextStyle(
+                        color: StudioColors.textSecondaryLight,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const StudioBadge(label: 'ACTIF', variant: StudioBadgeVariant.success),
+              const StudioBadge(
+                label: 'ACTIF',
+                variant: StudioBadgeVariant.success,
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -45,11 +53,19 @@ class EstablishmentDetailScreen extends ConsumerWidget {
             children: [
               _buildKpiCard('Élèves inscrits', '842', Icons.school_rounded),
               const SizedBox(width: 16),
-              _buildKpiCard('Classes actives', '24', Icons.meeting_room_rounded),
+              _buildKpiCard(
+                'Classes actives',
+                '24',
+                Icons.meeting_room_rounded,
+              ),
               const SizedBox(width: 16),
               _buildKpiCard('Enseignants', '48', Icons.psychology_rounded),
               const SizedBox(width: 16),
-              _buildKpiCard('Taux d\'activation', '94.2%', Icons.check_circle_rounded),
+              _buildKpiCard(
+                'Taux d\'activation',
+                '94.2%',
+                Icons.check_circle_rounded,
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -65,30 +81,57 @@ class EstablishmentDetailScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Classes associées à cet établissement', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      'Classes associées à cet établissement',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: 12),
                     Expanded(
                       child: ListView(
                         children: const [
                           ListTile(
-                            leading: Icon(Icons.class_rounded, color: StudioColors.navyPrimary),
+                            leading: Icon(
+                              Icons.class_rounded,
+                              color: StudioColors.navyPrimary,
+                            ),
                             title: Text('Terminale C1 (38 élèves)'),
-                            subtitle: Text('Série C • Enseignant principal : M. Talla'),
-                            trailing: StudioBadge(label: 'ACTIF', variant: StudioBadgeVariant.success),
+                            subtitle: Text(
+                              'Série C • Enseignant principal : M. Talla',
+                            ),
+                            trailing: StudioBadge(
+                              label: 'ACTIF',
+                              variant: StudioBadgeVariant.success,
+                            ),
                           ),
                           Divider(),
                           ListTile(
-                            leading: Icon(Icons.class_rounded, color: StudioColors.navyPrimary),
+                            leading: Icon(
+                              Icons.class_rounded,
+                              color: StudioColors.navyPrimary,
+                            ),
                             title: Text('Terminale D2 (42 élèves)'),
-                            subtitle: Text('Série D • Enseignante principale : Mme Ngo'),
-                            trailing: StudioBadge(label: 'ACTIF', variant: StudioBadgeVariant.success),
+                            subtitle: Text(
+                              'Série D • Enseignante principale : Mme Ngo',
+                            ),
+                            trailing: StudioBadge(
+                              label: 'ACTIF',
+                              variant: StudioBadgeVariant.success,
+                            ),
                           ),
                           Divider(),
                           ListTile(
-                            leading: Icon(Icons.class_rounded, color: StudioColors.navyPrimary),
+                            leading: Icon(
+                              Icons.class_rounded,
+                              color: StudioColors.navyPrimary,
+                            ),
                             title: Text('Première A4 (45 élèves)'),
-                            subtitle: Text('Série Littéraire • Enseignant principal : M. Bipoun'),
-                            trailing: StudioBadge(label: 'ACTIF', variant: StudioBadgeVariant.success),
+                            subtitle: Text(
+                              'Série Littéraire • Enseignant principal : M. Bipoun',
+                            ),
+                            trailing: StudioBadge(
+                              label: 'ACTIF',
+                              variant: StudioBadgeVariant.success,
+                            ),
                           ),
                         ],
                       ),
@@ -120,8 +163,20 @@ class EstablishmentDetailScreen extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 12, color: StudioColors.textSecondaryLight)),
-                  Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: StudioColors.textSecondaryLight,
+                    ),
+                  ),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ],

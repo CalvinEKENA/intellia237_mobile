@@ -10,14 +10,19 @@ import '../../control_plane/control_plane_client.dart';
 import '../domain/establishment_models.dart';
 
 final establishmentsProvider =
-    StateNotifierProvider<EstablishmentsNotifier, AsyncValue<List<EstablishmentModel>>>((ref) {
-  final fs = ref.watch(firestoreRestClientProvider);
-  final cp = ref.watch(controlPlaneClientProvider);
-  return EstablishmentsNotifier(fs, cp);
-});
+    StateNotifierProvider<
+      EstablishmentsNotifier,
+      AsyncValue<List<EstablishmentModel>>
+    >((ref) {
+      final fs = ref.watch(firestoreRestClientProvider);
+      final cp = ref.watch(controlPlaneClientProvider);
+      return EstablishmentsNotifier(fs, cp);
+    });
 
-class EstablishmentsNotifier extends StateNotifier<AsyncValue<List<EstablishmentModel>>> {
-  EstablishmentsNotifier(this._firestore, this._controlPlane) : super(const AsyncValue.loading()) {
+class EstablishmentsNotifier
+    extends StateNotifier<AsyncValue<List<EstablishmentModel>>> {
+  EstablishmentsNotifier(this._firestore, this._controlPlane)
+    : super(const AsyncValue.loading()) {
     loadEstablishments();
   }
 
@@ -28,7 +33,9 @@ class EstablishmentsNotifier extends StateNotifier<AsyncValue<List<Establishment
     state = const AsyncValue.loading();
     try {
       final docs = await _firestore.listDocuments('establishments');
-      final list = docs.map((d) => EstablishmentModel.fromFirestore(d)).toList();
+      final list = docs
+          .map((d) => EstablishmentModel.fromFirestore(d))
+          .toList();
       state = AsyncValue.data(list);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -37,7 +44,10 @@ class EstablishmentsNotifier extends StateNotifier<AsyncValue<List<Establishment
 
   Future<void> toggleStatus(String id) async {
     final currentList = state.value ?? [];
-    final target = currentList.firstWhere((e) => e.id == id, orElse: () => currentList.first);
+    final target = currentList.firstWhere(
+      (e) => e.id == id,
+      orElse: () => currentList.first,
+    );
     final newActive = !target.active;
     final newStatus = newActive ? 'approved' : 'suspended';
 
@@ -115,7 +125,9 @@ class EstablishmentsScreen extends ConsumerWidget {
               IconButton(
                 tooltip: 'Actualiser',
                 icon: const Icon(Icons.refresh_rounded),
-                onPressed: () => ref.read(establishmentsProvider.notifier).loadEstablishments(),
+                onPressed: () => ref
+                    .read(establishmentsProvider.notifier)
+                    .loadEstablishments(),
               ),
               const SizedBox(width: 8),
               ElevatedButton.icon(
@@ -133,7 +145,11 @@ class EstablishmentsScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: StudioColors.error, size: 48),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: StudioColors.error,
+                      size: 48,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       'Erreur lors du chargement des établissements:\n$err',
@@ -142,8 +158,9 @@ class EstablishmentsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () =>
-                          ref.read(establishmentsProvider.notifier).loadEstablishments(),
+                      onPressed: () => ref
+                          .read(establishmentsProvider.notifier)
+                          .loadEstablishments(),
                       child: const Text('Réessayer'),
                     ),
                   ],
@@ -155,11 +172,17 @@ class EstablishmentsScreen extends ConsumerWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.school_outlined, size: 48, color: StudioColors.textSecondaryLight),
+                        const Icon(
+                          Icons.school_outlined,
+                          size: 48,
+                          color: StudioColors.textSecondaryLight,
+                        ),
                         const SizedBox(height: 12),
                         const Text(
                           'Aucun établissement enregistré dans la collection Firestore "establishments".',
-                          style: TextStyle(color: StudioColors.textSecondaryLight),
+                          style: TextStyle(
+                            color: StudioColors.textSecondaryLight,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
@@ -265,7 +288,11 @@ class EstablishmentsScreen extends ConsumerWidget {
                                   .toggleStatus(est.id);
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Statut de ${est.name} mis à jour.')),
+                                  SnackBar(
+                                    content: Text(
+                                      'Statut de ${est.name} mis à jour.',
+                                    ),
+                                  ),
                                 );
                               }
                             } catch (e) {
@@ -333,7 +360,9 @@ class EstablishmentsScreen extends ConsumerWidget {
             onPressed: () async {
               if (nameCtrl.text.isNotEmpty && codeCtrl.text.isNotEmpty) {
                 try {
-                  await ref.read(establishmentsProvider.notifier).addEstablishment(
+                  await ref
+                      .read(establishmentsProvider.notifier)
+                      .addEstablishment(
                         name: nameCtrl.text.trim(),
                         code: codeCtrl.text.trim().toUpperCase(),
                         city: cityCtrl.text.trim(),

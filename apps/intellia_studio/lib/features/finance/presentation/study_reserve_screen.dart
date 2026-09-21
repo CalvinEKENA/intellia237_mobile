@@ -10,15 +10,19 @@ import '../../control_plane/control_plane_client.dart';
 import '../domain/finance_models.dart';
 
 final reservesProvider =
-    StateNotifierProvider<ReservesNotifier, AsyncValue<List<StudioStudyReserve>>>((ref) {
-  final fs = ref.watch(firestoreRestClientProvider);
-  final cp = ref.watch(controlPlaneClientProvider);
-  return ReservesNotifier(fs, cp);
-});
+    StateNotifierProvider<
+      ReservesNotifier,
+      AsyncValue<List<StudioStudyReserve>>
+    >((ref) {
+      final fs = ref.watch(firestoreRestClientProvider);
+      final cp = ref.watch(controlPlaneClientProvider);
+      return ReservesNotifier(fs, cp);
+    });
 
-class ReservesNotifier extends StateNotifier<AsyncValue<List<StudioStudyReserve>>> {
+class ReservesNotifier
+    extends StateNotifier<AsyncValue<List<StudioStudyReserve>>> {
   ReservesNotifier(this._firestore, this._controlPlane)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadReserves();
   }
 
@@ -36,44 +40,52 @@ class ReservesNotifier extends StateNotifier<AsyncValue<List<StudioStudyReserve>
             'field': {'fieldPath': 'role'},
             'op': 'EQUAL',
             'value': {'stringValue': 'student'},
-          }
+          },
         },
         limit: 50,
       );
 
       final list = <StudioStudyReserve>[];
       final now = DateTime.now();
-      final monthStart = '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
+      final monthStart =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
       final monthEnd = '${now.year}-${now.month.toString().padLeft(2, '0')}-28';
 
       for (final s in students) {
-        final studentName = s['displayName'] as String? ??
+        final studentName =
+            s['displayName'] as String? ??
             '${s['firstName'] ?? ''} ${s['lastName'] ?? ''}'.trim();
-        final classLevel = s['classLevel'] as String? ?? s['currentClass'] as String? ?? '—';
+        final classLevel =
+            s['classLevel'] as String? ?? s['currentClass'] as String? ?? '—';
 
         try {
           final res = await _controlPlane.getStudyReserve(studentId: s.id);
-          list.add(StudioStudyReserve(
-            studentId: s.id,
-            studentName: studentName.isNotEmpty ? studentName : s.id,
-            classLevel: classLevel,
-            allowanceInternal: (res['allowanceInternal'] as num?)?.toInt() ?? 1000,
-            consumedInternal: (res['consumedInternal'] as num?)?.toInt() ?? 0,
-            cycleStart: res['cycleStart'] as String? ?? monthStart,
-            cycleEnd: res['cycleEnd'] as String? ?? monthEnd,
-            latestThresholdEmitted: res['latestThresholdEmitted'] as String?,
-          ));
+          list.add(
+            StudioStudyReserve(
+              studentId: s.id,
+              studentName: studentName.isNotEmpty ? studentName : s.id,
+              classLevel: classLevel,
+              allowanceInternal:
+                  (res['allowanceInternal'] as num?)?.toInt() ?? 1000,
+              consumedInternal: (res['consumedInternal'] as num?)?.toInt() ?? 0,
+              cycleStart: res['cycleStart'] as String? ?? monthStart,
+              cycleEnd: res['cycleEnd'] as String? ?? monthEnd,
+              latestThresholdEmitted: res['latestThresholdEmitted'] as String?,
+            ),
+          );
         } catch (_) {
           // If individual reserve document doesn't exist yet, show canonical default allowance
-          list.add(StudioStudyReserve(
-            studentId: s.id,
-            studentName: studentName.isNotEmpty ? studentName : s.id,
-            classLevel: classLevel,
-            allowanceInternal: 1000,
-            consumedInternal: 0,
-            cycleStart: monthStart,
-            cycleEnd: monthEnd,
-          ));
+          list.add(
+            StudioStudyReserve(
+              studentId: s.id,
+              studentName: studentName.isNotEmpty ? studentName : s.id,
+              classLevel: classLevel,
+              allowanceInternal: 1000,
+              consumedInternal: 0,
+              cycleStart: monthStart,
+              cycleEnd: monthEnd,
+            ),
+          );
         }
       }
 
@@ -102,7 +114,10 @@ class StudyReserveScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Réserve d\'Étude (Study Reserve)', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Réserve d\'Étude (Study Reserve)',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
                       'Supervision des quotas d\'utilisation IA par élève selon les seuils canoniques [75, 50, 25, 5, 0] %.',
@@ -114,7 +129,8 @@ class StudyReserveScreen extends ConsumerWidget {
               IconButton(
                 tooltip: 'Actualiser',
                 icon: const Icon(Icons.refresh_rounded),
-                onPressed: () => ref.read(reservesProvider.notifier).loadReserves(),
+                onPressed: () =>
+                    ref.read(reservesProvider.notifier).loadReserves(),
               ),
               const SizedBox(width: 8),
               const StudioBadge(
@@ -130,11 +146,17 @@ class StudyReserveScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               color: StudioColors.navyPrimary.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: StudioColors.navyPrimary.withValues(alpha: 0.2)),
+              border: Border.all(
+                color: StudioColors.navyPrimary.withValues(alpha: 0.2),
+              ),
             ),
             child: const Row(
               children: [
-                Icon(Icons.lock_clock_rounded, color: StudioColors.navyPrimary, size: 22),
+                Icon(
+                  Icons.lock_clock_rounded,
+                  color: StudioColors.navyPrimary,
+                  size: 22,
+                ),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -154,13 +176,21 @@ class StudyReserveScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: StudioColors.error, size: 48),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: StudioColors.error,
+                      size: 48,
+                    ),
                     const SizedBox(height: 12),
-                    Text('Erreur chargement Réserve d\'Étude:\n$err',
-                        textAlign: TextAlign.center, style: const TextStyle(color: StudioColors.error)),
+                    Text(
+                      'Erreur chargement Réserve d\'Étude:\n$err',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: StudioColors.error),
+                    ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => ref.read(reservesProvider.notifier).loadReserves(),
+                      onPressed: () =>
+                          ref.read(reservesProvider.notifier).loadReserves(),
                       child: const Text('Réessayer'),
                     ),
                   ],
@@ -189,9 +219,17 @@ class StudyReserveScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(r.studentName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text('${r.classLevel} • ID: ${r.studentId}',
-                              style: const TextStyle(fontSize: 11, color: StudioColors.textSecondaryLight)),
+                          Text(
+                            r.studentName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            '${r.classLevel} • ID: ${r.studentId}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: StudioColors.textSecondaryLight,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -205,10 +243,20 @@ class StudyReserveScreen extends ConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('${r.consumptionPercent}% consommé',
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                              Text('${r.consumedInternal} / ${r.allowanceInternal} un.',
-                                  style: const TextStyle(fontSize: 11, color: StudioColors.textSecondaryLight)),
+                              Text(
+                                '${r.consumptionPercent}% consommé',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                '${r.consumedInternal} / ${r.allowanceInternal} un.',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: StudioColors.textSecondaryLight,
+                                ),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -217,7 +265,9 @@ class StudyReserveScreen extends ConsumerWidget {
                             child: LinearProgressIndicator(
                               value: r.consumptionRatio,
                               backgroundColor: StudioColors.borderLight,
-                              color: r.isCritical ? StudioColors.error : StudioColors.navyPrimary,
+                              color: r.isCritical
+                                  ? StudioColors.error
+                                  : StudioColors.navyPrimary,
                               minHeight: 6,
                             ),
                           ),
@@ -227,8 +277,10 @@ class StudyReserveScreen extends ConsumerWidget {
                     StudioTableColumn(
                       header: 'Cycle Actuel',
                       flex: 2,
-                      cellBuilder: (r) =>
-                          Text('${r.cycleStart} au ${r.cycleEnd}', style: const TextStyle(fontSize: 12)),
+                      cellBuilder: (r) => Text(
+                        '${r.cycleStart} au ${r.cycleEnd}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
                     ),
                     StudioTableColumn(
                       header: 'État Canonique',

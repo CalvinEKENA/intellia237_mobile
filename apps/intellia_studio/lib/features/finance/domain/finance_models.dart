@@ -97,19 +97,33 @@ class StudioPaymentRequest {
     return StudioPaymentRequest(
       id: id,
       parentId: map['parentId'] as String? ?? map['userId'] as String? ?? '',
-      parentName: map['parentName'] as String? ?? map['userName'] as String? ?? 'Parent',
+      parentName:
+          map['parentName'] as String? ??
+          map['userName'] as String? ??
+          'Parent',
       establishmentId: map['establishmentId'] as String? ?? '',
-      amountXaf: (map['amountXaf'] as num?)?.toInt() ?? (map['amount'] as num?)?.toInt() ?? 0,
-      operator: opStr.contains('mtn') ? PaymentOperator.mtnMomo : PaymentOperator.orangeMoney,
-      reference: map['reference'] as String? ?? map['transactionId'] as String? ?? id,
-      phoneNumber: map['phoneNumber'] as String? ?? map['phone'] as String? ?? '',
+      amountXaf:
+          (map['amountXaf'] as num?)?.toInt() ??
+          (map['amount'] as num?)?.toInt() ??
+          0,
+      operator: opStr.contains('mtn')
+          ? PaymentOperator.mtnMomo
+          : PaymentOperator.orangeMoney,
+      reference:
+          map['reference'] as String? ?? map['transactionId'] as String? ?? id,
+      phoneNumber:
+          map['phoneNumber'] as String? ?? map['phone'] as String? ?? '',
       status: stStr == 'approved'
           ? PaymentRequestStatus.approved
-          : (stStr == 'rejected' ? PaymentRequestStatus.rejected : PaymentRequestStatus.pending),
-      createdAt: map['createdAt'] as String? ?? DateTime.now().toIso8601String(),
+          : (stStr == 'rejected'
+                ? PaymentRequestStatus.rejected
+                : PaymentRequestStatus.pending),
+      createdAt:
+          map['createdAt'] as String? ?? DateTime.now().toIso8601String(),
       reviewedAt: map['reviewedAt'] as String?,
       reviewedByUid: map['reviewedByUid'] as String?,
-      rejectionReason: map['rejectionReason'] as String? ?? map['reviewNote'] as String?,
+      rejectionReason:
+          map['rejectionReason'] as String? ?? map['reviewNote'] as String?,
     );
   }
 
@@ -155,8 +169,9 @@ class StudioStudyReserve {
     );
   }
 
-  double get consumptionRatio =>
-      allowanceInternal > 0 ? (consumedInternal / allowanceInternal).clamp(0.0, 1.0) : 0.0;
+  double get consumptionRatio => allowanceInternal > 0
+      ? (consumedInternal / allowanceInternal).clamp(0.0, 1.0)
+      : 0.0;
 
   int get consumptionPercent => (consumptionRatio * 100).round();
 

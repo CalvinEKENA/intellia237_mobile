@@ -42,7 +42,9 @@ class AcademicContextBar extends ConsumerWidget {
         ),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: selectedClass != null ? const Color(0xFFD4AF37).withValues(alpha: 0.6) : Colors.white12,
+          color: selectedClass != null
+              ? const Color(0xFFD4AF37).withValues(alpha: 0.6)
+              : Colors.white12,
           width: 1,
         ),
         boxShadow: [
@@ -65,7 +67,10 @@ class AcademicContextBar extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: const Color(0xFFD4AF37), width: 0.8),
+                  border: Border.all(
+                    color: const Color(0xFFD4AF37),
+                    width: 0.8,
+                  ),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -99,11 +104,17 @@ class AcademicContextBar extends ConsumerWidget {
               ),
               if (selectedClass == null && !academicCtx.showAllClasses)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.amber.shade900.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.amber.shade600, width: 0.8),
+                    border: Border.all(
+                      color: Colors.amber.shade600,
+                      width: 0.8,
+                    ),
                   ),
                   child: const Text(
                     '⚠️ Choisir une classe pour créer/publier',
@@ -153,14 +164,20 @@ class AcademicContextBar extends ConsumerWidget {
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String?>(
                     value: selectedClass?.id,
-                    hint: const Text('Choisir classe', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                    hint: const Text(
+                      'Choisir classe',
+                      style: TextStyle(color: Colors.white54, fontSize: 13),
+                    ),
                     isDense: true,
                     dropdownColor: const Color(0xFF1E2A38),
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                     items: [
                       const DropdownMenuItem<String?>(
                         value: null,
-                        child: Text('— Choisir une classe —', style: TextStyle(color: Colors.white54)),
+                        child: Text(
+                          '— Choisir une classe —',
+                          style: TextStyle(color: Colors.white54),
+                        ),
                       ),
                       ...availableClasses.map((c) {
                         return DropdownMenuItem<String?>(
@@ -183,23 +200,36 @@ class AcademicContextBar extends ConsumerWidget {
               // 3. Série / Filière (visible only if class has series)
               if (selectedClass != null && selectedClass.hasSeries)
                 _SelectorContainer(
-                  label: currentSystem == StudioEducationSystem.anglophone ? 'Stream' : 'Série',
+                  label: currentSystem == StudioEducationSystem.anglophone
+                      ? 'Stream'
+                      : 'Série',
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String?>(
                       value: selectedSeries,
-                      hint: const Text('Toutes séries', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                      hint: const Text(
+                        'Toutes séries',
+                        style: TextStyle(color: Colors.white54, fontSize: 13),
+                      ),
                       isDense: true,
                       dropdownColor: const Color(0xFF1E2A38),
                       style: const TextStyle(color: Colors.white, fontSize: 13),
                       items: [
                         const DropdownMenuItem<String?>(
                           value: null,
-                          child: Text('Toutes séries', style: TextStyle(color: Colors.white54)),
+                          child: Text(
+                            'Toutes séries',
+                            style: TextStyle(color: Colors.white54),
+                          ),
                         ),
                         ...allowedSeries.map((s) {
                           return DropdownMenuItem<String?>(
                             value: s,
-                            child: Text('Série $s', style: const TextStyle(fontWeight: FontWeight.w600)),
+                            child: Text(
+                              'Série $s',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           );
                         }),
                       ],
@@ -216,18 +246,27 @@ class AcademicContextBar extends ConsumerWidget {
                 label: 'Matière',
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String?>(
-                    value: (selectedSubject != null &&
-                            availableSubjects.any((s) => s.id == selectedSubject.id))
+                    value:
+                        (selectedSubject != null &&
+                            availableSubjects.any(
+                              (s) => s.id == selectedSubject.id,
+                            ))
                         ? selectedSubject.id
                         : null,
-                    hint: const Text('Toutes matières', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                    hint: const Text(
+                      'Toutes matières',
+                      style: TextStyle(color: Colors.white54, fontSize: 13),
+                    ),
                     isDense: true,
                     dropdownColor: const Color(0xFF1E2A38),
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                     items: [
                       const DropdownMenuItem<String?>(
                         value: null,
-                        child: Text('Toutes matières', style: TextStyle(color: Colors.white54)),
+                        child: Text(
+                          'Toutes matières',
+                          style: TextStyle(color: Colors.white54),
+                        ),
                       ),
                       ...availableSubjects.map((subj) {
                         return DropdownMenuItem<String?>(
@@ -253,14 +292,19 @@ class AcademicContextBar extends ConsumerWidget {
                   },
                   borderRadius: BorderRadius.circular(6),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: academicCtx.showAllClasses
                           ? const Color(0xFFD4AF37).withValues(alpha: 0.2)
                           : Colors.white.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
-                        color: academicCtx.showAllClasses ? const Color(0xFFD4AF37) : Colors.white12,
+                        color: academicCtx.showAllClasses
+                            ? const Color(0xFFD4AF37)
+                            : Colors.white12,
                         width: 1,
                       ),
                     ),
@@ -268,18 +312,25 @@ class AcademicContextBar extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          academicCtx.showAllClasses ? Icons.visibility : Icons.visibility_off_outlined,
+                          academicCtx.showAllClasses
+                              ? Icons.visibility
+                              : Icons.visibility_off_outlined,
                           size: 14,
-                          color: academicCtx.showAllClasses ? const Color(0xFFD4AF37) : Colors.white54,
+                          color: academicCtx.showAllClasses
+                              ? const Color(0xFFD4AF37)
+                              : Colors.white54,
                         ),
                         const SizedBox(width: 6),
                         Text(
                           'Toutes les classes',
                           style: TextStyle(
                             fontSize: 12,
-                            color: academicCtx.showAllClasses ? const Color(0xFFD4AF37) : Colors.white70,
-                            fontWeight:
-                                academicCtx.showAllClasses ? FontWeight.bold : FontWeight.normal,
+                            color: academicCtx.showAllClasses
+                                ? const Color(0xFFD4AF37)
+                                : Colors.white70,
+                            fontWeight: academicCtx.showAllClasses
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
                       ],
@@ -295,10 +346,7 @@ class AcademicContextBar extends ConsumerWidget {
 }
 
 class _SelectorContainer extends StatelessWidget {
-  const _SelectorContainer({
-    required this.label,
-    required this.child,
-  });
+  const _SelectorContainer({required this.label, required this.child});
 
   final String label;
   final Widget child;

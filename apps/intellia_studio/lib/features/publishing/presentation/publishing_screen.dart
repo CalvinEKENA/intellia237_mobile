@@ -61,78 +61,82 @@ class PublishingReleaseItem {
   }
 }
 
-final releaseItemsProvider = StateNotifierProvider<ReleaseItemsNotifier, List<PublishingReleaseItem>>((ref) {
-  return ReleaseItemsNotifier();
-});
+final releaseItemsProvider =
+    StateNotifierProvider<ReleaseItemsNotifier, List<PublishingReleaseItem>>((
+      ref,
+    ) {
+      return ReleaseItemsNotifier();
+    });
 
 class ReleaseItemsNotifier extends StateNotifier<List<PublishingReleaseItem>> {
-  ReleaseItemsNotifier() : super([
-    const PublishingReleaseItem(
-      id: 'rel_01',
-      title: 'Dérivation et Convexité (TVI)',
-      type: 'LEÇON',
-      system: 'Francophone',
-      classLevels: ['Terminale'],
-      series: ['C', 'D'],
-      subject: 'Mathématiques',
-      chapter: 'Continuité et limites',
-      author: 'Prof. Mballa',
-      audience: 'Général',
-      status: 'inReview',
-    ),
-    const PublishingReleaseItem(
-      id: 'rel_02',
-      title: 'Piège classique TVI',
-      type: 'PARCOURS',
-      system: 'Francophone',
-      classLevels: ['Terminale'],
-      series: ['C', 'D', 'TI'],
-      subject: 'Mathématiques',
-      chapter: 'Limites et continuité',
-      author: 'Admin Pédagogique',
-      audience: 'Micro-learning',
-      status: 'approved',
-    ),
-    const PublishingReleaseItem(
-      id: 'rel_03',
-      title: 'Banque Nombres Complexes Bacc 2026',
-      type: 'QUIZ',
-      system: 'Francophone',
-      classLevels: ['Terminale'],
-      series: ['C', 'E'],
-      subject: 'Mathématiques',
-      chapter: 'Algèbre complexe',
-      author: 'Inspection Nationale',
-      audience: 'Candidats Baccalauréat',
-      status: 'draft',
-    ),
-    const PublishingReleaseItem(
-      id: 'rel_04',
-      title: 'Lois de Newton et Mouvement Circulaire',
-      type: 'LEÇON',
-      system: 'Francophone',
-      classLevels: ['Terminale'],
-      series: ['C', 'D', 'TI'],
-      subject: 'Physique-Chimie',
-      chapter: 'Mécanique newtonienne',
-      author: 'Prof. Kamga',
-      audience: 'Général',
-      status: 'published',
-    ),
-    const PublishingReleaseItem(
-      id: 'rel_05',
-      title: 'Calcul littéral et factorisation',
-      type: 'LEÇON',
-      system: 'Francophone',
-      classLevels: ['3e'],
-      series: [],
-      subject: 'Mathématiques',
-      chapter: 'Calcul algébrique',
-      author: 'Prof. Nguema',
-      audience: 'Candidats BEPC',
-      status: 'approved',
-    ),
-  ]);
+  ReleaseItemsNotifier()
+    : super([
+        const PublishingReleaseItem(
+          id: 'rel_01',
+          title: 'Dérivation et Convexité (TVI)',
+          type: 'LEÇON',
+          system: 'Francophone',
+          classLevels: ['Terminale'],
+          series: ['C', 'D'],
+          subject: 'Mathématiques',
+          chapter: 'Continuité et limites',
+          author: 'Prof. Mballa',
+          audience: 'Général',
+          status: 'inReview',
+        ),
+        const PublishingReleaseItem(
+          id: 'rel_02',
+          title: 'Piège classique TVI',
+          type: 'PARCOURS',
+          system: 'Francophone',
+          classLevels: ['Terminale'],
+          series: ['C', 'D', 'TI'],
+          subject: 'Mathématiques',
+          chapter: 'Limites et continuité',
+          author: 'Admin Pédagogique',
+          audience: 'Micro-learning',
+          status: 'approved',
+        ),
+        const PublishingReleaseItem(
+          id: 'rel_03',
+          title: 'Banque Nombres Complexes Bacc 2026',
+          type: 'QUIZ',
+          system: 'Francophone',
+          classLevels: ['Terminale'],
+          series: ['C', 'E'],
+          subject: 'Mathématiques',
+          chapter: 'Algèbre complexe',
+          author: 'Inspection Nationale',
+          audience: 'Candidats Baccalauréat',
+          status: 'draft',
+        ),
+        const PublishingReleaseItem(
+          id: 'rel_04',
+          title: 'Lois de Newton et Mouvement Circulaire',
+          type: 'LEÇON',
+          system: 'Francophone',
+          classLevels: ['Terminale'],
+          series: ['C', 'D', 'TI'],
+          subject: 'Physique-Chimie',
+          chapter: 'Mécanique newtonienne',
+          author: 'Prof. Kamga',
+          audience: 'Général',
+          status: 'published',
+        ),
+        const PublishingReleaseItem(
+          id: 'rel_05',
+          title: 'Calcul littéral et factorisation',
+          type: 'LEÇON',
+          system: 'Francophone',
+          classLevels: ['3e'],
+          series: [],
+          subject: 'Mathématiques',
+          chapter: 'Calcul algébrique',
+          author: 'Prof. Nguema',
+          audience: 'Candidats BEPC',
+          status: 'approved',
+        ),
+      ]);
 
   void publishAllApproved() {
     state = [
@@ -158,15 +162,21 @@ class PublishingCenterScreen extends ConsumerWidget {
     final allItems = ref.watch(releaseItemsProvider);
 
     final items = allItems.where((it) {
-      if (!academicContext.showAllClasses && academicContext.selectedClass != null) {
-        final targetKey = academicContext.selectedClass!.catalogKey.toLowerCase();
+      if (!academicContext.showAllClasses &&
+          academicContext.selectedClass != null) {
+        final targetKey = academicContext.selectedClass!.catalogKey
+            .toLowerCase();
         final targetId = academicContext.selectedClass!.id.toLowerCase();
-        final matchClass = it.classLevels.any((lvl) =>
-            lvl.toLowerCase() == targetKey || lvl.toLowerCase() == targetId);
+        final matchClass = it.classLevels.any(
+          (lvl) =>
+              lvl.toLowerCase() == targetKey || lvl.toLowerCase() == targetId,
+        );
         if (!matchClass) return false;
       }
       if (academicContext.subject != null) {
-        if (!it.subject.toLowerCase().contains(academicContext.subject!.name.toLowerCase())) {
+        if (!it.subject.toLowerCase().contains(
+          academicContext.subject!.name.toLowerCase(),
+        )) {
           return false;
         }
       }
@@ -189,7 +199,10 @@ class PublishingCenterScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Publishing Center', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Publishing Center',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
                       'Pipeline éditorial officiel, incrémentation de révision de catalogue et audit de diffusion.',
@@ -219,16 +232,26 @@ class PublishingCenterScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  const Icon(Icons.history_edu_rounded, color: StudioColors.navyPrimary, size: 28),
+                  const Icon(
+                    Icons.history_edu_rounded,
+                    color: StudioColors.navyPrimary,
+                    size: 28,
+                  ),
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Catalogue Global : content_catalog_state/revision', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          'Catalogue Global : content_catalog_state/revision',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         Text(
                           'Dernière synchronisation serveur : 2026-03-15T07:19:22Z • Version 142',
-                          style: TextStyle(fontSize: 12, color: StudioColors.textSecondaryLight),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: StudioColors.textSecondaryLight,
+                          ),
                         ),
                       ],
                     ),
@@ -247,13 +270,29 @@ class PublishingCenterScreen extends ConsumerWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildKanbanColumn('1. Brouillons', drafts, StudioBadgeVariant.neutral),
+                _buildKanbanColumn(
+                  '1. Brouillons',
+                  drafts,
+                  StudioBadgeVariant.neutral,
+                ),
                 const SizedBox(width: 16),
-                _buildKanbanColumn('2. En Revue', inReview, StudioBadgeVariant.warning),
+                _buildKanbanColumn(
+                  '2. En Revue',
+                  inReview,
+                  StudioBadgeVariant.warning,
+                ),
                 const SizedBox(width: 16),
-                _buildKanbanColumn('3. Approuvés', approved, StudioBadgeVariant.info),
+                _buildKanbanColumn(
+                  '3. Approuvés',
+                  approved,
+                  StudioBadgeVariant.info,
+                ),
                 const SizedBox(width: 16),
-                _buildKanbanColumn('4. Publiés (En direct)', published, StudioBadgeVariant.success),
+                _buildKanbanColumn(
+                  '4. Publiés (En direct)',
+                  published,
+                  StudioBadgeVariant.success,
+                ),
               ],
             ),
           ),
@@ -262,7 +301,11 @@ class PublishingCenterScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildKanbanColumn(String title, List<PublishingReleaseItem> items, StudioBadgeVariant badgeVariant) {
+  Widget _buildKanbanColumn(
+    String title,
+    List<PublishingReleaseItem> items,
+    StudioBadgeVariant badgeVariant,
+  ) {
     return Expanded(
       child: Card(
         elevation: 0,
@@ -278,7 +321,13 @@ class PublishingCenterScreen extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
                   StudioBadge(label: '${items.length}', variant: badgeVariant),
                 ],
               ),
@@ -288,7 +337,10 @@ class PublishingCenterScreen extends ConsumerWidget {
                     ? const Center(
                         child: Text(
                           'Aucun contenu',
-                          style: TextStyle(color: StudioColors.textSecondaryLight, fontSize: 12),
+                          style: TextStyle(
+                            color: StudioColors.textSecondaryLight,
+                            fontSize: 12,
+                          ),
                         ),
                       )
                     : ListView.separated(
@@ -301,7 +353,9 @@ class PublishingCenterScreen extends ConsumerWidget {
                             color: StudioColors.backgroundLight,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
-                              side: const BorderSide(color: StudioColors.borderLight),
+                              side: const BorderSide(
+                                color: StudioColors.borderLight,
+                              ),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(12),
@@ -309,7 +363,8 @@ class PublishingCenterScreen extends ConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         it.type,
@@ -321,20 +376,32 @@ class PublishingCenterScreen extends ConsumerWidget {
                                       ),
                                       Text(
                                         it.id,
-                                        style: const TextStyle(fontSize: 10, color: StudioColors.textSecondaryLight),
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color:
+                                              StudioColors.textSecondaryLight,
+                                        ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
                                     it.title,
-                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                   const SizedBox(height: 6),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 3,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: StudioColors.goldAccent.withValues(alpha: 0.12),
+                                      color: StudioColors.goldAccent.withValues(
+                                        alpha: 0.12,
+                                      ),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
@@ -349,21 +416,34 @@ class PublishingCenterScreen extends ConsumerWidget {
                                   const SizedBox(height: 4),
                                   Text(
                                     it.academicPath,
-                                    style: const TextStyle(fontSize: 10, color: StudioColors.textSecondaryLight),
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      color: StudioColors.textSecondaryLight,
+                                    ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 6),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'Auteur : ${it.author}',
-                                        style: const TextStyle(fontSize: 10, color: StudioColors.textSecondaryLight),
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color:
+                                              StudioColors.textSecondaryLight,
+                                        ),
                                       ),
                                       Text(
                                         'Cible : ${it.audience}',
-                                        style: const TextStyle(fontSize: 10, fontStyle: FontStyle.italic, color: StudioColors.textSecondaryLight),
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontStyle: FontStyle.italic,
+                                          color:
+                                              StudioColors.textSecondaryLight,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -389,7 +469,9 @@ class PublishingCenterScreen extends ConsumerWidget {
     if (approved.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Aucun contenu approuvé à publier dans le filtre actif.'),
+          content: Text(
+            'Aucun contenu approuvé à publier dans le filtre actif.',
+          ),
           backgroundColor: StudioColors.warning,
         ),
       );
@@ -422,7 +504,8 @@ class PublishingCenterScreen extends ConsumerWidget {
     final reason = await ConfirmationDialog.show(
       context,
       title: 'Publication du Lot de Contenus (${approved.length})',
-      message: 'Cette action incrémentera la révision du catalogue et rendra ces contenus immédiatement disponibles aux élèves.',
+      message:
+          'Cette action incrémentera la révision du catalogue et rendra ces contenus immédiatement disponibles aux élèves.',
       confirmLabel: 'Publier le lot',
       requireReason: true,
       reasonLabel: 'Motif de publication officielle',
@@ -434,7 +517,9 @@ class PublishingCenterScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Lot publié avec succès ! Revision catalog mise à jour.'),
+            content: Text(
+              'Lot publié avec succès ! Revision catalog mise à jour.',
+            ),
             backgroundColor: StudioColors.success,
           ),
         );

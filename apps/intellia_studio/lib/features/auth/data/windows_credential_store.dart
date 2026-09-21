@@ -18,45 +18,49 @@ final class _DataBlob extends Struct {
   external Pointer<Uint8> pbData;
 }
 
-typedef _CryptProtectDataC = Int32 Function(
-  Pointer<_DataBlob> pDataIn,
-  Pointer<Utf16> szDataDescr,
-  Pointer<_DataBlob> pOptionalEntropy,
-  Pointer<Void> pvReserved,
-  Pointer<Void> pPromptStruct,
-  Uint32 dwFlags,
-  Pointer<_DataBlob> pDataOut,
-);
+typedef _CryptProtectDataC =
+    Int32 Function(
+      Pointer<_DataBlob> pDataIn,
+      Pointer<Utf16> szDataDescr,
+      Pointer<_DataBlob> pOptionalEntropy,
+      Pointer<Void> pvReserved,
+      Pointer<Void> pPromptStruct,
+      Uint32 dwFlags,
+      Pointer<_DataBlob> pDataOut,
+    );
 
-typedef _CryptProtectDataDart = int Function(
-  Pointer<_DataBlob> pDataIn,
-  Pointer<Utf16> szDataDescr,
-  Pointer<_DataBlob> pOptionalEntropy,
-  Pointer<Void> pvReserved,
-  Pointer<Void> pPromptStruct,
-  int dwFlags,
-  Pointer<_DataBlob> pDataOut,
-);
+typedef _CryptProtectDataDart =
+    int Function(
+      Pointer<_DataBlob> pDataIn,
+      Pointer<Utf16> szDataDescr,
+      Pointer<_DataBlob> pOptionalEntropy,
+      Pointer<Void> pvReserved,
+      Pointer<Void> pPromptStruct,
+      int dwFlags,
+      Pointer<_DataBlob> pDataOut,
+    );
 
-typedef _CryptUnprotectDataC = Int32 Function(
-  Pointer<_DataBlob> pDataIn,
-  Pointer<Pointer<Utf16>> ppszDataDescr,
-  Pointer<_DataBlob> pOptionalEntropy,
-  Pointer<Void> pvReserved,
-  Pointer<Void> pPromptStruct,
-  Uint32 dwFlags,
-  Pointer<_DataBlob> pDataOut,
-);
+typedef _CryptUnprotectDataC =
+    Int32 Function(
+      Pointer<_DataBlob> pDataIn,
+      Pointer<Pointer<Utf16>> ppszDataDescr,
+      Pointer<_DataBlob> pOptionalEntropy,
+      Pointer<Void> pvReserved,
+      Pointer<Void> pPromptStruct,
+      Uint32 dwFlags,
+      Pointer<_DataBlob> pDataOut,
+    );
 
-typedef _CryptUnprotectDataDart = int Function(
-  Pointer<_DataBlob> pDataIn,
-  Pointer<Pointer<Utf16>> ppszDataDescr,
-  Pointer<_DataBlob> pOptionalEntropy,
-  Pointer<Void> pvReserved,
-  Pointer<Void> pPromptStruct,
-  int dwFlags,
-  Pointer<_DataBlob> pDataOut,
-);
+typedef _CryptUnprotectDataDart =
+    int Function(
+      Pointer<_DataBlob> pDataIn,
+      Pointer<Pointer<Utf16>> ppszDataDescr,
+      Pointer<_DataBlob> pOptionalEntropy,
+      Pointer<Void> pvReserved,
+      Pointer<Void> pPromptStruct,
+      int dwFlags,
+      Pointer<_DataBlob> pDataOut,
+    );
 
 typedef _LocalFreeC = Pointer<Void> Function(Pointer<Void> hMem);
 typedef _LocalFreeDart = Pointer<Void> Function(Pointer<Void> hMem);
@@ -68,9 +72,13 @@ class WindowsDpapiHelper {
     final crypt32 = DynamicLibrary.open('Crypt32.dll');
     final kernel32 = DynamicLibrary.open('Kernel32.dll');
 
-    final cryptProtectData =
-        crypt32.lookupFunction<_CryptProtectDataC, _CryptProtectDataDart>('CryptProtectData');
-    final localFree = kernel32.lookupFunction<_LocalFreeC, _LocalFreeDart>('LocalFree');
+    final cryptProtectData = crypt32
+        .lookupFunction<_CryptProtectDataC, _CryptProtectDataDart>(
+          'CryptProtectData',
+        );
+    final localFree = kernel32.lookupFunction<_LocalFreeC, _LocalFreeDart>(
+      'LocalFree',
+    );
 
     final inBlob = calloc<_DataBlob>();
     final outBlob = calloc<_DataBlob>();
@@ -98,7 +106,9 @@ class WindowsDpapiHelper {
         throw Exception('CryptProtectData a échoué.');
       }
 
-      final outBytes = Uint8List.fromList(outBlob.ref.pbData.asTypedList(outBlob.ref.cbData));
+      final outBytes = Uint8List.fromList(
+        outBlob.ref.pbData.asTypedList(outBlob.ref.cbData),
+      );
       localFree(outBlob.ref.pbData.cast());
       return outBytes;
     } finally {
@@ -114,9 +124,13 @@ class WindowsDpapiHelper {
     final crypt32 = DynamicLibrary.open('Crypt32.dll');
     final kernel32 = DynamicLibrary.open('Kernel32.dll');
 
-    final cryptUnprotectData =
-        crypt32.lookupFunction<_CryptUnprotectDataC, _CryptUnprotectDataDart>('CryptUnprotectData');
-    final localFree = kernel32.lookupFunction<_LocalFreeC, _LocalFreeDart>('LocalFree');
+    final cryptUnprotectData = crypt32
+        .lookupFunction<_CryptUnprotectDataC, _CryptUnprotectDataDart>(
+          'CryptUnprotectData',
+        );
+    final localFree = kernel32.lookupFunction<_LocalFreeC, _LocalFreeDart>(
+      'LocalFree',
+    );
 
     final inBlob = calloc<_DataBlob>();
     final outBlob = calloc<_DataBlob>();
@@ -143,7 +157,9 @@ class WindowsDpapiHelper {
         throw Exception('CryptUnprotectData a échoué.');
       }
 
-      final outBytes = Uint8List.fromList(outBlob.ref.pbData.asTypedList(outBlob.ref.cbData));
+      final outBytes = Uint8List.fromList(
+        outBlob.ref.pbData.asTypedList(outBlob.ref.cbData),
+      );
       localFree(outBlob.ref.pbData.cast());
       return outBytes;
     } finally {

@@ -11,15 +11,19 @@ import '../../control_plane/control_plane_client.dart';
 import '../domain/finance_models.dart';
 
 final paymentRequestsProvider =
-    StateNotifierProvider<PaymentRequestsNotifier, AsyncValue<List<StudioPaymentRequest>>>((ref) {
-  final fs = ref.watch(firestoreRestClientProvider);
-  final cp = ref.watch(controlPlaneClientProvider);
-  return PaymentRequestsNotifier(fs, cp);
-});
+    StateNotifierProvider<
+      PaymentRequestsNotifier,
+      AsyncValue<List<StudioPaymentRequest>>
+    >((ref) {
+      final fs = ref.watch(firestoreRestClientProvider);
+      final cp = ref.watch(controlPlaneClientProvider);
+      return PaymentRequestsNotifier(fs, cp);
+    });
 
-class PaymentRequestsNotifier extends StateNotifier<AsyncValue<List<StudioPaymentRequest>>> {
+class PaymentRequestsNotifier
+    extends StateNotifier<AsyncValue<List<StudioPaymentRequest>>> {
   PaymentRequestsNotifier(this._firestore, this._controlPlane)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadPayments();
   }
 
@@ -32,15 +36,24 @@ class PaymentRequestsNotifier extends StateNotifier<AsyncValue<List<StudioPaymen
       // 1. Attempt to fetch via Cloud Function callable
       try {
         final res = await _controlPlane.listMobileMoneyPayments();
-        final list = res.map((m) => StudioPaymentRequest.fromMap(m['id']?.toString() ?? '', m)).toList();
+        final list = res
+            .map(
+              (m) => StudioPaymentRequest.fromMap(m['id']?.toString() ?? '', m),
+            )
+            .toList();
         state = AsyncValue.data(list);
         return;
       } catch (_) {
         // Fallback to bounded Firestore REST read on mobile_money_requests or payments
       }
 
-      final docs = await _firestore.listDocuments('mobile_money_requests', pageSize: 50);
-      final list = docs.map((d) => StudioPaymentRequest.fromFirestore(d)).toList();
+      final docs = await _firestore.listDocuments(
+        'mobile_money_requests',
+        pageSize: 50,
+      );
+      final list = docs
+          .map((d) => StudioPaymentRequest.fromFirestore(d))
+          .toList();
       state = AsyncValue.data(list);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -93,11 +106,16 @@ class PaymentsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Paiements & Mobile Money', style: Theme.of(context).textTheme.headlineMedium),
+                      Text(
+                        'Paiements & Mobile Money',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 4),
                       const Text(
                         'Validation des transferts Orange Money / MTN MoMo via reviewMobileMoneyPayment et réconciliation.',
-                        style: TextStyle(color: StudioColors.textSecondaryLight),
+                        style: TextStyle(
+                          color: StudioColors.textSecondaryLight,
+                        ),
                       ),
                     ],
                   ),
@@ -105,7 +123,8 @@ class PaymentsScreen extends ConsumerWidget {
                 IconButton(
                   tooltip: 'Actualiser la file',
                   icon: const Icon(Icons.refresh_rounded),
-                  onPressed: () => ref.read(paymentRequestsProvider.notifier).loadPayments(),
+                  onPressed: () =>
+                      ref.read(paymentRequestsProvider.notifier).loadPayments(),
                 ),
               ],
             ),
@@ -116,7 +135,9 @@ class PaymentsScreen extends ConsumerWidget {
               labelColor: StudioColors.navyPrimary,
               indicatorColor: StudioColors.goldAccent,
               tabs: [
-                Tab(text: 'File de Revue Mobile Money (reviewMobileMoneyPayment)'),
+                Tab(
+                  text: 'File de Revue Mobile Money (reviewMobileMoneyPayment)',
+                ),
                 Tab(text: 'Audit des Collections Financières Historiques'),
               ],
             ),
@@ -126,18 +147,28 @@ class PaymentsScreen extends ConsumerWidget {
                 children: [
                   // Tab 1: Payment requests review
                   state.when(
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (err, _) => Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.error_outline_rounded, color: StudioColors.error, size: 48),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            color: StudioColors.error,
+                            size: 48,
+                          ),
                           const SizedBox(height: 12),
-                          Text('Erreur chargement file Mobile Money:\n$err',
-                              textAlign: TextAlign.center, style: const TextStyle(color: StudioColors.error)),
+                          Text(
+                            'Erreur chargement file Mobile Money:\n$err',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: StudioColors.error),
+                          ),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: () => ref.read(paymentRequestsProvider.notifier).loadPayments(),
+                            onPressed: () => ref
+                                .read(paymentRequestsProvider.notifier)
+                                .loadPayments(),
                             child: const Text('Réessayer'),
                           ),
                         ],
@@ -149,11 +180,17 @@ class PaymentsScreen extends ConsumerWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.check_circle_outline_rounded, size: 48, color: StudioColors.success),
+                              const Icon(
+                                Icons.check_circle_outline_rounded,
+                                size: 48,
+                                color: StudioColors.success,
+                              ),
                               const SizedBox(height: 12),
                               const Text(
                                 'Aucune demande Mobile Money en attente de validation.',
-                                style: TextStyle(color: StudioColors.textSecondaryLight),
+                                style: TextStyle(
+                                  color: StudioColors.textSecondaryLight,
+                                ),
                               ),
                             ],
                           ),
@@ -174,9 +211,19 @@ class PaymentsScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text(r.parentName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                Text(r.phoneNumber,
-                                    style: const TextStyle(fontSize: 11, color: StudioColors.textSecondaryLight)),
+                                Text(
+                                  r.parentName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  r.phoneNumber,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: StudioColors.textSecondaryLight,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -184,7 +231,9 @@ class PaymentsScreen extends ConsumerWidget {
                             header: 'Opérateur',
                             flex: 2,
                             cellBuilder: (r) => StudioBadge(
-                              label: r.operator == PaymentOperator.orangeMoney ? 'ORANGE MONEY' : 'MTN MOMO',
+                              label: r.operator == PaymentOperator.orangeMoney
+                                  ? 'ORANGE MONEY'
+                                  : 'MTN MOMO',
                               variant: r.operator == PaymentOperator.orangeMoney
                                   ? StudioBadgeVariant.warning
                                   : StudioBadgeVariant.info,
@@ -193,15 +242,23 @@ class PaymentsScreen extends ConsumerWidget {
                           StudioTableColumn(
                             header: 'Référence TX',
                             flex: 2,
-                            cellBuilder: (r) => Text(r.reference,
-                                style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w600)),
+                            cellBuilder: (r) => Text(
+                              r.reference,
+                              style: const TextStyle(
+                                fontFamily: 'monospace',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                           StudioTableColumn(
                             header: 'Montant',
                             flex: 2,
                             cellBuilder: (r) => Text(
                               r.formattedAmount,
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: StudioColors.navyPrimary),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: StudioColors.navyPrimary,
+                              ),
                             ),
                           ),
                           StudioTableColumn(
@@ -212,29 +269,44 @@ class PaymentsScreen extends ConsumerWidget {
                               variant: r.status == PaymentRequestStatus.approved
                                   ? StudioBadgeVariant.success
                                   : r.status == PaymentRequestStatus.pending
-                                      ? StudioBadgeVariant.warning
-                                      : StudioBadgeVariant.error,
+                                  ? StudioBadgeVariant.warning
+                                  : StudioBadgeVariant.error,
                             ),
                           ),
                           StudioTableColumn(
                             header: 'Actions',
                             flex: 2,
-                            cellBuilder: (r) => r.status == PaymentRequestStatus.pending
+                            cellBuilder: (r) =>
+                                r.status == PaymentRequestStatus.pending
                                 ? Row(
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Icons.check_circle_outline, color: StudioColors.success),
-                                        tooltip: 'Approuver (reviewMobileMoneyPayment)',
-                                        onPressed: () => _confirmApproval(context, ref, r),
+                                        icon: const Icon(
+                                          Icons.check_circle_outline,
+                                          color: StudioColors.success,
+                                        ),
+                                        tooltip:
+                                            'Approuver (reviewMobileMoneyPayment)',
+                                        onPressed: () =>
+                                            _confirmApproval(context, ref, r),
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.cancel_outlined, color: StudioColors.error),
+                                        icon: const Icon(
+                                          Icons.cancel_outlined,
+                                          color: StudioColors.error,
+                                        ),
                                         tooltip: 'Rejeter',
-                                        onPressed: () => _confirmRejection(context, ref, r),
+                                        onPressed: () =>
+                                            _confirmRejection(context, ref, r),
                                       ),
                                     ],
                                   )
-                                : const Text('Traité', style: TextStyle(color: StudioColors.textSecondaryLight)),
+                                : const Text(
+                                    'Traité',
+                                    style: TextStyle(
+                                      color: StudioColors.textSecondaryLight,
+                                    ),
+                                  ),
                           ),
                         ],
                       );
@@ -252,16 +324,25 @@ class PaymentsScreen extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: StudioColors.info.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: StudioColors.info.withValues(alpha: 0.3)),
+                            border: Border.all(
+                              color: StudioColors.info.withValues(alpha: 0.3),
+                            ),
                           ),
                           child: const Row(
                             children: [
-                              Icon(Icons.history_rounded, color: StudioColors.navyPrimary, size: 20),
+                              Icon(
+                                Icons.history_rounded,
+                                color: StudioColors.navyPrimary,
+                                size: 20,
+                              ),
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'Classification financière : les collections Credit, payments, subscriptions, tokenBalances et transactions sont issues d\'itérations antérieures du produit. Elles sont consultables en lecture seule à des fins de réconciliation.',
-                                  style: TextStyle(fontSize: 12, color: StudioColors.navyPrimary),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: StudioColors.navyPrimary,
+                                  ),
                                 ),
                               ),
                             ],
@@ -274,36 +355,61 @@ class PaymentsScreen extends ConsumerWidget {
                               ListTile(
                                 leading: Icon(Icons.folder_outlined),
                                 title: Text('Credit'),
-                                subtitle: Text('Statut: LEGACY / HISTORIQUE — Soldes accordés par l\'ancienne logique de jetons'),
-                                trailing: StudioBadge(label: 'LECTURE SEULE', variant: StudioBadgeVariant.neutral),
+                                subtitle: Text(
+                                  'Statut: LEGACY / HISTORIQUE — Soldes accordés par l\'ancienne logique de jetons',
+                                ),
+                                trailing: StudioBadge(
+                                  label: 'LECTURE SEULE',
+                                  variant: StudioBadgeVariant.neutral,
+                                ),
                               ),
                               Divider(),
                               ListTile(
                                 leading: Icon(Icons.folder_outlined),
                                 title: Text('payments'),
-                                subtitle: Text('Statut: HISTORIQUE — Transactions et reçus de paiement antérieurs'),
-                                trailing: StudioBadge(label: 'LECTURE SEULE', variant: StudioBadgeVariant.neutral),
+                                subtitle: Text(
+                                  'Statut: HISTORIQUE — Transactions et reçus de paiement antérieurs',
+                                ),
+                                trailing: StudioBadge(
+                                  label: 'LECTURE SEULE',
+                                  variant: StudioBadgeVariant.neutral,
+                                ),
                               ),
                               Divider(),
                               ListTile(
                                 leading: Icon(Icons.folder_outlined),
                                 title: Text('subscriptions'),
-                                subtitle: Text('Statut: MIGRÉ VERS ENTITLEMENTS — Souscriptions préexistantes'),
-                                trailing: StudioBadge(label: 'ARCHIVÉ', variant: StudioBadgeVariant.neutral),
+                                subtitle: Text(
+                                  'Statut: MIGRÉ VERS ENTITLEMENTS — Souscriptions préexistantes',
+                                ),
+                                trailing: StudioBadge(
+                                  label: 'ARCHIVÉ',
+                                  variant: StudioBadgeVariant.neutral,
+                                ),
                               ),
                               Divider(),
                               ListTile(
                                 leading: Icon(Icons.folder_outlined),
                                 title: Text('tokenBalances'),
-                                subtitle: Text('Statut: DÉPRÉCIÉ — Précédent système d\'unités d\'IA'),
-                                trailing: StudioBadge(label: 'DÉPRÉCIÉ', variant: StudioBadgeVariant.neutral),
+                                subtitle: Text(
+                                  'Statut: DÉPRÉCIÉ — Précédent système d\'unités d\'IA',
+                                ),
+                                trailing: StudioBadge(
+                                  label: 'DÉPRÉCIÉ',
+                                  variant: StudioBadgeVariant.neutral,
+                                ),
                               ),
                               Divider(),
                               ListTile(
                                 leading: Icon(Icons.folder_outlined),
                                 title: Text('transactions'),
-                                subtitle: Text('Statut: JOURNAL HISTORIQUE — Relevé de tous les flux entrants/sortants'),
-                                trailing: StudioBadge(label: 'AUDITABLE', variant: StudioBadgeVariant.neutral),
+                                subtitle: Text(
+                                  'Statut: JOURNAL HISTORIQUE — Relevé de tous les flux entrants/sortants',
+                                ),
+                                trailing: StudioBadge(
+                                  label: 'AUDITABLE',
+                                  variant: StudioBadgeVariant.neutral,
+                                ),
                               ),
                             ],
                           ),
@@ -320,7 +426,11 @@ class PaymentsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmApproval(BuildContext context, WidgetRef ref, StudioPaymentRequest req) async {
+  Future<void> _confirmApproval(
+    BuildContext context,
+    WidgetRef ref,
+    StudioPaymentRequest req,
+  ) async {
     final confirmed = await ConfirmationDialog.show(
       context,
       title: 'Validation de paiement Mobile Money',
@@ -333,24 +443,34 @@ class PaymentsScreen extends ConsumerWidget {
         await ref.read(paymentRequestsProvider.notifier).approve(req.id);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Paiement ${req.reference} approuvé avec succès.')),
+            SnackBar(
+              content: Text('Paiement ${req.reference} approuvé avec succès.'),
+            ),
           );
         }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Échec: $e'), backgroundColor: StudioColors.error),
+            SnackBar(
+              content: Text('Échec: $e'),
+              backgroundColor: StudioColors.error,
+            ),
           );
         }
       }
     }
   }
 
-  Future<void> _confirmRejection(BuildContext context, WidgetRef ref, StudioPaymentRequest req) async {
+  Future<void> _confirmRejection(
+    BuildContext context,
+    WidgetRef ref,
+    StudioPaymentRequest req,
+  ) async {
     final reason = await ConfirmationDialog.show(
       context,
       title: 'Rejet de la demande de paiement',
-      message: 'Veuillez saisir le motif du rejet pour ${req.parentName} (${req.reference}).',
+      message:
+          'Veuillez saisir le motif du rejet pour ${req.parentName} (${req.reference}).',
       requireReason: true,
       reasonLabel: 'Motif du rejet (transmis au parent)',
       confirmLabel: 'Rejeter',
@@ -358,16 +478,21 @@ class PaymentsScreen extends ConsumerWidget {
     );
     if (reason != null && reason.trim().isNotEmpty) {
       try {
-        await ref.read(paymentRequestsProvider.notifier).reject(req.id, reason.trim());
+        await ref
+            .read(paymentRequestsProvider.notifier)
+            .reject(req.id, reason.trim());
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Demande rejetée: $reason')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Demande rejetée: $reason')));
         }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Échec: $e'), backgroundColor: StudioColors.error),
+            SnackBar(
+              content: Text('Échec: $e'),
+              backgroundColor: StudioColors.error,
+            ),
           );
         }
       }

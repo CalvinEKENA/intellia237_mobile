@@ -10,15 +10,17 @@ import '../../auth/application/auth_controller.dart';
 import '../domain/user_directory_models.dart';
 
 final parentsProvider =
-    StateNotifierProvider<ParentsNotifier, AsyncValue<List<DirectoryUser>>>((ref) {
-  final fs = ref.watch(firestoreRestClientProvider);
-  final session = ref.watch(authSessionProvider).asData?.value;
-  return ParentsNotifier(fs, session);
-});
+    StateNotifierProvider<ParentsNotifier, AsyncValue<List<DirectoryUser>>>((
+      ref,
+    ) {
+      final fs = ref.watch(firestoreRestClientProvider);
+      final session = ref.watch(authSessionProvider).asData?.value;
+      return ParentsNotifier(fs, session);
+    });
 
 class ParentsNotifier extends StateNotifier<AsyncValue<List<DirectoryUser>>> {
   ParentsNotifier(this._firestore, this._session)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadParents();
   }
 
@@ -40,7 +42,7 @@ class ParentsNotifier extends StateNotifier<AsyncValue<List<DirectoryUser>>> {
               'field': {'fieldPath': 'role'},
               'op': 'EQUAL',
               'value': {'stringValue': 'parent'},
-            }
+            },
           },
           limit: 100,
         );
@@ -60,17 +62,17 @@ class ParentsNotifier extends StateNotifier<AsyncValue<List<DirectoryUser>>> {
                     'field': {'fieldPath': 'role'},
                     'op': 'EQUAL',
                     'value': {'stringValue': 'student'},
-                  }
+                  },
                 },
                 {
                   'fieldFilter': {
                     'field': {'fieldPath': 'establishmentId'},
                     'op': 'EQUAL',
                     'value': {'stringValue': establishmentId},
-                  }
-                }
-              ]
-            }
+                  },
+                },
+              ],
+            },
           },
           limit: 50,
         );
@@ -82,7 +84,10 @@ class ParentsNotifier extends StateNotifier<AsyncValue<List<DirectoryUser>>> {
         }
 
         // 2. Fetch children_links for these students
-        final links = await _firestore.listDocuments('children_links', pageSize: 100);
+        final links = await _firestore.listDocuments(
+          'children_links',
+          pageSize: 100,
+        );
         final relevantParentIds = <String>{};
         for (final l in links) {
           final sId = l['studentId'] as String? ?? '';
@@ -139,7 +144,8 @@ class ParentsScreen extends ConsumerWidget {
               IconButton(
                 tooltip: 'Actualiser',
                 icon: const Icon(Icons.refresh_rounded),
-                onPressed: () => ref.read(parentsProvider.notifier).loadParents(),
+                onPressed: () =>
+                    ref.read(parentsProvider.notifier).loadParents(),
               ),
             ],
           ),
@@ -151,7 +157,11 @@ class ParentsScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: StudioColors.error, size: 48),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: StudioColors.error,
+                      size: 48,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       'Erreur lors du chargement des parents:\n$err',
@@ -160,7 +170,8 @@ class ParentsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => ref.read(parentsProvider.notifier).loadParents(),
+                      onPressed: () =>
+                          ref.read(parentsProvider.notifier).loadParents(),
                       child: const Text('Réessayer'),
                     ),
                   ],
@@ -169,7 +180,8 @@ class ParentsScreen extends ConsumerWidget {
               data: (list) {
                 return StudioDataTable<DirectoryUser>(
                   items: list,
-                  searchHint: 'Rechercher un parent par nom, téléphone ou email...',
+                  searchHint:
+                      'Rechercher un parent par nom, téléphone ou email...',
                   filterPredicate: (u, q) =>
                       u.fullName.toLowerCase().contains(q) ||
                       u.phone.contains(q) ||
@@ -199,12 +211,14 @@ class ParentsScreen extends ConsumerWidget {
                     StudioTableColumn(
                       header: 'Téléphone',
                       flex: 2,
-                      cellBuilder: (u) => Text(u.phone.isNotEmpty ? u.phone : '—'),
+                      cellBuilder: (u) =>
+                          Text(u.phone.isNotEmpty ? u.phone : '—'),
                     ),
                     StudioTableColumn(
                       header: 'E-mail',
                       flex: 2,
-                      cellBuilder: (u) => Text(u.email.isNotEmpty ? u.email : '—'),
+                      cellBuilder: (u) =>
+                          Text(u.email.isNotEmpty ? u.email : '—'),
                     ),
                     StudioTableColumn(
                       header: 'Statut Compte',

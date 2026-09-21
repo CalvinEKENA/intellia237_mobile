@@ -111,9 +111,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           // 09 Parent Detail
           GoRoute(
             path: '/parents/:id',
-            builder: (context, state) => ParentDetailScreen(
-              parentId: state.pathParameters['id'] ?? '',
-            ),
+            builder: (context, state) =>
+                ParentDetailScreen(parentId: state.pathParameters['id'] ?? ''),
           ),
           // 10 Teachers
           GoRoute(

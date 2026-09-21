@@ -9,14 +9,7 @@ enum FlowCardType {
   interactiveNative,
 }
 
-enum FlowStatus {
-  draft,
-  inReview,
-  approved,
-  scheduled,
-  published,
-  archived,
-}
+enum FlowStatus { draft, inReview, approved, scheduled, published, archived }
 
 class StudioFlowItem {
   final String id;
@@ -58,10 +51,13 @@ class StudioFlowItem {
   /// Strict server-parity validator matching saveFlowPublicationCallable.ts
   static String? validateForPublication(StudioFlowItem item) {
     if (item.title.trim().isEmpty) return 'Le titre est obligatoire.';
-    if (item.classLevels.isEmpty) return 'Au moins un niveau académique est requis.';
+    if (item.classLevels.isEmpty)
+      return 'Au moins un niveau académique est requis.';
     if (item.subjectId.trim().isEmpty) return 'La matière est obligatoire.';
 
-    final publishing = item.status == FlowStatus.published || item.status == FlowStatus.scheduled;
+    final publishing =
+        item.status == FlowStatus.published ||
+        item.status == FlowStatus.scheduled;
     if (!publishing) return null; // Drafts don't require full payload
 
     final p = item.payload;
@@ -70,9 +66,13 @@ class StudioFlowItem {
         final q = p['question'] as String?;
         final options = p['options'] as List?;
         final correctIndex = p['correctIndex'] as int?;
-        if (q == null || q.trim().isEmpty) return 'La question du quiz est requise.';
-        if (options == null || options.length < 2) return 'Le quiz doit avoir au moins 2 options.';
-        if (correctIndex == null || correctIndex < 0 || correctIndex >= options.length) {
+        if (q == null || q.trim().isEmpty)
+          return 'La question du quiz est requise.';
+        if (options == null || options.length < 2)
+          return 'Le quiz doit avoir au moins 2 options.';
+        if (correctIndex == null ||
+            correctIndex < 0 ||
+            correctIndex >= options.length) {
           return 'Index de réponse correcte invalide.';
         }
         break;
@@ -87,7 +87,8 @@ class StudioFlowItem {
       case FlowCardType.infographic:
         final insight = p['insight'] as String?;
         final points = p['points'] as List?;
-        if ((insight == null || insight.trim().isEmpty) && (points == null || points.isEmpty)) {
+        if ((insight == null || insight.trim().isEmpty) &&
+            (points == null || points.isEmpty)) {
           return 'Au moins un point-clé ou une synthèse est requise.';
         }
         break;
@@ -100,7 +101,8 @@ class StudioFlowItem {
       case FlowCardType.interactiveNative:
         final comp = p['componentKey'] as String?;
         final summary = p['summary'] as String?;
-        if (comp == null || summary == null) return 'Composant interactif incomplet.';
+        if (comp == null || summary == null)
+          return 'Composant interactif incomplet.';
         break;
       default:
         final storage = item.ref['storagePath'] as String?;

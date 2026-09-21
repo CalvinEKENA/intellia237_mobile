@@ -113,7 +113,8 @@ class SchoolClassModel {
       id: doc.id,
       establishmentId: doc['establishmentId'] as String? ?? '',
       name: doc['name'] as String? ?? doc.id,
-      levelLabel: doc['levelLabel'] as String? ?? doc['classLevel'] as String? ?? '',
+      levelLabel:
+          doc['levelLabel'] as String? ?? doc['classLevel'] as String? ?? '',
       series: doc['series'] as String?,
       studentCount: (doc['studentCount'] as num?)?.toInt() ?? 0,
       teacherCount: (doc['teacherCount'] as num?)?.toInt() ?? 0,

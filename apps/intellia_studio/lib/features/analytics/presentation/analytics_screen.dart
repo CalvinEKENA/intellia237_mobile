@@ -13,7 +13,10 @@ class AnalyticsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Analytique Opérationnelle & Pédagogique', style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            'Analytique Opérationnelle & Pédagogique',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 4),
           const Text(
             'Indicateurs d\'apprentissage, assiduité, complétion des leçons et efficacité des tuteurs.',
@@ -22,13 +25,25 @@ class AnalyticsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
           Row(
             children: [
-              _buildMetric('Utilisateurs Actifs Quotidiens (DAU)', '18 420', '+12% ce mois'),
+              _buildMetric(
+                'Utilisateurs Actifs Quotidiens (DAU)',
+                '18 420',
+                '+12% ce mois',
+              ),
               const SizedBox(width: 16),
               _buildMetric('Leçons Complétées', '94 210', '98% satisfaction'),
               const SizedBox(width: 16),
-              _buildMetric('Questions Tuteur IA Résolues', '142 800', 'Temps moyen 820ms'),
+              _buildMetric(
+                'Questions Tuteur IA Résolues',
+                '142 800',
+                'Temps moyen 820ms',
+              ),
               const SizedBox(width: 16),
-              _buildMetric('Score Moyen aux Quiz', '15.4 / 20', 'Progression constante'),
+              _buildMetric(
+                'Score Moyen aux Quiz',
+                '15.4 / 20',
+                'Progression constante',
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -43,11 +58,24 @@ class AnalyticsScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.insights_rounded, size: 48, color: StudioColors.navyPrimary),
+                    Icon(
+                      Icons.insights_rounded,
+                      size: 48,
+                      color: StudioColors.navyPrimary,
+                    ),
                     SizedBox(height: 12),
-                    Text('Tableaux de bord analytiques en temps réel', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      'Tableaux de bord analytiques en temps réel',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     SizedBox(height: 4),
-                    Text('Données agrégées depuis BigQuery et Firebase Analytics.', style: TextStyle(color: StudioColors.textSecondaryLight)),
+                    Text(
+                      'Données agrégées depuis BigQuery et Firebase Analytics.',
+                      style: TextStyle(color: StudioColors.textSecondaryLight),
+                    ),
                   ],
                 ),
               ),
@@ -71,11 +99,30 @@ class AnalyticsScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontSize: 12, color: StudioColors.textSecondaryLight)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: StudioColors.textSecondaryLight,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: StudioColors.navyPrimary)),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: StudioColors.navyPrimary,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(subtitle, style: const TextStyle(fontSize: 11, color: StudioColors.success)),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: StudioColors.success,
+                ),
+              ),
             ],
           ),
         ),

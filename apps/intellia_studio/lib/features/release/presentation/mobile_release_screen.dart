@@ -20,7 +20,10 @@ class MobileReleaseScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Publication & Versions Mobile', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Publication & Versions Mobile',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
                       'Visibilité des versions mobiles, politique de mise à jour forcée et statut des magasins.',
@@ -29,7 +32,10 @@ class MobileReleaseScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              const StudioBadge(label: 'VERSION MOBILE 3.2.1+28', variant: StudioBadgeVariant.info),
+              const StudioBadge(
+                label: 'VERSION MOBILE 3.2.1+28',
+                variant: StudioBadgeVariant.info,
+              ),
             ],
           ),
           const SizedBox(height: 20),
@@ -51,7 +57,11 @@ class MobileReleaseScreen extends ConsumerWidget {
                     children: [
                       Text(
                         'Statut Google Play Console : Intégration non configurée',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.amber),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.amber,
+                        ),
                       ),
                       SizedBox(height: 4),
                       Text(
@@ -83,24 +93,49 @@ class MobileReleaseScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Version Mobile Actuelle', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(
+                            'Version Mobile Actuelle',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
                           SizedBox(height: 16),
                           ListTile(
-                            leading: Icon(Icons.android, color: StudioColors.success),
+                            leading: Icon(
+                              Icons.android,
+                              color: StudioColors.success,
+                            ),
                             title: Text('Version Publiée : 3.2.1 (Build 28)'),
-                            subtitle: Text('Cible Android 15 (API 35) • Compilation Flutter 3.29'),
+                            subtitle: Text(
+                              'Cible Android 15 (API 35) • Compilation Flutter 3.29',
+                            ),
                           ),
                           Divider(),
                           ListTile(
-                            leading: Icon(Icons.security_update_warning, color: StudioColors.warning),
-                            title: Text('Version Minimale Requise : 3.0.0 (Build 22)'),
-                            subtitle: Text('Les versions antérieures affichent l\'écran de mise à jour obligatoire.'),
+                            leading: Icon(
+                              Icons.security_update_warning,
+                              color: StudioColors.warning,
+                            ),
+                            title: Text(
+                              'Version Minimale Requise : 3.0.0 (Build 22)',
+                            ),
+                            subtitle: Text(
+                              'Les versions antérieures affichent l\'écran de mise à jour obligatoire.',
+                            ),
                           ),
                           Divider(),
                           ListTile(
-                            leading: Icon(Icons.update, color: StudioColors.navyPrimary),
-                            title: Text('Mise à jour forcée (Force Update) : DÉSACTIVÉE'),
-                            subtitle: Text('Activée uniquement en cas d\'incompatibilité majeure d\'API.'),
+                            leading: Icon(
+                              Icons.update,
+                              color: StudioColors.navyPrimary,
+                            ),
+                            title: Text(
+                              'Mise à jour forcée (Force Update) : DÉSACTIVÉE',
+                            ),
+                            subtitle: Text(
+                              'Activée uniquement en cas d\'incompatibilité majeure d\'API.',
+                            ),
                           ),
                         ],
                       ),
@@ -120,7 +155,10 @@ class MobileReleaseScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Notes de Version (Changelog v3.2.1)', style: Theme.of(context).textTheme.titleMedium),
+                          Text(
+                            'Notes de Version (Changelog v3.2.1)',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                           const SizedBox(height: 12),
                           const Expanded(
                             child: SingleChildScrollView(

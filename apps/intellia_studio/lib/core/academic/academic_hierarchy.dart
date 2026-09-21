@@ -5,14 +5,14 @@ enum StudioEducationSystem {
   anglophone;
 
   String get label => switch (this) {
-        StudioEducationSystem.francophone => 'Système Francophone',
-        StudioEducationSystem.anglophone => 'Anglophone Subsystem',
-      };
+    StudioEducationSystem.francophone => 'Système Francophone',
+    StudioEducationSystem.anglophone => 'Anglophone Subsystem',
+  };
 
   String get shortLabel => switch (this) {
-        StudioEducationSystem.francophone => 'Francophone',
-        StudioEducationSystem.anglophone => 'Anglophone',
-      };
+    StudioEducationSystem.francophone => 'Francophone',
+    StudioEducationSystem.anglophone => 'Anglophone',
+  };
 }
 
 @immutable
@@ -202,17 +202,21 @@ class AcademicHierarchy {
     ),
   ];
 
-  static List<CanonicalClassLevel> classesForSystem(StudioEducationSystem system) {
+  static List<CanonicalClassLevel> classesForSystem(
+    StudioEducationSystem system,
+  ) {
     return switch (system) {
-      StudioEducationSystem.francophone => List.unmodifiable(francophoneClasses),
+      StudioEducationSystem.francophone => List.unmodifiable(
+        francophoneClasses,
+      ),
       StudioEducationSystem.anglophone => List.unmodifiable(anglophoneClasses),
     };
   }
 
   static List<CanonicalClassLevel> get allClasses => [
-        ...francophoneClasses,
-        ...anglophoneClasses,
-      ];
+    ...francophoneClasses,
+    ...anglophoneClasses,
+  ];
 
   /// Resolves any raw string representation to a CanonicalClassLevel
   static CanonicalClassLevel? resolveClass(String? raw) {
@@ -269,7 +273,8 @@ class AcademicHierarchy {
     CanonicalClassLevel? classLevel,
     String? series,
   }) {
-    final effectiveSystem = system ?? classLevel?.system ?? StudioEducationSystem.francophone;
+    final effectiveSystem =
+        system ?? classLevel?.system ?? StudioEducationSystem.francophone;
 
     // If no class selected yet, return all subjects valid for the education system
     if (classLevel == null) {
@@ -284,7 +289,9 @@ class AcademicHierarchy {
     if (effectiveSystem == StudioEducationSystem.francophone) {
       // Francophone Cameroon MINESEC Rules:
       return CanonicalSubject.standardCatalog.where((subject) {
-        if (!subject.applicableSystems.contains(StudioEducationSystem.francophone)) {
+        if (!subject.applicableSystems.contains(
+          StudioEducationSystem.francophone,
+        )) {
           return false;
         }
 
@@ -302,7 +309,8 @@ class AcademicHierarchy {
 
           case 'economie':
             // Rule: Economics is not in general secondary first cycle
-            return order >= 50 && (normSeries == null || normSeries == 'A' || normSeries == 'TI');
+            return order >= 50 &&
+                (normSeries == null || normSeries == 'A' || normSeries == 'TI');
 
           case 'svt':
             // SVTEEHB is in all classes except specialized technical series
@@ -325,7 +333,9 @@ class AcademicHierarchy {
     } else {
       // Anglophone Subsystem Rules:
       return CanonicalSubject.standardCatalog.where((subject) {
-        if (!subject.applicableSystems.contains(StudioEducationSystem.anglophone)) {
+        if (!subject.applicableSystems.contains(
+          StudioEducationSystem.anglophone,
+        )) {
           return false;
         }
 
@@ -377,7 +387,9 @@ class AcademicHierarchy {
     );
     final clean = _normalize(idOrName);
     for (final s in valid) {
-      if (s.id == idOrName || _normalize(s.id) == clean || _normalize(s.name) == clean) {
+      if (s.id == idOrName ||
+          _normalize(s.id) == clean ||
+          _normalize(s.name) == clean) {
         return s;
       }
     }
@@ -413,14 +425,38 @@ class CanonicalSubject {
 
   static const List<CanonicalSubject> standardCatalog = [
     CanonicalSubject(id: 'maths', name: 'Mathématiques', iconName: 'calculate'),
-    CanonicalSubject(id: 'physique', name: 'Physique-Chimie', iconName: 'science'),
+    CanonicalSubject(
+      id: 'physique',
+      name: 'Physique-Chimie',
+      iconName: 'science',
+    ),
     CanonicalSubject(id: 'svt', name: 'SVT', iconName: 'biotech'),
-    CanonicalSubject(id: 'informatique', name: 'Informatique & TI', iconName: 'computer'),
-    CanonicalSubject(id: 'francais', name: 'Français & Littérature', iconName: 'menu_book'),
+    CanonicalSubject(
+      id: 'informatique',
+      name: 'Informatique & TI',
+      iconName: 'computer',
+    ),
+    CanonicalSubject(
+      id: 'francais',
+      name: 'Français & Littérature',
+      iconName: 'menu_book',
+    ),
     CanonicalSubject(id: 'anglais', name: 'Anglais', iconName: 'language'),
-    CanonicalSubject(id: 'histoire_geo', name: 'Histoire & Géographie', iconName: 'public'),
-    CanonicalSubject(id: 'philosophie', name: 'Philosophie', iconName: 'psychology'),
-    CanonicalSubject(id: 'ecm', name: 'Éducation Civique (ECM)', iconName: 'policy'),
+    CanonicalSubject(
+      id: 'histoire_geo',
+      name: 'Histoire & Géographie',
+      iconName: 'public',
+    ),
+    CanonicalSubject(
+      id: 'philosophie',
+      name: 'Philosophie',
+      iconName: 'psychology',
+    ),
+    CanonicalSubject(
+      id: 'ecm',
+      name: 'Éducation Civique (ECM)',
+      iconName: 'policy',
+    ),
     CanonicalSubject(id: 'economie', name: 'Économie', iconName: 'trending_up'),
   ];
 }

@@ -67,7 +67,9 @@ class RealControlPlaneApi implements ControlPlaneApi {
     final classLevel = lesson['classLevel'] as String? ?? 'terminale';
     final subjectId = lesson['subjectId'] as String? ?? 'general';
     final chapterId = lesson['chapterId'] as String? ?? 'general';
-    final publish = lesson['status'] == 'published' || (lesson['publish'] as bool? ?? false);
+    final publish =
+        lesson['status'] == 'published' ||
+        (lesson['publish'] as bool? ?? false);
 
     return controlPlaneClient.saveLessonPublication(
       classLevel: classLevel,
@@ -108,13 +110,17 @@ class RealControlPlaneApi implements ControlPlaneApi {
 
   @override
   Future<String> ensureStudentLinkCode({required String studentId}) async {
-    final res = await controlPlaneClient.ensureStudentLinkCode(studentId: studentId);
+    final res = await controlPlaneClient.ensureStudentLinkCode(
+      studentId: studentId,
+    );
     return res['linkCode'] as String? ?? res['code'] as String? ?? '';
   }
 
   @override
   Future<String> rotateStudentLinkCode({required String studentId}) async {
-    final res = await controlPlaneClient.rotateStudentLinkCode(studentId: studentId);
+    final res = await controlPlaneClient.rotateStudentLinkCode(
+      studentId: studentId,
+    );
     return res['linkCode'] as String? ?? res['code'] as String? ?? '';
   }
 
@@ -135,7 +141,12 @@ class RealControlPlaneApi implements ControlPlaneApi {
           previousStatus: d['previousStatus'] as String? ?? '',
           status: d['status'] as String? ?? '',
           reason: d['reason'] as String? ?? 'Action de gestion',
-          createdAt: d.createTime ?? (d['createdAt'] is String ? DateTime.tryParse(d['createdAt'] as String) ?? DateTime.now() : DateTime.now()),
+          createdAt:
+              d.createTime ??
+              (d['createdAt'] is String
+                  ? DateTime.tryParse(d['createdAt'] as String) ??
+                        DateTime.now()
+                  : DateTime.now()),
         );
       }).toList();
     } catch (_) {

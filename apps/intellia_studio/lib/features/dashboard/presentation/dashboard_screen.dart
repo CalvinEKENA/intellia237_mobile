@@ -16,7 +16,7 @@ final dashboardKpiProvider = FutureProvider<Map<String, int?>>((ref) async {
           'field': {'fieldPath': 'role'},
           'op': 'EQUAL',
           'value': {'stringValue': 'student'},
-        }
+        },
       },
     );
     final parents = await fsClient.runAggregationCount(
@@ -26,7 +26,7 @@ final dashboardKpiProvider = FutureProvider<Map<String, int?>>((ref) async {
           'field': {'fieldPath': 'role'},
           'op': 'EQUAL',
           'value': {'stringValue': 'parent'},
-        }
+        },
       },
     );
     final teachers = await fsClient.runAggregationCount(
@@ -36,7 +36,7 @@ final dashboardKpiProvider = FutureProvider<Map<String, int?>>((ref) async {
           'field': {'fieldPath': 'role'},
           'op': 'EQUAL',
           'value': {'stringValue': 'teacher'},
-        }
+        },
       },
     );
     return {
@@ -188,7 +188,10 @@ class DashboardScreen extends ConsumerWidget {
                             'Validation manuelle via le module Finances & MoMo (/payments)',
                         color: StudioColors.warning,
                       ),
-                      const Divider(height: 16, color: StudioColors.borderLight),
+                      const Divider(
+                        height: 16,
+                        color: StudioColors.borderLight,
+                      ),
                       _buildAlertTile(
                         icon: Icons.how_to_reg_rounded,
                         title: 'File Enseignants en Attente',
@@ -196,7 +199,10 @@ class DashboardScreen extends ConsumerWidget {
                             'Revue et affectation d\'établissement via le module Enseignants (/teachers)',
                         color: StudioColors.info,
                       ),
-                      const Divider(height: 16, color: StudioColors.borderLight),
+                      const Divider(
+                        height: 16,
+                        color: StudioColors.borderLight,
+                      ),
                       _buildAlertTile(
                         icon: Icons.hourglass_empty_rounded,
                         title: 'Surveillance Réserve d\'Étude',

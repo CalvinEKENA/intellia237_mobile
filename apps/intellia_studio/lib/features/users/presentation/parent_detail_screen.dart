@@ -9,71 +9,77 @@ import '../domain/user_directory_models.dart';
 
 final parentDetailFamilyProvider =
     FutureProvider.family<Map<String, dynamic>, String>((ref, parentId) async {
-  final fs = ref.watch(firestoreRestClientProvider);
-  final session = ref.watch(authSessionProvider).asData?.value;
-  final isSuperAdmin = session?.isSuperAdmin ?? false;
-  final adminEstablishmentId = session?.establishmentId ?? '';
+      final fs = ref.watch(firestoreRestClientProvider);
+      final session = ref.watch(authSessionProvider).asData?.value;
+      final isSuperAdmin = session?.isSuperAdmin ?? false;
+      final adminEstablishmentId = session?.establishmentId ?? '';
 
-  // 1. Load Parent Doc
-  final parentDoc = await fs.getDocument('users/$parentId');
-  if (parentDoc == null) {
-    throw Exception('Parent introuvable.');
-  }
-  final parentUser = DirectoryUser.fromFirestore(parentDoc);
-
-  // 2. Query children_links for this parent
-  final linksDocs = await fs.runQuery(
-    fromCollection: 'children_links',
-    whereFilter: {
-      'fieldFilter': {
-        'field': {'fieldPath': 'parentId'},
-        'op': 'EQUAL',
-        'value': {'stringValue': parentId},
+      // 1. Load Parent Doc
+      final parentDoc = await fs.getDocument('users/$parentId');
+      if (parentDoc == null) {
+        throw Exception('Parent introuvable.');
       }
-    },
-    limit: 50,
-  );
+      final parentUser = DirectoryUser.fromFirestore(parentDoc);
 
-  // 3. For each link, load student doc
-  final allChildren = <Map<String, dynamic>>[];
-  int hiddenCount = 0;
+      // 2. Query children_links for this parent
+      final linksDocs = await fs.runQuery(
+        fromCollection: 'children_links',
+        whereFilter: {
+          'fieldFilter': {
+            'field': {'fieldPath': 'parentId'},
+            'op': 'EQUAL',
+            'value': {'stringValue': parentId},
+          },
+        },
+        limit: 50,
+      );
 
-  for (final l in linksDocs) {
-    final studentId = l['studentId'] as String? ?? '';
-    final linkStatus = l['status'] as String? ?? 'pending';
-    if (studentId.isEmpty) continue;
+      // 3. For each link, load student doc
+      final allChildren = <Map<String, dynamic>>[];
+      int hiddenCount = 0;
 
-    final studentDoc = await fs.getDocument('users/$studentId');
-    if (studentDoc != null) {
-      final studentEstId = studentDoc['establishmentId'] as String? ?? '';
-      final studentEstName = studentDoc['establishmentName'] as String? ?? studentEstId;
-      final studentClass = studentDoc['classLevel'] as String? ?? studentDoc['currentClass'] as String? ?? '—';
-      final studentName = studentDoc['displayName'] as String? ??
-          '${studentDoc['firstName'] ?? ''} ${studentDoc['lastName'] ?? ''}'.trim();
+      for (final l in linksDocs) {
+        final studentId = l['studentId'] as String? ?? '';
+        final linkStatus = l['status'] as String? ?? 'pending';
+        if (studentId.isEmpty) continue;
 
-      // Enforce multi-school family scoping:
-      if (isSuperAdmin || studentEstId == adminEstablishmentId) {
-        allChildren.add({
-          'id': studentId,
-          'name': studentName.isNotEmpty ? studentName : studentId,
-          'establishmentId': studentEstId,
-          'establishmentName': studentEstName,
-          'classLevel': studentClass,
-          'linkStatus': linkStatus,
-        });
-      } else {
-        // Child belongs to another school! Hidden from this school admin!
-        hiddenCount++;
+        final studentDoc = await fs.getDocument('users/$studentId');
+        if (studentDoc != null) {
+          final studentEstId = studentDoc['establishmentId'] as String? ?? '';
+          final studentEstName =
+              studentDoc['establishmentName'] as String? ?? studentEstId;
+          final studentClass =
+              studentDoc['classLevel'] as String? ??
+              studentDoc['currentClass'] as String? ??
+              '—';
+          final studentName =
+              studentDoc['displayName'] as String? ??
+              '${studentDoc['firstName'] ?? ''} ${studentDoc['lastName'] ?? ''}'
+                  .trim();
+
+          // Enforce multi-school family scoping:
+          if (isSuperAdmin || studentEstId == adminEstablishmentId) {
+            allChildren.add({
+              'id': studentId,
+              'name': studentName.isNotEmpty ? studentName : studentId,
+              'establishmentId': studentEstId,
+              'establishmentName': studentEstName,
+              'classLevel': studentClass,
+              'linkStatus': linkStatus,
+            });
+          } else {
+            // Child belongs to another school! Hidden from this school admin!
+            hiddenCount++;
+          }
+        }
       }
-    }
-  }
 
-  return {
-    'parent': parentUser,
-    'children': allChildren,
-    'hiddenCount': hiddenCount,
-  };
-});
+      return {
+        'parent': parentUser,
+        'children': allChildren,
+        'hiddenCount': hiddenCount,
+      };
+    });
 
 class ParentDetailScreen extends ConsumerWidget {
   const ParentDetailScreen({super.key, required this.parentId});
@@ -92,9 +98,16 @@ class ParentDetailScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline_rounded, color: StudioColors.error, size: 48),
+              const Icon(
+                Icons.error_outline_rounded,
+                color: StudioColors.error,
+                size: 48,
+              ),
               const SizedBox(height: 12),
-              Text('Erreur: $err', style: const TextStyle(color: StudioColors.error)),
+              Text(
+                'Erreur: $err',
+                style: const TextStyle(color: StudioColors.error),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => context.go('/parents'),
@@ -122,18 +135,25 @@ class ParentDetailScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(parent.fullName, style: Theme.of(context).textTheme.headlineMedium),
+                        Text(
+                          parent.fullName,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
                         const SizedBox(height: 4),
                         Text(
                           'Parent ID: ${parent.id} • ${parent.phone.isNotEmpty ? parent.phone : "Sans tél."} • ${parent.email.isNotEmpty ? parent.email : "Sans email"}',
-                          style: const TextStyle(color: StudioColors.textSecondaryLight),
+                          style: const TextStyle(
+                            color: StudioColors.textSecondaryLight,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   StudioBadge(
                     label: parent.isActive ? 'COMPTE ACTIF' : 'COMPTE SUSPENDU',
-                    variant: parent.isActive ? StudioBadgeVariant.success : StudioBadgeVariant.warning,
+                    variant: parent.isActive
+                        ? StudioBadgeVariant.success
+                        : StudioBadgeVariant.warning,
                   ),
                 ],
               ),
@@ -147,40 +167,53 @@ class ParentDetailScreen extends ConsumerWidget {
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: StudioColors.borderLight),
+                          side: const BorderSide(
+                            color: StudioColors.borderLight,
+                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Enfants rattachés au compte',
-                                  style: Theme.of(context).textTheme.titleMedium),
+                              Text(
+                                'Enfants rattachés au compte',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
                               const SizedBox(height: 12),
                               if (children.isEmpty && hiddenCount == 0)
                                 const Padding(
                                   padding: EdgeInsets.symmetric(vertical: 24),
                                   child: Text(
                                     'Aucun enfant lié dans la collection children_links.',
-                                    style: TextStyle(color: StudioColors.textSecondaryLight),
+                                    style: TextStyle(
+                                      color: StudioColors.textSecondaryLight,
+                                    ),
                                   ),
                                 ),
                               for (final ch in children) ...[
                                 ListTile(
                                   leading: CircleAvatar(
-                                    backgroundColor: StudioColors.navyPrimary.withValues(alpha: 0.1),
+                                    backgroundColor: StudioColors.navyPrimary
+                                        .withValues(alpha: 0.1),
                                     child: Text(
                                       (ch['name'] as String).isNotEmpty
-                                          ? (ch['name'] as String)[0].toUpperCase()
+                                          ? (ch['name'] as String)[0]
+                                                .toUpperCase()
                                           : '?',
-                                      style: const TextStyle(color: StudioColors.navyPrimary),
+                                      style: const TextStyle(
+                                        color: StudioColors.navyPrimary,
+                                      ),
                                     ),
                                   ),
                                   title: Text(ch['name'] as String),
                                   subtitle: Text(
-                                      '${ch['classLevel']} • ${ch['establishmentName']} (ID: ${ch['id']})'),
+                                    '${ch['classLevel']} • ${ch['establishmentName']} (ID: ${ch['id']})',
+                                  ),
                                   trailing: StudioBadge(
-                                    label: ch['linkStatus'] == 'approved' ? 'APPROUVÉ' : 'EN ATTENTE',
+                                    label: ch['linkStatus'] == 'approved'
+                                        ? 'APPROUVÉ'
+                                        : 'EN ATTENTE',
                                     variant: ch['linkStatus'] == 'approved'
                                         ? StudioBadgeVariant.success
                                         : StudioBadgeVariant.warning,
@@ -193,16 +226,23 @@ class ParentDetailScreen extends ConsumerWidget {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: StudioColors.warning.withValues(alpha: 0.1),
+                                    color: StudioColors.warning.withValues(
+                                      alpha: 0.1,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                      color: StudioColors.warning.withValues(alpha: 0.3),
+                                      color: StudioColors.warning.withValues(
+                                        alpha: 0.3,
+                                      ),
                                     ),
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(Icons.shield_outlined,
-                                          color: StudioColors.warning, size: 20),
+                                      const Icon(
+                                        Icons.shield_outlined,
+                                        color: StudioColors.warning,
+                                        size: 20,
+                                      ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
@@ -228,29 +268,44 @@ class ParentDetailScreen extends ConsumerWidget {
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: StudioColors.borderLight),
+                          side: const BorderSide(
+                            color: StudioColors.borderLight,
+                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Droits & Opérations Famille',
-                                  style: Theme.of(context).textTheme.titleMedium),
+                              Text(
+                                'Droits & Opérations Famille',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
                               const SizedBox(height: 16),
                               ListTile(
-                                leading: const Icon(Icons.info_outline, color: StudioColors.navyPrimary),
-                                title: const Text('Cloisonnement Multi-Établissement'),
+                                leading: const Icon(
+                                  Icons.info_outline,
+                                  color: StudioColors.navyPrimary,
+                                ),
+                                title: const Text(
+                                  'Cloisonnement Multi-Établissement',
+                                ),
                                 subtitle: const Text(
                                   'Le tuteur est unique au niveau national, mais chaque chef d\'établissement n\'administre que la relation concernant ses propres élèves.',
                                 ),
                               ),
                               const Divider(),
                               ListTile(
-                                leading: const Icon(Icons.calendar_today, color: StudioColors.navyPrimary),
+                                leading: const Icon(
+                                  Icons.calendar_today,
+                                  color: StudioColors.navyPrimary,
+                                ),
                                 title: const Text('Date d\'inscription'),
                                 subtitle: Text(
-                                  parent.createdAt.toIso8601String().split('T').first,
+                                  parent.createdAt
+                                      .toIso8601String()
+                                      .split('T')
+                                      .first,
                                 ),
                               ),
                             ],

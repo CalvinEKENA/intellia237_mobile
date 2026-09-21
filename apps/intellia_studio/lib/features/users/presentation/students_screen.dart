@@ -10,15 +10,17 @@ import '../../control_plane/control_plane_client.dart';
 import '../domain/user_directory_models.dart';
 
 final studentsProvider =
-    StateNotifierProvider<StudentsNotifier, AsyncValue<List<DirectoryUser>>>((ref) {
-  final fs = ref.watch(firestoreRestClientProvider);
-  final cp = ref.watch(controlPlaneClientProvider);
-  return StudentsNotifier(fs, cp);
-});
+    StateNotifierProvider<StudentsNotifier, AsyncValue<List<DirectoryUser>>>((
+      ref,
+    ) {
+      final fs = ref.watch(firestoreRestClientProvider);
+      final cp = ref.watch(controlPlaneClientProvider);
+      return StudentsNotifier(fs, cp);
+    });
 
 class StudentsNotifier extends StateNotifier<AsyncValue<List<DirectoryUser>>> {
   StudentsNotifier(this._firestore, this._controlPlane)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadStudents();
   }
 
@@ -35,7 +37,7 @@ class StudentsNotifier extends StateNotifier<AsyncValue<List<DirectoryUser>>> {
             'field': {'fieldPath': 'role'},
             'op': 'EQUAL',
             'value': {'stringValue': 'student'},
-          }
+          },
         },
         limit: 100,
       );
@@ -92,7 +94,8 @@ class StudentsScreen extends ConsumerWidget {
               IconButton(
                 tooltip: 'Actualiser',
                 icon: const Icon(Icons.refresh_rounded),
-                onPressed: () => ref.read(studentsProvider.notifier).loadStudents(),
+                onPressed: () =>
+                    ref.read(studentsProvider.notifier).loadStudents(),
               ),
             ],
           ),
@@ -104,7 +107,11 @@ class StudentsScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: StudioColors.error, size: 48),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: StudioColors.error,
+                      size: 48,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       'Erreur lors du chargement des élèves:\n$err',
@@ -113,7 +120,8 @@ class StudentsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => ref.read(studentsProvider.notifier).loadStudents(),
+                      onPressed: () =>
+                          ref.read(studentsProvider.notifier).loadStudents(),
                       child: const Text('Réessayer'),
                     ),
                   ],
@@ -152,7 +160,8 @@ class StudentsScreen extends ConsumerWidget {
                     StudioTableColumn(
                       header: 'Téléphone',
                       flex: 2,
-                      cellBuilder: (u) => Text(u.phone.isNotEmpty ? u.phone : '—'),
+                      cellBuilder: (u) =>
+                          Text(u.phone.isNotEmpty ? u.phone : '—'),
                     ),
                     StudioTableColumn(
                       header: 'Établissement',
@@ -169,8 +178,8 @@ class StudentsScreen extends ConsumerWidget {
                         variant: u.isActive
                             ? StudioBadgeVariant.success
                             : (u.isSuspended
-                                ? StudioBadgeVariant.warning
-                                : StudioBadgeVariant.error),
+                                  ? StudioBadgeVariant.warning
+                                  : StudioBadgeVariant.error),
                       ),
                     ),
                   ],
@@ -197,20 +206,27 @@ class StudentsScreen extends ConsumerWidget {
                             message:
                                 'Action autoritaire server-side (manageAccount) pour ${u.fullName}.',
                             requireReason: true,
-                            reasonLabel: 'Motif obligatoire pour l\'audit (min. 3 car.)',
+                            reasonLabel:
+                                'Motif obligatoire pour l\'audit (min. 3 car.)',
                             confirmLabel: 'Exécuter sur le Cloud',
                             isDestructive: u.isActive,
                           );
                           if (reason != null && reason.trim().length >= 3) {
                             try {
-                              await ref.read(studentsProvider.notifier).updateStatus(
+                              await ref
+                                  .read(studentsProvider.notifier)
+                                  .updateStatus(
                                     u.id,
                                     u.isActive ? 'suspended' : 'active',
                                     reason.trim(),
                                   );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Statut élève mis à jour pour ${u.fullName}.')),
+                                  SnackBar(
+                                    content: Text(
+                                      'Statut élève mis à jour pour ${u.fullName}.',
+                                    ),
+                                  ),
                                 );
                               }
                             } catch (e) {

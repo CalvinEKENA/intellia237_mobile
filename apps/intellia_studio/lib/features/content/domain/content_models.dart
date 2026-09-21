@@ -1,6 +1,12 @@
 enum ContentBlockType { text, callout, image, audio, video }
 
-enum ContentOriginSource { manual, notebooklm, cloudFunctionAi, pageImport, teacherDraft }
+enum ContentOriginSource {
+  manual,
+  notebooklm,
+  cloudFunctionAi,
+  pageImport,
+  teacherDraft,
+}
 
 class StudioContentOrigin {
   final ContentOriginSource source;
@@ -149,7 +155,11 @@ class StudioLesson {
       'origin': origin.toMap(),
       'contentBlocks': contentBlocks.map((b) => b.toMap()).toList(),
       'contentSections': contentBlocks
-          .where((b) => b.type == ContentBlockType.text || b.type == ContentBlockType.callout)
+          .where(
+            (b) =>
+                b.type == ContentBlockType.text ||
+                b.type == ContentBlockType.callout,
+          )
           .map((b) => {'title': b.title, 'body': b.body})
           .toList(),
       'updatedAt': updatedAt,

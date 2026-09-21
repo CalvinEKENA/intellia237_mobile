@@ -22,13 +22,20 @@ class FirestoreDocument {
   factory FirestoreDocument.fromJson(Map<String, dynamic> json) {
     final rawFields = json['fields'] as Map<String, dynamic>? ?? {};
     final fields = rawFields.map(
-      (k, v) => MapEntry(k, FirestoreValueCodec.decodeValue(v as Map<String, dynamic>)),
+      (k, v) => MapEntry(
+        k,
+        FirestoreValueCodec.decodeValue(v as Map<String, dynamic>),
+      ),
     );
     return FirestoreDocument(
       name: json['name'] as String? ?? '',
       fields: fields,
-      createTime: json['createTime'] != null ? DateTime.tryParse(json['createTime'] as String) : null,
-      updateTime: json['updateTime'] != null ? DateTime.tryParse(json['updateTime'] as String) : null,
+      createTime: json['createTime'] != null
+          ? DateTime.tryParse(json['createTime'] as String)
+          : null,
+      updateTime: json['updateTime'] != null
+          ? DateTime.tryParse(json['updateTime'] as String)
+          : null,
     );
   }
 }
@@ -36,18 +43,28 @@ class FirestoreDocument {
 class FirestoreValueCodec {
   static dynamic decodeValue(Map<String, dynamic> json) {
     if (json.containsKey('stringValue')) return json['stringValue'];
-    if (json.containsKey('integerValue')) return int.tryParse(json['integerValue'].toString()) ?? 0;
-    if (json.containsKey('doubleValue')) return (json['doubleValue'] as num).toDouble();
+    if (json.containsKey('integerValue'))
+      return int.tryParse(json['integerValue'].toString()) ?? 0;
+    if (json.containsKey('doubleValue'))
+      return (json['doubleValue'] as num).toDouble();
     if (json.containsKey('booleanValue')) return json['booleanValue'] as bool;
     if (json.containsKey('timestampValue')) return json['timestampValue'];
     if (json.containsKey('nullValue')) return null;
     if (json.containsKey('arrayValue')) {
-      final values = (json['arrayValue'] as Map<String, dynamic>)['values'] as List<dynamic>? ?? [];
+      final values =
+          (json['arrayValue'] as Map<String, dynamic>)['values']
+              as List<dynamic>? ??
+          [];
       return values.map((e) => decodeValue(e as Map<String, dynamic>)).toList();
     }
     if (json.containsKey('mapValue')) {
-      final fields = (json['mapValue'] as Map<String, dynamic>)['fields'] as Map<String, dynamic>? ?? {};
-      return fields.map((k, v) => MapEntry(k, decodeValue(v as Map<String, dynamic>)));
+      final fields =
+          (json['mapValue'] as Map<String, dynamic>)['fields']
+              as Map<String, dynamic>? ??
+          {};
+      return fields.map(
+        (k, v) => MapEntry(k, decodeValue(v as Map<String, dynamic>)),
+      );
     }
     return null;
   }
@@ -58,12 +75,11 @@ class FirestoreValueCodec {
     if (value is int) return {'integerValue': value.toString()};
     if (value is double) return {'doubleValue': value};
     if (value is String) return {'stringValue': value};
-    if (value is DateTime) return {'timestampValue': value.toUtc().toIso8601String()};
+    if (value is DateTime)
+      return {'timestampValue': value.toUtc().toIso8601String()};
     if (value is List) {
       return {
-        'arrayValue': {
-          'values': value.map(encodeValue).toList(),
-        },
+        'arrayValue': {'values': value.map(encodeValue).toList()},
       };
     }
     if (value is Map<String, dynamic>) {
@@ -102,14 +118,16 @@ class FirestoreRestClient {
       'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents';
 
   Map<String, String> _headers(String token) => {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+  };
 
   bool _isUnauthenticated(http.Response res) {
     if (res.statusCode == 401) return true;
-    if (res.statusCode == 400 && res.body.contains('INVALID_ID_TOKEN')) return true;
-    if (res.statusCode == 403 && res.body.contains('UNAUTHENTICATED')) return true;
+    if (res.statusCode == 400 && res.body.contains('INVALID_ID_TOKEN'))
+      return true;
+    if (res.statusCode == 403 && res.body.contains('UNAUTHENTICATED'))
+      return true;
     return false;
   }
 
@@ -180,12 +198,16 @@ class FirestoreRestClient {
 
     if (response.statusCode != 200) {
       if (response.statusCode == 404) return [];
-      throw Exception('Erreur Firestore (${response.statusCode}): ${response.body}');
+      throw Exception(
+        'Erreur Firestore (${response.statusCode}): ${response.body}',
+      );
     }
 
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     final docs = body['documents'] as List<dynamic>? ?? [];
-    return docs.map((d) => FirestoreDocument.fromJson(d as Map<String, dynamic>)).toList();
+    return docs
+        .map((d) => FirestoreDocument.fromJson(d as Map<String, dynamic>))
+        .toList();
   }
 
   Future<FirestoreDocument?> getDocument(String documentPath) async {
@@ -198,7 +220,9 @@ class FirestoreRestClient {
 
     if (response.statusCode == 404) return null;
     if (response.statusCode != 200) {
-      throw Exception('Erreur Firestore (${response.statusCode}): ${response.body}');
+      throw Exception(
+        'Erreur Firestore (${response.statusCode}): ${response.body}',
+      );
     }
 
     final body = jsonDecode(response.body) as Map<String, dynamic>;
@@ -214,7 +238,7 @@ class FirestoreRestClient {
   }) async {
     final structuredQuery = <String, dynamic>{
       'from': [
-        {'collectionId': fromCollection}
+        {'collectionId': fromCollection},
       ],
     };
 
@@ -231,7 +255,7 @@ class FirestoreRestClient {
         {
           'field': {'fieldPath': orderByField},
           'direction': descending ? 'DESCENDING' : 'ASCENDING',
-        }
+        },
       ];
     }
 
@@ -244,14 +268,18 @@ class FirestoreRestClient {
     );
 
     if (response.statusCode != 200) {
-      throw Exception('Erreur Firestore Query (${response.statusCode}): ${response.body}');
+      throw Exception(
+        'Erreur Firestore Query (${response.statusCode}): ${response.body}',
+      );
     }
 
     final list = jsonDecode(response.body) as List<dynamic>;
     final docs = <FirestoreDocument>[];
     for (final item in list) {
       if (item is Map<String, dynamic> && item.containsKey('document')) {
-        docs.add(FirestoreDocument.fromJson(item['document'] as Map<String, dynamic>));
+        docs.add(
+          FirestoreDocument.fromJson(item['document'] as Map<String, dynamic>),
+        );
       }
     }
     return docs;
@@ -266,12 +294,12 @@ class FirestoreRestClient {
     final structuredAggregationQuery = <String, dynamic>{
       'structuredQuery': {
         'from': [
-          {'collectionId': collectionId}
+          {'collectionId': collectionId},
         ],
         if (whereFilter != null) 'where': whereFilter,
       },
       'aggregations': [
-        {'alias': 'total', 'count': {}}
+        {'alias': 'total', 'count': {}},
       ],
     };
 
@@ -280,7 +308,9 @@ class FirestoreRestClient {
         (token) => _http.post(
           Uri.parse('$_databaseRoot:runAggregationQuery'),
           headers: _headers(token),
-          body: jsonEncode({'structuredAggregationQuery': structuredAggregationQuery}),
+          body: jsonEncode({
+            'structuredAggregationQuery': structuredAggregationQuery,
+          }),
         ),
       );
 
@@ -290,8 +320,11 @@ class FirestoreRestClient {
 
       final list = jsonDecode(response.body) as List<dynamic>;
       if (list.isNotEmpty && list.first is Map<String, dynamic>) {
-        final result = (list.first as Map<String, dynamic>)['result'] as Map<String, dynamic>?;
-        final aggregateFields = result?['aggregateFields'] as Map<String, dynamic>?;
+        final result =
+            (list.first as Map<String, dynamic>)['result']
+                as Map<String, dynamic>?;
+        final aggregateFields =
+            result?['aggregateFields'] as Map<String, dynamic>?;
         final totalMap = aggregateFields?['total'] as Map<String, dynamic>?;
         final countStr = totalMap?['integerValue']?.toString();
         if (countStr != null) {

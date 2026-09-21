@@ -28,7 +28,9 @@ class StudioAcademicContext {
 
   /// Series must be specified if the selected class requires one
   bool get hasRequiredSeries =>
-      selectedClass == null || !selectedClass!.hasSeries || (series != null && series!.isNotEmpty);
+      selectedClass == null ||
+      !selectedClass!.hasSeries ||
+      (series != null && series!.isNotEmpty);
 
   /// Ready for publication validation check
   bool get isPublicationReady => hasValidTarget && hasRequiredSeries;
@@ -60,7 +62,9 @@ class StudioAcademicContext {
           ? '${system.shortLabel} (Vue globale — toutes les classes)'
           : 'Cible académique non définie';
     }
-    final buffer = StringBuffer('${system.shortLabel} • ${selectedClass!.label}');
+    final buffer = StringBuffer(
+      '${system.shortLabel} • ${selectedClass!.label}',
+    );
     if (series != null && series!.isNotEmpty) {
       buffer.write(' Série $series');
     }
@@ -80,7 +84,9 @@ class StudioAcademicContext {
   }) {
     return StudioAcademicContext(
       system: system ?? this.system,
-      selectedClass: selectedClass != null ? selectedClass() : this.selectedClass,
+      selectedClass: selectedClass != null
+          ? selectedClass()
+          : this.selectedClass,
       series: series != null ? series() : this.series,
       subject: subject != null ? subject() : this.subject,
       chapterId: chapterId != null ? chapterId() : this.chapterId,
@@ -109,10 +115,7 @@ class AcademicContextNotifier extends StateNotifier<StudioAcademicContext> {
 
   void setClass(CanonicalClassLevel? newClass) {
     if (newClass == null) {
-      state = state.copyWith(
-        selectedClass: () => null,
-        series: () => null,
-      );
+      state = state.copyWith(selectedClass: () => null, series: () => null);
       return;
     }
 
@@ -120,7 +123,8 @@ class AcademicContextNotifier extends StateNotifier<StudioAcademicContext> {
     final system = newClass.system;
 
     // Check if current series is allowed on the new class
-    final validSeries = (state.series != null && newClass.allowedSeries.contains(state.series))
+    final validSeries =
+        (state.series != null && newClass.allowedSeries.contains(state.series))
         ? state.series
         : (newClass.hasSeries ? newClass.allowedSeries.first : null);
 
@@ -130,7 +134,9 @@ class AcademicContextNotifier extends StateNotifier<StudioAcademicContext> {
       classLevel: newClass,
       series: validSeries,
     );
-    final validSubject = (state.subject != null && validSubjects.any((s) => s.id == state.subject!.id))
+    final validSubject =
+        (state.subject != null &&
+            validSubjects.any((s) => s.id == state.subject!.id))
         ? state.subject
         : null;
 
@@ -160,7 +166,8 @@ class AcademicContextNotifier extends StateNotifier<StudioAcademicContext> {
       state = state.copyWith(series: () => null);
       return;
     }
-    final targetSeries = (series != null && currentClass.allowedSeries.contains(series))
+    final targetSeries =
+        (series != null && currentClass.allowedSeries.contains(series))
         ? series
         : null;
 
@@ -170,7 +177,9 @@ class AcademicContextNotifier extends StateNotifier<StudioAcademicContext> {
       classLevel: currentClass,
       series: targetSeries,
     );
-    final validSubject = (state.subject != null && validSubjects.any((s) => s.id == state.subject!.id))
+    final validSubject =
+        (state.subject != null &&
+            validSubjects.any((s) => s.id == state.subject!.id))
         ? state.subject
         : null;
 
@@ -227,6 +236,8 @@ class AcademicContextNotifier extends StateNotifier<StudioAcademicContext> {
 }
 
 final academicContextProvider =
-    StateNotifierProvider<AcademicContextNotifier, StudioAcademicContext>((ref) {
-  return AcademicContextNotifier();
-});
+    StateNotifierProvider<AcademicContextNotifier, StudioAcademicContext>((
+      ref,
+    ) {
+      return AcademicContextNotifier();
+    });

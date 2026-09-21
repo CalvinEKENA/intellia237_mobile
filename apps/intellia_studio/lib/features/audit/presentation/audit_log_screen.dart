@@ -32,13 +32,18 @@ class StudioAuditEvent {
   factory StudioAuditEvent.fromFirestore(FirestoreDocument doc) {
     return StudioAuditEvent(
       id: doc.id,
-      timestamp: doc['timestamp'] as String? ??
+      timestamp:
+          doc['timestamp'] as String? ??
           doc['createdAt'] as String? ??
           DateTime.now().toIso8601String(),
-      actorUid: doc['actorUid'] as String? ?? doc['performedBy'] as String? ?? 'Système',
+      actorUid:
+          doc['actorUid'] as String? ??
+          doc['performedBy'] as String? ??
+          'Système',
       actorRole: doc['actorRole'] as String? ?? 'superAdmin',
       action: (doc['action'] as String? ?? 'MANAGE_ACCOUNT').toUpperCase(),
-      targetResourceId: doc['accountId'] as String? ?? doc['targetId'] as String? ?? doc.id,
+      targetResourceId:
+          doc['accountId'] as String? ?? doc['targetId'] as String? ?? doc.id,
       reason: doc['reason'] as String? ?? 'Aucun motif renseigné',
       ipAddress: doc['ipAddress'] as String? ?? '127.0.0.1',
     );
@@ -54,7 +59,10 @@ final auditEventsProvider = FutureProvider<List<StudioAuditEvent>>((ref) async {
   }
 
   final fs = ref.watch(firestoreRestClientProvider);
-  final docs = await fs.listDocuments('account_management_audit', pageSize: 100);
+  final docs = await fs.listDocuments(
+    'account_management_audit',
+    pageSize: 100,
+  );
   return docs.map((d) => StudioAuditEvent.fromFirestore(d)).toList();
 });
 
@@ -76,8 +84,10 @@ class AuditLogScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Registre d\'Audit Immuable (Audit Log)',
-                        style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Registre d\'Audit Immuable (Audit Log)',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
                       'Piste d\'audit officielle serveur (account_management_audit). Traçabilité complète des actions privilégiées.',
@@ -101,12 +111,19 @@ class AuditLogScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.shield_outlined, color: StudioColors.warning, size: 48),
+                    const Icon(
+                      Icons.shield_outlined,
+                      color: StudioColors.warning,
+                      size: 48,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       '$err',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: StudioColors.navyPrimary, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        color: StudioColors.navyPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -133,8 +150,13 @@ class AuditLogScreen extends ConsumerWidget {
                       header: 'Horodatage',
                       flex: 2,
                       cellBuilder: (e) => Text(
-                        e.timestamp.length > 19 ? e.timestamp.substring(0, 19).replaceAll('T', ' ') : e.timestamp,
-                        style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                        e.timestamp.length > 19
+                            ? e.timestamp.substring(0, 19).replaceAll('T', ' ')
+                            : e.timestamp,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'monospace',
+                        ),
                       ),
                     ),
                     StudioTableColumn(
@@ -144,11 +166,20 @@ class AuditLogScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(e.actorUid,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                          Text(e.actorRole,
-                              style: const TextStyle(
-                                  fontSize: 11, color: StudioColors.textSecondaryLight)),
+                          Text(
+                            e.actorUid,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            e.actorRole,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: StudioColors.textSecondaryLight,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -160,20 +191,26 @@ class AuditLogScreen extends ConsumerWidget {
                         variant: e.action.contains('DELETE')
                             ? StudioBadgeVariant.error
                             : e.action.contains('SUSPEND')
-                                ? StudioBadgeVariant.warning
-                                : StudioBadgeVariant.info,
+                            ? StudioBadgeVariant.warning
+                            : StudioBadgeVariant.info,
                       ),
                     ),
                     StudioTableColumn(
                       header: 'Cible Ressource',
                       flex: 2,
-                      cellBuilder: (e) => Text(e.targetResourceId,
-                          style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+                      cellBuilder: (e) => Text(
+                        e.targetResourceId,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
                     StudioTableColumn(
                       header: 'Motif Obligatoire Enregistré',
                       flex: 4,
-                      cellBuilder: (e) => Text(e.reason, style: const TextStyle(fontSize: 12)),
+                      cellBuilder: (e) =>
+                          Text(e.reason, style: const TextStyle(fontSize: 12)),
                     ),
                   ],
                 );

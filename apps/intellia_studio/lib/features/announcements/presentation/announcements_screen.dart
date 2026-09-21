@@ -20,7 +20,10 @@ class AnnouncementsScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Annonces & Communications Établissements', style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Annonces & Communications Établissements',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
                       'Publication des communiqués officiels, calendrier des épreuves et alertes générales.',
@@ -48,17 +51,37 @@ class AnnouncementsScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(12),
                 children: const [
                   ListTile(
-                    leading: Icon(Icons.announcement_rounded, color: StudioColors.navyPrimary),
-                    title: Text('Ouverture des inscriptions aux sessions de révision intensives Bacc 2026'),
-                    subtitle: Text('Portée : Nationale • Publié le 10/03/2026 par Direction Pédagogique'),
-                    trailing: StudioBadge(label: 'PUBLIÉ', variant: StudioBadgeVariant.success),
+                    leading: Icon(
+                      Icons.announcement_rounded,
+                      color: StudioColors.navyPrimary,
+                    ),
+                    title: Text(
+                      'Ouverture des inscriptions aux sessions de révision intensives Bacc 2026',
+                    ),
+                    subtitle: Text(
+                      'Portée : Nationale • Publié le 10/03/2026 par Direction Pédagogique',
+                    ),
+                    trailing: StudioBadge(
+                      label: 'PUBLIÉ',
+                      variant: StudioBadgeVariant.success,
+                    ),
                   ),
                   Divider(),
                   ListTile(
-                    leading: Icon(Icons.announcement_rounded, color: StudioColors.warning),
-                    title: Text('Maintenance planifiée de la plateforme (18 Mars, 02h00 - 04h00)'),
-                    subtitle: Text('Portée : Tous utilisateurs • Prévu le 18/03/2026'),
-                    trailing: StudioBadge(label: 'PROGRAMMÉ', variant: StudioBadgeVariant.warning),
+                    leading: Icon(
+                      Icons.announcement_rounded,
+                      color: StudioColors.warning,
+                    ),
+                    title: Text(
+                      'Maintenance planifiée de la plateforme (18 Mars, 02h00 - 04h00)',
+                    ),
+                    subtitle: Text(
+                      'Portée : Tous utilisateurs • Prévu le 18/03/2026',
+                    ),
+                    trailing: StudioBadge(
+                      label: 'PROGRAMMÉ',
+                      variant: StudioBadgeVariant.warning,
+                    ),
                   ),
                 ],
               ),

@@ -42,7 +42,9 @@ class DirectoryUser {
     final displayName = doc['displayName'] as String? ?? '';
     final fullName = displayName.isNotEmpty
         ? displayName
-        : ('$firstName $lastName'.trim().isNotEmpty ? '$firstName $lastName'.trim() : doc.id);
+        : ('$firstName $lastName'.trim().isNotEmpty
+              ? '$firstName $lastName'.trim()
+              : doc.id);
 
     return DirectoryUser(
       id: doc.id,
@@ -52,8 +54,11 @@ class DirectoryUser {
       phone: doc['phoneNumber'] as String? ?? doc['phone'] as String? ?? '',
       establishmentId: doc['establishmentId'] as String? ?? '',
       establishmentName:
-          doc['establishmentName'] as String? ?? doc['establishmentId'] as String? ?? '—',
-      classLevel: doc['classLevel'] as String? ?? doc['currentClass'] as String? ?? '—',
+          doc['establishmentName'] as String? ??
+          doc['establishmentId'] as String? ??
+          '—',
+      classLevel:
+          doc['classLevel'] as String? ?? doc['currentClass'] as String? ?? '—',
       accountStatus: doc['accountStatus'] as String? ?? 'active',
       createdAt: doc.createTime ?? DateTime.now(),
       statusBeforeDeletion: doc['statusBeforeDeletion'] as String?,

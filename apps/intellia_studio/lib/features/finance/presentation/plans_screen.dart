@@ -6,40 +6,52 @@ import '../../../core/widgets/studio_badge.dart';
 import '../../../core/widgets/studio_data_table.dart';
 import '../domain/finance_models.dart';
 
-final plansProvider = StateNotifierProvider<PlansNotifier, List<StudioSubscriptionPlan>>((ref) {
-  return PlansNotifier();
-});
+final plansProvider =
+    StateNotifierProvider<PlansNotifier, List<StudioSubscriptionPlan>>((ref) {
+      return PlansNotifier();
+    });
 
 class PlansNotifier extends StateNotifier<List<StudioSubscriptionPlan>> {
-  PlansNotifier() : super([
-    const StudioSubscriptionPlan(
-      id: 'plan_cahier_mensuel',
-      name: 'Formule Cahier',
-      priceXaf: 2500,
-      billingPeriod: 'Mensuel',
-      features: ['Cours complets', 'Résumés PDF', 'Exercices corrigés'],
-      isProvisionedInFirestore: false,
-      establishmentId: 'est_douala_01',
-    ),
-    const StudioSubscriptionPlan(
-      id: 'plan_atelier_mensuel',
-      name: 'Formule Atelier',
-      priceXaf: 5000,
-      billingPeriod: 'Mensuel',
-      features: ['Tout Cahier', 'Parcours interactif', 'Compagnon IA Kira (Réserve 600k)', 'Quiz illimités'],
-      isProvisionedInFirestore: false,
-      establishmentId: 'est_douala_01',
-    ),
-    const StudioSubscriptionPlan(
-      id: 'plan_bibliotheque_annuel',
-      name: 'Formule Bibliothèque',
-      priceXaf: 45000,
-      billingPeriod: 'Annuel',
-      features: ['Accès intégral illimité', 'Toutes classes', 'Compagnon Léo & Kira', 'Support prioritaire'],
-      isProvisionedInFirestore: false,
-      establishmentId: 'est_douala_01',
-    ),
-  ]);
+  PlansNotifier()
+    : super([
+        const StudioSubscriptionPlan(
+          id: 'plan_cahier_mensuel',
+          name: 'Formule Cahier',
+          priceXaf: 2500,
+          billingPeriod: 'Mensuel',
+          features: ['Cours complets', 'Résumés PDF', 'Exercices corrigés'],
+          isProvisionedInFirestore: false,
+          establishmentId: 'est_douala_01',
+        ),
+        const StudioSubscriptionPlan(
+          id: 'plan_atelier_mensuel',
+          name: 'Formule Atelier',
+          priceXaf: 5000,
+          billingPeriod: 'Mensuel',
+          features: [
+            'Tout Cahier',
+            'Parcours interactif',
+            'Compagnon IA Kira (Réserve 600k)',
+            'Quiz illimités',
+          ],
+          isProvisionedInFirestore: false,
+          establishmentId: 'est_douala_01',
+        ),
+        const StudioSubscriptionPlan(
+          id: 'plan_bibliotheque_annuel',
+          name: 'Formule Bibliothèque',
+          priceXaf: 45000,
+          billingPeriod: 'Annuel',
+          features: [
+            'Accès intégral illimité',
+            'Toutes classes',
+            'Compagnon Léo & Kira',
+            'Support prioritaire',
+          ],
+          isProvisionedInFirestore: false,
+          establishmentId: 'est_douala_01',
+        ),
+      ]);
 
   void markProvisioned(String id) {
     state = [
@@ -60,40 +72,42 @@ class PlansNotifier extends StateNotifier<List<StudioSubscriptionPlan>> {
   }
 }
 
-final entitlementsProvider = StateNotifierProvider<EntitlementsNotifier, List<StudioEntitlement>>((ref) {
-  return EntitlementsNotifier();
-});
+final entitlementsProvider =
+    StateNotifierProvider<EntitlementsNotifier, List<StudioEntitlement>>((ref) {
+      return EntitlementsNotifier();
+    });
 
 class EntitlementsNotifier extends StateNotifier<List<StudioEntitlement>> {
-  EntitlementsNotifier() : super([
-    const StudioEntitlement(
-      id: 'ent_parent_01_est_douala_01',
-      parentId: 'usr_par_01',
-      establishmentId: 'est_douala_01',
-      offerId: 'plan_atelier_mensuel',
-      status: EntitlementStatus.active,
-      startsAt: '2026-03-01',
-      endsAt: '2026-04-01',
-    ),
-    const StudioEntitlement(
-      id: 'ent_parent_02_est_douala_01',
-      parentId: 'usr_par_02',
-      establishmentId: 'est_douala_01',
-      offerId: 'plan_cahier_mensuel',
-      status: EntitlementStatus.active,
-      startsAt: '2026-02-15',
-      endsAt: '2026-03-15',
-    ),
-    const StudioEntitlement(
-      id: 'ent_parent_03_est_douala_01',
-      parentId: 'usr_par_03',
-      establishmentId: 'est_douala_01',
-      offerId: 'plan_atelier_mensuel',
-      status: EntitlementStatus.expired,
-      startsAt: '2026-01-01',
-      endsAt: '2026-02-01',
-    ),
-  ]);
+  EntitlementsNotifier()
+    : super([
+        const StudioEntitlement(
+          id: 'ent_parent_01_est_douala_01',
+          parentId: 'usr_par_01',
+          establishmentId: 'est_douala_01',
+          offerId: 'plan_atelier_mensuel',
+          status: EntitlementStatus.active,
+          startsAt: '2026-03-01',
+          endsAt: '2026-04-01',
+        ),
+        const StudioEntitlement(
+          id: 'ent_parent_02_est_douala_01',
+          parentId: 'usr_par_02',
+          establishmentId: 'est_douala_01',
+          offerId: 'plan_cahier_mensuel',
+          status: EntitlementStatus.active,
+          startsAt: '2026-02-15',
+          endsAt: '2026-03-15',
+        ),
+        const StudioEntitlement(
+          id: 'ent_parent_03_est_douala_01',
+          parentId: 'usr_par_03',
+          establishmentId: 'est_douala_01',
+          offerId: 'plan_atelier_mensuel',
+          status: EntitlementStatus.expired,
+          startsAt: '2026-01-01',
+          endsAt: '2026-02-01',
+        ),
+      ]);
 }
 
 class PlansScreen extends ConsumerWidget {
@@ -117,11 +131,16 @@ class PlansScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Plans & Abonnements', style: Theme.of(context).textTheme.headlineMedium),
+                      Text(
+                        'Plans & Abonnements',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 4),
                       const Text(
                         'Grille tarifaire XAF, audit du provisionnement Firestore et droits d\'accès (Entitlements).',
-                        style: TextStyle(color: StudioColors.textSecondaryLight),
+                        style: TextStyle(
+                          color: StudioColors.textSecondaryLight,
+                        ),
                       ),
                     ],
                   ),
@@ -139,14 +158,21 @@ class PlansScreen extends ConsumerWidget {
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.info_outline_rounded, color: Colors.amber, size: 24),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    color: Colors.amber,
+                    size: 24,
+                  ),
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Information Architecture Firestore : La collection mobile_money_offers/{establishmentId} '
                       'n\'est pas encore provisionnée en production. Le Studio utilise les données de repli du code '
                       'et permet le provisionnement supervisé sans écriture sauvage.',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -192,14 +218,19 @@ class PlansScreen extends ConsumerWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           plan.name,
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
                                         ),
                                         StudioBadge(
-                                          label: plan.billingPeriod.toUpperCase(),
+                                          label: plan.billingPeriod
+                                              .toUpperCase(),
                                           variant: StudioBadgeVariant.info,
                                         ),
                                       ],
@@ -214,14 +245,31 @@ class PlansScreen extends ConsumerWidget {
                                       ),
                                     ),
                                     const Divider(height: 24),
-                                    const Text('Inclus dans cette formule :', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                                    const Text(
+                                      'Inclus dans cette formule :',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
                                     const SizedBox(height: 8),
                                     for (final feat in plan.features) ...[
                                       Row(
                                         children: [
-                                          const Icon(Icons.check_circle_rounded, color: StudioColors.success, size: 16),
+                                          const Icon(
+                                            Icons.check_circle_rounded,
+                                            color: StudioColors.success,
+                                            size: 16,
+                                          ),
                                           const SizedBox(width: 8),
-                                          Expanded(child: Text(feat, style: const TextStyle(fontSize: 12))),
+                                          Expanded(
+                                            child: Text(
+                                              feat,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ),
                                         ],
                                       ),
                                       const SizedBox(height: 6),
@@ -231,16 +279,24 @@ class PlansScreen extends ConsumerWidget {
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
                                         color: plan.isProvisionedInFirestore
-                                            ? StudioColors.success.withValues(alpha: 0.1)
-                                            : StudioColors.warning.withValues(alpha: 0.1),
+                                            ? StudioColors.success.withValues(
+                                                alpha: 0.1,
+                                              )
+                                            : StudioColors.warning.withValues(
+                                                alpha: 0.1,
+                                              ),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Row(
                                         children: [
                                           Icon(
-                                            plan.isProvisionedInFirestore ? Icons.cloud_done : Icons.cloud_off,
+                                            plan.isProvisionedInFirestore
+                                                ? Icons.cloud_done
+                                                : Icons.cloud_off,
                                             size: 16,
-                                            color: plan.isProvisionedInFirestore ? StudioColors.success : StudioColors.warning,
+                                            color: plan.isProvisionedInFirestore
+                                                ? StudioColors.success
+                                                : StudioColors.warning,
                                           ),
                                           const SizedBox(width: 6),
                                           Expanded(
@@ -251,7 +307,10 @@ class PlansScreen extends ConsumerWidget {
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.bold,
-                                                color: plan.isProvisionedInFirestore ? StudioColors.success : StudioColors.warning,
+                                                color:
+                                                    plan.isProvisionedInFirestore
+                                                    ? StudioColors.success
+                                                    : StudioColors.warning,
                                               ),
                                             ),
                                           ),
@@ -264,12 +323,22 @@ class PlansScreen extends ConsumerWidget {
                                         width: double.infinity,
                                         child: FilledButton.tonal(
                                           onPressed: () {
-                                            ref.read(plansProvider.notifier).markProvisioned(plan.id);
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Offre ${plan.name} provisionnée avec succès.')),
+                                            ref
+                                                .read(plansProvider.notifier)
+                                                .markProvisioned(plan.id);
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Offre ${plan.name} provisionnée avec succès.',
+                                                ),
+                                              ),
                                             );
                                           },
-                                          child: const Text('Provisionner l\'Offre'),
+                                          child: const Text(
+                                            'Provisionner l\'Offre',
+                                          ),
                                         ),
                                       ),
                                   ],
@@ -290,7 +359,13 @@ class PlansScreen extends ConsumerWidget {
                       StudioTableColumn(
                         header: 'Identifiant Droit',
                         flex: 3,
-                        cellBuilder: (e) => Text(e.id, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+                        cellBuilder: (e) => Text(
+                          e.id,
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                       StudioTableColumn(
                         header: 'Parent UID',
@@ -305,14 +380,17 @@ class PlansScreen extends ConsumerWidget {
                       StudioTableColumn(
                         header: 'Début — Fin',
                         flex: 2,
-                        cellBuilder: (e) => Text('${e.startsAt} au ${e.endsAt}'),
+                        cellBuilder: (e) =>
+                            Text('${e.startsAt} au ${e.endsAt}'),
                       ),
                       StudioTableColumn(
                         header: 'Statut',
                         flex: 1,
                         cellBuilder: (e) => StudioBadge(
                           label: e.status.name.toUpperCase(),
-                          variant: e.isActive ? StudioBadgeVariant.success : StudioBadgeVariant.error,
+                          variant: e.isActive
+                              ? StudioBadgeVariant.success
+                              : StudioBadgeVariant.error,
                         ),
                       ),
                     ],

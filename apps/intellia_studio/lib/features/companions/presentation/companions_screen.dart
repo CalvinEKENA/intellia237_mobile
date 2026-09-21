@@ -7,9 +7,9 @@ import '../../../core/widgets/studio_badge.dart';
 
 final companionRuntimeConfigProvider =
     FutureProvider.autoDispose<Map<String, dynamic>>((ref) async {
-  final client = ref.watch(controlPlaneClientProvider);
-  return client.getCompanionRuntimeConfig();
-});
+      final client = ref.watch(controlPlaneClientProvider);
+      return client.getCompanionRuntimeConfig();
+    });
 
 class CompanionsScreen extends ConsumerStatefulWidget {
   const CompanionsScreen({super.key});
@@ -72,8 +72,10 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Opérations Compagnons IA (Kira & Léo)',
-                        style: Theme.of(context).textTheme.headlineMedium),
+                    Text(
+                      'Opérations Compagnons IA (Kira & Léo)',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
                     const SizedBox(height: 4),
                     const Text(
                       'Spécifications des compagnons, garde-fous pédagogiques et métadonnées de runtime.',
@@ -91,10 +93,13 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
               SegmentedButton<String>(
                 segments: const [
                   ButtonSegment(
-                      value: 'kira',
-                      label: Text('Kira (Méthodologie & Accompagnement)')),
+                    value: 'kira',
+                    label: Text('Kira (Méthodologie & Accompagnement)'),
+                  ),
                   ButtonSegment(
-                      value: 'leo', label: Text('Léo (Défis & Performance)')),
+                    value: 'leo',
+                    label: Text('Léo (Défis & Performance)'),
+                  ),
                 ],
                 selected: {_selectedCompanion},
                 onSelectionChanged: (val) =>
@@ -128,30 +133,36 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                                     ? 'Spécification du compagnon — Kira'
                                     : 'Spécification du compagnon — Léo',
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                               const StudioBadge(
-                                  label: 'SPÉCIFICATION ÉDITORIALE',
-                                  variant: StudioBadgeVariant.info),
+                                label: 'SPÉCIFICATION ÉDITORIALE',
+                                variant: StudioBadgeVariant.info,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
                           const Text(
                             'Spécification éditoriale et rôle pédagogique. Le prompt d\'inférence actif est assemblé dynamiquement par le backend askTutor.',
                             style: TextStyle(
-                                fontSize: 12,
-                                color: StudioColors.textSecondaryLight),
+                              fontSize: 12,
+                              color: StudioColors.textSecondaryLight,
+                            ),
                           ),
                           const SizedBox(height: 12),
                           Expanded(
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: StudioColors.surfaceDark
-                                    .withValues(alpha: 0.03),
+                                color: StudioColors.surfaceDark.withValues(
+                                  alpha: 0.03,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
-                                border:
-                                    Border.all(color: StudioColors.borderLight),
+                                border: Border.all(
+                                  color: StudioColors.borderLight,
+                                ),
                               ),
                               child: SingleChildScrollView(
                                 child: Text(
@@ -159,9 +170,10 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                                       ? _kiraSpecification
                                       : _leoSpecification,
                                   style: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontSize: 13,
-                                      height: 1.5),
+                                    fontFamily: 'monospace',
+                                    fontSize: 13,
+                                    height: 1.5,
+                                  ),
                                 ),
                               ),
                             ),
@@ -180,7 +192,9 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: StudioColors.borderLight),
+                          side: const BorderSide(
+                            color: StudioColors.borderLight,
+                          ),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(20),
@@ -198,10 +212,13 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Configuration Runtime IA',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15)),
+                                    Text(
+                                      'Configuration Runtime IA',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
                                     StudioBadge(
                                       label: 'INDISPONIBLE',
                                       variant: StudioBadgeVariant.warning,
@@ -221,8 +238,9 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                                 Text(
                                   'L\'endpoint getCompanionRuntimeConfig n\'est pas encore joignable ou nécessite des droits SuperAdmin. Aucun modèle statique de secours n\'est affiché afin de garantir l\'exactitude des informations de production.',
                                   style: TextStyle(
-                                      fontSize: 12,
-                                      color: StudioColors.textSecondaryLight),
+                                    fontSize: 12,
+                                    color: StudioColors.textSecondaryLight,
+                                  ),
                                 ),
                               ],
                             ),
@@ -236,10 +254,13 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('Configuration Runtime IA',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15)),
+                                        Text(
+                                          'Configuration Runtime IA',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
                                         StudioBadge(
                                           label: 'INDISPONIBLE',
                                           variant: StudioBadgeVariant.warning,
@@ -259,8 +280,9 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                                     Text(
                                       'Aucune configuration de modèle valide n\'a été renvoyée par le serveur.',
                                       style: TextStyle(
-                                          fontSize: 12,
-                                          color: StudioColors.textSecondaryLight),
+                                        fontSize: 12,
+                                        color: StudioColors.textSecondaryLight,
+                                      ),
                                     ),
                                   ],
                                 );
@@ -268,16 +290,16 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
 
                               final provider =
                                   data['provider']?.toString() ??
-                                      'Donnée non disponible';
+                                  'Donnée non disponible';
                               final tutorThinking =
                                   data['tutorThinkingLevel']?.toString() ??
-                                      'Donnée non disponible';
+                                  'Donnée non disponible';
                               final structuredThinking =
                                   data['structuredThinkingLevel']?.toString() ??
-                                      'Donnée non disponible';
+                                  'Donnée non disponible';
                               final location =
                                   data['location']?.toString() ??
-                                      'Donnée non disponible';
+                                  'Donnée non disponible';
                               final isConfigured = data['configured'] == true;
 
                               return Column(
@@ -287,10 +309,13 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text('Configuration Runtime IA',
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15)),
+                                      const Text(
+                                        'Configuration Runtime IA',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
                                       StudioBadge(
                                         label: isConfigured
                                             ? 'OPÉRATIONNEL'
@@ -303,20 +328,29 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   _buildConfigRow(
-                                      'Fournisseur d\'inférence :', provider),
-                                  const SizedBox(height: 8),
-                                  _buildConfigRow('Modèle sous-jacent :', model),
-                                  const SizedBox(height: 8),
-                                  _buildConfigRow(
-                                      'Réflexion tuteur (Kira & Léo) :',
-                                      tutorThinking),
+                                    'Fournisseur d\'inférence :',
+                                    provider,
+                                  ),
                                   const SizedBox(height: 8),
                                   _buildConfigRow(
-                                      'Réflexion structurée :',
-                                      structuredThinking),
+                                    'Modèle sous-jacent :',
+                                    model,
+                                  ),
                                   const SizedBox(height: 8),
                                   _buildConfigRow(
-                                      'Région Vertex AI :', location),
+                                    'Réflexion tuteur (Kira & Léo) :',
+                                    tutorThinking,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildConfigRow(
+                                    'Réflexion structurée :',
+                                    structuredThinking,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildConfigRow(
+                                    'Région Vertex AI :',
+                                    location,
+                                  ),
                                   const SizedBox(height: 8),
                                   _buildConfigRow(
                                     'Température :',
@@ -333,32 +367,41 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: StudioColors.borderLight),
+                          side: const BorderSide(
+                            color: StudioColors.borderLight,
+                          ),
                         ),
                         child: const Padding(
                           padding: EdgeInsets.all(20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Télémétrie & Quotas',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15)),
+                              Text(
+                                'Télémétrie & Quotas',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
                               SizedBox(height: 12),
                               Text(
-                                  'Questions traitées aujourd\'hui : Donnée non disponible'),
+                                'Questions traitées aujourd\'hui : Donnée non disponible',
+                              ),
                               SizedBox(height: 6),
                               Text(
-                                  'Temps moyen de réponse : Donnée non disponible'),
+                                'Temps moyen de réponse : Donnée non disponible',
+                              ),
                               SizedBox(height: 6),
                               Text(
-                                  'Taux de satisfaction tuteur : Donnée non disponible'),
+                                'Taux de satisfaction tuteur : Donnée non disponible',
+                              ),
                               SizedBox(height: 12),
                               Text(
                                 'Note : La télémétrie agrégée globale n\'est pas synthétisée. Chaque élève dispose d\'une Réserve d\'étude et d\'un quota journalier mesurés côté serveur.',
                                 style: TextStyle(
-                                    fontSize: 12,
-                                    color: StudioColors.textSecondaryLight),
+                                  fontSize: 12,
+                                  color: StudioColors.textSecondaryLight,
+                                ),
                               ),
                             ],
                           ),
@@ -383,9 +426,10 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
         Text(
           value,
           style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              color: StudioColors.navyPrimary),
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+            color: StudioColors.navyPrimary,
+          ),
         ),
       ],
     );

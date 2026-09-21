@@ -69,7 +69,9 @@ class ControlPlaneClient {
       body: payload,
     );
 
-    if (response.statusCode == 401 || (response.statusCode == 403 && response.body.contains('UNAUTHENTICATED'))) {
+    if (response.statusCode == 401 ||
+        (response.statusCode == 403 &&
+            response.body.contains('UNAUTHENTICATED'))) {
       if (tokenRefresher != null) {
         final refreshed = await _performSingleRefresh();
         if (refreshed != null) {
@@ -139,11 +141,7 @@ class ControlPlaneClient {
   }) async {
     return call<Map<String, dynamic>>(
       functionName: 'manageAccount',
-      data: {
-        'action': action,
-        'accountId': accountId,
-        'reason': reason,
-      },
+      data: {'action': action, 'accountId': accountId, 'reason': reason},
       parser: (res) => (res as Map<String, dynamic>? ?? {}),
     );
   }
@@ -153,7 +151,8 @@ class ControlPlaneClient {
     required String action,
     required String accountId,
     required String reason,
-  }) => manageAccountAction(action: action, accountId: accountId, reason: reason);
+  }) =>
+      manageAccountAction(action: action, accountId: accountId, reason: reason);
 
   /// manageAccount (createStudent)
   Future<Map<String, dynamic>> createStudent({
@@ -306,10 +305,7 @@ class ControlPlaneClient {
   }) async {
     return call<Map<String, dynamic>>(
       functionName: 'educationalMedia',
-      data: {
-        'storagePath': storagePath,
-        'action': 'delete',
-      },
+      data: {'storagePath': storagePath, 'action': 'delete'},
       parser: (res) => (res as Map<String, dynamic>? ?? {}),
     );
   }
@@ -341,7 +337,8 @@ class ControlPlaneClient {
       data: {
         'requestId': requestId,
         'decision': decision,
-        if (reviewNote != null && reviewNote.isNotEmpty) 'reviewNote': reviewNote,
+        if (reviewNote != null && reviewNote.isNotEmpty)
+          'reviewNote': reviewNote,
       },
       parser: (res) => (res as Map<String, dynamic>? ?? {}),
     );
@@ -388,11 +385,7 @@ class ControlPlaneClient {
   }) async {
     return call<Map<String, dynamic>>(
       functionName: 'importCoursePages',
-      data: {
-        'pages': pages,
-        'classLevel': classLevel,
-        'subjectId': subjectId,
-      },
+      data: {'pages': pages, 'classLevel': classLevel, 'subjectId': subjectId},
       parser: (res) => (res as Map<String, dynamic>? ?? {}),
     );
   }
@@ -461,4 +454,3 @@ class ControlPlaneClient {
     );
   }
 }
-

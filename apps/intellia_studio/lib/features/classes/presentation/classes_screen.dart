@@ -11,16 +11,29 @@ import '../../control_plane/control_plane_client.dart';
 import '../../establishments/domain/establishment_models.dart';
 
 final schoolClassesProvider =
-    StateNotifierProvider<SchoolClassesNotifier, AsyncValue<List<SchoolClassModel>>>((ref) {
-  final fs = ref.watch(firestoreRestClientProvider);
-  final cp = ref.watch(controlPlaneClientProvider);
-  final session = ref.watch(authSessionProvider).asData?.value;
-  return SchoolClassesNotifier(fs, cp, session?.establishmentId ?? '', session?.isSuperAdmin ?? false);
-});
+    StateNotifierProvider<
+      SchoolClassesNotifier,
+      AsyncValue<List<SchoolClassModel>>
+    >((ref) {
+      final fs = ref.watch(firestoreRestClientProvider);
+      final cp = ref.watch(controlPlaneClientProvider);
+      final session = ref.watch(authSessionProvider).asData?.value;
+      return SchoolClassesNotifier(
+        fs,
+        cp,
+        session?.establishmentId ?? '',
+        session?.isSuperAdmin ?? false,
+      );
+    });
 
-class SchoolClassesNotifier extends StateNotifier<AsyncValue<List<SchoolClassModel>>> {
-  SchoolClassesNotifier(this._firestore, this._controlPlane, this._adminEstablishmentId, this._isSuperAdmin)
-      : super(const AsyncValue.loading()) {
+class SchoolClassesNotifier
+    extends StateNotifier<AsyncValue<List<SchoolClassModel>>> {
+  SchoolClassesNotifier(
+    this._firestore,
+    this._controlPlane,
+    this._adminEstablishmentId,
+    this._isSuperAdmin,
+  ) : super(const AsyncValue.loading()) {
     loadClasses();
   }
 
@@ -43,7 +56,7 @@ class SchoolClassesNotifier extends StateNotifier<AsyncValue<List<SchoolClassMod
               'field': {'fieldPath': 'establishmentId'},
               'op': 'EQUAL',
               'value': {'stringValue': _adminEstablishmentId},
-            }
+            },
           },
           limit: 100,
         );
@@ -56,7 +69,8 @@ class SchoolClassesNotifier extends StateNotifier<AsyncValue<List<SchoolClassMod
   }
 
   Future<void> addClass(Map<String, dynamic> data) async {
-    final establishment = (data['establishmentId'] as String?)?.isNotEmpty == true
+    final establishment =
+        (data['establishmentId'] as String?)?.isNotEmpty == true
         ? data['establishmentId'] as String?
         : _adminEstablishmentId;
 
@@ -111,7 +125,8 @@ class ClassesScreen extends ConsumerWidget {
               IconButton(
                 tooltip: 'Actualiser',
                 icon: const Icon(Icons.refresh_rounded),
-                onPressed: () => ref.read(schoolClassesProvider.notifier).loadClasses(),
+                onPressed: () =>
+                    ref.read(schoolClassesProvider.notifier).loadClasses(),
               ),
               const SizedBox(width: 8),
               ElevatedButton.icon(
@@ -129,13 +144,22 @@ class ClassesScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: StudioColors.error, size: 48),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: StudioColors.error,
+                      size: 48,
+                    ),
                     const SizedBox(height: 12),
-                    Text('Erreur chargement classes:\n$err',
-                        textAlign: TextAlign.center, style: const TextStyle(color: StudioColors.error)),
+                    Text(
+                      'Erreur chargement classes:\n$err',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: StudioColors.error),
+                    ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => ref.read(schoolClassesProvider.notifier).loadClasses(),
+                      onPressed: () => ref
+                          .read(schoolClassesProvider.notifier)
+                          .loadClasses(),
                       child: const Text('Réessayer'),
                     ),
                   ],
@@ -170,7 +194,9 @@ class ClassesScreen extends ConsumerWidget {
                       header: 'Niveau & Série',
                       flex: 2,
                       cellBuilder: (c) => Text(
-                        c.series != null ? '${c.levelLabel} (${c.series})' : c.levelLabel,
+                        c.series != null
+                            ? '${c.levelLabel} (${c.series})'
+                            : c.levelLabel,
                       ),
                     ),
                     StudioTableColumn(
@@ -187,7 +213,9 @@ class ClassesScreen extends ConsumerWidget {
                           color: c.mainTeacherName != null
                               ? StudioColors.textPrimaryLight
                               : StudioColors.textSecondaryLight,
-                          fontStyle: c.mainTeacherName == null ? FontStyle.italic : null,
+                          fontStyle: c.mainTeacherName == null
+                              ? FontStyle.italic
+                              : null,
                         ),
                       ),
                     ),
@@ -195,28 +223,42 @@ class ClassesScreen extends ConsumerWidget {
                       header: 'Actions',
                       flex: 1,
                       cellBuilder: (c) => IconButton(
-                        icon: const Icon(Icons.delete_outline, color: StudioColors.error, size: 18),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: StudioColors.error,
+                          size: 18,
+                        ),
                         tooltip: 'Supprimer la classe',
                         onPressed: () async {
                           final confirmed = await ConfirmationDialog.show(
                             context,
                             title: 'Suppression de Classe',
-                            message: 'Voulez-vous supprimer la classe ${c.name} ?',
+                            message:
+                                'Voulez-vous supprimer la classe ${c.name} ?',
                             confirmLabel: 'Supprimer',
                             isDestructive: true,
                           );
                           if (confirmed != null) {
                             try {
-                              await ref.read(schoolClassesProvider.notifier).deleteClass(c.id);
+                              await ref
+                                  .read(schoolClassesProvider.notifier)
+                                  .deleteClass(c.id);
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Classe ${c.name} supprimée.')),
+                                  SnackBar(
+                                    content: Text(
+                                      'Classe ${c.name} supprimée.',
+                                    ),
+                                  ),
                                 );
                               }
                             } catch (e) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Échec: $e'), backgroundColor: StudioColors.error),
+                                  SnackBar(
+                                    content: Text('Échec: $e'),
+                                    backgroundColor: StudioColors.error,
+                                  ),
                                 );
                               }
                             }
@@ -237,8 +279,11 @@ class ClassesScreen extends ConsumerWidget {
   void _showAddClassDialog(BuildContext context, WidgetRef ref) {
     final nameCtrl = TextEditingController();
     var selectedSystem = StudioEducationSystem.francophone;
-    CanonicalClassLevel? selectedClassLevel = AcademicHierarchy.francophoneClasses.first;
-    String? selectedSeries = selectedClassLevel.hasSeries ? selectedClassLevel.allowedSeries.first : null;
+    CanonicalClassLevel? selectedClassLevel =
+        AcademicHierarchy.francophoneClasses.first;
+    String? selectedSeries = selectedClassLevel.hasSeries
+        ? selectedClassLevel.allowedSeries.first
+        : null;
     final session = ref.read(authSessionProvider).asData?.value;
 
     showDialog(
@@ -247,7 +292,8 @@ class ClassesScreen extends ConsumerWidget {
         builder: (context, setDialogState) {
           final classes = AcademicHierarchy.classesForSystem(selectedSystem);
           final hasSeries = selectedClassLevel?.hasSeries ?? false;
-          final seriesList = selectedClassLevel?.allowedSeries ?? const <String>[];
+          final seriesList =
+              selectedClassLevel?.allowedSeries ?? const <String>[];
 
           return AlertDialog(
             title: const Text('Créer une Nouvelle Classe'),
@@ -262,15 +308,21 @@ class ClassesScreen extends ConsumerWidget {
                       Expanded(
                         child: DropdownButtonFormField<StudioEducationSystem>(
                           value: selectedSystem,
-                          decoration: const InputDecoration(labelText: 'Système'),
+                          decoration: const InputDecoration(
+                            labelText: 'Système',
+                          ),
                           items: StudioEducationSystem.values.map((s) {
-                            return DropdownMenuItem(value: s, child: Text(s.shortLabel));
+                            return DropdownMenuItem(
+                              value: s,
+                              child: Text(s.shortLabel),
+                            );
                           }).toList(),
                           onChanged: (newSys) {
                             if (newSys != null && newSys != selectedSystem) {
                               setDialogState(() {
                                 selectedSystem = newSys;
-                                final newClasses = AcademicHierarchy.classesForSystem(newSys);
+                                final newClasses =
+                                    AcademicHierarchy.classesForSystem(newSys);
                                 selectedClassLevel = newClasses.first;
                                 selectedSeries = selectedClassLevel!.hasSeries
                                     ? selectedClassLevel!.allowedSeries.first
@@ -284,7 +336,9 @@ class ClassesScreen extends ConsumerWidget {
                       Expanded(
                         child: DropdownButtonFormField<String>(
                           value: selectedClassLevel?.id,
-                          decoration: const InputDecoration(labelText: 'Niveau Canonique'),
+                          decoration: const InputDecoration(
+                            labelText: 'Niveau Canonique',
+                          ),
                           items: classes.map((c) {
                             return DropdownMenuItem(
                               value: c.id,
@@ -292,7 +346,9 @@ class ClassesScreen extends ConsumerWidget {
                             );
                           }).toList(),
                           onChanged: (cid) {
-                            final resolved = AcademicHierarchy.resolveClass(cid);
+                            final resolved = AcademicHierarchy.resolveClass(
+                              cid,
+                            );
                             setDialogState(() {
                               selectedClassLevel = resolved;
                               selectedSeries = (resolved?.hasSeries ?? false)
@@ -309,7 +365,8 @@ class ClassesScreen extends ConsumerWidget {
                     DropdownButtonFormField<String?>(
                       value: selectedSeries,
                       decoration: InputDecoration(
-                        labelText: selectedSystem == StudioEducationSystem.anglophone
+                        labelText:
+                            selectedSystem == StudioEducationSystem.anglophone
                             ? 'Stream (obligatoire)'
                             : 'Série (obligatoire)',
                       ),
@@ -330,15 +387,20 @@ class ClassesScreen extends ConsumerWidget {
                   TextField(
                     controller: nameCtrl,
                     decoration: InputDecoration(
-                      labelText: 'Nom de la classe (ex: ${selectedClassLevel?.label ?? "3e"} A)',
-                      hintText: 'ex: ${selectedClassLevel?.shortLabel ?? "3e"} 1',
+                      labelText:
+                          'Nom de la classe (ex: ${selectedClassLevel?.label ?? "3e"} A)',
+                      hintText:
+                          'ex: ${selectedClassLevel?.shortLabel ?? "3e"} 1',
                     ),
                   ),
                 ],
               ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler')),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Annuler'),
+              ),
               FilledButton(
                 onPressed: () async {
                   final name = nameCtrl.text.trim();
@@ -353,13 +415,18 @@ class ClassesScreen extends ConsumerWidget {
                       });
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Classe $name créée avec succès.')),
+                          SnackBar(
+                            content: Text('Classe $name créée avec succès.'),
+                          ),
                         );
                       }
                     } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Échec création: $e'), backgroundColor: StudioColors.error),
+                          SnackBar(
+                            content: Text('Échec création: $e'),
+                            backgroundColor: StudioColors.error,
+                          ),
                         );
                       }
                     }

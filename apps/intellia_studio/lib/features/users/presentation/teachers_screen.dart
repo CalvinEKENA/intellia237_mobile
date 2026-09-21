@@ -10,15 +10,17 @@ import '../../control_plane/control_plane_client.dart';
 import '../domain/user_directory_models.dart';
 
 final teachersProvider =
-    StateNotifierProvider<TeachersNotifier, AsyncValue<List<DirectoryUser>>>((ref) {
-  final fs = ref.watch(firestoreRestClientProvider);
-  final cp = ref.watch(controlPlaneClientProvider);
-  return TeachersNotifier(fs, cp);
-});
+    StateNotifierProvider<TeachersNotifier, AsyncValue<List<DirectoryUser>>>((
+      ref,
+    ) {
+      final fs = ref.watch(firestoreRestClientProvider);
+      final cp = ref.watch(controlPlaneClientProvider);
+      return TeachersNotifier(fs, cp);
+    });
 
 class TeachersNotifier extends StateNotifier<AsyncValue<List<DirectoryUser>>> {
   TeachersNotifier(this._firestore, this._controlPlane)
-      : super(const AsyncValue.loading()) {
+    : super(const AsyncValue.loading()) {
     loadTeachers();
   }
 
@@ -35,7 +37,7 @@ class TeachersNotifier extends StateNotifier<AsyncValue<List<DirectoryUser>>> {
             'field': {'fieldPath': 'role'},
             'op': 'EQUAL',
             'value': {'stringValue': 'teacher'},
-          }
+          },
         },
         limit: 100,
       );
@@ -46,7 +48,11 @@ class TeachersNotifier extends StateNotifier<AsyncValue<List<DirectoryUser>>> {
     }
   }
 
-  Future<void> reviewTeacher(String id, bool approved, {String? establishmentId}) async {
+  Future<void> reviewTeacher(
+    String id,
+    bool approved, {
+    String? establishmentId,
+  }) async {
     try {
       await _controlPlane.reviewStaffAccount(
         reviewId: id,
@@ -91,7 +97,8 @@ class TeachersScreen extends ConsumerWidget {
               IconButton(
                 tooltip: 'Actualiser',
                 icon: const Icon(Icons.refresh_rounded),
-                onPressed: () => ref.read(teachersProvider.notifier).loadTeachers(),
+                onPressed: () =>
+                    ref.read(teachersProvider.notifier).loadTeachers(),
               ),
             ],
           ),
@@ -103,7 +110,11 @@ class TeachersScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline_rounded, color: StudioColors.error, size: 48),
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: StudioColors.error,
+                      size: 48,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       'Erreur lors du chargement des enseignants:\n$err',
@@ -112,7 +123,8 @@ class TeachersScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => ref.read(teachersProvider.notifier).loadTeachers(),
+                      onPressed: () =>
+                          ref.read(teachersProvider.notifier).loadTeachers(),
                       child: const Text('Réessayer'),
                     ),
                   ],
@@ -168,8 +180,8 @@ class TeachersScreen extends ConsumerWidget {
                         variant: u.isPending
                             ? StudioBadgeVariant.warning
                             : (u.isActive
-                                ? StudioBadgeVariant.success
-                                : StudioBadgeVariant.error),
+                                  ? StudioBadgeVariant.success
+                                  : StudioBadgeVariant.error),
                       ),
                     ),
                   ],
@@ -195,23 +207,32 @@ class TeachersScreen extends ConsumerWidget {
                             );
                             if (confirmed != null) {
                               try {
-                                await ref.read(teachersProvider.notifier).reviewTeacher(
+                                await ref
+                                    .read(teachersProvider.notifier)
+                                    .reviewTeacher(
                                       u.id,
                                       true,
-                                      establishmentId: u.establishmentId.isNotEmpty
+                                      establishmentId:
+                                          u.establishmentId.isNotEmpty
                                           ? u.establishmentId
                                           : null,
                                     );
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Enseignant ${u.fullName} approuvé.')),
+                                    SnackBar(
+                                      content: Text(
+                                        'Enseignant ${u.fullName} approuvé.',
+                                      ),
+                                    ),
                                   );
                                 }
                               } catch (e) {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Échec de la validation: $e'),
+                                      content: Text(
+                                        'Échec de la validation: $e',
+                                      ),
                                       backgroundColor: StudioColors.error,
                                     ),
                                   );
@@ -242,7 +263,11 @@ class TeachersScreen extends ConsumerWidget {
                                     .reviewTeacher(u.id, false);
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Enseignant ${u.fullName} rejeté.')),
+                                    SnackBar(
+                                      content: Text(
+                                        'Enseignant ${u.fullName} rejeté.',
+                                      ),
+                                    ),
                                   );
                                 }
                               } catch (e) {

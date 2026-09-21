@@ -47,8 +47,7 @@ class StudioLocalizations {
   String get modLessonEditor => isFr ? 'Éditeur de Leçon' : 'Lesson Editor';
   String get modNotebookLm => isFr ? 'Import NotebookLM' : 'NotebookLM Import';
   String get modMediaLibrary => isFr ? 'Médiathèque' : 'Media Library';
-  String get modFlowStudio =>
-      isFr ? 'Studio Parcours' : 'Learning Path Studio';
+  String get modFlowStudio => isFr ? 'Studio Parcours' : 'Learning Path Studio';
   String get modQuizStudio => isFr ? 'Studio de Quiz' : 'Quiz Studio';
   String get modAudiences =>
       isFr ? 'Audiences & Ciblage' : 'Audiences & Targeting';

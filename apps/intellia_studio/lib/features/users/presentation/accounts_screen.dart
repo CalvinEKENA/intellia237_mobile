@@ -11,10 +11,10 @@ import '../domain/user_directory_models.dart';
 
 final accountsProvider =
     StateNotifierProvider<AccountsNotifier, List<DirectoryUser>>((ref) {
-  final fs = ref.watch(firestoreRestClientProvider);
-  final cp = ref.watch(controlPlaneClientProvider);
-  return AccountsNotifier(fs, cp);
-});
+      final fs = ref.watch(firestoreRestClientProvider);
+      final cp = ref.watch(controlPlaneClientProvider);
+      return AccountsNotifier(fs, cp);
+    });
 
 final List<DirectoryUser> _initialAccounts = [
   DirectoryUser(
@@ -57,7 +57,7 @@ final List<DirectoryUser> _initialAccounts = [
 
 class AccountsNotifier extends StateNotifier<List<DirectoryUser>> {
   AccountsNotifier([this._firestore, this._controlPlane])
-      : super(_initialAccounts) {
+    : super(_initialAccounts) {
     if (_firestore != null) {
       loadAccounts();
     }
@@ -95,12 +95,12 @@ class AccountsNotifier extends StateNotifier<List<DirectoryUser>> {
             accountStatus: action == 'suspend'
                 ? 'suspended'
                 : (action == 'reactivate'
-                    ? 'active'
-                    : (action == 'delete'
-                        ? 'deleted'
-                        : (action == 'restore'
-                            ? (u.statusBeforeDeletion ?? 'active')
-                            : u.accountStatus))),
+                      ? 'active'
+                      : (action == 'delete'
+                            ? 'deleted'
+                            : (action == 'restore'
+                                  ? (u.statusBeforeDeletion ?? 'active')
+                                  : u.accountStatus))),
             statusBeforeDeletion: action == 'delete'
                 ? u.accountStatus
                 : (action == 'restore' ? null : u.statusBeforeDeletion),
@@ -155,7 +155,8 @@ class AccountsScreen extends ConsumerWidget {
               IconButton(
                 tooltip: 'Actualiser la liste',
                 icon: const Icon(Icons.refresh_rounded),
-                onPressed: () => ref.read(accountsProvider.notifier).loadAccounts(),
+                onPressed: () =>
+                    ref.read(accountsProvider.notifier).loadAccounts(),
               ),
             ],
           ),
@@ -218,8 +219,8 @@ class AccountsScreen extends ConsumerWidget {
                     variant: u.isActive
                         ? StudioBadgeVariant.success
                         : (u.isSuspended
-                            ? StudioBadgeVariant.warning
-                            : StudioBadgeVariant.error),
+                              ? StudioBadgeVariant.warning
+                              : StudioBadgeVariant.error),
                   ),
                 ),
               ],
@@ -305,16 +306,21 @@ class AccountsScreen extends ConsumerWidget {
       message:
           'Opération serveur manageAccount ($action) sur le compte ${u.fullName} (${u.id}).',
       requireReason: true,
-      reasonLabel: 'Motif obligatoire pour le journal d\'audit (min. 3 caractères)',
+      reasonLabel:
+          'Motif obligatoire pour le journal d\'audit (min. 3 caractères)',
       confirmLabel: 'Exécuter sur le Cloud',
       isDestructive: isDestructive,
     );
     if (reason != null && reason.trim().length >= 3) {
       try {
-        await ref.read(accountsProvider.notifier).performAction(u.id, action, reason.trim());
+        await ref
+            .read(accountsProvider.notifier)
+            .performAction(u.id, action, reason.trim());
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Action $action réussie pour ${u.fullName}.')),
+            SnackBar(
+              content: Text('Action $action réussie pour ${u.fullName}.'),
+            ),
           );
         }
       } catch (e) {

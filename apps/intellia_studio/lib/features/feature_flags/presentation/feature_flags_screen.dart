@@ -20,7 +20,10 @@ class FeatureFlagsScreen extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Indicateurs de Fonctionnalités (Feature Flags)', style: Theme.of(context).textTheme.headlineMedium),
+                  Text(
+                    'Indicateurs de Fonctionnalités (Feature Flags)',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                   const SizedBox(height: 4),
                   const Text(
                     'Gestion du déploiement progressif (Remote Config) pour les applications mobiles et web.',
@@ -39,15 +42,40 @@ class FeatureFlagsScreen extends ConsumerWidget {
           Expanded(
             child: ListView(
               children: [
-                _buildFlagCard('enable_flow_v2', 'Nouveau moteur de défilement immersif du parcours', 100, true),
+                _buildFlagCard(
+                  'enable_flow_v2',
+                  'Nouveau moteur de défilement immersif du parcours',
+                  100,
+                  true,
+                ),
                 const SizedBox(height: 12),
-                _buildFlagCard('enable_notebooklm_importer', 'Importateur automatique de cours par NotebookLM', 100, true),
+                _buildFlagCard(
+                  'enable_notebooklm_importer',
+                  'Importateur automatique de cours par NotebookLM',
+                  100,
+                  true,
+                ),
                 const SizedBox(height: 12),
-                _buildFlagCard('enable_audio_kira', 'Synthèse vocale locale pour Kira en français camerounais', 50, true),
+                _buildFlagCard(
+                  'enable_audio_kira',
+                  'Synthèse vocale locale pour Kira en français camerounais',
+                  50,
+                  true,
+                ),
                 const SizedBox(height: 12),
-                _buildFlagCard('enable_study_reserve_v1', 'Nouveau modèle d\'allocation de réserve d\'étude', 100, true),
+                _buildFlagCard(
+                  'enable_study_reserve_v1',
+                  'Nouveau modèle d\'allocation de réserve d\'étude',
+                  100,
+                  true,
+                ),
                 const SizedBox(height: 12),
-                _buildFlagCard('enable_offline_lessons', 'Téléchargement hors-ligne des leçons (Beta)', 25, false),
+                _buildFlagCard(
+                  'enable_offline_lessons',
+                  'Téléchargement hors-ligne des leçons (Beta)',
+                  25,
+                  false,
+                ),
               ],
             ),
           ),
@@ -56,7 +84,12 @@ class FeatureFlagsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFlagCard(String key, String description, int rolloutPercent, bool isEnabled) {
+  Widget _buildFlagCard(
+    String key,
+    String description,
+    int rolloutPercent,
+    bool isEnabled,
+  ) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -73,13 +106,31 @@ class FeatureFlagsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(key, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace', fontSize: 14)),
+                  Text(
+                    key,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'monospace',
+                      fontSize: 14,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(description, style: const TextStyle(fontSize: 12, color: StudioColors.textSecondaryLight)),
+                  Text(
+                    description,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: StudioColors.textSecondaryLight,
+                    ),
+                  ),
                 ],
               ),
             ),
-            StudioBadge(label: 'DÉPLOIEMENT $rolloutPercent%', variant: isEnabled ? StudioBadgeVariant.info : StudioBadgeVariant.neutral),
+            StudioBadge(
+              label: 'DÉPLOIEMENT $rolloutPercent%',
+              variant: isEnabled
+                  ? StudioBadgeVariant.info
+                  : StudioBadgeVariant.neutral,
+            ),
           ],
         ),
       ),

@@ -30,7 +30,9 @@ class StudioAudienceRule {
     if (classLevels.isNotEmpty && !classLevels.contains(studentClassLevel)) {
       return false;
     }
-    if (series.isNotEmpty && studentSeries != null && !series.contains(studentSeries)) {
+    if (series.isNotEmpty &&
+        studentSeries != null &&
+        !series.contains(studentSeries)) {
       return false;
     }
     if (scopeType == 'establishment' &&

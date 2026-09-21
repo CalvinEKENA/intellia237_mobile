@@ -20,8 +20,10 @@ class GlobalSettingsScreen extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Paramètres Généraux du Système',
-                      style: Theme.of(context).textTheme.headlineMedium),
+                  Text(
+                    'Paramètres Généraux du Système',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                   const SizedBox(height: 4),
                   const Text(
                     'Constantes académiques et quotas nominaux d\'infrastructure (Mode Lecture Seule / Consultation).',
@@ -41,16 +43,25 @@ class GlobalSettingsScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               color: StudioColors.warning.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: StudioColors.warning.withValues(alpha: 0.3)),
+              border: Border.all(
+                color: StudioColors.warning.withValues(alpha: 0.3),
+              ),
             ),
             child: const Row(
               children: [
-                Icon(Icons.shield_outlined, color: StudioColors.warning, size: 22),
+                Icon(
+                  Icons.shield_outlined,
+                  color: StudioColors.warning,
+                  size: 22,
+                ),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Précision d\'Architecture : La collection Firestore settings/{uid} est réservée aux préférences par utilisateur. Aucun modèle de configuration globale modifiable n\'est provisionné sur le backend. Ces valeurs reflètent les constantes du système MINESEC et ne peuvent être modifiées sans un endpoint Cloud dédié.',
-                    style: TextStyle(fontSize: 12, color: StudioColors.navyPrimary),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: StudioColors.navyPrimary,
+                    ),
                   ),
                 ),
               ],
@@ -71,21 +82,36 @@ class GlobalSettingsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Année Scolaire & Calendrier Académique',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const Text(
+                          'Année Scolaire & Calendrier Académique',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                         const Divider(height: 24),
                         const ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text('Année académique en vigueur'),
-                          subtitle: Text('2025 - 2026 (Calendrier officiel MINESEC Cameroun)'),
-                          trailing: StudioBadge(label: 'ACTIF', variant: StudioBadgeVariant.success),
+                          subtitle: Text(
+                            '2025 - 2026 (Calendrier officiel MINESEC Cameroun)',
+                          ),
+                          trailing: StudioBadge(
+                            label: 'ACTIF',
+                            variant: StudioBadgeVariant.success,
+                          ),
                         ),
                         const Divider(),
                         const ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text('Période académique courante'),
-                          subtitle: Text('3ème Trimestre (Préparation aux épreuves nationales Bacc & BEPC)'),
-                          trailing: StudioBadge(label: 'TRIMESTRE 3', variant: StudioBadgeVariant.info),
+                          subtitle: Text(
+                            '3ème Trimestre (Préparation aux épreuves nationales Bacc & BEPC)',
+                          ),
+                          trailing: StudioBadge(
+                            label: 'TRIMESTRE 3',
+                            variant: StudioBadgeVariant.info,
+                          ),
                         ),
                       ],
                     ),
@@ -103,28 +129,50 @@ class GlobalSettingsScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Quotas Nominales & Paramètres IA Serveur',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(
+                          'Quotas Nominales & Paramètres IA Serveur',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                         Divider(height: 24),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: Text('Limite journalière Kira & Léo (TUTOR_DAILY_QUESTION_LIMIT)'),
-                          subtitle: Text('20 questions par jour et par élève (défini dans backend Functions)'),
-                          trailing: Text('20 req/j', style: TextStyle(fontWeight: FontWeight.bold)),
+                          title: Text(
+                            'Limite journalière Kira & Léo (TUTOR_DAILY_QUESTION_LIMIT)',
+                          ),
+                          subtitle: Text(
+                            '20 questions par jour et par élève (défini dans backend Functions)',
+                          ),
+                          trailing: Text(
+                            '20 req/j',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                         Divider(),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text('Seuils canoniques Réserve d\'Étude'),
-                          subtitle: Text('[75%, 50%, 25%, 5%, 0%] avec émission d\'alerte FCM'),
-                          trailing: Text('Canonicaux', style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                            '[75%, 50%, 25%, 5%, 0%] avec émission d\'alerte FCM',
+                          ),
+                          trailing: Text(
+                            'Canonicaux',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                         Divider(),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text('Région de calcul Cloud Functions'),
-                          subtitle: Text('europe-west1 (Projet Firebase edunova-aabd1)'),
-                          trailing: Text('europe-west1', style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(
+                            'europe-west1 (Projet Firebase edunova-aabd1)',
+                          ),
+                          trailing: Text(
+                            'europe-west1',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ],
                     ),

@@ -17,7 +17,8 @@ class NotebookLmScreen extends ConsumerStatefulWidget {
 
 class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
   final storagePathCtrl = TextEditingController(
-    text: 'educational_assets/global/terminale/mathematiques/cours_chapitre_1.png',
+    text:
+        'educational_assets/global/terminale/mathematiques/cours_chapitre_1.png',
   );
   final subjectCtrl = TextEditingController(text: 'Mathématiques');
   String selectedClassLevel = 'terminale';
@@ -79,13 +80,21 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                         children: [
                           const Text(
                             'Paramètres d\'Ingestion Server-Side',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                           const Divider(height: 24),
                           Builder(
                             builder: (context) {
-                              final academicCtx = ref.watch(academicContextProvider);
-                              final classes = AcademicHierarchy.classesForSystem(academicCtx.system);
+                              final academicCtx = ref.watch(
+                                academicContextProvider,
+                              );
+                              final classes =
+                                  AcademicHierarchy.classesForSystem(
+                                    academicCtx.system,
+                                  );
                               return DropdownButtonFormField<String>(
                                 value: academicCtx.selectedClass?.catalogKey,
                                 decoration: const InputDecoration(
@@ -101,7 +110,9 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                                 }).toList(),
                                 onChanged: (val) {
                                   if (val != null) {
-                                    ref.read(academicContextProvider.notifier).setClassByCatalogKey(val);
+                                    ref
+                                        .read(academicContextProvider.notifier)
+                                        .setClassByCatalogKey(val);
                                   }
                                 },
                               );
@@ -110,8 +121,12 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                           const SizedBox(height: 16),
                           Builder(
                             builder: (context) {
-                              final academicCtx = ref.watch(academicContextProvider);
-                              final allowedSeries = academicCtx.selectedClass?.allowedSeries ?? [];
+                              final academicCtx = ref.watch(
+                                academicContextProvider,
+                              );
+                              final allowedSeries =
+                                  academicCtx.selectedClass?.allowedSeries ??
+                                  [];
                               if (allowedSeries.isEmpty) {
                                 return const SizedBox.shrink();
                               }
@@ -125,11 +140,21 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                                   ),
                                   hint: const Text('Toutes séries ou choisir'),
                                   items: [
-                                    const DropdownMenuItem(value: null, child: Text('Tronc Commun / Toutes')),
-                                    ...allowedSeries.map((s) => DropdownMenuItem(value: s, child: Text('Série $s'))),
+                                    const DropdownMenuItem(
+                                      value: null,
+                                      child: Text('Tronc Commun / Toutes'),
+                                    ),
+                                    ...allowedSeries.map(
+                                      (s) => DropdownMenuItem(
+                                        value: s,
+                                        child: Text('Série $s'),
+                                      ),
+                                    ),
                                   ],
                                   onChanged: (val) {
-                                    ref.read(academicContextProvider.notifier).setSeries(val);
+                                    ref
+                                        .read(academicContextProvider.notifier)
+                                        .setSeries(val);
                                   },
                                 ),
                               );
@@ -146,19 +171,25 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                           TextField(
                             controller: storagePathCtrl,
                             decoration: const InputDecoration(
-                              labelText: 'Chemin Cloud Storage (educational_assets/...)',
+                              labelText:
+                                  'Chemin Cloud Storage (educational_assets/...)',
                               prefixIcon: Icon(Icons.cloud_done_rounded),
-                              hintText: 'educational_assets/{scope}/{class}/{subject}/...',
+                              hintText:
+                                  'educational_assets/{scope}/{class}/{subject}/...',
                             ),
                           ),
                           const SizedBox(height: 16),
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: StudioColors.goldAccent.withValues(alpha: 0.08),
+                              color: StudioColors.goldAccent.withValues(
+                                alpha: 0.08,
+                              ),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: StudioColors.goldAccent.withValues(alpha: 0.3),
+                                color: StudioColors.goldAccent.withValues(
+                                  alpha: 0.3,
+                                ),
                               ),
                             ),
                             child: const Column(
@@ -166,22 +197,29 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.info_outline_rounded,
-                                        size: 16, color: StudioColors.navyPrimary),
+                                    Icon(
+                                      Icons.info_outline_rounded,
+                                      size: 16,
+                                      color: StudioColors.navyPrimary,
+                                    ),
                                     SizedBox(width: 6),
                                     Text(
                                       'Contrat Multimodal Autoritaire',
                                       style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                          color: StudioColors.navyPrimary),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        color: StudioColors.navyPrimary,
+                                      ),
                                     ),
                                   ],
                                 ),
                                 SizedBox(height: 4),
                                 Text(
                                   'Les fichiers doivent résider dans le bucket sécurisé sous educational_assets/. Le callable analyse les pages en une passe avec Gemini 2.5 et synthétise leçon, quiz et cartes de parcours.',
-                                  style: TextStyle(fontSize: 11, color: StudioColors.navyPrimary),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: StudioColors.navyPrimary,
+                                  ),
                                 ),
                               ],
                             ),
@@ -190,18 +228,24 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: FilledButton.icon(
-                              onPressed: isAnalyzing ? null : _triggerRealImport,
+                              onPressed: isAnalyzing
+                                  ? null
+                                  : _triggerRealImport,
                               icon: isAnalyzing
                                   ? const SizedBox(
                                       width: 16,
                                       height: 16,
                                       child: CircularProgressIndicator(
-                                          strokeWidth: 2, color: Colors.white),
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
                                     )
                                   : const Icon(Icons.bolt_rounded),
-                              label: Text(isAnalyzing
-                                  ? 'Appel Cloud Function en cours...'
-                                  : 'Ingérer via importCoursePages'),
+                              label: Text(
+                                isAnalyzing
+                                    ? 'Appel Cloud Function en cours...'
+                                    : 'Ingérer via importCoursePages',
+                              ),
                             ),
                           ),
                         ],
@@ -227,7 +271,10 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                             children: [
                               const Text(
                                 'Résultat de la Synthèse Multimodale',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                               if (extractionResult != null)
                                 const StudioBadge(
@@ -242,19 +289,26 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                               padding: const EdgeInsets.all(12),
                               margin: const EdgeInsets.only(bottom: 16),
                               decoration: BoxDecoration(
-                                color: StudioColors.error.withValues(alpha: 0.1),
+                                color: StudioColors.error.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(color: StudioColors.error),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.error_outline, color: StudioColors.error),
+                                  const Icon(
+                                    Icons.error_outline,
+                                    color: StudioColors.error,
+                                  ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       errorMessage!,
                                       style: const TextStyle(
-                                          color: StudioColors.error, fontSize: 12),
+                                        color: StudioColors.error,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -265,17 +319,22 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                                 ? const Center(
                                     child: Text(
                                       'Spécifiez le chemin d\'un actif dans Storage et lancez l\'ingestion pour obtenir la synthèse Gemini.',
-                                      style: TextStyle(color: StudioColors.textSecondaryLight),
+                                      style: TextStyle(
+                                        color: StudioColors.textSecondaryLight,
+                                      ),
                                     ),
                                   )
                                 : ListView(
                                     children: [
                                       ListTile(
                                         tileColor: StudioColors.backgroundLight,
-                                        leading: const Icon(Icons.menu_book,
-                                            color: StudioColors.navyPrimary),
+                                        leading: const Icon(
+                                          Icons.menu_book,
+                                          color: StudioColors.navyPrimary,
+                                        ),
                                         title: Text(
-                                          extractionResult?['lessonTitle'] as String? ??
+                                          extractionResult?['lessonTitle']
+                                                  as String? ??
                                               'Brouillon de Leçon Généré',
                                         ),
                                         subtitle: Text(
@@ -289,8 +348,10 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                                       const SizedBox(height: 12),
                                       ListTile(
                                         tileColor: StudioColors.backgroundLight,
-                                        leading: const Icon(Icons.quiz,
-                                            color: StudioColors.navyPrimary),
+                                        leading: const Icon(
+                                          Icons.quiz,
+                                          color: StudioColors.navyPrimary,
+                                        ),
                                         title: Text(
                                           'Questions QCM : ${(extractionResult?['quizzes'] as List?)?.length ?? 0} générée(s)',
                                         ),
@@ -305,8 +366,10 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
                                       const SizedBox(height: 12),
                                       ListTile(
                                         tileColor: StudioColors.backgroundLight,
-                                        leading: const Icon(Icons.view_carousel,
-                                            color: StudioColors.navyPrimary),
+                                        leading: const Icon(
+                                          Icons.view_carousel,
+                                          color: StudioColors.navyPrimary,
+                                        ),
                                         title: Text(
                                           'Cartes de parcours : ${(extractionResult?['flowCards'] as List?)?.length ?? 0} candidate(s)',
                                         ),
@@ -338,7 +401,8 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
     final academicCtx = ref.read(academicContextProvider);
     if (academicCtx.selectedClass == null) {
       setState(() {
-        errorMessage = 'Veuillez d\'abord sélectionner une classe canonique cible avant de lancer l\'ingestion.';
+        errorMessage =
+            'Veuillez d\'abord sélectionner une classe canonique cible avant de lancer l\'ingestion.';
       });
       return;
     }
@@ -354,7 +418,7 @@ class _NotebookLmScreenState extends ConsumerState<NotebookLmScreen> {
     try {
       final res = await controlPlane.importCoursePages(
         pages: [
-          {'storagePath': path, 'pageNumber': 1}
+          {'storagePath': path, 'pageNumber': 1},
         ],
         classLevel: academicCtx.selectedClass!.catalogKey,
         subjectId: subjectCtrl.text.trim(),
