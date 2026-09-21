@@ -14,6 +14,7 @@
     "test:rules:storage": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore,storage \"vitest run --config vitest.rules.config.ts src/__tests__/rules/storage.rules.test.ts\"",
     "test:integration:family-access": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore,auth \"vitest run --config vitest.rules.config.ts --no-file-parallelism src/__tests__/rules/familyAccess.integration.test.ts src/__tests__/rules/familyBilling.integration.test.ts\"",
     "test:integration:study-reserve": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/studyReserve.integration.test.ts\"",
+    "test:integration:announcements": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/announcementFanout.integration.test.ts\"",
     "test:watch": "vitest",
     "serve": "npm run build && firebase emulators:start --config ..\\firebase.json --only auth,firestore,functions,storage --project demo-intellia237",
     "pregenerate": "tsx scripts/pregenerate.ts",
