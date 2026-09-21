@@ -1082,6 +1082,25 @@ describe("Firestore security rules", () => {
     );
   });
 
+  it("keeps the tutor idempotency ledger server-only, even for its owner", async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), "tutor_requests/student-a__req-00000001"), {
+        userId: "student-a",
+        state: "completed",
+        response: { text: "Réponse." },
+      });
+    });
+    const db = dbFor("student-a");
+    await assertFails(getDoc(doc(db, "tutor_requests/student-a__req-00000001")));
+    await assertFails(
+      setDoc(doc(db, "tutor_requests/student-a__req-00000002"), {
+        userId: "student-a",
+        state: "completed",
+        response: { text: "Réponse forgée." },
+      }),
+    );
+  });
+
   it("scopes notification device tokens to the authenticated owner", async () => {
     await seedFirestore();
     const ownerDb = dbFor("student-a");

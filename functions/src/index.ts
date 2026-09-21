@@ -10,6 +10,7 @@ import { onCallWithAccountAccess as onCall } from "./services/callableAccountAcc
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 
 import { getEnv } from "./config/env";
+import { ASK_TUTOR_CALLABLE_TIMEOUT_SECONDS } from "./config/timeouts";
 import {
   recordLessonProgressHandler,
   submitQuizAttemptHandler,
@@ -107,9 +108,9 @@ export const fanoutAnnouncementNotifications = onDocumentCreated(
 export const askTutor = onCall(
   {
     region: env.FUNCTIONS_REGION,
-    // Must exceed the default 45s provider timeout so quota reservations can
-    // always be released by the catch path before the platform terminates us.
-    timeoutSeconds: 60,
+    // Contrat fournisseur (45 s) < callable (75 s) < téléphone (90 s) :
+    // voir config/timeouts.ts.
+    timeoutSeconds: ASK_TUTOR_CALLABLE_TIMEOUT_SECONDS,
     memory: "512MiB",
   },
   async (request) => {

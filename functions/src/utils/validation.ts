@@ -28,6 +28,7 @@ export type GenerateSummaryCallableInput = z.infer<
   typeof generateSummaryCallableInputSchema
 >;
 
+
 export const clientIdSchema = z
   .string()
   .trim()
@@ -81,6 +82,8 @@ export const askTutorCallableInputSchema = z
     tutorId: z.string().max(16).optional(),
     // Contrat des versions déjà installées, accepté borné et jamais injecté.
     tutor: legacyTutorSchema.optional(),
+    // Identifiant d'idempotence de la question logique, réutilisé à la relance.
+    requestId: clientIdSchema.optional(),
   })
   .strict()
   .transform((input, context) => {
@@ -102,6 +105,7 @@ export const askTutorCallableInputSchema = z
       history: input.history,
       classLevel: input.classLevel,
       tutorId,
+      ...(input.requestId !== undefined ? { requestId: input.requestId } : {}),
     };
   });
 

@@ -16,7 +16,12 @@ import {
   resolveTutorLanguage,
   type TutorLanguage,
 } from "../llm/tutorPersonas";
-import { TUTOR_PROVIDER_TIMEOUT_MS } from "../config/timeouts";
+import {
+  ASK_TUTOR_CALLABLE_TIMEOUT_SECONDS,
+  TUTOR_IN_PROGRESS_POLL_MS,
+  TUTOR_IN_PROGRESS_WAIT_MS,
+  TUTOR_PROVIDER_TIMEOUT_MS,
+} from "../config/timeouts";
 import { AppError } from "../utils/errors";
 import type { AskTutorCallableInput } from "../utils/validation";
 import {
@@ -29,6 +34,12 @@ import {
   StudyReserveConsumption,
   billableFromUsage,
 } from "./studyReserveConsumption";
+import {
+  FirestoreTutorRequestLedger,
+  TUTOR_REQUEST_IN_PROGRESS_REASON,
+  tutorRequestPayloadHash,
+  type TutorRequestLedger,
+} from "./tutorRequestLedger";
 
 const MAX_CONTEXT_LESSONS = 3;
 const MAX_CONTEXT_CHARACTERS = MAX_ACADEMIC_CONTEXT_CHARS;
@@ -151,12 +162,89 @@ export class AskTutorUseCase {
     // Couche de consommation unique de la Réserve d'étude (réserve/commit/release
     // + comptabilisation de l'usage réel + seuils). Centralisée ici.
     private readonly studyReserve: StudyReserveConsumption = new StudyReserveConsumption(),
+    // Registre d'idempotence : une relance avec le même requestId ne rejoue
+    // ni Gemini, ni le quota, ni la Réserve d'étude.
+    private readonly requestLedger: TutorRequestLedger = new FirestoreTutorRequestLedger(),
+    private readonly sleep: (ms: number) => Promise<void> = (ms) =>
+      new Promise((resolve) => setTimeout(resolve, ms)),
   ) {}
 
   async execute(params: {
     userId: string;
     traceId: string;
     input: AskTutorCallableInput;
+  }): Promise<{ text: string } & TutorQuotaSnapshot> {
+    const requestId = params.input.requestId;
+    if (requestId === undefined) {
+      // Anciennes versions : pas d'identifiant, donc pas d'idempotence.
+      return this.generate({ ...params, requestKey: params.traceId, quotaAlreadyCharged: false });
+    }
+
+    let billedFailure = false;
+    const claim = await this.requestLedger.claim({
+      userId: params.userId,
+      requestId,
+      payloadHash: tutorRequestPayloadHash(params.input),
+      // Le bail couvre toute la vie de la callable : passé ce délai, une
+      // exécution tuée ne bloque plus la relance.
+      leaseMs: ASK_TUTOR_CALLABLE_TIMEOUT_SECONDS * 1_000,
+    });
+    if (claim.kind === "completed") return claim.response;
+    if (claim.kind === "in_progress") {
+      return this.awaitRunningRequest(params.userId, requestId);
+    }
+
+    try {
+      const response = await this.generate({
+        ...params,
+        requestKey: requestId,
+        quotaAlreadyCharged: claim.quotaAlreadyCharged,
+        onBilledFailure: () => {
+          billedFailure = true;
+        },
+      });
+      await this.requestLedger
+        .complete({ userId: params.userId, requestId, response })
+        .catch(() => undefined);
+      return response;
+    } catch (error) {
+      await this.requestLedger
+        .fail({
+          userId: params.userId,
+          requestId,
+          quotaCharged: claim.quotaAlreadyCharged || billedFailure,
+        })
+        .catch(() => undefined);
+      throw error;
+    }
+  }
+
+  /** Une relance attend la première exécution, sans rien relancer. */
+  private async awaitRunningRequest(
+    userId: string,
+    requestId: string,
+  ): Promise<{ text: string } & TutorQuotaSnapshot> {
+    const deadline = Date.now() + TUTOR_IN_PROGRESS_WAIT_MS;
+    while (Date.now() < deadline) {
+      await this.sleep(TUTOR_IN_PROGRESS_POLL_MS);
+      const record = await this.requestLedger.read({ userId, requestId });
+      if (record?.state === "completed" && record.response) return record.response;
+      if (record === null || record.state === "failed") break;
+    }
+    throw new AppError(
+      "unavailable",
+      "The answer to this question is still being prepared.",
+      { reason: TUTOR_REQUEST_IN_PROGRESS_REASON },
+    );
+  }
+
+  private async generate(params: {
+    userId: string;
+    traceId: string;
+    input: AskTutorCallableInput;
+    requestKey: string;
+    quotaAlreadyCharged: boolean;
+    onBilledFailure?: () => void;
   }): Promise<{ text: string } & TutorQuotaSnapshot> {
     const { tutorId, history, userMessage } = params.input;
     const authorizedContext = await this.contextStore.loadAuthorizedContext({
@@ -176,11 +264,13 @@ export class AskTutorUseCase {
       language,
     });
     try {
-      await this.quotaStore.reserve({
-        userId: params.userId,
-        traceId: params.traceId,
-        limit: this.dailyQuestionLimit,
-      });
+      if (!params.quotaAlreadyCharged) {
+        await this.quotaStore.reserve({
+          userId: params.userId,
+          traceId: params.requestKey,
+          limit: this.dailyQuestionLimit,
+        });
+      }
     } catch (error) {
       if (error instanceof AppError && error.code === "resource-exhausted") {
         logAiQuotaRejection({
@@ -201,7 +291,7 @@ export class AskTutorUseCase {
       const { result: responseText } = await this.studyReserve.run(
         {
           studentId: params.userId,
-          requestId: params.traceId,
+          requestId: params.requestKey,
           provider: "vertex-ai",
           model: getEnv().GEMINI_MODEL,
         },
@@ -233,9 +323,10 @@ export class AskTutorUseCase {
           }
         },
       );
+      // Idempotent : une clé déjà consommée n'est pas recomptée.
       const quota = await this.quotaStore.consume({
         userId: params.userId,
-        traceId: params.traceId,
+        traceId: params.requestKey,
         limit: this.dailyQuestionLimit,
       });
       return { text: responseText, ...quota };
@@ -245,15 +336,16 @@ export class AskTutorUseCase {
       // allowance; one the provider may have billed does, so an unusable or
       // timed-out answer can never be replayed for free.
       if (providerMayHaveBilled) {
+        params.onBilledFailure?.();
         await this.quotaStore.consume({
           userId: params.userId,
-          traceId: params.traceId,
+          traceId: params.requestKey,
           limit: this.dailyQuestionLimit,
         }).catch(() => undefined);
-      } else {
+      } else if (!params.quotaAlreadyCharged) {
         await this.quotaStore.release({
           userId: params.userId,
-          traceId: params.traceId,
+          traceId: params.requestKey,
         }).catch(() => undefined);
       }
       throw error;

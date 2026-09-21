@@ -5,6 +5,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../domain/ai_companion_reply.dart';
 import '../domain/ai_message.dart';
+import '../domain/tutor_turn_options.dart';
 import 'ai_repository.dart';
 
 abstract interface class TutorFunctionsGateway {
@@ -14,8 +15,22 @@ abstract interface class TutorFunctionsGateway {
 /// Raison stable envoyée par `askTutor` quand la Réserve d'étude est vide.
 const studyReserveExhaustedReason = 'study_reserve_exhausted';
 
-bool _isStudyReserveExhausted(Object? details) =>
-    details is Map && details['reason'] == studyReserveExhaustedReason;
+/// Relance d'une question dont la réponse est encore en préparation.
+const tutorRequestInProgressReason = 'tutor_request_in_progress';
+
+/// Question relancée trop de fois : il faut la poser à nouveau.
+const tutorRequestRetryLimitReason = 'tutor_request_retry_limit';
+
+/// Délai du téléphone pour `askTutor`.
+///
+/// Contrat : fournisseur (45 s) < callable (75 s) < téléphone (90 s), voir
+/// `functions/src/config/timeouts.ts`. Le téléphone ne doit jamais abandonner
+/// une réponse que le serveur produit et facture encore.
+const kAskTutorClientTimeout = Duration(seconds: 90);
+
+bool _hasReason(Object? details, String reason) =>
+    details is Map && details['reason'] == reason;
+
 
 class TutorCallableFailure implements Exception {
   const TutorCallableFailure({required this.code, this.message, this.details});
@@ -35,10 +50,14 @@ class FirebaseTutorFunctionsGateway implements TutorFunctionsGateway {
   @override
   Future<Object?> askTutor(Map<String, dynamic> payload) async {
     try {
+      // Le SDK coupe à 60 s par défaut : le délai doit être posé ici aussi.
       final result = await _functions
-          .httpsCallable('askTutor')
+          .httpsCallable(
+            'askTutor',
+            options: HttpsCallableOptions(timeout: kAskTutorClientTimeout),
+          )
           .call<Map<String, dynamic>>(payload)
-          .timeout(const Duration(seconds: 45));
+          .timeout(kAskTutorClientTimeout);
       return result.data;
     } on FirebaseFunctionsException catch (error) {
       throw TutorCallableFailure(
@@ -96,9 +115,11 @@ class CloudAIRepository implements AIRepository {
     required String classLevel,
     required List<AIMessage> history,
     required String userMessage,
+    TutorTurnOptions options = const TutorTurnOptions(),
   }) async {
     try {
       final rawData = await _gateway.askTutor(<String, dynamic>{
+        'requestId': ?options.requestId,
         'userMessage': userMessage,
         'classLevel': classLevel,
         'history': boundedTutorHistory(history),
@@ -164,9 +185,31 @@ class CloudAIRepository implements AIRepository {
     }
 
     return switch (code) {
+      'unavailable'
+          when _hasReason(error.details, tutorRequestInProgressReason) =>
+        AICompanionException(
+          message:
+              'La réponse de ${tutor.name} est encore en préparation. '
+              'Réessaie dans un instant : ta question ne sera pas recomptée.',
+          kind: AICompanionFailureKind.network,
+          normalizedErrorCode: tutorRequestInProgressReason,
+          diagnosticId: 'TUTOR-PENDING-508',
+        ),
+      'failed-precondition'
+          when _hasReason(error.details, tutorRequestRetryLimitReason) =>
+        AICompanionException(
+          message:
+              '${tutor.name} n’a pas pu répondre à cette question. '
+              'Pose-la à nouveau.',
+          kind: AICompanionFailureKind.invalidRequest,
+          normalizedErrorCode: tutorRequestRetryLimitReason,
+          diagnosticId: 'TUTOR-RETRY-509',
+          retryable: false,
+        ),
       // Même code que le quota quotidien : la raison stable du backend les
       // distingue, sinon l'élève lirait « plus de questions aujourd'hui ».
-      'resource-exhausted' when _isStudyReserveExhausted(error.details) =>
+      'resource-exhausted'
+          when _hasReason(error.details, studyReserveExhaustedReason) =>
         AICompanionException(
           message: 'La réserve d’étude est épuisée pour ce cycle.',
           kind: AICompanionFailureKind.studyReserveExhausted,

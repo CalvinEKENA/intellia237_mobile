@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/core/network/network_status.dart';
 import 'package:intellia237/features/ai_companion/application/ai_companion_controller.dart';
+import 'package:intellia237/features/ai_companion/domain/tutor_turn_options.dart';
 import 'package:intellia237/features/ai_companion/data/ai_repository.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_companion_reply.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
@@ -189,6 +190,7 @@ class _FailingCompanionRepository implements AIRepository {
     required String classLevel,
     required List<AIMessage> history,
     required String userMessage,
+    TutorTurnOptions options = const TutorTurnOptions(),
   }) async {
     calls += 1;
     throw AICompanionException(
