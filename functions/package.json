@@ -16,6 +16,7 @@
     "test:integration:study-reserve": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/studyReserve.integration.test.ts\"",
     "test:integration:announcements": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/announcementFanout.integration.test.ts\"",
     "test:integration:account-deletion": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/accountDeletion.integration.test.ts\"",
+    "test:integration:parcours": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/flowFeed.integration.test.ts\"",
     "test:watch": "vitest",
     "serve": "npm run build && firebase emulators:start --config ..\\firebase.json --only auth,firestore,functions,storage --project demo-intellia237",
     "pregenerate": "tsx scripts/pregenerate.ts",

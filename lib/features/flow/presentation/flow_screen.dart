@@ -10,6 +10,7 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/flow_controller.dart';
 import '../domain/flow_card.dart';
+import '../data/flow_feed_repository.dart';
 import '../data/flow_points_gateway.dart';
 import 'widgets/flow_card_view.dart';
 import 'widgets/flow_celebration_overlay.dart';
@@ -43,7 +44,7 @@ class FlowScreen extends ConsumerWidget {
       error: (_, _) => const FlowEmptyView(),
       data: (data) => data.cards.isEmpty
           ? const FlowEmptyView()
-          : _FlowPager(cards: data.cards),
+          : _FlowPager(catalog: data),
     );
   }
 }
@@ -59,9 +60,9 @@ class _FlowLoading extends StatelessWidget {
 }
 
 class _FlowPager extends ConsumerStatefulWidget {
-  const _FlowPager({required this.cards});
+  const _FlowPager({required this.catalog});
 
-  final List<FlowCard> cards;
+  final FlowCatalog catalog;
 
   @override
   ConsumerState<_FlowPager> createState() => _FlowScreenState();
@@ -72,7 +73,13 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
   final _consumedNotices = <String>{};
 
   final _pageController = PageController();
+
+  /// Cartes affichées : la première fenêtre, puis les pages chargées à la
+  /// demande. La liste ne fait que grandir, jamais sous la carte courante.
   late final List<FlowCard> _cards;
+  String? _nextCursor;
+  bool _loadingMore = false;
+  int _loadFailures = 0;
 
   int _index = 0;
   FlowAward? _celebration;
@@ -98,7 +105,8 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
   @override
   void initState() {
     super.initState();
-    final catalog = widget.cards;
+    final catalog = widget.catalog.cards;
+    _nextCursor = widget.catalog.nextCursor;
     final completed = ref.read(flowControllerProvider).completedCardIds;
     // Les cartes non terminées passent devant : une reprise ne rejoue donc pas
     // immédiatement les mêmes exercices. L'ordre éditorial reste stable dans
@@ -122,7 +130,50 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
     super.dispose();
   }
 
+  /// Demande la page suivante quand l'élève approche de la fin : une seule
+  /// demande à la fois, et plus aucune après [kFlowMaxLoadFailures] échecs.
+  void _maybeLoadMore(int index) {
+    final cursor = _nextCursor;
+    if (cursor == null ||
+        _loadingMore ||
+        _loadFailures >= kFlowMaxLoadFailures ||
+        index < _cards.length - kFlowPrefetchThreshold) {
+      return;
+    }
+    _loadingMore = true;
+    unawaited(
+      ref
+          .read(flowNextPageLoaderProvider)(widget.catalog, cursor)
+          .then((page) {
+            if (!mounted) return;
+            final known = {for (final card in _cards) card.id};
+            final fresh = page.cards.where((card) => known.add(card.id));
+            final completed = ref.read(flowControllerProvider).completedCardIds;
+            setState(() {
+              // Le neuf passe devant le déjà terminé, mais jamais avant la
+              // carte que l'élève regarde.
+              final tail = _cards.indexWhere(
+                (card) => completed.contains(card.id),
+              );
+              final insertAt = tail > _index ? tail : _cards.length;
+              _cards.insertAll(
+                insertAt,
+                fresh.where((card) => !completed.contains(card.id)),
+              );
+              _cards.addAll(fresh.where((card) => completed.contains(card.id)));
+              _nextCursor = page.nextCursor;
+              _loadFailures = 0;
+            });
+          })
+          .catchError((Object _) {
+            _loadFailures++;
+          })
+          .whenComplete(() => _loadingMore = false),
+    );
+  }
+
   void _handleSettled(int i) {
+    _maybeLoadMore(i);
     HapticFeedback.selectionClick();
     final card = _cards[i];
     final notifier = ref.read(flowControllerProvider.notifier);

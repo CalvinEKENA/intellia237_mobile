@@ -2,7 +2,7 @@ import { FieldValue, type Firestore, type DocumentData } from "firebase-admin/fi
 import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
 import { z } from "zod";
 import { db } from "../config/firebase";
-import { contentAudienceSchema, staffCanWrite } from "./contentAudience";
+import { contentAudienceSchema, flowAudienceKeys, staffCanWrite } from "./contentAudience";
 import { parseAssetPath } from "./educationalMedia";
 
 const schema = z.object({ id: z.string().max(160).regex(/^[^/]*$/).default(""), content: z.object({
@@ -45,7 +45,7 @@ export function createSaveFlowPublicationHandler(firestore: Firestore = db) {
           : !!data.ref?.storagePath;
         if (!valid) throw new HttpsError("failed-precondition", "Complétez le contenu avant publication.");
       }
-      tx.set(ref, { ...data, createdBy: current.data()?.createdBy || request.auth!.uid,
+      tx.set(ref, { ...data, audienceKeys: flowAudienceKeys(data), createdBy: current.data()?.createdBy || request.auth!.uid,
         createdAt: current.data()?.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString(),
         publishedAt: publishing ? current.data()?.publishedAt || new Date().toISOString() : current.data()?.publishedAt || null,
       }, { merge: true });

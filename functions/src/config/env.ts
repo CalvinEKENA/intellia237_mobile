@@ -27,6 +27,10 @@ const envSchema = z.object({
   GEMINI_STRUCTURED_THINKING_LEVEL: thinkingLevelSchema.default("MEDIUM"),
   MAX_COURSE_IMAGES: z.coerce.number().int().min(0).max(20).default(8),
   TUTOR_DAILY_QUESTION_LIMIT: z.coerce.number().int().min(1).max(200).default(20),
+  // Lecture Parcours par clé d'audience indexée. Reste désactivée tant que
+  // l'index composite n'est pas déployé et que scripts/backfillFlowAudienceKeys
+  // n'a pas été appliqué aux publications existantes.
+  FLOW_AUDIENCE_INDEX: booleanEnvironmentSchema.default(false),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info")
 });
 

@@ -78,3 +78,42 @@ export function staffCanWrite(user: DocumentData, data: DocumentData): boolean {
   const scope = data.scope?.type === "establishment" ? data.scope.establishmentId : data.establishmentId;
   return ["teacher", "admin"].includes(user.role) && !!user.establishmentId && scope === user.establishmentId;
 }
+
+/** Clé « tout niveau » : publication sans restriction de classe. */
+export const FLOW_AUDIENCE_ANY_LEVEL = "lvl:*";
+
+/**
+ * Clés d'audience indexables d'une publication Parcours.
+ *
+ * Elles forment un SUR-ENSEMBLE des élèves autorisés : la requête indexée
+ * `array-contains-any` ne sert qu'à ne plus lire tout `flow_items` ; la
+ * décision finale reste `audienceAllows`. Une clause sans niveau, ou une
+ * publication historique sans niveau, vaut pour tous les niveaux.
+ */
+export function flowAudienceKeys(data: DocumentData): string[] {
+  const keys = new Set<string>();
+  const addLevels = (levels: unknown) => {
+    const list = Array.isArray(levels)
+      ? levels.filter((level): level is string => typeof level === "string" && level.trim().length > 0)
+      : [];
+    if (list.length === 0) keys.add(FLOW_AUDIENCE_ANY_LEVEL);
+    for (const level of list) keys.add(`lvl:${canonicalClass(level)}`);
+  };
+  const parsed = data.audience !== undefined ? contentAudienceSchema.safeParse(data.audience) : null;
+  if (parsed?.success) {
+    for (const clause of parsed.data.clauses) addLevels(clause.classLevels);
+  } else {
+    addLevels(data.classLevels ?? (data.classLevel ? [data.classLevel] : []));
+  }
+  return [...keys].sort();
+}
+
+/** Clés à interroger pour un élève d'un niveau donné. */
+export function learnerFlowAudienceKeys(classLevel: string): string[] {
+  return [`lvl:${canonicalClass(classLevel)}`, FLOW_AUDIENCE_ANY_LEVEL];
+}
+
+/** Niveau canonique d'un élève, tel que `audienceAllows` le compare. */
+export function learnAudienceContextClass(user: DocumentData, profile: DocumentData = {}): string {
+  return user.role === "student" ? learnerAudienceContext(user, profile).classLevels : "";
+}

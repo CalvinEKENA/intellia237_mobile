@@ -1,4 +1,4 @@
-import { contentAudienceSchema, effectiveAudience } from "./contentAudience";
+import { contentAudienceSchema, effectiveAudience, flowAudienceKeys } from "./contentAudience";
 import { validateLessonMedia } from "./educationalMedia";
 import { createHash } from "node:crypto";
 import { FieldValue, type DocumentData, type Firestore } from "firebase-admin/firestore";
@@ -185,6 +185,9 @@ export function createSaveLessonPublicationHandler(firestore: Firestore = db) {
           if (scopeId(linked.data()) !== scopeId(current)) throw new HttpsError("failed-precondition", "Les contenus associés ont des publics différents.");
           writes.push({ path: linked.ref.path, data: { status: "published", classLevels: [input.classLevel],
             scheduledAt: null, audience: lesson.audience,
+            ...(linked.ref.parent.id === "flow_items"
+              ? { audienceKeys: flowAudienceKeys({ classLevels: [input.classLevel], audience: lesson.audience }) }
+              : {}),
             ...(linked.ref.parent.id === "flow_items" ? { priority: linked.data().priority || 0,
               payload: { ...linked.data().payload, subjectLabel: subjectDoc.data()!.title || "Cours" } } : {}),
             publishedAt: linked.data().publishedAt || new Date().toISOString(), updatedAt: new Date().toISOString() } });
@@ -197,6 +200,7 @@ export function createSaveLessonPublicationHandler(firestore: Firestore = db) {
           if (importedCards.length && item.data.type !== "shortVideo") continue;
           const existing = cards.docs.find(d => d.id === item.id)?.data();
           writes.push({ path: `flow_items/${item.id}`, data: { ...item.data,
+            audienceKeys: flowAudienceKeys(item.data),
             createdBy: current.createdBy || request.auth!.uid,
             createdAt: existing?.createdAt || new Date().toISOString(),
             publishedAt: existing?.publishedAt || new Date().toISOString(), updatedAt: new Date().toISOString() } });

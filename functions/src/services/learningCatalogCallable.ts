@@ -1,8 +1,17 @@
-import { FieldPath, type Firestore, type DocumentData, type QueryDocumentSnapshot } from "firebase-admin/firestore";
+import {
+  FieldPath,
+  type DocumentReference,
+  type DocumentSnapshot,
+  type Firestore,
+  type DocumentData,
+  type Query,
+  type QueryDocumentSnapshot,
+} from "firebase-admin/firestore";
 import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
 import { z } from "zod";
 import { db } from "../config/firebase";
-import { audienceAllows, canonicalClass } from "./contentAudience";
+import { audienceAllows, canonicalClass, learnAudienceContextClass, learnerFlowAudienceKeys } from "./contentAudience";
+import { getEnv } from "../config/env";
 import { publishedLessonAllows } from "./educationalMedia";
 
 const segment = z.string().min(1).max(400).regex(/^[^/\\]+$/);
@@ -37,17 +46,14 @@ export function createLearningCatalogHandler(firestore: Firestore = db) {
       .sort((a, b) => (a.data().order || 0) - (b.data().order || 0))
       .map(d => ({ id: d.id, data: clean(d.data()) }));
     if (input.action === "flow") {
-      let query = firestore.collection("flow_items").where("status", "==", "published").orderBy(FieldPath.documentId()).limit(input.limit);
-      if (input.cursor) query = query.startAfter(input.cursor);
-      const snapshot = await query.get();
-      const items = [];
-      for (const doc of snapshot.docs) {
-        const data = doc.data();
-        if (!allowed(data) || (data.scheduledAt && new Date(String(wire(data.scheduledAt))).getTime() > Date.now())) continue;
-        if (data.sourceLessonPath && !await publishedLessonAllows(firestore, data.sourceLessonPath, actor, profile)) continue;
-        items.push({ id: doc.id, data });
-      }
-      return wire({ documents: items, nextCursor: snapshot.size === input.limit ? snapshot.docs.at(-1)!.id : null });
+      return wire(await readFlowPage(firestore, {
+        actor,
+        profile,
+        requestedClassLevel: input.classLevel,
+        cursor: input.cursor,
+        limit: input.limit,
+        allowed,
+      }));
     }
     if (input.action === "subjects") {
       const documents = [];
@@ -104,5 +110,106 @@ export function createLearningCatalogHandler(firestore: Firestore = db) {
     const lesson = await chapterRef.collection("lessons").doc(input.lessonId).get();
     return wire({ documents: lesson.exists && lesson.data()!.status === "published" && allowed(lesson.data()!, level)
       ? [{ id: lesson.id, data: clean(lesson.data()!) }] : [] });
+  };
+}
+
+/**
+ * Page Parcours bornée.
+ *
+ * - au plus FLOW_MAX_ITEMS_PER_PAGE publications visibles par appel ;
+ * - au plus FLOW_MAX_SCAN documents lus par appel, jamais tout `flow_items` ;
+ * - une page peut revenir courte avec un curseur : le client ne boucle pas,
+ *   il redemande quand l'élève approche de la fin ;
+ * - les leçons sources, leurs chapitres et matières sont lus une fois chacun
+ *   par appel, en parallèle, au lieu d'une chaîne de lectures par carte ;
+ * - avec FLOW_AUDIENCE_INDEX, la requête ne lit que les publications dont la
+ *   clé d'audience peut concerner l'élève, les plus récentes d'abord.
+ */
+export const FLOW_MAX_ITEMS_PER_PAGE = 30;
+export const FLOW_SCAN_BATCH = 50;
+export const FLOW_MAX_SCAN = 200;
+
+export async function readFlowPage(
+  firestore: Firestore,
+  params: {
+    actor: DocumentData;
+    profile: DocumentData;
+    requestedClassLevel: string;
+    cursor?: string;
+    limit: number;
+    allowed: (data: DocumentData) => boolean;
+    indexed?: boolean;
+  },
+): Promise<{ documents: Array<{ id: string; data: DocumentData }>; nextCursor: string | null }> {
+  const wanted = Math.max(1, Math.min(params.limit, FLOW_MAX_ITEMS_PER_PAGE));
+  const indexed = params.indexed ?? getEnv().FLOW_AUDIENCE_INDEX;
+  let query: Query = firestore.collection("flow_items").where("status", "==", "published");
+  let after: DocumentSnapshot | string | undefined = params.cursor;
+  if (indexed) {
+    const level = learnAudienceContextClass(params.actor, params.profile) || params.requestedClassLevel;
+    query = query
+      .where("audienceKeys", "array-contains-any", learnerFlowAudienceKeys(level))
+      .orderBy("publishedAt", "desc")
+      .orderBy(FieldPath.documentId(), "desc");
+    if (params.cursor) {
+      const cursorDoc = await firestore.collection("flow_items").doc(params.cursor).get();
+      after = cursorDoc.exists ? cursorDoc : undefined;
+    }
+  } else {
+    query = query.orderBy(FieldPath.documentId());
+  }
+
+  const lessonReads = new Map<string, Promise<DocumentSnapshot>>();
+  const memoRead = (ref: DocumentReference) => {
+    let read = lessonReads.get(ref.path);
+    if (!read) {
+      read = ref.get();
+      lessonReads.set(ref.path, read);
+    }
+    return read;
+  };
+
+  const items: Array<{ id: string; data: DocumentData }> = [];
+  let scanned = 0;
+  let lastConsumed: QueryDocumentSnapshot | undefined;
+  let exhausted = false;
+  const now = Date.now();
+  while (items.length < wanted && scanned < FLOW_MAX_SCAN) {
+    let page = query.limit(Math.min(FLOW_SCAN_BATCH, FLOW_MAX_SCAN - scanned));
+    const start = lastConsumed ?? after;
+    if (start !== undefined) page = page.startAfter(start);
+    const snapshot = await page.get();
+    scanned += snapshot.size;
+    const verdicts = await Promise.all(snapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      if (!params.allowed(data)) return false;
+      if (data.scheduledAt && new Date(String(wire(data.scheduledAt))).getTime() > now) return false;
+      if (data.sourceLessonPath) {
+        return publishedLessonAllows(firestore, data.sourceLessonPath, params.actor, params.profile, memoRead);
+      }
+      return true;
+    }));
+    let stoppedEarly = false;
+    for (let index = 0; index < snapshot.docs.length; index++) {
+      if (items.length >= wanted) {
+        stoppedEarly = true;
+        break;
+      }
+      const doc = snapshot.docs[index];
+      lastConsumed = doc;
+      if (verdicts[index]) items.push({ id: doc.id, data: doc.data() });
+    }
+    if (!stoppedEarly && snapshot.size < FLOW_SCAN_BATCH) {
+      exhausted = true;
+      break;
+    }
+    if (snapshot.empty) {
+      exhausted = true;
+      break;
+    }
+  }
+  return {
+    documents: items,
+    nextCursor: exhausted || lastConsumed === undefined ? null : lastConsumed.id,
   };
 }

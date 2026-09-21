@@ -35,11 +35,30 @@ enum FlowCatalogOrigin {
 }
 
 /// Cartes servies à l'élève, et leur provenance.
+///
+/// Ce n'est qu'une première fenêtre : [nextCursor] permet à l'écran de
+/// demander la suite quand l'élève approche de la fin, au lieu de charger tout
+/// le catalogue à l'ouverture.
 class FlowCatalog {
-  const FlowCatalog({required this.cards, required this.origin});
+  const FlowCatalog({
+    required this.cards,
+    required this.origin,
+    this.nextCursor,
+    this.classLevel,
+    this.cacheKey,
+    this.learner,
+  });
 
   final List<FlowCard> cards;
   final FlowCatalogOrigin origin;
+
+  /// Curseur de la page suivante, ou null si le fil est complet.
+  final String? nextCursor;
+  final String? classLevel;
+  final String? cacheKey;
+
+  /// Instantané de l'élève utilisé pour ordonner les pages suivantes.
+  final FlowLearnerContext? learner;
 
   /// N'est vrai que dans un environnement de démonstration réel.
   bool get isDemo => origin == FlowCatalogOrigin.demo;
@@ -134,13 +153,19 @@ final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
   const strategy = DeterministicFlowFeedStrategy();
 
   try {
-    final items = await fetchFlowCatalog(repository, classLevel);
+    // Une seule fenêtre à l'ouverture : la suite vient à la demande.
+    final page = await fetchFlowWindow(repository, classLevel);
+    final items = page.items;
     if (items.isNotEmpty) {
       // Le cache ne retient que ce qui a été réellement servi.
       await cache.save(cacheKey, items);
       return FlowCatalog(
         cards: FlowItemMapper.toCards(strategy.order(items, learner)),
         origin: FlowCatalogOrigin.live,
+        nextCursor: page.nextCursor,
+        classLevel: classLevel,
+        cacheKey: cacheKey,
+        learner: learner,
       );
     }
     await cache.clear(cacheKey);
@@ -161,6 +186,47 @@ final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
     origin: FlowCatalogOrigin.cache,
   );
 });
+
+/// Page suivante du fil, ordonnée comme la première fenêtre.
+class FlowNextPage {
+  const FlowNextPage({required this.cards, required this.nextCursor});
+
+  final List<FlowCard> cards;
+  final String? nextCursor;
+}
+
+/// Charge la page qui suit [catalog] à partir de [cursor].
+///
+/// Appelé par l'écran quand l'élève approche de la fin de ce qu'il a déjà
+/// reçu ; une seule demande à la fois, sans cascade.
+final flowNextPageLoaderProvider =
+    Provider<Future<FlowNextPage> Function(FlowCatalog catalog, String cursor)>(
+      (ref) => (catalog, cursor) async {
+        final classLevel = catalog.classLevel;
+        if (classLevel == null) {
+          return const FlowNextPage(cards: [], nextCursor: null);
+        }
+        final page = await fetchFlowWindow(
+          ref.read(flowFeedRepositoryProvider),
+          classLevel,
+          cursor: cursor,
+          limit: kFlowNextPageSize,
+        );
+        final cacheKey = catalog.cacheKey;
+        if (cacheKey != null) {
+          await FlowFeedCache(
+            await SharedPreferences.getInstance(),
+          ).append(cacheKey, page.items);
+        }
+        const strategy = DeterministicFlowFeedStrategy();
+        final learner =
+            catalog.learner ?? FlowLearnerContext(classLevel: classLevel);
+        return FlowNextPage(
+          cards: FlowItemMapper.toCards(strategy.order(page.items, learner)),
+          nextCursor: page.nextCursor,
+        );
+      },
+    );
 
 /// Ce que l'application sait de l'élève au moment de composer son fil.
 ///
