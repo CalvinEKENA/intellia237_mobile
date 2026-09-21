@@ -43,10 +43,12 @@ class FirestoreDocument {
 class FirestoreValueCodec {
   static dynamic decodeValue(Map<String, dynamic> json) {
     if (json.containsKey('stringValue')) return json['stringValue'];
-    if (json.containsKey('integerValue'))
+    if (json.containsKey('integerValue')) {
       return int.tryParse(json['integerValue'].toString()) ?? 0;
-    if (json.containsKey('doubleValue'))
+    }
+    if (json.containsKey('doubleValue')) {
       return (json['doubleValue'] as num).toDouble();
+    }
     if (json.containsKey('booleanValue')) return json['booleanValue'] as bool;
     if (json.containsKey('timestampValue')) return json['timestampValue'];
     if (json.containsKey('nullValue')) return null;
@@ -75,8 +77,9 @@ class FirestoreValueCodec {
     if (value is int) return {'integerValue': value.toString()};
     if (value is double) return {'doubleValue': value};
     if (value is String) return {'stringValue': value};
-    if (value is DateTime)
+    if (value is DateTime) {
       return {'timestampValue': value.toUtc().toIso8601String()};
+    }
     if (value is List) {
       return {
         'arrayValue': {'values': value.map(encodeValue).toList()},
@@ -124,10 +127,12 @@ class FirestoreRestClient {
 
   bool _isUnauthenticated(http.Response res) {
     if (res.statusCode == 401) return true;
-    if (res.statusCode == 400 && res.body.contains('INVALID_ID_TOKEN'))
+    if (res.statusCode == 400 && res.body.contains('INVALID_ID_TOKEN')) {
       return true;
-    if (res.statusCode == 403 && res.body.contains('UNAUTHENTICATED'))
+    }
+    if (res.statusCode == 403 && res.body.contains('UNAUTHENTICATED')) {
       return true;
+    }
     return false;
   }
 

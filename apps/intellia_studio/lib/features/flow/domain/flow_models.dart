@@ -51,8 +51,9 @@ class StudioFlowItem {
   /// Strict server-parity validator matching saveFlowPublicationCallable.ts
   static String? validateForPublication(StudioFlowItem item) {
     if (item.title.trim().isEmpty) return 'Le titre est obligatoire.';
-    if (item.classLevels.isEmpty)
+    if (item.classLevels.isEmpty) {
       return 'Au moins un niveau académique est requis.';
+    }
     if (item.subjectId.trim().isEmpty) return 'La matière est obligatoire.';
 
     final publishing =
@@ -66,10 +67,12 @@ class StudioFlowItem {
         final q = p['question'] as String?;
         final options = p['options'] as List?;
         final correctIndex = p['correctIndex'] as int?;
-        if (q == null || q.trim().isEmpty)
+        if (q == null || q.trim().isEmpty) {
           return 'La question du quiz est requise.';
-        if (options == null || options.length < 2)
+        }
+        if (options == null || options.length < 2) {
           return 'Le quiz doit avoir au moins 2 options.';
+        }
         if (correctIndex == null ||
             correctIndex < 0 ||
             correctIndex >= options.length) {
@@ -101,8 +104,9 @@ class StudioFlowItem {
       case FlowCardType.interactiveNative:
         final comp = p['componentKey'] as String?;
         final summary = p['summary'] as String?;
-        if (comp == null || summary == null)
+        if (comp == null || summary == null) {
           return 'Composant interactif incomplet.';
+        }
         break;
       default:
         final storage = item.ref['storagePath'] as String?;
