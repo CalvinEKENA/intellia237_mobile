@@ -2520,5 +2520,91 @@
   },
   "guardianLinkCodeRotate": "Remplacer ce code",
   "guardianLinkCodeRotateBody": "L’ancien code de liaison cessera immédiatement de fonctionner. Les responsables déjà rattachés le restent.",
-  "guardianLinkCodeUnavailable": "Le code de liaison n’a pas pu être obtenu. Réessayez."
+  "guardianLinkCodeUnavailable": "Le code de liaison n’a pas pu être obtenu. Réessayez.",
+  "ilbWordOrderInstruction": "Remets les mots dans le bon ordre.",
+  "ilbStepOrderInstruction": "Remets les étapes dans le bon ordre.",
+  "ilbTimelineInstruction": "Remets ces événements dans l’ordre chronologique.",
+  "ilbProcessInstruction": "Remets les étapes de ce processus dans l’ordre.",
+  "ilbCheck": "Vérifier",
+  "ilbRestart": "Recommencer",
+  "ilbHint": "Un indice",
+  "ilbShowSolution": "Voir la solution",
+  "ilbContinueWith": "Continuer avec {name}",
+  "@ilbContinueWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ilbContinueMessage": "J’ai terminé l’exercice. On continue ?",
+  "ilbCorrect1": "Exact.",
+  "ilbCorrect2": "Très bien.",
+  "ilbCorrect3": "Oui, c’est ça.",
+  "ilbAlmost": "Presque.",
+  "ilbTryAgain": "Essaie encore.",
+  "ilbPositionHint": "Regarde la position {position}.",
+  "@ilbPositionHint": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbAttempt": "Essai {count}",
+  "@ilbAttempt": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbHintsUsed": "{count, plural, =0{Aucun indice} =1{1 indice} other{{count} indices}}",
+  "@ilbHintsUsed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbAnswerZoneEmpty": "Touche ou glisse les mots ici",
+  "ilbAnswerZoneA11y": "Ta réponse",
+  "ilbWordBankA11y": "Mots à placer",
+  "ilbPlaceWordA11y": "Placer « {word} »",
+  "@ilbPlaceWordA11y": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "ilbRemoveWordA11y": "Retirer « {word} », position {position}",
+  "@ilbRemoveWordA11y": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      },
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbMoveUp": "Monter",
+  "ilbMoveDown": "Descendre",
+  "ilbStepA11y": "Étape {position} : {text}",
+  "@ilbStepA11y": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "ilbSolutionShown": "Voici la bonne réponse.",
+  "ilbKiraWords": "Essaie de remettre cette phrase dans le bon ordre.",
+  "ilbLeoWords": "À toi. Reconstruis cette phrase.",
+  "ilbKiraSteps": "Prends ton temps : remets les étapes dans l’ordre.",
+  "ilbLeoSteps": "Défi : remets les étapes dans l’ordre, sans aide si tu peux."
 }

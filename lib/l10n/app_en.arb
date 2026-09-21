@@ -2436,5 +2436,91 @@
   },
   "guardianLinkCodeRotate": "Replace this code",
   "guardianLinkCodeRotateBody": "The previous link code will stop working immediately. Guardians already linked stay linked.",
-  "guardianLinkCodeUnavailable": "The link code could not be retrieved. Please try again."
+  "guardianLinkCodeUnavailable": "The link code could not be retrieved. Please try again.",
+  "ilbWordOrderInstruction": "Put the words in the correct order.",
+  "ilbStepOrderInstruction": "Put the steps in the correct order.",
+  "ilbTimelineInstruction": "Put these events in chronological order.",
+  "ilbProcessInstruction": "Put the stages of this process in order.",
+  "ilbCheck": "Check",
+  "ilbRestart": "Start again",
+  "ilbHint": "A hint",
+  "ilbShowSolution": "Show the solution",
+  "ilbContinueWith": "Continue with {name}",
+  "@ilbContinueWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ilbContinueMessage": "I’ve finished the exercise. Shall we go on?",
+  "ilbCorrect1": "Exactly.",
+  "ilbCorrect2": "Well done.",
+  "ilbCorrect3": "Yes, that’s it.",
+  "ilbAlmost": "Almost.",
+  "ilbTryAgain": "Try again.",
+  "ilbPositionHint": "Look at position {position}.",
+  "@ilbPositionHint": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbAttempt": "Attempt {count}",
+  "@ilbAttempt": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbHintsUsed": "{count, plural, =0{No hint} =1{1 hint} other{{count} hints}}",
+  "@ilbHintsUsed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbAnswerZoneEmpty": "Tap or drag the words here",
+  "ilbAnswerZoneA11y": "Your answer",
+  "ilbWordBankA11y": "Words to place",
+  "ilbPlaceWordA11y": "Place “{word}”",
+  "@ilbPlaceWordA11y": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "ilbRemoveWordA11y": "Remove “{word}”, position {position}",
+  "@ilbRemoveWordA11y": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      },
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbMoveUp": "Move up",
+  "ilbMoveDown": "Move down",
+  "ilbStepA11y": "Step {position}: {text}",
+  "@ilbStepA11y": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "ilbSolutionShown": "Here is the correct answer.",
+  "ilbKiraWords": "Try to put this sentence back in order.",
+  "ilbLeoWords": "Your turn. Rebuild this sentence.",
+  "ilbKiraSteps": "Take your time: put the steps in order.",
+  "ilbLeoSteps": "Challenge: put the steps in order, without help if you can."
 }

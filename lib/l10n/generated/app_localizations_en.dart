@@ -4906,4 +4906,122 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get guardianLinkCodeUnavailable =>
       'The link code could not be retrieved. Please try again.';
+
+  @override
+  String get ilbWordOrderInstruction => 'Put the words in the correct order.';
+
+  @override
+  String get ilbStepOrderInstruction => 'Put the steps in the correct order.';
+
+  @override
+  String get ilbTimelineInstruction =>
+      'Put these events in chronological order.';
+
+  @override
+  String get ilbProcessInstruction =>
+      'Put the stages of this process in order.';
+
+  @override
+  String get ilbCheck => 'Check';
+
+  @override
+  String get ilbRestart => 'Start again';
+
+  @override
+  String get ilbHint => 'A hint';
+
+  @override
+  String get ilbShowSolution => 'Show the solution';
+
+  @override
+  String ilbContinueWith(String name) {
+    return 'Continue with $name';
+  }
+
+  @override
+  String get ilbContinueMessage =>
+      'I’ve finished the exercise. Shall we go on?';
+
+  @override
+  String get ilbCorrect1 => 'Exactly.';
+
+  @override
+  String get ilbCorrect2 => 'Well done.';
+
+  @override
+  String get ilbCorrect3 => 'Yes, that’s it.';
+
+  @override
+  String get ilbAlmost => 'Almost.';
+
+  @override
+  String get ilbTryAgain => 'Try again.';
+
+  @override
+  String ilbPositionHint(int position) {
+    return 'Look at position $position.';
+  }
+
+  @override
+  String ilbAttempt(int count) {
+    return 'Attempt $count';
+  }
+
+  @override
+  String ilbHintsUsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hints',
+      one: '1 hint',
+      zero: 'No hint',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ilbAnswerZoneEmpty => 'Tap or drag the words here';
+
+  @override
+  String get ilbAnswerZoneA11y => 'Your answer';
+
+  @override
+  String get ilbWordBankA11y => 'Words to place';
+
+  @override
+  String ilbPlaceWordA11y(String word) {
+    return 'Place “$word”';
+  }
+
+  @override
+  String ilbRemoveWordA11y(String word, int position) {
+    return 'Remove “$word”, position $position';
+  }
+
+  @override
+  String get ilbMoveUp => 'Move up';
+
+  @override
+  String get ilbMoveDown => 'Move down';
+
+  @override
+  String ilbStepA11y(int position, String text) {
+    return 'Step $position: $text';
+  }
+
+  @override
+  String get ilbSolutionShown => 'Here is the correct answer.';
+
+  @override
+  String get ilbKiraWords => 'Try to put this sentence back in order.';
+
+  @override
+  String get ilbLeoWords => 'Your turn. Rebuild this sentence.';
+
+  @override
+  String get ilbKiraSteps => 'Take your time: put the steps in order.';
+
+  @override
+  String get ilbLeoSteps =>
+      'Challenge: put the steps in order, without help if you can.';
 }

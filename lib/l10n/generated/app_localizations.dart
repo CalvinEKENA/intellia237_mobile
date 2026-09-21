@@ -8463,6 +8463,192 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Le code de liaison n’a pas pu être obtenu. Réessayez.'**
   String get guardianLinkCodeUnavailable;
+
+  /// No description provided for @ilbWordOrderInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remets les mots dans le bon ordre.'**
+  String get ilbWordOrderInstruction;
+
+  /// No description provided for @ilbStepOrderInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remets les étapes dans le bon ordre.'**
+  String get ilbStepOrderInstruction;
+
+  /// No description provided for @ilbTimelineInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remets ces événements dans l’ordre chronologique.'**
+  String get ilbTimelineInstruction;
+
+  /// No description provided for @ilbProcessInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remets les étapes de ce processus dans l’ordre.'**
+  String get ilbProcessInstruction;
+
+  /// No description provided for @ilbCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier'**
+  String get ilbCheck;
+
+  /// No description provided for @ilbRestart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommencer'**
+  String get ilbRestart;
+
+  /// No description provided for @ilbHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un indice'**
+  String get ilbHint;
+
+  /// No description provided for @ilbShowSolution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir la solution'**
+  String get ilbShowSolution;
+
+  /// No description provided for @ilbContinueWith.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec {name}'**
+  String ilbContinueWith(String name);
+
+  /// No description provided for @ilbContinueMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai terminé l’exercice. On continue ?'**
+  String get ilbContinueMessage;
+
+  /// No description provided for @ilbCorrect1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exact.'**
+  String get ilbCorrect1;
+
+  /// No description provided for @ilbCorrect2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très bien.'**
+  String get ilbCorrect2;
+
+  /// No description provided for @ilbCorrect3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, c’est ça.'**
+  String get ilbCorrect3;
+
+  /// No description provided for @ilbAlmost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presque.'**
+  String get ilbAlmost;
+
+  /// No description provided for @ilbTryAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essaie encore.'**
+  String get ilbTryAgain;
+
+  /// No description provided for @ilbPositionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Regarde la position {position}.'**
+  String ilbPositionHint(int position);
+
+  /// No description provided for @ilbAttempt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essai {count}'**
+  String ilbAttempt(int count);
+
+  /// No description provided for @ilbHintsUsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun indice} =1{1 indice} other{{count} indices}}'**
+  String ilbHintsUsed(int count);
+
+  /// No description provided for @ilbAnswerZoneEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche ou glisse les mots ici'**
+  String get ilbAnswerZoneEmpty;
+
+  /// No description provided for @ilbAnswerZoneA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse'**
+  String get ilbAnswerZoneA11y;
+
+  /// No description provided for @ilbWordBankA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mots à placer'**
+  String get ilbWordBankA11y;
+
+  /// No description provided for @ilbPlaceWordA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Placer « {word} »'**
+  String ilbPlaceWordA11y(String word);
+
+  /// No description provided for @ilbRemoveWordA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer « {word} », position {position}'**
+  String ilbRemoveWordA11y(String word, int position);
+
+  /// No description provided for @ilbMoveUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Monter'**
+  String get ilbMoveUp;
+
+  /// No description provided for @ilbMoveDown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Descendre'**
+  String get ilbMoveDown;
+
+  /// No description provided for @ilbStepA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {position} : {text}'**
+  String ilbStepA11y(int position, String text);
+
+  /// No description provided for @ilbSolutionShown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici la bonne réponse.'**
+  String get ilbSolutionShown;
+
+  /// No description provided for @ilbKiraWords.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essaie de remettre cette phrase dans le bon ordre.'**
+  String get ilbKiraWords;
+
+  /// No description provided for @ilbLeoWords.
+  ///
+  /// In fr, this message translates to:
+  /// **'À toi. Reconstruis cette phrase.'**
+  String get ilbLeoWords;
+
+  /// No description provided for @ilbKiraSteps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prends ton temps : remets les étapes dans l’ordre.'**
+  String get ilbKiraSteps;
+
+  /// No description provided for @ilbLeoSteps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi : remets les étapes dans l’ordre, sans aide si tu peux.'**
+  String get ilbLeoSteps;
 }
 
 class _AppLocalizationsDelegate
