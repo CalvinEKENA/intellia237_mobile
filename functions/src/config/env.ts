@@ -55,24 +55,74 @@ function runtimeEnvironment(): NodeJS.ProcessEnv {
   };
 }
 
+/**
+ * Mode d'exécution :
+ * - `deployed` : runtime Cloud Functions/Cloud Run d'un projet applicatif, ou
+ *   analyse du code par `firebase deploy` (même variables de projet) ;
+ * - `local` : tests, émulateur, scripts hors Google Cloud.
+ */
+export type EnvironmentMode = "deployed" | "local";
+
+export function environmentMode(source: NodeJS.ProcessEnv = process.env): EnvironmentMode {
+  if (source.FUNCTIONS_EMULATOR === "true") return "local";
+  if (source.VITEST !== undefined || source.NODE_ENV === "test") return "local";
+  const runtimeProjectId = firstNonBlank(source.GOOGLE_CLOUD_PROJECT, source.GCLOUD_PROJECT);
+  if (runtimeProjectId && isApplicationProject(runtimeProjectId)) return "deployed";
+  if (source.K_SERVICE || source.FUNCTION_TARGET) return "deployed";
+  return "local";
+}
+
+/**
+ * Raisons d'une configuration invalide : noms de variables et codes de
+ * validation uniquement. Jamais de valeur — une variable peut porter un
+ * secret, et un message d'erreur finit dans les journaux.
+ */
+function describeIssues(issues: readonly z.ZodIssue[]): string {
+  return issues
+    .map((issue) => `${issue.path.join(".") || "(root)"}: ${issue.code}`)
+    .join("; ");
+}
+
+/**
+ * Lit et valide l'environnement.
+ *
+ * En local, une configuration invalide retombe sur des valeurs sûres et non
+ * productives, avec un avertissement. En production, elle fait échouer le
+ * chargement du code : `firebase deploy` s'arrête, et une instance ne démarre
+ * jamais avec le bucket local ou un projet Vertex vide.
+ */
+export function parseEnvironment(
+  source: NodeJS.ProcessEnv,
+  mode: EnvironmentMode,
+): AppEnv {
+  const result = envSchema.safeParse(source);
+  if (!result.success) {
+    const reasons = describeIssues(result.error.issues);
+    if (mode === "deployed") {
+      throw new Error(`Invalid Functions configuration: ${reasons}.`);
+    }
+    console.warn(`[WATCHDOG] Local Functions configuration is invalid (${reasons}); using safe local defaults.`);
+    return envSchema.parse({});
+  }
+  if (mode === "deployed") {
+    const missing: string[] = [];
+    if (!result.data.VERTEX_AI_PROJECT_ID) missing.push("VERTEX_AI_PROJECT_ID");
+    if (result.data.APP_STORAGE_BUCKET === localStorageBucket) missing.push("APP_STORAGE_BUCKET");
+    if (missing.length > 0) {
+      throw new Error(`Incomplete Functions configuration: ${missing.join(", ")} unresolved.`);
+    }
+  }
+  return result.data;
+}
+
 export function getEnv(): AppEnv {
   if (cachedEnv) {
     return cachedEnv;
   }
-
-  const result = envSchema.safeParse(runtimeEnvironment());
-
-  if (!result.success) {
-    const issues = result.error.issues
-      .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-      .join("; ");
-    console.warn(`[WATCHDOG] Environment validation issues (Functions might fail at runtime): ${issues}`);
-    // Keep discovery/test commands usable while preserving safe defaults.
-    return envSchema.parse({});
-  }
-
-  assertEnvironmentIsolation(result.data);
-  cachedEnv = result.data;
+  const source = runtimeEnvironment();
+  const env = parseEnvironment(source, environmentMode(process.env));
+  assertEnvironmentIsolation(env);
+  cachedEnv = env;
   return cachedEnv;
 }
 
