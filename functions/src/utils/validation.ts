@@ -51,7 +51,7 @@ const legacyTutorNameAliases: Readonly<Record<string, TutorId>> = {
 function tutorIdFromLegacyName(name: string): TutorId | null {
   const resolved = resolveTutorId(name);
   if (resolved) return resolved;
-  const key = name.normalize("NFD").replace(/[̀-ͯ]/g, "").trim().toLowerCase();
+  const key = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
   return legacyTutorNameAliases[key] ?? null;
 }
 

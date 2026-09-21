@@ -92,7 +92,7 @@ export function resolveTutorId(raw: unknown): TutorId | null {
   if (typeof raw !== "string") return null;
   const normalized = raw
     .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .trim()
     .toLowerCase();
   return (TUTOR_IDS as readonly string[]).includes(normalized)
