@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +15,7 @@ import '../data/quiz_diagnostic.dart';
 import '../domain/quiz_attempt_summary.dart';
 import '../domain/quiz_mode.dart';
 import '../domain/quiz_model.dart';
+import 'widgets/quiz_unavailable_state.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 
@@ -73,28 +76,32 @@ class _QuizFailureState extends StatelessWidget {
     final failure = error is QuizContentException
         ? error as QuizContentException
         : null;
-    final message = switch (failure?.operation) {
+    // La cause reste dans les journaux ; l'élève voit un état humain.
+    developer.log(
+      'Quiz hub unavailable.',
+      name: 'intellia.quiz',
+      error: failure?.operation.name ?? error.runtimeType.toString(),
+    );
+    final operation = failure?.operation;
+    final offline =
+        operation == QuizOperation.network ||
+        operation == QuizOperation.appCheck ||
+        (operation == null &&
+            stateKindForError(error) == IntelliaStateKind.offline);
+    // Seul un profil à compléter mérite un message particulier : c'est une
+    // action que l'élève peut faire.
+    final message = switch (operation) {
       QuizOperation.profileMissing ||
       QuizOperation.classMapping => context.l10n.quizProfileIncompleteBody,
       QuizOperation.firestorePermission => context.l10n.quizCatalogDeniedBody,
-      QuizOperation.callableUnavailable =>
-        context.l10n.quizCatalogUnavailableBody,
-      QuizOperation.invalidResponse ||
-      QuizOperation.subjectMapping => context.l10n.quizCatalogInvalidBody,
-      QuizOperation.appCheck ||
-      QuizOperation.network => context.l10n.quizCatalogNetworkBody,
-      QuizOperation.unknown ||
-      null => stateMessageForKind(context, stateKindForError(error)),
+      _ => null,
     };
 
-    return IntelliaStateView(
-      kind: stateKindForError(error),
-      title: context.l10n.quizLoadErrorTitle,
+    return QuizUnavailableState(
       message: message,
-      primaryLabel: context.l10n.retryLabel,
-      onPrimary: onRetry,
-      secondaryLabel: context.l10n.continueWithFlow,
-      onSecondary: () => context.push(AppRoutes.flow),
+      offline: offline,
+      onRetry: onRetry,
+      onContinuePath: () => context.push(AppRoutes.flow),
     );
   }
 }

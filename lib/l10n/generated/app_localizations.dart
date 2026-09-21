@@ -1766,6 +1766,30 @@ abstract class AppLocalizations {
   /// **'Apprendre'**
   String get learnTitle;
 
+  /// No description provided for @learnEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer · comprendre · progresser'**
+  String get learnEyebrow;
+
+  /// No description provided for @learnUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes matières ne sont pas disponibles pour le moment'**
+  String get learnUnavailableTitle;
+
+  /// No description provided for @learnUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessaie dans quelques instants.'**
+  String get learnUnavailableBody;
+
+  /// No description provided for @learnUnavailableOfflineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta connexion, puis réessaie. Ton parcours reste disponible.'**
+  String get learnUnavailableOfflineBody;
+
   /// No description provided for @learnSubtitle.
   ///
   /// In fr, this message translates to:
@@ -2585,25 +2609,25 @@ abstract class AppLocalizations {
   /// No description provided for @quizCatalogDeniedBody.
   ///
   /// In fr, this message translates to:
-  /// **'L’accès au catalogue n’a pas été autorisé pour ce profil. Tu peux continuer avec tes cours pendant la vérification.'**
+  /// **'Tes quiz ne sont pas encore ouverts pour ton profil. Tu peux continuer avec tes cours en attendant.'**
   String get quizCatalogDeniedBody;
 
   /// No description provided for @quizCatalogUnavailableBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec ton parcours ou tes cours.'**
+  /// **'Tes quiz sont momentanément inaccessibles. Continue ton parcours ou tes cours en attendant.'**
   String get quizCatalogUnavailableBody;
 
   /// No description provided for @quizCatalogInvalidBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le catalogue reçu est incomplet. Il n’est pas affiché afin de ne pas te proposer un contenu incorrect.'**
+  /// **'Certains quiz ne sont pas encore prêts. Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.'**
   String get quizCatalogInvalidBody;
 
   /// No description provided for @quizCatalogNetworkBody.
   ///
   /// In fr, this message translates to:
-  /// **'La connexion au catalogue est interrompue. Tes cours et ton parcours restent disponibles.'**
+  /// **'La connexion est interrompue. Tes cours et ton parcours restent disponibles.'**
   String get quizCatalogNetworkBody;
 
   /// No description provided for @quizLoadErrorTitle.
@@ -2743,6 +2767,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Quiz'**
   String get quizTitle;
+
+  /// No description provided for @quizEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'S’entraîner · se tester'**
+  String get quizEyebrow;
+
+  /// No description provided for @quizUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes quiz ne sont pas disponibles pour le moment'**
+  String get quizUnavailableTitle;
+
+  /// No description provided for @quizUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.'**
+  String get quizUnavailableBody;
+
+  /// No description provided for @quizUnavailableOfflineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta connexion. Tu peux continuer ton parcours et revenir t’entraîner ensuite.'**
+  String get quizUnavailableOfflineBody;
+
+  /// No description provided for @quizUnavailableModesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modes disponibles dès le retour de tes quiz'**
+  String get quizUnavailableModesLabel;
 
   /// No description provided for @quizHistoryLoading.
   ///
@@ -6151,13 +6205,13 @@ abstract class AppLocalizations {
   /// No description provided for @aiGenerationBackendOnly.
   ///
   /// In fr, this message translates to:
-  /// **'La génération IA n’est plus disponible côté client. Le flux backend-only passe désormais par Cloud Functions et le microservice LLM.'**
+  /// **'La génération automatique se fait côté serveur, jamais depuis cet écran.'**
   String get aiGenerationBackendOnly;
 
   /// No description provided for @aiGenerationBackendInstructions.
   ///
   /// In fr, this message translates to:
-  /// **'Rédigez la leçon manuellement ici, puis utilisez le parcours backend sécurisé pour produire résumés et quiz.'**
+  /// **'Rédigez la leçon ici. Pour partir de pages de cours photographiées, utilisez « Importer des pages » depuis le chapitre : des brouillons sont préparés, que vous relisez avant publication.'**
   String get aiGenerationBackendInstructions;
 
   /// No description provided for @courseSectionsCount.

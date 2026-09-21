@@ -41,7 +41,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-2')));
       await tester.pump(const Duration(milliseconds: 100));
       expect(
-        find.text('Impossible de charger les quiz pour le moment.'),
+        find.text('Tes quiz ne sont pas disponibles pour le moment'),
         findsOneWidget,
       );
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-0')));

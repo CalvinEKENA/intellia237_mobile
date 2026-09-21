@@ -941,6 +941,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get learnTitle => 'Apprendre';
 
   @override
+  String get learnEyebrow => 'Explorer · comprendre · progresser';
+
+  @override
+  String get learnUnavailableTitle =>
+      'Tes matières ne sont pas disponibles pour le moment';
+
+  @override
+  String get learnUnavailableBody => 'Réessaie dans quelques instants.';
+
+  @override
+  String get learnUnavailableOfflineBody =>
+      'Vérifie ta connexion, puis réessaie. Ton parcours reste disponible.';
+
+  @override
   String get learnSubtitle => 'Tes matières, adaptées à ton niveau.';
 
   @override
@@ -1447,19 +1461,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizCatalogDeniedBody =>
-      'L’accès au catalogue n’a pas été autorisé pour ce profil. Tu peux continuer avec tes cours pendant la vérification.';
+      'Tes quiz ne sont pas encore ouverts pour ton profil. Tu peux continuer avec tes cours en attendant.';
 
   @override
   String get quizCatalogUnavailableBody =>
-      'Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec ton parcours ou tes cours.';
+      'Tes quiz sont momentanément inaccessibles. Continue ton parcours ou tes cours en attendant.';
 
   @override
   String get quizCatalogInvalidBody =>
-      'Le catalogue reçu est incomplet. Il n’est pas affiché afin de ne pas te proposer un contenu incorrect.';
+      'Certains quiz ne sont pas encore prêts. Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.';
 
   @override
   String get quizCatalogNetworkBody =>
-      'La connexion au catalogue est interrompue. Tes cours et ton parcours restent disponibles.';
+      'La connexion est interrompue. Tes cours et ton parcours restent disponibles.';
 
   @override
   String get quizLoadErrorTitle =>
@@ -1536,6 +1550,25 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizTitle => 'Quiz';
+
+  @override
+  String get quizEyebrow => 'S’entraîner · se tester';
+
+  @override
+  String get quizUnavailableTitle =>
+      'Tes quiz ne sont pas disponibles pour le moment';
+
+  @override
+  String get quizUnavailableBody =>
+      'Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.';
+
+  @override
+  String get quizUnavailableOfflineBody =>
+      'Vérifie ta connexion. Tu peux continuer ton parcours et revenir t’entraîner ensuite.';
+
+  @override
+  String get quizUnavailableModesLabel =>
+      'Modes disponibles dès le retour de tes quiz';
 
   @override
   String get quizHistoryLoading => 'Chargement des tentatives validées…';
@@ -3518,11 +3551,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aiGenerationBackendOnly =>
-      'La génération IA n’est plus disponible côté client. Le flux backend-only passe désormais par Cloud Functions et le microservice LLM.';
+      'La génération automatique se fait côté serveur, jamais depuis cet écran.';
 
   @override
   String get aiGenerationBackendInstructions =>
-      'Rédigez la leçon manuellement ici, puis utilisez le parcours backend sécurisé pour produire résumés et quiz.';
+      'Rédigez la leçon ici. Pour partir de pages de cours photographiées, utilisez « Importer des pages » depuis le chapitre : des brouillons sont préparés, que vous relisez avant publication.';
 
   @override
   String courseSectionsCount(int count) {

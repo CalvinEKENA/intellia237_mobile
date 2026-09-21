@@ -1,8 +1,12 @@
+import 'dart:developer' as developer;
+
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../app/router/app_routes.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
@@ -12,6 +16,7 @@ import '../../../core/widgets/tab_section_header.dart';
 import '../application/learn_providers.dart';
 import '../domain/learn_subject.dart';
 import 'subject_detail_screen.dart';
+import 'widgets/learn_unavailable_state.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 
@@ -48,13 +53,19 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
 
     final content = hubAsync.when(
       loading: _LearnHubLoading.new,
-      error: (error, stackTrace) => IntelliaStateView(
-        kind: stateKindForError(error),
-        title: context.l10n.subjectsLoadError,
-        message: stateMessageForKind(context, stateKindForError(error)),
-        primaryLabel: context.l10n.retryLabel,
-        onPrimary: () => ref.invalidate(learnHubProvider),
-      ),
+      error: (error, stackTrace) {
+        // La cause reste dans les journaux ; l'élève voit un état humain.
+        developer.log(
+          'Learn hub unavailable.',
+          name: 'intellia.learn',
+          error: error.runtimeType.toString(),
+        );
+        return LearnUnavailableState(
+          offline: stateKindForError(error) == IntelliaStateKind.offline,
+          onRetry: () => ref.invalidate(learnHubProvider),
+          onContinuePath: () => context.push(AppRoutes.flow),
+        );
+      },
       data: (snapshot) => _LearnHubBody(
         classLabel: snapshot.context.label,
         subjects: snapshot.subjects,
