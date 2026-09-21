@@ -119,6 +119,28 @@ describe("account deletion end to end", () => {
     expect(auth.calls).toEqual([]);
   });
 
+  it("never processes a request left by the previous app version", async () => {
+    // Ancien format : statut « pending », sans échéance ni délai de grâce
+    // annoncé. Décision du propriétaire : jamais traité automatiquement ;
+    // visible dans Studio, et l'élève peut refaire une demande explicite.
+    await seedStudent("stu-legacy");
+    await db.doc("account_deletion_requests/stu-legacy").set({
+      uid: "stu-legacy",
+      status: "pending",
+      requestedAt: Timestamp.fromMillis(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    });
+    const { processor: run, auth } = processor();
+    expect(await run.processDue()).toEqual({ completed: 0, failed: 0 });
+    expect(auth.calls).toEqual([]);
+    expect((await db.doc("users/stu-legacy").get()).get("firstName")).toBe("Amina");
+    expect((await db.doc("account_deletion_requests/stu-legacy").get()).get("status")).toBe("pending");
+
+    // Une nouvelle demande explicite repart avec 7 jours de grâce.
+    const again = await createRequestAccountDeletionHandler(db)({ auth: { uid: "stu-legacy" }, data: {} } as never);
+    expect(again.status).toBe("scheduled");
+    expect(Date.parse(again.dueAt)).toBeGreaterThan(Date.now() + ACCOUNT_DELETION_GRACE_MS - 60_000);
+  });
+
   it("erases a student's personal data, keeps what must be kept, deletes Auth last", async () => {
     await seedStudent("stu-1");
     await createRequestAccountDeletionHandler(db)({ auth: { uid: "stu-1" }, data: {} } as never);

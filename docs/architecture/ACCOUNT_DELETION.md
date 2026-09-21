@@ -117,6 +117,18 @@ par le propriétaire avec son conseil (voir §6).
 - Page web de demande de suppression (exigée par Google Play pour les
   personnes qui n'ont plus l'application).
 
+## 6 bis. Demandes créées par l'ancienne version
+
+Avant cette version, `requestAccountDeletion` écrivait seulement
+`{ status: "pending", requestedAt }`, sans échéance ni délai de grâce annoncé.
+**Décision du propriétaire (21 septembre 2026) : ces demandes ne sont jamais
+traitées automatiquement.** Le traitement planifié ne lit que les statuts
+`scheduled`, `failed` et `processing` avec une échéance `dueAt` dépassée ; une
+demande `pending` sans échéance n'est donc jamais sélectionnée (verrouillé par
+`accountDeletion.integration.test.ts`). Elles restent visibles dans Studio
+(échéance « — ») pour un traitement manuel, et la personne peut refaire une
+demande explicite, qui repart avec 7 jours de grâce.
+
 ## 7. Déploiement requis
 
 - Callables `requestAccountDeletion` (modifiée), `cancelAccountDeletion`.
