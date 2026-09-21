@@ -75,6 +75,13 @@ void main() {
         // Must label screen section as companion specification, not duplicate production prompt
         expect(content.contains('Spécification du compagnon'), isTrue);
         expect(content.contains('Prompt Système — Production'), isFalse);
+
+        // No local copy of the companion rules: the screen shows what the
+        // server really sends, so it can never promise a rule that is not
+        // applied (the old static text advertised a Socratic method).
+        expect(content.contains('socratique'), isFalse);
+        expect(content.contains('_kiraSpecification'), isFalse);
+        expect(content.contains('formatCompanionSpecification'), isTrue);
       },
     );
 
@@ -96,6 +103,63 @@ void main() {
                 'structuredThinkingLevel': 'MEDIUM',
                 'location': 'global',
                 'configured': true,
+                'companions': [
+                  {
+                    'id': 'kira',
+                    'displayName': 'Kira',
+                    'role': {
+                      'fr': 'Compagne d’étude.',
+                      'en': 'Study companion.',
+                    },
+                    'temperament': {'fr': 'Patiente.', 'en': 'Patient.'},
+                    'motto': {'fr': 'Apprenons.', 'en': 'Let us learn.'},
+                    'style': {
+                      'fr': ['Découpe les difficultés.'],
+                      'en': [],
+                    },
+                    'pedagogy': {
+                      'fr': ['Guide avant de donner la solution.'],
+                      'en': [],
+                    },
+                    'safety': {
+                      'fr': ['Adulte de confiance.'],
+                      'en': [],
+                    },
+                    'format': {
+                      'fr': ['Tutoie l’élève.'],
+                      'en': [],
+                    },
+                  },
+                  {
+                    'id': 'leo',
+                    'displayName': 'Léo',
+                    'role': {
+                      'fr': 'Compagnon d’entraînement.',
+                      'en': 'Practice companion.',
+                    },
+                    'temperament': {'fr': 'Dynamique.', 'en': 'Energetic.'},
+                    'motto': {
+                      'fr': 'Dépasse tes limites.',
+                      'en': 'Push your limits.',
+                    },
+                    'style': {
+                      'fr': ['Propose des défis.'],
+                      'en': [],
+                    },
+                    'pedagogy': {
+                      'fr': ['Guide avant de donner la solution.'],
+                      'en': [],
+                    },
+                    'safety': {
+                      'fr': ['Adulte de confiance.'],
+                      'en': [],
+                    },
+                    'format': {
+                      'fr': ['Tutoie l’élève.'],
+                      'en': [],
+                    },
+                  },
+                ],
               },
             ),
           ],
@@ -111,7 +175,12 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Spécification du compagnon — Kira'), findsOneWidget);
-      expect(find.text('SPÉCIFICATION ÉDITORIALE'), findsOneWidget);
+      expect(find.text('SPÉCIFICATION SERVEUR'), findsOneWidget);
+      expect(
+        find.textContaining('Guide avant de donner la solution.'),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Adulte de confiance.'), findsOneWidget);
 
       // Check authoritative runtime configuration card
       expect(find.text('Configuration Runtime IA'), findsOneWidget);
@@ -174,6 +243,11 @@ void main() {
 
         // Verify that NO model is claimed statically
         expect(find.text('gemini-3.8-flash'), findsNothing);
+        // Nor any companion rule: the specification is unavailable too.
+        expect(
+          find.textContaining('Spécification serveur indisponible'),
+          findsOneWidget,
+        );
         expect(find.text('gemini-1.5-flash'), findsNothing);
       },
     );

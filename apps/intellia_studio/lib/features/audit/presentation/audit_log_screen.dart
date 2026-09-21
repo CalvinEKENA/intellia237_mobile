@@ -7,6 +7,7 @@ import '../../../core/theme/studio_theme.dart';
 import '../../../core/widgets/studio_badge.dart';
 import '../../../core/widgets/studio_data_table.dart';
 import '../../auth/application/auth_controller.dart';
+import 'account_deletion_requests_panel.dart';
 
 class StudioAuditEvent {
   final String id;
@@ -103,7 +104,9 @@ class AuditLogScreen extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          const AccountDeletionRequestsPanel(),
+          const SizedBox(height: 16),
           Expanded(
             child: eventsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),

@@ -112,21 +112,15 @@ class ControlPlaneClient {
     return result as T;
   }
 
+  /// Traduit une réponse d'erreur HTTP en [ControlPlaneException].
+  ///
+  /// Le corps d'une callable en échec porte `{ error: { status, message,
+  /// details } }`, déjà filtré par le serveur pour être montré. Ce message
+  /// est conservé tel quel ; seul un corps illisible retombe sur un libellé
+  /// générique avec le code HTTP.
   void _handleHttpError(http.Response response) {
-    try {
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
-      if (body.containsKey('error')) {
-        final err = body['error'] as Map<String, dynamic>;
-        throw ControlPlaneException(
-          err['status'] as String? ?? 'http-${response.statusCode}',
-          err['message'] as String? ?? 'Erreur HTTP ${response.statusCode}',
-        );
-      }
-    } catch (_) {}
-    throw ControlPlaneException(
-      'http-${response.statusCode}',
-      'Erreur HTTP ${response.statusCode}',
-    );
+    final error = parseCallableError(response.statusCode, response.body);
+    throw error;
   }
 
   // -------------------------------------------------------------
@@ -453,4 +447,27 @@ class ControlPlaneClient {
       parser: (res) => (res as Map<String, dynamic>? ?? {}),
     );
   }
+}
+
+/// Erreur d'une callable lue depuis son corps HTTP, sans jamais la perdre.
+ControlPlaneException parseCallableError(int statusCode, String body) {
+  Object? decoded;
+  try {
+    decoded = jsonDecode(body);
+  } on FormatException {
+    decoded = null;
+  }
+  if (decoded is Map && decoded['error'] is Map) {
+    final error = decoded['error'] as Map;
+    final status = error['status'];
+    final message = error['message'];
+    return ControlPlaneException(
+      status is String && status.isNotEmpty ? status : 'http-$statusCode',
+      message is String && message.isNotEmpty
+          ? message
+          : 'Erreur HTTP $statusCode',
+      error['details'],
+    );
+  }
+  return ControlPlaneException('http-$statusCode', 'Erreur HTTP $statusCode');
 }

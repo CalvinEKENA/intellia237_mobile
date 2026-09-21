@@ -21,42 +21,6 @@ class CompanionsScreen extends ConsumerStatefulWidget {
 class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
   String _selectedCompanion = 'kira';
 
-  static const String _kiraSpecification =
-      'SPÉCIFICATION DU COMPAGNON — KIRA\n\n'
-      '1. POSITIONNEMENT &\n   RÔLE ÉDUCATIF :\n'
-      '   - Compagne d\'étude bienveillante, rigoureuse et patiente.\n'
-      '   - Accompagne les élèves camerounais (de la 6ème à la Terminale, sous-systèmes francophone et anglophone).\n'
-      '   - Axée sur la compréhension en profondeur, la méthodologie et le déblocage pas-à-pas.\n\n'
-      '2. SIGNATURE ÉDITORIALE :\n'
-      '   - Nom : Kira\n'
-      '   - Spécialité : Méthodologie & Accompagnement\n'
-      '   - Tempérament : Patiente & Explicative\n'
-      '   - Devise : "Apprenons avec calme et sérénité."\n\n'
-      '3. DIRECTIVES PÉDAGOGIQUES :\n'
-      '   - Méthode socratique : ne jamais donner directement la solution brute d\'un exercice.\n'
-      '   - S\'appuyer exclusivement sur le contexte académique officiel du MINESEC Cameroun fourni par le backend.\n'
-      '   - Clarté mathématique et scientifique sans dispersion.\n\n'
-      'NOTE ARCHITECTURALE :\n'
-      'Le prompt système d\'inférence actif est assemblé dynamiquement par le backend (askTutor) avec le contexte académique vérifié de l\'élève. Il n\'est pas dupliqué statiquement dans Studio.';
-
-  static const String _leoSpecification =
-      'SPÉCIFICATION DU COMPAGNON — LÉO\n\n'
-      '1. POSITIONNEMENT &\n   RÔLE ÉDUCATIF :\n'
-      '   - Guide d\'entraînement, de défi et de performance académique.\n'
-      '   - Stimule les élèves par des challenges progressifs et l\'auto-dépassement.\n'
-      '   - Prépare activement aux examens officiels et grands concours (Polytechnique, ENSP, FMSB, ENS).\n\n'
-      '2. SIGNATURE ÉDITORIALE :\n'
-      '   - Nom : Léo\n'
-      '   - Spécialité : Défis & Performance\n'
-      '   - Tempérament : Dynamique & Challengeur\n'
-      '   - Devise : "Dépasse tes limites et bats tes records !"\n\n'
-      '3. DIRECTIVES PÉDAGOGIQUES :\n'
-      '   - Exigeant, énergique et constructif.\n'
-      '   - Valorise l\'effort, l\'esprit critique et la rigueur de raisonnement.\n'
-      '   - Reste toujours arrimé aux programmes officiels du MINESEC Cameroun.\n\n'
-      'NOTE ARCHITECTURALE :\n'
-      'Le prompt système d\'inférence actif est assemblé dynamiquement par le backend (askTutor) avec le contexte académique vérifié de l\'élève. Il n\'est pas dupliqué statiquement dans Studio.';
-
   @override
   Widget build(BuildContext context) {
     final configAsync = ref.watch(companionRuntimeConfigProvider);
@@ -138,14 +102,14 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                                 ),
                               ),
                               const StudioBadge(
-                                label: 'SPÉCIFICATION ÉDITORIALE',
+                                label: 'SPÉCIFICATION SERVEUR',
                                 variant: StudioBadgeVariant.info,
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            'Spécification éditoriale et rôle pédagogique. Le prompt d\'inférence actif est assemblé dynamiquement par le backend askTutor.',
+                            'Texte réellement envoyé au modèle par askTutor : rôle, règles pédagogiques et garde-fous. Lu depuis le serveur, jamais recopié ici.',
                             style: TextStyle(
                               fontSize: 12,
                               color: StudioColors.textSecondaryLight,
@@ -166,9 +130,17 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
                               ),
                               child: SingleChildScrollView(
                                 child: Text(
-                                  _selectedCompanion == 'kira'
-                                      ? _kiraSpecification
-                                      : _leoSpecification,
+                                  configAsync.maybeWhen(
+                                    data: (config) =>
+                                        formatCompanionSpecification(
+                                          config,
+                                          _selectedCompanion,
+                                        ),
+                                    loading: () =>
+                                        'Chargement de la spécification serveur…',
+                                    orElse: () =>
+                                        kCompanionSpecificationUnavailable,
+                                  ),
                                   style: const TextStyle(
                                     fontFamily: 'monospace',
                                     fontSize: 13,
@@ -434,4 +406,55 @@ class _CompanionsScreenState extends ConsumerState<CompanionsScreen> {
       ],
     );
   }
+}
+
+const kCompanionSpecificationUnavailable =
+    'Spécification serveur indisponible. Aucun texte n\'est affiché de mémoire : '
+    'ce qui est montré ici doit être ce que le modèle reçoit.';
+
+/// Met en forme la spécification publiée par `getCompanionRuntimeConfig`.
+///
+/// Studio n'a aucune copie locale des règles : si le serveur ne publie pas la
+/// spécification (ancienne version déployée), l'écran le dit.
+String formatCompanionSpecification(
+  Map<String, dynamic> config,
+  String companionId,
+) {
+  final companions = config['companions'];
+  if (companions is! List) return kCompanionSpecificationUnavailable;
+  final entry = companions.whereType<Map>().where(
+    (companion) => companion['id'] == companionId,
+  );
+  if (entry.isEmpty) return kCompanionSpecificationUnavailable;
+  final spec = entry.first;
+  String fr(Object? value) => value is Map ? '${value['fr'] ?? ''}' : '';
+  List<String> frList(Object? value) => value is Map && value['fr'] is List
+      ? [for (final line in value['fr'] as List) '$line']
+      : const [];
+  final name = '${spec['displayName'] ?? companionId}'.toUpperCase();
+  final buffer = StringBuffer()
+    ..writeln('SPÉCIFICATION DU COMPAGNON — $name')
+    ..writeln()
+    ..writeln('Rôle : ${fr(spec['role'])}')
+    ..writeln('Tempérament : ${fr(spec['temperament'])}')
+    ..writeln('Devise : « ${fr(spec['motto'])} »')
+    ..writeln();
+  void section(String title, List<String> lines) {
+    if (lines.isEmpty) return;
+    buffer.writeln(title);
+    for (final line in lines) {
+      buffer.writeln('  - $line');
+    }
+    buffer.writeln();
+  }
+
+  section('STYLE :', frList(spec['style']));
+  section('RÈGLES PÉDAGOGIQUES :', frList(spec['pedagogy']));
+  section('GARDE-FOUS (MINEURS) :', frList(spec['safety']));
+  section('FORME :', frList(spec['format']));
+  buffer.writeln(
+    'Le même texte existe en anglais pour les élèves anglophones ; '
+    'la langue est choisie par le serveur depuis le profil.',
+  );
+  return buffer.toString().trimRight();
 }
