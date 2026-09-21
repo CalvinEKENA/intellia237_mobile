@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { bucket, db } from "../config/firebase";
 import { generateStructuredContent, type InlineAttachment } from "../llm/llmClient";
+import { MAX_COURSE_IMPORT_OUTPUT_TOKENS } from "../llm/tutorBudget";
 import { AppError, toHttpsError } from "../utils/errors";
 import {
   type CoursePageImportInput,
@@ -316,6 +317,7 @@ export const vertexCoursePageExtractor: CoursePageExtractor = {
     schema: coursePageDraftSchema,
     attachments: params.attachments,
     timeoutMs: 120_000,
+    maxOutputTokens: MAX_COURSE_IMPORT_OUTPUT_TOKENS,
   }),
 };
 

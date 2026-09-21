@@ -422,6 +422,33 @@ describe("AskTutorUseCase with real StudyReserveConsumption chain", () => {
     expect(quotaStore.releasedTraceIds).toContain("trace-fail");
   });
 
+  it("charges the real usage of a billed but unusable answer instead of releasing it", async () => {
+    const store = new TestReserveStore();
+    store.seed("student-billed", 600_000);
+    const quota = new FixedQuotaStore();
+    const useCase = new AskTutorUseCase(
+      fixedContext,
+      async ({ onUsage }) => {
+        onUsage?.({ promptTokenCount: 4000, candidatesTokenCount: 8192, totalTokenCount: 12192 });
+        throw new Error("Vertex AI response validation failed.");
+      },
+      quota,
+      20,
+      new StudyReserveConsumption(store, new NoopNotifier(), store),
+    );
+
+    await expect(useCase.execute({
+      userId: "student-billed",
+      traceId: "trace-billed",
+      input: validInput(),
+    })).rejects.toThrow("Vertex AI response validation failed.");
+
+    expect(store.aggs.get("student-billed")!.consumed).toBe(12192);
+    expect(store.aggs.get("student-billed")!.holds).toEqual({});
+    expect(quota.consumedTraceIds).toEqual(["trace-billed"]);
+    expect(quota.releasedTraceIds).toEqual([]);
+  });
+
   it("idempotent retry with same traceId does not double-charge", async () => {
     const reserveStore = new TestReserveStore();
     reserveStore.seed("student-active", 600_000);
@@ -572,11 +599,6 @@ function validInput(): AskTutorCallableInput {
     classLevel: "Terminale",
     userMessage: "Explique-moi cette notion.",
     history: [],
-    tutor: {
-      name: "Nova",
-      specialty: "Sciences",
-      personality: "Bienveillante",
-      motto: "On avance ensemble.",
-    },
+    tutorId: "kira",
   };
 }

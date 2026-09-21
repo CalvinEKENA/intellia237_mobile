@@ -3,7 +3,20 @@ import type { DocumentData, Firestore } from "firebase-admin/firestore";
 import { db } from "../config/firebase";
 import { getEnv } from "../config/env";
 import { generateText, logAiQuotaRejection, type LlmTokenUsage } from "../llm/llmClient";
-import { ASK_TUTOR_SYSTEM_PROMPT, buildAskTutorUserPrompt } from "../llm/prompts";
+import { buildAskTutorUserPrompt } from "../llm/prompts";
+import {
+  MAX_ACADEMIC_CONTEXT_CHARS,
+  MAX_TOTAL_INPUT_CHARS,
+  MAX_TUTOR_OUTPUT_TOKENS,
+  boundTutorHistory,
+  type TutorHistoryItem,
+} from "../llm/tutorBudget";
+import {
+  buildTutorSystemPrompt,
+  resolveTutorLanguage,
+  type TutorLanguage,
+} from "../llm/tutorPersonas";
+import { TUTOR_PROVIDER_TIMEOUT_MS } from "../config/timeouts";
 import { AppError } from "../utils/errors";
 import type { AskTutorCallableInput } from "../utils/validation";
 import {
@@ -12,12 +25,13 @@ import {
   type TutorQuotaStore,
 } from "./tutorDailyQuota";
 import {
+  BilledProviderFailure,
   StudyReserveConsumption,
   billableFromUsage,
 } from "./studyReserveConsumption";
 
 const MAX_CONTEXT_LESSONS = 3;
-const MAX_CONTEXT_CHARACTERS = 5_000;
+const MAX_CONTEXT_CHARACTERS = MAX_ACADEMIC_CONTEXT_CHARS;
 
 export interface TutorAcademicScope {
   classLevel: string;
@@ -27,6 +41,8 @@ export interface TutorAcademicScope {
 export interface AuthorizedTutorContext {
   scope: TutorAcademicScope;
   text: string;
+  /** Langue d'enseignement décidée depuis le profil ; français par défaut. */
+  language?: TutorLanguage;
 }
 
 export interface TutorContextStore {
@@ -41,6 +57,8 @@ type TutorTextGenerator = (params: {
   correlationId: string;
   system: string;
   prompt: string;
+  maxOutputTokens?: number;
+  timeoutMs?: number;
   onUsage?: (usage: LlmTokenUsage | undefined) => void;
 }) => Promise<string>;
 
@@ -119,6 +137,7 @@ export class FirestoreTutorContextStore implements TutorContextStore {
     return {
       scope,
       text: renderTutorContext(authorizedLessons),
+      language: resolveTutorLanguage(profileSnapshot.data()),
     };
   }
 }
@@ -139,24 +158,23 @@ export class AskTutorUseCase {
     traceId: string;
     input: AskTutorCallableInput;
   }): Promise<{ text: string } & TutorQuotaSnapshot> {
-    const { tutor, history, userMessage } = params.input;
+    const { tutorId, history, userMessage } = params.input;
     const authorizedContext = await this.contextStore.loadAuthorizedContext({
       userId: params.userId,
       requestedClassLevel: params.input.classLevel,
     });
-    const historyText = history.map((item) => `${item.role}: ${item.text}`).join("\n");
-
-    const systemPrompt = ASK_TUTOR_SYSTEM_PROMPT
-      .replace("{TUTOR_NAME}", tutor.name)
-      .replace("{TUTOR_SPECIALTY}", tutor.specialty)
-      .replace("{TUTOR_PERSONALITY}", tutor.personality)
-      .replace("{TUTOR_MOTTO}", tutor.motto);
-    const userPrompt = buildAskTutorUserPrompt(
-      authorizedContext.scope.classLevel,
-      authorizedContext.text,
-      historyText,
+    const language = authorizedContext.language ?? "fr";
+    // Le serveur choisit seul la persona et ses règles : le téléphone ne
+    // transmet qu'un identifiant déjà validé (kira | leo).
+    const systemPrompt = buildTutorSystemPrompt(tutorId, language);
+    const userPrompt = assembleBoundedUserPrompt({
+      systemPrompt,
+      classLevel: authorizedContext.scope.classLevel,
+      contextText: authorizedContext.text,
+      history,
       userMessage,
-    );
+      language,
+    });
     try {
       await this.quotaStore.reserve({
         userId: params.userId,
@@ -172,6 +190,9 @@ export class AskTutorUseCase {
       }
       throw error;
     }
+    // Vrai dès que le fournisseur a pu produire (et facturer) une réponse :
+    // réponse reçue mais inutilisable, ou délai dépassé côté serveur.
+    let providerMayHaveBilled = false;
     try {
       // La Réserve d'étude encadre l'appel modèle : réservation (concurrence),
       // exécution, puis comptabilisation de l'usage RÉEL du fournisseur, une
@@ -186,16 +207,30 @@ export class AskTutorUseCase {
         },
         async () => {
           let captured: LlmTokenUsage | undefined;
-          const text = await this.textGenerator({
-            operation: "askTutor",
-            correlationId: params.traceId,
-            system: systemPrompt,
-            prompt: userPrompt,
-            onUsage: (usage) => {
-              captured = usage;
-            },
-          });
-          return { result: text, usage: billableFromUsage(captured ?? {}) };
+          try {
+            const text = await this.textGenerator({
+              operation: "askTutor",
+              correlationId: params.traceId,
+              system: systemPrompt,
+              prompt: userPrompt,
+              maxOutputTokens: MAX_TUTOR_OUTPUT_TOKENS,
+              timeoutMs: tutorProviderTimeoutMs(),
+              onUsage: (usage) => {
+                captured = usage;
+              },
+            });
+            return { result: text, usage: billableFromUsage(captured ?? {}) };
+          } catch (error) {
+            if (captured !== undefined) {
+              providerMayHaveBilled = true;
+              throw new BilledProviderFailure(billableFromUsage(captured), error);
+            }
+            if (error instanceof AppError && error.code === "deadline-exceeded") {
+              // Annuler la requête HTTP n'annule pas le calcul du fournisseur.
+              providerMayHaveBilled = true;
+            }
+            throw error;
+          }
         },
       );
       const quota = await this.quotaStore.consume({
@@ -205,16 +240,71 @@ export class AskTutorUseCase {
       });
       return { text: responseText, ...quota };
     } catch (error) {
-      // Never log the prompt, user message or history. A failed generation does
-      // not consume the student's daily allowance (nor the study reserve — the
-      // consumption layer releases its reservation internally).
-      await this.quotaStore.release({
-        userId: params.userId,
-        traceId: params.traceId,
-      }).catch(() => undefined);
+      // Never log the prompt, user message or history. A generation that
+      // provably did not reach the provider does not consume the daily
+      // allowance; one the provider may have billed does, so an unusable or
+      // timed-out answer can never be replayed for free.
+      if (providerMayHaveBilled) {
+        await this.quotaStore.consume({
+          userId: params.userId,
+          traceId: params.traceId,
+          limit: this.dailyQuestionLimit,
+        }).catch(() => undefined);
+      } else {
+        await this.quotaStore.release({
+          userId: params.userId,
+          traceId: params.traceId,
+        }).catch(() => undefined);
+      }
       throw error;
     }
   }
+}
+
+function tutorProviderTimeoutMs(): number {
+  return Math.min(getEnv().LLM_SERVICE_TIMEOUT_MS, TUTOR_PROVIDER_TIMEOUT_MS);
+}
+
+/**
+ * Prompt utilisateur borné : fenêtre d'historique, puis contrôle du total
+ * (système compris). Si le total dépasse encore le plafond, l'historique est
+ * réduit, puis le contexte ; la question de l'élève n'est jamais coupée.
+ */
+export function assembleBoundedUserPrompt(params: {
+  systemPrompt: string;
+  classLevel: string;
+  contextText: string;
+  history: readonly TutorHistoryItem[];
+  userMessage: string;
+  language: TutorLanguage;
+}): string {
+  let window = boundTutorHistory(params.history);
+  let contextText = params.contextText.slice(0, MAX_ACADEMIC_CONTEXT_CHARS);
+  const render = () => buildAskTutorUserPrompt({
+    classLevel: params.classLevel,
+    contextText,
+    historyText: window
+      .map((item) => `${historyLabel(item.role, params.language)} : ${item.text}`)
+      .join("\n"),
+    userMessage: params.userMessage,
+    language: params.language,
+  });
+  let prompt = render();
+  while (params.systemPrompt.length + prompt.length > MAX_TOTAL_INPUT_CHARS && window.length > 0) {
+    window = window.slice(1);
+    prompt = render();
+  }
+  if (params.systemPrompt.length + prompt.length > MAX_TOTAL_INPUT_CHARS) {
+    const excess = params.systemPrompt.length + prompt.length - MAX_TOTAL_INPUT_CHARS;
+    contextText = contextText.slice(0, Math.max(0, contextText.length - excess - 1));
+    prompt = render();
+  }
+  return prompt;
+}
+
+function historyLabel(role: TutorHistoryItem["role"], language: TutorLanguage): string {
+  if (language === "en") return role === "user" ? "Learner" : "Companion";
+  return role === "user" ? "Élève" : "Compagnon";
 }
 
 export function resolveTutorAcademicScope({

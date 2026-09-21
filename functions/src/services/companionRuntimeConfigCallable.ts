@@ -4,6 +4,13 @@ import type { Firestore } from "firebase-admin/firestore";
 
 import { getEnv } from "../config/env";
 import { db } from "../config/firebase";
+import {
+  MAX_HISTORY_MESSAGES,
+  MAX_INPUT_TOKENS_WORST_CASE,
+  MAX_TOTAL_INPUT_CHARS,
+  MAX_TUTOR_OUTPUT_TOKENS,
+} from "../llm/tutorBudget";
+import { tutorPersonaSpecification } from "../llm/tutorPersonas";
 
 export interface CompanionRuntimeConfigView {
   provider: "vertex-ai";
@@ -12,6 +19,14 @@ export interface CompanionRuntimeConfigView {
   structuredThinkingLevel: "LOW" | "MEDIUM" | "HIGH";
   location: string;
   configured: boolean;
+  /** Spécification réellement envoyée au modèle (persona, règles, garde-fous). */
+  companions: ReturnType<typeof tutorPersonaSpecification>;
+  budget: {
+    maxHistoryMessages: number;
+    maxTotalInputChars: number;
+    maxInputTokensWorstCase: number;
+    maxOutputTokens: number;
+  };
 }
 
 export function createGetCompanionRuntimeConfigHandler(
@@ -53,6 +68,13 @@ export function createGetCompanionRuntimeConfigHandler(
       structuredThinkingLevel: env.GEMINI_STRUCTURED_THINKING_LEVEL,
       location: env.VERTEX_AI_LOCATION,
       configured: isConfigured,
+      companions: tutorPersonaSpecification(),
+      budget: {
+        maxHistoryMessages: MAX_HISTORY_MESSAGES,
+        maxTotalInputChars: MAX_TOTAL_INPUT_CHARS,
+        maxInputTokensWorstCase: MAX_INPUT_TOKENS_WORST_CASE,
+        maxOutputTokens: MAX_TUTOR_OUTPUT_TOKENS,
+      },
     };
   };
 }

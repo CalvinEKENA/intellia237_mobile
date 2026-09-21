@@ -55,7 +55,7 @@ Le client LLM appelle l'API Vertex AI `generateContent` avec le modele `gemini-3
 - authentification : Application Default Credentials (ADC) du runtime Cloud Functions ;
 - projet : `VERTEX_AI_PROJECT_ID`, avec repli automatique sur `GOOGLE_CLOUD_PROJECT` puis `GCLOUD_PROJECT` ;
 - emplacement : `VERTEX_AI_LOCATION=global` par defaut ;
-- tuteur interactif : `GEMINI_TUTOR_THINKING_LEVEL=LOW` pour limiter latence et cout ;
+- tuteur interactif : `GEMINI_TUTOR_THINKING_LEVEL=HIGH` (décision produit), sortie plafonnée à 8 192 jetons réflexion comprise, entrée bornée à 22 000 caractères (voir `functions/src/llm/tutorBudget.ts`) ;
 - quiz/resumes structures : `GEMINI_STRUCTURED_THINKING_LEVEL=MEDIUM` pour privilegier la qualite ;
 - aucune cle API Gemini ne doit etre ajoutee au client Flutter ou au depot ;
 - en local hors Google Cloud, utiliser ADC (`gcloud auth application-default login`) plutot qu une cle JSON versionnee.

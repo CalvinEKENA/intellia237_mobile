@@ -4,6 +4,7 @@ import { logger } from "firebase-functions";
 import { getEnv, type AppEnv } from "../config/env";
 import { AppError } from "../utils/errors";
 import { getVertexAccessToken } from "./vertexAuth";
+import { MAX_STRUCTURED_OUTPUT_TOKENS, MAX_TUTOR_OUTPUT_TOKENS } from "./tutorBudget";
 
 export type AiOperation =
   | "askTutor"
@@ -64,6 +65,7 @@ function buildLlmLogMeta(params: {
   responseParsingFailure?: boolean;
   quotaRejected?: boolean;
   tokenUsage?: TokenUsage;
+  finishReason?: string;
   providerAttemptCount: number;
 }) {
   return {
@@ -82,6 +84,7 @@ function buildLlmLogMeta(params: {
     quotaRejected: params.quotaRejected ?? false,
     failureKind: params.failureKind,
     tokenUsage: params.tokenUsage,
+    finishReason: params.finishReason,
     // The client intentionally performs exactly one provider request. Any
     // future retry policy must be explicit, bounded and cost-reviewed.
     providerAttemptCount: params.providerAttemptCount,
@@ -103,17 +106,21 @@ function buildVertexUrl(params: {
   return `${host}/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:generateContent`;
 }
 
-function buildGeminiPayload(params: {
+export function buildGeminiPayload(params: {
   system: string;
   prompt: string;
   thinkingLevel: ThinkingLevel;
   jsonOutput: boolean;
+  maxOutputTokens: number;
   attachments?: InlineAttachment[];
 }) {
   const generationConfig: Record<string, unknown> = {
     thinkingConfig: {
       thinkingLevel: params.thinkingLevel,
     },
+    // Plafond explicite de chaque réponse, réflexion comprise : aucune
+    // opération n'est laissée sans borne de sortie.
+    maxOutputTokens: params.maxOutputTokens,
   };
 
   if (params.jsonOutput) {
@@ -174,6 +181,14 @@ function extractGeminiText(data: unknown): string {
     .trim();
 }
 
+function extractFinishReason(data: unknown): string | undefined {
+  if (!data || typeof data !== "object") return undefined;
+  const candidates = (data as { candidates?: unknown }).candidates;
+  if (!Array.isArray(candidates) || candidates.length === 0) return undefined;
+  const reason = (candidates[0] as { finishReason?: unknown } | undefined)?.finishReason;
+  return typeof reason === "string" ? reason.slice(0, 40) : undefined;
+}
+
 function extractTokenUsage(data: unknown): TokenUsage | undefined {
   if (!data || typeof data !== "object") return undefined;
   const usage = (data as { usageMetadata?: unknown }).usageMetadata;
@@ -198,6 +213,7 @@ async function requestGemini<T>(params: {
   prompt: string;
   thinkingLevel: ThinkingLevel;
   jsonOutput: boolean;
+  maxOutputTokens: number;
   parse: (content: string) => T;
   attachments?: InlineAttachment[];
   timeoutMs?: number;
@@ -211,6 +227,7 @@ async function requestGemini<T>(params: {
   let phase: RequestPhase = "configuration";
   let status: number | undefined;
   let tokenUsage: TokenUsage | undefined;
+  let finishReason: string | undefined;
   let providerAttemptCount = 0;
 
   try {
@@ -229,6 +246,7 @@ async function requestGemini<T>(params: {
         prompt: params.prompt,
         thinkingLevel: params.thinkingLevel,
         jsonOutput: params.jsonOutput,
+        maxOutputTokens: params.maxOutputTokens,
         attachments: params.attachments,
       }),
       {
@@ -243,6 +261,7 @@ async function requestGemini<T>(params: {
     );
     status = response.status;
     tokenUsage = extractTokenUsage(response.data);
+    finishReason = extractFinishReason(response.data);
     // Usage réel du fournisseur : remonté à l'appelant pour une comptabilité
     // exacte (jamais une estimation permanente quand l'usage réel est connu).
     params.onUsage?.(tokenUsage);
@@ -264,6 +283,7 @@ async function requestGemini<T>(params: {
       success: true,
       status,
       tokenUsage,
+      finishReason,
       providerAttemptCount,
     }));
     return result;
@@ -283,6 +303,7 @@ async function requestGemini<T>(params: {
       responseParsingFailure:
         failure.kind === "response_parsing" || failure.kind === "empty_response",
       tokenUsage,
+      finishReason,
       providerAttemptCount,
     }));
     throw publicLlmError(failure);
@@ -297,6 +318,7 @@ export async function generateStructuredContent<T>(params: {
   schema: ResponseSchema<T>;
   attachments?: InlineAttachment[];
   timeoutMs?: number;
+  maxOutputTokens?: number;
 }): Promise<T> {
   const env = getEnv();
   return requestGemini({
@@ -307,6 +329,7 @@ export async function generateStructuredContent<T>(params: {
     thinkingLevel: env.GEMINI_STRUCTURED_THINKING_LEVEL,
     attachments: params.attachments,
     timeoutMs: params.timeoutMs,
+    maxOutputTokens: params.maxOutputTokens ?? MAX_STRUCTURED_OUTPUT_TOKENS,
     jsonOutput: true,
     parse: (content) => {
       let decoded: unknown;
@@ -329,6 +352,8 @@ export async function generateText(params: {
   correlationId: string;
   system: string;
   prompt: string;
+  maxOutputTokens?: number;
+  timeoutMs?: number;
   onUsage?: (usage: LlmTokenUsage | undefined) => void;
 }): Promise<string> {
   const env = getEnv();
@@ -338,6 +363,8 @@ export async function generateText(params: {
     system: params.system,
     prompt: params.prompt,
     thinkingLevel: env.GEMINI_TUTOR_THINKING_LEVEL,
+    maxOutputTokens: params.maxOutputTokens ?? MAX_TUTOR_OUTPUT_TOKENS,
+    timeoutMs: params.timeoutMs,
     jsonOutput: false,
     parse: (content) => content,
     onUsage: params.onUsage,

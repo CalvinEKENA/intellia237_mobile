@@ -52,6 +52,35 @@ class FirebaseTutorFunctionsGateway implements TutorFunctionsGateway {
   }
 }
 
+/// Fenêtre d'historique envoyée au tuteur. Miroir des bornes serveur
+/// (`functions/src/llm/tutorBudget.ts`) : le serveur réduit de toute façon,
+/// mais inutile d'envoyer ce qu'il écartera.
+const kTutorHistoryMaxMessages = 8;
+const kTutorHistoryMaxCharsPerMessage = 1200;
+const kTutorHistoryMaxTotalChars = 6000;
+
+List<Map<String, String>> boundedTutorHistory(List<AIMessage> history) {
+  final kept = <Map<String, String>>[];
+  var total = 0;
+  for (var index = history.length - 1; index >= 0; index--) {
+    if (kept.length >= kTutorHistoryMaxMessages) break;
+    final message = history[index];
+    var text = message.text.trim();
+    if (text.isEmpty) continue;
+    if (text.length > kTutorHistoryMaxCharsPerMessage) {
+      text =
+          '…${text.substring(text.length - (kTutorHistoryMaxCharsPerMessage - 1))}';
+    }
+    if (total + text.length > kTutorHistoryMaxTotalChars) break;
+    total += text.length;
+    kept.insert(0, <String, String>{
+      'role': message.role == AIMessageRole.user ? 'user' : 'assistant',
+      'text': text,
+    });
+  }
+  return kept;
+}
+
 class CloudAIRepository implements AIRepository {
   CloudAIRepository({
     FirebaseFunctions? functions,
@@ -68,31 +97,14 @@ class CloudAIRepository implements AIRepository {
     required List<AIMessage> history,
     required String userMessage,
   }) async {
-    final recentHistory = history.length > 20
-        ? history.sublist(history.length - 20)
-        : history;
-    final mappedHistory = recentHistory
-        .map(
-          (message) => <String, String>{
-            'role': message.role == AIMessageRole.user ? 'user' : 'assistant',
-            'text': message.text.length > 4000
-                ? message.text.substring(message.text.length - 4000)
-                : message.text,
-          },
-        )
-        .toList(growable: false);
-
     try {
       final rawData = await _gateway.askTutor(<String, dynamic>{
         'userMessage': userMessage,
         'classLevel': classLevel,
-        'history': mappedHistory,
-        'tutor': <String, String>{
-          'name': tutor.name,
-          'specialty': tutor.specialty,
-          'personality': tutor.personality,
-          'motto': tutor.motto,
-        },
+        'history': boundedTutorHistory(history),
+        // Le serveur choisit seul la persona, le ton et les règles : le
+        // téléphone ne transmet que l'identifiant du compagnon.
+        'tutorId': tutor.id,
       });
 
       if (rawData is! Map) {

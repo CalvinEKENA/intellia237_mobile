@@ -113,7 +113,9 @@ describe("Vertex AI Gemini LLM client", () => {
       generationConfig: {
         thinkingConfig: {
           thinkingLevel: "HIGH"
-        }
+        },
+        // Plafond de sortie explicite : aucune réponse tuteur sans borne.
+        maxOutputTokens: 8192
       }
     });
     expect(config.headers.Authorization).toBe("Bearer access-token");
@@ -236,6 +238,7 @@ describe("Vertex AI Gemini LLM client", () => {
       thinkingConfig: {
         thinkingLevel: "MEDIUM"
       },
+      maxOutputTokens: 8192,
       responseMimeType: "application/json"
     });
     expect(loggerMock.info.mock.calls[0]?.[1]).toMatchObject({

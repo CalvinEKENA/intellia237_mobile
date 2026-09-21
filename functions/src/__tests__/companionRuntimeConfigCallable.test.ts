@@ -98,7 +98,8 @@ describe("Companion runtime configuration callable & policy", () => {
 
     const result = await handler(request);
 
-    expect(result).toEqual({
+    const { companions, budget, ...metadata } = result;
+    expect(metadata).toEqual({
       provider: "vertex-ai",
       model: "gemini-3.8-flash",
       tutorThinkingLevel: "HIGH",
@@ -107,14 +108,27 @@ describe("Companion runtime configuration callable & policy", () => {
       configured: expect.any(Boolean),
     });
 
-    // Zero secrets / sensitive tokens exposed
-    const serialized = JSON.stringify(result);
+    // Studio reçoit la spécification réellement envoyée au modèle.
+    expect(companions.map((companion) => companion.id)).toEqual(["kira", "leo"]);
+    expect(companions[0].safety.fr.length).toBeGreaterThan(5);
+    expect(budget).toEqual({
+      maxHistoryMessages: 8,
+      maxTotalInputChars: 22000,
+      maxInputTokensWorstCase: 22000,
+      maxOutputTokens: 8192,
+    });
+
+    // Zero secrets / sensitive tokens exposed in the runtime metadata.
+    const serialized = JSON.stringify(metadata);
     expect(serialized).not.toContain("key");
     expect(serialized).not.toContain("token");
     expect(serialized).not.toContain("secret");
     expect(serialized).not.toContain("password");
     expect(serialized).not.toContain("credential");
     expect(serialized).not.toContain("private");
+    // The published specification is product copy, never configuration.
+    const specification = JSON.stringify({ companions, budget });
+    expect(specification).not.toMatch(/AIza|BEGIN PRIVATE KEY|client_email|VERTEX_AI_PROJECT_ID/);
   });
 
   it("supports super_admin variant alias role", async () => {
@@ -179,12 +193,7 @@ describe("Companion runtime configuration callable & policy", () => {
         userMessage: "Aide-moi avec les ondes",
         classLevel: "Terminale",
         history: [],
-        tutor: {
-          name: "Kira",
-          specialty: "Méthodologie & Accompagnement",
-          personality: "Patiente & Explicative",
-          motto: "Apprenons avec calme et sérénité.",
-        },
+        tutorId: "kira",
       },
     });
 
@@ -196,12 +205,7 @@ describe("Companion runtime configuration callable & policy", () => {
         userMessage: "Donne-moi un défi sur les ondes",
         classLevel: "Terminale",
         history: [],
-        tutor: {
-          name: "Léo",
-          specialty: "Défis & Performance",
-          personality: "Dynamique & Challengeur",
-          motto: "Dépasse tes limites !",
-        },
+        tutorId: "leo",
       },
     });
 
@@ -213,10 +217,10 @@ describe("Companion runtime configuration callable & policy", () => {
     expect(capturedCalls[0].operation).toBe("askTutor");
     expect(capturedCalls[1].operation).toBe("askTutor");
 
-    // Both inject their respective persona into the prompt template
-    expect(capturedCalls[0].system).toContain("NOM : Kira");
-    expect(capturedCalls[0].system).toContain("Patiente & Explicative");
-    expect(capturedCalls[1].system).toContain("NOM : Léo");
-    expect(capturedCalls[1].system).toContain("Dynamique & Challengeur");
+    // Each companion gets its server-owned persona, never client text.
+    expect(capturedCalls[0].system).toContain("Tu es Kira");
+    expect(capturedCalls[0].system).toContain("Patiente, calme et explicative.");
+    expect(capturedCalls[1].system).toContain("Tu es Léo");
+    expect(capturedCalls[1].system).toContain("Dynamique, exigeant et constructif.");
   });
 });

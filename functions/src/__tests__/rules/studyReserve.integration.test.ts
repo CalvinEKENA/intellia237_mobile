@@ -95,7 +95,7 @@ const input = {
   classLevel: "Terminale",
   userMessage: "Explique la photosynthèse.",
   history: [],
-  tutor: { name: "Nova", specialty: "Sciences", personality: "Bienveillante", motto: "On avance." },
+  tutorId: "kira" as const,
 };
 
 beforeEach(async () => {

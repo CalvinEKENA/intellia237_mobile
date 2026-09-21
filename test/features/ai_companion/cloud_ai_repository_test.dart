@@ -31,9 +31,40 @@ void main() {
 
       expect(reply.message.text, 'Réponse pédagogique');
       expect(gateway.payload?['classLevel'], '6eme');
-      expect((gateway.payload?['tutor'] as Map)['name'], 'Kira');
+      expect(gateway.payload?['tutorId'], 'kira');
+      // Aucun texte de persona ne quitte le téléphone : le serveur la choisit.
+      expect(gateway.payload?.containsKey('tutor'), isFalse);
+      expect(gateway.payload.toString(), isNot(contains(kira.personality)));
     },
   );
+
+  test('history sent to the tutor is bounded like the server window', () {
+    final history = List<AIMessage>.generate(
+      20,
+      (index) => AIMessage(
+        id: '$index',
+        role: index.isEven ? AIMessageRole.user : AIMessageRole.assistant,
+        text: 'm$index ${'x' * 3990}',
+        createdAt: DateTime(2026),
+      ),
+    );
+
+    final bounded = boundedTutorHistory(history);
+
+    expect(bounded.length, lessThanOrEqualTo(kTutorHistoryMaxMessages));
+    expect(
+      bounded.every(
+        (item) => item['text']!.length <= kTutorHistoryMaxCharsPerMessage,
+      ),
+      isTrue,
+    );
+    expect(
+      bounded.fold<int>(0, (sum, item) => sum + item['text']!.length),
+      lessThanOrEqualTo(kTutorHistoryMaxTotalChars),
+    );
+    // Le message le plus récent est toujours conservé.
+    expect(bounded.last['role'], 'assistant');
+  });
 
   test('quota exhaustion is not mapped to generic unavailable', () async {
     final repository = CloudAIRepository(

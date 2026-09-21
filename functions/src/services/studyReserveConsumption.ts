@@ -418,6 +418,32 @@ async function readPreferredLocale(
   return null;
 }
 
+/**
+ * Échec survenu APRÈS une réponse facturée par le fournisseur (réponse vide,
+ * coupée au plafond de sortie, illisible). L'usage réel doit être compté :
+ * sans cela, une requête conçue pour échouer après facturation serait gratuite
+ * et contournerait toutes les bornes.
+ */
+export class BilledProviderFailure extends Error {
+  constructor(
+    readonly usage: ProviderUsage,
+    override readonly cause: unknown,
+  ) {
+    super("The provider billed a response that could not be used.");
+    this.name = "BilledProviderFailure";
+  }
+}
+
+async function unwrapBilledFailure<T>(
+  exec: () => Promise<{ result: T; usage: ProviderUsage }>,
+): Promise<{ result: T; usage: ProviderUsage }> {
+  try {
+    return await exec();
+  } catch (error) {
+    throw error instanceof BilledProviderFailure ? error.cause : error;
+  }
+}
+
 /** Orchestrateur : réserve → exécute → commit(usage réel) / release, et émet
  * la notification de seuil (une fois par cycle). */
 export class StudyReserveConsumption {
@@ -448,7 +474,7 @@ export class StudyReserveConsumption {
     // rien à débiter — même comportement qu'un compte jamais configuré ; le
     // quota quotidien reste le garde-fou. Un ancien cycle n'est jamais débité.
     if (cycle === null) {
-      const { result } = await exec();
+      const { result } = await unwrapBilledFailure(exec);
       return { result, thresholdEvent: null };
     }
 
@@ -461,7 +487,7 @@ export class StudyReserveConsumption {
     // Non configuré : aucune réserve à débiter (le contenu statique et les
     // autres garde-fous — quota quotidien — restent en vigueur).
     if (!hold.configured) {
-      const { result } = await exec();
+      const { result } = await unwrapBilledFailure(exec);
       return { result, thresholdEvent: null };
     }
 
@@ -469,6 +495,20 @@ export class StudyReserveConsumption {
     try {
       execution = await exec();
     } catch (error) {
+      if (error instanceof BilledProviderFailure) {
+        // Le fournisseur a répondu et facturé, mais la réponse est
+        // inutilisable : l'usage réel est comptabilisé, jamais offert.
+        await this.store
+          .commit({
+            studentId: params.studentId,
+            requestId: params.requestId,
+            provider: params.provider,
+            model: params.model,
+            usage: error.usage,
+          })
+          .catch(() => undefined);
+        throw error.cause;
+      }
       await this.store
         .release({ studentId: params.studentId, requestId: params.requestId })
         .catch(() => undefined);

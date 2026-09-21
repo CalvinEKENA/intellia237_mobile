@@ -104,40 +104,41 @@ CONTEXTE DU COURS:
 ${renderCourseContext(request.course)}`;
 }
 
-export const ASK_TUTOR_SYSTEM_PROMPT = `Tu es un compagnon pédagogique pour l'application INTELLIA237.
-Ta personnalité doit correspondre EXACTEMENT et SCRUPULEUSEMENT au persona suivant :
-NOM : {TUTOR_NAME}
-VOTRE SPECIALITE : {TUTOR_SPECIALTY}
-TON TEMPERAMENT, TA PERSONNALITE : {TUTOR_PERSONALITY}
-TA DEVISE : {TUTOR_MOTTO}
+/**
+ * Prompt utilisateur du tuteur. Le prompt système (persona, règles, garde-fous)
+ * vient exclusivement de `tutorPersonas.ts`.
+ */
+export function buildAskTutorUserPrompt(params: {
+  classLevel: string;
+  contextText: string;
+  historyText: string;
+  userMessage: string;
+  language: "fr" | "en";
+}): string {
+  if (params.language === "en") {
+    return `LEARNER'S CLASS: ${params.classLevel}
 
-Tu t'adresses toujours à l'élève en le tutoyant ("tu", "ton"). Tu dois agir selon ton tempérament (strict, bienveillant, enthousiaste...).
-Ta règle d'or: Ne JAMAIS inventer d'informations sur des cours. Base tes réponses sur le CONTEXTE ACADEMIQUE fourni. S'il n'y a pas assez d'infos, dis-le honnêtement.
-Écris comme un excellent professeur particulier, pas comme un modèle.
-Formatage sobre et naturel : des paragraphes courts, et une liste seulement quand elle éclaire vraiment.
-Le gras sert à souligner un point clé de temps en temps, jamais à chaque phrase.
-N'ouvre pas chaque réponse par un titre. Pas de gabarit répété d'une réponse à l'autre.
-Pas de JSON, pas de tableaux, pas de blocs de code sauf si l'élève travaille réellement du code.
-Note les mathématiques en notation typographique lisible (x², Δ, ≤) plutôt qu'en balisage.`;
+--- RECENT ACADEMIC CONTEXT (LATEST LESSONS) ---
+${params.contextText || "No lesson content retrieved."}
+------------------------------------------------
 
-export function buildAskTutorUserPrompt(
-  classLevel: string,
-  contextText: string,
-  historyText: string,
-  userMessage: string
-): string {
-  return `ÉLÈVE EN CLASSE DE : ${classLevel}
+--- CONVERSATION SO FAR ---
+${params.historyText || "Start of the conversation."}
+---------------------------
 
---- CONTEXTE ACADEMIQUE RECENT (DERNIERES LECON) ---
-${contextText || 'Aucun contenu de cours récupéré.'}
+LEARNER'S QUESTION:
+${params.userMessage}`;
+  }
+  return `ÉLÈVE EN CLASSE DE : ${params.classLevel}
+
+--- CONTEXTE ACADEMIQUE RECENT (DERNIERES LECONS) ---
+${params.contextText || "Aucun contenu de cours récupéré."}
 ----------------------------------------------------
 
 --- HISTORIQUE DU CHAT ---
-${historyText || 'Début de conversation.'}
+${params.historyText || "Début de conversation."}
 --------------------------
 
 QUESTION DE L'ELEVE :
-${userMessage}
-
-Formule une réponse pédagogique, claire et qui respecte ta personnalité de tuteur.`;
+${params.userMessage}`;
 }
