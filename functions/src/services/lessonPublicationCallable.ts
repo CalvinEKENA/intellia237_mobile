@@ -143,7 +143,7 @@ export function createSaveLessonPublicationHandler(firestore: Firestore = db) {
       for (let i = 0; i < assets.length; i++) {
         const previous = ledgers[i].data();
         if (previous && (previous.path !== assets[i].path || previous.state !== "ready" || previous.generation !== assets[i].generation)) {
-          throw new HttpsError("failed-precondition", "Le mÈdia a changÈ ou a ÈtÈ supprimÈ. RÈimportez le fichier.");
+          throw new HttpsError("failed-precondition", "Le m√©dia a chang√© ou a √©t√© supprim√©. R√©importez le fichier.");
         }
       }
       const previews = lessons.docs
@@ -177,8 +177,8 @@ export function createSaveLessonPublicationHandler(firestore: Firestore = db) {
             : ["notion", "infographic"].includes(item.type) ? p.insight?.trim() || p.points?.length
             : ["audio", "shortVideo", "image"].includes(item.type) ? !!item.ref?.storagePath
             : item.type === "interactiveNative" && p.componentKey && p.summary;
-          if (item.type === "shortVideo" && !assets.some(a => a.path === item.ref?.storagePath)) throw new HttpsError("failed-precondition", "Associez la vidÈo FLOW ‡ un bloc mÈdia de cette leÁon.");
-          if (!valid) throw new HttpsError("failed-precondition", "Compl√©tez les cartes FLOW associ√©es avant de publier.");
+          if (item.type === "shortVideo" && !assets.some(a => a.path === item.ref?.storagePath)) throw new HttpsError("failed-precondition", "Associez la vid√©o Parcours √† un bloc m√©dia de cette le√ßon.");
+          if (!valid) throw new HttpsError("failed-precondition", "Compl√©tez les cartes Parcours associ√©es avant de publier.");
         }
         for (const linked of [...importedQuizzes, ...importedCards]) {
           assertContentAuthor(actor, linked.data());

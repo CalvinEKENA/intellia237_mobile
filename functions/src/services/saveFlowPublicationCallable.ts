@@ -18,7 +18,7 @@ export function createSaveFlowPublicationHandler(firestore: Firestore = db) {
   return async (request: CallableRequest) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
     const parsed = schema.safeParse(request.data);
-    if (!parsed.success) throw new HttpsError("invalid-argument", "Publication FLOW invalide.");
+    if (!parsed.success) throw new HttpsError("invalid-argument", "Publication Parcours invalide.");
     const data: DocumentData = parsed.data.content;
     const ref = parsed.data.id ? firestore.doc(`flow_items/${parsed.data.id}`) : firestore.collection("flow_items").doc();
     return firestore.runTransaction(async tx => {
@@ -32,7 +32,7 @@ export function createSaveFlowPublicationHandler(firestore: Firestore = db) {
         const ledger = (await tx.get(firestore.doc(`educational_asset_access/${asset.assetId}`))).data();
         if (!ledger || ledger.path !== asset.path || ledger.state !== "ready") throw new HttpsError("failed-precondition", "Importez et enregistrez d’abord la vidéo dans sa leçon.");
         const lesson = (await tx.get(firestore.doc(ledger.lessonPath))).data();
-        if (lesson?.status !== "published" || !lesson.contentBlocks?.some((b: DocumentData) => b.storagePath === asset.path)) throw new HttpsError("failed-precondition", "La leçon vidéo doit être publiée avant la carte FLOW.");
+        if (lesson?.status !== "published" || !lesson.contentBlocks?.some((b: DocumentData) => b.storagePath === asset.path)) throw new HttpsError("failed-precondition", "La leçon vidéo doit être publiée avant la carte Parcours.");
         data.sourceLessonPath = ledger.lessonPath;
         data.payload.fileSizeBytes = ledger.size;
       }
