@@ -53,8 +53,29 @@ les constantes serveur depuis le test Flutter pour garder l’ordre.
   renvoie la réponse en cache (bloc d’activité compris) ; une requête en cours
   est attendue (sondage toutes les 1,5 s, 45 s au plus) au lieu d’être
   relancée.
-- Quota : la question n’est consommée que si le fournisseur a pu facturer
-  (`BilledProviderFailure`) ; sinon elle est rendue à l’élève.
+- Quota quotidien (Africa/Douala) : une place est réservée avant l’appel ;
+  la réservation porte sa journée (`dayKey`), et la question appartient à
+  cette journée même si la réponse arrive après minuit.
+- **Réponse livrée complète** : la question est décomptée et l’usage réel est
+  débité de la Réserve d’étude.
+- **Aucune réponse utilisable livrée** (texte vide, seulement une activité
+  invalide, réponse inexploitable, délai fournisseur dépassé) : l’élève reçoit
+  une erreur à relancer ; la question lui est rendue et la Réserve n’est pas
+  débitée.
+- **Réponse coupée au plafond** (`finishReason = MAX_TOKENS`) : le texte
+  visible est livré avec la mention « Ma réponse a été coupée : écris « la
+  suite »… » (FR / EN), sans activité incomplète, et n’est pas compté comme
+  une question réussie.
+- **Texte utile avec une activité invalide** : réponse normale, débit normal.
+- Plafond anti-abus : `TUTOR_FREE_UNDELIVERED_ANSWERS_PER_DAY = 3` issues non
+  livrées gratuites par élève et par jour ; au-delà, la question et l’usage
+  réel sont débités.
+- Coût fournisseur ≠ débit élève : l’usage de chaque issue non livrée est
+  journalisé (sans contenu). Une facturation Vertex AI déjà effectuée n’est
+  jamais « annulée » ; elle n’est simplement pas imputée à l’élève.
+- `GEMINI_TUTOR_THINKING_LEVEL = HIGH` et `maxOutputTokens = 8192`
+  inchangés ; la part de `MAX_TOKENS` est à mesurer en recette avant toute
+  décision sur le plafond.
 
 ## Proposition : résumé glissant (non implémenté)
 
