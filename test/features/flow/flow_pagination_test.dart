@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,7 @@ import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/flow/application/flow_controller.dart';
 import 'package:intellia237/features/flow/data/flow_feed_repository.dart';
 import 'package:intellia237/features/flow/data/flow_points_gateway.dart';
+import 'package:intellia237/features/flow/data/flow_progress_store.dart';
 import 'package:intellia237/features/flow/domain/flow_item.dart';
 import 'package:intellia237/features/flow/presentation/flow_screen.dart';
 import 'package:intellia237/features/learn/application/learn_providers.dart';
@@ -111,6 +114,46 @@ void main() {
     expect(_pageCount(tester), 6, reason: 'l’élève garde ses cartes');
     await _dispose(tester);
   });
+
+  testWidgets(
+    'page 2 keeps its completed cards, drops duplicates, keeps the order',
+    (tester) async {
+      final page1 = _notions('p1', 6);
+      final page2 = [page1[2], ..._notions('p2', 4)];
+      final feed = _PagedFeed({
+        null: FlowFeedPage(items: page1, nextCursor: 'c2'),
+        'c2': FlowFeedPage(items: page2),
+      });
+      await _pump(
+        tester,
+        feed,
+        preferences: {
+          FlowProgressStore.keyFor(_uid): jsonEncode({
+            'completedCardIds': ['p1-5', 'p2-1', 'p2-3'],
+          }),
+        },
+      );
+      expect(_pageCount(tester), 6);
+
+      // À quatre cartes de la fin : la page 2 arrive.
+      await _swipe(tester);
+      await _swipe(tester);
+      expect(feed.requests.map((request) => request.$1), [null, 'c2']);
+
+      // 6 + 4 nouvelles (le doublon p1-2 est ignoré). Avant la correction, les
+      // deux cartes déjà terminées de la page 2 disparaissaient : 8.
+      expect(_pageCount(tester), 10);
+
+      // Le neuf passe devant le déjà terminé ; le déjà terminé de la page 2
+      // ferme le fil, dans l'ordre reçu.
+      for (var i = 0; i < 7; i++) {
+        await _swipe(tester);
+      }
+      expect(find.text('Carte p2 3'), findsWidgets);
+      expect(tester.takeException(), isNull);
+      await _dispose(tester);
+    },
+  );
 }
 
 const _uid = 'student-pagination';
@@ -145,11 +188,15 @@ Future<void> _swipe(WidgetTester tester) async {
   }
 }
 
-Future<void> _pump(WidgetTester tester, _PagedFeed feed) async {
+Future<void> _pump(
+  WidgetTester tester,
+  _PagedFeed feed, {
+  Map<String, Object> preferences = const {},
+}) async {
   tester.view.physicalSize = const Size(360, 780);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  SharedPreferences.setMockInitialValues(const {});
+  SharedPreferences.setMockInitialValues(preferences);
   await tester.pumpWidget(
     ProviderScope(
       overrides: [

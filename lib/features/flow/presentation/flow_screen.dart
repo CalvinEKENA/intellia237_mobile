@@ -9,6 +9,7 @@ import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/flow_controller.dart';
+import '../application/flow_page_merge.dart';
 import '../domain/flow_card.dart';
 import '../data/flow_feed_repository.dart';
 import '../data/flow_points_gateway.dart';
@@ -76,7 +77,7 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
 
   /// Cartes affichées : la première fenêtre, puis les pages chargées à la
   /// demande. La liste ne fait que grandir, jamais sous la carte courante.
-  late final List<FlowCard> _cards;
+  late List<FlowCard> _cards;
   String? _nextCursor;
   bool _loadingMore = false;
   int _loadFailures = 0;
@@ -146,21 +147,18 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
           .read(flowNextPageLoaderProvider)(widget.catalog, cursor)
           .then((page) {
             if (!mounted) return;
-            final known = {for (final card in _cards) card.id};
-            final fresh = page.cards.where((card) => known.add(card.id));
             final completed = ref.read(flowControllerProvider).completedCardIds;
             setState(() {
               // Le neuf passe devant le déjà terminé, mais jamais avant la
-              // carte que l'élève regarde.
-              final tail = _cards.indexWhere(
-                (card) => completed.contains(card.id),
+              // carte que l'élève regarde ; le déjà terminé reste disponible
+              // en fin de fil.
+              _cards = mergeFlowNextPage(
+                current: _cards,
+                incoming: page.cards,
+                idOf: (card) => card.id,
+                completed: completed,
+                currentIndex: _index,
               );
-              final insertAt = tail > _index ? tail : _cards.length;
-              _cards.insertAll(
-                insertAt,
-                fresh.where((card) => !completed.contains(card.id)),
-              );
-              _cards.addAll(fresh.where((card) => completed.contains(card.id)));
               _nextCursor = page.nextCursor;
               _loadFailures = 0;
             });
