@@ -141,6 +141,26 @@ describe("account deletion end to end", () => {
     expect(Date.parse(again.dueAt)).toBeGreaterThan(Date.now() + ACCOUNT_DELETION_GRACE_MS - 60_000);
   });
 
+  it("OWNER DECISION: a legacy pending request stays untouched even with a past dueAt", async () => {
+    // Même si une ancienne demande portait une échéance, son statut
+    // « pending » suffit à l'exclure : aucune migration vers « scheduled ».
+    await seedStudent("stu-legacy-dated");
+    await db.doc("account_deletion_requests/stu-legacy-dated").set({
+      uid: "stu-legacy-dated",
+      status: "pending",
+      requestedAt: Timestamp.fromMillis(Date.now() - 40 * 24 * 60 * 60 * 1000),
+      dueAt: Timestamp.fromMillis(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    });
+    const { processor: run, auth } = processor();
+    expect(await run.processDue()).toEqual({ completed: 0, failed: 0 });
+    expect(await run.processOne("stu-legacy-dated")).toBe("skipped");
+    expect(auth.calls).toEqual([]);
+    const request = (await db.doc("account_deletion_requests/stu-legacy-dated").get()).data()!;
+    expect(request.status).toBe("pending");
+    expect(request.attempts).toBeUndefined();
+    expect((await db.doc("users/stu-legacy-dated").get()).get("firstName")).toBe("Amina");
+  });
+
   it("erases a student's personal data, keeps what must be kept, deletes Auth last", async () => {
     await seedStudent("stu-1");
     await createRequestAccountDeletionHandler(db)({ auth: { uid: "stu-1" }, data: {} } as never);

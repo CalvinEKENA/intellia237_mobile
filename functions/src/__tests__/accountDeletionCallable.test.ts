@@ -6,6 +6,7 @@ import {
   createCancelAccountDeletionHandler,
   createRequestAccountDeletionHandler,
   nextDeletionRetryDelay,
+  PROCESSABLE_STATUSES,
 } from "../services/accountDeletionCallable";
 
 describe("account deletion policy", () => {
@@ -15,6 +16,13 @@ describe("account deletion policy", () => {
       .rejects.toMatchObject({ code: "unauthenticated" });
     await expect(createCancelAccountDeletionHandler(unusedFirestore)({ data: {} } as never))
       .rejects.toMatchObject({ code: "unauthenticated" });
+  });
+
+  it("OWNER DECISION: legacy pending requests are never picked by the scheduler", () => {
+    // Anciennes demandes (status « pending », souvent sans dueAt) : visibles,
+    // remplaçables par une nouvelle demande explicite, jamais exécutées.
+    expect(PROCESSABLE_STATUSES).not.toContain("pending");
+    expect([...PROCESSABLE_STATUSES].sort()).toEqual(["failed", "processing", "scheduled"]);
   });
 
   it("keeps a seven-day grace period", () => {

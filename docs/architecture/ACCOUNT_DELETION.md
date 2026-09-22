@@ -121,11 +121,17 @@ par le propriétaire avec son conseil (voir §6).
 
 Avant cette version, `requestAccountDeletion` écrivait seulement
 `{ status: "pending", requestedAt }`, sans échéance ni délai de grâce annoncé.
+> **OWNER DECISION** — legacy pending deletion requests remain
+> manual/non-executing. Confirmée le 22 septembre 2026 après la revue
+> indépendante, qui les qualifiait d’« orphelines » : ce comportement est
+> voulu. Aucune migration vers `scheduled`.
+
 **Décision du propriétaire (21 septembre 2026) : ces demandes ne sont jamais
 traitées automatiquement.** Le traitement planifié ne lit que les statuts
 `scheduled`, `failed` et `processing` avec une échéance `dueAt` dépassée ; une
-demande `pending` sans échéance n'est donc jamais sélectionnée (verrouillé par
-`accountDeletion.integration.test.ts`). Elles restent visibles dans Studio
+demande `pending` n'est donc jamais sélectionnée, avec ou sans échéance
+(verrouillé par `accountDeletion.integration.test.ts` et
+`accountDeletionCallable.test.ts`). Elles restent visibles dans Studio
 (échéance « — ») pour un traitement manuel, et la personne peut refaire une
 demande explicite, qui repart avec 7 jours de grâce.
 
