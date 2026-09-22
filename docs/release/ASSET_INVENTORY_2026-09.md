@@ -41,7 +41,7 @@ négligeable en taille ; intérêt surtout de clarté.
 
 | Dossier / fichier | Taille | Remarque |
 | --- | ---: | --- |
-| `icons/edunova.png` | 2,0 Mo | ancienne marque EduNova |
+| logo de l’ancienne marque (dossier `icons/`) | 2,0 Mo | antérieur au changement de marque ; nom exact dans `docs/audits/CODEX_MIGRATION_INVENTORY.json` |
 | `icons/logo.png` | 272 Ko | aucune référence |
 | `icons/icone.png`, `icone_final.png`, `logo_android12.png`, `logo_splash.png` | 2,0 Mo | cités seulement par des tests qui vérifient qu’ils ne sont **plus** utilisés |
 | `images/student_portrait_v2.png` | 660 Ko | aucune référence |
@@ -56,7 +56,7 @@ chemins (ils continuent de passer sans les fichiers). Vérifier d’abord
 qu’aucun document de marque (`docs/rebranding/`) ne les cite comme source.
 
 Le risque R-017 de `docs/audits/CODEX_RISK_REGISTER.md` (« images lourdes,
-application plus grosse ») est en partie obsolète : `edunova.png`, les
+application plus grosse ») est en partie obsolète : le logo de l’ancienne marque, les
 diapositives et les portraits de tuteurs ne sont plus embarqués. Les chemins
 figurent encore dans `docs/audits/CODEX_MIGRATION_INVENTORY.json` comme
 historique de migration.
