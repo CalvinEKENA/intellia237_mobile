@@ -278,13 +278,17 @@ export class AskTutorUseCase {
         ? renderActivityOutcome(params.input.activityOutcome, language)
         : undefined,
     });
+    // Journée de la réservation : la question lui appartient jusqu'au bout,
+    // même si la réponse arrive après minuit (Africa/Douala).
+    let quotaDayKey: string | undefined;
     try {
       if (!params.quotaAlreadyCharged) {
-        await this.quotaStore.reserve({
+        const reservation = await this.quotaStore.reserve({
           userId: params.userId,
           traceId: params.requestKey,
           limit: this.dailyQuestionLimit,
         });
+        quotaDayKey = reservation.dayKey;
       }
     } catch (error) {
       if (error instanceof AppError && error.code === "resource-exhausted") {
@@ -343,6 +347,7 @@ export class AskTutorUseCase {
         userId: params.userId,
         traceId: params.requestKey,
         limit: this.dailyQuestionLimit,
+        dayKey: quotaDayKey,
       });
       // Le bloc éventuel est validé ici ; invalide, il est retiré et seule la
       // réponse texte est servie.
@@ -362,11 +367,13 @@ export class AskTutorUseCase {
           userId: params.userId,
           traceId: params.requestKey,
           limit: this.dailyQuestionLimit,
+          dayKey: quotaDayKey,
         }).catch(() => undefined);
       } else if (!params.quotaAlreadyCharged) {
         await this.quotaStore.release({
           userId: params.userId,
           traceId: params.requestKey,
+          dayKey: quotaDayKey,
         }).catch(() => undefined);
       }
       throw error;

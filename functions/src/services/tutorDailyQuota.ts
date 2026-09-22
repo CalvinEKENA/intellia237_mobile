@@ -12,18 +12,30 @@ export interface TutorQuotaSnapshot {
   resetsAt: string;
 }
 
+/**
+ * Réservation d'une question : l'instantané affiché et la journée (Africa/Douala)
+ * dans laquelle la place a été prise. La question appartient à cette journée,
+ * même si la réponse arrive après minuit.
+ */
+export type TutorQuotaReservation = TutorQuotaSnapshot & { dayKey?: string };
+
 export interface TutorQuotaStore {
   reserve(params: {
     userId: string;
     traceId: string;
     limit: number;
-  }): Promise<TutorQuotaSnapshot>;
+  }): Promise<TutorQuotaReservation>;
+  /**
+   * Transforme LA réservation d'origine en question comptée. `dayKey` est
+   * celui renvoyé par `reserve` ; absent, la journée courante est utilisée.
+   */
   consume(params: {
     userId: string;
     traceId: string;
     limit: number;
+    dayKey?: string;
   }): Promise<TutorQuotaSnapshot>;
-  release(params: { userId: string; traceId: string }): Promise<void>;
+  release(params: { userId: string; traceId: string; dayKey?: string }): Promise<void>;
 }
 
 /**
@@ -31,6 +43,11 @@ export interface TutorQuotaStore {
  * LLM call, consumed only after a successful response, and released on error.
  * Stale reservations expire so a killed function cannot block a student for
  * the rest of the day.
+ *
+ * The reservation carries its day: consume and release act on the bucket in
+ * which the slot was taken, never on a bucket recomputed from the current
+ * time (a question reserved at 23:59:59 and answered at 00:00:01 belongs to
+ * the first day).
  */
 export class FirestoreTutorQuotaStore implements TutorQuotaStore {
   constructor(
@@ -42,7 +59,7 @@ export class FirestoreTutorQuotaStore implements TutorQuotaStore {
     userId: string;
     traceId: string;
     limit: number;
-  }): Promise<TutorQuotaSnapshot> {
+  }): Promise<TutorQuotaReservation> {
     const now = this.now();
     const dayKey = tutorQuotaDayKey(now);
     const document = this.quotaDocument(params.userId, dayKey);
@@ -71,7 +88,7 @@ export class FirestoreTutorQuotaStore implements TutorQuotaStore {
         ...(snapshot.exists ? {} : { createdAt: FieldValue.serverTimestamp() }),
       }, { merge: true });
 
-      return quotaSnapshot(dayKey, params.limit, occupied + 1);
+      return { ...quotaSnapshot(dayKey, params.limit, occupied + 1), dayKey };
     });
   }
 
@@ -79,13 +96,19 @@ export class FirestoreTutorQuotaStore implements TutorQuotaStore {
     userId: string;
     traceId: string;
     limit: number;
+    dayKey?: string;
   }): Promise<TutorQuotaSnapshot> {
     const now = this.now();
-    const dayKey = tutorQuotaDayKey(now);
+    const today = tutorQuotaDayKey(now);
+    const dayKey = params.dayKey ?? today;
     const document = this.quotaDocument(params.userId, dayKey);
+    const todayDocument = this.quotaDocument(params.userId, today);
 
     return this.firestore.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(document);
+      // Lectures avant écritures : la journée affichée est lue ici quand la
+      // question appartient à la veille.
+      const todaySnapshot = dayKey === today ? snapshot : await transaction.get(todayDocument);
       const data = snapshot.data();
       let usedCount = safeCount(data?.usedCount);
       const reservations = activeReservations(data?.reservations, now);
@@ -104,6 +127,16 @@ export class FirestoreTutorQuotaStore implements TutorQuotaStore {
         updatedAt: FieldValue.serverTimestamp(),
       }, { merge: true });
 
+      if (dayKey !== today) {
+        // La question compte pour sa journée ; l'élève voit sa journée en cours.
+        const todayData = todaySnapshot.data();
+        return quotaSnapshot(
+          today,
+          params.limit,
+          safeCount(todayData?.usedCount) +
+            Object.keys(activeReservations(todayData?.reservations, now)).length,
+        );
+      }
       return quotaSnapshot(
         dayKey,
         params.limit,
@@ -112,9 +145,9 @@ export class FirestoreTutorQuotaStore implements TutorQuotaStore {
     });
   }
 
-  async release(params: { userId: string; traceId: string }): Promise<void> {
+  async release(params: { userId: string; traceId: string; dayKey?: string }): Promise<void> {
     const now = this.now();
-    const dayKey = tutorQuotaDayKey(now);
+    const dayKey = params.dayKey ?? tutorQuotaDayKey(now);
     const document = this.quotaDocument(params.userId, dayKey);
 
     await this.firestore.runTransaction(async (transaction) => {
