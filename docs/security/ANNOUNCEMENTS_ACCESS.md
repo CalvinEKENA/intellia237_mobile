@@ -7,8 +7,8 @@ règles Firestore.
 ## Constat (revue indépendante)
 
 `match /announcements/{announcementId}` autorisait `read` à **tout compte
-connecté**. L’app en production (`7521a94`) lit les annonces **sans nommer
-l’école** :
+connecté**. L’app analysée comme production (`7521a94`, `3.0.0+22`) lit les
+annonces **sans nommer l’école** :
 
 | Écran (version en production) | Requête |
 | --- | --- |
@@ -62,8 +62,11 @@ et ses propres annonces).
 
 Préalables :
 
-1. publication de la nouvelle app, puis version minimale imposée (les
-   versions `≤ 3.2.1+29` n’ouvrent plus les tableaux de bord) ;
+1. publication de la nouvelle app, puis version minimale imposée : les
+   versions qui interrogent sans nommer l’école (dont `7521a94`, version
+   `3.0.0+22`) n’ouvrent plus les tableaux de bord. Le numéro exact de la
+   version aujourd’hui publiée est à relever dans la Play Console : il n’est
+   pas vérifiable depuis le dépôt ;
 2. pour les parents : appartenance aux écoles des enfants **écrite par le
    serveur** (par exemple `parent_access/{parentId}.establishmentIds`, mise à
    jour à l’approbation d’un lien et lors du changement d’école d’un enfant),
