@@ -231,6 +231,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
         code: 'user-role-invalid',
       );
     }
+    final parsedRoles = parseStoredAppRoles(data['roles'], roleString);
     var profileCompleted = data['profileCompleted'] as bool? ?? false;
     if (role == AppRole.student) {
       final studentProfile = await _firestore
@@ -247,6 +248,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
       uid: uid,
       email: (data['email'] as String? ?? '').trim(),
       role: role,
+      roles: parsedRoles,
       firstName: (data['firstName'] as String? ?? '').trim(),
       lastName: (data['lastName'] as String? ?? '').trim(),
       profileCompleted: profileCompleted,

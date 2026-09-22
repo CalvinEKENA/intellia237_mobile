@@ -38,6 +38,33 @@ StoredAppRoleResolution parseStoredAppRole(String storedValue) {
   return const StoredAppRoleResolution(role: null, isLegacy: false);
 }
 
+/// Parses stored roles handling both the additive list `roles` and the legacy
+/// singular `role` field.
+/// Returns a distinct list of valid [AppRole]s, preserving primary role precedence.
+List<AppRole> parseStoredAppRoles(
+  dynamic storedRoles,
+  String storedPrimaryRole,
+) {
+  final result = <AppRole>{};
+  final primary = parseStoredAppRole(storedPrimaryRole).role;
+  if (primary != null) {
+    result.add(primary);
+  }
+
+  if (storedRoles is Iterable) {
+    for (final item in storedRoles) {
+      if (item is String) {
+        final parsed = parseStoredAppRole(item).role;
+        if (parsed != null) {
+          result.add(parsed);
+        }
+      }
+    }
+  }
+
+  return result.toList(growable: false);
+}
+
 extension AppRoleX on AppRole {
   String get label {
     return switch (this) {

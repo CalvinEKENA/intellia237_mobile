@@ -61,9 +61,9 @@ void main() {
     await tester.tap(find.text('J’ai déjà un compte'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(
-      find.byKey(const ValueKey('gateway-role-teacher')),
+      find.byKey(const ValueKey('gateway-staff-login')),
     );
-    await tester.tap(find.byKey(const ValueKey('gateway-role-teacher')));
+    await tester.tap(find.byKey(const ValueKey('gateway-staff-login')));
     await tester.pumpAndSettle();
     expect(find.text('Se connecter'), findsOneWidget);
 

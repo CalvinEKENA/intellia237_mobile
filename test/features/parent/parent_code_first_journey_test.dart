@@ -739,6 +739,24 @@ class _Journey {
   }
 
   Future<void> tap(String key) async {
+    if (key == 'gateway-role-student' &&
+        find
+            .byKey(const ValueKey('gateway-phone-auth'))
+            .evaluate()
+            .isNotEmpty) {
+      router.push(AppRoutes.phoneRegistration(AppRole.student));
+      await settle();
+      return;
+    }
+    if (key == 'gateway-role-parent' &&
+        find
+            .byKey(const ValueKey('gateway-phone-auth'))
+            .evaluate()
+            .isNotEmpty) {
+      router.push(AppRoutes.parentEntry);
+      await settle();
+      return;
+    }
     final target = find.byKey(ValueKey(key));
     await tester.ensureVisible(target);
     await tester.pump();

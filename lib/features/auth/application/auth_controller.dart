@@ -29,6 +29,7 @@ final authControllerProvider = NotifierProvider<AuthController, AuthState>(
 
 class AuthController extends Notifier<AuthState> {
   static const _lastValidSessionKey = 'auth_last_valid_profile_v1';
+  static const _lastSelectedSpacePrefix = 'auth_last_selected_space_v1_';
 
   /// UID élève d'une session vérifiée sous l'entrée parent, en attente de la
   /// décision du parent. Un redémarrage pendant cette attente referme la
@@ -525,15 +526,7 @@ class AuthController extends Notifier<AuthState> {
         recoveredRole: user?.role,
       ),
       AuthSessionResolutionKind.authenticated when user != null =>
-        AuthState.authenticated(
-          role: user.role,
-          userId: user.uid,
-          email: user.email,
-          firstName: user.firstName,
-          profileCompleted: user.profileCompleted,
-          isSuperAdmin: user.isSuperAdmin,
-          establishmentId: user.establishmentId,
-        ),
+        await _resolveAuthenticatedState(user),
       AuthSessionResolutionKind.authenticated => await _retryableState(
         errorCode: 'profile-empty',
       ),
@@ -641,6 +634,69 @@ class AuthController extends Notifier<AuthState> {
     );
   }
 
+  Future<AuthState> _resolveAuthenticatedState(AuthUserData user) async {
+    final roles = user.resolvedRoles;
+    AppRole activeRole = user.role;
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final savedRoleName = preferences.getString(
+        '$_lastSelectedSpacePrefix${user.uid}',
+      );
+      if (savedRoleName != null) {
+        final matching = roles.where((r) => r.name == savedRoleName);
+        if (matching.isNotEmpty) {
+          activeRole = matching.first;
+        }
+      }
+    } catch (_) {}
+
+    return AuthState.authenticated(
+      role: activeRole,
+      availableRoles: roles,
+      userId: user.uid,
+      email: user.email,
+      firstName: user.firstName,
+      profileCompleted: user.profileCompleted,
+      isSuperAdmin: user.isSuperAdmin,
+      establishmentId: user.establishmentId,
+    );
+  }
+
+  /// Changes the user's active space without logging out.
+  Future<void> selectActiveRole(AppRole role) async {
+    final current = state;
+    if (!current.isAuthenticated || current.userId == null) return;
+    if (!current.availableRoles.contains(role)) return;
+
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(
+        '$_lastSelectedSpacePrefix${current.userId}',
+        role.name,
+      );
+    } catch (_) {}
+
+    state = current.copyWith(role: role);
+  }
+
+  /// Sets unprivileged discovery mode for visitors or new Google users.
+  void enterDiscoveryMode({
+    String? userId,
+    String? email,
+    String? displayName,
+  }) {
+    state = AuthState.discovery(
+      userId: userId ?? 'discovery-visitor',
+      email: email,
+      firstName: displayName ?? 'Visiteur',
+    );
+  }
+
+  /// Exits discovery mode back to unauthenticated gateway.
+  void exitDiscoveryMode() {
+    state = const AuthState.unauthenticated();
+  }
+
   Future<void> _rememberFamilyPhoneOffer(String uid) async {
     try {
       final preferences = await SharedPreferences.getInstance();
@@ -696,6 +752,7 @@ class AuthController extends Notifier<AuthState> {
         'uid': user.uid,
         'email': user.email,
         'role': user.role.name,
+        'roles': user.resolvedRoles.map((r) => r.name).toList(),
         'firstName': user.firstName,
         'lastName': user.lastName,
         'profileCompleted': true,
@@ -719,10 +776,21 @@ class AuthController extends Notifier<AuthState> {
       final roleName = data['role'] as String?;
       final role = AppRole.values.where((item) => item.name == roleName);
       if (role.isEmpty) return null;
+
+      final rolesRaw = data['roles'] as List<dynamic>?;
+      final roles = <AppRole>[];
+      if (rolesRaw != null) {
+        for (final r in rolesRaw) {
+          final matched = AppRole.values.where((item) => item.name == r);
+          if (matched.isNotEmpty) roles.add(matched.first);
+        }
+      }
+
       return AuthUserData(
         uid: uid,
         email: data['email'] as String? ?? '',
         role: role.first,
+        roles: roles.isEmpty ? [role.first] : roles,
         firstName: data['firstName'] as String? ?? '',
         lastName: data['lastName'] as String? ?? '',
         profileCompleted: data['profileCompleted'] == true,

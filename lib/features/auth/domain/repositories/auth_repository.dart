@@ -6,6 +6,7 @@ class AuthUserData {
     required this.uid,
     required this.email,
     required this.role,
+    this.roles = const [],
     required this.firstName,
     required this.lastName,
     required this.profileCompleted,
@@ -17,11 +18,23 @@ class AuthUserData {
   final String uid;
   final String email;
   final AppRole role;
+  final List<AppRole> roles;
   final String firstName;
   final String lastName;
   final bool profileCompleted;
   final bool legacyProfile;
   final bool isSuperAdmin;
+
+  /// Returns all authorized roles for this account, ensuring at least [role] is present.
+  List<AppRole> get resolvedRoles {
+    if (roles.isNotEmpty) {
+      if (!roles.contains(role)) {
+        return [role, ...roles];
+      }
+      return roles;
+    }
+    return [role];
+  }
 
   /// L'école à laquelle ce compte appartient ; absente pour l'administration
   /// générale et pour un compte que personne n'a encore rattaché.

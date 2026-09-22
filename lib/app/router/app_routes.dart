@@ -23,6 +23,10 @@ abstract final class AppRoutes {
   static const adminRegistration = '/register/admin';
   static const forgotPassword = '/forgot-password';
   static const authProfileRecovery = '/auth/profile-recovery';
+  static const googleDiscovery = '/discovery';
+  static const googleDiscoveryWelcome = '/auth/google/welcome';
+  static const accountLinking = '/auth/linking';
+  static const roleChooser = '/auth/choose-space';
   static const legalTerms = '/legal/terms';
   static const legalPrivacy = '/legal/privacy';
   static const legalEducationalData = '/legal/educational-data';
@@ -85,6 +89,10 @@ abstract final class AppRoutes {
     legalTerms,
     legalPrivacy,
     legalEducationalData,
+    googleDiscovery,
+    googleDiscoveryWelcome,
+    accountLinking,
+    roleChooser,
     tutorSelection,
   };
 

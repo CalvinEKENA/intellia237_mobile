@@ -120,7 +120,7 @@ void main() {
     tester,
   ) async {
     await _pumpPreview(tester, initialLocation: AppRoutes.authGateway);
-    await _tap(tester, 'gateway-role-teacher');
+    await _tap(tester, 'gateway-staff-login');
     expect(find.byType(LoginScreen), findsOneWidget);
     final reset = find.text('Mot de passe oublié ?');
     await tester.ensureVisible(reset);

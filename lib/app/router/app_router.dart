@@ -17,6 +17,10 @@ import '../../features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../features/auth/presentation/widgets/pass_home_arrival.dart';
 import '../../features/auth/presentation/profile_recovery_screen.dart';
 import '../../features/auth/presentation/student_access_code_screen.dart';
+import '../../features/auth/presentation/google_discovery_landing_screen.dart';
+import '../../features/discovery/presentation/discovery_hub_screen.dart';
+import '../../features/auth/presentation/account_linking_screen.dart';
+import '../../features/auth/presentation/role_selector_screen.dart';
 import '../../features/admin/presentation/admin_home_screen.dart';
 import '../../features/campus/presentation/screens/campus_root_screen.dart';
 import '../../features/tutor/domain/tutor_persona.dart';
@@ -204,6 +208,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
           child: slot(context, state, const ProfileRecoveryScreen()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.googleDiscovery,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(context, state, const DiscoveryHubScreen()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.googleDiscoveryWelcome,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(context, state, const GoogleDiscoveryLandingScreen()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.accountLinking,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(context, state, const AccountLinkingScreen()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.roleChooser,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(context, state, const RoleSelectorScreen()),
         ),
       ),
       GoRoute(
@@ -746,6 +778,17 @@ String? resolveAppRedirect({
           ? null
           : AppRoutes.authProfileRecovery;
 
+    case AuthStatus.discovery:
+      if (location == AppRoutes.googleDiscovery ||
+          location == AppRoutes.googleDiscoveryWelcome ||
+          location == AppRoutes.studentAccessCode ||
+          location == AppRoutes.accountLinking ||
+          location == AppRoutes.register ||
+          location == AppRoutes.authGateway) {
+        return null;
+      }
+      return AppRoutes.googleDiscovery;
+
     case AuthStatus.authenticated:
       return _resolveAuthenticatedRoleRedirect(
         auth,
@@ -767,6 +810,11 @@ String? _resolveAuthenticatedRoleRedirect(
     return location == AppRoutes.studentRegistration
         ? null
         : AppRoutes.studentRegistration;
+  }
+
+  // Multi-rôles : l'écran de sélection de l'espace actif est autorisé
+  if (auth.isMultiRole && location == AppRoutes.roleChooser) {
+    return null;
   }
 
   // Prévisualisation Parent : le super-administrateur (rôle réel admin,

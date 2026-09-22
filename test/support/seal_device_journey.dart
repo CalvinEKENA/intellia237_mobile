@@ -276,7 +276,32 @@ class SealJourney {
     await wait(const Duration(milliseconds: 50));
   }
 
-  Future<void> tap(String key) => tapFinder(find.byKey(ValueKey(key)));
+  Future<void> tap(String key) {
+    if (key == 'gateway-role-teacher' &&
+        find
+            .byKey(const ValueKey('gateway-staff-login'))
+            .evaluate()
+            .isNotEmpty) {
+      return tapFinder(find.byKey(const ValueKey('gateway-staff-login')));
+    }
+    if (key == 'gateway-role-student' &&
+        find
+            .byKey(const ValueKey('gateway-phone-auth'))
+            .evaluate()
+            .isNotEmpty) {
+      router.push(AppRoutes.phoneRegistration(AppRole.student));
+      return wait(const Duration(milliseconds: 120));
+    }
+    if (key == 'gateway-role-parent' &&
+        find
+            .byKey(const ValueKey('gateway-phone-auth'))
+            .evaluate()
+            .isNotEmpty) {
+      router.push(AppRoutes.parentEntry);
+      return wait(const Duration(milliseconds: 120));
+    }
+    return tapFinder(find.byKey(ValueKey(key)));
+  }
 
   Future<void> tapText(String text) => tapFinder(find.text(text));
 

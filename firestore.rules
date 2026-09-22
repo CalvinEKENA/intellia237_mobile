@@ -17,17 +17,28 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == uid;
     }
 
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
     function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      return getUserData().role;
     }
 
     function isActiveOrLegacyStaffAccount() {
-      return !('accountStatus' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data)
-        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountStatus == 'active';
+      return !('accountStatus' in getUserData())
+        || getUserData().accountStatus == 'active';
     }
 
     function isRole(role) {
-      return isAuthenticated() && getUserRole() == role;
+      return isAuthenticated() && (
+        getUserData().role == role ||
+        ('roles' in getUserData() && getUserData().roles is list && role in getUserData().roles)
+      );
+    }
+
+    function hasRole(role) {
+      return isRole(role);
     }
 
     function isSuperAdmin() {

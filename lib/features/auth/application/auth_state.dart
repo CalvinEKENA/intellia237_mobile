@@ -3,6 +3,7 @@ import '../domain/app_role.dart';
 enum AuthStatus {
   bootstrapping,
   unauthenticated,
+  discovery,
   needsOnboarding,
   authenticated,
   retryableProfileFailure,
@@ -13,6 +14,7 @@ class AuthState {
   const AuthState._({
     required this.status,
     this.role,
+    this.availableRoles = const [],
     this.userId,
     this.email,
     this.firstName,
@@ -32,8 +34,21 @@ class AuthState {
         profileCompleted: false,
       );
 
+  const AuthState.discovery({
+    required String userId,
+    String? email,
+    String? firstName,
+  }) : this._(
+         status: AuthStatus.discovery,
+         userId: userId,
+         email: email,
+         firstName: firstName,
+         profileCompleted: false,
+       );
+
   const AuthState.authenticated({
     required AppRole role,
+    List<AppRole> availableRoles = const [],
     required String userId,
     String? email,
     String? firstName,
@@ -43,6 +58,7 @@ class AuthState {
   }) : this._(
          status: AuthStatus.authenticated,
          role: role,
+         availableRoles: availableRoles,
          userId: userId,
          email: email,
          firstName: firstName,
@@ -109,6 +125,7 @@ class AuthState {
 
   final AuthStatus status;
   final AppRole? role;
+  final List<AppRole> availableRoles;
 
   /// Administration sans rattachement : sa portée couvre tous les
   /// établissements et tous les niveaux.
@@ -135,9 +152,16 @@ class AuthState {
           role != null &&
           profileCompleted);
 
+  List<AppRole> get resolvedRoles => availableRoles.isNotEmpty
+      ? availableRoles
+      : (role != null ? [role!] : const []);
+
+  bool get isMultiRole => resolvedRoles.length > 1;
+
   AuthState copyWith({
     AuthStatus? status,
     AppRole? role,
+    List<AppRole>? availableRoles,
     String? userId,
     String? email,
     String? firstName,
@@ -150,6 +174,7 @@ class AuthState {
     return AuthState._(
       status: status ?? this.status,
       role: role ?? this.role,
+      availableRoles: availableRoles ?? this.availableRoles,
       userId: userId ?? this.userId,
       email: email ?? this.email,
       firstName: firstName ?? this.firstName,

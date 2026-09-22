@@ -4,19 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
-import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import '../../support/intellia_fonts.dart';
 
-/// Se déconnecter renvoyait droit à l'authentification téléphone de l'élève.
-/// Sur un appareil partagé, un parent ou un enseignant se retrouvait donc
-/// devant l'espace de quelqu'un d'autre sans moyen d'ouvrir le sien.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(loadIntelliaFonts);
 
-  Future<String?> tapRole(WidgetTester tester, String key) async {
+  Future<String?> tapGatewayAction(WidgetTester tester, String key) async {
     String? pushed;
     final router = GoRouter(
       initialLocation: AppRoutes.authGateway,
@@ -29,8 +25,12 @@ void main() {
           AppRoutes.login,
           AppRoutes.emailLogin,
           AppRoutes.phoneAuth,
+          AppRoutes.studentAccessCode,
           AppRoutes.parentEntry,
           AppRoutes.register,
+          AppRoutes.googleDiscoveryWelcome,
+          AppRoutes.legalTerms,
+          AppRoutes.legalPrivacy,
         ])
           GoRoute(
             path: path,
@@ -65,80 +65,95 @@ void main() {
     await tester.pump();
 
     await tester.tap(find.byKey(ValueKey(key)));
-    // IntelliaPressable applique un anti-rebond avant de propager le tap.
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     return pushed;
   }
 
-  // Device QA round 2 : chaque entrée porte son intention. L'élève rejoint
-  // l'authentification téléphone *en tant qu'élève* : un compte d'un autre
-  // rôle n'y ouvre rien.
-  testWidgets('l’élève rejoint son authentification téléphone', (tester) async {
-    expect(
-      await tapRole(tester, 'gateway-role-student'),
-      AppRoutes.phoneRegistration(AppRole.student),
-    );
-  });
+  testWidgets(
+    'l’action numéro de téléphone ouvre l’authentification téléphone',
+    (tester) async {
+      expect(
+        await tapGatewayAction(tester, 'gateway-phone-auth'),
+        AppRoutes.phoneAuth,
+      );
+    },
+  );
 
-  // Le parent commence par le code de son enfant, pas par un numéro.
-  testWidgets('le parent rejoint l’entrée par code enfant', (tester) async {
-    expect(await tapRole(tester, 'gateway-role-parent'), AppRoutes.parentEntry);
-  });
-
-  testWidgets('l’enseignant rejoint l’authentification par e-mail', (
+  testWidgets('l’action code élève ouvre l’écran de saisie de code d’accès', (
     tester,
   ) async {
-    expect(await tapRole(tester, 'gateway-role-teacher'), AppRoutes.emailLogin);
-  });
-
-  testWidgets('créer un compte reste accessible', (tester) async {
-    expect(await tapRole(tester, 'gateway-create-account'), AppRoutes.register);
-  });
-
-  testWidgets('aucun rôle n’est présélectionné', (tester) async {
-    final router = GoRouter(
-      initialLocation: AppRoutes.authGateway,
-      routes: [
-        GoRoute(
-          path: AppRoutes.authGateway,
-          builder: (_, _) => const AuthGatewayScreen(),
-        ),
-      ],
+    expect(
+      await tapGatewayAction(tester, 'gateway-student-access-code'),
+      AppRoutes.studentAccessCode,
     );
-    addTearDown(router.dispose);
+  });
 
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp.router(
-          routerConfig: router,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          locale: const Locale('fr'),
-          builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(disableAnimations: true),
-            child: child!,
+  testWidgets('le personnel scolaire rejoint la connexion par e-mail', (
+    tester,
+  ) async {
+    expect(
+      await tapGatewayAction(tester, 'gateway-staff-login'),
+      AppRoutes.emailLogin,
+    );
+  });
+
+  testWidgets(
+    'l’écran d’accueil présente le bouton Google officiel sans cartes de rôles préalables',
+    (tester) async {
+      final router = GoRouter(
+        initialLocation: AppRoutes.authGateway,
+        routes: [
+          GoRoute(
+            path: AppRoutes.authGateway,
+            builder: (_, _) => const AuthGatewayScreen(),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('fr'),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(disableAnimations: true),
+              child: child!,
+            ),
           ),
         ),
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.byKey(const ValueKey('gateway-role-student')), findsOneWidget);
-    expect(find.byKey(const ValueKey('gateway-role-parent')), findsOneWidget);
-    expect(find.byKey(const ValueKey('gateway-role-teacher')), findsOneWidget);
-    // La copie appartient aux fichiers de traduction : ce test garde qu'un
-    // titre et un sous-titre sont bien présentés, pas leur formulation.
-    final l10n = AppLocalizations.of(
-      tester.element(find.byType(AuthGatewayScreen)),
-    );
-    expect(find.text(l10n.passGoodToSeeYouAgain), findsOneWidget);
-    expect(find.text(l10n.authGatewaySubtitle), findsOneWidget);
-  });
+      // Boutons clés présents
+      expect(find.byKey(const ValueKey('gateway-phone-auth')), findsOneWidget);
+      expect(find.byKey(const ValueKey('gateway-google-auth')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('gateway-student-access-code')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey('gateway-staff-login')), findsOneWidget);
+
+      // Les cartes de sélection de rôles ne sont PAS présentes avant l'authentification
+      expect(find.byKey(const ValueKey('gateway-role-student')), findsNothing);
+      expect(find.byKey(const ValueKey('gateway-role-parent')), findsNothing);
+      expect(find.byKey(const ValueKey('gateway-role-teacher')), findsNothing);
+
+      // Titre et identité INTELLIA237
+      expect(find.text('Bienvenue sur INTELLIA237'), findsOneWidget);
+      expect(
+        find.text('Votre espace éducatif sécurisé au Cameroun'),
+        findsOneWidget,
+      );
+    },
+  );
 }
