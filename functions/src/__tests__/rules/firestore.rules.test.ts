@@ -12,6 +12,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   runTransaction,
   setDoc,
@@ -959,42 +961,119 @@ describe("Firestore security rules", () => {
     }));
   });
 
-  it("serves the school-scoped announcement queries of every dashboard", async () => {
-    // Reads stay open to signed-in accounts until installed versions that
-    // query without a school are gone; the new queries must already pass.
-    await seedFirestore();
-    await testEnv.withSecurityRulesDisabled(async (context) => {
-      const db = context.firestore();
-      await setDoc(doc(db, "announcements/news-a"), {
-        createdBy: "teacher-a",
-        establishmentId: "school-a",
-        title: "A",
-        message: "A",
-        audience: "Parents",
+  describe("announcements follow their real audience", () => {
+    async function seedAnnouncements() {
+      await seedFirestore();
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        const db = context.firestore();
+        const announcement = (
+          id: string,
+          fields: Record<string, unknown>,
+        ) => setDoc(doc(db, `announcements/${id}`), {
+          title: id,
+          message: id,
+          publishedAt: new Date("2026-09-22T08:00:00Z"),
+          ...fields,
+        });
+        await announcement("a-all", { establishmentId: "school-a", audience: "Tout l'établissement", createdBy: "admin-a" });
+        await announcement("a-students", { establishmentId: "school-a", audience: "Élèves", createdBy: "admin-a" });
+        await announcement("a-parents", { establishmentId: "school-a", audience: "Parents", createdBy: "admin-a" });
+        await announcement("a-teachers", { establishmentId: "school-a", audience: "Enseignants", createdBy: "admin-a" });
+        await announcement("a-admins", { establishmentId: "school-a", audience: "Administration", createdBy: "admin-a" });
+        await announcement("a-class", { establishmentId: "school-a", audience: "Classe", classId: "class-a", createdBy: "teacher-a" });
+        await announcement("b-all", { establishmentId: "school-b", audience: "Tout l'établissement", createdBy: "admin-b" });
+        await announcement("b-students", { establishmentId: "school-b", audience: "Élèves", createdBy: "admin-b" });
+        await announcement("b-teachers", { establishmentId: "school-b", audience: "Enseignants", createdBy: "admin-b" });
       });
-      await setDoc(doc(db, "announcements/news-b"), {
-        createdBy: "admin-b",
-        establishmentId: "school-b",
-        title: "B",
-        message: "B",
-        audience: "Parents",
-      });
+    }
+    const read = (uid: string | undefined, id: string) =>
+      getDoc(doc(dbFor(uid), `announcements/${id}`));
+
+    it("a student never reads another school's announcements", async () => {
+      await seedAnnouncements();
+      await assertFails(read("student-a", "b-all"));
+      await assertFails(read("student-a", "b-students"));
+      await assertFails(read("student-b", "a-all"));
+      await assertFails(read("student-b", "a-class"));
     });
-    const ofSchool = (uid: string, establishmentId: string) =>
-      getDocs(query(
+
+    it("a student reads only what is addressed to students in their school and class", async () => {
+      await seedAnnouncements();
+      await assertSucceeds(read("student-a", "a-all"));
+      await assertSucceeds(read("student-a", "a-students"));
+      await assertSucceeds(read("student-a", "a-class"));
+      await assertFails(read("student-a", "a-parents"));
+      await assertFails(read("student-a", "a-teachers"));
+      await assertFails(read("student-a", "a-admins"));
+    });
+
+    it("a teacher never reads another school's announcements", async () => {
+      await seedAnnouncements();
+      await assertFails(read("teacher-a", "b-all"));
+      await assertFails(read("teacher-a", "b-teachers"));
+      await assertFails(getDocs(query(
+        collection(dbFor("teacher-a"), "announcements"),
+        where("establishmentId", "==", "school-b"),
+      )));
+    });
+
+    it("a teacher reads their own, the staff ones and their class in their school", async () => {
+      await seedAnnouncements();
+      await assertSucceeds(read("teacher-a", "a-all"));
+      await assertSucceeds(read("teacher-a", "a-teachers"));
+      await assertSucceeds(read("teacher-a", "a-class"));
+      await assertFails(read("teacher-a", "a-parents"));
+      await assertFails(read("teacher-a", "a-admins"));
+    });
+
+    it("an inactive teacher or an account without a role reads nothing", async () => {
+      await seedAnnouncements();
+      await assertFails(read("pending-teacher", "a-all"));
+      await assertFails(read("pending-teacher", "a-teachers"));
+      await assertFails(read("no-profile-yet", "a-all"));
+      await assertFails(getDocs(query(
+        collection(dbFor("no-profile-yet"), "announcements"),
+        where("establishmentId", "==", "school-a"),
+      )));
+      await assertFails(read(undefined, "a-all"));
+    });
+
+    it("keeps the exact queries of the installed app working during the transition", async () => {
+      // Requêtes de la version en production (7521a94), sans école : les
+      // resserrer ferait échouer tout le tableau de bord administration et
+      // parent. Phase 2 (docs/security/ANNOUNCEMENTS_ACCESS.md) les fermera.
+      await seedAnnouncements();
+      const latestFive = (uid: string) => getDocs(query(
+        collection(dbFor(uid), "announcements"),
+        orderBy("publishedAt", "desc"),
+        limit(5),
+      ));
+      await assertSucceeds(latestFive("admin-a"));
+      await assertSucceeds(latestFive("parent-a"));
+      await assertSucceeds(getDocs(query(
+        collection(dbFor("teacher-a"), "announcements"),
+        where("createdBy", "==", "teacher-a"),
+        limit(5),
+      )));
+    });
+
+    it("serves the school-scoped queries of the new app", async () => {
+      await seedAnnouncements();
+      const ofSchool = (uid: string, establishmentId: string) => getDocs(query(
         collection(dbFor(uid), "announcements"),
         where("establishmentId", "==", establishmentId),
+        limit(50),
       ));
-
-    await assertSucceeds(ofSchool("admin-a", "school-a"));
-    await assertSucceeds(ofSchool("parent-a", "school-a"));
-    await assertSucceeds(getDocs(query(
-      collection(dbFor("teacher-a"), "announcements"),
-      where("establishmentId", "==", "school-a"),
-      where("createdBy", "==", "teacher-a"),
-    )));
-    await assertFails(getDocs(collection(dbFor(), "announcements")));
-    await assertSucceeds(getDocs(collection(dbFor("root"), "announcements")));
+      await assertSucceeds(ofSchool("admin-a", "school-a"));
+      await assertSucceeds(ofSchool("parent-a", "school-a"));
+      await assertSucceeds(getDocs(query(
+        collection(dbFor("teacher-a"), "announcements"),
+        where("establishmentId", "==", "school-a"),
+        where("createdBy", "==", "teacher-a"),
+        limit(5),
+      )));
+      await assertSucceeds(getDocs(collection(dbFor("root"), "announcements")));
+    });
   });
 
   it("blocks client writes to generated quizzes and summaries", async () => {

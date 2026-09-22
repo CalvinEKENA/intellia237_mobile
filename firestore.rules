@@ -211,6 +211,33 @@ service cloud.firestore {
         );
     }
 
+    function isStudentInClass(classId) {
+      return classId is string
+        && classId.size() > 0
+        && exists(/databases/$(database)/documents/classes/$(classId))
+        && request.auth.uid in get(/databases/$(database)/documents/classes/$(classId)).data.get('studentIds', []);
+    }
+
+    // Annonces : ETABLISSEMENT (audience d'ecole) ou CLASSE (audience
+    // 'Classe' + classId). Il n'existe pas d'annonce globale : toute annonce
+    // porte un establishmentId.
+    function isTeacherAnnouncementReader(data) {
+      return data.get('createdBy', '') == request.auth.uid
+        || (isSameEstablishment(data.get('establishmentId', ''))
+            && (data.get('audience', '') in ['Tout l\'établissement', 'Enseignants']
+                || (data.get('audience', '') == 'Classe'
+                    && data.get('classId', '') is string
+                    && data.get('classId', '').size() > 0
+                    && isAssignedTeacherForClass(data.get('classId', '')))));
+    }
+
+    function isStudentAnnouncementReader(data) {
+      return isSameEstablishment(data.get('establishmentId', ''))
+        && (data.get('audience', '') in ['Tout l\'établissement', 'Élèves']
+            || (data.get('audience', '') == 'Classe'
+                && isStudentInClass(data.get('classId', ''))));
+    }
+
     // Vérifie qu'un parent est lié à un enfant
     function isLinkedParent(studentUid) {
       return isParent() &&
@@ -620,12 +647,26 @@ service cloud.firestore {
     // ANNOUNCEMENTS
     // =============================================
     match /announcements/{announcementId} {
-      // Contrat en deux temps. Les versions deja installees lisent encore les
-      // annonces sans nommer l'ecole : resserrer maintenant casserait leurs
-      // tableaux de bord. Les nouvelles versions bornent leurs requetes a
-      // l'ecole ; une fois adoptees, la lecture deviendra
-      // isSuperAdmin() || isSameEstablishment(resource.data.establishmentId).
-      allow read: if isAuthenticated();
+      // Lecture selon l'audience reelle (docs/security/ANNOUNCEMENTS_ACCESS.md) :
+      // - super-administration : toutes ;
+      // - enseignant actif : les siennes ; dans son ecole, celles destinees a
+      //   tout l'etablissement ou aux enseignants, et celles d'une classe
+      //   qu'il encadre ;
+      // - eleve : dans son ecole, celles destinees a tout l'etablissement ou
+      //   aux eleves, et celles de sa classe ;
+      // - TRANSITION : administration d'ecole et parents lisent encore sans
+      //   condition, parce que la version installee interroge
+      //   orderBy(publishedAt).limit(5) sans nommer l'ecole ; une condition sur
+      //   le document ferait echouer cette requete entiere et son tableau de
+      //   bord. Phase 2, apres retrait de ces versions : ecole de
+      //   l'administrateur, ecoles des enfants approuves du parent ;
+      // - tout autre compte connecte (sans role, profil incomplet, personnel
+      //   inactif) : rien.
+      allow read: if isSuperAdmin()
+                  || isAdmin()
+                  || isParent()
+                  || (isTeacher() && isTeacherAnnouncementReader(resource.data))
+                  || (isStudent() && isStudentAnnouncementReader(resource.data));
       allow create: if (isAdmin() || isSuperAdmin())
                     && request.resource.data.createdBy == request.auth.uid
                     && request.resource.data.establishmentId is string
