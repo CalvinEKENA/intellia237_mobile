@@ -450,8 +450,12 @@ bouclier séparé.
 - Session valide ⇒ espace du rôle sans rien demander (`resolveAppRedirect`).
 - Le rôle vient de `users/{uid}.role` après authentification : le choisir
   avant est inutile pour un compte existant.
-- Un client ne peut créer lui-même que `student` ou `parent`, sans
-  établissement ; enseignant et administration passent par le serveur.
+- Auto-inscription : un client ne peut créer lui-même que `student` ou
+  `parent`, sans établissement ; enseignant et administration passent par le
+  serveur. C’est une règle d’auto-inscription, **pas** une limite de
+  fournisseur : Google pourra authentifier aussi un enseignant ou un
+  dirigeant, sans jamais lui attribuer ce rôle (voir
+  `docs/architecture/IDENTITY_ACCESS_METHODS.md`).
 - Un compte sans rôle ne lit aucun contenu du catalogue (`audienceAllows`).
 - Liaison de fournisseurs déjà utilisée : téléphone lié à un compte e-mail
   existant par `linkWithCredential` (`firebase_phone_auth_repository.dart`).
@@ -526,7 +530,8 @@ rôle ne dépend jamais du fournisseur.
 | Google retiré | seulement s’il reste un autre moyen |
 | Numéro changé | vérification du nouveau numéro, `updatePhoneNumber` ; cohérence avec la migration du téléphone familial |
 | Récupération | téléphone perdu ⇒ Google ; Google perdu ⇒ téléphone ; les deux ⇒ procédure super-administration avec attestation (école ou parent), jamais par e-mail seul |
-| Élève à code | inchangé ; **pas** de Google proposé aux comptes élèves en v1 (mineurs), décision du propriétaire |
+| Élève à code | inchangé ; le code élève reste l’accès sans téléphone, aucun élève n’est obligé de passer par Google ; proposer Google aux comptes élèves (mineurs) reste **à décider** par le propriétaire |
+| Enseignant ou dirigeant par Google | Google prouve l’identité ; le rôle vient d’une invitation acceptée ou d’une validation serveur, jamais du fournisseur |
 
 ### 11.8 Mode découverte
 
