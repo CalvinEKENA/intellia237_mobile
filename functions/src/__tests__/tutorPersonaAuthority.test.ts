@@ -287,7 +287,7 @@ describe("askTutor execution", () => {
     expect(calls[0].prompt).toContain("LEARNER'S QUESTION:");
   });
 
-  it("consumes the daily slot when the provider billed an unusable answer", async () => {
+  it("gives the daily slot back when a billed answer never reaches the learner", async () => {
     const quota = new RecordingQuotaStore();
     const reserve = new RecordingReserveStore();
     const useCase = new AskTutorUseCase(
@@ -305,11 +305,14 @@ describe("askTutor execution", () => {
       traceId: "t-billed",
       input: { userMessage: "?", classLevel: "Terminale", history: [], tutorId: "kira" },
     })).rejects.toThrow();
-    expect(quota.consumed).toEqual(["t-billed"]);
-    expect(quota.released).toEqual([]);
+    // Décision propriétaire : sans réponse utilisable livrée, ni le quota ni
+    // la Réserve d'étude ne sont débités (coût fournisseur journalisé à part).
+    expect(quota.consumed).toEqual([]);
+    expect(quota.released).toEqual(["t-billed"]);
+    expect(reserve.commits).toEqual([]);
   });
 
-  it("consumes the daily slot after a provider timeout", async () => {
+  it("gives the daily slot back after a provider timeout", async () => {
     const quota = new RecordingQuotaStore();
     const useCase = new AskTutorUseCase(
       contextStore(),
@@ -325,8 +328,8 @@ describe("askTutor execution", () => {
       traceId: "t-timeout",
       input: { userMessage: "?", classLevel: "Terminale", history: [], tutorId: "kira" },
     })).rejects.toThrow();
-    expect(quota.consumed).toEqual(["t-timeout"]);
-    expect(quota.released).toEqual([]);
+    expect(quota.consumed).toEqual([]);
+    expect(quota.released).toEqual(["t-timeout"]);
   });
 
   it("releases the daily slot when the provider was never reached", async () => {

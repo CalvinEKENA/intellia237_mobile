@@ -6,6 +6,20 @@ import { AppError } from "../utils/errors";
 export const TUTOR_QUOTA_TIME_ZONE = "Africa/Douala";
 const RESERVATION_TTL_MS = 5 * 60 * 1_000;
 
+/**
+ * Issues non livrées (réponse vide, coupée, inexploitable, délai dépassé)
+ * rendues à l'élève chaque jour. Au-delà, la question est décomptée : sans ce
+ * plafond, des questions conçues pour échouer seraient gratuites sans limite.
+ */
+export const TUTOR_FREE_UNDELIVERED_ANSWERS_PER_DAY = 3;
+
+export interface TutorUndeliveredSettlement {
+  /** Vrai si la question a quand même été décomptée (plafond atteint). */
+  debited: boolean;
+  /** Journée en cours, telle que l'élève doit la voir. */
+  snapshot: TutorQuotaSnapshot;
+}
+
 export interface TutorQuotaSnapshot {
   limit: number;
   remaining: number;
@@ -36,6 +50,18 @@ export interface TutorQuotaStore {
     dayKey?: string;
   }): Promise<TutorQuotaSnapshot>;
   release(params: { userId: string; traceId: string; dayKey?: string }): Promise<void>;
+  /**
+   * Règle LA réservation d'une question sans réponse utilisable : rendue à
+   * l'élève tant que le plafond quotidien d'issues non livrées n'est pas
+   * atteint, décomptée au-delà. Facultatif : sans lui, la réservation est
+   * simplement rendue.
+   */
+  settleUndelivered?(params: {
+    userId: string;
+    traceId: string;
+    limit: number;
+    dayKey?: string;
+  }): Promise<TutorUndeliveredSettlement>;
 }
 
 /**
@@ -142,6 +168,58 @@ export class FirestoreTutorQuotaStore implements TutorQuotaStore {
         params.limit,
         usedCount + Object.keys(reservations).length,
       );
+    });
+  }
+
+  async settleUndelivered(params: {
+    userId: string;
+    traceId: string;
+    limit: number;
+    dayKey?: string;
+  }): Promise<TutorUndeliveredSettlement> {
+    const now = this.now();
+    const today = tutorQuotaDayKey(now);
+    const dayKey = params.dayKey ?? today;
+    const document = this.quotaDocument(params.userId, dayKey);
+    const todayDocument = this.quotaDocument(params.userId, today);
+
+    return this.firestore.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(document);
+      const todaySnapshot = dayKey === today ? snapshot : await transaction.get(todayDocument);
+      const data = snapshot.data();
+      let usedCount = safeCount(data?.usedCount);
+      let undeliveredCount = safeCount(data?.undeliveredCount);
+      const reservations = activeReservations(data?.reservations, now);
+      let debited = false;
+      if (Object.hasOwn(reservations, params.traceId)) {
+        delete reservations[params.traceId];
+        debited = undeliveredCount >= TUTOR_FREE_UNDELIVERED_ANSWERS_PER_DAY;
+        undeliveredCount += 1;
+        if (debited) usedCount += 1;
+        transaction.set(document, {
+          userId: params.userId,
+          dayKey,
+          timeZone: TUTOR_QUOTA_TIME_ZONE,
+          limit: params.limit,
+          usedCount,
+          undeliveredCount,
+          reservations,
+          updatedAt: FieldValue.serverTimestamp(),
+        }, { merge: true });
+      }
+
+      const shownData = dayKey === today
+        ? { usedCount, reservations }
+        : todaySnapshot.data();
+      return {
+        debited,
+        snapshot: quotaSnapshot(
+          today,
+          params.limit,
+          safeCount(shownData?.usedCount) +
+            Object.keys(activeReservations(shownData?.reservations, now)).length,
+        ),
+      };
     });
   }
 

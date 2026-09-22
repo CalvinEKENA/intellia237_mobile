@@ -218,6 +218,7 @@ async function requestGemini<T>(params: {
   attachments?: InlineAttachment[];
   timeoutMs?: number;
   onUsage?: (usage: LlmTokenUsage | undefined) => void;
+  onFinishReason?: (finishReason: string | undefined) => void;
 }): Promise<T> {
   const env = getEnv();
   const projectId = env.VERTEX_AI_PROJECT_ID?.trim() ?? "";
@@ -265,6 +266,9 @@ async function requestGemini<T>(params: {
     // Usage réel du fournisseur : remonté à l'appelant pour une comptabilité
     // exacte (jamais une estimation permanente quand l'usage réel est connu).
     params.onUsage?.(tokenUsage);
+    // Motif de fin (STOP, MAX_TOKENS…) : l'appelant distingue une réponse
+    // complète d'une réponse coupée au plafond de sortie.
+    params.onFinishReason?.(finishReason);
 
     phase = "response_parsing";
     const content = extractGeminiText(response.data);
@@ -355,6 +359,7 @@ export async function generateText(params: {
   maxOutputTokens?: number;
   timeoutMs?: number;
   onUsage?: (usage: LlmTokenUsage | undefined) => void;
+  onFinishReason?: (finishReason: string | undefined) => void;
 }): Promise<string> {
   const env = getEnv();
   return requestGemini({
@@ -368,6 +373,7 @@ export async function generateText(params: {
     jsonOutput: false,
     parse: (content) => content,
     onUsage: params.onUsage,
+    onFinishReason: params.onFinishReason,
   });
 }
 

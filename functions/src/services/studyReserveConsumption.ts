@@ -425,12 +425,22 @@ async function readPreferredLocale(
  * et contournerait toutes les bornes.
  */
 export class BilledProviderFailure extends Error {
+  /**
+   * `charge` : l'usage est-il débité de la Réserve de l'élève ? Vrai par
+   * défaut. Faux quand aucune réponse utilisable ne lui a été livrée : le
+   * coût éventuel du fournisseur est alors journalisé par l'appelant, jamais
+   * imputé à l'élève.
+   */
+  readonly charge: boolean;
+
   constructor(
     readonly usage: ProviderUsage,
     override readonly cause: unknown,
+    options: { charge?: boolean } = {},
   ) {
     super("The provider billed a response that could not be used.");
     this.name = "BilledProviderFailure";
+    this.charge = options.charge ?? true;
   }
 }
 
@@ -461,7 +471,9 @@ export class StudyReserveConsumption {
       model: string;
       estimateUnits?: number;
     },
-    exec: () => Promise<{ result: T; usage: ProviderUsage }>,
+    // `charge: false` : réponse livrée mais pas comptée comme une question
+    // réussie (réponse coupée) — la réservation est rendue, rien n'est débité.
+    exec: () => Promise<{ result: T; usage: ProviderUsage; charge?: boolean }>,
   ): Promise<{ result: T; thresholdEvent: ReserveThreshold | null }> {
     // Provisionne/renouvelle le cycle depuis l'entitlement réel avant toute
     // réservation (jamais de valeur inventée).
@@ -491,11 +503,11 @@ export class StudyReserveConsumption {
       return { result, thresholdEvent: null };
     }
 
-    let execution: { result: T; usage: ProviderUsage };
+    let execution: { result: T; usage: ProviderUsage; charge?: boolean };
     try {
       execution = await exec();
     } catch (error) {
-      if (error instanceof BilledProviderFailure) {
+      if (error instanceof BilledProviderFailure && error.charge) {
         // Le fournisseur a répondu et facturé, mais la réponse est
         // inutilisable : l'usage réel est comptabilisé, jamais offert.
         await this.store
@@ -512,7 +524,14 @@ export class StudyReserveConsumption {
       await this.store
         .release({ studentId: params.studentId, requestId: params.requestId })
         .catch(() => undefined);
-      throw error;
+      throw error instanceof BilledProviderFailure ? error.cause : error;
+    }
+
+    if (execution.charge === false) {
+      await this.store
+        .release({ studentId: params.studentId, requestId: params.requestId })
+        .catch(() => undefined);
+      return { result: execution.result, thresholdEvent: null };
     }
 
     const commit = await this.store.commit({

@@ -422,7 +422,7 @@ describe("AskTutorUseCase with real StudyReserveConsumption chain", () => {
     expect(quotaStore.releasedTraceIds).toContain("trace-fail");
   });
 
-  it("charges the real usage of a billed but unusable answer instead of releasing it", async () => {
+  it("never charges the learner's reserve for a billed answer that was not delivered", async () => {
     const store = new TestReserveStore();
     store.seed("student-billed", 600_000);
     const quota = new FixedQuotaStore();
@@ -443,10 +443,11 @@ describe("AskTutorUseCase with real StudyReserveConsumption chain", () => {
       input: validInput(),
     })).rejects.toThrow("Vertex AI response validation failed.");
 
-    expect(store.aggs.get("student-billed")!.consumed).toBe(12192);
+    // Coût fournisseur ≠ débit visible par l'élève : la réservation est rendue.
+    expect(store.aggs.get("student-billed")!.consumed).toBe(0);
     expect(store.aggs.get("student-billed")!.holds).toEqual({});
-    expect(quota.consumedTraceIds).toEqual(["trace-billed"]);
-    expect(quota.releasedTraceIds).toEqual([]);
+    expect(quota.consumedTraceIds).toEqual([]);
+    expect(quota.releasedTraceIds).toEqual(["trace-billed"]);
   });
 
   it("idempotent retry with same traceId does not double-charge", async () => {

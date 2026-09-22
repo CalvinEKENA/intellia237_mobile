@@ -221,7 +221,7 @@ describe("askTutor idempotency", () => {
     }
   });
 
-  it("does not charge the daily slot twice when a billed failure is retried", async () => {
+  it("charges a question once when an undelivered answer is retried", async () => {
     const ledger = new MemoryLedger();
     const quota = new CountingQuota();
     let attempt = 0;
@@ -241,7 +241,10 @@ describe("askTutor idempotency", () => {
 
     expect(retry.text).toBe("Réponse après relance.");
     expect(providerCalls()).toBe(2);
-    expect(quota.reserved).toEqual(["req-billed"]);
+    // Le premier essai, jamais livré, a rendu sa place : la relance réserve à
+    // nouveau, et une seule question est décomptée au total.
+    expect(quota.reserved).toEqual(["req-billed", "req-billed"]);
+    expect(quota.released).toEqual(["req-billed"]);
     expect(quota.used).toBe(1);
   });
 

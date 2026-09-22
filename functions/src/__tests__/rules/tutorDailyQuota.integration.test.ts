@@ -9,7 +9,10 @@ import {
   StudyReserveConsumption,
 } from "../../services/studyReserveConsumption";
 import { FirestoreStudyReserveProvisioningStore } from "../../services/studyReserveProvisioning";
-import { FirestoreTutorQuotaStore } from "../../services/tutorDailyQuota";
+import {
+  FirestoreTutorQuotaStore,
+  TUTOR_FREE_UNDELIVERED_ANSWERS_PER_DAY,
+} from "../../services/tutorDailyQuota";
 import type { AskTutorCallableInput } from "../../utils/validation";
 
 /**
@@ -98,6 +101,58 @@ describe("tutor daily quota across midnight (Africa/Douala)", () => {
     const dayJ = await bucket("s-release", DAY_J);
     expect(dayJ?.reservations).toEqual({});
     expect(dayJ?.usedCount ?? 0).toBe(0);
+  });
+
+  it("undelivered answers are given back up to the daily cap, then counted", async () => {
+    const store = new FirestoreTutorQuotaStore(firestore, clock);
+    for (let index = 0; index < TUTOR_FREE_UNDELIVERED_ANSWERS_PER_DAY; index++) {
+      const reservation = await store.reserve({ userId: "s-cap", traceId: `u-${index}`, limit: LIMIT });
+      const settlement = await store.settleUndelivered({
+        userId: "s-cap",
+        traceId: `u-${index}`,
+        limit: LIMIT,
+        dayKey: reservation.dayKey,
+      });
+      expect(settlement.debited).toBe(false);
+      expect(settlement.snapshot.remaining).toBe(LIMIT);
+    }
+    const reservation = await store.reserve({ userId: "s-cap", traceId: "u-over", limit: LIMIT });
+    const over = await store.settleUndelivered({
+      userId: "s-cap",
+      traceId: "u-over",
+      limit: LIMIT,
+      dayKey: reservation.dayKey,
+    });
+    expect(over.debited).toBe(true);
+    expect(over.snapshot.remaining).toBe(LIMIT - 1);
+    const dayJ = await bucket("s-cap", DAY_J);
+    expect(dayJ?.usedCount).toBe(1);
+    expect(dayJ?.undeliveredCount).toBe(TUTOR_FREE_UNDELIVERED_ANSWERS_PER_DAY + 1);
+    expect(dayJ?.reservations).toEqual({});
+  });
+
+  it("an undelivered answer after midnight settles the original day", async () => {
+    const store = new FirestoreTutorQuotaStore(firestore, clock);
+    const reservation = await store.reserve({ userId: "s-late", traceId: "u-1", limit: LIMIT });
+    nowMs = AFTER_MIDNIGHT;
+    const settlement = await store.settleUndelivered({
+      userId: "s-late",
+      traceId: "u-1",
+      limit: LIMIT,
+      dayKey: reservation.dayKey,
+    });
+    expect(settlement.debited).toBe(false);
+    const dayJ = await bucket("s-late", DAY_J);
+    expect(dayJ?.reservations).toEqual({});
+    expect(dayJ?.undeliveredCount).toBe(1);
+    expect(settlement.snapshot.resetsAt).toBe("2026-09-22T23:00:00.000Z");
+  });
+
+  it("settling without a live reservation changes nothing", async () => {
+    const store = new FirestoreTutorQuotaStore(firestore, clock);
+    const settlement = await store.settleUndelivered({ userId: "s-none", traceId: "ghost", limit: LIMIT });
+    expect(settlement.debited).toBe(false);
+    expect(await bucket("s-none", DAY_J)).toBeNull();
   });
 
   it("askTutor charges the day of the question when the answer crosses midnight", async () => {

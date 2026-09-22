@@ -1,4 +1,5 @@
 import type { DocumentData, Firestore } from "firebase-admin/firestore";
+import { logger } from "firebase-functions";
 
 import { db } from "../config/firebase";
 import { getEnv } from "../config/env";
@@ -35,11 +36,13 @@ import {
   FirestoreTutorQuotaStore,
   type TutorQuotaSnapshot,
   type TutorQuotaStore,
+  type TutorUndeliveredSettlement,
 } from "./tutorDailyQuota";
 import {
   BilledProviderFailure,
   StudyReserveConsumption,
   billableFromUsage,
+  type ProviderUsage,
 } from "./studyReserveConsumption";
 import {
   FirestoreTutorRequestLedger,
@@ -78,6 +81,7 @@ type TutorTextGenerator = (params: {
   maxOutputTokens?: number;
   timeoutMs?: number;
   onUsage?: (usage: LlmTokenUsage | undefined) => void;
+  onFinishReason?: (finishReason: string | undefined) => void;
 }) => Promise<string>;
 
 /**
@@ -299,15 +303,32 @@ export class AskTutorUseCase {
       }
       throw error;
     }
-    // Vrai dès que le fournisseur a pu produire (et facturer) une réponse :
-    // réponse reçue mais inutilisable, ou délai dépassé côté serveur.
-    let providerMayHaveBilled = false;
+    // Issue d'une question sans réponse complète livrée : réglée une seule
+    // fois (quota rendu dans la limite du plafond, jamais débité de la Réserve
+    // d'étude en deçà), puis journalisée comme coût fournisseur.
+    let undelivered: UndeliveredSettlement | undefined;
+    const settle = async (
+      reason: UndeliveredReason,
+      finishReason: string | undefined,
+      usage: ProviderUsage | undefined,
+    ): Promise<UndeliveredSettlement> => {
+      undelivered ??= await this.settleUndelivered({
+        userId: params.userId,
+        requestKey: params.requestKey,
+        traceId: params.traceId,
+        dayKey: quotaDayKey,
+        reason,
+        finishReason,
+        usage,
+      });
+      return undelivered;
+    };
     try {
       // La Réserve d'étude encadre l'appel modèle : réservation (concurrence),
       // exécution, puis comptabilisation de l'usage RÉEL du fournisseur, une
       // seule fois (idempotent sur traceId). Réserve vide → rejet ; contenu
       // statique jamais affecté (ce chemin ne concerne que le tuteur).
-      const { result: responseText } = await this.studyReserve.run(
+      const { result } = await this.studyReserve.run<TutorDelivery>(
         {
           studentId: params.userId,
           requestId: params.requestKey,
@@ -316,8 +337,9 @@ export class AskTutorUseCase {
         },
         async () => {
           let captured: LlmTokenUsage | undefined;
+          let finishReason: string | undefined;
           try {
-            const text = await this.textGenerator({
+            const raw = await this.textGenerator({
               operation: "askTutor",
               correlationId: params.traceId,
               system: systemPrompt,
@@ -327,49 +349,76 @@ export class AskTutorUseCase {
               onUsage: (usage) => {
                 captured = usage;
               },
+              onFinishReason: (reason) => {
+                finishReason = reason;
+              },
             });
-            return { result: text, usage: billableFromUsage(captured ?? {}) };
+            const usage = billableFromUsage(captured ?? {});
+            // Le bloc éventuel est validé ici ; invalide, il est retiré et
+            // seule la réponse texte est servie.
+            const { text, block } = extractInteractiveBlock(raw, {
+              allowed: activityTypes,
+              language,
+            });
+            if (text.trim().length === 0 && block === null) {
+              // Rien à livrer (texte vide, ou seulement une activité invalide).
+              const settlement = await settle("empty_answer", finishReason, usage);
+              throw new BilledProviderFailure(usage, undeliveredAnswerError(), {
+                charge: settlement.debited,
+              });
+            }
+            if (finishReason === MAX_TOKENS_FINISH_REASON) {
+              // Réponse coupée au plafond : livrée avec une mention, mais pas
+              // comptée comme une question réussie.
+              const settlement = await settle("truncated_answer", finishReason, usage);
+              return {
+                result: {
+                  text: withTruncationNotice(text, language),
+                  block,
+                  quota: settlement.snapshot ?? await this.peekQuota({
+                    userId: params.userId,
+                    traceId: params.requestKey,
+                    limit: this.dailyQuestionLimit,
+                    dayKey: quotaDayKey,
+                  }),
+                },
+                usage,
+                charge: settlement.debited,
+              };
+            }
+            return { result: { text, block }, usage };
           } catch (error) {
+            if (error instanceof BilledProviderFailure) throw error;
             if (captured !== undefined) {
-              providerMayHaveBilled = true;
-              throw new BilledProviderFailure(billableFromUsage(captured), error);
+              // Le fournisseur a répondu (et facturé) mais rien d'exploitable.
+              const usage = billableFromUsage(captured);
+              const settlement = await settle("unusable_answer", finishReason, usage);
+              throw new BilledProviderFailure(usage, error, { charge: settlement.debited });
             }
             if (error instanceof AppError && error.code === "deadline-exceeded") {
-              // Annuler la requête HTTP n'annule pas le calcul du fournisseur.
-              providerMayHaveBilled = true;
+              // Annuler la requête HTTP n'annule pas un calcul peut-être
+              // facturé ; l'élève, lui, n'a rien reçu.
+              await settle("provider_timeout", finishReason, undefined);
             }
             throw error;
           }
         },
       );
       // Idempotent : une clé déjà consommée n'est pas recomptée.
-      const quota = await this.quotaStore.consume({
+      const quota = result.quota ?? await this.quotaStore.consume({
         userId: params.userId,
         traceId: params.requestKey,
         limit: this.dailyQuestionLimit,
         dayKey: quotaDayKey,
       });
-      // Le bloc éventuel est validé ici ; invalide, il est retiré et seule la
-      // réponse texte est servie.
-      const { text, block } = extractInteractiveBlock(responseText, {
-        allowed: activityTypes,
-        language,
-      });
-      return { text, ...quota, ...(block ? { block } : {}) };
+      return { text: result.text, ...quota, ...(result.block ? { block: result.block } : {}) };
     } catch (error) {
-      // Never log the prompt, user message or history. A generation that
-      // provably did not reach the provider does not consume the daily
-      // allowance; one the provider may have billed does, so an unusable or
-      // timed-out answer can never be replayed for free.
-      if (providerMayHaveBilled) {
+      // Never log the prompt, user message or history. A generation that did
+      // not reach the provider, or whose answer never reached the learner,
+      // gives the question back (within the daily cap of undelivered answers).
+      if (undelivered?.debited) {
         params.onBilledFailure?.();
-        await this.quotaStore.consume({
-          userId: params.userId,
-          traceId: params.requestKey,
-          limit: this.dailyQuestionLimit,
-          dayKey: quotaDayKey,
-        }).catch(() => undefined);
-      } else if (!params.quotaAlreadyCharged) {
+      } else if (undelivered === undefined && !params.quotaAlreadyCharged) {
         await this.quotaStore.release({
           userId: params.userId,
           traceId: params.requestKey,
@@ -379,6 +428,105 @@ export class AskTutorUseCase {
       throw error;
     }
   }
+
+  /**
+   * Règle la réservation d'une question sans réponse complète livrée, puis
+   * journalise le coût fournisseur (sans aucun contenu).
+   */
+  private async settleUndelivered(params: {
+    userId: string;
+    requestKey: string;
+    traceId: string;
+    dayKey?: string;
+    reason: UndeliveredReason;
+    finishReason: string | undefined;
+    usage: ProviderUsage | undefined;
+  }): Promise<UndeliveredSettlement> {
+    const quotaParams = {
+      userId: params.userId,
+      traceId: params.requestKey,
+      limit: this.dailyQuestionLimit,
+      dayKey: params.dayKey,
+    };
+    let settlement: UndeliveredSettlement;
+    try {
+      if (this.quotaStore.settleUndelivered) {
+        settlement = await this.quotaStore.settleUndelivered(quotaParams);
+      } else {
+        await this.quotaStore.release(quotaParams);
+        settlement = { debited: false };
+      }
+    } catch {
+      await this.quotaStore.release(quotaParams).catch(() => undefined);
+      settlement = { debited: false };
+    }
+    logger.warn("Tutor answer not delivered as a complete answer.", {
+      correlationId: params.traceId,
+      reason: params.reason,
+      finishReason: params.finishReason ?? null,
+      inputUnits: params.usage?.inputUnits ?? null,
+      outputUnits: params.usage?.outputUnits ?? null,
+      billableUnits: params.usage?.billableUnits ?? null,
+      learnerCharged: settlement.debited,
+    });
+    return settlement;
+  }
+
+  /** Instantané sans effet : la réservation est déjà rendue ou réglée. */
+  private async peekQuota(params: {
+    userId: string;
+    traceId: string;
+    limit: number;
+    dayKey?: string;
+  }): Promise<TutorQuotaSnapshot> {
+    try {
+      return await this.quotaStore.consume(params);
+    } catch {
+      return { limit: params.limit, remaining: params.limit, resetsAt: "" };
+    }
+  }
+}
+
+/** Règlement d'une issue non livrée ; l'instantané est absent en repli. */
+type UndeliveredSettlement = Pick<TutorUndeliveredSettlement, "debited"> & {
+  snapshot?: TutorQuotaSnapshot;
+};
+
+type UndeliveredReason =
+  | "empty_answer"
+  | "truncated_answer"
+  | "unusable_answer"
+  | "provider_timeout";
+
+type TutorDelivery = {
+  text: string;
+  block: InteractiveBlock | null;
+  /** Présent quand le quota a déjà été réglé (réponse coupée). */
+  quota?: TutorQuotaSnapshot;
+};
+
+/** Motif de fin Vertex AI d'une réponse coupée au plafond de sortie. */
+export const MAX_TOKENS_FINISH_REASON = "MAX_TOKENS";
+
+export const TUTOR_ANSWER_UNDELIVERED_REASON = "tutor_answer_undelivered";
+
+const TRUNCATION_NOTICE: Readonly<Record<TutorLanguage, string>> = {
+  fr: "(Ma réponse a été coupée : écris « la suite » pour que je continue.)",
+  en: "(My answer was cut short: type “continue” and I will go on.)",
+};
+
+export function withTruncationNotice(text: string, language: TutorLanguage): string {
+  const body = text.trim();
+  const notice = TRUNCATION_NOTICE[language];
+  return body.length > 0 ? `${body}\n\n${notice}` : notice;
+}
+
+function undeliveredAnswerError(): AppError {
+  return new AppError(
+    "unavailable",
+    "The companion could not complete this answer.",
+    { reason: TUTOR_ANSWER_UNDELIVERED_REASON },
+  );
 }
 
 /** Réponse du tuteur : texte, quota, et au plus un bloc interactif validé. */
