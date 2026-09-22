@@ -42,7 +42,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminCreateStudentBody =>
-      'Crée son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.';
+      'Créez son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.';
 
   @override
   String get adminStudentCreated =>
@@ -50,7 +50,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminStudentContactExists =>
-      'Ce téléphone ou cet e-mail possède déjà un compte. Retrouve-le avec la recherche.';
+      'Ce téléphone ou cet e-mail possède déjà un compte. Retrouvez-le avec la recherche.';
 
   @override
   String get adminStudentFirstName => 'Prénom';
@@ -65,7 +65,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminStudentEmailOptional => 'E-mail (facultatif)';
 
   @override
-  String get adminInvalidEmail => 'Vérifie l’adresse e-mail.';
+  String get adminInvalidEmail => 'Vérifiez l’adresse e-mail.';
 
   @override
   String get adminStatusSuspended => 'Compte suspendu';

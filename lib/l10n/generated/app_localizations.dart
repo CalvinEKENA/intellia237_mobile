@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminCreateStudentBody.
   ///
   /// In fr, this message translates to:
-  /// **'Crée son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.'**
+  /// **'Créez son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.'**
   String get adminCreateStudentBody;
 
   /// No description provided for @adminStudentCreated.
@@ -173,7 +173,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminStudentContactExists.
   ///
   /// In fr, this message translates to:
-  /// **'Ce téléphone ou cet e-mail possède déjà un compte. Retrouve-le avec la recherche.'**
+  /// **'Ce téléphone ou cet e-mail possède déjà un compte. Retrouvez-le avec la recherche.'**
   String get adminStudentContactExists;
 
   /// No description provided for @adminStudentFirstName.
@@ -203,7 +203,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminInvalidEmail.
   ///
   /// In fr, this message translates to:
-  /// **'Vérifie l’adresse e-mail.'**
+  /// **'Vérifiez l’adresse e-mail.'**
   String get adminInvalidEmail;
 
   /// No description provided for @adminStatusSuspended.
