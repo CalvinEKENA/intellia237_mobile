@@ -117,5 +117,5 @@ jobs:
       - name: Lesson publication
         run: npm run test:integration:lesson-publication
 
-      - name: Tutor daily quota
-        run: npm run test:integration:tutor-quota
+      - name: Tutor quota and request ledger
+        run: npm run test:integration:tutor

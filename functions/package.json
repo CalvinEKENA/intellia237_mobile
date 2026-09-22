@@ -19,7 +19,7 @@
     "test:integration:parcours": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/flowFeed.integration.test.ts\"",
     "test:integration:admin-accounts": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore,auth \"vitest run --config vitest.rules.config.ts src/__tests__/rules/adminAccountManagement.integration.test.ts\"",
     "test:integration:lesson-publication": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/lessonPublication.integration.test.ts\"",
-    "test:integration:tutor-quota": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts src/__tests__/rules/tutorDailyQuota.integration.test.ts\"",
+    "test:integration:tutor": "firebase emulators:exec --config ../firebase.json --project demo-intellia237 --only firestore \"vitest run --config vitest.rules.config.ts --no-file-parallelism src/__tests__/rules/tutorDailyQuota.integration.test.ts src/__tests__/rules/tutorRequestLedger.integration.test.ts\"",
     "test:watch": "vitest",
     "serve": "npm run build && firebase emulators:start --config ..\\firebase.json --only auth,firestore,functions,storage --project demo-intellia237",
     "pregenerate": "tsx scripts/pregenerate.ts",

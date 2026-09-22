@@ -16,8 +16,14 @@ import { AppError } from "../utils/errors";
  * - ne réserve jamais deux fois le quota quotidien ni la Réserve d'étude.
  *
  * Bornes :
- * - un enregistrement vit 15 minutes (`expireAt`, politique TTL Firestore à
- *   activer ; au-delà, il est de toute façon ignoré) ;
+ * - un enregistrement est valable 15 minutes : au-delà, la logique l'ignore.
+ *   Sa suppression physique est confiée à la politique TTL Firestore sur
+ *   `expireAt`, déclarée dans `firestore.indexes.json` (fieldOverrides). Le TTL
+ *   n'est PAS instantané : Firestore supprime les documents expirés de façon
+ *   asynchrone, en général dans les 24 heures qui suivent l'échéance ;
+ * - chaque document porte `expireAt` : seul `claim` crée le document, les
+ *   autres écritures sont des `update` qui échouent plutôt que de recréer un
+ *   document sans échéance ;
  * - au plus 2 exécutions par identifiant, pour qu'une relance après échec reste
  *   possible sans ouvrir une boucle gratuite ;
  * - la réponse conservée est le texte du compagnon, jamais la question de
@@ -221,16 +227,14 @@ export class FirestoreTutorRequestLedger implements TutorRequestLedger {
     requestId: string;
     response: CachedTutorResponse;
   }): Promise<void> {
-    await this.ref(params.userId, params.requestId).set(
-      {
-        state: "completed",
-        quotaCharged: true,
-        response: params.response,
-        leaseUntilMs: 0,
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    );
+    // update, jamais set : un document disparu n'est pas recréé sans expireAt.
+    await this.ref(params.userId, params.requestId).update({
+      state: "completed",
+      quotaCharged: true,
+      response: params.response,
+      leaseUntilMs: 0,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
   }
 
   async fail(params: {
@@ -238,15 +242,12 @@ export class FirestoreTutorRequestLedger implements TutorRequestLedger {
     requestId: string;
     quotaCharged: boolean;
   }): Promise<void> {
-    await this.ref(params.userId, params.requestId).set(
-      {
-        state: "failed",
-        quotaCharged: params.quotaCharged,
-        leaseUntilMs: 0,
-        updatedAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    );
+    await this.ref(params.userId, params.requestId).update({
+      state: "failed",
+      quotaCharged: params.quotaCharged,
+      leaseUntilMs: 0,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
   }
 
   async read(params: { userId: string; requestId: string }): Promise<TutorRequestRecord | null> {

@@ -42,7 +42,14 @@ les constantes serveur depuis le test Flutter pour garder l’ordre.
 
 - `requestId` généré par le téléphone, réutilisé par « Réessayer ».
 - Registre `tutor_requests` (serveur seul) : empreinte SHA-256 de la charge
-  utile, 15 min de rétention, 2 exécutions au plus. Une requête déjà traitée
+  utile, validité logique de 15 min, 2 exécutions au plus. Chaque document
+  porte `expireAt` (création + 15 min). La suppression physique relève de la
+  politique TTL Firestore déclarée dans `firestore.indexes.json`
+  (`fieldOverrides`, `ttl: true`) : elle n’existe qu’une fois déployée, et
+  elle est **asynchrone** (Firestore supprime en général les documents
+  expirés dans les 24 heures qui suivent l’échéance, sans garantie à la
+  minute). Un document n’est donc jamais supposé disparaître exactement
+  après 15 minutes. Une requête déjà traitée
   renvoie la réponse en cache (bloc d’activité compris) ; une requête en cours
   est attendue (sondage toutes les 1,5 s, 45 s au plus) au lieu d’être
   relancée.
