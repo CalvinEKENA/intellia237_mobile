@@ -40,10 +40,7 @@ void main() {
       _expectCoreHome();
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-2')));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(
-        find.text('Tes quiz ne sont pas disponibles pour le moment'),
-        findsOneWidget,
-      );
+      expect(find.text('Tes quiz arrivent'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-0')));
       await tester.pump();
       _expectCoreHome();

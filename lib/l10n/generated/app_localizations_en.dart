@@ -934,21 +934,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get learnEyebrow => 'Explore · understand · progress';
 
   @override
-  String get learnUnavailableTitle =>
-      'Your subjects aren’t available right now';
+  String get learnUnavailableTitle => 'Your subjects are on their way';
 
   @override
-  String get learnUnavailableBody => 'Try again in a moment.';
+  String get learnUnavailableBody =>
+      'Nothing to show yet. Continue your learning path, then come back here.';
 
   @override
   String get learnUnavailableOfflineBody =>
-      'Check your connection, then try again. Your learning path stays available.';
+      'Check your connection, then refresh. Your learning path stays available.';
 
   @override
   String get learnSubtitle => 'Your subjects, adapted to your level.';
-
-  @override
-  String get subjectsLoadError => 'Unable to load subjects';
 
   @override
   String get subjectsComingTitle => 'Your subjects are coming';
@@ -1447,7 +1444,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quizProfileIncompleteBody =>
-      'Complete or resync your school profile before choosing quizzes for your level.';
+      'Choose your class in your profile to see quizzes for your level.';
 
   @override
   String get quizCatalogDeniedBody =>
@@ -1464,9 +1461,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get quizCatalogNetworkBody =>
       'The connection was interrupted. Your lessons and learning path remain available.';
-
-  @override
-  String get quizLoadErrorTitle => 'Unable to load quizzes right now.';
 
   @override
   String get quizOfflineTitle => 'Quizzes are waiting for a connection';
@@ -1544,19 +1538,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quizEyebrow => 'Practise · test yourself';
 
   @override
-  String get quizUnavailableTitle => 'Your quizzes aren’t available right now';
+  String get quizUnavailableTitle => 'Your quizzes are on their way';
 
   @override
   String get quizUnavailableBody =>
-      'You can continue your learning path and come back to practise in a moment.';
+      'Nothing to practise yet. Continue your learning path, then come back here.';
 
   @override
   String get quizUnavailableOfflineBody =>
-      'Check your connection. You can continue your learning path and come back to practise afterwards.';
+      'Check your connection, then refresh. Your learning path stays available.';
 
   @override
   String get quizUnavailableModesLabel =>
-      'Modes available as soon as your quizzes are back';
+      'Two ways to practise are waiting for you';
 
   @override
   String get quizHistoryLoading => 'Loading validated attempts…';
@@ -1843,7 +1837,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileNavLabel => 'Profile';
 
   @override
-  String get homeLoadError => 'Unable to load the home screen';
+  String get homeLoadError => 'The home screen couldn’t be shown';
 
   @override
   String get flowSyncSignedOut =>

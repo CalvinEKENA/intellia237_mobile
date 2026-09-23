@@ -139,7 +139,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Ce quiz a besoin du réseau'), findsOneWidget);
-    expect(find.textContaining('ne met ni tes réponses'), findsOneWidget);
+    expect(
+      find.textContaining('rien n’est gardé sur le téléphone'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('le jeu hors ligne ne demande même pas le contenu au serveur', (
@@ -162,7 +165,10 @@ void main() {
 
     expect(contentRequested, isFalse);
     expect(find.text('Quiz indisponible hors connexion'), findsOneWidget);
-    expect(find.textContaining('ne conserve ni tes réponses'), findsOneWidget);
+    expect(
+      find.textContaining('a besoin d’internet pour être corrigé'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('affiche uniquement les tentatives réelles et un mode honnête', (
@@ -211,6 +217,9 @@ void main() {
     await tester.tap(find.text('Mes résultats'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Aucun résultat inventé ici'), findsOneWidget);
+    expect(
+      find.textContaining('Ton premier résultat apparaîtra ici'),
+      findsOneWidget,
+    );
   });
 }

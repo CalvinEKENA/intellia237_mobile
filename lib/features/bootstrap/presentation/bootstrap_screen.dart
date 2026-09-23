@@ -64,8 +64,8 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
 
   Future<void> _runBootstrap() async {
     // Précache des compagnons — n'empêche jamais le démarrage.
-    try {
-      await Future.wait([
+    unawaited(
+      Future.wait([
         precacheImage(
           const AssetImage(IntelliaCompanionAssets.kiraPortrait),
           context,
@@ -74,16 +74,19 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
           const AssetImage(IntelliaCompanionAssets.leoPortrait),
           context,
         ),
-      ]);
-    } catch (error, stackTrace) {
-      debugPrint('Non-critical asset precaching failed: $error');
-      debugPrintStack(stackTrace: stackTrace);
-    }
-    if (!mounted) return;
-    await _written.future;
+      ]).catchError((Object error) {
+        debugPrint('Non-critical asset precaching failed: $error');
+        return <void>[];
+      }),
+    );
+    // Registre de décisions (QA appareil, 23/09/2026) : une personne déjà
+    // connectée retrouve son espace sans attendre la fin de l'écriture du
+    // nom ; l'écriture complète reste celle du premier lancement.
+    final controller = ref.read(authControllerProvider.notifier);
+    if (!controller.hasRestorableSession) await _written.future;
     if (!mounted) return;
     try {
-      await ref.read(authControllerProvider.notifier).completeBootstrap();
+      await controller.completeBootstrap();
     } catch (error, stackTrace) {
       debugPrint('Bootstrap initialisation failed: $error');
       debugPrintStack(stackTrace: stackTrace);

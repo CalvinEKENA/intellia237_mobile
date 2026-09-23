@@ -63,45 +63,40 @@ void main() {
     onContinuePath: () {},
   );
 
-  testWidgets(
-    'Apprendre keeps its identity: header, subject shelf, human copy',
-    (tester) async {
-      await pump(tester, learn());
-      expect(find.text('Apprendre'), findsOneWidget);
-      expect(
-        find.text('Tes matières ne sont pas disponibles pour le moment'),
-        findsOneWidget,
-      );
-      expect(find.text('Réessaie dans quelques instants.'), findsOneWidget);
-      expect(find.text('Réessayer'), findsOneWidget);
-      expect(find.text('Continuer mon parcours'), findsOneWidget);
-      expect(find.byKey(LearnUnavailableState.shelfKey), findsOneWidget);
-      expect(
-        _keyed(LearnUnavailableState.ghostTileKeyPrefix),
-        findsNWidgets(4),
-      );
-      // Rien de l'arène du Quiz.
-      expect(find.byKey(QuizUnavailableState.arenaKey), findsNothing);
-      expect(_keyed(QuizUnavailableState.modeChipKeyPrefix), findsNothing);
-    },
-  );
+  testWidgets('Apprendre keeps its identity: header, subject shelf, human copy', (
+    tester,
+  ) async {
+    await pump(tester, learn());
+    expect(find.text('Apprendre'), findsOneWidget);
+    expect(find.text('Tes matières arrivent'), findsOneWidget);
+    expect(
+      find.text(
+        'Rien à afficher pour l’instant. Continue ton parcours, puis reviens ici.',
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Actualiser'), findsOneWidget);
+    expect(find.text('Continuer mon parcours'), findsOneWidget);
+    expect(find.byKey(LearnUnavailableState.shelfKey), findsOneWidget);
+    expect(_keyed(LearnUnavailableState.ghostTileKeyPrefix), findsNWidgets(4));
+    // Rien de l'arène du Quiz.
+    expect(find.byKey(QuizUnavailableState.arenaKey), findsNothing);
+    expect(_keyed(QuizUnavailableState.modeChipKeyPrefix), findsNothing);
+  });
 
   testWidgets('Quiz keeps its identity: header, training arena, real modes', (
     tester,
   ) async {
     await pump(tester, quiz());
     expect(find.text('Quiz'), findsOneWidget);
-    expect(
-      find.text('Tes quiz ne sont pas disponibles pour le moment'),
-      findsOneWidget,
-    );
+    expect(find.text('Tes quiz arrivent'), findsOneWidget);
     expect(
       find.text(
-        'Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.',
+        'Rien à t’entraîner pour l’instant. Continue ton parcours, puis reviens ici.',
       ),
       findsOneWidget,
     );
-    expect(find.text('Réessayer'), findsOneWidget);
+    expect(find.text('Actualiser'), findsOneWidget);
     expect(find.text('Continuer mon parcours'), findsOneWidget);
     expect(find.byKey(QuizUnavailableState.arenaKey), findsOneWidget);
     expect(_keyed(QuizUnavailableState.modeChipKeyPrefix), findsNWidgets(2));
@@ -133,6 +128,12 @@ void main() {
       'Firestore',
       'callable',
       'incomplet',
+      // Un onglet pas encore alimenté n'est pas une panne (QA appareil,
+      // 23/09/2026).
+      'impossible',
+      'erreur',
+      'pas disponible',
+      'réessa',
     ];
     for (final state in [
       learn(),

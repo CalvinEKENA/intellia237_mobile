@@ -1769,19 +1769,19 @@ abstract class AppLocalizations {
   /// No description provided for @learnUnavailableTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Tes matières ne sont pas disponibles pour le moment'**
+  /// **'Tes matières arrivent'**
   String get learnUnavailableTitle;
 
   /// No description provided for @learnUnavailableBody.
   ///
   /// In fr, this message translates to:
-  /// **'Réessaie dans quelques instants.'**
+  /// **'Rien à afficher pour l’instant. Continue ton parcours, puis reviens ici.'**
   String get learnUnavailableBody;
 
   /// No description provided for @learnUnavailableOfflineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Vérifie ta connexion, puis réessaie. Ton parcours reste disponible.'**
+  /// **'Vérifie ta connexion, puis actualise. Ton parcours reste disponible.'**
   String get learnUnavailableOfflineBody;
 
   /// No description provided for @learnSubtitle.
@@ -1789,12 +1789,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Tes matières, adaptées à ton niveau.'**
   String get learnSubtitle;
-
-  /// No description provided for @subjectsLoadError.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impossible de charger les matières'**
-  String get subjectsLoadError;
 
   /// No description provided for @subjectsComingTitle.
   ///
@@ -2597,7 +2591,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizProfileIncompleteBody.
   ///
   /// In fr, this message translates to:
-  /// **'Ton profil scolaire doit être complété ou resynchronisé avant de choisir les quiz de ton niveau.'**
+  /// **'Choisis ta classe dans ton profil pour voir les quiz de ton niveau.'**
   String get quizProfileIncompleteBody;
 
   /// No description provided for @quizCatalogDeniedBody.
@@ -2623,12 +2617,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'La connexion est interrompue. Tes cours et ton parcours restent disponibles.'**
   String get quizCatalogNetworkBody;
-
-  /// No description provided for @quizLoadErrorTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impossible de charger les quiz pour le moment.'**
-  String get quizLoadErrorTitle;
 
   /// No description provided for @quizOfflineTitle.
   ///
@@ -2771,25 +2759,25 @@ abstract class AppLocalizations {
   /// No description provided for @quizUnavailableTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Tes quiz ne sont pas disponibles pour le moment'**
+  /// **'Tes quiz arrivent'**
   String get quizUnavailableTitle;
 
   /// No description provided for @quizUnavailableBody.
   ///
   /// In fr, this message translates to:
-  /// **'Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.'**
+  /// **'Rien à t’entraîner pour l’instant. Continue ton parcours, puis reviens ici.'**
   String get quizUnavailableBody;
 
   /// No description provided for @quizUnavailableOfflineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Vérifie ta connexion. Tu peux continuer ton parcours et revenir t’entraîner ensuite.'**
+  /// **'Vérifie ta connexion, puis actualise. Ton parcours reste disponible.'**
   String get quizUnavailableOfflineBody;
 
   /// No description provided for @quizUnavailableModesLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Modes disponibles dès le retour de tes quiz'**
+  /// **'Deux façons de t’entraîner t’attendent'**
   String get quizUnavailableModesLabel;
 
   /// No description provided for @quizHistoryLoading.
@@ -3263,7 +3251,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeLoadError.
   ///
   /// In fr, this message translates to:
-  /// **'Impossible de charger l’accueil'**
+  /// **'L’accueil n’a pas pu s’afficher'**
   String get homeLoadError;
 
   /// No description provided for @flowSyncSignedOut.

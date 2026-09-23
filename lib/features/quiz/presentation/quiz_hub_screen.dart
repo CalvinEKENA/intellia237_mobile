@@ -32,7 +32,7 @@ class QuizHubScreen extends ConsumerWidget {
     final content = quizAsync.when(
       loading: () => offline
           ? const _OfflineQuizHubState()
-          : const IntelliaStateView(kind: IntelliaStateKind.loading),
+          : const _QuizHubLoading(),
       error: (error, stackTrace) => offline
           ? const _OfflineQuizHubState()
           : _QuizFailureState(
@@ -102,6 +102,58 @@ class _QuizFailureState extends StatelessWidget {
       offline: offline,
       onRetry: onRetry,
       onContinuePath: () => context.push(AppRoutes.flow),
+    );
+  }
+}
+
+/// Chargement : le cadre de l'onglet (titre, présentation, les deux modes)
+/// s'affiche tout de suite ; seuls les quiz arrivent ensuite.
+class _QuizHubLoading extends StatelessWidget {
+  const _QuizHubLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.surfaceContainerHighest;
+    return CustomScrollView(
+      key: const ValueKey('quiz-hub-loading'),
+      slivers: [
+        StickyTabSectionHeader(
+          key: const ValueKey('quiz-sticky-header'),
+          eyebrow: context.l10n.studentSpace,
+          title: context.l10n.quizTitle,
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            IntelliaSpacing.lg,
+            IntelliaSpacing.md,
+            IntelliaSpacing.lg,
+            132,
+          ),
+          sliver: SliverList.list(
+            children: [
+              Text(
+                context.l10n.quizHubIntro,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: IntelliaSpacing.md),
+              const _QuizModeGuide(),
+              const SizedBox(height: IntelliaSpacing.lg),
+              for (var i = 0; i < 3; i++) ...[
+                ExcludeSemantics(
+                  child: Container(
+                    height: 88,
+                    decoration: BoxDecoration(
+                      color: muted,
+                      borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: IntelliaSpacing.sm),
+              ],
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

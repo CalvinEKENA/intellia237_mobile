@@ -418,7 +418,7 @@ void main() {
         ..add(const GoogleCredentialFailed('google-not-configured'));
       await tapGoogle(journey);
       expect(
-        find.textContaining('La connexion Google n’est pas encore disponible'),
+        find.textContaining('Connexion Google bientôt disponible'),
         findsOneWidget,
       );
       expect(backend.identity.createdByGoogle, isEmpty);

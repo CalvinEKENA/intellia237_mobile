@@ -106,9 +106,30 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
+  /// Une session existe sur l'appareil (lecture locale, sans réseau).
+  bool get hasRestorableSession =>
+      ref.read(firebaseIdentityPortProvider).currentUid != null;
+
   /// Vérifie la session Firebase existante au démarrage
+  ///
+  /// Registre de décisions (QA appareil, 23/09/2026) : le démarrage attendait
+  /// la lecture du profil en ligne (jusqu'à huit secondes) avant d'ouvrir
+  /// l'espace ; l'écran restait blanc. Quand la même identité a un dernier
+  /// profil valide sur l'appareil, l'espace s'ouvre aussitôt avec lui et la
+  /// lecture en ligne le confirme en arrière-plan : un compte suspendu,
+  /// supprimé ou modifié est corrigé dès la réponse.
   Future<void> completeBootstrap() async {
     if (state.status != AuthStatus.bootstrapping) return;
+
+    final uid = ref.read(firebaseIdentityPortProvider).currentUid;
+    if (uid != null && !await _isPendingFamilyPhoneOffer(uid)) {
+      final cached = await _readCachedUser(expectedUid: uid);
+      if (cached != null && cached.profileCompleted) {
+        state = await _resolveAuthenticatedState(cached);
+        unawaited(_revalidateRestoredSession(uid));
+        return;
+      }
+    }
 
     try {
       final resolution = await _resolveCurrentSession().timeout(
@@ -122,6 +143,29 @@ class AuthController extends Notifier<AuthState> {
     } catch (error) {
       await _applyRetryableFailure(errorCode: _safeErrorCode(error));
     }
+  }
+
+  /// Confirme en ligne l'espace ouvert depuis le dernier profil valide.
+  /// Hors ligne ou lente, la lecture ne retire rien : l'espace reste ouvert
+  /// sur le profil connu. Toute autre réponse (compte suspendu, supprimé,
+  /// rôle changé, profil disparu) est appliquée.
+  Future<void> _revalidateRestoredSession(String uid) async {
+    final AuthSessionResolution resolution;
+    try {
+      resolution = await _resolveCurrentSession().timeout(
+        const Duration(seconds: 20),
+      );
+    } catch (_) {
+      return;
+    }
+    final current = state;
+    if (current.userId != uid || current.status != AuthStatus.authenticated) {
+      return;
+    }
+    if (resolution.kind == AuthSessionResolutionKind.retryableProfileFailure) {
+      return;
+    }
+    await _applyResolution(resolution);
   }
 
   /// Connexion email/mot de passe.

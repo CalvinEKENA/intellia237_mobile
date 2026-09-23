@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart'
-    show LicenseEntryWithLineBreaks, LicenseRegistry, kDebugMode, kIsWeb;
+    show LicenseEntryWithLineBreaks, LicenseRegistry, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show appFlavor, rootBundle;
 import 'package:google_fonts/google_fonts.dart';
@@ -76,41 +76,28 @@ Future<void> bootstrap({
     debugPrintStack(stackTrace: stackTrace);
   }
 
-  // 3. Hydratation SharedPreferences
+  // 3. Hydratation SharedPreferences (locale, quelques millisecondes).
   try {
     await Future.wait([
       OnboardingPreferences.hydrate(),
       AuthEntryPreferences.hydrate(),
-    ]).timeout(const Duration(seconds: 4));
+    ]).timeout(const Duration(seconds: 2));
   } catch (error, stackTrace) {
     debugPrint('Preferences hydration failed: $error');
     debugPrintStack(stackTrace: stackTrace);
   }
 
-  // 4. Initialisation Firebase (avec options dynamiques par flavor)
+  // 4. Initialisation Firebase (avec options dynamiques par flavor). Seul
+  // ce qui précède la première lecture de données attend ici.
+  //
+  // Registre de décisions (QA appareil, 23/09/2026) : l'application restait
+  // environ dix secondes sur un écran blanc. Les réglages de diagnostic et
+  // les notifications étaient attendus en série avant la première image ;
+  // ils partent désormais après l'affichage (voir _afterFirstFrame).
   try {
     await initializeFirebase(config);
-    final prefs = await SharedPreferences.getInstance();
-    final diagnostics =
-        prefs.getBool('preferences_diagnostics_consent') ?? false;
-    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(diagnostics);
-    if (!kIsWeb) {
-      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
-        diagnostics,
-      );
-    }
   } catch (error, stackTrace) {
     debugPrint('Firebase initialization failed: $error');
-    debugPrintStack(stackTrace: stackTrace);
-  }
-
-  // 4b. Notifications locales : initialisation sans demande de permission.
-  // La permission n'est demandée qu'après un choix explicite dans Paramètres.
-  try {
-    await LearningReminderService.initialize();
-    await NotificationPushService.initialize();
-  } catch (error, stackTrace) {
-    debugPrint('Local notification initialization failed: $error');
     debugPrintStack(stackTrace: stackTrace);
   }
 
@@ -133,9 +120,8 @@ Future<void> bootstrap({
       }
       return true;
     };
-    // En staging/debug : message + code diagnostic + détail technique.
-    // En production : message + code uniquement (jamais de stack trace).
-    final showDiagnosticDetails = config.isStaging || kDebugMode;
+    // Aucun détail technique à l'écran, quel que soit l'environnement : il
+    // part dans les journaux.
     ErrorWidget.builder = (FlutterErrorDetails details) {
       debugPrint(
         '[INTELLIA237][ErrorWidget] UI-RENDER-500 '
@@ -169,21 +155,10 @@ Future<void> bootstrap({
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Code diagnostic : UI-RENDER-500',
+                      'Revenez en arrière, puis réessayez.',
                       style: TextStyle(color: Color(0xADFFFFFF)),
                       textAlign: TextAlign.center,
                     ),
-                    if (showDiagnosticDetails) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        details.exceptionAsString(),
-                        style: const TextStyle(
-                          color: Color(0x99FFFFFF),
-                          fontSize: 12,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -246,6 +221,39 @@ Future<void> bootstrap({
     runApp(app);
   } catch (e, stackTrace) {
     debugPrint('Failed to execute runApp: $e');
+    debugPrintStack(stackTrace: stackTrace);
+  }
+  unawaited(_afterFirstFrame());
+}
+
+/// Tout ce qui n'est pas nécessaire à la première image : réglages de
+/// diagnostic et notifications (initialisées sans demande de permission ; la
+/// permission n'est demandée qu'après un choix explicite dans Paramètres).
+Future<void> _afterFirstFrame() async {
+  await WidgetsBinding.instance.endOfFrame;
+  try {
+    if (Firebase.apps.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      final diagnostics =
+          prefs.getBool('preferences_diagnostics_consent') ?? false;
+      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
+        diagnostics,
+      );
+      if (!kIsWeb) {
+        await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+          diagnostics,
+        );
+      }
+    }
+  } catch (error, stackTrace) {
+    debugPrint('Diagnostics preference failed: $error');
+    debugPrintStack(stackTrace: stackTrace);
+  }
+  try {
+    await LearningReminderService.initialize();
+    await NotificationPushService.initialize();
+  } catch (error, stackTrace) {
+    debugPrint('Local notification initialization failed: $error');
     debugPrintStack(stackTrace: stackTrace);
   }
 }

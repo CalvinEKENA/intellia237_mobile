@@ -940,21 +940,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get learnEyebrow => 'Explorer · comprendre · progresser';
 
   @override
-  String get learnUnavailableTitle =>
-      'Tes matières ne sont pas disponibles pour le moment';
+  String get learnUnavailableTitle => 'Tes matières arrivent';
 
   @override
-  String get learnUnavailableBody => 'Réessaie dans quelques instants.';
+  String get learnUnavailableBody =>
+      'Rien à afficher pour l’instant. Continue ton parcours, puis reviens ici.';
 
   @override
   String get learnUnavailableOfflineBody =>
-      'Vérifie ta connexion, puis réessaie. Ton parcours reste disponible.';
+      'Vérifie ta connexion, puis actualise. Ton parcours reste disponible.';
 
   @override
   String get learnSubtitle => 'Tes matières, adaptées à ton niveau.';
-
-  @override
-  String get subjectsLoadError => 'Impossible de charger les matières';
 
   @override
   String get subjectsComingTitle => 'Tes matières arrivent';
@@ -1453,7 +1450,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizProfileIncompleteBody =>
-      'Ton profil scolaire doit être complété ou resynchronisé avant de choisir les quiz de ton niveau.';
+      'Choisis ta classe dans ton profil pour voir les quiz de ton niveau.';
 
   @override
   String get quizCatalogDeniedBody =>
@@ -1470,10 +1467,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get quizCatalogNetworkBody =>
       'La connexion est interrompue. Tes cours et ton parcours restent disponibles.';
-
-  @override
-  String get quizLoadErrorTitle =>
-      'Impossible de charger les quiz pour le moment.';
 
   @override
   String get quizOfflineTitle => 'Les quiz attendent le réseau';
@@ -1551,20 +1544,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get quizEyebrow => 'S’entraîner · se tester';
 
   @override
-  String get quizUnavailableTitle =>
-      'Tes quiz ne sont pas disponibles pour le moment';
+  String get quizUnavailableTitle => 'Tes quiz arrivent';
 
   @override
   String get quizUnavailableBody =>
-      'Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.';
+      'Rien à t’entraîner pour l’instant. Continue ton parcours, puis reviens ici.';
 
   @override
   String get quizUnavailableOfflineBody =>
-      'Vérifie ta connexion. Tu peux continuer ton parcours et revenir t’entraîner ensuite.';
+      'Vérifie ta connexion, puis actualise. Ton parcours reste disponible.';
 
   @override
   String get quizUnavailableModesLabel =>
-      'Modes disponibles dès le retour de tes quiz';
+      'Deux façons de t’entraîner t’attendent';
 
   @override
   String get quizHistoryLoading => 'Chargement des tentatives validées…';
@@ -1856,7 +1848,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileNavLabel => 'Profil';
 
   @override
-  String get homeLoadError => 'Impossible de charger l’accueil';
+  String get homeLoadError => 'L’accueil n’a pas pu s’afficher';
 
   @override
   String get flowSyncSignedOut =>

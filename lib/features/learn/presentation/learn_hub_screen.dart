@@ -536,18 +536,40 @@ class _SubjectTileVisual extends StatelessWidget {
 // Loading & error states
 // ─────────────────────────────────────────────────────────────
 
+/// Chargement : le cadre de l'onglet s'affiche tout de suite (en-tête,
+/// bandeau, emplacements des matières) ; seules les matières arrivent ensuite.
 class _LearnHubLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(IntelliaSpacing.lg),
-      children: [
-        _SkeletonBox(height: 140),
-        const SizedBox(height: IntelliaSpacing.md),
-        for (int i = 0; i < 4; i++) ...[
-          _SkeletonBox(height: 160),
-          const SizedBox(height: IntelliaSpacing.md),
-        ],
+    final l10n = context.l10n;
+    return CustomScrollView(
+      key: const ValueKey('learn-hub-loading'),
+      slivers: [
+        StickyTabSectionHeader(
+          key: const ValueKey('learn-sticky-header'),
+          eyebrow: l10n.studentSpaceEyebrow,
+          title: l10n.learnTitle,
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            IntelliaSpacing.lg,
+            IntelliaSpacing.md,
+            IntelliaSpacing.lg,
+            132,
+          ),
+          sliver: SliverList.list(
+            children: [
+              const _SkeletonBox(height: 120),
+              const SizedBox(height: IntelliaSpacing.md),
+              const _SkeletonBox(height: 52),
+              const SizedBox(height: IntelliaSpacing.md),
+              for (int i = 0; i < 3; i++) ...[
+                const _SkeletonBox(height: 150),
+                const SizedBox(height: IntelliaSpacing.md),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
