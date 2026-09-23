@@ -265,3 +265,9 @@ reconstruit en **3.2.1+31** (commit `chore(release): versionCode 31`), même
 code applicatif : `app-production-release.aab`, 80 849 731 octets, SHA-256
 `d9aa71aad5c3796f0316c65f157bcea67bff2333090bedc6602ee6b414a964f8`, signé
 avec la clé d'upload. Le prochain envoi Play devra être ≥ 32.
+
+**Mise à jour 2** : Play a aussi refusé le `versionCode` 31. Bundle
+reconstruit en **3.2.1+32**, même code applicatif (les travaux web en cours
+mis de côté pendant la compilation) : 80 849 730 octets, SHA-256
+`3ecc8d539f9751b135ed0a15b798227d38ac81545435d794d5ce8fa058962b3f`. Prochain
+envoi Play ≥ 33.
