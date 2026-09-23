@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../domain/flow_card.dart';
+import 'flow_svt_scenes.dart';
 
 /// Illustration conceptuelle animée pour une [FlowAnimationCard].
 ///
@@ -31,7 +32,14 @@ class _FlowConceptAnimationState extends State<FlowConceptAnimation>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      // Une germination se raconte plus lentement qu'un pendule.
+      duration: switch (widget.kind) {
+        FlowAnimationKind.germinationTemperature ||
+        FlowAnimationKind.germinationWatering => const Duration(seconds: 7),
+        _ => const Duration(seconds: 3),
+      },
+      // Sous « réduire les animations », la scène s'affiche achevée.
+      value: 0,
     );
   }
 
@@ -39,10 +47,21 @@ class _FlowConceptAnimationState extends State<FlowConceptAnimation>
   void didChangeDependencies() {
     super.didChangeDependencies();
     final reduced = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    if (!reduced && !_controller.isAnimating) {
+    if (reduced) {
+      _controller
+        ..stop()
+        ..value = _restingValue;
+    } else if (!_controller.isAnimating) {
       _controller.repeat();
     }
   }
+
+  /// Image fixe montrée sans animation : la scène aboutie.
+  double get _restingValue => switch (widget.kind) {
+    FlowAnimationKind.germinationTemperature ||
+    FlowAnimationKind.germinationWatering => 0.85,
+    _ => 0,
+  };
 
   @override
   void dispose() {
@@ -70,6 +89,12 @@ class _FlowConceptAnimationState extends State<FlowConceptAnimation>
               FlowAnimationKind.parabola => _ParabolaPainter(
                 _controller.value,
                 widget.accent,
+              ),
+              FlowAnimationKind.germinationTemperature => SvtTemperaturePainter(
+                _controller.value,
+              ),
+              FlowAnimationKind.germinationWatering => SvtWateringPainter(
+                _controller.value,
               ),
             },
           );

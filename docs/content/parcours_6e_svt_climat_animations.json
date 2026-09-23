@@ -1,0 +1,51 @@
+{
+  "description": "Deux cartes animées du Parcours de 6e, tirées de la leçon de SVT « Influence du climat sur la production végétale » (classes/6eme/subjects/kSeMcmqt6TcUtTCkHz3Q/chapters/BPFVZk3mQKIF0ghOelV9/lessons/GFCskEDKa5D8L9hV1mcy). Type interactiveNative : l'application 3.2.1+30 joue la scène ; une version plus ancienne affiche le résumé. À publier dans la collection flow_items (statut published), après relecture.",
+  "items": [
+    {
+      "type": "interactiveNative",
+      "title": "L’expérience des haricots : la température",
+      "hook": "Même graine, même terre : seule la température change.",
+      "subjectId": "svt",
+      "classLevels": ["6eme"],
+      "chapterId": "BPFVZk3mQKIF0ghOelV9",
+      "ref": { "lessonId": "GFCskEDKa5D8L9hV1mcy" },
+      "payload": {
+        "componentKey": "svt_germination_temperature_v1",
+        "summary": "9 graines par pot. À 18 °C, les 9 germent et grandissent bien (12 à 30 cm). À 10 °C, 4 seulement germent et restent petites (3 à 7 cm). À 40 °C, les plantes se dessèchent et meurent.",
+        "subjectLabel": "SVT"
+      },
+      "pedagogicalIntent": "discover",
+      "difficulty": 2,
+      "durationSeconds": 35,
+      "priority": 0,
+      "scope": { "type": "global" },
+      "status": "published",
+      "tags": ["animation", "svt-6e-climat"],
+      "origin": "manual",
+      "version": 1
+    },
+    {
+      "type": "interactiveNative",
+      "title": "L’arrosage : ni trop, ni trop peu",
+      "hook": "Trois pots, trois arrosages : lequel donne les plus belles plantes ?",
+      "subjectId": "svt",
+      "classLevels": ["6eme"],
+      "chapterId": "BPFVZk3mQKIF0ghOelV9",
+      "ref": { "lessonId": "GFCskEDKa5D8L9hV1mcy" },
+      "payload": {
+        "componentKey": "svt_germination_watering_v1",
+        "summary": "Arrosage normal : toutes les graines germent et poussent bien. Trop peu d’eau : moins de graines germent et la croissance ralentit. Trop d’eau : les graines pourrissent et ne germent pas.",
+        "subjectLabel": "SVT"
+      },
+      "pedagogicalIntent": "discover",
+      "difficulty": 2,
+      "durationSeconds": 35,
+      "priority": 0,
+      "scope": { "type": "global" },
+      "status": "published",
+      "tags": ["animation", "svt-6e-climat"],
+      "origin": "manual",
+      "version": 1
+    }
+  ]
+}

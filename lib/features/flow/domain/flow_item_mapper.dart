@@ -108,6 +108,19 @@ abstract final class FlowItemMapper {
         if (componentKey.isEmpty) return null;
         final caption = _text(item.payload['summary'], item.hook);
         if (caption.isEmpty) return null;
+        // Une scène animée compilée dans l'application : elle est jouée ; une
+        // clé inconnue (version plus récente) retombe sur son résumé.
+        final animation = FlowAnimationKind.byComponentKey[componentKey];
+        if (animation != null) {
+          return FlowAnimationCard(
+            id: item.id,
+            subject: subject,
+            title: title,
+            caption: caption,
+            kind: animation,
+            estimatedSeconds: duration,
+          );
+        }
         return FlowAnecdoteCard(
           id: item.id,
           subject: subject,

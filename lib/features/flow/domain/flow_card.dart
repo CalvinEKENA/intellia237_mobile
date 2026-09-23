@@ -1,7 +1,24 @@
 import 'flow_subject.dart';
 
 /// Type d'illustration animée pour une [FlowAnimationCard].
-enum FlowAnimationKind { pendulum, cellDivision, parabola }
+enum FlowAnimationKind {
+  pendulum,
+  cellDivision,
+  parabola,
+
+  /// SVT 6e : germination de 9 graines à 10 °C, 18 °C et 40 °C.
+  germinationTemperature,
+
+  /// SVT 6e : germination selon l'arrosage (peu, normal, beaucoup d'eau).
+  germinationWatering;
+
+  /// Composants natifs publiables depuis le Studio (type `interactiveNative`).
+  /// Clés versionnées : une évolution incompatible devient `_v2`.
+  static const Map<String, FlowAnimationKind> byComponentKey = {
+    'svt_germination_temperature_v1': germinationTemperature,
+    'svt_germination_watering_v1': germinationWatering,
+  };
+}
 
 /// Une carte du Flow — occupe tout l'écran, vécue en 15 à 45 secondes.
 ///

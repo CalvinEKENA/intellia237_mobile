@@ -59,6 +59,7 @@ class AuthStepGuide extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _InkProgress(
@@ -86,6 +87,7 @@ class AuthStepGuide extends StatelessWidget {
                     ),
                     child: Column(
                       key: ValueKey('registration-guide-step-$step'),
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(

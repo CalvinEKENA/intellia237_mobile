@@ -90,6 +90,15 @@ void main() {
     expect(find.text('Conseil identité.'), findsNothing);
   });
 
+  testWidgets('stays compact even when given the whole screen', (tester) async {
+    await pump(tester, 1);
+    await tester.pumpAndSettle();
+    expect(
+      tester.getSize(find.byKey(AuthStepGuide.guideKey)).height,
+      lessThan(200),
+    );
+  });
+
   testWidgets('one announcement for screen readers', (tester) async {
     final semantics = tester.ensureSemantics();
     await pump(tester, 1);
