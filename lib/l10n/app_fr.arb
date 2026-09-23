@@ -111,7 +111,7 @@
   "phonePrimary": "Téléphone camerounais",
   "phonePrimaryHint": "+237 6XX XX XX XX",
   "emailOptional": "E-mail (optionnel)",
-  "phoneIdentityTarget": "Identité cible : téléphone + code OTP",
+  "phoneIdentityTarget": "Ton numéro de téléphone",
   "temporaryEmailLabel": "E-mail technique (temporaire)",
   "otpChannelTitle": "Comment souhaitez-vous recevoir le code ?",
   "otpWhatsapp": "Recevoir le code par WhatsApp",
@@ -287,9 +287,9 @@
   "parentDetailsTitle": "Coordonnées du parent",
   "parentDetailsSubtitle": "Quelques informations suffisent pour préparer le parcours de votre enfant.",
   "linkChildrenTitle": "Lier vos enfants",
-  "linkChildrenSubtitle": "Ajoutez un identifiant élève maintenant, ou plus tard.",
-  "childIdentifierLabel": "Code / Identifiant enfant",
-  "childIdentifierHint": "Ex. STU-94K2",
+  "linkChildrenSubtitle": "Votre enfant trouve ce code dans son profil, rubrique « Mon code parent ». Vous pouvez aussi le relier plus tard.",
+  "childIdentifierLabel": "Code parent de votre enfant",
+  "childIdentifierHint": "Ex. K7PM2QXA",
   "addLabel": "Ajouter",
   "noLinkedChild": "Aucun enfant lié pour le moment.",
   "finalReviewTitle": "Validation finale",
@@ -2740,5 +2740,24 @@
   "discoveryCreateTitle": "Créer mon espace",
   "discoveryCtaParent": "Je suis parent",
   "discoveryCtaStudent": "Rejoindre mon école",
-  "discoveryCtaCode": "J’ai un code élève"
+  "discoveryCtaCode": "J’ai un code élève",
+  "registrationGuideNext": "Ensuite : {step}",
+  "registrationGuideLast": "Dernière étape",
+  "parentGuideIdentity": "Votre prénom et votre nom s’afficheront dans votre espace parent. Votre numéro est déjà vérifié : aucun mot de passe à créer.",
+  "parentGuideChildren": "Demandez à votre enfant son « code parent » (8 caractères) : il le trouve dans son profil, rubrique « Mon code parent ». Pas encore de code ? Continuez, vous le relierez plus tard.",
+  "parentGuideFinal": "Acceptez les conditions pour ouvrir votre espace. Vous y suivrez les progrès de votre enfant et pourrez en ajouter d’autres.",
+  "studentGuideIdentity": "Écris ton prénom et ton nom comme à l’école : ton professeur te reconnaîtra.",
+  "studentGuideClass": "Choisis ta classe : tes cours, tes quiz et ton parcours seront faits pour elle.",
+  "studentGuideCompanion": "Découvre Kira et Léo, puis choisis celui qui t’aidera à réviser.",
+  "studentGuideSecurity": "Ton numéro protège ton compte : personne d’autre ne pourra entrer à ta place.",
+  "teacherGuideIdentity": "Votre nom tel que vos élèves et votre établissement le connaissent.",
+  "teacherGuideTeaching": "Vos matières et vos classes : votre espace et vos contenus seront préparés pour elles.",
+  "teacherGuideFinal": "Acceptez les conditions : votre établissement validera ensuite votre compte.",
+  "@registrationGuideNext": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  }
 }

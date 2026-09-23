@@ -323,7 +323,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailOptional => 'Email (optional)';
 
   @override
-  String get phoneIdentityTarget => 'Target identity: phone + OTP code';
+  String get phoneIdentityTarget => 'Your phone number';
 
   @override
   String get temporaryEmailLabel => 'Technical email (temporary)';
@@ -706,13 +706,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkChildrenTitle => 'Link your children';
 
   @override
-  String get linkChildrenSubtitle => 'Add a student identifier now or later.';
+  String get linkChildrenSubtitle =>
+      'Your child finds this code in their profile, under “My parent code”. You can also link them later.';
 
   @override
-  String get childIdentifierLabel => 'Child code / identifier';
+  String get childIdentifierLabel => 'Your child’s parent code';
 
   @override
-  String get childIdentifierHint => 'E.g. STU-94K2';
+  String get childIdentifierHint => 'e.g. K7PM2QXA';
 
   @override
   String get addLabel => 'Add';
@@ -5372,4 +5373,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discoveryCtaCode => 'I have a student code';
+
+  @override
+  String registrationGuideNext(String step) {
+    return 'Next: $step';
+  }
+
+  @override
+  String get registrationGuideLast => 'Last step';
+
+  @override
+  String get parentGuideIdentity =>
+      'Your first and last name will appear in your parent space. Your number is already verified: no password to create.';
+
+  @override
+  String get parentGuideChildren =>
+      'Ask your child for their “parent code” (8 characters): it is in their profile, under “My parent code”. No code yet? Continue, you can link them later.';
+
+  @override
+  String get parentGuideFinal =>
+      'Accept the terms to open your space. You will follow your child’s progress there and can add other children.';
+
+  @override
+  String get studentGuideIdentity =>
+      'Write your first and last name as at school: your teacher will recognise you.';
+
+  @override
+  String get studentGuideClass =>
+      'Choose your class: your lessons, quizzes and learning path will be made for it.';
+
+  @override
+  String get studentGuideCompanion =>
+      'Meet Kira and Léo, then choose the one who will help you revise.';
+
+  @override
+  String get studentGuideSecurity =>
+      'Your number protects your account: nobody else can sign in as you.';
+
+  @override
+  String get teacherGuideIdentity =>
+      'Your name as your students and your school know it.';
+
+  @override
+  String get teacherGuideTeaching =>
+      'Your subjects and classes: your space and content will be prepared for them.';
+
+  @override
+  String get teacherGuideFinal =>
+      'Accept the terms: your school will then approve your account.';
 }

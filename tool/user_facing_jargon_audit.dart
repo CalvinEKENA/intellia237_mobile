@@ -19,7 +19,7 @@ final jargon = RegExp(
   r'\b(?:firebase|firestore|backend|front-?end|api|endpoints?|payload|uid|'
   r'credentials?|oauth|tokens?|jwt|cloud functions?|http\s?[1-5]\d\d|'
   r'exceptions?|stack\s?trace|database|sdk|vertex|gemini|request id|json|'
-  r'callable|serveur|server|timeout)\b|'
+  r'callable|serveur|server|timeout|otp)\b|'
   r'base de donn[ée]es',
   caseSensitive: false,
 );
@@ -60,7 +60,8 @@ List<String> findJargonInLine(String line) {
   return [
     for (final match in _stringLiteral.allMatches(line))
       if (_visibleText(match.group(2)!) case final text
-          when _looksLikeSentence(text) &&
+          when match.group(2)!.contains(' ') &&
+              _looksLikeSentence(text) &&
               !allowedPhrases.contains(match.group(2)) &&
               jargon.hasMatch(text))
         match.group(2)!,

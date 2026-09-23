@@ -105,6 +105,11 @@ class _ParentRegistrationScreenState
       ),
       currentStep: state.currentStep,
       labels: labels,
+      hints: [
+        l10n.parentGuideIdentity,
+        l10n.parentGuideChildren,
+        l10n.parentGuideFinal,
+      ],
       onBack: state.currentStep == 0
           ? () => context.pop()
           : () {

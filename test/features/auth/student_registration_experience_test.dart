@@ -60,57 +60,68 @@ void main() {
     );
   }
 
-  testWidgets('security step remains scrollable above a mobile keyboard', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(320, 640);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'security step stays whole above a mobile keyboard, no scrolling',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-    final controller = container.read(
-      studentRegistrationControllerProvider.notifier,
-    );
-    controller
-      ..setFirstName('Amina')
-      ..setLastName('Ndi')
-      ..setSchoolClass(SchoolClass.sixieme)
-      ..setSelectedTutorId('kira')
-      ..goToNextStep();
-    controller
-      ..goToNextStep()
-      ..goToNextStep();
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final controller = container.read(
+        studentRegistrationControllerProvider.notifier,
+      );
+      controller
+        ..setFirstName('Amina')
+        ..setLastName('Ndi')
+        ..setSchoolClass(SchoolClass.sixieme)
+        ..setSelectedTutorId('kira')
+        ..goToNextStep();
+      controller
+        ..goToNextStep()
+        ..goToNextStep();
 
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const MaterialApp(
-          locale: Locale('fr'),
-          home: MediaQuery(
-            data: MediaQueryData(
-              disableAnimations: true,
-              viewInsets: EdgeInsets.only(bottom: 280),
-              textScaler: TextScaler.linear(1.3),
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            home: MediaQuery(
+              data: MediaQueryData(
+                disableAnimations: true,
+                viewInsets: EdgeInsets.only(bottom: 280),
+                textScaler: TextScaler.linear(1.3),
+              ),
+              child: StudentRegistrationFlowScreen(),
             ),
-            child: StudentRegistrationFlowScreen(),
           ),
         ),
-      ),
-    );
-    await tester.pump();
+      );
+      await tester.pump();
 
-    expect(find.text('Créer mon compte'), findsOneWidget);
-    expect(find.byKey(const ValueKey('phone-primary-target')), findsOneWidget);
-    expect(find.text('Identité cible : téléphone + code OTP'), findsOneWidget);
-    expect(find.text('E-mail technique (temporaire)'), findsNothing);
-    expect(find.text('Mot de passe'), findsNothing);
-    expect(find.text('Adresse e-mail'), findsNothing);
-    expect(tester.takeException(), isNull);
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(seconds: 1));
-  });
+      expect(find.text('Créer mon compte'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('phone-primary-target')),
+        findsOneWidget,
+      );
+      expect(find.text('Ton numéro de téléphone'), findsOneWidget);
+      expect(find.textContaining('OTP'), findsNothing);
+      // Écran fixe : l'action est visible au-dessus du clavier, sans défiler.
+      expect(find.byType(SingleChildScrollView), findsNothing);
+      expect(
+        tester.getRect(find.text('Créer mon compte')).bottom,
+        lessThanOrEqualTo(640 - 280),
+      );
+      expect(find.text('E-mail technique (temporaire)'), findsNothing);
+      expect(find.text('Mot de passe'), findsNothing);
+      expect(find.text('Adresse e-mail'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 1));
+    },
+  );
 
   for (final brightness in Brightness.values) {
     testWidgets(

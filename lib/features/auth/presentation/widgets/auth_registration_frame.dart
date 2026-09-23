@@ -5,6 +5,7 @@ import '../../../../core/localization/localization_extensions.dart';
 import 'auth_choices.dart';
 import 'auth_controls.dart';
 import 'auth_experience_scaffold.dart';
+import 'auth_step_guide.dart';
 
 class AuthRegistrationFrame extends StatelessWidget {
   const AuthRegistrationFrame({
@@ -18,6 +19,7 @@ class AuthRegistrationFrame extends StatelessWidget {
     this.errorMessage,
     this.onRetry,
     this.onDismissError,
+    this.hints,
     super.key,
   });
 
@@ -31,6 +33,14 @@ class AuthRegistrationFrame extends StatelessWidget {
   final String? errorMessage;
   final VoidCallback? onRetry;
   final VoidCallback? onDismissError;
+
+  /// Un conseil par étape (même ordre que [labels]) : pourquoi cette étape
+  /// et ce qui vient ensuite.
+  final List<String>? hints;
+
+  Widget? _guide() => hints == null || hints!.length != labels.length
+      ? null
+      : AuthStepGuide(currentStep: currentStep, labels: labels, hints: hints!);
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +94,10 @@ class AuthRegistrationFrame extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 AuthStepIndicator(currentStep: currentStep, labels: labels),
+                if (_guide() case final guide?) ...[
+                  const SizedBox(height: 14),
+                  guide,
+                ],
                 const SizedBox(height: 22),
                 content,
                 if (errorMessage != null) ...[
@@ -145,6 +159,11 @@ class AuthRegistrationFrame extends StatelessWidget {
                       labels: labels,
                     ),
                   ),
+                  if (_guide() case final guide?)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      child: guide,
+                    ),
                   const SizedBox(height: 14),
                   Expanded(child: content),
                   if (errorMessage != null)

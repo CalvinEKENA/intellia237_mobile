@@ -151,6 +151,11 @@ class _TeacherRegistrationScreenState
       pass: pass,
       currentStep: state.currentStep,
       labels: labels,
+      hints: [
+        l10n.teacherGuideIdentity,
+        l10n.teacherGuideTeaching,
+        l10n.teacherGuideFinal,
+      ],
       onBack: state.currentStep == 0
           ? () => context.pop()
           : () {

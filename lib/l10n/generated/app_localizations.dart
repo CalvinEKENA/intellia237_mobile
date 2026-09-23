@@ -683,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneIdentityTarget.
   ///
   /// In fr, this message translates to:
-  /// **'Identité cible : téléphone + code OTP'**
+  /// **'Ton numéro de téléphone'**
   String get phoneIdentityTarget;
 
   /// No description provided for @temporaryEmailLabel.
@@ -1361,19 +1361,19 @@ abstract class AppLocalizations {
   /// No description provided for @linkChildrenSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ajoutez un identifiant élève maintenant, ou plus tard.'**
+  /// **'Votre enfant trouve ce code dans son profil, rubrique « Mon code parent ». Vous pouvez aussi le relier plus tard.'**
   String get linkChildrenSubtitle;
 
   /// No description provided for @childIdentifierLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Code / Identifiant enfant'**
+  /// **'Code parent de votre enfant'**
   String get childIdentifierLabel;
 
   /// No description provided for @childIdentifierHint.
   ///
   /// In fr, this message translates to:
-  /// **'Ex. STU-94K2'**
+  /// **'Ex. K7PM2QXA'**
   String get childIdentifierHint;
 
   /// No description provided for @addLabel.
@@ -9243,6 +9243,78 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'J’ai un code élève'**
   String get discoveryCtaCode;
+
+  /// No description provided for @registrationGuideNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ensuite : {step}'**
+  String registrationGuideNext(String step);
+
+  /// No description provided for @registrationGuideLast.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière étape'**
+  String get registrationGuideLast;
+
+  /// No description provided for @parentGuideIdentity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre prénom et votre nom s’afficheront dans votre espace parent. Votre numéro est déjà vérifié : aucun mot de passe à créer.'**
+  String get parentGuideIdentity;
+
+  /// No description provided for @parentGuideChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demandez à votre enfant son « code parent » (8 caractères) : il le trouve dans son profil, rubrique « Mon code parent ». Pas encore de code ? Continuez, vous le relierez plus tard.'**
+  String get parentGuideChildren;
+
+  /// No description provided for @parentGuideFinal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acceptez les conditions pour ouvrir votre espace. Vous y suivrez les progrès de votre enfant et pourrez en ajouter d’autres.'**
+  String get parentGuideFinal;
+
+  /// No description provided for @studentGuideIdentity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris ton prénom et ton nom comme à l’école : ton professeur te reconnaîtra.'**
+  String get studentGuideIdentity;
+
+  /// No description provided for @studentGuideClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ta classe : tes cours, tes quiz et ton parcours seront faits pour elle.'**
+  String get studentGuideClass;
+
+  /// No description provided for @studentGuideCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre Kira et Léo, puis choisis celui qui t’aidera à réviser.'**
+  String get studentGuideCompanion;
+
+  /// No description provided for @studentGuideSecurity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton numéro protège ton compte : personne d’autre ne pourra entrer à ta place.'**
+  String get studentGuideSecurity;
+
+  /// No description provided for @teacherGuideIdentity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre nom tel que vos élèves et votre établissement le connaissent.'**
+  String get teacherGuideIdentity;
+
+  /// No description provided for @teacherGuideTeaching.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos matières et vos classes : votre espace et vos contenus seront préparés pour elles.'**
+  String get teacherGuideTeaching;
+
+  /// No description provided for @teacherGuideFinal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acceptez les conditions : votre établissement validera ensuite votre compte.'**
+  String get teacherGuideFinal;
 }
 
 class _AppLocalizationsDelegate

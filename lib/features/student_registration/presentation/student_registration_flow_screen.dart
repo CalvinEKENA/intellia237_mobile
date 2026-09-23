@@ -8,6 +8,7 @@ import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/presentation/widgets/auth_choices.dart';
+import '../../auth/presentation/widgets/auth_step_guide.dart';
 import '../../auth/presentation/widgets/auth_controls.dart';
 import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/presentation/widgets/auth_selection_pill.dart';
@@ -123,6 +124,17 @@ class _StudentRegistrationFlowScreenState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AuthStepIndicator(currentStep: state.currentStep, labels: labels),
+          const SizedBox(height: 14),
+          AuthStepGuide(
+            currentStep: state.currentStep,
+            labels: labels,
+            hints: [
+              l10n.studentGuideIdentity,
+              l10n.studentGuideClass,
+              l10n.studentGuideCompanion,
+              l10n.studentGuideSecurity,
+            ],
+          ),
           const SizedBox(height: 18),
           PageTransitionSwitcher(
             duration: MediaQuery.of(context).disableAnimations
