@@ -84,6 +84,7 @@ flutter:
   assets:
     - assets/fonts/
     - assets/branding/
+    - assets/branding/google/
     - assets/companions/
 
 # Icône de lancement uniquement. Les plateformes non mobiles restent hors de
