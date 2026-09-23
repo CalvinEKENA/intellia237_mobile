@@ -245,6 +245,16 @@ bool _reviewFontsLoaded = false;
 
 /// Widget tests default to Ahem. Use the repository's real font assets for
 /// responsive checks and captures, without network or platform font lookup.
+/// Noms officiels des fichiers, ceux que google_fonts sait trouver.
+const _weightName = {
+  400: 'Regular',
+  500: 'Medium',
+  600: 'SemiBold',
+  700: 'Bold',
+  800: 'ExtraBold',
+  900: 'Black',
+};
+
 Future<void> loadMasteryReviewFonts() async {
   if (_reviewFontsLoaded) return;
   final icons = FontLoader('MaterialIcons');
@@ -259,11 +269,13 @@ Future<void> loadMasteryReviewFonts() async {
       final loader = FontLoader(
         '${family}_${weight == 400 ? 'regular' : weight}',
       );
-      loader.addFont(rootBundle.load('assets/fonts/$family-$weight.ttf'));
+      loader.addFont(
+        rootBundle.load('assets/fonts/$family-${_weightName[weight]}.ttf'),
+      );
       await loader.load();
     }
     final fallback = FontLoader(family);
-    fallback.addFont(rootBundle.load('assets/fonts/$family-400.ttf'));
+    fallback.addFont(rootBundle.load('assets/fonts/$family-Regular.ttf'));
     await fallback.load();
   }
   _reviewFontsLoaded = true;

@@ -1,0 +1,37 @@
+# INTELLIA 237 — application web (savoir.intellia237.com, Hostinger / Apache)
+
+# HTTPS obligatoire : la connexion par SMS et les données l'exigent.
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Les adresses internes de l'application passent par index.html.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
+# Types de fichiers.
+AddType application/wasm .wasm
+AddType application/manifest+json .webmanifest
+AddType font/ttf .ttf
+AddType font/otf .otf
+
+# Compression : le premier chargement passe de ~8 Mo à ~2-3 Mo.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript text/javascript application/json application/wasm image/svg+xml font/ttf font/otf
+</IfModule>
+
+# Mise en cache.
+# Les noms de fichiers ne changent pas d'une version à l'autre : le navigateur
+# revérifie donc le code à chaque ouverture (réponse 304 très légère si rien
+# n'a changé), pour que chaque mise à jour arrive tout de suite.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|js|json|wasm|webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(png|jpg|jpeg|webp|svg|ttf|otf|ico)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

@@ -102,6 +102,11 @@ class AuthExperienceScaffold extends StatelessWidget {
                                       .clamp(0.0, double.infinity),
                             ),
                             child: Column(
+                              // Tablette, ordinateur : le contenu, plus court
+                              // que l'écran, se tient au milieu, pas en haut.
+                              mainAxisAlignment: constraints.maxWidth >= 600
+                                  ? MainAxisAlignment.center
+                                  : MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 if (topBar != null ||

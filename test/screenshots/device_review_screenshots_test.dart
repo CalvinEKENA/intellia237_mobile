@@ -45,14 +45,19 @@ Future<void> _loadProjectFonts() async {
   // captures ne montreraient rien de lisible.
   GoogleFonts.config.allowRuntimeFetching = false;
   for (final family in const {
-    'Manrope': ['Manrope-400', 'Manrope-600', 'Manrope-700', 'Manrope-800'],
-    'Montserrat': [
-      'Montserrat-400',
-      'Montserrat-600',
-      'Montserrat-700',
-      'Montserrat-800',
+    'Manrope': [
+      'Manrope-Regular',
+      'Manrope-SemiBold',
+      'Manrope-Bold',
+      'Manrope-ExtraBold',
     ],
-    'Playfair Display': ['PlayfairDisplay-400', 'PlayfairDisplay-700'],
+    'Montserrat': [
+      'Montserrat-Regular',
+      'Montserrat-SemiBold',
+      'Montserrat-Bold',
+      'Montserrat-ExtraBold',
+    ],
+    'Playfair Display': ['PlayfairDisplay-Regular', 'PlayfairDisplay-Bold'],
   }.entries) {
     final loader = FontLoader(family.key);
     for (final file in family.value) {

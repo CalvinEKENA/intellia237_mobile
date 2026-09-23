@@ -129,8 +129,11 @@ void main() {
     expect(iosIcon.sublist(1, 4), [80, 78, 71]);
     expect(iosIcon[25], 2, reason: 'iOS launcher PNG must be RGB, not RGBA');
 
+    // Application web (23/09/2026) : le papier de la marque, comme l'écran
+    // de chargement et l'onboarding.
     final webManifest = File('web/manifest.json').readAsStringSync();
-    expect(webManifest, contains('"background_color": "#041025"'));
-    expect(webManifest, contains('"theme_color": "#071B3D"'));
+    expect(webManifest, contains('"background_color": "#F4EFE5"'));
+    expect(webManifest, contains('"theme_color": "#F4EFE5"'));
+    expect(webManifest, contains('"name": "INTELLIA 237"'));
   });
 }

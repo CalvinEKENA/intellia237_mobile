@@ -134,7 +134,7 @@ Future<void> _loadFonts() async {
   // apparaîtraient en barres alors qu'ils sont parfaitement lisibles sur
   // l'appareil.
   final fallback = ByteData.sublistView(
-    await File('assets/fonts/Montserrat-500.ttf').readAsBytes(),
+    await File('assets/fonts/Montserrat-Medium.ttf').readAsBytes(),
   );
   for (final name in const ['FlutterTest', 'Ahem', 'Roboto', 'sans-serif']) {
     final loader = FontLoader(name)..addFont(Future.value(fallback));

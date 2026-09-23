@@ -29,10 +29,10 @@ void main() {
         'BarlowCondensed-Black.ttf',
       ],
       'CampaignBody': [
-        'Manrope-400.ttf',
-        'Manrope-600.ttf',
-        'Manrope-700.ttf',
-        'Manrope-800.ttf',
+        'Manrope-Regular.ttf',
+        'Manrope-SemiBold.ttf',
+        'Manrope-Bold.ttf',
+        'Manrope-ExtraBold.ttf',
       ],
     }.entries) {
       final loader = FontLoader(family.key);

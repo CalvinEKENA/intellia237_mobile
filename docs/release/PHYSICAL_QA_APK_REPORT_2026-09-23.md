@@ -254,7 +254,7 @@ parent avec le guide et un vrai « code parent » ; clavier ouvert sur chaque
 | Fichier | `build/app/outputs/bundle/productionRelease/app-production-release.aab` |
 | Taille | 80 849 730 octets (77,1 Mo) |
 | SHA-256 | `03ab7d097bc8aacd7f0d4c76c9714f35d87c79736581c6f4b75f7cb2d55a3626` |
-| Signature | clé d'upload (`CN=Edunova, OU=Development, O=Edunova`), `jarsigner -verify` : vérifiée |
+| Signature | clé d'upload du projet (même certificat que l'APK), `jarsigner -verify` : vérifiée |
 | Version | 3.2.1, `versionCode` 30 (inchangés) |
 
 Non envoyé sur Google Play. Si un bundle `versionCode` 30 a déjà été
