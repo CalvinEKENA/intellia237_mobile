@@ -169,8 +169,10 @@ void main() {
     );
   }
 
-  // Accès neutre : le compte décide, comme avant.
-  for (final role in AppRole.values.where((role) => role != AppRole.admin)) {
+  // Accès neutre : le compte décide. Un parent ou un enseignant ouvre son
+  // espace aussitôt ; le numéro d'un élève demande d'abord qui se connecte
+  // (téléphone de famille, refonte Auth V2).
+  for (final role in [AppRole.parent, AppRole.teacher]) {
     testWidgets('neutral phone access, ${role.name} account opens its space', (
       tester,
     ) async {
@@ -187,6 +189,51 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     });
   }
+
+  testWidgets('neutral phone access, student account asks who signs in, then '
+      'opens the student space', (tester) async {
+    final harness = await _pump(
+      tester,
+      intent: null,
+      accountRole: AppRole.student,
+      completed: true,
+    );
+    await harness.verifyPhone(tester);
+
+    // Rien n'est ouvert avant la réponse : l'écran téléphone reste affiché.
+    expect(harness.location, isNot(AppRoutes.studentHome));
+    expect(
+      find.byKey(const ValueKey('phone-student-confirmation')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('phone-student-confirm')));
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    await tester.pump(PassSealTiming.completionHold);
+    await tester.pumpAndSettle();
+
+    expect(harness.location, AppRoutes.studentHome);
+    expect(harness.repository.signOutCalls, 0);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('neutral phone access, student number claimed by a parent opens '
+      'the family phone offer, never the student space', (tester) async {
+    final harness = await _pump(
+      tester,
+      intent: null,
+      accountRole: AppRole.student,
+      completed: true,
+    );
+    await harness.verifyPhone(tester);
+    await tester.tap(find.byKey(const ValueKey('phone-student-is-parent')));
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+
+    expect(harness.location, isNot(AppRoutes.studentHome));
+    expect(find.byKey(const ValueKey('family-phone-offer')), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 }
 
 class _Harness {

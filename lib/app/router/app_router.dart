@@ -12,12 +12,12 @@ import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/phone_auth_screen.dart';
 import '../../features/auth/presentation/auth_gateway_screen.dart';
-import '../../features/auth/presentation/register_screen.dart';
 import '../../features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../features/auth/presentation/widgets/pass_home_arrival.dart';
 import '../../features/auth/presentation/profile_recovery_screen.dart';
 import '../../features/auth/presentation/student_access_code_screen.dart';
-import '../../features/auth/presentation/google_discovery_landing_screen.dart';
+import '../../features/auth/presentation/account_welcome_screen.dart';
+import '../../features/auth/presentation/google_account_question_screen.dart';
 import '../../features/discovery/presentation/discovery_hub_screen.dart';
 import '../../features/auth/presentation/account_linking_screen.dart';
 import '../../features/auth/presentation/role_selector_screen.dart';
@@ -40,7 +40,6 @@ import '../../features/parent/application/parent_preview.dart';
 import '../../features/parent/presentation/child_overview_screen.dart';
 import '../../features/parent/presentation/child_profile_screen.dart';
 import '../../features/parent/presentation/child_progress_screen.dart';
-import '../../features/parent/presentation/parent_entry_screen.dart';
 import '../../features/parent/presentation/parent_home_screen.dart';
 import '../../features/parent_registration/presentation/parent_registration_screen.dart';
 import '../../features/quiz/domain/quiz_result_payload.dart';
@@ -103,8 +102,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.authGateway,
+        // La porte neutre est la première surface après l'onboarding : son
+        // fond est peint dès la première image, pour que le dernier acte
+        // passe la main sans écran vide entre les deux.
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
+          transitionBackground: const AuthAmbientBackground(),
           child: slot(context, state, const AuthGatewayScreen()),
         ),
       ),
@@ -150,23 +153,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           child: slot(context, state, const StudentAccessCodeScreen()),
         ),
       ),
+      // Registre de décisions (refonte Auth V2) : l'écran à cartes de rôle
+      // et l'entrée parent « code enfant d'abord » demandaient un rôle, ou un
+      // code, avant toute identité. Ils sont retirés ; leurs adresses, qui
+      // peuvent subsister dans un lien, mènent à la porte neutre.
       GoRoute(
         path: AppRoutes.parentEntry,
-        pageBuilder: (context, state) => buildAppTransitionPage(
-          state: state,
-          child: slot(context, state, const ParentEntryScreen()),
-        ),
+        redirect: (context, state) => AppRoutes.authGateway,
       ),
       GoRoute(
         path: AppRoutes.register,
-        // The registration canvas is painted from the first frame, so the
-        // onboarding passage hands over onto this exact surface: the two
-        // screens are never separated by an empty one.
-        pageBuilder: (context, state) => buildAppTransitionPage(
-          state: state,
-          transitionBackground: const AuthAmbientBackground(),
-          child: slot(context, state, const RegisterScreen()),
-        ),
+        redirect: (context, state) => AppRoutes.authGateway,
       ),
       GoRoute(
         path: AppRoutes.studentRegistration,
@@ -218,17 +215,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
-        path: AppRoutes.googleDiscoveryWelcome,
+        path: AppRoutes.googleAccountQuestion,
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
-          child: slot(context, state, const GoogleDiscoveryLandingScreen()),
+          child: slot(context, state, const GoogleAccountQuestionScreen()),
         ),
       ),
       GoRoute(
         path: AppRoutes.accountLinking,
         pageBuilder: (context, state) => buildAppTransitionPage(
           state: state,
-          child: slot(context, state, const AccountLinkingScreen()),
+          child: slot(
+            context,
+            state,
+            AccountLinkingScreen(
+              emailInUse: state.uri.queryParameters['reason'] == 'email-in-use',
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.accountWelcome,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(context, state, const AccountWelcomeScreen()),
         ),
       ),
       GoRoute(
@@ -719,40 +729,47 @@ String? resolveAppRedirect({
       return location == AppRoutes.bootstrap ? null : AppRoutes.bootstrap;
 
     case AuthStatus.unauthenticated:
+      // Registre de décisions (refonte Auth V2) : un appareil neuf allait vers
+      // l'écran à cartes de rôle ; la porte neutre n'apparaissait qu'après
+      // une première connexion. Premier lancement comme retour : la même
+      // porte, l'identité d'abord. [hasAuthenticatedBefore] ne choisit plus
+      // l'écran d'entrée.
       if (location == AppRoutes.bootstrap) {
-        if (!hasSeenOnboarding) return AppRoutes.onboarding;
-        return hasAuthenticatedBefore
-            ? AppRoutes.authGateway
-            : AppRoutes.register;
+        return hasSeenOnboarding ? AppRoutes.authGateway : AppRoutes.onboarding;
       }
       if (!hasSeenOnboarding) {
         return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
       }
-      if (location == AppRoutes.onboarding) {
-        return hasAuthenticatedBefore
-            ? AppRoutes.authGateway
-            : AppRoutes.register;
+      if (location == AppRoutes.onboarding ||
+          location == AppRoutes.register ||
+          location == AppRoutes.parentEntry ||
+          location == AppRoutes.accountWelcome ||
+          location == AppRoutes.googleDiscovery ||
+          location == AppRoutes.roleChooser) {
+        return AppRoutes.authGateway;
       }
       if (AppRoutes.preAuthRoutes.contains(location)) {
         return null;
       }
-      // Après une déconnexion, la porte ne présuppose aucun rôle : un parent
-      // ou un enseignant partageant l'appareil doit pouvoir ouvrir le sien.
-      return hasAuthenticatedBefore
-          ? AppRoutes.authGateway
-          : AppRoutes.register;
+      return AppRoutes.authGateway;
 
     case AuthStatus.needsOnboarding:
       if (location == AppRoutes.phoneAuth ||
           location == AppRoutes.studentAccessCode ||
           location == AppRoutes.studentRegistration ||
           location == AppRoutes.parentRegistration ||
-          location == AppRoutes.authProfileRecovery) {
+          location == AppRoutes.authProfileRecovery ||
+          AppRoutes.isLegalPath(location)) {
         return null;
       }
       if (auth.role == AppRole.student) return AppRoutes.studentRegistration;
       if (auth.role == AppRole.parent) return AppRoutes.parentRegistration;
-      return AppRoutes.authProfileRecovery;
+      if (auth.role != null) return AppRoutes.authProfileRecovery;
+      // Identité prouvée, aucun profil : la décision d'entrée, jamais un
+      // écran « profil introuvable ».
+      return location == AppRoutes.accountWelcome
+          ? null
+          : AppRoutes.accountWelcome;
 
     case AuthStatus.retryableProfileFailure:
       if (auth.isAuthenticated && auth.role != null) {
@@ -779,12 +796,14 @@ String? resolveAppRedirect({
           : AppRoutes.authProfileRecovery;
 
     case AuthStatus.discovery:
+      // Aucune route privée : la découverte, la création d'un espace parent
+      // ou élève pour cette même identité, le code élève et les documents
+      // légaux.
       if (location == AppRoutes.googleDiscovery ||
-          location == AppRoutes.googleDiscoveryWelcome ||
+          location == AppRoutes.parentRegistration ||
+          location == AppRoutes.studentRegistration ||
           location == AppRoutes.studentAccessCode ||
-          location == AppRoutes.accountLinking ||
-          location == AppRoutes.register ||
-          location == AppRoutes.authGateway) {
+          AppRoutes.isLegalPath(location)) {
         return null;
       }
       return AppRoutes.googleDiscovery;
@@ -812,9 +831,16 @@ String? _resolveAuthenticatedRoleRedirect(
         : AppRoutes.studentRegistration;
   }
 
-  // Multi-rôles : l'écran de sélection de l'espace actif est autorisé
+  // Plusieurs espaces : le sélecteur est toujours accessible ; tant
+  // qu'aucun espace n'est retenu sur l'appareil, il passe avant tout accueil.
   if (auth.isMultiRole && location == AppRoutes.roleChooser) {
     return null;
+  }
+  if (auth.isMultiRole &&
+      auth.spaceChoicePending &&
+      (AppRoutes.preAuthRoutes.contains(location) ||
+          AppRoutes.roleHomes.contains(location))) {
+    return AppRoutes.roleChooser;
   }
 
   // Prévisualisation Parent : le super-administrateur (rôle réel admin,

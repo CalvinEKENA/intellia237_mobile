@@ -169,7 +169,7 @@ void main() {
         expect(find.text('Inscription prête'), findsOneWidget);
         expect(
           harness.router.routeInformationProvider.value.uri.path,
-          AppRoutes.register,
+          AppRoutes.authGateway,
         );
         final preferences = await SharedPreferences.getInstance();
         expect(preferences.getBool('has_seen_onboarding'), isTrue);
@@ -407,7 +407,7 @@ void main() {
   });
 
   testWidgets(
-    'holding signs the pass and breaks the screen onto registration',
+    'holding signs the pass and breaks the screen onto the neutral gateway',
     (tester) async {
       final harness = await _pumpOnboarding(tester, reduceMotion: false);
       await _reachAscension(tester);
@@ -512,8 +512,10 @@ Future<_Harness> _pumpOnboarding(
           child: const OnboardingScreen(),
         ),
       ),
+      // Refonte Auth V2 : l'onboarding mène à la porte neutre, jamais à un
+      // écran de rôles.
       GoRoute(
-        path: AppRoutes.register,
+        path: AppRoutes.authGateway,
         builder: (_, _) => const Scaffold(body: Text('Inscription prête')),
       ),
     ],

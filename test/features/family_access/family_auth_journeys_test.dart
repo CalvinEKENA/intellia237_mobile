@@ -31,10 +31,12 @@ void main() {
     );
     final studentBefore = backend.accounts['student-uid'];
 
-    // OLD — le numéro de la famille ouvre l'espace élève, comme avant.
-    await journey.tap('gateway-role-student');
+    // OLD — le numéro de la famille ouvre l'espace élève : l'élève confirme
+    // que c'est bien lui (accès neutre, aucun rôle demandé avant).
+    await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
     await _verifyPhone(journey, DeviceBackend.studentPhone);
+    await journey.confirmStudentPhone();
     await journey.waitUntil(() => journey.location == AppRoutes.studentHome);
     expect(journey.auth.role, AppRole.student);
     expect(journey.auth.userId, 'student-uid');
@@ -43,20 +45,12 @@ void main() {
     // numéro ne peut pas redemander de SMS plus tôt.
     backend.requestGate.advance(const Duration(seconds: 61));
 
-    // NEW — entrée parent, code enfant, même numéro.
-    await journey.tap('gateway-role-parent');
+    // NEW — même numéro, vérifié d'abord ; la personne dit ensuite être le
+    // parent de l'élève. Aucun code enfant n'est demandé avant l'identité.
+    await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
-    expect(
-      find.text(
-        'Ce code permet de rattacher l’enfant.\n'
-        'Votre numéro de téléphone sert à vous identifier comme parent.',
-      ),
-      findsOneWidget,
-    );
-    await journey.typeKey('parent-entry-code-field', 'K7MP2QXA');
-    await journey.tap('parent-entry-continue');
-    await journey.wait(const Duration(milliseconds: 500));
     await _verifyPhone(journey, DeviceBackend.studentPhone);
+    await journey.tapWhenShown('phone-student-is-parent');
     await journey.waitUntil(() => _shown('family-phone-offer'));
     expect(
       find.text(
@@ -117,10 +111,8 @@ void main() {
     // Et le numéro de la famille ouvre désormais l'espace parent.
     await _signOut(journey);
     backend.requestGate.advance(const Duration(seconds: 61));
-    await journey.tap('gateway-role-parent');
+    await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
-    await journey.tap('parent-entry-existing');
-    await journey.wait(const Duration(milliseconds: 500));
     await _verifyPhone(journey, DeviceBackend.studentPhone);
     await journey.waitUntil(() => journey.location == AppRoutes.parentHome);
     expect(journey.auth.userId, 'parent-of-student-uid');
@@ -139,12 +131,10 @@ void main() {
       realParentHome: true,
       traceSeal: false,
     );
-    await journey.tap('gateway-role-parent');
+    await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
-    await journey.typeKey('parent-entry-code-field', 'K7MP2QXA');
-    await journey.tap('parent-entry-continue');
-    await journey.wait(const Duration(milliseconds: 500));
     await _verifyPhone(journey, DeviceBackend.studentPhone);
+    await journey.tapWhenShown('phone-student-is-parent');
     await journey.waitUntil(() => _shown('family-phone-offer'));
     await journey.tap('family-phone-offer-confirm');
     await journey.waitUntil(() => _shown('family-phone-verify-to-finish'));
@@ -180,46 +170,67 @@ void main() {
     await _dispose(journey);
   });
 
-  testWidgets('A · new parent, one child: phone, OTP, parent account, child '
-      'code, parent home, child visible, child profile', (tester) async {
-    final backend = DeviceBackend();
-    final journey = await SealJourney.start(
-      tester,
-      backend,
-      realParentHome: true,
-      traceSeal: false,
-    );
-    await journey.tap('gateway-role-parent');
-    await journey.wait(const Duration(milliseconds: 400));
-    await journey.typeKey('parent-entry-code-field', 'K7MP2QXA');
-    await journey.tap('parent-entry-continue');
-    await journey.wait(const Duration(milliseconds: 500));
-    await _verifyPhone(journey, DeviceBackend.newPhone);
-    await journey.waitUntil(
-      () => journey.location == AppRoutes.parentRegistration,
-    );
-    await _registerParent(journey);
-    await journey.waitUntil(() => journey.location == AppRoutes.parentHome);
-    await journey.wait(const Duration(milliseconds: 1200));
+  testWidgets(
+    'A · new parent, one child: phone, OTP, "Je suis parent", '
+    'parent account, parent home, "Rattacher mon enfant", child code, child '
+    'visible, child profile — never a child code before the parent identity',
+    (tester) async {
+      final backend = DeviceBackend();
+      final journey = await SealJourney.start(
+        tester,
+        backend,
+        realParentHome: true,
+        traceSeal: false,
+      );
+      await journey.tap('gateway-phone-auth');
+      await journey.wait(const Duration(milliseconds: 400));
+      expect(find.byKey(const ValueKey('parent-add-child-code')), findsNothing);
+      await _verifyPhone(journey, DeviceBackend.newPhone);
+      await journey.waitUntil(
+        () => journey.location == AppRoutes.accountWelcome,
+      );
+      await journey.tap('welcome-parent');
+      await journey.waitUntil(
+        () => journey.location == AppRoutes.parentRegistration,
+      );
+      await _registerParent(journey);
+      await journey.waitUntil(() => journey.location == AppRoutes.parentHome);
+      await journey.wait(const Duration(milliseconds: 1200));
 
-    final parentUid = journey.auth.userId!;
-    expect(journey.auth.role, AppRole.parent);
-    expect(backend.parentLinks[parentUid], {'student-uid'});
-    await journey.tapText('Enfants');
-    await journey.wait(const Duration(milliseconds: 600));
-    expect(
-      find.byKey(const ValueKey('parent-child-card-student-uid')),
-      findsOneWidget,
-    );
-    await journey.tap('parent-child-profile-student-uid');
-    await journey.waitUntil(
-      () => journey.location == AppRoutes.parentChildProfile('student-uid'),
-    );
-    await journey.wait(const Duration(milliseconds: 500));
-    expect(find.text('MODE PARENT — PROFIL DE AWA'), findsOneWidget);
-    expect(journey.auth.userId, parentUid);
-    await _dispose(journey);
-  });
+      final parentUid = journey.auth.userId!;
+      expect(journey.auth.role, AppRole.parent);
+      expect(backend.parentLinks[parentUid] ?? const <String>{}, isEmpty);
+
+      // Identité parent établie : « Rattacher mon enfant » avec son code.
+      await journey.tapText('Enfants');
+      await journey.wait(const Duration(milliseconds: 600));
+      await journey.tap('parent-add-child');
+      await journey.wait(const Duration(milliseconds: 400));
+      await journey.typeKey('parent-add-child-code', 'K7MP2QXA');
+      await journey.tap('parent-add-child-submit');
+      await journey.waitUntil(
+        () =>
+            (backend.parentLinks[parentUid]?.contains('student-uid') ??
+                false) &&
+            !_shown('parent-add-child-submit'),
+      );
+      await journey.wait(const Duration(milliseconds: 600));
+      expect(backend.parentLinks[parentUid], {'student-uid'});
+      await _scrollToInChildren(journey, 'parent-child-card-student-uid');
+      expect(
+        find.byKey(const ValueKey('parent-child-card-student-uid')),
+        findsOneWidget,
+      );
+      await journey.tap('parent-child-profile-student-uid');
+      await journey.waitUntil(
+        () => journey.location == AppRoutes.parentChildProfile('student-uid'),
+      );
+      await journey.wait(const Duration(milliseconds: 500));
+      expect(find.text('MODE PARENT — PROFIL DE AWA'), findsOneWidget);
+      expect(journey.auth.userId, parentUid);
+      await _dispose(journey);
+    },
+  );
 
   testWidgets('B · same parent adds child B then child C from the parent '
       'home: each appears at once, no sign-out, no new OTP', (tester) async {
@@ -280,10 +291,8 @@ void main() {
       realParentHome: true,
       traceSeal: false,
     );
-    await journey.tap('gateway-role-parent');
+    await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
-    await journey.tap('parent-entry-existing');
-    await journey.wait(const Duration(milliseconds: 500));
     await _verifyPhone(journey, DeviceBackend.parentPhone);
     await journey.waitUntil(() => journey.location == AppRoutes.parentHome);
     await journey.wait(const Duration(milliseconds: 1200));
@@ -462,10 +471,8 @@ void main() {
 
     // Déconnexion de l'enfant : le parent retrouve son espace et le lien.
     await _signOut(journey);
-    await journey.tap('gateway-role-parent');
+    await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
-    await journey.tap('parent-entry-existing');
-    await journey.wait(const Duration(milliseconds: 500));
     await _verifyPhone(journey, DeviceBackend.parentPhone);
     await journey.waitUntil(() => journey.location == AppRoutes.parentHome);
     expect(backend.parentLinks['parent-uid'], {'noah-uid'});

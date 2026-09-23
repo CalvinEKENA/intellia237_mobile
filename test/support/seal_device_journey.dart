@@ -15,6 +15,7 @@ import 'package:intellia237/app/theme/app_theme.dart';
 import 'package:intellia237/core/localization/app_locale_controller.dart';
 import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/application/auth_state.dart';
+import 'package:intellia237/features/auth/application/google_access_coordinator.dart';
 import 'package:intellia237/features/auth/application/phone_auth_controller.dart';
 import 'package:intellia237/features/auth/data/auth_entry_preferences.dart';
 import 'package:intellia237/features/auth/data/repositories/firebase_phone_auth_repository.dart';
@@ -43,6 +44,8 @@ import 'package:intellia237/features/tour_guide/data/firestore_tour_guide_reposi
 import 'package:intellia237/features/tour_guide/data/tour_guide_repository.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 
+import 'fake_google_access.dart';
+
 /// Parcours d'authentification rejoué comme sur un téléphone Android.
 ///
 /// Registre de décisions (QA appareil, round 3) : les tests précédents
@@ -62,6 +65,7 @@ class SealJourney {
     this.router,
     this.trace,
     this.device,
+    this.google,
   );
 
   final WidgetTester tester;
@@ -69,6 +73,9 @@ class SealJourney {
   final GoRouter router;
   final SealTrace trace;
   final SealDevice device;
+
+  /// Sélecteur de comptes Google du téléphone simulé.
+  final FakeGoogleCredentialSource google;
 
   /// Relève du sceau à chaque image. Les parcours qui ne vérifient pas le
   /// sceau s'en passent : le relevé parcourt tout l'arbre à chaque image.
@@ -98,9 +105,17 @@ class SealJourney {
       color: AuthExperienceColors.canvas,
       child: Center(child: Text(label)),
     );
+    final google = FakeGoogleCredentialSource(backend.identity);
     final container = ProviderContainer(
       overrides: [
         authRepositoryProvider.overrideWithValue(DeviceAuthRepository(backend)),
+        // Google et Firebase Auth simulés sur le même backend : la sonde, la
+        // connexion, le rattachement et l'écoute de l'identité.
+        googleCredentialSourceProvider.overrideWithValue(google),
+        googleIdentityProbeProvider.overrideWithValue(backend.probe),
+        firebaseIdentityPortProvider.overrideWithValue(
+          FakeFirebaseIdentity(backend.identity),
+        ),
         phoneAuthRepositoryProvider.overrideWithValue(
           DevicePhoneRepository(backend),
         ),
@@ -190,7 +205,7 @@ class SealJourney {
       () => router.state.uri.path,
       () => journey.unobscured,
     );
-    journey = SealJourney._(tester, container, router, trace, device)
+    journey = SealJourney._(tester, container, router, trace, device, google)
       ..traceSeal = traceSeal;
     await journey.wait(const Duration(milliseconds: 600));
     return journey;
@@ -276,32 +291,18 @@ class SealJourney {
     await wait(const Duration(milliseconds: 50));
   }
 
-  Future<void> tap(String key) {
-    if (key == 'gateway-role-teacher' &&
-        find
-            .byKey(const ValueKey('gateway-staff-login'))
-            .evaluate()
-            .isNotEmpty) {
-      return tapFinder(find.byKey(const ValueKey('gateway-staff-login')));
-    }
-    if (key == 'gateway-role-student' &&
-        find
-            .byKey(const ValueKey('gateway-phone-auth'))
-            .evaluate()
-            .isNotEmpty) {
-      router.push(AppRoutes.phoneRegistration(AppRole.student));
-      return wait(const Duration(milliseconds: 120));
-    }
-    if (key == 'gateway-role-parent' &&
-        find
-            .byKey(const ValueKey('gateway-phone-auth'))
-            .evaluate()
-            .isNotEmpty) {
-      router.push(AppRoutes.parentEntry);
-      return wait(const Duration(milliseconds: 120));
-    }
-    return tapFinder(find.byKey(ValueKey(key)));
+  /// Touche l'élément [key] réellement affiché — jamais une navigation
+  /// directe : les parcours traversent les vrais écrans (refonte Auth V2).
+  Future<void> tap(String key) => tapFinder(find.byKey(ValueKey(key)));
+
+  /// Attend qu'un élément [key] soit affiché, puis le touche.
+  Future<void> tapWhenShown(String key) async {
+    await waitUntil(() => find.byKey(ValueKey(key)).evaluate().isNotEmpty);
+    await tap(key);
   }
+
+  /// Téléphone de famille : la personne confirme être l'élève du numéro.
+  Future<void> confirmStudentPhone() => tapWhenShown('phone-student-confirm');
 
   Future<void> tapText(String text) => tapFinder(find.text(text));
 
@@ -583,6 +584,10 @@ class DeviceBackend {
     createPhoneAccount(studentPhone, 'student-uid', AppRole.student, 'Awa');
     createPhoneAccount(parentPhone, 'parent-uid', AppRole.parent, 'Claire');
     emailAccounts[teacherEmail] = 'teacher-uid';
+    identity.emailAccounts[teacherEmail] = (
+      uid: 'teacher-uid',
+      password: teacherPassword,
+    );
     accounts['teacher-uid'] = DeviceAccount(
       uid: 'teacher-uid',
       role: AppRole.teacher,
@@ -611,7 +616,14 @@ class DeviceBackend {
   final uidsByPhone = <String, String>{};
   final emailAccounts = <String, String>{};
   final accounts = <String, DeviceAccount>{};
-  String? currentUid;
+
+  /// Identités Firebase (session courante, Google, e-mail) partagées avec
+  /// l'écoute de l'identité du contrôleur d'authentification.
+  final identity = FakeIdentityBackend();
+  late final probe = FakeGoogleIdentityProbe(identity);
+
+  String? get currentUid => identity.currentUid;
+  set currentUid(String? uid) => identity.currentUid = uid;
 
   void createPhoneAccount(String phone, String uid, AppRole role, String name) {
     uidsByPhone['+237$phone'] = uid;
@@ -630,6 +642,9 @@ class DeviceBackend {
 
   /// École de chaque élève (nom affiché).
   final schoolOf = <String, String>{};
+
+  /// Codes SMS que Firebase refuse (code faux ou expiré).
+  final rejectedCodes = <String>{};
 
   /// Espacement des SMS par numéro, comme en production, sur une horloge que
   /// le parcours peut avancer : une famille attend avant de redemander un
@@ -847,6 +862,9 @@ class DevicePhoneRepository implements PhoneAuthRepository {
     required bool linkCurrentUser,
   }) async {
     await Future<void>.delayed(backend.confirmDelay);
+    if (backend.rejectedCodes.contains(smsCode)) {
+      throw const PhoneAuthFailure('invalid-verification-code');
+    }
     return _session(verificationId);
   }
 }
@@ -885,6 +903,10 @@ class DeviceAuthRepository implements AuthRepository, AuthSessionResolver {
       firebaseUid: uid,
       firebaseEmail: '',
       user: user,
+      signInProviders: [
+        if (backend.uidsByPhone.containsValue(uid)) 'phone',
+        if (backend.identity.googleOf.containsKey(uid)) 'google.com',
+      ],
     );
   }
 

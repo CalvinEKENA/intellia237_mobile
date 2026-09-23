@@ -157,8 +157,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   /// The signed pass gives way. The screen is captured as it stands, the
   /// route is exchanged underneath it, and the capture breaks apart above the
-  /// registration screen: the learner sees one continuous surface tearing
-  /// open, never a cut between two screens.
+  /// neutral entry gateway: the learner sees one continuous surface tearing
+  /// open, never a cut between two screens. No role is asked here: identity
+  /// comes first (Auth V2 rework).
   Future<void> _sign(Offset origin) async {
     if (_completing || _moving) return;
     setState(() => _completing = true);
@@ -179,7 +180,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           .read(screenShatterProvider)
           .play(image: debris, pixelRatio: ratio, origin: origin);
     }
-    context.go(AppRoutes.register);
+    context.go(AppRoutes.authGateway);
     await Future.wait([persistence, ?breaking]);
   }
 

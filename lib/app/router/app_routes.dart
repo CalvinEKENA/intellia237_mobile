@@ -10,12 +10,15 @@ abstract final class AppRoutes {
   static const emailLogin = '/login/email';
   static const phoneAuth = '/auth/phone';
 
-  /// Entrée « Parent ou responsable » : code enfant d'abord, puis
-  /// authentification du parent.
+  /// Ancienne entrée « Parent » (code enfant avant l'identité). Retirée :
+  /// l'adresse, qui peut subsister dans un lien, mène à la porte neutre.
   static const parentEntry = '/auth/parent';
 
   /// Connexion d'un élève par son code d'accès INTELLIA, sans téléphone.
   static const studentAccessCode = '/auth/student/code';
+
+  /// Ancien écran à cartes de rôle. Retiré : l'adresse mène à la porte
+  /// neutre.
   static const register = '/register';
   static const studentRegistration = '/register/student';
   static const parentRegistration = '/register/parent';
@@ -24,8 +27,15 @@ abstract final class AppRoutes {
   static const forgotPassword = '/forgot-password';
   static const authProfileRecovery = '/auth/profile-recovery';
   static const googleDiscovery = '/discovery';
-  static const googleDiscoveryWelcome = '/auth/google/welcome';
+
+  /// « Vous utilisez déjà INTELLIA237 ? », pour un compte Google inconnu.
+  static const googleAccountQuestion = '/auth/google/question';
+
+  /// Connexion au compte existant, puis rattachement de Google.
   static const accountLinking = '/auth/linking';
+
+  /// Identité prouvée sans profil : parent, élève ou découverte.
+  static const accountWelcome = '/auth/welcome';
   static const roleChooser = '/auth/choose-space';
   static const legalTerms = '/legal/terms';
   static const legalPrivacy = '/legal/privacy';
@@ -90,8 +100,9 @@ abstract final class AppRoutes {
     legalPrivacy,
     legalEducationalData,
     googleDiscovery,
-    googleDiscoveryWelcome,
+    googleAccountQuestion,
     accountLinking,
+    accountWelcome,
     roleChooser,
     tutorSelection,
   };
@@ -106,6 +117,11 @@ abstract final class AppRoutes {
   ) => '/learn/subject/$subjectId/chapter/$chapterId/lesson/$lessonId';
 
   static String quizPlay(String quizId) => '/quiz/play/$quizId';
+
+  /// Récupération du compte existant ; [emailInUse] : Firebase a signalé
+  /// qu'un compte utilise déjà l'adresse du compte Google.
+  static String accountRecovery({bool emailInUse = false}) =>
+      emailInUse ? '$accountLinking?reason=email-in-use' : accountLinking;
 
   /// Authentification téléphone sous l'intention d'entrée [role].
   static String phoneRegistration(AppRole role) =>
@@ -152,6 +168,11 @@ abstract final class AppRoutes {
         location == settings ||
         location == editProfile;
   }
+
+  static bool isLegalPath(String location) =>
+      location == legalTerms ||
+      location == legalPrivacy ||
+      location == legalEducationalData;
 
   static bool isParentPath(String location) {
     return location == parentHome ||

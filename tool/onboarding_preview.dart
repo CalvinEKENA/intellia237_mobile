@@ -13,16 +13,15 @@ import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/application/auth_state.dart';
 import 'package:intellia237/features/auth/application/phone_auth_controller.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
+import 'package:intellia237/features/auth/presentation/account_welcome_screen.dart';
 import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
 import 'package:intellia237/features/auth/presentation/forgot_password_screen.dart';
 import 'package:intellia237/features/auth/presentation/login_screen.dart';
 import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
-import 'package:intellia237/features/auth/presentation/register_screen.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import 'package:intellia237/features/auth/presentation/widgets/pass_home_arrival.dart';
 import 'package:intellia237/features/legal/presentation/legal_document_screen.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
-import 'package:intellia237/features/parent/presentation/parent_entry_screen.dart';
 import 'package:intellia237/features/parent_registration/application/parent_registration_controller.dart';
 import 'package:intellia237/features/parent_registration/presentation/parent_registration_screen.dart';
 import 'package:intellia237/features/student_registration/application/student_registration_controller.dart';
@@ -82,7 +81,6 @@ class _OnboardingPreviewAppState extends ConsumerState<OnboardingPreviewApp> {
             child: const OnboardingScreen(),
           ),
         ),
-        _authRoute(AppRoutes.register, (_) => const RegisterScreen()),
         _authRoute(AppRoutes.authGateway, (_) => const AuthGatewayScreen()),
         _authRoute(AppRoutes.login, (_) => const PhoneAuthScreen()),
         _authRoute(
@@ -101,7 +99,10 @@ class _OnboardingPreviewAppState extends ConsumerState<OnboardingPreviewApp> {
             linkCurrentUser: state.uri.queryParameters['mode'] == 'link',
           ),
         ),
-        _authRoute(AppRoutes.parentEntry, (_) => const ParentEntryScreen()),
+        _authRoute(
+          AppRoutes.accountWelcome,
+          (_) => const AccountWelcomeScreen(),
+        ),
         _authRoute(
           AppRoutes.studentRegistration,
           (_) => const StudentRegistrationFlowScreen(),
@@ -153,7 +154,7 @@ class _OnboardingPreviewAppState extends ConsumerState<OnboardingPreviewApp> {
               _PreviewBanner(
                 showOtpHint:
                     path == AppRoutes.login || path == AppRoutes.phoneAuth,
-                onRestart: () => _restart(AppRoutes.register),
+                onRestart: () => _restart(AppRoutes.authGateway),
                 onReview: () => _restart(AppRoutes.onboarding),
               ),
               Expanded(child: child(state)),

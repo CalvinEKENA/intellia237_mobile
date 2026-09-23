@@ -78,6 +78,20 @@ final class AuthEntryFamilyPhoneInUse extends AuthEntryAdoption {
   final String? studentFirstName;
 }
 
+/// Accès neutre par téléphone : le numéro vérifié ouvre l'espace d'un élève.
+///
+/// Registre de décisions (refonte Auth V2) : l'entrée ne demande plus de rôle
+/// avant l'identité. Or, au Cameroun, le téléphone de la famille est souvent
+/// celui de l'élève : ouvrir son espace sans un mot ramènerait le défaut du
+/// round 2 (un parent se retrouvait dans l'espace de son enfant). Le numéro
+/// est prouvé ; la personne confirme seulement qui elle est. Rien n'est
+/// adopté tant qu'elle n'a pas répondu, et un redémarrage referme la session.
+final class AuthEntryStudentPhoneConfirmation extends AuthEntryAdoption {
+  const AuthEntryStudentPhoneConfirmation({this.studentFirstName});
+
+  final String? studentFirstName;
+}
+
 /// Le rôle du compte n'a pas pu être lu (réseau, délai). Rien n'a été
 /// adopté ; la session reste ouverte pour réessayer sans nouveau SMS.
 final class AuthEntryUnresolved extends AuthEntryAdoption {

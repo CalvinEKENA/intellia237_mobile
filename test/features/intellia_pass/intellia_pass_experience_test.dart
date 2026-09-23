@@ -4,11 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
-import 'package:intellia237/core/localization/app_locale_controller.dart';
 import 'package:intellia237/core/widgets/intellia_text_wordmark.dart';
-import 'package:intellia237/features/auth/presentation/register_screen.dart';
+import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
 import 'package:intellia237/features/intellia_pass/domain/household_profile.dart';
-import 'package:intellia237/features/parent/presentation/parent_entry_screen.dart';
 import 'package:intellia237/features/intellia_pass/presentation/widgets/household_learner_selector.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,108 +17,41 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(loadIntelliaFonts);
 
-  testWidgets('Pass prioritizes student and parent and never exposes admin', (
+  // Refonte Auth V2 : l'ancien Pass à cartes de rôle est retiré. La porte
+  // d'entrée ne présente aucun rôle avant l'identité, et jamais
+  // l'administration.
+  testWidgets('the entry never exposes role cards nor administration', (
     tester,
   ) async {
-    final router = await _pumpPass(tester);
+    final router = await _pumpGateway(tester);
     addTearDown(router.dispose);
 
-    // La copie vit dans les fichiers de traduction : ce test garde que le
-    // Pass présente bien un titre, pas sa formulation du jour.
-    final l10n = AppLocalizations.of(
-      tester.element(find.byType(RegisterScreen)),
-    );
-    expect(find.text(l10n.passYourPlaceStartsHere), findsOneWidget);
+    expect(find.byKey(const ValueKey('gateway-phone-auth')), findsOneWidget);
+    expect(find.byKey(const ValueKey('gateway-google-auth')), findsOneWidget);
     expect(
-      find.byKey(const ValueKey('pass-cameroon-wordmark')),
+      find.byKey(const ValueKey('gateway-student-access-code')),
       findsOneWidget,
     );
-    expect(find.byKey(const ValueKey('pass-role-student')), findsOneWidget);
-    expect(find.byKey(const ValueKey('pass-role-parent')), findsOneWidget);
-    expect(find.byKey(const ValueKey('pass-role-teacher')), findsOneWidget);
+    for (final role in ['student', 'parent', 'teacher', 'admin']) {
+      expect(find.byKey(ValueKey('pass-role-$role')), findsNothing);
+    }
     expect(find.textContaining('Administrateur'), findsNothing);
     final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
     expect(scaffold.backgroundColor, const Color(0xFFFBF8F1));
-    final imageAssets = tester
-        .widgetList<Image>(find.byType(Image))
-        .map((image) => image.image)
-        .whereType<AssetImage>()
-        .map((asset) => asset.assetName)
-        .toSet();
-    // L'identité du Pass est typographique : le wordmark tient lieu d'en-tête
-    // et aucune image de marque n'est posée. Ce que ce test garde, c'est
-    // qu'aucun ancien visuel ne puisse y revenir par la bande.
-    expect(imageAssets, isNot(contains('assets/branding/icon-192.png')));
-    expect(
-      imageAssets.where((asset) => asset.startsWith('assets/icons/')),
-      isEmpty,
-    );
-    // Le pays porte le drapeau, et il porte le même que le splash et le
-    // bandeau de l'onboarding : un seul jeu de teintes pour toute l'identité.
+    // Un seul jeu de teintes pour toute l'identité.
     expect(Intellia237TextWordmark.green, IntelliaFlag.green);
     expect(Intellia237TextWordmark.red, IntelliaFlag.red);
     expect(Intellia237TextWordmark.yellow, IntelliaFlag.yellow);
-    final spans = <String, Color?>{};
-    tester
-        .widget<Text>(
-          find.descendant(
-            of: find.byKey(const ValueKey('pass-cameroon-wordmark')),
-            matching: find.byType(Text),
-          ),
-        )
-        .textSpan!
-        .visitChildren((span) {
-          if (span is TextSpan && span.text != null) {
-            spans[span.text!] = span.style?.color;
-          }
-          return true;
-        });
-    expect(spans['2'], IntelliaFlag.green);
-    expect(spans['3'], IntelliaFlag.red);
-    expect(spans['7'], IntelliaFlag.yellow);
     await _disposeAnimatedSurface(tester);
   });
 
-  // Device QA round 2 : le parent commence par le code de son enfant, puis
-  // s'authentifie par téléphone sous son intention de parent.
-  testWidgets(
-    'parent identity routes through the child code, then phone-first authentication',
-    (tester) async {
-      final router = await _pumpPass(tester);
-      addTearDown(router.dispose);
-
-      await tester.tap(find.byKey(const ValueKey('pass-role-parent')));
-      await tester.pump();
-      await tester.ensureVisible(find.text('Continuer'));
-      await tester.tap(find.text('Continuer'));
-      await tester.pumpAndSettle();
-      expect(
-        find.byKey(const ValueKey('parent-entry-code-field')),
-        findsOneWidget,
-      );
-
-      await tester.ensureVisible(
-        find.byKey(const ValueKey('parent-entry-existing')),
-      );
-      await tester.tap(find.byKey(const ValueKey('parent-entry-existing')));
-      await tester.pumpAndSettle();
-      expect(find.text('Authentification téléphone parent'), findsOneWidget);
-      await _disposeAnimatedSurface(tester);
-    },
-  );
-
-  testWidgets('Pass switches its real copy to English', (tester) async {
-    final router = await _pumpPass(tester);
+  testWidgets('the entry speaks English', (tester) async {
+    final router = await _pumpGateway(tester, locale: const Locale('en'));
     addTearDown(router.dispose);
-
-    await tester.tap(find.text('EN'));
-    await tester.pumpAndSettle();
-    final english = AppLocalizations.of(
-      tester.element(find.byType(RegisterScreen)),
-    );
-    expect(english.localeName, 'en');
-    expect(find.text(english.passYourPlaceStartsHere), findsOneWidget);
-    expect(find.text('Parent or guardian'), findsOneWidget);
+    expect(find.text('Welcome to INTELLIA237'), findsOneWidget);
+    expect(find.text('Continue with my number'), findsOneWidget);
+    expect(find.text('Continue with Google'), findsOneWidget);
+    expect(find.text('I have a student code'), findsOneWidget);
     await _disposeAnimatedSurface(tester);
   });
 
@@ -161,47 +92,25 @@ void main() {
   });
 }
 
-Future<GoRouter> _pumpPass(WidgetTester tester) async {
+Future<GoRouter> _pumpGateway(
+  WidgetTester tester, {
+  Locale locale = const Locale('fr'),
+}) async {
   SharedPreferences.setMockInitialValues({});
   final router = GoRouter(
-    initialLocation: AppRoutes.register,
+    initialLocation: AppRoutes.authGateway,
     routes: [
       GoRoute(
-        path: AppRoutes.register,
-        builder: (_, _) => const RegisterScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.studentRegistration,
-        builder: (_, _) => const Scaffold(body: Text('Route élève réelle')),
-      ),
-      GoRoute(
-        path: AppRoutes.parentRegistration,
-        builder: (_, _) => const Scaffold(body: Text('Route parent réelle')),
-      ),
-      GoRoute(
-        path: AppRoutes.parentEntry,
-        builder: (_, _) => const ParentEntryScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.phoneAuth,
-        builder: (_, state) => Scaffold(
-          body: Text(
-            'Authentification téléphone ${state.uri.queryParameters['role']}',
-          ),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.teacherRegistration,
-        builder: (_, _) =>
-            const Scaffold(body: Text('Route enseignant réelle')),
-      ),
-      GoRoute(
-        path: AppRoutes.login,
-        builder: (_, _) => const Scaffold(body: Text('Connexion réelle')),
+        path: AppRoutes.authGateway,
+        builder: (_, _) => const AuthGatewayScreen(),
       ),
     ],
   );
-  await tester.pumpWidget(ProviderScope(child: _TestPassApp(router: router)));
+  await tester.pumpWidget(
+    ProviderScope(
+      child: _TestPassApp(router: router, locale: locale),
+    ),
+  );
   await tester.pump(const Duration(milliseconds: 500));
   return router;
 }
@@ -211,15 +120,16 @@ Future<void> _disposeAnimatedSurface(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 1));
 }
 
-class _TestPassApp extends ConsumerWidget {
-  const _TestPassApp({required this.router});
+class _TestPassApp extends StatelessWidget {
+  const _TestPassApp({required this.router, required this.locale});
 
   final GoRouter router;
+  final Locale locale;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return MaterialApp.router(
-      locale: ref.watch(appLocaleProvider),
+      locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,

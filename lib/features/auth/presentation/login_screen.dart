@@ -219,9 +219,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   TextButton(
+                    key: const ValueKey('login-create-account'),
+                    // L'accès par e-mail est celui du personnel ; un élève
+                    // arrivé ici avec son intention garde son inscription.
                     onPressed: auth.isLoading
                         ? null
-                        : () => context.push(AppRoutes.register),
+                        : () => context.push(
+                            widget.authIntent == AppRole.student
+                                ? AppRoutes.studentRegistration
+                                : AppRoutes.teacherRegistration,
+                          ),
                     style: TextButton.styleFrom(
                       foregroundColor: AuthExperienceColors.gold,
                     ),

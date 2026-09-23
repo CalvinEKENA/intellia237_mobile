@@ -16,6 +16,7 @@ import '../domain/app_role.dart';
 import '../domain/auth_entry_intent.dart';
 import '../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
+import 'google_access_coordinator.dart';
 
 /// Provider du repository d'authentification
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -39,12 +40,71 @@ class AuthController extends Notifier<AuthState> {
   /// Migration confirmée que le serveur n'a pas pu achever : le numéro, resté
   /// libre, doit être vérifié à nouveau pour terminer l'espace parent.
   static const _familyPhoneResumeKey = 'auth_family_phone_resume_v1';
+
+  /// Identité sans profil qui a choisi la découverte (par UID).
+  static const _discoveryPrefix = 'auth_discovery_uid_v1_';
   AuthRepository get _repo => ref.read(authRepositoryProvider);
   FamilyAccessRepository get _familyAccess =>
       ref.read(familyAccessRepositoryProvider);
 
+  /// Commandes d'entrée en cours (connexion, adoption). Tant qu'il y en a,
+  /// l'écoute de l'identité Firebase laisse la commande conclure : c'est elle
+  /// qui montre le sceau et tranche les conflits avant d'ouvrir un espace.
+  int _entryDepth = 0;
+
   @override
-  AuthState build() => const AuthState.bootstrapping();
+  AuthState build() {
+    final subscription = ref
+        .read(firebaseIdentityPortProvider)
+        .uidChanges()
+        .listen(_onIdentityChanged, onError: (Object _) {});
+    ref.onDispose(subscription.cancel);
+    return const AuthState.bootstrapping();
+  }
+
+  /// Résolveur unique, à l'écoute de Firebase Auth.
+  ///
+  /// Registre de décisions (refonte Auth V2, P0-1 de la revue de 7ea5cf0) :
+  /// aucune écoute de `authStateChanges` n'existait. Une session ouverte hors
+  /// d'une commande d'entrée restait invisible, et les écrans appelaient
+  /// `completeBootstrap`, qui ne fait rien après le démarrage. Désormais :
+  /// - identité perdue (déconnexion ailleurs, compte supprimé, jeton révoqué)
+  ///   → l'état redevient « non authentifié » ;
+  /// - identité remplacée sous une session ouverte, hors commande d'entrée →
+  ///   la nouvelle identité est résolue.
+  /// Une nouvelle connexion est adoptée par la commande qui l'a ouverte
+  /// (sceau, conflits d'espace) ; jamais implicitement pendant le parcours.
+  void _onIdentityChanged(String? uid) {
+    if (_entryDepth > 0) return;
+    final current = state;
+    if (current.status == AuthStatus.bootstrapping) return;
+    if (uid == null) {
+      if (current.hasFirebaseSession) unawaited(_applySessionLoss());
+      return;
+    }
+    if (current.hasFirebaseSession &&
+        current.userId != null &&
+        current.userId != uid) {
+      unawaited(_resolveAfterEstablishedCredential());
+    }
+  }
+
+  Future<void> _applySessionLoss() async {
+    await _clearLocalSession();
+    state = const AuthState.unauthenticated();
+  }
+
+  /// Exécute une commande d'entrée sans que l'écoute de l'identité ne la
+  /// devance. Les écrans qui ouvrent eux-mêmes une session Firebase (code SMS,
+  /// récupération d'un compte existant) s'en servent aussi.
+  Future<T> holdSessionAdoption<T>(Future<T> Function() command) async {
+    _entryDepth++;
+    try {
+      return await command();
+    } finally {
+      _entryDepth--;
+    }
+  }
 
   /// Vérifie la session Firebase existante au démarrage
   Future<void> completeBootstrap() async {
@@ -78,6 +138,20 @@ class AuthController extends Notifier<AuthState> {
     required String password,
     AppRole? intent,
     Future<void> Function()? beforeOpening,
+  }) => holdSessionAdoption(
+    () => _signInWithEmail(
+      email: email,
+      password: password,
+      intent: intent,
+      beforeOpening: beforeOpening,
+    ),
+  );
+
+  Future<AuthEntryAdoption> _signInWithEmail({
+    required String email,
+    required String password,
+    AppRole? intent,
+    Future<void> Function()? beforeOpening,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -102,15 +176,7 @@ class AuthController extends Notifier<AuthState> {
       }
       await _markOnboardingSeen();
       await _markAuthenticatedBefore();
-      state = AuthState.authenticated(
-        role: user.role,
-        userId: user.uid,
-        email: user.email,
-        firstName: user.firstName,
-        profileCompleted: user.profileCompleted,
-        isSuperAdmin: user.isSuperAdmin,
-        establishmentId: user.establishmentId,
-      );
+      state = await _resolveAuthenticatedState(user);
       await _cacheValidUser(user);
     } on AuthError catch (e) {
       if (_isProfileResolutionError(e.code)) {
@@ -144,14 +210,36 @@ class AuthController extends Notifier<AuthState> {
   /// la route de base de la pile (`/auth`, `/register`) et emporte l'écran
   /// téléphone poussé par-dessus ; toute mise en scène placée après
   /// l'adoption était coupée. Son échec n'empêche jamais l'adoption.
+  ///
+  /// [confirmSharedStudentPhone] : sous l'accès neutre par téléphone, un
+  /// numéro qui ouvre l'espace d'un élève n'est pas adopté tout de suite ; la
+  /// personne confirme d'abord qui elle est (voir
+  /// [AuthEntryStudentPhoneConfirmation]).
   Future<AuthEntryAdoption> adoptSessionForIntent(
     AppRole? intent, {
     Future<void> Function(AuthState opening)? beforeOpening,
+    bool confirmSharedStudentPhone = false,
+  }) => holdSessionAdoption(
+    () => _adoptSessionForIntent(
+      intent,
+      beforeOpening: beforeOpening,
+      confirmSharedStudentPhone: confirmSharedStudentPhone,
+    ),
+  );
+
+  Future<AuthEntryAdoption> _adoptSessionForIntent(
+    AppRole? intent, {
+    Future<void> Function(AuthState opening)? beforeOpening,
+    bool confirmSharedStudentPhone = false,
   }) async {
+    if (intent == null && confirmSharedStudentPhone) {
+      return _adoptNeutralPhoneSession(beforeOpening: beforeOpening);
+    }
     if (intent == null) {
-      await adoptCurrentFirebaseSession(beforeOpening: beforeOpening);
+      await _adoptCurrentFirebaseSession(beforeOpening: beforeOpening);
       return const AuthEntryAdopted();
     }
+    if (intent == AppRole.student) await _forgetFamilyPhoneOffer();
 
     state = state.copyWith(isLoading: true, error: null);
     final AuthSessionResolution resolution;
@@ -207,6 +295,38 @@ class AuthController extends Notifier<AuthState> {
     return const AuthEntryAdopted();
   }
 
+  Future<AuthEntryAdoption> _adoptNeutralPhoneSession({
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final AuthSessionResolution resolution;
+    try {
+      resolution = await _resolveCurrentSession().timeout(
+        const Duration(seconds: 8),
+      );
+    } catch (error) {
+      state = state.copyWith(isLoading: false, error: null);
+      return AuthEntryUnresolved(_safeErrorCode(error));
+    }
+    final user = resolution.user;
+    if (resolution.kind == AuthSessionResolutionKind.authenticated &&
+        user != null &&
+        user.role == AppRole.student &&
+        user.resolvedRoles.length == 1) {
+      state = state.copyWith(isLoading: false, error: null);
+      // Un redémarrage avant la réponse referme la session, sans ouvrir
+      // l'espace de l'élève.
+      await _rememberFamilyPhoneOffer(resolution.firebaseUid ?? user.uid);
+      return AuthEntryStudentPhoneConfirmation(
+        studentFirstName: user.firstName,
+      );
+    }
+    final opening = await _stateFor(resolution);
+    await _beforeOpening(beforeOpening, opening);
+    await _applyResolution(resolution, resolved: opening);
+    return const AuthEntryAdopted();
+  }
+
   /// Cède le numéro vérifié — session élève ouverte mais non adoptée — au
   /// compte parent, après la confirmation explicite de l'écran.
   ///
@@ -247,6 +367,16 @@ class AuthController extends Notifier<AuthState> {
   Future<AuthEntryAdoption> openParentAfterFamilyPhoneMigration(
     FamilyPhoneMigrationResult result, {
     Future<void> Function(AuthState opening)? beforeOpening,
+  }) => holdSessionAdoption(
+    () => _openParentAfterFamilyPhoneMigration(
+      result,
+      beforeOpening: beforeOpening,
+    ),
+  );
+
+  Future<AuthEntryAdoption> _openParentAfterFamilyPhoneMigration(
+    FamilyPhoneMigrationResult result, {
+    Future<void> Function(AuthState opening)? beforeOpening,
   }) async {
     final token = result.parentToken;
     if (token != null) {
@@ -266,6 +396,13 @@ class AuthController extends Notifier<AuthState> {
   /// Connexion d'un élève par son code d'accès INTELLIA, sans SMS : le
   /// serveur renvoie une session du **même** UID élève que son téléphone.
   Future<StudentAccessCodeSignIn> signInWithStudentAccessCode(
+    String code, {
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) => holdSessionAdoption(
+    () => _signInWithStudentAccessCode(code, beforeOpening: beforeOpening),
+  );
+
+  Future<StudentAccessCodeSignIn> _signInWithStudentAccessCode(
     String code, {
     Future<void> Function(AuthState opening)? beforeOpening,
   }) async {
@@ -292,8 +429,11 @@ class AuthController extends Notifier<AuthState> {
       ),
       // Un code d'accès n'appartient qu'à un élève : tout autre rôle est
       // une incohérence serveur, jamais un espace à ouvrir.
-      AuthEntryRoleConflict() || AuthEntryFamilyPhoneInUse() =>
-        const StudentAccessCodeRejected(StudentAccessCodeRejection.invalid),
+      AuthEntryRoleConflict() ||
+      AuthEntryFamilyPhoneInUse() ||
+      AuthEntryStudentPhoneConfirmation() => const StudentAccessCodeRejected(
+        StudentAccessCodeRejection.invalid,
+      ),
     };
   }
 
@@ -315,6 +455,27 @@ class AuthController extends Notifier<AuthState> {
   /// Returns false when the phone credential is valid but registration has
   /// not created a profile yet.
   Future<bool> adoptCurrentFirebaseSession({
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) => holdSessionAdoption(
+    () => _adoptCurrentFirebaseSession(beforeOpening: beforeOpening),
+  );
+
+  /// Ouvre la session Google que le coordinateur vient d'établir.
+  ///
+  /// [isNewIdentity] : la personne a répondu « Non, continuer » ; sans profil,
+  /// elle entre dans la découverte, et y revient après un redémarrage.
+  Future<bool> openGoogleSession({
+    required bool isNewIdentity,
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) => holdSessionAdoption(() async {
+    if (isNewIdentity) {
+      final uid = ref.read(firebaseIdentityPortProvider).currentUid;
+      if (uid != null) await _setDiscoveryChosen(uid, true);
+    }
+    return _adoptCurrentFirebaseSession(beforeOpening: beforeOpening);
+  });
+
+  Future<bool> _adoptCurrentFirebaseSession({
     Future<void> Function(AuthState opening)? beforeOpening,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -353,15 +514,7 @@ class AuthController extends Notifier<AuthState> {
 
       await _markOnboardingSeen();
       await _markAuthenticatedBefore();
-      state = AuthState.authenticated(
-        role: user.role,
-        userId: user.uid,
-        email: user.email,
-        firstName: user.firstName,
-        profileCompleted: user.profileCompleted,
-        isSuperAdmin: user.isSuperAdmin,
-        establishmentId: user.establishmentId,
-      );
+      state = await _resolveAuthenticatedState(user);
       await _cacheValidUser(user);
     } on AuthError catch (e) {
       if (_isProfileResolutionError(e.code)) {
@@ -405,9 +558,13 @@ class AuthController extends Notifier<AuthState> {
     } catch (_) {
       // On déconnecte localement même si Firebase échoue
     }
-    await ref.read(tutorPreferenceProvider.notifier).clear();
+    // Le compte Google choisi est oublié : sur un appareil partagé, la
+    // personne suivante retrouve le sélecteur de comptes.
+    try {
+      await ref.read(googleAccessCoordinatorProvider).abandon();
+    } catch (_) {}
+    await _clearLocalSession();
     final preferences = await SharedPreferences.getInstance();
-    await preferences.remove(_lastValidSessionKey);
     await preferences.remove(_pendingFamilyPhoneOfferKey);
     // La purge de l'état élève n'est volontairement pas déclenchée ici : un
     // provider ne peut pas invalider ceux qui dépendent de lui, et le
@@ -416,6 +573,16 @@ class AuthController extends Notifier<AuthState> {
     // qui observe l'identité depuis l'extérieur de ce graphe et couvre donc
     // toutes les transitions, pas seulement ce bouton.
     state = const AuthState.unauthenticated();
+  }
+
+  Future<void> _clearLocalSession() async {
+    try {
+      await ref.read(tutorPreferenceProvider.notifier).clear();
+    } catch (_) {}
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.remove(_lastValidSessionKey);
+    } catch (_) {}
   }
 
   /// Utilise les donnees reelles retournees apres un onboarding/inscription.
@@ -515,15 +682,21 @@ class AuthController extends Notifier<AuthState> {
     final user = resolution.user;
     return switch (resolution.kind) {
       AuthSessionResolutionKind.unauthenticated => AuthState.unauthenticated(
-        error: resolution.errorCode == 'user-disabled'
-            ? 'Ce compte est désactivé. Contacte l’assistance Intellia 237.'
-            : null,
+        error: resolution.errorCode == 'user-disabled' ? 'user-disabled' : null,
+        suspended: resolution.errorCode == 'user-disabled',
       ),
+      AuthSessionResolutionKind.needsOnboarding
+          when user == null && await _isDiscoveryIdentity(resolution) =>
+        AuthState.discovery(
+          userId: resolution.firebaseUid!,
+          email: resolution.firebaseEmail,
+        ),
       AuthSessionResolutionKind.needsOnboarding => AuthState.needsOnboarding(
         userId: resolution.firebaseUid ?? user?.uid ?? '',
         email: resolution.firebaseEmail ?? user?.email,
         firstName: user?.firstName,
         recoveredRole: user?.role,
+        accountStatus: user?.accountStatus,
       ),
       AuthSessionResolutionKind.authenticated when user != null =>
         await _resolveAuthenticatedState(user),
@@ -634,9 +807,15 @@ class AuthController extends Notifier<AuthState> {
     );
   }
 
+  /// Espace actif d'un profil complet.
+  ///
+  /// Un seul espace : il s'ouvre, sans sélecteur. Plusieurs espaces : le
+  /// dernier espace valide retenu sur cet appareil s'ouvre ; sans lui (ou si
+  /// le serveur l'a retiré), le sélecteur s'affiche une fois.
   Future<AuthState> _resolveAuthenticatedState(AuthUserData user) async {
     final roles = user.resolvedRoles;
     AppRole activeRole = user.role;
+    var remembered = false;
     try {
       final preferences = await SharedPreferences.getInstance();
       final savedRoleName = preferences.getString(
@@ -646,6 +825,7 @@ class AuthController extends Notifier<AuthState> {
         final matching = roles.where((r) => r.name == savedRoleName);
         if (matching.isNotEmpty) {
           activeRole = matching.first;
+          remembered = true;
         }
       }
     } catch (_) {}
@@ -659,6 +839,8 @@ class AuthController extends Notifier<AuthState> {
       profileCompleted: user.profileCompleted,
       isSuperAdmin: user.isSuperAdmin,
       establishmentId: user.establishmentId,
+      spaceChoicePending: roles.length > 1 && !remembered,
+      accountStatus: user.accountStatus,
     );
   }
 
@@ -676,25 +858,61 @@ class AuthController extends Notifier<AuthState> {
       );
     } catch (_) {}
 
-    state = current.copyWith(role: role);
+    state = current.copyWith(role: role, spaceChoicePending: false);
   }
 
-  /// Sets unprivileged discovery mode for visitors or new Google users.
-  void enterDiscoveryMode({
-    String? userId,
-    String? email,
-    String? displayName,
-  }) {
+  /// Découverte choisie par une identité prouvée sans profil. Aucune identité
+  /// fictive : sans session, rien ne change. Le choix est retenu pour cet
+  /// UID, pour que la découverte revienne après un redémarrage.
+  Future<void> enterDiscoveryMode() async {
+    final current = state;
+    final uid = current.userId;
+    if (uid == null ||
+        (current.status != AuthStatus.needsOnboarding &&
+            current.status != AuthStatus.discovery) ||
+        current.role != null) {
+      return;
+    }
+    await _setDiscoveryChosen(uid, true);
     state = AuthState.discovery(
-      userId: userId ?? 'discovery-visitor',
-      email: email,
-      firstName: displayName ?? 'Visiteur',
+      userId: uid,
+      email: current.email,
+      firstName: current.firstName,
     );
   }
 
-  /// Exits discovery mode back to unauthenticated gateway.
-  void exitDiscoveryMode() {
-    state = const AuthState.unauthenticated();
+  /// Quitter la découverte ferme la session : l'identité reste sans profil,
+  /// et la porte d'entrée neutre s'affiche.
+  Future<void> exitDiscoveryMode() => signOut();
+
+  Future<bool> _isDiscoveryIdentity(AuthSessionResolution resolution) async {
+    final uid = resolution.firebaseUid;
+    if (uid == null || uid.isEmpty) return false;
+    if (await _discoveryChosen(uid)) return true;
+    // Identité Google seule, sans profil : la découverte, sur tout appareil.
+    final providers = resolution.signInProviders;
+    return providers.isNotEmpty &&
+        providers.every((provider) => provider == 'google.com');
+  }
+
+  Future<bool> _discoveryChosen(String uid) async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      return preferences.getBool('$_discoveryPrefix$uid') ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _setDiscoveryChosen(String uid, bool chosen) async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      if (chosen) {
+        await preferences.setBool('$_discoveryPrefix$uid', true);
+      } else {
+        await preferences.remove('$_discoveryPrefix$uid');
+      }
+    } catch (_) {}
   }
 
   Future<void> _rememberFamilyPhoneOffer(String uid) async {
@@ -725,6 +943,16 @@ class AuthController extends Notifier<AuthState> {
       return false;
     }
   }
+
+  /// La personne confirme être l'élève dont le numéro vient d'être vérifié.
+  Future<AuthEntryAdoption> confirmStudentPhoneOwner({
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) => adoptSessionForIntent(AppRole.student, beforeOpening: beforeOpening);
+
+  /// La personne dit être le parent de l'élève dont le numéro vient d'être
+  /// vérifié : l'offre de reprise du téléphone familial s'ouvre.
+  Future<AuthEntryAdoption> claimStudentPhoneAsParent() =>
+      adoptSessionForIntent(AppRole.parent);
 
   Future<void> _forgetFamilyPhoneOffer() async {
     try {

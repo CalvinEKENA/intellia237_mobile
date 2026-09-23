@@ -390,11 +390,10 @@ void main() {
   });
 
   group('routes', () {
-    test('the parent entrance is a pre-authentication route', () {
-      expect(AppRoutes.preAuthRoutes, contains(AppRoutes.parentEntry));
+    test('the retired parent entrance leads to the neutral gateway', () {
       expect(
         _redirect(const AuthState.unauthenticated(), AppRoutes.parentEntry),
-        isNull,
+        AppRoutes.authGateway,
       );
     });
 

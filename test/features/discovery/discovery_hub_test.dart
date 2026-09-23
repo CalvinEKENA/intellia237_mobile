@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -6,111 +9,174 @@ import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/application/auth_state.dart';
 import 'package:intellia237/features/discovery/presentation/discovery_hub_screen.dart';
+import 'package:intellia237/l10n/generated/app_localizations.dart';
 import '../../support/intellia_fonts.dart';
 
+/// Découverte : une identité prouvée sans profil explore l'application,
+/// sans donnée privée, sans appel IA, sans exemple qui ressemble à un vrai
+/// élève (refonte Auth V2).
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(loadIntelliaFonts);
 
-  testWidgets(
-    'DiscoveryHubScreen renders educational showcase and tabs without private data',
-    (tester) async {
-      final container = ProviderContainer(
-        overrides: [
-          authControllerProvider.overrideWith(
-            () => _FakeDiscoveryAuthController(
-              const AuthState.discovery(
-                userId: 'google-visitor-1',
-                firstName: 'Visiteur Test',
-              ),
-            ),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-
-      final router = GoRouter(
-        initialLocation: AppRoutes.googleDiscovery,
-        routes: [
-          GoRoute(
-            path: AppRoutes.googleDiscovery,
-            builder: (_, _) => const DiscoveryHubScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.authGateway,
-            builder: (_, _) => const Scaffold(body: Text('gateway')),
-          ),
-          GoRoute(
-            path: AppRoutes.studentAccessCode,
-            builder: (_, _) => const Scaffold(body: Text('studentCode')),
-          ),
-          GoRoute(
-            path: AppRoutes.register,
-            builder: (_, _) => const Scaffold(body: Text('register')),
-          ),
-        ],
-      );
-      addTearDown(router.dispose);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp.router(routerConfig: router),
+  Future<(_DiscoveryAuth, GoRouter)> pump(
+    WidgetTester tester, {
+    Locale locale = const Locale('fr'),
+  }) async {
+    final auth = _DiscoveryAuth();
+    final container = ProviderContainer(
+      overrides: [authControllerProvider.overrideWith(() => auth)],
+    );
+    addTearDown(container.dispose);
+    final router = GoRouter(
+      initialLocation: AppRoutes.googleDiscovery,
+      routes: [
+        GoRoute(
+          path: AppRoutes.googleDiscovery,
+          builder: (_, _) => const DiscoveryHubScreen(),
         ),
-      );
-      await tester.pumpAndSettle();
+        for (final path in [
+          AppRoutes.parentRegistration,
+          AppRoutes.studentRegistration,
+          AppRoutes.studentAccessCode,
+        ])
+          GoRoute(
+            path: path,
+            builder: (_, _) => Scaffold(body: Text('route:$path')),
+          ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: locale,
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    return (auth, router);
+  }
 
-      // Verify header and greeting
-      expect(find.text('DÉCOUVERTE'), findsOneWidget);
-      expect(find.text('Bonjour Visiteur Test !'), findsOneWidget);
+  testWidgets('shows fictional, generic examples only', (tester) async {
+    await pump(tester);
+    expect(find.text('DÉCOUVERTE'), findsOneWidget);
+    expect(find.text('Découvrez INTELLIA237'), findsOneWidget);
+    expect(find.textContaining('Exemples fictifs'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('discovery-parent-example')),
+      200,
+    );
+    expect(find.textContaining('Exemple fictif'), findsWidgets);
+    // Plus aucun élève nommé ni chiffre qui se lit comme un vrai suivi.
+    expect(find.textContaining('Samuel'), findsNothing);
+    expect(find.textContaining('86'), findsNothing);
+    expect(find.textContaining('4 h'), findsNothing);
+  });
 
-      // Verify Tutors tab content (KIRA & LÉO)
-      expect(find.text('KIRA'), findsOneWidget);
-      expect(find.text('LÉO'), findsOneWidget);
+  testWidgets('create-a-space actions lead to parent or student registration', (
+    tester,
+  ) async {
+    final (_, router) = await pump(tester);
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('discovery-cta-parent')),
+      200,
+    );
+    await tester.tap(find.byKey(const ValueKey('discovery-cta-parent')));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, AppRoutes.parentRegistration);
 
-      // Verify Call to Actions
-      expect(
-        find.byKey(const ValueKey('discovery-cta-join-code')),
-        findsOneWidget,
-      );
-      expect(
-        find.byKey(const ValueKey('discovery-cta-register')),
-        findsOneWidget,
-      );
+    router.go(AppRoutes.googleDiscovery);
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('discovery-cta-student')),
+      200,
+    );
+    await tester.tap(find.byKey(const ValueKey('discovery-cta-student')));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, AppRoutes.studentRegistration);
 
-      // Switch to Parcours tab
-      await tester.tap(find.text('Parcours'));
-      await tester.pumpAndSettle();
-      expect(find.text('Parcours & Fiches de Révision'), findsOneWidget);
+    router.go(AppRoutes.googleDiscovery);
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('discovery-cta-join-code')),
+      200,
+    );
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('discovery-cta-join-code')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('discovery-cta-join-code')));
+    await tester.pumpAndSettle();
+    expect(find.text('route:${AppRoutes.studentAccessCode}'), findsOneWidget);
+  });
 
-      // Switch to Quiz tab
-      await tester.tap(find.text('Quiz'));
-      await tester.pumpAndSettle();
-      expect(find.text('Quiz Interactifs & Auto-Évaluation'), findsOneWidget);
+  testWidgets('leaving signs the identity out', (tester) async {
+    final (auth, _) = await pump(tester);
+    await tester.tap(find.byKey(const ValueKey('discovery-exit-button')));
+    await tester.pumpAndSettle();
+    expect(auth.exits, 1);
+  });
 
-      // Switch to Parent tab
-      await tester.tap(find.text('Espace Parent'));
-      await tester.pumpAndSettle();
-      expect(find.text('L’Espace Parent Intellia'), findsOneWidget);
+  testWidgets('speaks English', (tester) async {
+    await pump(tester, locale: const Locale('en'));
+    expect(find.text('EXPLORE'), findsOneWidget);
+    expect(find.text('Explore INTELLIA237'), findsOneWidget);
+    expect(find.textContaining('Fictional examples'), findsOneWidget);
+  });
 
-      // Test Exit button
-      await tester.tap(find.byKey(const ValueKey('discovery-exit-button')));
-      await tester.pumpAndSettle();
-      expect(find.text('gateway'), findsOneWidget);
-    },
-  );
+  test('the hub reads no private data and calls no AI', () {
+    final source = File(
+      'lib/features/discovery/presentation/discovery_hub_screen.dart',
+    ).readAsStringSync();
+    final imports = RegExp(
+      r"^import '([^']+)';",
+      multiLine: true,
+    ).allMatches(source).map((match) => match.group(1)!).toList();
+    expect(imports, [
+      'package:flutter/material.dart',
+      'package:flutter_riverpod/flutter_riverpod.dart',
+      'package:go_router/go_router.dart',
+      '../../../app/router/app_routes.dart',
+      '../../../core/localization/localization_extensions.dart',
+      '../../auth/application/auth_controller.dart',
+      '../../auth/presentation/widgets/auth_experience_scaffold.dart',
+    ]);
+    for (final forbidden in [
+      'cloud_firestore',
+      'cloud_functions',
+      'firebase_storage',
+      'firebase_ai',
+      'google_generative_ai',
+      'vertex',
+      'Repository',
+      'features/tutor',
+      'ai_companion',
+      'askTutor',
+    ]) {
+      expect(source, isNot(contains(forbidden)), reason: forbidden);
+    }
+  });
 }
 
-class _FakeDiscoveryAuthController extends AuthController {
-  _FakeDiscoveryAuthController(this._initialState);
-
-  final AuthState _initialState;
+class _DiscoveryAuth extends AuthController {
+  int exits = 0;
 
   @override
-  AuthState build() => _initialState;
+  AuthState build() => const AuthState.discovery(userId: 'google-uid');
 
   @override
-  void exitDiscoveryMode() {
+  Future<void> exitDiscoveryMode() async {
+    exits++;
     state = const AuthState.unauthenticated();
   }
 }

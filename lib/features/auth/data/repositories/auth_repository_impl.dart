@@ -139,6 +139,9 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
 
     final uid = currentUser.uid;
     final email = currentUser.email ?? '';
+    final providers = [
+      for (final info in currentUser.providerData) info.providerId,
+    ];
     try {
       final user = await _fetchUserData(uid);
       final kind = user.legacyProfile
@@ -151,6 +154,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
         firebaseUid: uid,
         firebaseEmail: email,
         user: user,
+        signInProviders: providers,
       );
     } on AuthError catch (error) {
       if (error.code == 'user-disabled') {
@@ -166,6 +170,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
           firebaseUid: uid,
           firebaseEmail: email,
           errorCode: error.code,
+          signInProviders: providers,
         );
       }
       if (error.code == 'user-role-invalid') {
@@ -258,6 +263,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
         final String id when id.isNotEmpty => id,
         _ => null,
       },
+      accountStatus: data['accountStatus'] as String?,
     );
   }
 
