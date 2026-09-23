@@ -259,3 +259,9 @@ parent avec le guide et un vrai « code parent » ; clavier ouvert sur chaque
 
 Non envoyé sur Google Play. Si un bundle `versionCode` 30 a déjà été
 envoyé, Play refusera celui-ci : il faudra alors monter la version.
+
+**Mise à jour** : Play a refusé le `versionCode` 30 (déjà utilisé). Bundle
+reconstruit en **3.2.1+31** (commit `chore(release): versionCode 31`), même
+code applicatif : `app-production-release.aab`, 80 849 731 octets, SHA-256
+`d9aa71aad5c3796f0316c65f157bcea67bff2333090bedc6602ee6b414a964f8`, signé
+avec la clé d'upload. Le prochain envoi Play devra être ≥ 32.
