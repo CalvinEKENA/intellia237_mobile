@@ -915,7 +915,7 @@
   "flowSyncUnavailable": "Your points could not be validated right now. Your answer is kept.",
   "flowSyncQueued": "Answer saved offline. Points will be validated at the next sync.",
   "flowSyncNotEligible": "Learning path point validation is reserved for student profiles.",
-  "flowSyncContentNotValidated": "This activity is not ready yet.",
+  "flowSyncContentNotValidated": "This learning path activity is not ready yet.",
   "flowSyncDuplicate": "This validation has already been used for another activity.",
   "flowSyncInvalidAnswer": "The answer sent for this activity is invalid.",
   "flowSyncUnknown": "Learning path points cannot be validated at the moment.",

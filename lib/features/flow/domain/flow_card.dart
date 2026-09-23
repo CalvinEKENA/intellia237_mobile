@@ -110,6 +110,7 @@ final class FlowAnecdoteCard extends FlowCard {
     required super.subject,
     required this.title,
     required this.story,
+    this.imagePath,
     super.kicker = 'Le savais-tu ?',
     super.estimatedSeconds = 20,
     super.pointsReward = 10,
@@ -117,6 +118,9 @@ final class FlowAnecdoteCard extends FlowCard {
 
   final String title;
   final String story;
+
+  /// Chemin canonique d'une image publiée (carte « image » du Studio).
+  final String? imagePath;
 }
 
 /// Un mini-quiz à une question, joué directement dans le Flow.

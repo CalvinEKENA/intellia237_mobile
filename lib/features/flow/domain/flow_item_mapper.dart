@@ -91,11 +91,14 @@ abstract final class FlowItemMapper {
       case FlowItemType.image:
         final caption = _text(item.payload['caption'], item.hook);
         if (item.ref.storagePath == null || caption.isEmpty) return null;
+        // L'image publiée est montrée, pas seulement sa légende.
         return FlowAnecdoteCard(
           id: item.id,
           subject: subject,
           title: title,
           story: caption,
+          imagePath: item.ref.storagePath,
+          kicker: 'En image',
           estimatedSeconds: duration,
         );
 

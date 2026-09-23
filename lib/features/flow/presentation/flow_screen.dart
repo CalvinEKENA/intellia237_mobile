@@ -50,15 +50,63 @@ class FlowScreen extends ConsumerWidget {
   }
 }
 
+/// Chargement : la forme d'une carte s'affiche tout de suite (étiquette,
+/// titre, lignes de texte) plutôt qu'un écran vide avec une roue.
 class _FlowLoading extends StatelessWidget {
   const _FlowLoading();
 
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    backgroundColor: IntelliaColors.backgroundPrimary,
-    body: Center(child: CircularProgressIndicator()),
-  );
+  Widget build(BuildContext context) {
+    Widget bar(double width, double height) => Container(
+      width: width,
+      height: height,
+      margin: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
+      decoration: BoxDecoration(
+        color: IntelliaColors.textPrimary.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+      ),
+    );
+    return Scaffold(
+      key: kFlowLoadingKey,
+      backgroundColor: IntelliaColors.backgroundPrimary,
+      body: SafeArea(
+        child: Semantics(
+          label: context.l10n.stateLoadingTitle,
+          child: ExcludeSemantics(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                IntelliaSpacing.lg,
+                72,
+                IntelliaSpacing.lg,
+                IntelliaSpacing.lg,
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final w = constraints.maxWidth;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      bar(110, 28),
+                      const SizedBox(height: IntelliaSpacing.md),
+                      bar(w * 0.85, 30),
+                      bar(w * 0.6, 30),
+                      const SizedBox(height: IntelliaSpacing.lg),
+                      for (final f in const [1.0, 0.95, 0.9, 0.7])
+                        bar(w * f, 14),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
+
+/// Repère du chargement du Parcours (tests de stabilité d'entrée).
+const kFlowLoadingKey = ValueKey('flow-loading');
 
 class _FlowPager extends ConsumerStatefulWidget {
   const _FlowPager({required this.catalog});

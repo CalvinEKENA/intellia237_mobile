@@ -915,7 +915,7 @@
   "flowSyncUnavailable": "Tes points n’ont pas pu être validés pour le moment. Ta réponse est conservée.",
   "flowSyncQueued": "Réponse enregistrée hors ligne. Les points seront validés à la prochaine synchronisation.",
   "flowSyncNotEligible": "La validation des points du parcours est réservée aux profils élèves.",
-  "flowSyncContentNotValidated": "Cette activité n’est pas encore prête.",
+  "flowSyncContentNotValidated": "Cette activité du parcours n’est pas encore prête.",
   "flowSyncDuplicate": "Cette validation a déjà été utilisée pour une autre activité.",
   "flowSyncInvalidAnswer": "La réponse envoyée pour cette activité est invalide.",
   "flowSyncUnknown": "Impossible de valider les points du parcours pour le moment.",

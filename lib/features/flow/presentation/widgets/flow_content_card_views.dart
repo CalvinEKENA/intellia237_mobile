@@ -11,11 +11,19 @@ import '../../../../core/widgets/intellia_pressable.dart';
 import '../../domain/flow_card.dart';
 import 'flow_card_scaffold.dart';
 import 'flow_concept_animation.dart';
+import 'flow_motion.dart';
+import '../../../learn/presentation/widgets/content_block_view.dart'
+    show EducationalRemoteImage;
 
 TextStyle _title(BuildContext context) => FlowTypography.title(context);
 TextStyle _body(BuildContext context) => FlowTypography.body(context);
 
 // ── Notion ────────────────────────────────────────────────────────────────
+//
+// Registre (QA appareil, 23/09/2026) : les notions publiées se lisaient comme
+// un bloc de texte. Le titre reçoit un trait d'encre, un paragraphe de
+// quelques phrases devient une idée clé suivie d'un fil d'idées numérotées,
+// et les points arrivent l'un après l'autre sur ce même fil.
 class FlowNotionCardView extends StatelessWidget {
   const FlowNotionCardView({required this.card, super.key});
   final FlowNotionCard card;
@@ -23,6 +31,7 @@ class FlowNotionCardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = card.subject.accent;
+    final beats = card.points.isEmpty ? flowIdeaBeats(card.insight) : null;
     return FlowCardScaffold(
       subject: card.subject,
       kicker: card.kicker,
@@ -33,51 +42,23 @@ class FlowNotionCardView extends StatelessWidget {
               .animate()
               .fadeIn(delay: 120.ms, duration: 460.ms)
               .slideY(begin: 0.14, end: 0, delay: 120.ms),
+          const SizedBox(height: IntelliaSpacing.sm),
+          FlowInkUnderline(accent: accent),
           const SizedBox(height: IntelliaSpacing.md),
-          Text(
-            card.insight,
-            style: _body(context),
-          ).animate().fadeIn(delay: 240.ms, duration: 460.ms),
-          const SizedBox(height: IntelliaSpacing.xl),
-          ...card.points.asMap().entries.map((e) {
-            return Padding(
-                  padding: const EdgeInsets.only(bottom: IntelliaSpacing.md),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.only(top: 3),
-                        width: 22,
-                        height: 22,
-                        decoration: BoxDecoration(
-                          color: accent.withValues(alpha: 0.14),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.check_rounded,
-                          size: 14,
-                          color: accent,
-                        ),
-                      ),
-                      const SizedBox(width: IntelliaSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          e.value,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 15.5,
-                            height: 1.4,
-                            fontWeight: FontWeight.w600,
-                            color: IntelliaColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-                .animate()
-                .fadeIn(delay: (360 + e.key * 110).ms, duration: 420.ms)
-                .slideX(begin: 0.08, end: 0, delay: (360 + e.key * 110).ms);
-          }),
+          if (beats != null) ...[
+            FlowKeyIdea(text: beats.first, accent: accent),
+            const SizedBox(height: IntelliaSpacing.lg),
+            FlowIdeaTrail(ideas: beats.sublist(1), accent: accent),
+          ] else ...[
+            Text(
+              card.insight,
+              style: _body(context),
+            ).animate().fadeIn(delay: 240.ms, duration: 460.ms),
+            if (card.points.isNotEmpty) ...[
+              const SizedBox(height: IntelliaSpacing.xl),
+              FlowIdeaTrail(ideas: card.points, accent: accent),
+            ],
+          ],
         ],
       ),
     );
@@ -245,7 +226,7 @@ class FlowAnimationCardView extends StatelessWidget {
   }
 }
 
-// ── Anecdote ────────────────────────────────────────────────────────────────
+// ── Anecdote / image ────────────────────────────────────────────────────────
 class FlowAnecdoteCardView extends StatelessWidget {
   const FlowAnecdoteCardView({required this.card, super.key});
   final FlowAnecdoteCard card;
@@ -253,6 +234,8 @@ class FlowAnecdoteCardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = card.subject.accent;
+    final imagePath = card.imagePath;
+    final hasImage = imagePath != null && imagePath.isNotEmpty;
     return FlowCardScaffold(
       subject: card.subject,
       kicker: card.kicker,
@@ -260,20 +243,30 @@ class FlowAnecdoteCardView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            '“',
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 72,
-              height: 0.8,
-              fontWeight: FontWeight.w700,
-              color: accent.withValues(alpha: 0.55),
+          if (hasImage) ...[
+            FlowImageReveal(
+              key: const ValueKey('flow-image'),
+              child: EducationalRemoteImage(storagePath: imagePath),
             ),
-          ).animate().fadeIn(duration: 420.ms),
-          const SizedBox(height: IntelliaSpacing.xs),
+            const SizedBox(height: IntelliaSpacing.lg),
+          ] else ...[
+            Text(
+              '“',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 72,
+                height: 0.8,
+                fontWeight: FontWeight.w700,
+                color: accent.withValues(alpha: 0.55),
+              ),
+            ).animate().fadeIn(duration: 420.ms),
+            const SizedBox(height: IntelliaSpacing.xs),
+          ],
           Text(card.title, style: _title(context))
               .animate()
               .fadeIn(delay: 140.ms, duration: 460.ms)
               .slideY(begin: 0.12, end: 0, delay: 140.ms),
+          const SizedBox(height: IntelliaSpacing.sm),
+          FlowInkUnderline(accent: accent),
           const SizedBox(height: IntelliaSpacing.md),
           Text(
             card.story,

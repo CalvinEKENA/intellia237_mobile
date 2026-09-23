@@ -3281,7 +3281,7 @@ abstract class AppLocalizations {
   /// No description provided for @flowSyncContentNotValidated.
   ///
   /// In fr, this message translates to:
-  /// **'Cette activité n’est pas encore prête.'**
+  /// **'Cette activité du parcours n’est pas encore prête.'**
   String get flowSyncContentNotValidated;
 
   /// No description provided for @flowSyncDuplicate.

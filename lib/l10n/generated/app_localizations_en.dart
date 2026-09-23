@@ -1856,7 +1856,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Learning path point validation is reserved for student profiles.';
 
   @override
-  String get flowSyncContentNotValidated => 'This activity is not ready yet.';
+  String get flowSyncContentNotValidated =>
+      'This learning path activity is not ready yet.';
 
   @override
   String get flowSyncDuplicate =>

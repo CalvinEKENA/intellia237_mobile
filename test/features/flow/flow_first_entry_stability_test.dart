@@ -549,7 +549,8 @@ class _Probe {
   void sample() {
     final onFlow = find.byType(FlowScreen).evaluate().isNotEmpty;
     if (!onFlow) return;
-    if (find.byType(CircularProgressIndicator).evaluate().isNotEmpty) {
+    if (find.byKey(kFlowLoadingKey).evaluate().isNotEmpty ||
+        find.byType(CircularProgressIndicator).evaluate().isNotEmpty) {
       loadingFrames++;
     }
     final pager = find.byType(PageView);

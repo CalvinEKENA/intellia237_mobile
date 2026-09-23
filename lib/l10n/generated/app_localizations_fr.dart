@@ -1868,7 +1868,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get flowSyncContentNotValidated =>
-      'Cette activité n’est pas encore prête.';
+      'Cette activité du parcours n’est pas encore prête.';
 
   @override
   String get flowSyncDuplicate =>
