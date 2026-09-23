@@ -65,6 +65,7 @@ import { fanoutAnnouncementHandler } from "./services/announcementNotificationFa
 import { manageEstablishmentHandler } from "./services/establishmentManagementCallable";
 import { manageSchoolClassHandler } from "./services/classManagementCallable";
 import { getCompanionRuntimeConfigHandler } from "./services/companionRuntimeConfigCallable";
+import { createProbeGoogleIdentityHandler, parseGoogleClientIds } from "./services/googleIdentityProbe";
 
 const env = getEnv();
 setGlobalOptions({
@@ -383,6 +384,19 @@ export const issueStudentAccessCode = onCall(
     secrets: [studentAccessCodePepper],
   },
   createIssueStudentAccessCodeHandler(configuredStudentAccessPepper),
+);
+
+// Publique : ne répond qu'au détenteur d'un jeton Google frais, sur son propre
+// compte, par « existing » ou « unknown ». Ne crée jamais d'utilisateur.
+export const probeGoogleIdentity = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 15,
+    memory: "256MiB",
+  },
+  createProbeGoogleIdentityHandler({
+    audiences: () => parseGoogleClientIds(env.GOOGLE_OAUTH_CLIENT_IDS),
+  }),
 );
 
 export const signInWithStudentAccessCode = onCall(

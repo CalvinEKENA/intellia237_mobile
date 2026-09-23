@@ -31,6 +31,9 @@ const envSchema = z.object({
   // l'index composite n'est pas déployé et que scripts/backfillFlowAudienceKeys
   // n'a pas été appliqué aux publications existantes.
   FLOW_AUDIENCE_INDEX: booleanEnvironmentSchema.default(false),
+  // Clients OAuth (Web) dont les jetons Google sont acceptés par la sonde
+  // d'identité Google, séparés par des virgules. Vide : Google refusé.
+  GOOGLE_OAUTH_CLIENT_IDS: z.string().trim().default(""),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info")
 });
 
