@@ -100,6 +100,19 @@ List<Map<String, String>> boundedTutorHistory(List<AIMessage> history) {
   return kept;
 }
 
+/// Fiche publique du compagnon au format des serveurs antérieurs, aux bornes
+/// acceptées par le serveur actuel (`legacyTutorSchema` : nom 40, autres 200).
+Map<String, String> legacyTutorPayload(TutorPersona tutor) {
+  String bounded(String value, int max) =>
+      value.length <= max ? value : value.substring(0, max);
+  return <String, String>{
+    'name': bounded(tutor.name, 40),
+    'specialty': bounded(tutor.specialty, 200),
+    'personality': bounded(tutor.personality, 200),
+    'motto': bounded(tutor.motto, 200),
+  };
+}
+
 class CloudAIRepository implements AIRepository {
   CloudAIRepository({
     FirebaseFunctions? functions,
@@ -126,6 +139,14 @@ class CloudAIRepository implements AIRepository {
         // Le serveur choisit seul la persona, le ton et les règles : le
         // téléphone ne transmet que l'identifiant du compagnon.
         'tutorId': tutor.id,
+        // Registre (QA appareil, 23/09/2026) : le askTutor en production
+        // date du 15/09 et refuse toute question sans ce bloc (« tutor :
+        // Required » dans ses journaux) ; l'élève lisait « Léo ne peut pas
+        // traiter cette question ». Le serveur actuel accepte ce bloc borné,
+        // retient `tutorId` et n'en lit jamais le texte. Il s'agit de la fiche
+        // publique déjà affichée dans l'app. À retirer une fois les Functions
+        // redéployées partout.
+        'tutor': legacyTutorPayload(tutor),
         // Activités que cette version sait rendre ; le serveur ne proposera
         // rien d'autre.
         'activities': InteractiveBlockType.supportedWireNames,

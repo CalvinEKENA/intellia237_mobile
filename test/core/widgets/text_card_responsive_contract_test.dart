@@ -47,7 +47,6 @@ const _coveredPublicCardTypes = {
   'ResumeCourseCard',
   'StreakMotivationCard',
   'WeeklyGoalCard',
-  'ChapterOfflineActionCard',
   'StudentProfileTutorCard',
   // Dedicated FR/EN matrix: test/features/mastery/mastery_widget_test.dart.
   'MasterySubjectCard',

@@ -33,9 +33,14 @@ void main() {
       expect(reply.message.text, 'Réponse pédagogique');
       expect(gateway.payload?['classLevel'], '6eme');
       expect(gateway.payload?['tutorId'], 'kira');
-      // Aucun texte de persona ne quitte le téléphone : le serveur la choisit.
-      expect(gateway.payload?.containsKey('tutor'), isFalse);
-      expect(gateway.payload.toString(), isNot(contains(kira.personality)));
+      // Le askTutor déployé le 15/09 exige la fiche publique `tutor` ; le
+      // serveur actuel ne retient que `tutorId`. Les deux sont envoyés.
+      expect(gateway.payload?['tutor'], <String, String>{
+        'name': 'Kira',
+        'specialty': kira.specialty,
+        'personality': kira.personality,
+        'motto': kira.motto,
+      });
     },
   );
 

@@ -119,6 +119,19 @@ describe("askTutor input contract", () => {
     expect(JSON.stringify(parsed)).not.toContain(INJECTION);
   });
 
+  it("with both contracts, the identifier wins and the persona text is dropped", () => {
+    // L'app 3.2.1+30 envoie les deux, pour rester compatible avec le askTutor
+    // déployé le 15/09 qui exige `tutor`.
+    const parsed = askTutorCallableInputSchema.parse({
+      ...base,
+      tutorId: "leo",
+      tutor: { name: "Kira", specialty: "Méthodologie", personality: INJECTION, motto: "Apprenons." },
+    });
+    expect(parsed.tutorId).toBe("leo");
+    expect(parsed).not.toHaveProperty("tutor");
+    expect(JSON.stringify(parsed)).not.toContain(INJECTION);
+  });
+
   it("maps retired companion names of older builds without trusting them", () => {
     expect(askTutorCallableInputSchema.parse({ ...base, tutor: { name: "Nathan" } }).tutorId).toBe("leo");
     expect(askTutorCallableInputSchema.parse({ ...base, tutor: { name: "Grâce" } }).tutorId).toBe("kira");

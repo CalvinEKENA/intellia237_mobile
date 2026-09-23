@@ -1922,18 +1922,6 @@ abstract class AppLocalizations {
   /// **'Prépare toutes les leçons pour une lecture hors connexion.'**
   String get prepareOfflineLessons;
 
-  /// No description provided for @chapterReadyOffline.
-  ///
-  /// In fr, this message translates to:
-  /// **'Chapitre prêt pour une lecture hors connexion.'**
-  String get chapterReadyOffline;
-
-  /// No description provided for @downloadFailed.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le téléchargement n’a pas abouti. Vérifie la connexion et réessaie.'**
-  String get downloadFailed;
-
   /// No description provided for @nextLabelShort.
   ///
   /// In fr, this message translates to:
@@ -2090,29 +2078,11 @@ abstract class AppLocalizations {
   /// **'{done}/{total} terminées'**
   String completedProgress(int done, int total);
 
-  /// No description provided for @saveChapterOffline.
-  ///
-  /// In fr, this message translates to:
-  /// **'Enregistrer ce chapitre pour la lecture hors connexion'**
-  String get saveChapterOffline;
-
-  /// No description provided for @reconnectToPrepareLessons.
-  ///
-  /// In fr, this message translates to:
-  /// **'Reconnecte-toi pour préparer toutes les leçons.'**
-  String get reconnectToPrepareLessons;
-
   /// No description provided for @prepareChapterLessons.
   ///
   /// In fr, this message translates to:
   /// **'Prépare les {count} leçons de ce chapitre.'**
   String prepareChapterLessons(int count);
-
-  /// No description provided for @prepareLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Préparer'**
-  String get prepareLabel;
 
   /// No description provided for @backLabel.
   ///

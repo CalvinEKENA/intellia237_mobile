@@ -426,8 +426,6 @@
     }
   },
   "prepareOfflineLessons": "Prepare all lessons for offline reading.",
-  "chapterReadyOffline": "Chapter ready for offline reading.",
-  "downloadFailed": "The download did not complete. Check your connection and try again.",
   "nextLabelShort": "Next",
   "lessonUnavailable": "Lesson unavailable",
   "localProgressSaved": "Progress saved on this device. It will sync automatically.",
@@ -505,8 +503,6 @@
       }
     }
   },
-  "saveChapterOffline": "Save this chapter for offline reading",
-  "reconnectToPrepareLessons": "Reconnect to prepare all lessons.",
   "prepareChapterLessons": "Prepare the {count} lessons in this chapter.",
   "@prepareChapterLessons": {
     "placeholders": {
@@ -515,7 +511,6 @@
       }
     }
   },
-  "prepareLabel": "Prepare",
   "backLabel": "Go back",
   "backToChapter": "Back to chapter",
   "lastLessonCompleted": "You completed the final lesson in this chapter.",

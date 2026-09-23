@@ -1043,14 +1043,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Prépare toutes les leçons pour une lecture hors connexion.';
 
   @override
-  String get chapterReadyOffline =>
-      'Chapitre prêt pour une lecture hors connexion.';
-
-  @override
-  String get downloadFailed =>
-      'Le téléchargement n’a pas abouti. Vérifie la connexion et réessaie.';
-
-  @override
   String get nextLabelShort => 'À suivre';
 
   @override
@@ -1143,20 +1135,9 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get saveChapterOffline =>
-      'Enregistrer ce chapitre pour la lecture hors connexion';
-
-  @override
-  String get reconnectToPrepareLessons =>
-      'Reconnecte-toi pour préparer toutes les leçons.';
-
-  @override
   String prepareChapterLessons(int count) {
     return 'Prépare les $count leçons de ce chapitre.';
   }
-
-  @override
-  String get prepareLabel => 'Préparer';
 
   @override
   String get backLabel => 'Revenir en arrière';

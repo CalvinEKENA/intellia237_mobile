@@ -1036,13 +1036,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Prepare all lessons for offline reading.';
 
   @override
-  String get chapterReadyOffline => 'Chapter ready for offline reading.';
-
-  @override
-  String get downloadFailed =>
-      'The download did not complete. Check your connection and try again.';
-
-  @override
   String get nextLabelShort => 'Next';
 
   @override
@@ -1135,18 +1128,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get saveChapterOffline => 'Save this chapter for offline reading';
-
-  @override
-  String get reconnectToPrepareLessons => 'Reconnect to prepare all lessons.';
-
-  @override
   String prepareChapterLessons(int count) {
     return 'Prepare the $count lessons in this chapter.';
   }
-
-  @override
-  String get prepareLabel => 'Prepare';
 
   @override
   String get backLabel => 'Go back';
