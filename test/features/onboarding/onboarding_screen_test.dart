@@ -124,6 +124,54 @@ void main() {
     }
   });
 
+  // Écrans fixes (QA appareil, 23/09/2026) : après une réponse, le bouton
+  // qui apparaît est vu d'un coup, sans défiler, quel que soit l'exercice.
+  for (final device in const [
+    (size: Size(360, 640), textScale: 1.0),
+    (size: Size(320, 568), textScale: 1.5),
+  ]) {
+    testWidgets(
+      'fixed scene ${device.size.width.toInt()}×${device.size.height.toInt()} '
+      'text ${device.textScale}: the continue button shows at once',
+      (tester) async {
+        const subjects = [
+          'subject-mathematics',
+          'subject-french',
+          'subject-english',
+          'subject-sciences',
+        ];
+        for (final subject in subjects) {
+          await _pumpOnboarding(
+            tester,
+            size: device.size,
+            textScale: device.textScale,
+          );
+          await _tapWithoutScrolling(tester, 'activation-enter');
+          await _tapWithoutScrolling(tester, subject);
+          await _tapWithoutScrolling(tester, 'challenge-answer-0');
+
+          expect(
+            find.descendant(
+              of: find.byType(OnboardingScreen),
+              matching: find.byType(SingleChildScrollView),
+            ),
+            findsNothing,
+          );
+          final button = tester.getRect(
+            find.byKey(const ValueKey('challenge-continue')),
+          );
+          expect(button.top, greaterThanOrEqualTo(0), reason: subject);
+          expect(
+            button.bottom,
+            lessThanOrEqualTo(device.size.height),
+            reason: subject,
+          );
+          _expectNoLayoutException(tester, '$subject fixed scene');
+        }
+      },
+    );
+  }
+
   for (final answer in const [
     (index: 2, description: 'correct'),
     (index: 0, description: 'incorrect'),
@@ -583,6 +631,17 @@ Future<void> _signPass(WidgetTester tester) async {
   await tester.pump(CampaignSignatureMotion.recognition);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Touche un élément déjà à l'écran : aucun défilement préalable.
+Future<void> _tapWithoutScrolling(WidgetTester tester, String key) async {
+  final finder = find.byKey(ValueKey(key));
+  final rect = tester.getRect(finder);
+  final screen = tester.getSize(find.byType(OnboardingScreen));
+  expect(rect.bottom, lessThanOrEqualTo(screen.height), reason: key);
+  await tester.tap(finder);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 1400));
 }
 
 Future<void> _tapVisible(WidgetTester tester, ValueKey<String> key) async {

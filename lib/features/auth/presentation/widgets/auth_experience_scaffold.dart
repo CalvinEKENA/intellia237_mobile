@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/localization_extensions.dart';
 import 'living_pass.dart';
+import '../../../../core/widgets/fit_viewport.dart';
 import '../../../../core/widgets/intellia_text_wordmark.dart';
 
 abstract final class AuthExperienceColors {
@@ -85,55 +86,58 @@ class AuthExperienceScaffold extends StatelessWidget {
                 child: LayoutBuilder(
                   builder: (context, constraints) => PassRoom(
                     tight: constraints.maxHeight < PassRoom.threshold,
-                    child: SingleChildScrollView(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      // Scaffold consumes the keyboard inset once.
-                      padding: padding,
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: maxContentWidth,
-                            minHeight:
-                                (constraints.maxHeight - padding.vertical)
-                                    .clamp(0.0, double.infinity),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (topBar != null ||
-                                  (showBackButton && canGoBack)) ...[
-                                Row(
-                                  children: [
-                                    if (showBackButton && canGoBack)
-                                      IconButton(
-                                        tooltip: context.l10n.backLabel,
-                                        onPressed:
-                                            onBack ??
-                                            () {
-                                              if (router != null) {
-                                                router.pop();
-                                              } else {
-                                                Navigator.pop(context);
-                                              }
-                                            },
-                                        icon: const Icon(
-                                          Icons.arrow_back_rounded,
+                    // Écran fixe (QA appareil, 23/09/2026) : rien ne défile ;
+                    // le contenu tient au-dessus du clavier, réduit si besoin.
+                    // Le Scaffold consomme une fois la hauteur du clavier.
+                    child: FitViewport(
+                      key: const ValueKey('auth-screen-fixed'),
+                      child: Padding(
+                        padding: padding,
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: maxContentWidth,
+                              minHeight:
+                                  (constraints.maxHeight - padding.vertical)
+                                      .clamp(0.0, double.infinity),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (topBar != null ||
+                                    (showBackButton && canGoBack)) ...[
+                                  Row(
+                                    children: [
+                                      if (showBackButton && canGoBack)
+                                        IconButton(
+                                          tooltip: context.l10n.backLabel,
+                                          onPressed:
+                                              onBack ??
+                                              () {
+                                                if (router != null) {
+                                                  router.pop();
+                                                } else {
+                                                  Navigator.pop(context);
+                                                }
+                                              },
+                                          icon: const Icon(
+                                            Icons.arrow_back_rounded,
+                                          ),
                                         ),
-                                      ),
-                                    if (topBar != null)
-                                      Expanded(child: topBar!),
-                                  ],
-                                ),
-                                const SizedBox(height: 14),
+                                      if (topBar != null)
+                                        Expanded(child: topBar!),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 14),
+                                ],
+                                if (pass != null) ...[
+                                  pass!,
+                                  const SizedBox(height: 26),
+                                ],
+                                child,
+                                const _AuthorSignature(),
                               ],
-                              if (pass != null) ...[
-                                pass!,
-                                const SizedBox(height: 26),
-                              ],
-                              child,
-                              const _AuthorSignature(),
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -151,8 +155,8 @@ class AuthExperienceScaffold extends StatelessWidget {
 
 /// Signe l'application, sans jamais disputer la place à l'action en cours.
 ///
-/// Discrète par construction : une seule ligne, au pied de la colonne qui
-/// défile, dans l'encre la plus légère de la palette.
+/// Discrète par construction : une seule ligne, au pied de l'écran, dans
+/// l'encre la plus légère de la palette.
 class _AuthorSignature extends StatelessWidget {
   const _AuthorSignature();
 

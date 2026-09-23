@@ -193,23 +193,42 @@ class _LivingPassState extends State<LivingPass> with WidgetsBindingObserver {
               // contenu est celui de la destination : il garde sa hauteur
               // naturelle et le vol le découpe, au lieu de le comprimer — ce
               // qui débordait dès que la destination portait plus de texte.
+              final flying = AnimatedBuilder(
+                animation: animation,
+                builder: (context, _) {
+                  final raw = direction == HeroFlightDirection.push
+                      ? animation.value
+                      : 1 - animation.value;
+                  final t = Curves.easeInOutCubic.transform(raw);
+                  return target.withExpansion(
+                    lerpDouble(source.expansion, target.expansion, t)!,
+                  );
+                },
+              );
+              // Un écran fixe peut être réduit pour tenir (FitViewport) : le
+              // rectangle de vol est alors plus étroit que la carte réelle.
+              // La carte vole à sa largeur réelle, mise à l'échelle, plutôt
+              // que d'être posée trop étroite et de déborder.
+              final destination = to.findRenderObject();
+              final naturalWidth =
+                  destination is RenderBox && destination.hasSize
+                  ? destination.size.width
+                  : null;
+              if (naturalWidth != null && naturalWidth > 0) {
+                return ClipRect(
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(width: naturalWidth, child: flying),
+                  ),
+                );
+              }
               return ClipRect(
                 child: OverflowBox(
                   alignment: Alignment.topCenter,
                   minHeight: 0,
                   maxHeight: double.infinity,
-                  child: AnimatedBuilder(
-                    animation: animation,
-                    builder: (context, _) {
-                      final raw = direction == HeroFlightDirection.push
-                          ? animation.value
-                          : 1 - animation.value;
-                      final t = Curves.easeInOutCubic.transform(raw);
-                      return target.withExpansion(
-                        lerpDouble(source.expansion, target.expansion, t)!,
-                      );
-                    },
-                  ),
+                  child: flying,
                 ),
               );
             },

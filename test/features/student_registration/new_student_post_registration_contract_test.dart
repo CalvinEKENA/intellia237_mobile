@@ -57,9 +57,11 @@ void main() {
           userMessage: 'Explique-moi ce chapitre',
         );
         expect(gateway.lastPayload?['classLevel'], user['classLevel']);
-        // Le serveur construit la persona : seul l'identifiant voyage.
+        // Le serveur actuel construit la persona depuis l'identifiant ; la
+        // fiche publique accompagne la question pour le askTutor déployé le
+        // 15/09, qui l'exige encore.
         expect(gateway.lastPayload?['tutorId'], tutor.id);
-        expect(gateway.lastPayload?.containsKey('tutor'), isFalse);
+        expect((gateway.lastPayload?['tutor'] as Map?)?['name'], tutor.name);
 
         final preferences = profile['preferences'] as Map<String, dynamic>;
         expect(preferences['academicLevelId'], 'fr_general_6e');

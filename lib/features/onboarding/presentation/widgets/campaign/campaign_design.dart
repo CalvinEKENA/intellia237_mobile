@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../../app/theme/design_tokens.dart';
+import '../../../../../core/widgets/fit_viewport.dart';
 
 abstract final class CampaignColors {
   static const paper = Color(0xFFF4EFE5);
@@ -180,7 +181,11 @@ class _CampaignButtonState extends State<CampaignButton> {
   }
 }
 
-/// Content grows vertically for large text and landscape, without scaling body text.
+/// Scène fixe : jamais de défilement (QA appareil, 23/09/2026).
+///
+/// La scène garde sa hauteur de composition (plus grande sous un grand
+/// texte) ; si l'écran est plus court, elle est réduite pour tenir en
+/// entier, sans jamais réduire la taille relative du texte.
 class CampaignPage extends StatelessWidget {
   const CampaignPage({required this.builder, super.key});
   final Widget Function(BuildContext context, double height, double width)
@@ -194,9 +199,8 @@ class CampaignPage extends StatelessWidget {
         constraints.maxHeight,
         scale > 1.25 ? 740.0 + (scale - 1.25) * 190 : 620.0,
       );
-      return SingleChildScrollView(
-        key: const ValueKey('onboarding-scene-scroll'),
-        physics: const ClampingScrollPhysics(),
+      return FitViewport(
+        key: const ValueKey('onboarding-scene-fixed'),
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: minHeight),
           child: builder(context, minHeight, constraints.maxWidth),

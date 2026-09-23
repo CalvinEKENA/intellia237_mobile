@@ -424,14 +424,9 @@ void main() {
     );
     await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
-    // Quelqu'un a fait défiler jusqu'au bas du formulaire : le Pass est
-    // passé au-dessus de l'écran.
+    // Écran fixe : rien ne défile, le bouton reste où le doigt l'a vu.
     final send = find.byKey(const ValueKey('send-phone-code'));
-    final position = Scrollable.of(tester.element(send)).position;
-    position.jumpTo(position.maxScrollExtent);
-    await journey.wait(const Duration(milliseconds: 100));
-    final before = position.pixels;
-    expect(journey.seal!.visible, lessThan(.5));
+    final before = tester.getRect(send);
 
     // Numéro collé ou rempli par le système, clavier fermé.
     tester
@@ -442,7 +437,7 @@ void main() {
     await journey.wait(const Duration(milliseconds: 600));
 
     expect(journey.seal!.stage, identifier);
-    expect(position.pixels, before);
+    expect(tester.getRect(send), before);
     await _dispose(journey);
   });
 
