@@ -30,9 +30,8 @@ class QuizHubScreen extends ConsumerWidget {
     final offline = ref.watch(isOfflineProvider);
 
     final content = quizAsync.when(
-      loading: () => offline
-          ? const _OfflineQuizHubState()
-          : const _QuizHubLoading(),
+      loading: () =>
+          offline ? const _OfflineQuizHubState() : const _QuizHubLoading(),
       error: (error, stackTrace) => offline
           ? const _OfflineQuizHubState()
           : _QuizFailureState(
