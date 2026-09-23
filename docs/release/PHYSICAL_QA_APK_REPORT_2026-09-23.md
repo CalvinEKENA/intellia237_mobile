@@ -224,8 +224,13 @@ permission micro, SMS réels.
 - **Parcours 6e** : deux scènes (température : 9 graines à 10/18/40 °C ;
   arrosage : peu, normal, trop), publiables comme `interactiveNative`
   (type déjà accepté par le serveur déployé). Les deux cartes sont prêtes
-  dans `docs/content/parcours_6e_svt_climat_animations.json`, **non écrites
-  en production** : elles n'apparaîtront qu'après publication.
+  dans `docs/content/parcours_6e_svt_climat_animations.json`. **Publiées en
+  production le 23/09/2026 à 17:41 UTC avec l'accord du propriétaire**
+  (`flow_items/t27mTEm2lDq3B8jXyg8B` température,
+  `flow_items/ex7G1NP4RgqltWChMxHP` arrosage ; signal
+  `content_catalog_state/revision` comme le Studio). Relues : publiées,
+  6eme, clés de composant correctes ; 9 cartes publiées au total. Reliées à
+  la leçon : une republication depuis le Studio les conserve.
 
 | Contrôle | Résultat |
 |---|---|
