@@ -134,6 +134,21 @@ describe("security-critical checks honour roles[]", () => {
     expect(() => authorizeClassAdmin({ role: "teacher", establishmentId: "school-a" }, "school-a")).toThrow();
   });
 
+  it("an inactive staff account gains nothing from its additive spaces", () => {
+    for (const accountStatus of ["pending_validation", "suspended"]) {
+      const user = {
+        role: "parent",
+        roles: ["parent", "teacher", "admin"],
+        establishmentId: "school-a",
+        accountStatus,
+      };
+      expect(staffCanWrite(user, { establishmentId: "school-a" }), accountStatus).toBe(false);
+      expect(audienceAllows({ establishmentId: "school-a" }, user), accountStatus).toBe(false);
+      expect(() => authorizePaymentReviewer(user), accountStatus).toThrow();
+      expect(() => authorizeClassAdmin(user, "school-a"), accountStatus).toThrow();
+    }
+  });
+
   it("revocation: once the parent space is removed, parent-only checks refuse", () => {
     const before = { role: "teacher", roles: ["teacher", "parent"] };
     const plan = planRoleChange(before, { action: "revoke", role: "parent" });
