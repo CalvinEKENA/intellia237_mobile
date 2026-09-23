@@ -11,6 +11,7 @@ import '../../student_home/presentation/widgets/weekly_goal_card.dart';
 import '../application/user_preferences_controller.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../auth/presentation/widgets/role_switch_action.dart';
 import 'widgets/account_deletion_tile.dart';
 import '../data/email_verification_service.dart';
 
@@ -155,6 +156,7 @@ class SettingsScreen extends ConsumerWidget {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push('${AppRoutes.phoneAuth}?mode=link'),
                 ),
+                const RoleSwitchAction(),
                 ListTile(
                   leading: const Icon(Icons.manage_accounts_outlined),
                   title: Text(l10n.editProfileTitle),

@@ -9,6 +9,7 @@ import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../auth/presentation/widgets/role_switch_action.dart';
 import '../../auth/domain/app_role.dart';
 import '../application/parent_preview.dart';
 import '../application/parent_providers.dart';
@@ -516,6 +517,7 @@ class _ProfileTab extends StatelessWidget {
               children: [
                 Text(context.l10n.parentAccountActive),
                 const SizedBox(height: IntelliaSpacing.xs),
+                const RoleSwitchAction(),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.settings_outlined),

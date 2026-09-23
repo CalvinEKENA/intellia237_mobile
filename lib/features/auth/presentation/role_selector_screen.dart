@@ -2,81 +2,65 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/localization_extensions.dart';
 import '../application/auth_controller.dart';
 import '../domain/app_role.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/intellia_237_membrane.dart';
 import 'widgets/living_pass.dart';
 
-/// Contextual space selector presented when an authenticated user has multiple roles.
+/// Sélecteur d'espace d'un compte que le serveur autorise sur plusieurs
+/// espaces (par exemple parent et enseignant).
 ///
-/// Invariant: Only roles present in [AuthState.availableRoles] are shown.
-/// Automatically remembers the selected space for future sessions.
+/// Il s'affiche une fois quand aucun espace n'est retenu sur l'appareil, puis
+/// sur demande (« Changer d'espace »). Seuls les espaces de
+/// [AuthState.availableRoles] apparaissent : ce choix ne donne aucun droit,
+/// il ne fait que choisir parmi ceux que le serveur a déjà accordés.
 class RoleSelectorScreen extends ConsumerWidget {
   const RoleSelectorScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authControllerProvider);
-    final roles = authState.resolvedRoles;
-    final userName = authState.firstName ?? 'Utilisateur';
+    final l10n = context.l10n;
+    final auth = ref.watch(authControllerProvider);
+    final controller = ref.read(authControllerProvider.notifier);
 
     return AuthExperienceScaffold(
-      showBackButton: false,
-      pass: const LivingPass(
+      showBackButton: !auth.spaceChoicePending,
+      pass: LivingPass(
         seal: PassSealStage.neutral,
-        phase: 'Choix de l’espace',
+        phase: l10n.authSpaceEyebrow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: AuthHeader(
-              showBrand: false,
-              eyebrow: 'COMPTE MULTI-ESPACES',
-              title: 'Bienvenue, $userName',
-              subtitle:
-                  'Ce compte est autorisé sur plusieurs espaces. Choisissez l’espace dans lequel vous souhaitez travailler.',
-            ),
+          AuthHeader(
+            showBrand: false,
+            eyebrow: l10n.authSpaceEyebrow,
+            title: l10n.authSpaceTitle,
+            subtitle: l10n.authSpaceBody,
           ),
-          const SizedBox(height: 28),
-
-          for (final role in roles) ...[
-            _RoleCard(
+          const SizedBox(height: 22),
+          for (final role in auth.resolvedRoles) ...[
+            _SpaceCard(
               key: ValueKey('role-select-${role.name}'),
               role: role,
-              isSelected: authState.role == role,
+              current: auth.role == role && !auth.spaceChoicePending,
               onTap: () async {
-                await ref
-                    .read(authControllerProvider.notifier)
-                    .selectActiveRole(role);
-                if (context.mounted) {
-                  context.go(role.homePath);
-                }
+                await controller.selectActiveRole(role);
+                if (context.mounted) context.go(role.homePath);
               },
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
           ],
-
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           Center(
             child: TextButton.icon(
-              onPressed: () =>
-                  ref.read(authControllerProvider.notifier).signOut(),
-              icon: const Icon(
-                Icons.logout_rounded,
-                size: 16,
-                color: AuthExperienceColors.textTertiary,
-              ),
-              label: const Text(
-                'Me déconnecter',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontSize: 13,
-                  color: AuthExperienceColors.textTertiary,
-                ),
-              ),
+              key: const ValueKey('role-select-sign-out'),
+              onPressed: controller.signOut,
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              icon: const Icon(Icons.logout_rounded, size: 16),
+              label: Text(l10n.authSpaceSignOut),
             ),
           ),
         ],
@@ -85,133 +69,105 @@ class RoleSelectorScreen extends ConsumerWidget {
   }
 }
 
-class _RoleCard extends StatelessWidget {
-  const _RoleCard({
-    super.key,
+class _SpaceCard extends StatelessWidget {
+  const _SpaceCard({
     required this.role,
-    required this.isSelected,
+    required this.current,
     required this.onTap,
+    super.key,
   });
 
   final AppRole role;
-  final bool isSelected;
+  final bool current;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final (icon, accent, description) = switch (role) {
+    final l10n = context.l10n;
+    final (icon, title, hint) = switch (role) {
       AppRole.student => (
         Icons.school_rounded,
-        const Color(0xFF5444D8),
-        'Accédez à vos cours, exercices, devoirs et tuteurs IA KIRA & LÉO.',
+        l10n.authSpaceStudent,
+        l10n.authSpaceStudentHint,
       ),
       AppRole.parent => (
         Icons.family_restroom_rounded,
-        const Color(0xFF80643D),
-        'Suivez le travail, les notes et la présence de vos enfants.',
+        l10n.authSpaceParent,
+        l10n.authSpaceParentHint,
       ),
       AppRole.teacher => (
         Icons.cast_for_education_rounded,
-        const Color(0xFF003366),
-        'Gérez vos classes, publiez vos évaluations et suivez vos élèves.',
+        l10n.authSpaceTeacher,
+        l10n.authSpaceTeacherHint,
       ),
       AppRole.admin => (
         Icons.admin_panel_settings_rounded,
-        const Color(0xFFD4AF37),
-        'Administration et pilotage pédagogique de l’établissement.',
+        l10n.authSpaceAdmin,
+        l10n.authSpaceAdminHint,
       ),
     };
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? accent.withValues(alpha: 0.05)
-                : AuthExperienceColors.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isSelected ? accent : AuthExperienceColors.border,
-              width: isSelected ? 2.0 : 1.2,
-            ),
+    return Semantics(
+      button: true,
+      selected: current,
+      child: Material(
+        color: AuthExperienceColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: current
+                ? AuthExperienceColors.indigo
+                : AuthExperienceColors.border,
+            width: current ? 2 : 1,
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: accent, size: 26),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 64),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  Icon(icon, color: AuthExperienceColors.indigo, size: 26),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Espace ${role.label}',
-                          style: TextStyle(
-                            fontFamily: 'Montserrat',
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: isSelected
-                                ? accent
-                                : AuthExperienceColors.textPrimary,
+                          title,
+                          style: const TextStyle(
+                            fontFamily: 'CampaignBody',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: AuthExperienceColors.textPrimary,
                           ),
                         ),
-                        if (isSelected) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: accent,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: const Text(
-                              'ACTIF',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                        const SizedBox(height: 3),
+                        Text(
+                          current ? '${l10n.authSpaceCurrent} · $hint' : hint,
+                          style: const TextStyle(
+                            fontFamily: 'CampaignBody',
+                            fontSize: 12.5,
+                            height: 1.4,
+                            color: AuthExperienceColors.textSecondary,
                           ),
-                        ],
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: const TextStyle(
-                        fontFamily: 'CampaignBody',
-                        fontSize: 12.5,
-                        height: 1.35,
-                        color: AuthExperienceColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  Icon(
+                    current
+                        ? Icons.check_circle_rounded
+                        : Icons.chevron_right_rounded,
+                    color: current
+                        ? AuthExperienceColors.indigo
+                        : AuthExperienceColors.textSecondary,
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: isSelected ? accent : AuthExperienceColors.textTertiary,
-              ),
-            ],
+            ),
           ),
         ),
       ),
