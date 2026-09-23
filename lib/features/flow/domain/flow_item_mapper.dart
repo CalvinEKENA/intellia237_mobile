@@ -98,7 +98,6 @@ abstract final class FlowItemMapper {
           title: title,
           story: caption,
           imagePath: item.ref.storagePath,
-          kicker: 'En image',
           estimatedSeconds: duration,
         );
 

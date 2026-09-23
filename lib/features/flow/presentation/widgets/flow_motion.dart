@@ -16,7 +16,11 @@ List<String>? flowIdeaBeats(String text) {
   final trimmed = text.trim();
   if (trimmed.isEmpty || trimmed.contains('\n')) return null;
   final beats = trimmed
-      .split(RegExp(r'(?<=[.!?…])\s+(?=[A-ZÀ-ÖØ-Þ«“])'))
+      .split(
+        RegExp(
+          r'(?<=[.!?\u2026])\s+(?=[A-Z\u00C0-\u00D6\u00D8-\u00DE\u00AB\u201C])',
+        ),
+      )
       .map((beat) => beat.trim())
       .where((beat) => beat.isNotEmpty)
       .toList(growable: false);
