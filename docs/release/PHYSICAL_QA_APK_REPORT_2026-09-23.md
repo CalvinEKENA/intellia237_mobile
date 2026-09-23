@@ -244,3 +244,18 @@ permission micro, SMS réels.
 onboarding sur petit écran (bouton visible après la réponse) ; inscription
 parent avec le guide et un vrai « code parent » ; clavier ouvert sur chaque
 écran de connexion ; scènes de SVT (après publication des deux cartes).
+
+### Bundle de production (AAB), sur demande du propriétaire
+
+| Élément | Valeur |
+|---|---|
+| Code | `7367267` (même code que le 2e APK) |
+| Commande | `flutter build appbundle --flavor production -t lib/main_production.dart --release` |
+| Fichier | `build/app/outputs/bundle/productionRelease/app-production-release.aab` |
+| Taille | 80 849 730 octets (77,1 Mo) |
+| SHA-256 | `03ab7d097bc8aacd7f0d4c76c9714f35d87c79736581c6f4b75f7cb2d55a3626` |
+| Signature | clé d'upload (`CN=Edunova, OU=Development, O=Edunova`), `jarsigner -verify` : vérifiée |
+| Version | 3.2.1, `versionCode` 30 (inchangés) |
+
+Non envoyé sur Google Play. Si un bundle `versionCode` 30 a déjà été
+envoyé, Play refusera celui-ci : il faudra alors monter la version.
