@@ -415,8 +415,8 @@ describe("dual entry-point auto-provisioning (no manual aggregate creation)", ()
 
   class MockReserveStore implements StudyReserveStore {
     constructor(private readonly prov: MemoryProvisioningStore) {}
-    async readRole() {
-      return "student";
+    async readUser() {
+      return { role: "student" };
     }
     async isLinkedChild() {
       return true;

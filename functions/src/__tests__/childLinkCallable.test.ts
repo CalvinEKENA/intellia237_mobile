@@ -13,6 +13,8 @@ import {
 
 class MemoryChildLinkStore implements ChildLinkStore {
   roles = new Map<string, string>();
+  /** Profils complets (espaces additifs), prioritaires sur [roles]. */
+  users = new Map<string, Record<string, unknown>>();
   codes = new Map<string, string>(); // code -> studentId
   students = new Map<string, StudentSummary>();
   links: { parentId: string; studentId: string }[] = [];
@@ -20,8 +22,9 @@ class MemoryChildLinkStore implements ChildLinkStore {
   failures = new Map<string, number>();
   private _codeSeq = 0;
 
-  async readRole(uid: string) {
-    return this.roles.get(uid);
+  async readUser(uid: string) {
+    const role = this.roles.get(uid);
+    return this.users.get(uid) ?? (role === undefined ? undefined : { role });
   }
 
   async isRateLimited(parentId: string) {
@@ -103,6 +106,33 @@ describe("linkChildByCode", () => {
         auth: { uid: "student-1" },
         data: { code: "ABCDEFGH" },
       } as never),
+    ).rejects.toMatchObject({ code: "permission-denied" });
+  });
+
+  it("lets a teacher who is also a parent (roles[]) link a child", async () => {
+    const store = seededStore();
+    store.users.set("teacher-parent", { role: "teacher", roles: ["teacher", "parent"] });
+    const handler = createLinkChildByCodeHandler(store);
+    await expect(
+      handler({ auth: { uid: "teacher-parent" }, data: { code: "ABCD-EFGH" } } as never),
+    ).resolves.toMatchObject({ studentId: "student-1" });
+  });
+
+  it("refuses a teacher without the parent space", async () => {
+    const store = seededStore();
+    store.users.set("teacher-only", { role: "teacher", roles: ["teacher"] });
+    const handler = createLinkChildByCodeHandler(store);
+    await expect(
+      handler({ auth: { uid: "teacher-only" }, data: { code: "ABCD-EFGH" } } as never),
+    ).rejects.toMatchObject({ code: "permission-denied" });
+  });
+
+  it("never lets roles[] turn a student into a parent", async () => {
+    const store = seededStore();
+    store.users.set("student-x", { role: "student", roles: ["student", "parent"] });
+    const handler = createLinkChildByCodeHandler(store);
+    await expect(
+      handler({ auth: { uid: "student-x" }, data: { code: "ABCD-EFGH" } } as never),
     ).rejects.toMatchObject({ code: "permission-denied" });
   });
 

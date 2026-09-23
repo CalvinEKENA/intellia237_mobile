@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { db } from "../config/firebase";
 import { toHttpsError } from "../utils/errors";
+import { hasUserRole, isSuperAdminUser } from "../auth/userRoles";
 
 const id = z.string().trim().min(1).max(128).regex(/^[^/]+$/);
 
@@ -29,12 +30,11 @@ export function authorizeClassAdmin(actorData: DocumentData | undefined, targetE
     throw new HttpsError("permission-denied", "Active administrator account required.");
   }
 
-  const role = actorData.role;
-  if (role === "superAdmin" || role === "super_admin") {
+  if (isSuperAdminUser(actorData)) {
     return;
   }
 
-  if (role === "admin") {
+  if (hasUserRole(actorData, "admin")) {
     if (actorData.establishmentId !== targetEstablishmentId) {
       throw new HttpsError("permission-denied", "You can only manage classes for your own establishment.");
     }

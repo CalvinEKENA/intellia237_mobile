@@ -13,6 +13,7 @@ import {
   coursePageImportInputSchema,
 } from "../utils/validation";
 import { tutorQuotaDayKey } from "./tutorDailyQuota";
+import { hasAnyUserRole, isSuperAdminUser } from "../auth/userRoles";
 
 /**
  * Photographed or scanned course pages, read once by Gemini and returned as
@@ -162,16 +163,15 @@ export function authorizeCoursePageImport({
   userData: DocumentData | undefined;
   storagePaths: string[];
 }): { dailyPageLimit: number } {
-  const role = normalizedString(userData?.role);
   const status = normalizedString(userData?.accountStatus);
   if (status && status !== "active") {
     throw new AppError("permission-denied", "The account is not active.");
   }
 
-  if (role === "superAdmin" || role === "super_admin") {
+  if (isSuperAdminUser(userData)) {
     return { dailyPageLimit: DAILY_PAGE_LIMIT.generalAdministration };
   }
-  if (role !== "admin" && role !== "teacher") {
+  if (!hasAnyUserRole(userData, ["admin", "teacher"])) {
     throw new AppError("permission-denied", "Only staff can import course pages.");
   }
   const establishmentId = normalizedString(userData?.establishmentId);

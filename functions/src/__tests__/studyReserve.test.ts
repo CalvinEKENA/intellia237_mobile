@@ -32,8 +32,10 @@ class MemoryStudyReserveStore implements StudyReserveStore {
     });
   }
 
-  async readRole(uid: string) {
-    return this.roles.get(uid);
+  users = new Map<string, Record<string, unknown>>();
+  async readUser(uid: string) {
+    const role = this.roles.get(uid);
+    return this.users.get(uid) ?? (role === undefined ? undefined : { role });
   }
   async isLinkedChild(parentId: string, studentId: string) {
     return this.links.has(`${parentId}_${studentId}`);
@@ -222,6 +224,23 @@ describe("getStudyReserve callable (authorization + parent visibility)", () => {
     store.roles.set("parent-2", "parent");
     await expect(
       handler({ auth: { uid: "parent-2" }, data: { studentId: "child-1" } } as never),
+    ).rejects.toMatchObject({ code: "permission-denied" });
+  });
+
+  it("a teacher who is also a linked parent reads the child's reserve; a teacher alone cannot", async () => {
+    const store = new MemoryStudyReserveStore();
+    store.seed("child-1", 100);
+    store.users.set("teacher-parent", { role: "teacher", roles: ["teacher", "parent"] });
+    store.users.set("teacher-only", { role: "teacher" });
+    store.links.add("teacher-parent_child-1");
+    store.links.add("teacher-only_child-1");
+
+    const handler = createGetStudyReserveHandler(store, new CurrentCycleProvisioning((id) => store.getAggregate(id)));
+    await expect(
+      handler({ auth: { uid: "teacher-parent" }, data: { studentId: "child-1" } } as never),
+    ).resolves.toMatchObject({ studentId: "child-1" });
+    await expect(
+      handler({ auth: { uid: "teacher-only" }, data: { studentId: "child-1" } } as never),
     ).rejects.toMatchObject({ code: "permission-denied" });
   });
 });

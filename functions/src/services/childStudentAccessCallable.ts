@@ -10,6 +10,7 @@ import {
   issueStudentAccessCode,
   type StudentAccessStore,
 } from "./studentAccessCode";
+import { hasUserRole, resolveUserRoles } from "../auth/userRoles";
 
 /**
  * Nouvelle famille, enfant sans téléphone : le parent ouvre l'accès INTELLIA
@@ -73,7 +74,7 @@ export function createCreateChildStudentAccessHandler(deps: {
     const parsed = createInput.safeParse(request.data);
     if (!parsed.success) throw new HttpsError("invalid-argument", "Invalid request payload.");
     const parent = await deps.store.readParent(uid);
-    if (!parent || parent.role !== "parent" || parent.accountStatus !== "active") {
+    if (!parent || !hasUserRole(parent, "parent") || parent.accountStatus !== "active") {
       throw new HttpsError("permission-denied", "Only a parent can open a child's access.");
     }
 
@@ -121,6 +122,7 @@ export class FirestoreChildAccessCreationStore implements ChildAccessCreationSto
     const data = snapshot.data() ?? {};
     return {
       role: typeof data.role === "string" ? data.role : "",
+      roles: [...resolveUserRoles(data)],
       accountStatus: typeof data.accountStatus === "string" ? data.accountStatus : "active",
     };
   }

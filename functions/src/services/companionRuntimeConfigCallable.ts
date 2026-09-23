@@ -11,6 +11,7 @@ import {
   MAX_TUTOR_OUTPUT_TOKENS,
 } from "../llm/tutorBudget";
 import { tutorPersonaSpecification } from "../llm/tutorPersonas";
+import { isSuperAdminUser } from "../auth/userRoles";
 
 export interface CompanionRuntimeConfigView {
   provider: "vertex-ai";
@@ -45,7 +46,7 @@ export function createGetCompanionRuntimeConfigHandler(
 
     if (
       !data ||
-      !["superAdmin", "super_admin"].includes(data.role) ||
+      !isSuperAdminUser(data) ||
       (data.accountStatus && data.accountStatus !== "active")
     ) {
       throw new HttpsError(

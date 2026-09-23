@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { DocumentData } from "firebase-admin/firestore";
+import { hasAnyUserRole, hasUserRole, isSuperAdminUser } from "../auth/userRoles";
 
 const values = z.array(z.string().trim().min(1).max(100)).max(64).default([]);
 export const audienceClauseSchema = z.object({
@@ -43,11 +44,11 @@ export function learnerAudienceContext(user: DocumentData, profile: DocumentData
  */
 export function audienceAllows(data: DocumentData, user: DocumentData, profile: DocumentData = {}, fallbackClass?: string): boolean {
   if (user.accountStatus && user.accountStatus !== "active") return false;
-  if (["superAdmin", "super_admin"].includes(user.role)) return true;
+  if (isSuperAdminUser(user)) return true;
   const scope = data.scope?.type === "establishment" ? data.scope.establishmentId : data.establishmentId;
   if (scope && scope !== "global" && scope !== user.establishmentId) return false;
-  if (["teacher", "admin"].includes(user.role)) return true;
-  if (user.role !== "student") return false;
+  if (hasAnyUserRole(user, ["teacher", "admin"])) return true;
+  if (!hasUserRole(user, "student")) return false;
   const context = learnerAudienceContext(user, profile);
   if (!registry.some(row => row[0] === context.classLevels)) return false;
   if (data.audience !== undefined) {
@@ -74,9 +75,9 @@ export function effectiveAudience(data: DocumentData, parent: DocumentData, clas
 
 export function staffCanWrite(user: DocumentData, data: DocumentData): boolean {
   if (user.accountStatus && user.accountStatus !== "active") return false;
-  if (["superAdmin", "super_admin"].includes(user.role)) return true;
+  if (isSuperAdminUser(user)) return true;
   const scope = data.scope?.type === "establishment" ? data.scope.establishmentId : data.establishmentId;
-  return ["teacher", "admin"].includes(user.role) && !!user.establishmentId && scope === user.establishmentId;
+  return hasAnyUserRole(user, ["teacher", "admin"]) && !!user.establishmentId && scope === user.establishmentId;
 }
 
 /** Clé « tout niveau » : publication sans restriction de classe. */
@@ -115,5 +116,5 @@ export function learnerFlowAudienceKeys(classLevel: string): string[] {
 
 /** Niveau canonique d'un élève, tel que `audienceAllows` le compare. */
 export function learnAudienceContextClass(user: DocumentData, profile: DocumentData = {}): string {
-  return user.role === "student" ? learnerAudienceContext(user, profile).classLevels : "";
+  return hasUserRole(user, "student") ? learnerAudienceContext(user, profile).classLevels : "";
 }

@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { db } from "../config/firebase";
 import { toHttpsError } from "../utils/errors";
+import { isSuperAdminUser } from "../auth/userRoles";
 
 const id = z.string().trim().min(1).max(128).regex(/^[^/]+$/);
 export const accountManagementInput = z.discriminatedUnion("action", [
@@ -27,7 +28,7 @@ export const accountManagementInput = z.discriminatedUnion("action", [
 type Input = z.infer<typeof accountManagementInput>;
 
 export function requireGeneralAdministrator(data: DocumentData | undefined): void {
-  if (!data || !["superAdmin", "super_admin"].includes(data.role) ||
+  if (!data || !isSuperAdminUser(data) ||
       (data.accountStatus && data.accountStatus !== "active")) {
     throw new HttpsError("permission-denied", "General administration is required.");
   }

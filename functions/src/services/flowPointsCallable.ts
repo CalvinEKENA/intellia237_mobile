@@ -17,6 +17,7 @@ import {
   type FlowActivityKind,
   type FlowAnswer
 } from "./flowCatalog";
+import { hasUserRole } from "../auth/userRoles";
 
 export const FLOW_DAILY_POINTS_CAP = 400;
 const FLOW_TIMEZONE = "Africa/Douala";
@@ -81,7 +82,7 @@ export class FirestoreFlowPointsStore implements FlowPointsStore {
           transaction.get(userRef),
           transaction.get(profileRef)
         ]);
-        if (userSnapshot.data()?.role !== "student") {
+        if (!hasUserRole(userSnapshot.data(), "student")) {
           throw new AppError("permission-denied", "FLOW points are reserved for student accounts.");
         }
         return {
@@ -104,7 +105,7 @@ export class FirestoreFlowPointsStore implements FlowPointsStore {
           transaction.get(profileRef)
         ]);
 
-      if (userSnapshot.data()?.role !== "student") {
+      if (!hasUserRole(userSnapshot.data(), "student")) {
         throw new AppError("permission-denied", "FLOW points are reserved for student accounts.");
       }
       if (!profileSnapshot.exists) {

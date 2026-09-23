@@ -30,10 +30,20 @@ service cloud.firestore {
         || getUserData().accountStatus == 'active';
     }
 
+    // Espaces d'un compte : le rôle principal historique `role`, et les
+    // espaces additifs `roles` (parent, enseignant, direction) qu'écrit seul
+    // le serveur (`manageUserRoles`). Même lecture que
+    // functions/src/auth/userRoles.ts : un compte élève n'a pas d'autre espace,
+    // personne ne devient élève par `roles`, et la super-administration ne se
+    // lit jamais dans `roles`.
     function isRole(role) {
       return isAuthenticated() && (
         getUserData().role == role ||
-        ('roles' in getUserData() && getUserData().roles is list && role in getUserData().roles)
+        (role in ['parent', 'teacher', 'admin']
+          && getUserData().role != 'student'
+          && 'roles' in getUserData()
+          && getUserData().roles is list
+          && role in getUserData().roles)
       );
     }
 
@@ -42,7 +52,7 @@ service cloud.firestore {
     }
 
     function isSuperAdmin() {
-      return isRole('superAdmin') || isRole('super_admin');
+      return isAuthenticated() && getUserRole() in ['superAdmin', 'super_admin'];
     }
 
     function isAdmin() {

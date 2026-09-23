@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { db } from "../config/firebase";
 import { parseEntitlementDocument } from "./studyReserveProvisioning";
+import { hasUserRole, isSuperAdminUser } from "../auth/userRoles";
 
 /**
  * « Mes enfants » : ce qu'un parent est autorisé à savoir de chacun de ses
@@ -51,7 +52,8 @@ export interface ParentChildSummary {
 }
 
 export interface ParentChildrenStore {
-  readRole(uid: string): Promise<string>;
+  /** Profil `users/{uid}` actif, ou `null` s'il est suspendu ou supprimé. */
+  readUser(uid: string): Promise<Record<string, unknown> | null>;
   approvedChildIds(parentId: string): Promise<string[]>;
   approvedGuardianIds(studentId: string): Promise<string[]>;
   readStudent(studentId: string): Promise<{
@@ -162,15 +164,15 @@ export function createListParentChildrenHandler(
     if (!uid) throw new HttpsError("unauthenticated", "Firebase Auth is required.");
     const parsed = listInput.safeParse(request.data ?? {});
     if (!parsed.success) throw new HttpsError("invalid-argument", "Invalid request payload.");
-    const role = await store.readRole(uid);
+    const user = await store.readUser(uid);
     let parentId = uid;
     if (parsed.data.parentUid && parsed.data.parentUid !== uid) {
       // Prévisualisation d'un parent réservée à la super-administration.
-      if (role !== "superAdmin" && role !== "super_admin") {
+      if (!isSuperAdminUser(user)) {
         throw new HttpsError("permission-denied", "Only a parent can list their children.");
       }
       parentId = parsed.data.parentUid;
-    } else if (role !== "parent") {
+    } else if (!hasUserRole(user, "parent")) {
       throw new HttpsError("permission-denied", "Only a parent can list their children.");
     }
     return { children: await listParentChildren(store, parentId, now()) };
@@ -183,11 +185,11 @@ export class FirestoreParentChildrenStore implements ParentChildrenStore {
     private readonly auth: () => Auth = () => getAuth(),
   ) {}
 
-  async readRole(uid: string): Promise<string> {
+  async readUser(uid: string): Promise<Record<string, unknown> | null> {
     const snapshot = await this.firestore.collection("users").doc(uid).get();
     const data = snapshot.data();
-    if (data?.accountStatus === "suspended" || data?.accountStatus === "deleted") return "";
-    return text(data?.role);
+    if (!data || data.accountStatus === "suspended" || data.accountStatus === "deleted") return null;
+    return data;
   }
 
   async approvedChildIds(parentId: string): Promise<string[]> {

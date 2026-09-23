@@ -49,6 +49,7 @@ import { createListParentChildrenHandler } from "./services/parentChildrenCallab
 import { createDefaultCreateChildStudentAccessHandler } from "./services/childStudentAccessCallable";
 import { reviewStaffAccountHandler } from "./services/staffAccountReviewCallable";
 import { manageAccountHandler } from "./services/adminAccountManagementCallable";
+import { createManageUserRolesHandler } from "./services/userRolesManagementCallable";
 import { saveLessonPublicationHandler, deleteCatalogContentHandler, createCatalogChapterHandler, createListEditorialFlowHandler } from "./services/lessonPublicationCallable";
 import { listRegistrationEstablishmentsHandler } from "./services/registrationEstablishmentsCallable";
 import { changeAccountEstablishmentHandler } from "./services/accountEstablishmentChangeCallable";
@@ -267,6 +268,13 @@ export const reviewStaffAccount = onCall(
 export const manageAccount = onCall(
   { region: env.FUNCTIONS_REGION, timeoutSeconds: 30, memory: "256MiB" },
   manageAccountHandler,
+);
+
+// Espaces additifs (`roles`) : super-administration seule, `role` et `roles`
+// écrits ensemble avec un journal d'audit.
+export const manageUserRoles = onCall(
+  { region: env.FUNCTIONS_REGION, timeoutSeconds: 30, memory: "256MiB" },
+  createManageUserRolesHandler(),
 );
 
 export const changeAccountEstablishment = onCall(

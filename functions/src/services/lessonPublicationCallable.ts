@@ -6,6 +6,7 @@ import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
 import { z } from "zod";
 import { db } from "../config/firebase";
 import { buildScoringQuizRecord } from "./quizAnswerKeys";
+import { hasAnyUserRole, isSuperAdminUser } from "../auth/userRoles";
 
 const id = z.string().trim().min(1).max(160).regex(/^[^/]+$/);
 const location = z.object({ classLevel: id, subjectId: id, chapterId: id, lessonId: id });
@@ -33,8 +34,8 @@ export function assertContentAuthor(actor: DocumentData, data: DocumentData): vo
   if (actor.accountStatus && actor.accountStatus !== "active") {
     throw new HttpsError("permission-denied", "Compte non actif.");
   }
-  if (["superAdmin", "super_admin"].includes(actor.role)) return;
-  if (!["teacher", "admin"].includes(actor.role) || !actor.establishmentId ||
+  if (isSuperAdminUser(actor)) return;
+  if (!hasAnyUserRole(actor, ["teacher", "admin"]) || !actor.establishmentId ||
       scopeId(data) !== actor.establishmentId) {
     throw new HttpsError("permission-denied", "Ce contenu ne relève pas de votre établissement.");
   }
@@ -235,7 +236,7 @@ export function createDeleteCatalogContentHandler(firestore: Firestore = db) {
     const parsed = location.partial({ chapterId: true, lessonId: true }).safeParse(request.data);
     if (!parsed.success || (parsed.data.lessonId && !parsed.data.chapterId)) throw new HttpsError("invalid-argument", "Référence invalide.");
     const actor = (await firestore.doc(`users/${request.auth.uid}`).get()).data() || {};
-    if (!["superAdmin", "super_admin"].includes(actor.role) || (actor.accountStatus && actor.accountStatus !== "active")) {
+    if (!isSuperAdminUser(actor) || (actor.accountStatus && actor.accountStatus !== "active")) {
       throw new HttpsError("permission-denied", "Suppression réservée à l’administration générale.");
     }
     const input = parsed.data;
@@ -291,7 +292,7 @@ export function createCatalogChapterHandler(firestore: Firestore = db) {
         transaction.get(subject.collection("chapters")),
       ]);
       const actor = author.data() || {};
-      const scope = ["superAdmin", "super_admin"].includes(actor.role) ? { type: "global" }
+      const scope = isSuperAdminUser(actor) ? { type: "global" }
         : { type: "establishment", establishmentId: actor.establishmentId || "" };
       assertContentAuthor(actor, { scope });
       if (!parent.exists || parent.data()?.deleting) throw new HttpsError("not-found", "Matière indisponible.");
@@ -319,7 +320,7 @@ export function createListEditorialFlowHandler(firestore: Firestore = db) {
     const parsed = id.safeParse(request.data?.classLevel);
     if (!parsed.success) throw new HttpsError("invalid-argument", "Classe invalide.");
     const actor = (await firestore.doc(`users/${request.auth.uid}`).get()).data() || {};
-    const unrestricted = ["superAdmin", "super_admin"].includes(actor.role);
+    const unrestricted = isSuperAdminUser(actor);
     assertContentAuthor(actor, { scope: unrestricted ? { type: "global" } : { type: "establishment", establishmentId: actor.establishmentId || "" } });
     const snapshot = await firestore.collection("flow_items").where("classLevels", "array-contains", parsed.data).get();
     return { items: snapshot.docs.filter(d => unrestricted || scopeId(d.data()) === actor.establishmentId)

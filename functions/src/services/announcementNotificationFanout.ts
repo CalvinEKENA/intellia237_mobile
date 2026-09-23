@@ -10,6 +10,7 @@ import type {
 } from "firebase-functions/v2/firestore";
 
 import { db } from "../config/firebase";
+import { hasUserRole, resolveUserRoles } from "../auth/userRoles";
 
 type AnnouncementDocument = {
   title?: unknown;
@@ -112,13 +113,15 @@ async function fanoutEstablishmentRecipients(
     if (lastDocument) query = query.startAfter(lastDocument);
     const page = await query.get();
     const recipients = page.docs.filter((user) => {
-      const role = normalizedString(user.get("role"));
-      return (roles === null || roles.has(role)) && !reached.has(user.id);
+      // Un compte à plusieurs espaces reçoit l'annonce si l'un d'eux est visé.
+      const accountRoles = resolveUserRoles(user.data());
+      return (roles === null || [...accountRoles].some((role) => roles.has(role))) &&
+        !reached.has(user.id);
     });
     const guardians = reachParents
       ? await linkedGuardians(
         page.docs
-          .filter((user) => normalizedString(user.get("role")) === "student")
+          .filter((user) => hasUserRole(user.data(), "student"))
           .map((user) => user.id),
       )
       : [];
@@ -157,7 +160,7 @@ export async function linkedGuardians(studentIds: string[]): Promise<DocumentSna
   );
   return parents.filter((parent) =>
     parent.exists &&
-    normalizedString(parent.get("role")) === "parent" &&
+    hasUserRole(parent.data(), "parent") &&
     !["suspended", "deleted"].includes(normalizedString(parent.get("accountStatus"))),
   );
 }
@@ -188,7 +191,7 @@ async function fanoutClassRecipients(
         .map((id) => db.collection("users").doc(id)),
     );
     const recipients = documents.filter(
-      (user) => user.exists && normalizedString(user.get("role")) === "student",
+      (user) => user.exists && hasUserRole(user.data(), "student"),
     );
     await writePage(recipients);
     recipientCount += recipients.length;

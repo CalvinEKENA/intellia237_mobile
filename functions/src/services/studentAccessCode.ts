@@ -7,6 +7,7 @@ import { HttpsError, type CallableRequest } from "firebase-functions/v2/https";
 import { z } from "zod";
 
 import { db } from "../config/firebase";
+import { hasUserRole, resolveUserRoles } from "../auth/userRoles";
 
 /**
  * Code d'accès élève : l'accès d'un élève à SON espace sans téléphone.
@@ -93,6 +94,8 @@ export type AccountRole = "student" | "parent" | "teacher" | "admin" | "superAdm
 
 export interface AccountSnapshot {
   role: string;
+  /** Tous les espaces du compte (voir auth/userRoles), `role` compris. */
+  roles?: string[];
   accountStatus: string;
   establishmentId: string;
 }
@@ -147,6 +150,7 @@ export class FirestoreStudentAccessStore implements StudentAccessStore {
     const data = snapshot.data() ?? {};
     return {
       role: normalized(data.role),
+      roles: [...resolveUserRoles(data)],
       accountStatus: normalized(data.accountStatus) || "active",
       establishmentId:
         normalized(data.establishmentId) ||
@@ -341,11 +345,11 @@ export async function authorizeStudentGuardianAction(
     // Même réponse qu'un refus : l'existence d'un élève n'est pas révélée.
     throw new HttpsError("permission-denied", "This account cannot manage a student access.");
   }
-  if (actor.role === "parent" && (await store.isLinkedParent(actorUid, studentId))) {
+  if (hasUserRole(actor, "parent") && (await store.isLinkedParent(actorUid, studentId))) {
     return { actorRole: "parent", student };
   }
   if (
-    actor.role === "admin" &&
+    hasUserRole(actor, "admin") &&
     actor.establishmentId.length > 0 &&
     actor.establishmentId === student.establishmentId
   ) {

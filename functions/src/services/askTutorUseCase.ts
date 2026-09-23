@@ -50,6 +50,7 @@ import {
   tutorRequestPayloadHash,
   type TutorRequestLedger,
 } from "./tutorRequestLedger";
+import { hasUserRole } from "../auth/userRoles";
 
 const MAX_CONTEXT_LESSONS = 3;
 const MAX_CONTEXT_CHARACTERS = MAX_ACADEMIC_CONTEXT_CHARS;
@@ -591,7 +592,7 @@ export function resolveTutorAcademicScope({
   userData: DocumentData | undefined;
   profileData: DocumentData | undefined;
 }): TutorAcademicScope {
-  if (normalizedString(userData?.role) !== "student") {
+  if (!hasUserRole(userData, "student")) {
     throw new AppError("permission-denied", "The tutor course context is reserved for students.");
   }
   const userClass = normalizedString(userData?.classLevel);

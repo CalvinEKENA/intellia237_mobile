@@ -13,6 +13,7 @@ import { z } from "zod";
 
 import { db } from "../config/firebase";
 import { AppError, toHttpsError } from "../utils/errors";
+import { hasUserRole, isSuperAdminUser } from "../auth/userRoles";
 
 const documentIdSchema = z
   .string()
@@ -587,7 +588,7 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
       .doc(parentId)
       .get();
     const parentData = parentSnapshot.data();
-    if (!parentSnapshot.exists || normalizedString(parentData?.role) !== "parent") {
+    if (!parentSnapshot.exists || !hasUserRole(parentData, "parent")) {
       throw new AppError(
         "permission-denied",
         "Only a parent account can access Mobile Money subscriptions.",
@@ -781,8 +782,8 @@ export function createReviewMobileMoneyPaymentHandler(
 export function authorizePaymentReviewer(
   reviewerData: DocumentData | undefined,
 ): { unrestricted: boolean; establishmentId: string } {
-  const role = normalizedString(reviewerData?.role);
-  if (role !== "admin" && role !== "superAdmin" && role !== "super_admin") {
+  const unrestricted = isSuperAdminUser(reviewerData);
+  if (!unrestricted && !hasUserRole(reviewerData, "admin")) {
     throw new AppError(
       "permission-denied",
       "Only an administrator can review a payment request.",
@@ -796,7 +797,7 @@ export function authorizePaymentReviewer(
     );
   }
   const establishmentId = normalizedString(reviewerData?.establishmentId);
-  if (role === "superAdmin" || role === "super_admin") {
+  if (unrestricted) {
     return { unrestricted: true, establishmentId };
   }
   if (!establishmentId) {

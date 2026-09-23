@@ -13,6 +13,7 @@ import {
   sanitizeThreshold,
   type ReserveThreshold,
 } from "./studyReserveUnits";
+import { hasUserRole } from "../auth/userRoles";
 
 /**
  * Réserve d'étude — comptabilité d'usage **autoritaire côté serveur**, par élève
@@ -121,7 +122,8 @@ export interface StudyReserveStore {
   /** Agrégat courant (interne). */
   getAggregate(studentId: string): Promise<ReserveAggregate | null>;
   /** Rôle du compte appelant. */
-  readRole(uid: string): Promise<string | undefined>;
+  /** Profil `users/{uid}` du compte, pour en lire les espaces. */
+  readUser(uid: string): Promise<Record<string, unknown> | undefined>;
   /** Vrai si [parentId] est lié à [studentId] par un lien approuvé. */
   isLinkedChild(parentId: string, studentId: string): Promise<boolean>;
 }
@@ -152,10 +154,9 @@ function toView(studentId: string, aggregate: ReserveAggregate | null): StudyRes
 export class FirestoreStudyReserveStore implements StudyReserveStore {
   constructor(private readonly firestore: Firestore = db) {}
 
-  async readRole(uid: string): Promise<string | undefined> {
+  async readUser(uid: string): Promise<Record<string, unknown> | undefined> {
     const snapshot = await this.firestore.collection("users").doc(uid).get();
-    const role = snapshot.data()?.role;
-    return typeof role === "string" ? role : undefined;
+    return snapshot.data();
   }
 
   async isLinkedChild(parentId: string, studentId: string): Promise<boolean> {
@@ -273,9 +274,9 @@ export function createGetStudyReserveHandler(
 
     if (requested !== uid) {
       // Un tiers ne lit une réserve que s'il est un PARENT lié à cet enfant.
-      const role = await store.readRole(uid);
+      const user = await store.readUser(uid);
       const allowed =
-        role === "parent" && (await store.isLinkedChild(uid, requested));
+        hasUserRole(user, "parent") && (await store.isLinkedChild(uid, requested));
       if (!allowed) {
         throw new HttpsError(
           "permission-denied",

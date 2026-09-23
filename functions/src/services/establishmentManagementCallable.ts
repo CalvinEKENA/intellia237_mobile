@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { db } from "../config/firebase";
 import { toHttpsError } from "../utils/errors";
+import { isSuperAdminUser } from "../auth/userRoles";
 
 const id = z.string().trim().min(1).max(128).regex(/^[^/]+$/);
 
@@ -29,7 +30,7 @@ export const manageEstablishmentInput = z.discriminatedUnion("action", [
 export type ManageEstablishmentInput = z.infer<typeof manageEstablishmentInput>;
 
 export function requireSuperAdmin(data: DocumentData | undefined): void {
-  if (!data || !["superAdmin", "super_admin"].includes(data.role) ||
+  if (!data || !isSuperAdminUser(data) ||
       (data.accountStatus && data.accountStatus !== "active")) {
     throw new HttpsError("permission-denied", "SuperAdmin role is required.");
   }

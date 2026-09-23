@@ -10,6 +10,7 @@ import {
   FirestoreStudentAccessStore,
   type StudentAccessStore,
 } from "./studentAccessCode";
+import { hasUserRole } from "../auth/userRoles";
 
 /**
  * Liaison parent ↔ enfant, autoritaire côté serveur.
@@ -57,7 +58,8 @@ export const linkRateLimit = {
 
 export interface ChildLinkStore {
   /** Rôle stocké du compte appelant (`parent`, `student`, …), ou undefined. */
-  readRole(uid: string): Promise<string | undefined>;
+  /** Profil `users/{uid}` du compte, pour en lire les espaces. */
+  readUser(uid: string): Promise<Record<string, unknown> | undefined>;
 
   /** Vrai si le parent est temporairement bloqué (trop d'échecs récents). */
   isRateLimited(parentId: string): Promise<boolean>;
@@ -112,10 +114,9 @@ export function generateLinkCode(
 }
 
 export class FirestoreChildLinkStore implements ChildLinkStore {
-  async readRole(uid: string): Promise<string | undefined> {
+  async readUser(uid: string): Promise<Record<string, unknown> | undefined> {
     const snapshot = await db.collection("users").doc(uid).get();
-    const role = snapshot.data()?.role;
-    return typeof role === "string" ? role : undefined;
+    return snapshot.data();
   }
 
   async isRateLimited(parentId: string): Promise<boolean> {
@@ -261,8 +262,8 @@ export class FirestoreChildLinkStore implements ChildLinkStore {
   }
 }
 
-function requireParent(role: string | undefined): void {
-  if (role !== "parent") {
+function requireParent(user: Record<string, unknown> | undefined): void {
+  if (!hasUserRole(user, "parent")) {
     throw new HttpsError(
       "permission-denied",
       "Seul un compte parent peut rattacher un enfant.",
@@ -270,8 +271,8 @@ function requireParent(role: string | undefined): void {
   }
 }
 
-function requireStudent(role: string | undefined): void {
-  if (role !== "student") {
+function requireStudent(user: Record<string, unknown> | undefined): void {
+  if (!hasUserRole(user, "student")) {
     throw new HttpsError(
       "permission-denied",
       "Seul un compte élève possède un code de liaison.",
@@ -290,7 +291,7 @@ export function createLinkChildByCodeHandler(
     if (!uid) {
       throw new HttpsError("unauthenticated", "Firebase Auth is required.");
     }
-    requireParent(await store.readRole(uid));
+    requireParent(await store.readUser(uid));
 
     // Anti-bruteforce : au-delà du seuil d'échecs, on refuse sans révéler quoi
     // que ce soit sur l'existence d'un code (aucune énumération possible).
@@ -351,7 +352,7 @@ async function resolveLinkCodeSubject(
   const studentId =
     typeof data?.studentId === "string" ? data.studentId.trim() : "";
   if (studentId.length === 0 || studentId === uid) {
-    requireStudent(await store.readRole(uid));
+    requireStudent(await store.readUser(uid));
     return uid;
   }
   if (studentId.length > 128 || studentId.includes("/")) {
