@@ -1,3 +1,8 @@
+> **Document remplacé.** La revue indépendante de 7ea5cf0 a invalidé plusieurs
+> affirmations de ce rapport (suite de tests, liaison Google, parcours). Voir
+> `docs/release/AUTH_V2_FINAL_REWORK_REPORT_2026-09-23.md`. Ce texte est
+> conservé tel quel pour l'historique.
+
 # Rapport d'Implémentation et Sceau — Authentification Expérience V2 & Google Sign-In
 **Intellia237 — Cycle de Modernisation de l'Expérience d'Authentification**  
 *Date : 22 Septembre 2026*  

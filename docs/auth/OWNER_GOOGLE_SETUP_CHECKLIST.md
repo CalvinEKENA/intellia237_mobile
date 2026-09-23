@@ -1,129 +1,137 @@
-# Intellia237 — Guide de Configuration Google Sign-In & GCP OAuth
-**Destiné au Propriétaire du Projet (Project Owner Setup Checklist)**  
-*Date de révision : 22 Septembre 2026*  
-*Application : Intellia (com.intellia237.app)*  
-*Environnement de Production : `edunova-aabd1`*
+# INTELLIA237 — « Continuer avec Google » : checklist du propriétaire
+
+*Révision : 23 septembre 2026 — refonte Auth V2 (branche `fix/auth-v2-final-rework`).*
+*Remplace la version du 22 septembre, qui visait une application inexistante
+(`com.intellia237.app`) et décrivait le flux web `signInWithProvider`.*
+
+Rien dans ce document n'a été exécuté par l'équipe de développement : aucune
+console Firebase ou Google Cloud n'a été modifiée, rien n'a été déployé.
+Chaque étape ci-dessous est une action du propriétaire.
 
 ---
 
-## 1. Contexte & Principes Fondamentaux
+## 1. Applications et projets concernés
 
-L'expérience d'authentification v2 d'Intellia repose sur le principe fondamental :
-$$\text{IDENTITÉ} \neq \text{MÉTHODE D'ACCÈS} \neq \text{RÔLE} \neq \text{ÉTABLISSEMENT}$$
+| Environnement | Projet Firebase | Identifiant Android | Fichier de configuration dans le dépôt |
+| --- | --- | --- | --- |
+| Production | `edunova-aabd1` | `com.edunova.app` (saveur `production`) | `android/app/google-services.json` |
+| Staging | `intellia237-staging` | `com.intellia237.app.staging` (saveur `staging`) | `android/app/src/staging/google-services.json` |
 
-La méthode Google Sign-In offre une authentification rapide, sécurisée et sans friction pour les utilisateurs disposant d'un compte Google. Pour fonctionner sur les terminaux Android des élèves, parents et enseignants sans déclencher d'erreur `10: DEVELOPER_ERROR` ou `12500`, les identifiants OAuth 2.0 et les empreintes d'intégrité doivent être rigoureusement déclarés dans la Google Cloud Platform (GCP) et la console Firebase du projet de production **`edunova-aabd1`** (et **non** le projet obsolète `aureon-7ac27`).
+Source : `android/app/build.gradle.kts` (`productFlavors`). Aucune application
+`com.intellia237.app` n'existe.
 
----
+État constaté le 23/09 : les deux fichiers `google-services.json` ne contiennent
+**aucune** entrée `oauth_client`. Tant que ce n'est pas corrigé, Google renvoie
+une erreur de configuration et l'application affiche : « La connexion Google
+n'est pas encore disponible sur cette version. Utilisez votre numéro de
+téléphone. »
 
-## 2. Checklist d'Activation Firebase & GCP
+## 2. Le flux réellement utilisé
 
-### Étape 1 : Activer le Fournisseur Google dans Firebase Console
-1. Accéder à [Firebase Console](https://console.firebase.google.com/) $\rightarrow$ Sélectionner le projet **`edunova-aabd1`**.
-2. Dans le menu de gauche, naviguer vers **Build** $\rightarrow$ **Authentication** $\rightarrow$ Onglet **Sign-in method**.
-3. Cliquer sur le fournisseur **Google**.
-4. Basculer l'interrupteur sur **Activé** (Enable).
-5. Sélectionner l'**E-mail d'assistance pour le projet** (Project support email) dans le menu déroulant (obligatoire pour Google Identity).
-6. Nom public du projet : `Intellia` (ou `Intellia237`).
-7. Cliquer sur **Enregistrer** (Save).
+Flux **natif Android** (Credential Manager), via `google_sign_in` 7.2 :
 
----
+1. Le sélecteur de comptes Google du téléphone renvoie un **jeton d'identité
+   Google** (ID token). Aucune session Firebase n'est ouverte à ce stade.
+2. La callable `probeGoogleIdentity` vérifie ce jeton (signature, émetteur,
+   **audience = client OAuth Web**, expiration) et répond seulement
+   « existing » ou « unknown ». Elle ne crée rien.
+3. Compte connu : `signInWithCredential(GoogleAuthProvider.credential(idToken))`.
+   Compte inconnu : la question « Vous utilisez déjà INTELLIA237 ? » ; « Oui »
+   → connexion réelle au compte existant (téléphone ou e-mail) puis
+   `linkWithCredential` sur **le même UID** ; « Non » → nouvelle identité, en
+   Découverte.
 
-### Étape 2 : Configuration de l'Écran de Consentement OAuth (GCP Console)
-1. Ouvrir la console Google Cloud : [GCP APIs & Services $\rightarrow$ OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent).
-2. S'assurer que le projet sélectionné en haut est bien **`edunova-aabd1`**.
-3. Type d'utilisateur : **Externe** (External) $\rightarrow$ Cliquer sur *Créer*.
-4. Informations sur l'application :
-   - **Nom de l'application** : `Intellia`
-   - **Adresse e-mail d'assistance utilisateur** : [votre e-mail officiel ou contact@intellia237.com]
-   - **Logo de l'application** : (Optionnel, respecter le format carré 120x120px)
-   - **Domaine d'application** :
-     - Lien vers la page d'accueil : `https://edunova-aabd1.web.app` (ou domaine officiel)
-     - Lien vers les règles de confidentialité : `https://edunova-aabd1.web.app/privacy`
-     - Lien vers les conditions d'utilisation : `https://edunova-aabd1.web.app/terms`
-   - **Coordonnées du développeur** : [votre e-mail de contact]
-5. Champs d'application (Scopes) :
-   - Ne demander **aucun** champ sensible ou restreint.
-   - Vérifier que seuls les 3 champs standards sont présents :
-     - `.../auth/userinfo.email`
-     - `.../auth/userinfo.profile`
-     - `openid`
-6. Utilisateurs tests (si l'état est "En test") :
-   - Ajouter les adresses Gmail des testeurs internes pour les essais préliminaires.
-   - Soumettre en production ou publier l'application lorsque les tests sont terminés (ne nécessite pas de vérification complexe si aucun scope sensible n'est demandé).
+Ce n'est **pas** le flux web `signInWithProvider` : les empreintes SHA et le
+client OAuth Web sont donc indispensables.
 
----
+## 3. Checklist Firebase / Google Cloud (à faire pour chaque projet)
 
-### Étape 3 : Enregistrement des Empreintes SHA-1 et SHA-256 (Android)
+### Étape 1 — Activer le fournisseur Google
+Firebase Console → projet (`edunova-aabd1`, puis `intellia237-staging`) →
+Authentication → Sign-in method → Google → Activer, choisir l'e-mail
+d'assistance, Enregistrer. L'activation crée le client OAuth **Web** du projet.
 
-Pour qu'Android autorise le jeton Google Identity via Google Play Services, **toutes** les clés de signature doivent être déclarées dans la fiche de l'application Android (`com.intellia237.app`) dans Firebase Console :
+### Étape 2 — Écran de consentement OAuth
+Google Cloud Console → APIs & Services → OAuth consent screen, même projet.
+Type Externe ; nom de l'application INTELLIA237 ; e-mail d'assistance ;
+liens vers la politique de confidentialité et les conditions. Portées : `openid`,
+`email`, `profile` seulement. Publier (aucune portée sensible).
 
-1. Accéder à **Paramètres du projet** (roue crantée) $\rightarrow$ Onglet **Général** $\rightarrow$ Sélectionner l'application Android **`com.intellia237.app`**.
-2. Dans la section **Certificats d'empreinte SHA**, cliquer sur **Ajouter une empreinte** pour chacun des certificats suivants :
+### Étape 3 — Empreintes SHA-1 et SHA-256 de l'application Android
+Firebase Console → Paramètres du projet → Général → application
+`com.edunova.app` (production) ou `com.intellia237.app.staging` (staging) →
+Ajouter une empreinte, pour **chaque** clé qui signe une version installée :
 
-#### A. Empreinte de Débogage Local (Debug Keystore)
-Générée par chaque machine de développement via la commande :
-```bash
-# Windows PowerShell
-keytool -list -v -keystore "$env:USERPROFILE\.android\debug.keystore" -alias androiddebugkey -storepass android -keypass android
-```
-*Ajouter à la fois le SHA-1 et le SHA-256 obtenus.*
+- **Debug** (versions de développement installées depuis un ordinateur) :
+  ```bash
+  keytool -list -v -keystore "%USERPROFILE%\.android\debug.keystore" -alias androiddebugkey -storepass android -keypass android
+  ```
+- **Clé de téléversement** (upload key du keystore de publication) :
+  ```bash
+  keytool -list -v -keystore <chemin du keystore> -alias <alias>
+  ```
+- **Signature d'application Google Play** (versions installées depuis le Play
+  Store, re-signées par Google) : Play Console → l'application → Configuration
+  → Intégrité de l'application → Signature de l'application → copier SHA-1 et
+  SHA-256. Sans elle, Google fonctionne en test local et échoue chez les
+  utilisateurs du Play Store.
 
-#### B. Empreinte de la Clé de Téléversement (Upload Keystore)
-Générée sur le fichier de keystore utilisé pour signer les bundles de publication :
-```bash
-keytool -list -v -keystore android/upload-keystore.jks -alias upload
-```
-*Ajouter le SHA-1 et le SHA-256.*
+Le nom de package déclaré doit être exactement celui de la saveur installée.
 
-#### C. Empreinte de Signature Google Play (Play App Signing) — **CRITIQUE POUR LA PRODUCTION**
-Lorsque l'AAB est téléversé sur Google Play, Google re-signe l'APK distribué avec la clé gérée par Google Play. Sans cette empreinte, Google Sign-In fonctionnera en local mais échouera systématiquement chez les utilisateurs Play Store !
-1. Ouvrir la [Google Play Console](https://play.google.com/console).
-2. Sélectionner **Intellia** $\rightarrow$ Menu **Configuration** $\rightarrow$ **Intégrité de l'application** (App Integrity).
-3. Dans l'onglet **Signature d'application Google Play**, copier :
-   - **Certificat de clé de signature d'application : Empreinte de certificat SHA-1**
-   - **Certificat de clé de signature d'application : Empreinte de certificat SHA-256**
-4. Coller ces deux empreintes dans Firebase Console $\rightarrow$ Application `com.intellia237.app`.
+### Étape 4 — Récupérer le `google-services.json` à jour
+Après les étapes 1 et 3, télécharger le fichier de chaque application et
+remplacer :
+- production : `android/app/google-services.json` ;
+- staging : `android/app/src/staging/google-services.json`.
 
----
+Vérifier que le fichier contient `oauth_client` avec au moins une entrée
+`"client_type": 1` (Android, votre package et vos SHA) et une entrée
+`"client_type": 3` (Web). Ce remplacement est une modification du dépôt à
+committer ; il ne change aucune version.
 
-### Étape 4 : Récupération et Remplacement de `google-services.json`
+Alternative sans nouveau fichier : fournir le client Web à la compilation,
+`--dart-define=GOOGLE_SERVER_CLIENT_ID=<ID du client OAuth Web>.apps.googleusercontent.com`.
 
-Dès que les empreintes SHA et le fournisseur Google ont été enregistrés dans Firebase :
-1. Dans Firebase Console $\rightarrow$ **Paramètres du projet** $\rightarrow$ Application Android `com.intellia237.app`.
-2. Cliquer sur **Télécharger google-services.json**.
-3. Remplacer le fichier existant dans le projet :
-   `android/app/google-services.json`
-4. Vérifier que le fichier JSON téléchargé contient bien :
-   - `"project_id": "edunova-aabd1"`
-   - Dans `oauth_client`, des entrées de type `1` (client Android avec les SHA déclarés) et au moins une entrée de type `3` (client Web Client ID pour l'échange de token).
+### Étape 5 — Configurer la sonde serveur, puis déployer
+La callable `probeGoogleIdentity` refuse tout jeton tant que la variable
+`GOOGLE_OAUTH_CLIENT_IDS` (liste séparée par des virgules) ne contient pas le
+**client OAuth Web** du projet, c'est-à-dire l'audience des jetons émis sur
+Android. Renseigner cette variable dans la configuration des Functions de
+chaque projet avant le déploiement.
 
----
+Ordre de déploiement (propriétaire) : Functions (`probeGoogleIdentity`,
+`manageUserRoles` et les contrôles de rôles), puis règles Firestore. Tant que
+`probeGoogleIdentity` n'est pas déployée, « Continuer avec Google » affiche un
+message réseau et ne crée jamais d'identité.
 
-### Étape 5 : Vérification des Identifiants Client OAuth 2.0 (GCP Credentials)
+### Étape 6 — Vérifier les clients OAuth (lecture seule)
+Google Cloud Console → APIs & Services → Identifiants :
+- « Android client for com.edunova.app » : type Android, package
+  `com.edunova.app`, empreinte correspondant à l'étape 3 ;
+- « Web client (auto created by Google Service) » : c'est l'ID à utiliser dans
+  `GOOGLE_OAUTH_CLIENT_IDS` et, le cas échéant, `GOOGLE_SERVER_CLIENT_ID`.
 
-Vérifier dans la [GCP Console $\rightarrow$ Identifiants](https://console.cloud.google.com/apis/credentials) pour le projet `edunova-aabd1` :
-1. **ID client OAuth 2.0 — Android client for com.intellia237.app (auto created by Google Service)** :
-   - Type : Android
-   - Nom du package : `com.intellia237.app`
-   - Empreinte : doit correspondre à vos SHA enregistrés.
-2. **ID client OAuth 2.0 — Web client (auto created by Google Service)** :
-   - Type : Application Web
-   - Utilisé par `google_sign_in` sous le capot pour obtenir le `idToken` échangé avec `GoogleAuthProvider.credential(idToken: ...)`.
+## 4. Vérifications sur téléphone (non vérifiées à ce jour)
 
----
+| Scénario | Attendu |
+| --- | --- |
+| Sélecteur ouvert puis fermé sans choisir | Retour à l'accueil, aucun message d'erreur. |
+| Compte Google déjà rattaché à un compte INTELLIA237 | L'espace du compte s'ouvre directement. |
+| Compte Google inconnu | « Vous utilisez déjà INTELLIA237 ? » ; aucune identité créée avant la réponse. |
+| « Oui », puis numéro du compte existant et code SMS | Google est ajouté au même compte ; l'espace existant s'ouvre. |
+| « Oui », puis e-mail et mot de passe du compte existant | Idem. |
+| Compte Google déjà rattaché à un autre compte | « Ce compte Google est déjà associé à un autre compte INTELLIA237. » Rien n'est fusionné. |
+| « Non, continuer » | Découverte ; après redémarrage, toujours la Découverte. |
+| Configuration absente (étapes 3-5 non faites) | « La connexion Google n'est pas encore disponible… » ; le téléphone et le code élève restent disponibles. |
 
-## 3. Matrice de Test & Comportements de Secours
+Codes Android attendus : l'annulation arrive en `GoogleSignInExceptionCode.canceled`
+(une configuration incomplète peut aussi se présenter ainsi sur certains
+appareils) ; une configuration absente en `clientConfigurationError` ou
+`providerConfigurationError`.
 
-| Scénario | Comportement Attendu |
-| :--- | :--- |
-| **Utilisateur annule la boîte de dialogue Google** | L'écran d'accueil reste réactif, aucun message d'erreur bloquant. |
-| **Compte Google déjà associé à un compte SMS/Mot de passe existant** | L'application redirige automatiquement vers l'écran sécurisé de liaison (`AccountLinkingScreen`), exigeant la preuve de contrôle du compte existant. Aucun détournement de compte possible. |
-| **Nouvel utilisateur Google sans profil Intellia** | Redirection vers le sas sécurisé `GoogleDiscoveryLandingScreen` proposant soit le Mode Découverte (hors-ligne/isolé), soit la complétion de profil avec son rôle d'usage. |
-| **Connexion sans Play Services ou configuration GCP incomplète** | L'erreur est capturée proprement, l'interface affiche un message d'explication amical et invite à utiliser l'authentification par numéro camerounais (+237) ou code élève. |
-
----
-
-## 4. Résumé des Interdictions Strictes
-- **NE PAS** modifier le `project_id` vers un projet autre que `edunova-aabd1`.
-- **NE PAS** commiter de clés de signature privées (`upload-keystore.jks`) dans le dépôt public Git.
-- **NE PAS** supprimer les méthodes d'accès par SMS (+237) ni par Code Élève : elles restent le mode d'accès primaire et inclusif de référence au Cameroun.
+## 5. Interdits
+- Ne jamais pointer l'application de production vers un autre projet que
+  `edunova-aabd1`.
+- Ne jamais committer de keystore privé ni de mot de passe de keystore.
+- Ne jamais retirer l'accès par numéro (+237) ni le code élève : ils restent
+  les accès de référence.
