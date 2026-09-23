@@ -491,7 +491,7 @@ abstract class AppLocalizations {
   /// No description provided for @establishmentSecurityNote.
   ///
   /// In fr, this message translates to:
-  /// **'La sélection d’un établissement ne donne accès à aucune donnée privée. L’autorisation du serveur reste obligatoire.'**
+  /// **'Choisir ton école ne donne accès à aucune donnée privée. Ton accès est vérifié avant d’être ouvert.'**
   String get establishmentSecurityNote;
 
   /// No description provided for @individualAccount.
@@ -685,12 +685,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Identité cible : téléphone + code OTP'**
   String get phoneIdentityTarget;
-
-  /// No description provided for @temporaryEmailNotice.
-  ///
-  /// In fr, this message translates to:
-  /// **'Dans cette version, un e-mail technique reste temporairement nécessaire pour créer le compte Firebase. Il ne constitue pas l’identité principale cible.'**
-  String get temporaryEmailNotice;
 
   /// No description provided for @temporaryEmailLabel.
   ///
@@ -983,7 +977,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneErrorTooManyRequests.
   ///
   /// In fr, this message translates to:
-  /// **'Les demandes de code sont temporairement bloquées par Firebase. Le délai de déblocage n’est pas communiqué et peut dépasser une heure. Évite les demandes répétées. Si tu as déjà associé un e-mail à ton compte, utilise-le pour te connecter.'**
+  /// **'Trop de demandes de code pour ce numéro. Attends un moment avant de réessayer : cela peut prendre plus d’une heure. Si ton compte a un e-mail, tu peux t’en servir pour te connecter.'**
   String get phoneErrorTooManyRequests;
 
   /// No description provided for @phoneErrorAppVerification.
@@ -1019,7 +1013,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneErrorDisabled.
   ///
   /// In fr, this message translates to:
-  /// **'La connexion par téléphone doit être activée dans Firebase Authentication.'**
+  /// **'La connexion par téléphone n’est pas disponible pour le moment. Réessaie plus tard.'**
   String get phoneErrorDisabled;
 
   /// No description provided for @phoneErrorCollision.
@@ -2189,7 +2183,7 @@ abstract class AppLocalizations {
   /// No description provided for @authChooseProfileBody.
   ///
   /// In fr, this message translates to:
-  /// **'Choisis le profil à créer. Ta session Firebase vérifiée sera réutilisée.'**
+  /// **'Choisis le profil à créer. Ton numéro est déjà vérifié.'**
   String get authChooseProfileBody;
 
   /// No description provided for @authProfileSyncFailureBody.
@@ -2645,7 +2639,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizOfflineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec ton parcours ou une leçon téléchargée.'**
+  /// **'Un quiz a besoin d’internet : sa correction se fait en ligne et tes réponses ne sont pas gardées sur le téléphone. Tu peux continuer ton parcours ou une leçon téléchargée.'**
   String get quizOfflineBody;
 
   /// No description provided for @openOfflineFlow.
@@ -2705,7 +2699,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizPausedOfflineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les corrections et l’envoi sont vérifiés par le serveur. Pour protéger l’évaluation, aucune réponse ni aucun corrigé n’est conservé hors ligne.'**
+  /// **'La correction se fait en ligne. Tes réponses et les corrigés ne sont pas gardés sur le téléphone.'**
   String get quizPausedOfflineBody;
 
   /// No description provided for @displayLabel.
@@ -2837,7 +2831,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizFirstResultBody.
   ///
   /// In fr, this message translates to:
-  /// **'Aucun résultat inventé ici : ta première tentative apparaîtra après sa validation par le serveur.'**
+  /// **'Ton premier résultat apparaîtra ici une fois ta tentative corrigée.'**
   String get quizFirstResultBody;
 
   /// No description provided for @quizMasteryUnavailable.
@@ -2897,7 +2891,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizNeedsNetworkBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le serveur protège la correction et valide l’envoi. Intellia237 ne met ni tes réponses ni les corrigés en cache. Reconnecte-toi pour commencer, ou poursuis une activité disponible hors ligne.'**
+  /// **'La correction se fait en ligne, et rien n’est gardé sur le téléphone. Reconnecte-toi pour commencer, ou continue une activité disponible sans internet.'**
   String get quizNeedsNetworkBody;
 
   /// No description provided for @quizPlayOfflineTitle.
@@ -2909,7 +2903,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizPlayOfflineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le contenu, la correction et l’envoi sont vérifiés par le serveur. Intellia237 ne conserve ni tes réponses ni les corrigés hors ligne. Reconnecte-toi, ou poursuis une activité déjà disponible sur cet appareil.'**
+  /// **'Ce quiz a besoin d’internet pour être corrigé. Reconnecte-toi, ou continue une activité déjà disponible sur ce téléphone.'**
   String get quizPlayOfflineBody;
 
   /// No description provided for @quizQuestionsComingTitle.
@@ -2969,7 +2963,7 @@ abstract class AppLocalizations {
   /// No description provided for @guidedCorrectionFailureBody.
   ///
   /// In fr, this message translates to:
-  /// **'{reason}\nTa réponse reste saisie sur cet écran et n’est pas mise en cache.'**
+  /// **'{reason}\nTa réponse reste sur cet écran.'**
   String guidedCorrectionFailureBody(String reason);
 
   /// No description provided for @continueWithoutCorrection.
@@ -3089,7 +3083,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizSubmissionUnavailable.
   ///
   /// In fr, this message translates to:
-  /// **'Le serveur n’a pas pu valider cette tentative pour le moment.'**
+  /// **'Ta tentative n’a pas pu être corrigée pour le moment. Réessaie dans un instant.'**
   String get quizSubmissionUnavailable;
 
   /// No description provided for @singleAnswerQcm.
@@ -3299,7 +3293,7 @@ abstract class AppLocalizations {
   /// No description provided for @flowSyncContentNotValidated.
   ///
   /// In fr, this message translates to:
-  /// **'Cette activité du parcours n’est pas encore validée par le serveur.'**
+  /// **'Cette activité n’est pas encore prête.'**
   String get flowSyncContentNotValidated;
 
   /// No description provided for @flowSyncDuplicate.
@@ -3326,77 +3320,11 @@ abstract class AppLocalizations {
   /// **'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.'**
   String get flowDailyCapReached;
 
-  /// No description provided for @companionSpeak.
-  ///
-  /// In fr, this message translates to:
-  /// **'Parler'**
-  String get companionSpeak;
-
   /// No description provided for @companionSend.
   ///
   /// In fr, this message translates to:
   /// **'Envoyer'**
   String get companionSend;
-
-  /// No description provided for @companionMicRationale.
-  ///
-  /// In fr, this message translates to:
-  /// **'{name} a besoin du micro pour t’écouter. Rien n’est enregistré sans que tu envoies.'**
-  String companionMicRationale(String name);
-
-  /// No description provided for @companionMicDenied.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le micro est refusé. Tu peux l’autoriser dans les réglages, ou écrire ta question.'**
-  String get companionMicDenied;
-
-  /// No description provided for @companionMicUnavailable.
-  ///
-  /// In fr, this message translates to:
-  /// **'La dictée n’est pas disponible sur cet appareil. Tu peux écrire ta question.'**
-  String get companionMicUnavailable;
-
-  /// No description provided for @companionListening.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je t’écoute'**
-  String get companionListening;
-
-  /// No description provided for @companionDictationCancel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Annuler'**
-  String get companionDictationCancel;
-
-  /// No description provided for @companionDictationStop.
-  ///
-  /// In fr, this message translates to:
-  /// **'Arrêter'**
-  String get companionDictationStop;
-
-  /// No description provided for @companionDictationNearEnd.
-  ///
-  /// In fr, this message translates to:
-  /// **'Bientôt la fin'**
-  String get companionDictationNearEnd;
-
-  /// No description provided for @companionDictationFailed.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je n’ai pas bien entendu. Tu peux réessayer ou écrire.'**
-  String get companionDictationFailed;
-
-  /// No description provided for @companionListen.
-  ///
-  /// In fr, this message translates to:
-  /// **'Écouter'**
-  String get companionListen;
-
-  /// No description provided for @companionPauseListening.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pause'**
-  String get companionPauseListening;
 
   /// No description provided for @companionHistoryTitle.
   ///
@@ -3497,7 +3425,7 @@ abstract class AppLocalizations {
   /// No description provided for @talkToCompanion.
   ///
   /// In fr, this message translates to:
-  /// **'Parler à mon compagnon'**
+  /// **'Écrire à mon compagnon'**
   String get talkToCompanion;
 
   /// No description provided for @forYouEyebrow.
@@ -4193,7 +4121,7 @@ abstract class AppLocalizations {
   /// No description provided for @totalPendingValidation.
   ///
   /// In fr, this message translates to:
-  /// **'Total en attente de validation serveur'**
+  /// **'Total en attente de vérification'**
   String get totalPendingValidation;
 
   /// No description provided for @totalVerifiedPoints.
@@ -6205,7 +6133,7 @@ abstract class AppLocalizations {
   /// No description provided for @aiGenerationBackendOnly.
   ///
   /// In fr, this message translates to:
-  /// **'La génération automatique se fait côté serveur, jamais depuis cet écran.'**
+  /// **'La génération automatique ne se lance pas depuis cet écran.'**
   String get aiGenerationBackendOnly;
 
   /// No description provided for @aiGenerationBackendInstructions.
@@ -9217,7 +9145,7 @@ abstract class AppLocalizations {
   /// No description provided for @authErrorGoogleNotConfigured.
   ///
   /// In fr, this message translates to:
-  /// **'La connexion Google n’est pas encore disponible sur cette version. Utilisez votre numéro de téléphone.'**
+  /// **'Connexion Google bientôt disponible. Utilisez votre numéro de téléphone.'**
   String get authErrorGoogleNotConfigured;
 
   /// No description provided for @authErrorGoogleUnavailable.

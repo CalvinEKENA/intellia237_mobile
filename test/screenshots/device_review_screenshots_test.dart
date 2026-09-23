@@ -12,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intellia237/core/widgets/tab_presentation.dart';
-import 'package:intellia237/features/ai_companion/data/speech_services.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
 import 'package:intellia237/features/ai_companion/presentation/widgets/chat_bubble.dart';
 import 'package:intellia237/features/ai_companion/presentation/widgets/companion_composer.dart';
@@ -172,9 +171,6 @@ void main() {
     await capture(
       tester,
       '04_companion_chat_rest.png',
-      overrides: [
-        speechRecognizerProvider.overrideWithValue(_IdleRecognizer()),
-      ],
       child: surface(
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -192,13 +188,10 @@ void main() {
     );
   });
 
-  testWidgets('05 « Parler » devient « Envoyer »', (tester) async {
+  testWidgets('05 « Envoyer » s’active dès la saisie', (tester) async {
     await capture(
       tester,
       '05_companion_chat_typing.png',
-      overrides: [
-        speechRecognizerProvider.overrideWithValue(_IdleRecognizer()),
-      ],
       child: surface(
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -304,26 +297,4 @@ void main() {
       ),
     );
   });
-}
-
-/// Reconnaissance vocale inerte : les captures ne demandent aucun micro.
-class _IdleRecognizer implements SpeechRecognizer {
-  @override
-  bool get isAvailable => true;
-
-  @override
-  Future<bool> initialize() async => true;
-
-  @override
-  Future<void> listen({
-    required String localeId,
-    required void Function(String transcript, bool isFinal) onResult,
-    required void Function(double level) onSoundLevel,
-  }) async {}
-
-  @override
-  Future<void> stop() async {}
-
-  @override
-  Future<void> cancel() async {}
 }

@@ -220,25 +220,20 @@ Future<void> bootstrap({
                   size: 64,
                 ),
                 const SizedBox(height: 16),
+                // Aucune précision technique à l'écran : elle est déjà dans
+                // les journaux ci-dessus.
                 const Text(
-                  'Une erreur est survenue au démarrage.',
+                  'INTELLIA237 n’a pas pu démarrer.',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Code diagnostic : APP-START-500',
+                  'Fermez l’application puis rouvrez-la. Si le problème '
+                  'continue, vérifiez votre connexion internet.',
                   style: TextStyle(color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
-                if (config.isStaging || kDebugMode) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    error.toString(),
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
               ],
             ),
           ),

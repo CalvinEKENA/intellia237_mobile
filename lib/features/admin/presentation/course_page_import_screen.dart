@@ -177,7 +177,7 @@ class _CoursePageImportScreenState
               setState(
                 () => _progress = done < total
                     ? 'Dépôt des pages : $done/$total'
-                    : 'Lecture des pages par Gemini… jusqu’à deux minutes.',
+                    : 'Lecture des pages en cours… jusqu’à deux minutes.',
               );
             },
           );
@@ -502,7 +502,7 @@ class _CoursePageImportScreenState
 
     return [
       Text(
-        'Relisez tout : Gemini peut mal lire une formule ou une page floue. '
+        'Relisez tout : la lecture automatique peut mal lire une formule ou une page floue. '
         'Rien n’est publié — ce que vous gardez devient brouillon.',
         style: theme.textTheme.bodyMedium,
       ),

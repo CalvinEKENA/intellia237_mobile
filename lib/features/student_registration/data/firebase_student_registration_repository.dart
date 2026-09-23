@@ -251,7 +251,8 @@ class FirebaseStudentRegistrationRepository
             technicalMessage: technicalMessage,
           );
     throw StudentRegistrationException(
-      message: '$baseMessage\n[$diagnosticId]',
+      // La référence technique reste dans les journaux, jamais à l'écran.
+      message: baseMessage,
       code: normalized,
       registrationOperation: classifiedOperation.code,
       diagnosticId: diagnosticId,

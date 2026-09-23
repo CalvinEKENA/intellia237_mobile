@@ -18,7 +18,6 @@ import '../../interactive_learning/domain/interactive_block.dart';
 import '../../interactive_learning/presentation/interactive_block_view.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import 'widgets/chat_bubble.dart';
-import '../application/listen_controller.dart';
 import 'widgets/companion_composer.dart';
 import 'widgets/companion_history_sheet.dart';
 
@@ -234,9 +233,6 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     final message = _controller.text.trim();
     if (message.isEmpty) return;
     _controller.clear();
-    // Un nouvel envoi interrompt proprement la lecture en cours ; elle ne
-    // reprend jamais d'elle-même.
-    unawaited(ref.read(listenControllerProvider.notifier).stop());
     ref.read(aiCompanionControllerProvider.notifier).send(message);
   }
 

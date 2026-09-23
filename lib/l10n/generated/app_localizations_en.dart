@@ -222,7 +222,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get establishmentSecurityNote =>
-      'Selecting a school grants no access to private data. Server authorisation remains mandatory.';
+      'Choosing your school gives no access to private data. Your access is checked before it opens.';
 
   @override
   String get individualAccount => 'Individual student account';
@@ -324,10 +324,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneIdentityTarget => 'Target identity: phone + OTP code';
-
-  @override
-  String get temporaryEmailNotice =>
-      'In this version, a technical email is still temporarily required to create the Firebase account. It is not the target primary identity.';
 
   @override
   String get temporaryEmailLabel => 'Technical email (temporary)';
@@ -499,7 +495,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneErrorTooManyRequests =>
-      'Firebase has temporarily blocked code requests. No unblock time is provided and it may take more than an hour. Avoid repeated requests. If you have already linked an email to your account, use it to sign in.';
+      'Too many code requests for this number. Wait a while before trying again: it can take more than an hour. If your account has an email, you can use it to sign in.';
 
   @override
   String get phoneErrorAppVerification =>
@@ -524,7 +520,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneErrorDisabled =>
-      'Phone sign-in must be enabled in Firebase Authentication.';
+      'Phone sign-in is not available right now. Try again later.';
 
   @override
   String get phoneErrorCollision =>
@@ -1191,7 +1187,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authChooseProfileBody =>
-      'Choose the profile to create. Your verified Firebase session will be reused.';
+      'Choose the profile to create. Your number is already verified.';
 
   @override
   String get authProfileSyncFailureBody =>
@@ -1477,7 +1473,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quizOfflineBody =>
-      'Quizzes cannot start offline: the server protects answer checking and validates submissions without storing your answers offline. You can continue with your learning path or a downloaded lesson.';
+      'A quiz needs the internet: it is checked online and your answers are not kept on the phone. You can continue your learning path or a downloaded lesson.';
 
   @override
   String get openOfflineFlow => 'Open my learning path offline';
@@ -1509,7 +1505,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quizPausedOfflineBody =>
-      'Answer checking and submissions are verified by the server. To protect assessments, no answers or corrections are stored offline.';
+      'Answers are checked online. Your answers and the corrections are not kept on the phone.';
 
   @override
   String get displayLabel => 'Show';
@@ -1585,7 +1581,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quizFirstResultBody =>
-      'No result is fabricated here: your first attempt will appear after the server validates it.';
+      'Your first result will appear here once your attempt is checked.';
 
   @override
   String get quizMasteryUnavailable =>
@@ -1628,14 +1624,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quizNeedsNetworkBody =>
-      'The server protects answer checking and validates submissions. Intellia237 does not cache your answers or corrections. Reconnect to begin, or continue with an activity already available offline.';
+      'Answers are checked online and nothing is kept on the phone. Reconnect to begin, or continue an activity available without internet.';
 
   @override
   String get quizPlayOfflineTitle => 'Quiz unavailable offline';
 
   @override
   String get quizPlayOfflineBody =>
-      'Content, answer checking and submissions are verified by the server. Intellia237 does not store your answers or corrections offline. Reconnect, or continue with an activity already available on this device.';
+      'This quiz needs the internet to be checked. Reconnect, or continue an activity already available on this phone.';
 
   @override
   String get quizQuestionsComingTitle => 'Questions are being prepared';
@@ -1667,7 +1663,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String guidedCorrectionFailureBody(String reason) {
-    return '$reason\nYour answer remains on this screen and is not cached.';
+    return '$reason\nYour answer stays on this screen.';
   }
 
   @override
@@ -1748,7 +1744,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quizSubmissionUnavailable =>
-      'The server could not validate this attempt right now.';
+      'Your attempt could not be checked right now. Try again in a moment.';
 
   @override
   String get singleAnswerQcm => 'Multiple choice — One correct answer';
@@ -1866,8 +1862,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Learning path point validation is reserved for student profiles.';
 
   @override
-  String get flowSyncContentNotValidated =>
-      'This learning path activity is not validated by the server yet.';
+  String get flowSyncContentNotValidated => 'This activity is not ready yet.';
 
   @override
   String get flowSyncDuplicate =>
@@ -1886,45 +1881,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Daily cap reached: come back tomorrow to earn more points.';
 
   @override
-  String get companionSpeak => 'Speak';
-
-  @override
   String get companionSend => 'Send';
-
-  @override
-  String companionMicRationale(String name) {
-    return '$name needs the microphone to listen to you. Nothing is recorded unless you send it.';
-  }
-
-  @override
-  String get companionMicDenied =>
-      'The microphone is blocked. You can allow it in settings, or write your question.';
-
-  @override
-  String get companionMicUnavailable =>
-      'Dictation is not available on this device. You can write your question.';
-
-  @override
-  String get companionListening => 'I am listening';
-
-  @override
-  String get companionDictationCancel => 'Cancel';
-
-  @override
-  String get companionDictationStop => 'Stop';
-
-  @override
-  String get companionDictationNearEnd => 'Almost done';
-
-  @override
-  String get companionDictationFailed =>
-      'I did not catch that. You can try again or write.';
-
-  @override
-  String get companionListen => 'Listen';
-
-  @override
-  String get companionPauseListening => 'Pause';
 
   @override
   String get companionHistoryTitle => 'Your conversations';
@@ -1979,7 +1936,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discoverFlow => 'Explore My Learning Path';
 
   @override
-  String get talkToCompanion => 'Talk to my companion';
+  String get talkToCompanion => 'Write to my companion';
 
   @override
   String get forYouEyebrow => 'For you';
@@ -2406,7 +2363,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get totalPendingValidation => 'Total awaiting server validation';
+  String get totalPendingValidation => 'Total waiting to be checked';
 
   @override
   String totalVerifiedPoints(int count) {
@@ -3531,7 +3488,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiGenerationBackendOnly =>
-      'Automatic generation runs on the server, never from this screen.';
+      'Automatic generation does not start from this screen.';
 
   @override
   String get aiGenerationBackendInstructions =>
@@ -4571,23 +4528,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleConflictCredentialsStudentAccount =>
-      'These credentials open a student account.';
+      'This sign-in opens a student account.';
 
   @override
   String get roleConflictCredentialsParentAccount =>
-      'These credentials open a parent account.';
+      'This sign-in opens a parent account.';
 
   @override
   String get roleConflictCredentialsStaffAccount =>
-      'These credentials open a school staff account.';
+      'This sign-in opens a school staff account.';
 
   @override
   String get roleConflictUseParentCredentials =>
-      'To create or open a parent space, use the parent’s credentials.';
+      'To create or open a parent space, sign in with the parent’s own number or email.';
 
   @override
   String get roleConflictUseStudentCredentials =>
-      'To open the student space, use the student’s credentials.';
+      'To open the student space, sign in with the student’s own number or code.';
 
   @override
   String get roleConflictChildCodeKept => 'The child code is still saved.';
@@ -5354,7 +5311,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authErrorGoogleNotConfigured =>
-      'Google sign-in is not available on this version yet. Use your phone number.';
+      'Google sign-in coming soon. Use your phone number.';
 
   @override
   String get authErrorGoogleUnavailable =>

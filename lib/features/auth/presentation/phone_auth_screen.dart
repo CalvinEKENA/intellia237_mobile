@@ -17,7 +17,6 @@ import '../application/auth_state.dart';
 import '../application/phone_auth_controller.dart';
 import '../domain/app_role.dart';
 import '../domain/auth_entry_intent.dart';
-import '../domain/firebase_error_mapper.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
@@ -375,9 +374,9 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
             const SizedBox(height: 14),
             AuthErrorBanner(
               key: ValueKey(state.errorCode),
-              message:
-                  '${_localizedPhoneError(l10n, state.errorCode!)}\n'
-                  '${FirebaseErrorMapper.diagnosticId(state.errorCode)}',
+              // La référence technique reste dans les journaux, jamais à
+              // l'écran.
+              message: _localizedPhoneError(l10n, state.errorCode!),
               onDismiss: controller.clearError,
             ),
           ],

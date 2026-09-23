@@ -34,7 +34,7 @@ void main() {
       // État « contenu bientôt disponible » avec vraies portes de sortie.
       expect(find.text('Tes cours arrivent'), findsOneWidget);
       expect(find.text('Découvrir mon parcours'), findsOneWidget);
-      expect(find.text('Parler à mon compagnon'), findsOneWidget);
+      expect(find.text('Écrire à mon compagnon'), findsOneWidget);
 
       // Rien de factice : ni reprise, ni série, ni progression, ni défis.
       expect(find.text('Reprendre le dernier cours'), findsNothing);

@@ -223,7 +223,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get establishmentSecurityNote =>
-      'La sélection d’un établissement ne donne accès à aucune donnée privée. L’autorisation du serveur reste obligatoire.';
+      'Choisir ton école ne donne accès à aucune donnée privée. Ton accès est vérifié avant d’être ouvert.';
 
   @override
   String get individualAccount => 'Compte élève individuel';
@@ -325,10 +325,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneIdentityTarget => 'Identité cible : téléphone + code OTP';
-
-  @override
-  String get temporaryEmailNotice =>
-      'Dans cette version, un e-mail technique reste temporairement nécessaire pour créer le compte Firebase. Il ne constitue pas l’identité principale cible.';
 
   @override
   String get temporaryEmailLabel => 'E-mail technique (temporaire)';
@@ -501,7 +497,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneErrorTooManyRequests =>
-      'Les demandes de code sont temporairement bloquées par Firebase. Le délai de déblocage n’est pas communiqué et peut dépasser une heure. Évite les demandes répétées. Si tu as déjà associé un e-mail à ton compte, utilise-le pour te connecter.';
+      'Trop de demandes de code pour ce numéro. Attends un moment avant de réessayer : cela peut prendre plus d’une heure. Si ton compte a un e-mail, tu peux t’en servir pour te connecter.';
 
   @override
   String get phoneErrorAppVerification =>
@@ -526,7 +522,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneErrorDisabled =>
-      'La connexion par téléphone doit être activée dans Firebase Authentication.';
+      'La connexion par téléphone n’est pas disponible pour le moment. Réessaie plus tard.';
 
   @override
   String get phoneErrorCollision =>
@@ -1201,7 +1197,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get authChooseProfileBody =>
-      'Choisis le profil à créer. Ta session Firebase vérifiée sera réutilisée.';
+      'Choisis le profil à créer. Ton numéro est déjà vérifié.';
 
   @override
   String get authProfileSyncFailureBody =>
@@ -1484,7 +1480,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizOfflineBody =>
-      'Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec ton parcours ou une leçon téléchargée.';
+      'Un quiz a besoin d’internet : sa correction se fait en ligne et tes réponses ne sont pas gardées sur le téléphone. Tu peux continuer ton parcours ou une leçon téléchargée.';
 
   @override
   String get openOfflineFlow => 'Ouvrir mon parcours hors ligne';
@@ -1516,7 +1512,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizPausedOfflineBody =>
-      'Les corrections et l’envoi sont vérifiés par le serveur. Pour protéger l’évaluation, aucune réponse ni aucun corrigé n’est conservé hors ligne.';
+      'La correction se fait en ligne. Tes réponses et les corrigés ne sont pas gardés sur le téléphone.';
 
   @override
   String get displayLabel => 'Afficher';
@@ -1595,7 +1591,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizFirstResultBody =>
-      'Aucun résultat inventé ici : ta première tentative apparaîtra après sa validation par le serveur.';
+      'Ton premier résultat apparaîtra ici une fois ta tentative corrigée.';
 
   @override
   String get quizMasteryUnavailable =>
@@ -1638,14 +1634,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizNeedsNetworkBody =>
-      'Le serveur protège la correction et valide l’envoi. Intellia237 ne met ni tes réponses ni les corrigés en cache. Reconnecte-toi pour commencer, ou poursuis une activité disponible hors ligne.';
+      'La correction se fait en ligne, et rien n’est gardé sur le téléphone. Reconnecte-toi pour commencer, ou continue une activité disponible sans internet.';
 
   @override
   String get quizPlayOfflineTitle => 'Quiz indisponible hors connexion';
 
   @override
   String get quizPlayOfflineBody =>
-      'Le contenu, la correction et l’envoi sont vérifiés par le serveur. Intellia237 ne conserve ni tes réponses ni les corrigés hors ligne. Reconnecte-toi, ou poursuis une activité déjà disponible sur cet appareil.';
+      'Ce quiz a besoin d’internet pour être corrigé. Reconnecte-toi, ou continue une activité déjà disponible sur ce téléphone.';
 
   @override
   String get quizQuestionsComingTitle => 'Questions en préparation';
@@ -1677,7 +1673,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String guidedCorrectionFailureBody(String reason) {
-    return '$reason\nTa réponse reste saisie sur cet écran et n’est pas mise en cache.';
+    return '$reason\nTa réponse reste sur cet écran.';
   }
 
   @override
@@ -1761,7 +1757,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizSubmissionUnavailable =>
-      'Le serveur n’a pas pu valider cette tentative pour le moment.';
+      'Ta tentative n’a pas pu être corrigée pour le moment. Réessaie dans un instant.';
 
   @override
   String get singleAnswerQcm => 'QCM — Une seule bonne réponse';
@@ -1880,7 +1876,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get flowSyncContentNotValidated =>
-      'Cette activité du parcours n’est pas encore validée par le serveur.';
+      'Cette activité n’est pas encore prête.';
 
   @override
   String get flowSyncDuplicate =>
@@ -1899,45 +1895,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.';
 
   @override
-  String get companionSpeak => 'Parler';
-
-  @override
   String get companionSend => 'Envoyer';
-
-  @override
-  String companionMicRationale(String name) {
-    return '$name a besoin du micro pour t’écouter. Rien n’est enregistré sans que tu envoies.';
-  }
-
-  @override
-  String get companionMicDenied =>
-      'Le micro est refusé. Tu peux l’autoriser dans les réglages, ou écrire ta question.';
-
-  @override
-  String get companionMicUnavailable =>
-      'La dictée n’est pas disponible sur cet appareil. Tu peux écrire ta question.';
-
-  @override
-  String get companionListening => 'Je t’écoute';
-
-  @override
-  String get companionDictationCancel => 'Annuler';
-
-  @override
-  String get companionDictationStop => 'Arrêter';
-
-  @override
-  String get companionDictationNearEnd => 'Bientôt la fin';
-
-  @override
-  String get companionDictationFailed =>
-      'Je n’ai pas bien entendu. Tu peux réessayer ou écrire.';
-
-  @override
-  String get companionListen => 'Écouter';
-
-  @override
-  String get companionPauseListening => 'Pause';
 
   @override
   String get companionHistoryTitle => 'Tes conversations';
@@ -1992,7 +1950,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get discoverFlow => 'Découvrir mon parcours';
 
   @override
-  String get talkToCompanion => 'Parler à mon compagnon';
+  String get talkToCompanion => 'Écrire à mon compagnon';
 
   @override
   String get forYouEyebrow => 'Pour toi';
@@ -2421,7 +2379,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get totalPendingValidation => 'Total en attente de validation serveur';
+  String get totalPendingValidation => 'Total en attente de vérification';
 
   @override
   String totalVerifiedPoints(int count) {
@@ -3552,7 +3510,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aiGenerationBackendOnly =>
-      'La génération automatique se fait côté serveur, jamais depuis cet écran.';
+      'La génération automatique ne se lance pas depuis cet écran.';
 
   @override
   String get aiGenerationBackendInstructions =>
@@ -5394,7 +5352,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get authErrorGoogleNotConfigured =>
-      'La connexion Google n’est pas encore disponible sur cette version. Utilisez votre numéro de téléphone.';
+      'Connexion Google bientôt disponible. Utilisez votre numéro de téléphone.';
 
   @override
   String get authErrorGoogleUnavailable =>
