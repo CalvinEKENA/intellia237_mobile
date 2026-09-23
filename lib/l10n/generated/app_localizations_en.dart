@@ -1944,7 +1944,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authGatewayTitle => 'Welcome to INTELLIA237';
 
   @override
-  String get authGatewaySubtitle => 'Which space would you like to open?';
+  String get authGatewaySubtitle =>
+      'A secure learning space, built for Cameroon.';
 
   @override
   String get todayEyebrow => 'Today';
@@ -5040,4 +5041,399 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get parcoursVideoPending => 'This video isn’t available yet.';
+
+  @override
+  String get authGatewayPhone => 'Continue with my number';
+
+  @override
+  String get authGatewayPhoneSemantics =>
+      'Continue with my Cameroonian phone number';
+
+  @override
+  String get authGatewayStudentCode => 'I have a student code';
+
+  @override
+  String get authGatewayStudentCodeSemantics =>
+      'I have a student code: sign in without a phone or email';
+
+  @override
+  String get authGatewayOr => 'or';
+
+  @override
+  String get authGatewayStaff => 'School staff, teacher or school leader?';
+
+  @override
+  String get authGatewayTerms => 'Terms of use';
+
+  @override
+  String get authGatewayPrivacy => 'Privacy';
+
+  @override
+  String get authAccountSuspended =>
+      'This account is suspended. Contact your school or INTELLIA237 support.';
+
+  @override
+  String get authGoogleContinue => 'Continue with Google';
+
+  @override
+  String get authGoogleInProgress => 'Signing in with Google';
+
+  @override
+  String get authGoogleQuestionEyebrow => 'Google account';
+
+  @override
+  String get authGoogleQuestionTitle => 'Already using INTELLIA237?';
+
+  @override
+  String get authGoogleQuestionBody =>
+      'This Google account does not open any INTELLIA237 account yet. If you already have one, by phone number or by email, find it: Google will be added to it, and your space and data stay the same.';
+
+  @override
+  String authGoogleQuestionAccount(String email) {
+    return 'Google account chosen: $email';
+  }
+
+  @override
+  String get authGoogleQuestionYes => 'Yes, find my account';
+
+  @override
+  String get authGoogleQuestionNo => 'No, continue';
+
+  @override
+  String get authGoogleQuestionNoHint =>
+      'A new INTELLIA237 access is created with this Google account. You explore the app, then create your space whenever you like.';
+
+  @override
+  String get authGoogleQuestionOtherAccount => 'Use another Google account';
+
+  @override
+  String get authGoogleStepExpired =>
+      'This step has expired. Start again with “Continue with Google”.';
+
+  @override
+  String get authBackToGateway => 'Back to the welcome screen';
+
+  @override
+  String get authRecoveryEyebrow => 'Find my account';
+
+  @override
+  String get authRecoveryTitle => 'Sign in to your existing account';
+
+  @override
+  String get authRecoveryBody =>
+      'Prove this account is yours. Google will then be added as a new way to sign in.';
+
+  @override
+  String authRecoveryEmailInUse(String email) {
+    return 'An INTELLIA237 account already uses $email. Sign in to that account to add Google to it.';
+  }
+
+  @override
+  String get authRecoveryByPhone => 'By phone';
+
+  @override
+  String get authRecoveryByEmail => 'By email';
+
+  @override
+  String get authRecoveryPhoneLabel => 'Phone number';
+
+  @override
+  String get authRecoveryPhoneHint => '6XX XX XX XX';
+
+  @override
+  String get authRecoverySendCode => 'Get the code by SMS';
+
+  @override
+  String get authRecoveryCodeLabel => 'Code received by SMS';
+
+  @override
+  String authRecoveryCodeSentTo(String phone) {
+    return 'Code sent to $phone.';
+  }
+
+  @override
+  String get authRecoveryVerifyCode => 'Verify the code';
+
+  @override
+  String get authRecoveryChangeNumber => 'Change number';
+
+  @override
+  String authRecoveryResendIn(int seconds) {
+    return 'New code available in ${seconds}s';
+  }
+
+  @override
+  String get authRecoveryResend => 'Resend the code';
+
+  @override
+  String get authRecoveryEmailLabel => 'Email address';
+
+  @override
+  String get authRecoveryPasswordLabel => 'Password';
+
+  @override
+  String get authRecoverySignIn => 'Sign in and add Google';
+
+  @override
+  String get authRecoveryLinking => 'Adding Google to your account…';
+
+  @override
+  String get authRecoveryNoAccountForPhone =>
+      'No INTELLIA237 account uses this number. Check it, or go back and choose “No, continue”.';
+
+  @override
+  String get authRecoveryNoProfile =>
+      'This account has no INTELLIA237 space yet. Go back and choose “No, continue”.';
+
+  @override
+  String get authRecoveryLinkedElsewhere =>
+      'This Google account is already linked to another INTELLIA237 account.';
+
+  @override
+  String get authRecoveryLinkedElsewhereHelp =>
+      'Nothing was changed or merged. To use this Google account, choose “Continue with Google” from the welcome screen. If in doubt, contact your school or INTELLIA237 support.';
+
+  @override
+  String get authRecoveryProviderTaken =>
+      'Your INTELLIA237 account is already linked to another Google account.';
+
+  @override
+  String get authRecoveryProviderTakenHelp =>
+      'Nothing was changed. Sign in with the Google account already linked, or with your number.';
+
+  @override
+  String get authRecoveryOpenWithoutGoogle => 'Open my space without Google';
+
+  @override
+  String get authRecoveryCancel => 'Cancel and go back';
+
+  @override
+  String get authRecoveryCleanupFailed =>
+      'The verification of this number could not be undone. No space was created; try again later or contact INTELLIA237 support.';
+
+  @override
+  String get authWelcomeEyebrow => 'New to INTELLIA237';
+
+  @override
+  String get authWelcomeTitle => 'How would you like to start?';
+
+  @override
+  String get authWelcomeBody =>
+      'Your identity is verified. No space exists for it yet.';
+
+  @override
+  String get authWelcomeParent => 'I’m a parent';
+
+  @override
+  String get authWelcomeParentHint =>
+      'Create my family space, then link my child with their code.';
+
+  @override
+  String get authWelcomeStudent => 'Join my school';
+
+  @override
+  String get authWelcomeStudentHint => 'Student: choose my school and class.';
+
+  @override
+  String get authWelcomeDiscover => 'Explore INTELLIA237';
+
+  @override
+  String get authWelcomeDiscoverHint =>
+      'See how the app works, without creating a space.';
+
+  @override
+  String get authWelcomeStaffNote =>
+      'Teachers and school leaders: your access is opened by your school, then validated.';
+
+  @override
+  String get authUseAnotherAccount => 'Use another account';
+
+  @override
+  String authStudentPhoneTitle(String name) {
+    return 'This number opens $name’s student space.';
+  }
+
+  @override
+  String get authStudentPhoneTitleUnnamed =>
+      'This number opens a student space.';
+
+  @override
+  String get authStudentPhoneBody =>
+      'On a family phone, tell us who is signing in.';
+
+  @override
+  String authStudentPhoneContinue(String name) {
+    return 'Continue as $name';
+  }
+
+  @override
+  String get authStudentPhoneContinueUnnamed => 'It’s my space, continue';
+
+  @override
+  String get authStudentPhoneParent => 'I’m their parent';
+
+  @override
+  String get authSpaceEyebrow => 'Several spaces';
+
+  @override
+  String get authSpaceTitle => 'Choose your space';
+
+  @override
+  String get authSpaceBody =>
+      'Your account opens several spaces. You can switch at any time from your profile, without signing out.';
+
+  @override
+  String get authSpaceStudent => 'Student space';
+
+  @override
+  String get authSpaceStudentHint =>
+      'Lessons, exercises, Parcours and the KIRA and LÉO companions.';
+
+  @override
+  String get authSpaceParent => 'Parent space';
+
+  @override
+  String get authSpaceParentHint => 'Follow your children’s work and progress.';
+
+  @override
+  String get authSpaceTeacher => 'Teacher space';
+
+  @override
+  String get authSpaceTeacherHint =>
+      'Your classes, your content and your students’ progress.';
+
+  @override
+  String get authSpaceAdmin => 'School leadership space';
+
+  @override
+  String get authSpaceAdminHint => 'School administration and oversight.';
+
+  @override
+  String get authSpaceCurrent => 'Current space';
+
+  @override
+  String get authSpaceSignOut => 'Sign out';
+
+  @override
+  String get authSwitchSpace => 'Switch space';
+
+  @override
+  String get authSwitchSpaceHint =>
+      'Move to another space of your account, without signing out.';
+
+  @override
+  String get authErrorNetwork =>
+      'Unstable internet connection. Check your network, then try again.';
+
+  @override
+  String get authErrorInvalidCode =>
+      'This code is incorrect or has expired. Check the SMS, or ask for a new code.';
+
+  @override
+  String get authErrorTooManyRequests =>
+      'Too many attempts. Wait a few minutes before trying again.';
+
+  @override
+  String get authErrorAccountExists =>
+      'An INTELLIA237 account already uses this address with another sign-in method. Sign in to that account to add Google to it.';
+
+  @override
+  String get authErrorCredentialInUse =>
+      'This Google account is already linked to another INTELLIA237 account.';
+
+  @override
+  String get authErrorWrongPassword => 'Incorrect email address or password.';
+
+  @override
+  String get authErrorUserDisabled =>
+      'This account is suspended. Contact your school or INTELLIA237 support.';
+
+  @override
+  String get authErrorProviderAlreadyLinked =>
+      'This account is already linked to another Google account.';
+
+  @override
+  String get authErrorGoogleNotConfigured =>
+      'Google sign-in is not available on this version yet. Use your phone number.';
+
+  @override
+  String get authErrorGoogleUnavailable =>
+      'The Google account picker did not open. Check that a Google account is on this device, then try again.';
+
+  @override
+  String get authErrorInvalidPhone =>
+      'This is not a valid Cameroonian mobile number. Example: 6 99 12 34 56.';
+
+  @override
+  String get authErrorMissingFields =>
+      'Enter the email address and the password.';
+
+  @override
+  String get authErrorGeneric =>
+      'Sign-in did not go through. Try again in a moment.';
+
+  @override
+  String get discoveryBadge => 'Explore';
+
+  @override
+  String get discoveryExit => 'Leave';
+
+  @override
+  String get discoveryTitle => 'Explore INTELLIA237';
+
+  @override
+  String get discoveryIntro =>
+      'A preview of the app, with no space and no school data. Nothing you see here is saved.';
+
+  @override
+  String get discoveryFictionalNotice =>
+      'Fictional examples, for illustration only: they describe no real student.';
+
+  @override
+  String get discoveryTutorsTitle =>
+      'Companions that guide, without giving away the answer';
+
+  @override
+  String get discoveryKiraRole => 'Science and maths';
+
+  @override
+  String get discoveryKiraSample =>
+      'To isolate x, which operation would you do first on both sides of the equation?';
+
+  @override
+  String get discoveryLeoRole => 'Method, languages and writing';
+
+  @override
+  String get discoveryLeoSample =>
+      'Let’s start with what solidarity means to you. Can you name two examples?';
+
+  @override
+  String get discoveryParcoursTitle => 'Parcours, lessons and quizzes';
+
+  @override
+  String get discoveryParcoursBody =>
+      'Short lessons, exercises and quizzes aligned with the Cameroonian curriculum, with explained corrections.';
+
+  @override
+  String get discoveryParentTitle => 'Follow-up for parents';
+
+  @override
+  String get discoveryParentBody =>
+      'A parent links their child with a code, then follows their work: regularity, subjects covered, points to review.';
+
+  @override
+  String get discoveryParentExample =>
+      'Fictional example: “Student A” worked regularly this week; one geometry concept needs review.';
+
+  @override
+  String get discoveryCreateTitle => 'Create my space';
+
+  @override
+  String get discoveryCtaParent => 'I’m a parent';
+
+  @override
+  String get discoveryCtaStudent => 'Join my school';
+
+  @override
+  String get discoveryCtaCode => 'I have a student code';
 }

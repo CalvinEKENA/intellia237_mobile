@@ -954,7 +954,7 @@
     }
   },
   "authGatewayTitle": "Bienvenue sur INTELLIA237",
-  "authGatewaySubtitle": "Quel espace veux-tu ouvrir ?",
+  "authGatewaySubtitle": "Un espace éducatif sécurisé, pensé pour le Cameroun.",
   "todayEyebrow": "Aujourd’hui",
   "firstSessionEyebrow": "Pour commencer",
   "firstSessionTitle": "Choisis ta première activité",
@@ -2611,5 +2611,160 @@
   "parcoursEmptyBody": "Aucune carte n’est encore publiée pour ta classe. Reviens après une synchronisation.",
   "parcoursEmptyRefresh": "Actualiser",
   "parcoursEmptyHome": "Revenir à l’accueil",
-  "parcoursVideoPending": "Cette vidéo n’est pas encore disponible."
+  "parcoursVideoPending": "Cette vidéo n’est pas encore disponible.",
+  "authGatewayPhone": "Continuer avec mon numéro",
+  "authGatewayPhoneSemantics": "Continuer avec mon numéro de téléphone camerounais",
+  "authGatewayStudentCode": "J’ai un code élève",
+  "authGatewayStudentCodeSemantics": "J’ai un code élève : connexion sans téléphone ni e-mail",
+  "authGatewayOr": "ou",
+  "authGatewayStaff": "Personnel scolaire, enseignant ou direction ?",
+  "authGatewayTerms": "Conditions d’utilisation",
+  "authGatewayPrivacy": "Confidentialité",
+  "authAccountSuspended": "Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.",
+  "authGoogleContinue": "Continuer avec Google",
+  "authGoogleInProgress": "Connexion Google en cours",
+  "authGoogleQuestionEyebrow": "Compte Google",
+  "authGoogleQuestionTitle": "Vous utilisez déjà INTELLIA237 ?",
+  "authGoogleQuestionBody": "Ce compte Google n’ouvre encore aucun compte INTELLIA237. Si vous avez déjà un compte, par numéro de téléphone ou par e-mail, retrouvez-le : Google y sera ajouté, et votre espace comme vos données restent les mêmes.",
+  "authGoogleQuestionAccount": "Compte Google choisi : {email}",
+  "@authGoogleQuestionAccount": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "authGoogleQuestionYes": "Oui, retrouver mon compte",
+  "authGoogleQuestionNo": "Non, continuer",
+  "authGoogleQuestionNoHint": "Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous découvrez l’application, puis créez votre espace quand vous le souhaitez.",
+  "authGoogleQuestionOtherAccount": "Utiliser un autre compte Google",
+  "authGoogleStepExpired": "Cette étape a expiré. Recommencez avec « Continuer avec Google ».",
+  "authBackToGateway": "Revenir à l’accueil",
+  "authRecoveryEyebrow": "Retrouver mon compte",
+  "authRecoveryTitle": "Connectez-vous à votre compte existant",
+  "authRecoveryBody": "Prouvez que ce compte est le vôtre. Google y sera ensuite ajouté comme nouvelle façon de vous connecter.",
+  "authRecoveryEmailInUse": "Un compte INTELLIA237 utilise déjà l’adresse {email}. Connectez-vous à ce compte pour y ajouter Google.",
+  "@authRecoveryEmailInUse": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "authRecoveryByPhone": "Par téléphone",
+  "authRecoveryByEmail": "Par e-mail",
+  "authRecoveryPhoneLabel": "Numéro de téléphone",
+  "authRecoveryPhoneHint": "6XX XX XX XX",
+  "authRecoverySendCode": "Recevoir le code par SMS",
+  "authRecoveryCodeLabel": "Code reçu par SMS",
+  "authRecoveryCodeSentTo": "Code envoyé au {phone}.",
+  "@authRecoveryCodeSentTo": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "authRecoveryVerifyCode": "Vérifier le code",
+  "authRecoveryChangeNumber": "Modifier le numéro",
+  "authRecoveryResendIn": "Nouveau code possible dans {seconds} s",
+  "@authRecoveryResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "authRecoveryResend": "Renvoyer le code",
+  "authRecoveryEmailLabel": "Adresse e-mail",
+  "authRecoveryPasswordLabel": "Mot de passe",
+  "authRecoverySignIn": "Me connecter et ajouter Google",
+  "authRecoveryLinking": "Ajout de Google à votre compte…",
+  "authRecoveryNoAccountForPhone": "Aucun compte INTELLIA237 n’utilise ce numéro. Vérifiez-le, ou revenez en arrière et choisissez « Non, continuer ».",
+  "authRecoveryNoProfile": "Ce compte n’a pas encore d’espace INTELLIA237. Revenez en arrière et choisissez « Non, continuer ».",
+  "authRecoveryLinkedElsewhere": "Ce compte Google est déjà associé à un autre compte INTELLIA237.",
+  "authRecoveryLinkedElsewhereHelp": "Rien n’a été modifié ni fusionné. Pour utiliser ce compte Google, choisissez « Continuer avec Google » depuis l’accueil. En cas de doute, contactez votre établissement ou l’assistance INTELLIA237.",
+  "authRecoveryProviderTaken": "Votre compte INTELLIA237 est déjà associé à un autre compte Google.",
+  "authRecoveryProviderTakenHelp": "Rien n’a été modifié. Connectez-vous avec le compte Google déjà associé, ou avec votre numéro.",
+  "authRecoveryOpenWithoutGoogle": "Ouvrir mon espace sans Google",
+  "authRecoveryCancel": "Annuler et revenir à l’accueil",
+  "authRecoveryCleanupFailed": "La vérification de ce numéro n’a pas pu être annulée. Aucun espace n’a été créé ; réessayez plus tard ou contactez l’assistance INTELLIA237.",
+  "authWelcomeEyebrow": "Nouveau sur INTELLIA237",
+  "authWelcomeTitle": "Comment voulez-vous commencer ?",
+  "authWelcomeBody": "Votre identité est vérifiée. Aucun espace n’existe encore pour elle.",
+  "authWelcomeParent": "Je suis parent",
+  "authWelcomeParentHint": "Créer mon espace famille, puis rattacher mon enfant avec son code.",
+  "authWelcomeStudent": "Rejoindre mon école",
+  "authWelcomeStudentHint": "Élève : choisir mon établissement et ma classe.",
+  "authWelcomeDiscover": "Découvrir INTELLIA237",
+  "authWelcomeDiscoverHint": "Voir comment fonctionne l’application, sans créer d’espace.",
+  "authWelcomeStaffNote": "Enseignant ou direction : votre accès est ouvert par votre établissement, puis validé.",
+  "authUseAnotherAccount": "Utiliser un autre compte",
+  "authStudentPhoneTitle": "Ce numéro ouvre l’espace élève de {name}.",
+  "@authStudentPhoneTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "authStudentPhoneTitleUnnamed": "Ce numéro ouvre un espace élève.",
+  "authStudentPhoneBody": "Sur un téléphone de famille, dites-nous qui se connecte.",
+  "authStudentPhoneContinue": "Continuer comme {name}",
+  "@authStudentPhoneContinue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "authStudentPhoneContinueUnnamed": "C’est mon espace, continuer",
+  "authStudentPhoneParent": "Je suis son parent",
+  "authSpaceEyebrow": "Plusieurs espaces",
+  "authSpaceTitle": "Choisissez votre espace",
+  "authSpaceBody": "Votre compte donne accès à plusieurs espaces. Vous pourrez en changer à tout moment depuis votre profil, sans vous déconnecter.",
+  "authSpaceStudent": "Espace élève",
+  "authSpaceStudentHint": "Cours, exercices, Parcours et compagnons KIRA et LÉO.",
+  "authSpaceParent": "Espace parent",
+  "authSpaceParentHint": "Suivre le travail et les progrès de vos enfants.",
+  "authSpaceTeacher": "Espace enseignant",
+  "authSpaceTeacherHint": "Vos classes, vos contenus et le suivi de vos élèves.",
+  "authSpaceAdmin": "Espace direction",
+  "authSpaceAdminHint": "Administration et pilotage de l’établissement.",
+  "authSpaceCurrent": "Espace actuel",
+  "authSpaceSignOut": "Me déconnecter",
+  "authSwitchSpace": "Changer d’espace",
+  "authSwitchSpaceHint": "Passer à un autre espace de votre compte, sans vous déconnecter.",
+  "authErrorNetwork": "Connexion Internet instable. Vérifiez votre réseau, puis réessayez.",
+  "authErrorInvalidCode": "Ce code est incorrect ou a expiré. Vérifiez le SMS, ou demandez un nouveau code.",
+  "authErrorTooManyRequests": "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
+  "authErrorAccountExists": "Un compte INTELLIA237 utilise déjà cette adresse avec un autre mode de connexion. Connectez-vous à ce compte pour y ajouter Google.",
+  "authErrorCredentialInUse": "Ce compte Google est déjà associé à un autre compte INTELLIA237.",
+  "authErrorWrongPassword": "Adresse e-mail ou mot de passe incorrect.",
+  "authErrorUserDisabled": "Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.",
+  "authErrorProviderAlreadyLinked": "Ce compte est déjà associé à un autre compte Google.",
+  "authErrorGoogleNotConfigured": "La connexion Google n’est pas encore disponible sur cette version. Utilisez votre numéro de téléphone.",
+  "authErrorGoogleUnavailable": "Le sélecteur de comptes Google ne s’est pas ouvert. Vérifiez qu’un compte Google est présent sur l’appareil, puis réessayez.",
+  "authErrorInvalidPhone": "Ce numéro n’est pas un numéro mobile camerounais valide. Exemple : 6 99 12 34 56.",
+  "authErrorMissingFields": "Renseignez l’adresse e-mail et le mot de passe.",
+  "authErrorGeneric": "La connexion n’a pas abouti. Réessayez dans un instant.",
+  "discoveryBadge": "Découverte",
+  "discoveryExit": "Quitter",
+  "discoveryTitle": "Découvrez INTELLIA237",
+  "discoveryIntro": "Un aperçu de l’application, sans espace ni donnée scolaire. Rien de ce que vous voyez ici n’est enregistré.",
+  "discoveryFictionalNotice": "Exemples fictifs, à titre d’illustration : ils ne décrivent aucun élève réel.",
+  "discoveryTutorsTitle": "Des compagnons qui guident, sans donner la réponse",
+  "discoveryKiraRole": "Sciences et mathématiques",
+  "discoveryKiraSample": "Pour isoler x, quelle opération ferais-tu d’abord des deux côtés de l’égalité ?",
+  "discoveryLeoRole": "Méthode, langues et rédaction",
+  "discoveryLeoSample": "Commençons par ce que la solidarité évoque pour toi. Peux-tu citer deux exemples ?",
+  "discoveryParcoursTitle": "Parcours, leçons et quiz",
+  "discoveryParcoursBody": "Des leçons courtes, des exercices et des quiz alignés sur le programme camerounais, avec une correction expliquée.",
+  "discoveryParentTitle": "Le suivi des parents",
+  "discoveryParentBody": "Un parent rattache son enfant avec un code, puis suit son travail : régularité, matières travaillées, points à revoir.",
+  "discoveryParentExample": "Exemple fictif : « Élève A » a travaillé régulièrement cette semaine ; une notion de géométrie est à revoir.",
+  "discoveryCreateTitle": "Créer mon espace",
+  "discoveryCtaParent": "Je suis parent",
+  "discoveryCtaStudent": "Rejoindre mon école",
+  "discoveryCtaCode": "J’ai un code élève"
 }

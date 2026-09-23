@@ -1957,7 +1957,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authGatewayTitle => 'Bienvenue sur INTELLIA237';
 
   @override
-  String get authGatewaySubtitle => 'Quel espace veux-tu ouvrir ?';
+  String get authGatewaySubtitle =>
+      'Un espace éducatif sécurisé, pensé pour le Cameroun.';
 
   @override
   String get todayEyebrow => 'Aujourd’hui';
@@ -5075,4 +5076,404 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get parcoursVideoPending => 'Cette vidéo n’est pas encore disponible.';
+
+  @override
+  String get authGatewayPhone => 'Continuer avec mon numéro';
+
+  @override
+  String get authGatewayPhoneSemantics =>
+      'Continuer avec mon numéro de téléphone camerounais';
+
+  @override
+  String get authGatewayStudentCode => 'J’ai un code élève';
+
+  @override
+  String get authGatewayStudentCodeSemantics =>
+      'J’ai un code élève : connexion sans téléphone ni e-mail';
+
+  @override
+  String get authGatewayOr => 'ou';
+
+  @override
+  String get authGatewayStaff =>
+      'Personnel scolaire, enseignant ou direction ?';
+
+  @override
+  String get authGatewayTerms => 'Conditions d’utilisation';
+
+  @override
+  String get authGatewayPrivacy => 'Confidentialité';
+
+  @override
+  String get authAccountSuspended =>
+      'Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.';
+
+  @override
+  String get authGoogleContinue => 'Continuer avec Google';
+
+  @override
+  String get authGoogleInProgress => 'Connexion Google en cours';
+
+  @override
+  String get authGoogleQuestionEyebrow => 'Compte Google';
+
+  @override
+  String get authGoogleQuestionTitle => 'Vous utilisez déjà INTELLIA237 ?';
+
+  @override
+  String get authGoogleQuestionBody =>
+      'Ce compte Google n’ouvre encore aucun compte INTELLIA237. Si vous avez déjà un compte, par numéro de téléphone ou par e-mail, retrouvez-le : Google y sera ajouté, et votre espace comme vos données restent les mêmes.';
+
+  @override
+  String authGoogleQuestionAccount(String email) {
+    return 'Compte Google choisi : $email';
+  }
+
+  @override
+  String get authGoogleQuestionYes => 'Oui, retrouver mon compte';
+
+  @override
+  String get authGoogleQuestionNo => 'Non, continuer';
+
+  @override
+  String get authGoogleQuestionNoHint =>
+      'Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous découvrez l’application, puis créez votre espace quand vous le souhaitez.';
+
+  @override
+  String get authGoogleQuestionOtherAccount =>
+      'Utiliser un autre compte Google';
+
+  @override
+  String get authGoogleStepExpired =>
+      'Cette étape a expiré. Recommencez avec « Continuer avec Google ».';
+
+  @override
+  String get authBackToGateway => 'Revenir à l’accueil';
+
+  @override
+  String get authRecoveryEyebrow => 'Retrouver mon compte';
+
+  @override
+  String get authRecoveryTitle => 'Connectez-vous à votre compte existant';
+
+  @override
+  String get authRecoveryBody =>
+      'Prouvez que ce compte est le vôtre. Google y sera ensuite ajouté comme nouvelle façon de vous connecter.';
+
+  @override
+  String authRecoveryEmailInUse(String email) {
+    return 'Un compte INTELLIA237 utilise déjà l’adresse $email. Connectez-vous à ce compte pour y ajouter Google.';
+  }
+
+  @override
+  String get authRecoveryByPhone => 'Par téléphone';
+
+  @override
+  String get authRecoveryByEmail => 'Par e-mail';
+
+  @override
+  String get authRecoveryPhoneLabel => 'Numéro de téléphone';
+
+  @override
+  String get authRecoveryPhoneHint => '6XX XX XX XX';
+
+  @override
+  String get authRecoverySendCode => 'Recevoir le code par SMS';
+
+  @override
+  String get authRecoveryCodeLabel => 'Code reçu par SMS';
+
+  @override
+  String authRecoveryCodeSentTo(String phone) {
+    return 'Code envoyé au $phone.';
+  }
+
+  @override
+  String get authRecoveryVerifyCode => 'Vérifier le code';
+
+  @override
+  String get authRecoveryChangeNumber => 'Modifier le numéro';
+
+  @override
+  String authRecoveryResendIn(int seconds) {
+    return 'Nouveau code possible dans $seconds s';
+  }
+
+  @override
+  String get authRecoveryResend => 'Renvoyer le code';
+
+  @override
+  String get authRecoveryEmailLabel => 'Adresse e-mail';
+
+  @override
+  String get authRecoveryPasswordLabel => 'Mot de passe';
+
+  @override
+  String get authRecoverySignIn => 'Me connecter et ajouter Google';
+
+  @override
+  String get authRecoveryLinking => 'Ajout de Google à votre compte…';
+
+  @override
+  String get authRecoveryNoAccountForPhone =>
+      'Aucun compte INTELLIA237 n’utilise ce numéro. Vérifiez-le, ou revenez en arrière et choisissez « Non, continuer ».';
+
+  @override
+  String get authRecoveryNoProfile =>
+      'Ce compte n’a pas encore d’espace INTELLIA237. Revenez en arrière et choisissez « Non, continuer ».';
+
+  @override
+  String get authRecoveryLinkedElsewhere =>
+      'Ce compte Google est déjà associé à un autre compte INTELLIA237.';
+
+  @override
+  String get authRecoveryLinkedElsewhereHelp =>
+      'Rien n’a été modifié ni fusionné. Pour utiliser ce compte Google, choisissez « Continuer avec Google » depuis l’accueil. En cas de doute, contactez votre établissement ou l’assistance INTELLIA237.';
+
+  @override
+  String get authRecoveryProviderTaken =>
+      'Votre compte INTELLIA237 est déjà associé à un autre compte Google.';
+
+  @override
+  String get authRecoveryProviderTakenHelp =>
+      'Rien n’a été modifié. Connectez-vous avec le compte Google déjà associé, ou avec votre numéro.';
+
+  @override
+  String get authRecoveryOpenWithoutGoogle => 'Ouvrir mon espace sans Google';
+
+  @override
+  String get authRecoveryCancel => 'Annuler et revenir à l’accueil';
+
+  @override
+  String get authRecoveryCleanupFailed =>
+      'La vérification de ce numéro n’a pas pu être annulée. Aucun espace n’a été créé ; réessayez plus tard ou contactez l’assistance INTELLIA237.';
+
+  @override
+  String get authWelcomeEyebrow => 'Nouveau sur INTELLIA237';
+
+  @override
+  String get authWelcomeTitle => 'Comment voulez-vous commencer ?';
+
+  @override
+  String get authWelcomeBody =>
+      'Votre identité est vérifiée. Aucun espace n’existe encore pour elle.';
+
+  @override
+  String get authWelcomeParent => 'Je suis parent';
+
+  @override
+  String get authWelcomeParentHint =>
+      'Créer mon espace famille, puis rattacher mon enfant avec son code.';
+
+  @override
+  String get authWelcomeStudent => 'Rejoindre mon école';
+
+  @override
+  String get authWelcomeStudentHint =>
+      'Élève : choisir mon établissement et ma classe.';
+
+  @override
+  String get authWelcomeDiscover => 'Découvrir INTELLIA237';
+
+  @override
+  String get authWelcomeDiscoverHint =>
+      'Voir comment fonctionne l’application, sans créer d’espace.';
+
+  @override
+  String get authWelcomeStaffNote =>
+      'Enseignant ou direction : votre accès est ouvert par votre établissement, puis validé.';
+
+  @override
+  String get authUseAnotherAccount => 'Utiliser un autre compte';
+
+  @override
+  String authStudentPhoneTitle(String name) {
+    return 'Ce numéro ouvre l’espace élève de $name.';
+  }
+
+  @override
+  String get authStudentPhoneTitleUnnamed => 'Ce numéro ouvre un espace élève.';
+
+  @override
+  String get authStudentPhoneBody =>
+      'Sur un téléphone de famille, dites-nous qui se connecte.';
+
+  @override
+  String authStudentPhoneContinue(String name) {
+    return 'Continuer comme $name';
+  }
+
+  @override
+  String get authStudentPhoneContinueUnnamed => 'C’est mon espace, continuer';
+
+  @override
+  String get authStudentPhoneParent => 'Je suis son parent';
+
+  @override
+  String get authSpaceEyebrow => 'Plusieurs espaces';
+
+  @override
+  String get authSpaceTitle => 'Choisissez votre espace';
+
+  @override
+  String get authSpaceBody =>
+      'Votre compte donne accès à plusieurs espaces. Vous pourrez en changer à tout moment depuis votre profil, sans vous déconnecter.';
+
+  @override
+  String get authSpaceStudent => 'Espace élève';
+
+  @override
+  String get authSpaceStudentHint =>
+      'Cours, exercices, Parcours et compagnons KIRA et LÉO.';
+
+  @override
+  String get authSpaceParent => 'Espace parent';
+
+  @override
+  String get authSpaceParentHint =>
+      'Suivre le travail et les progrès de vos enfants.';
+
+  @override
+  String get authSpaceTeacher => 'Espace enseignant';
+
+  @override
+  String get authSpaceTeacherHint =>
+      'Vos classes, vos contenus et le suivi de vos élèves.';
+
+  @override
+  String get authSpaceAdmin => 'Espace direction';
+
+  @override
+  String get authSpaceAdminHint =>
+      'Administration et pilotage de l’établissement.';
+
+  @override
+  String get authSpaceCurrent => 'Espace actuel';
+
+  @override
+  String get authSpaceSignOut => 'Me déconnecter';
+
+  @override
+  String get authSwitchSpace => 'Changer d’espace';
+
+  @override
+  String get authSwitchSpaceHint =>
+      'Passer à un autre espace de votre compte, sans vous déconnecter.';
+
+  @override
+  String get authErrorNetwork =>
+      'Connexion Internet instable. Vérifiez votre réseau, puis réessayez.';
+
+  @override
+  String get authErrorInvalidCode =>
+      'Ce code est incorrect ou a expiré. Vérifiez le SMS, ou demandez un nouveau code.';
+
+  @override
+  String get authErrorTooManyRequests =>
+      'Trop de tentatives. Patientez quelques minutes avant de réessayer.';
+
+  @override
+  String get authErrorAccountExists =>
+      'Un compte INTELLIA237 utilise déjà cette adresse avec un autre mode de connexion. Connectez-vous à ce compte pour y ajouter Google.';
+
+  @override
+  String get authErrorCredentialInUse =>
+      'Ce compte Google est déjà associé à un autre compte INTELLIA237.';
+
+  @override
+  String get authErrorWrongPassword =>
+      'Adresse e-mail ou mot de passe incorrect.';
+
+  @override
+  String get authErrorUserDisabled =>
+      'Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.';
+
+  @override
+  String get authErrorProviderAlreadyLinked =>
+      'Ce compte est déjà associé à un autre compte Google.';
+
+  @override
+  String get authErrorGoogleNotConfigured =>
+      'La connexion Google n’est pas encore disponible sur cette version. Utilisez votre numéro de téléphone.';
+
+  @override
+  String get authErrorGoogleUnavailable =>
+      'Le sélecteur de comptes Google ne s’est pas ouvert. Vérifiez qu’un compte Google est présent sur l’appareil, puis réessayez.';
+
+  @override
+  String get authErrorInvalidPhone =>
+      'Ce numéro n’est pas un numéro mobile camerounais valide. Exemple : 6 99 12 34 56.';
+
+  @override
+  String get authErrorMissingFields =>
+      'Renseignez l’adresse e-mail et le mot de passe.';
+
+  @override
+  String get authErrorGeneric =>
+      'La connexion n’a pas abouti. Réessayez dans un instant.';
+
+  @override
+  String get discoveryBadge => 'Découverte';
+
+  @override
+  String get discoveryExit => 'Quitter';
+
+  @override
+  String get discoveryTitle => 'Découvrez INTELLIA237';
+
+  @override
+  String get discoveryIntro =>
+      'Un aperçu de l’application, sans espace ni donnée scolaire. Rien de ce que vous voyez ici n’est enregistré.';
+
+  @override
+  String get discoveryFictionalNotice =>
+      'Exemples fictifs, à titre d’illustration : ils ne décrivent aucun élève réel.';
+
+  @override
+  String get discoveryTutorsTitle =>
+      'Des compagnons qui guident, sans donner la réponse';
+
+  @override
+  String get discoveryKiraRole => 'Sciences et mathématiques';
+
+  @override
+  String get discoveryKiraSample =>
+      'Pour isoler x, quelle opération ferais-tu d’abord des deux côtés de l’égalité ?';
+
+  @override
+  String get discoveryLeoRole => 'Méthode, langues et rédaction';
+
+  @override
+  String get discoveryLeoSample =>
+      'Commençons par ce que la solidarité évoque pour toi. Peux-tu citer deux exemples ?';
+
+  @override
+  String get discoveryParcoursTitle => 'Parcours, leçons et quiz';
+
+  @override
+  String get discoveryParcoursBody =>
+      'Des leçons courtes, des exercices et des quiz alignés sur le programme camerounais, avec une correction expliquée.';
+
+  @override
+  String get discoveryParentTitle => 'Le suivi des parents';
+
+  @override
+  String get discoveryParentBody =>
+      'Un parent rattache son enfant avec un code, puis suit son travail : régularité, matières travaillées, points à revoir.';
+
+  @override
+  String get discoveryParentExample =>
+      'Exemple fictif : « Élève A » a travaillé régulièrement cette semaine ; une notion de géométrie est à revoir.';
+
+  @override
+  String get discoveryCreateTitle => 'Créer mon espace';
+
+  @override
+  String get discoveryCtaParent => 'Je suis parent';
+
+  @override
+  String get discoveryCtaStudent => 'Rejoindre mon école';
+
+  @override
+  String get discoveryCtaCode => 'J’ai un code élève';
 }

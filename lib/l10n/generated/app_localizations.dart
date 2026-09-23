@@ -3431,7 +3431,7 @@ abstract class AppLocalizations {
   /// No description provided for @authGatewaySubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Quel espace veux-tu ouvrir ?'**
+  /// **'Un espace éducatif sécurisé, pensé pour le Cameroun.'**
   String get authGatewaySubtitle;
 
   /// No description provided for @todayEyebrow.
@@ -8679,6 +8679,684 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Cette vidéo n’est pas encore disponible.'**
   String get parcoursVideoPending;
+
+  /// No description provided for @authGatewayPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec mon numéro'**
+  String get authGatewayPhone;
+
+  /// No description provided for @authGatewayPhoneSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec mon numéro de téléphone camerounais'**
+  String get authGatewayPhoneSemantics;
+
+  /// No description provided for @authGatewayStudentCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un code élève'**
+  String get authGatewayStudentCode;
+
+  /// No description provided for @authGatewayStudentCodeSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un code élève : connexion sans téléphone ni e-mail'**
+  String get authGatewayStudentCodeSemantics;
+
+  /// No description provided for @authGatewayOr.
+  ///
+  /// In fr, this message translates to:
+  /// **'ou'**
+  String get authGatewayOr;
+
+  /// No description provided for @authGatewayStaff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnel scolaire, enseignant ou direction ?'**
+  String get authGatewayStaff;
+
+  /// No description provided for @authGatewayTerms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions d’utilisation'**
+  String get authGatewayTerms;
+
+  /// No description provided for @authGatewayPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité'**
+  String get authGatewayPrivacy;
+
+  /// No description provided for @authAccountSuspended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.'**
+  String get authAccountSuspended;
+
+  /// No description provided for @authGoogleContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get authGoogleContinue;
+
+  /// No description provided for @authGoogleInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion Google en cours'**
+  String get authGoogleInProgress;
+
+  /// No description provided for @authGoogleQuestionEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte Google'**
+  String get authGoogleQuestionEyebrow;
+
+  /// No description provided for @authGoogleQuestionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous utilisez déjà INTELLIA237 ?'**
+  String get authGoogleQuestionTitle;
+
+  /// No description provided for @authGoogleQuestionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte Google n’ouvre encore aucun compte INTELLIA237. Si vous avez déjà un compte, par numéro de téléphone ou par e-mail, retrouvez-le : Google y sera ajouté, et votre espace comme vos données restent les mêmes.'**
+  String get authGoogleQuestionBody;
+
+  /// No description provided for @authGoogleQuestionAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte Google choisi : {email}'**
+  String authGoogleQuestionAccount(String email);
+
+  /// No description provided for @authGoogleQuestionYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, retrouver mon compte'**
+  String get authGoogleQuestionYes;
+
+  /// No description provided for @authGoogleQuestionNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non, continuer'**
+  String get authGoogleQuestionNo;
+
+  /// No description provided for @authGoogleQuestionNoHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous découvrez l’application, puis créez votre espace quand vous le souhaitez.'**
+  String get authGoogleQuestionNoHint;
+
+  /// No description provided for @authGoogleQuestionOtherAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser un autre compte Google'**
+  String get authGoogleQuestionOtherAccount;
+
+  /// No description provided for @authGoogleStepExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette étape a expiré. Recommencez avec « Continuer avec Google ».'**
+  String get authGoogleStepExpired;
+
+  /// No description provided for @authBackToGateway.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à l’accueil'**
+  String get authBackToGateway;
+
+  /// No description provided for @authRecoveryEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouver mon compte'**
+  String get authRecoveryEyebrow;
+
+  /// No description provided for @authRecoveryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous à votre compte existant'**
+  String get authRecoveryTitle;
+
+  /// No description provided for @authRecoveryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prouvez que ce compte est le vôtre. Google y sera ensuite ajouté comme nouvelle façon de vous connecter.'**
+  String get authRecoveryBody;
+
+  /// No description provided for @authRecoveryEmailInUse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un compte INTELLIA237 utilise déjà l’adresse {email}. Connectez-vous à ce compte pour y ajouter Google.'**
+  String authRecoveryEmailInUse(String email);
+
+  /// No description provided for @authRecoveryByPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par téléphone'**
+  String get authRecoveryByPhone;
+
+  /// No description provided for @authRecoveryByEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par e-mail'**
+  String get authRecoveryByEmail;
+
+  /// No description provided for @authRecoveryPhoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de téléphone'**
+  String get authRecoveryPhoneLabel;
+
+  /// No description provided for @authRecoveryPhoneHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'6XX XX XX XX'**
+  String get authRecoveryPhoneHint;
+
+  /// No description provided for @authRecoverySendCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir le code par SMS'**
+  String get authRecoverySendCode;
+
+  /// No description provided for @authRecoveryCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code reçu par SMS'**
+  String get authRecoveryCodeLabel;
+
+  /// No description provided for @authRecoveryCodeSentTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code envoyé au {phone}.'**
+  String authRecoveryCodeSentTo(String phone);
+
+  /// No description provided for @authRecoveryVerifyCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier le code'**
+  String get authRecoveryVerifyCode;
+
+  /// No description provided for @authRecoveryChangeNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le numéro'**
+  String get authRecoveryChangeNumber;
+
+  /// No description provided for @authRecoveryResendIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau code possible dans {seconds} s'**
+  String authRecoveryResendIn(int seconds);
+
+  /// No description provided for @authRecoveryResend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer le code'**
+  String get authRecoveryResend;
+
+  /// No description provided for @authRecoveryEmailLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse e-mail'**
+  String get authRecoveryEmailLabel;
+
+  /// No description provided for @authRecoveryPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get authRecoveryPasswordLabel;
+
+  /// No description provided for @authRecoverySignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Me connecter et ajouter Google'**
+  String get authRecoverySignIn;
+
+  /// No description provided for @authRecoveryLinking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajout de Google à votre compte…'**
+  String get authRecoveryLinking;
+
+  /// No description provided for @authRecoveryNoAccountForPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte INTELLIA237 n’utilise ce numéro. Vérifiez-le, ou revenez en arrière et choisissez « Non, continuer ».'**
+  String get authRecoveryNoAccountForPhone;
+
+  /// No description provided for @authRecoveryNoProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte n’a pas encore d’espace INTELLIA237. Revenez en arrière et choisissez « Non, continuer ».'**
+  String get authRecoveryNoProfile;
+
+  /// No description provided for @authRecoveryLinkedElsewhere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte Google est déjà associé à un autre compte INTELLIA237.'**
+  String get authRecoveryLinkedElsewhere;
+
+  /// No description provided for @authRecoveryLinkedElsewhereHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien n’a été modifié ni fusionné. Pour utiliser ce compte Google, choisissez « Continuer avec Google » depuis l’accueil. En cas de doute, contactez votre établissement ou l’assistance INTELLIA237.'**
+  String get authRecoveryLinkedElsewhereHelp;
+
+  /// No description provided for @authRecoveryProviderTaken.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte INTELLIA237 est déjà associé à un autre compte Google.'**
+  String get authRecoveryProviderTaken;
+
+  /// No description provided for @authRecoveryProviderTakenHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien n’a été modifié. Connectez-vous avec le compte Google déjà associé, ou avec votre numéro.'**
+  String get authRecoveryProviderTakenHelp;
+
+  /// No description provided for @authRecoveryOpenWithoutGoogle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir mon espace sans Google'**
+  String get authRecoveryOpenWithoutGoogle;
+
+  /// No description provided for @authRecoveryCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler et revenir à l’accueil'**
+  String get authRecoveryCancel;
+
+  /// No description provided for @authRecoveryCleanupFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La vérification de ce numéro n’a pas pu être annulée. Aucun espace n’a été créé ; réessayez plus tard ou contactez l’assistance INTELLIA237.'**
+  String get authRecoveryCleanupFailed;
+
+  /// No description provided for @authWelcomeEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau sur INTELLIA237'**
+  String get authWelcomeEyebrow;
+
+  /// No description provided for @authWelcomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment voulez-vous commencer ?'**
+  String get authWelcomeTitle;
+
+  /// No description provided for @authWelcomeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre identité est vérifiée. Aucun espace n’existe encore pour elle.'**
+  String get authWelcomeBody;
+
+  /// No description provided for @authWelcomeParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis parent'**
+  String get authWelcomeParent;
+
+  /// No description provided for @authWelcomeParentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon espace famille, puis rattacher mon enfant avec son code.'**
+  String get authWelcomeParentHint;
+
+  /// No description provided for @authWelcomeStudent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre mon école'**
+  String get authWelcomeStudent;
+
+  /// No description provided for @authWelcomeStudentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élève : choisir mon établissement et ma classe.'**
+  String get authWelcomeStudentHint;
+
+  /// No description provided for @authWelcomeDiscover.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir INTELLIA237'**
+  String get authWelcomeDiscover;
+
+  /// No description provided for @authWelcomeDiscoverHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir comment fonctionne l’application, sans créer d’espace.'**
+  String get authWelcomeDiscoverHint;
+
+  /// No description provided for @authWelcomeStaffNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enseignant ou direction : votre accès est ouvert par votre établissement, puis validé.'**
+  String get authWelcomeStaffNote;
+
+  /// No description provided for @authUseAnotherAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser un autre compte'**
+  String get authUseAnotherAccount;
+
+  /// No description provided for @authStudentPhoneTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro ouvre l’espace élève de {name}.'**
+  String authStudentPhoneTitle(String name);
+
+  /// No description provided for @authStudentPhoneTitleUnnamed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro ouvre un espace élève.'**
+  String get authStudentPhoneTitleUnnamed;
+
+  /// No description provided for @authStudentPhoneBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur un téléphone de famille, dites-nous qui se connecte.'**
+  String get authStudentPhoneBody;
+
+  /// No description provided for @authStudentPhoneContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer comme {name}'**
+  String authStudentPhoneContinue(String name);
+
+  /// No description provided for @authStudentPhoneContinueUnnamed.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est mon espace, continuer'**
+  String get authStudentPhoneContinueUnnamed;
+
+  /// No description provided for @authStudentPhoneParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis son parent'**
+  String get authStudentPhoneParent;
+
+  /// No description provided for @authSpaceEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs espaces'**
+  String get authSpaceEyebrow;
+
+  /// No description provided for @authSpaceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre espace'**
+  String get authSpaceTitle;
+
+  /// No description provided for @authSpaceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte donne accès à plusieurs espaces. Vous pourrez en changer à tout moment depuis votre profil, sans vous déconnecter.'**
+  String get authSpaceBody;
+
+  /// No description provided for @authSpaceStudent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace élève'**
+  String get authSpaceStudent;
+
+  /// No description provided for @authSpaceStudentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cours, exercices, Parcours et compagnons KIRA et LÉO.'**
+  String get authSpaceStudentHint;
+
+  /// No description provided for @authSpaceParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace parent'**
+  String get authSpaceParent;
+
+  /// No description provided for @authSpaceParentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivre le travail et les progrès de vos enfants.'**
+  String get authSpaceParentHint;
+
+  /// No description provided for @authSpaceTeacher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace enseignant'**
+  String get authSpaceTeacher;
+
+  /// No description provided for @authSpaceTeacherHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos classes, vos contenus et le suivi de vos élèves.'**
+  String get authSpaceTeacherHint;
+
+  /// No description provided for @authSpaceAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace direction'**
+  String get authSpaceAdmin;
+
+  /// No description provided for @authSpaceAdminHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administration et pilotage de l’établissement.'**
+  String get authSpaceAdminHint;
+
+  /// No description provided for @authSpaceCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace actuel'**
+  String get authSpaceCurrent;
+
+  /// No description provided for @authSpaceSignOut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Me déconnecter'**
+  String get authSpaceSignOut;
+
+  /// No description provided for @authSwitchSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer d’espace'**
+  String get authSwitchSpace;
+
+  /// No description provided for @authSwitchSpaceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer à un autre espace de votre compte, sans vous déconnecter.'**
+  String get authSwitchSpaceHint;
+
+  /// No description provided for @authErrorNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion Internet instable. Vérifiez votre réseau, puis réessayez.'**
+  String get authErrorNetwork;
+
+  /// No description provided for @authErrorInvalidCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code est incorrect ou a expiré. Vérifiez le SMS, ou demandez un nouveau code.'**
+  String get authErrorInvalidCode;
+
+  /// No description provided for @authErrorTooManyRequests.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Patientez quelques minutes avant de réessayer.'**
+  String get authErrorTooManyRequests;
+
+  /// No description provided for @authErrorAccountExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un compte INTELLIA237 utilise déjà cette adresse avec un autre mode de connexion. Connectez-vous à ce compte pour y ajouter Google.'**
+  String get authErrorAccountExists;
+
+  /// No description provided for @authErrorCredentialInUse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte Google est déjà associé à un autre compte INTELLIA237.'**
+  String get authErrorCredentialInUse;
+
+  /// No description provided for @authErrorWrongPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse e-mail ou mot de passe incorrect.'**
+  String get authErrorWrongPassword;
+
+  /// No description provided for @authErrorUserDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.'**
+  String get authErrorUserDisabled;
+
+  /// No description provided for @authErrorProviderAlreadyLinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte est déjà associé à un autre compte Google.'**
+  String get authErrorProviderAlreadyLinked;
+
+  /// No description provided for @authErrorGoogleNotConfigured.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion Google n’est pas encore disponible sur cette version. Utilisez votre numéro de téléphone.'**
+  String get authErrorGoogleNotConfigured;
+
+  /// No description provided for @authErrorGoogleUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le sélecteur de comptes Google ne s’est pas ouvert. Vérifiez qu’un compte Google est présent sur l’appareil, puis réessayez.'**
+  String get authErrorGoogleUnavailable;
+
+  /// No description provided for @authErrorInvalidPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro n’est pas un numéro mobile camerounais valide. Exemple : 6 99 12 34 56.'**
+  String get authErrorInvalidPhone;
+
+  /// No description provided for @authErrorMissingFields.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseignez l’adresse e-mail et le mot de passe.'**
+  String get authErrorMissingFields;
+
+  /// No description provided for @authErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion n’a pas abouti. Réessayez dans un instant.'**
+  String get authErrorGeneric;
+
+  /// No description provided for @discoveryBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découverte'**
+  String get discoveryBadge;
+
+  /// No description provided for @discoveryExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter'**
+  String get discoveryExit;
+
+  /// No description provided for @discoveryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez INTELLIA237'**
+  String get discoveryTitle;
+
+  /// No description provided for @discoveryIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un aperçu de l’application, sans espace ni donnée scolaire. Rien de ce que vous voyez ici n’est enregistré.'**
+  String get discoveryIntro;
+
+  /// No description provided for @discoveryFictionalNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exemples fictifs, à titre d’illustration : ils ne décrivent aucun élève réel.'**
+  String get discoveryFictionalNotice;
+
+  /// No description provided for @discoveryTutorsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des compagnons qui guident, sans donner la réponse'**
+  String get discoveryTutorsTitle;
+
+  /// No description provided for @discoveryKiraRole.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sciences et mathématiques'**
+  String get discoveryKiraRole;
+
+  /// No description provided for @discoveryKiraSample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour isoler x, quelle opération ferais-tu d’abord des deux côtés de l’égalité ?'**
+  String get discoveryKiraSample;
+
+  /// No description provided for @discoveryLeoRole.
+  ///
+  /// In fr, this message translates to:
+  /// **'Méthode, langues et rédaction'**
+  String get discoveryLeoRole;
+
+  /// No description provided for @discoveryLeoSample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commençons par ce que la solidarité évoque pour toi. Peux-tu citer deux exemples ?'**
+  String get discoveryLeoSample;
+
+  /// No description provided for @discoveryParcoursTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours, leçons et quiz'**
+  String get discoveryParcoursTitle;
+
+  /// No description provided for @discoveryParcoursBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des leçons courtes, des exercices et des quiz alignés sur le programme camerounais, avec une correction expliquée.'**
+  String get discoveryParcoursBody;
+
+  /// No description provided for @discoveryParentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le suivi des parents'**
+  String get discoveryParentTitle;
+
+  /// No description provided for @discoveryParentBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un parent rattache son enfant avec un code, puis suit son travail : régularité, matières travaillées, points à revoir.'**
+  String get discoveryParentBody;
+
+  /// No description provided for @discoveryParentExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exemple fictif : « Élève A » a travaillé régulièrement cette semaine ; une notion de géométrie est à revoir.'**
+  String get discoveryParentExample;
+
+  /// No description provided for @discoveryCreateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon espace'**
+  String get discoveryCreateTitle;
+
+  /// No description provided for @discoveryCtaParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis parent'**
+  String get discoveryCtaParent;
+
+  /// No description provided for @discoveryCtaStudent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre mon école'**
+  String get discoveryCtaStudent;
+
+  /// No description provided for @discoveryCtaCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un code élève'**
+  String get discoveryCtaCode;
 }
 
 class _AppLocalizationsDelegate
