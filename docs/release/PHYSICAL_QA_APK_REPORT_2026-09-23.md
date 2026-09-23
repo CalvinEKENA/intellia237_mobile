@@ -183,3 +183,59 @@ Points qui exigent un test physique : durée réelle du démarrage à froid,
 fluidité des animations du Parcours sur un téléphone d'entrée de gamme,
 affichage des images publiées (réseau réel), absence de toute demande de
 permission micro, SMS réels.
+
+---
+
+## Complément — 2e APK du 23/09/2026 (retours appareil du propriétaire)
+
+| Élément | Valeur |
+|---|---|
+| SHA du code compilé | `7367267` |
+| Version | `3.2.1+30` (inchangée) |
+| APK | `build/app/outputs/flutter-apk/app-production-release.apk` |
+| Taille | 80 772 890 octets (77,0 Mo) |
+| SHA-256 | `ea410fcbf78a295c9b83911e72eba34785a322b5d98a673fa31a5cfe504b880a` |
+| Signature | SHA-1 `e8f339143076d3ff867ea60d34d16c3e6b96bf2f` (enregistrée) |
+| Permissions micro/audio | aucune |
+
+| SHA | Objet |
+|---|---|
+| `7baab83` | Compagnon : répond de nouveau ; cadre « Chapitre préparé » retiré |
+| `ae8d8a3` | Onboarding et connexion : écrans fixes, jamais de défilement |
+| `52da1df` | Inscription : un guide à chaque étape (pourquoi, et ensuite) |
+| `7367267` | Parcours 6e : scènes animées de SVT tirées de la leçon publiée |
+
+- **Compagnon** : les journaux de production (lecture seule) montrent le
+  `askTutor` déployé le 15/09 refusant chaque question (`tutor: Required`).
+  L'app renvoie la fiche publique du compagnon à côté de `tutorId` ; rejoué
+  contre le contrat déployé : accepté. Le serveur actuel ignore ce bloc.
+  À retirer après redéploiement des Functions.
+- **« Chapitre préparé »** : n'enregistrait que la liste des leçons ; hors
+  connexion rien ne s'ouvrait. Retiré (données des téléphones laissées).
+- **Écrans fixes** : tout l'onboarding et toute l'authentification tiennent
+  dans l'écran, au-dessus du clavier, réduits si besoin. Le bouton après une
+  réponse d'exercice est visible d'un coup (vérifié sur les 4 exercices, en
+  360×640 et 320×568 à 150 % ; il tombait à 653 px et 820 px avant).
+- **Guide d'inscription** (parent, élève, enseignant) : pourquoi l'étape,
+  et ce qui vient ensuite, animé. Le champ parent demande désormais le
+  « code parent » à 8 caractères (« Mon code parent » dans le profil de
+  l'enfant) au lieu d'un exemple « STU-94K2 » inutilisable. « Identité
+  cible : téléphone + code OTP » devient « Ton numéro de téléphone ».
+- **Parcours 6e** : deux scènes (température : 9 graines à 10/18/40 °C ;
+  arrosage : peu, normal, trop), publiables comme `interactiveNative`
+  (type déjà accepté par le serveur déployé). Les deux cartes sont prêtes
+  dans `docs/content/parcours_6e_svt_climat_animations.json`, **non écrites
+  en production** : elles n'apparaîtront qu'après publication.
+
+| Contrôle | Résultat |
+|---|---|
+| Format, marque, langage humain | vert, 0 occurrence |
+| `flutter analyze` | aucun problème |
+| `flutter test` | 1661 réussis |
+| Functions `npm test` / build | 428 réussis / vert |
+| Règles et Studio | inchangés depuis la série verte ci-dessus |
+
+À tester sur l'appareil en plus de la liste : question au compagnon ;
+onboarding sur petit écran (bouton visible après la réponse) ; inscription
+parent avec le guide et un vrai « code parent » ; clavier ouvert sur chaque
+écran de connexion ; scènes de SVT (après publication des deux cartes).
