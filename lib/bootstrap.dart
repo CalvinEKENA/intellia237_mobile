@@ -12,6 +12,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/config/app_config.dart';
+import 'app/router/router_escape.dart';
+import 'l10n/generated/app_localizations.dart';
 import 'core/system/intellia_system_bars.dart';
 import 'features/auth/data/auth_entry_preferences.dart';
 import 'features/onboarding/data/onboarding_preferences.dart';
@@ -129,6 +131,9 @@ Future<void> bootstrap({
       );
       return MaterialApp(
         debugShowCheckedModeBanner: false,
+        locale: PlatformDispatcher.instance.locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
         home: Scaffold(
           backgroundColor: const Color(0xFF080722),
           body: SafeArea(
@@ -158,6 +163,26 @@ Future<void> bootstrap({
                       'Revenez en arrière, puis réessayez.',
                       style: TextStyle(color: Color(0xADFFFFFF)),
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    // Toujours une sortie : jamais bloqué sur cet écran.
+                    Builder(
+                      builder: (context) => FilledButton.icon(
+                        key: const ValueKey('render-error-back'),
+                        onPressed: RouterEscape.leave,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF080722),
+                          minimumSize: const Size(0, 48),
+                        ),
+                        icon: const Icon(Icons.arrow_back_rounded),
+                        label: Text(
+                          lookupAppLocalizations(
+                            Localizations.maybeLocaleOf(context) ??
+                                const Locale('fr'),
+                          ).backLabel,
+                        ),
+                      ),
                     ),
                   ],
                 ),

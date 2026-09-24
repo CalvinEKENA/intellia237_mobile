@@ -272,7 +272,6 @@
   "lastNameHint": "Ex. Ndi",
   "seriesLabel": "Série",
   "meetCompanionTitle": "Rencontre ton compagnon",
-  "meetCompanionSubtitle": "Découvre Kira, puis Léo. Tu choisiras une fois que tu les auras vus.",
   "secureAccountTitle": "Sécurise ton compte",
   "secureAccountPhoneVerified": "Ton numéro a été vérifié. Relis tes choix avant de créer ton espace.",
   "phoneVerifiedNoExtraCredential": "Votre numéro a été vérifié. Aucun e-mail ni mot de passe supplémentaire n’est nécessaire.",
@@ -567,7 +566,7 @@
   "leoDiscoveryPhraseThree": "Il célèbre chaque progrès avec toi.",
   "discoverLeo": "Découvrir Léo",
   "returnToKira": "Revenir vers Kira",
-  "discoverCompanionBeforeChoice": "Découvre {name} pour pouvoir le choisir",
+  "discoverCompanionBeforeChoice": "Découvre {name} avant de choisir",
   "@discoverCompanionBeforeChoice": {
     "placeholders": {
       "name": {

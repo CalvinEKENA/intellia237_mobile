@@ -104,7 +104,9 @@ void main() {
     await pump(tester, 1);
     await tester.pumpAndSettle();
     expect(
-      find.bySemanticsLabel('Conseil liaison. Ensuite : Validation finale'),
+      find.bySemanticsLabel(
+        'Étape 2 sur 3: Liaison enfants. Conseil liaison. Ensuite : Validation finale',
+      ),
       findsOneWidget,
     );
     semantics.dispose();

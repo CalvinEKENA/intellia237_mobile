@@ -13,6 +13,9 @@ import '../../../core/widgets/gradient_button.dart';
 import '../../../core/widgets/liquid_background.dart';
 import '../domain/tutor_persona.dart';
 
+/// Enregistre le compagnon choisi (peut être asynchrone).
+typedef TutorConfirm = FutureOr<void> Function(TutorPersona tutor);
+
 // ─────────────────────────────────────────────────────────────
 // TutorSelectionScreen
 // Utilisé pendant l'inscription et depuis la page Profil.
@@ -27,8 +30,9 @@ class TutorSelectionScreen extends StatefulWidget {
     super.key,
   });
 
-  /// Appelé quand l'élève confirme son tuteur.
-  final ValueChanged<TutorPersona> onConfirm;
+  /// Appelé quand l'élève confirme son tuteur ; l'écran attend la fin de
+  /// l'enregistrement, puis se ferme lui-même, une seule fois.
+  final TutorConfirm onConfirm;
 
   /// ID du tuteur déjà sélectionné (depuis le profil).
   final String? initialTutorId;
@@ -47,6 +51,32 @@ class TutorSelectionScreen extends StatefulWidget {
 class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
   late final PageController _pageController;
   int _currentIndex = 0;
+
+  /// Registre (QA appareil, 24/09/2026) : sans attente visible, un second
+  /// appui lançait un second enregistrement, qui fermait aussi l'écran du
+  /// profil — il ne restait qu'un écran d'erreur sans retour.
+  bool _confirming = false;
+
+  Future<void> _confirm(TutorPersona tutor) async {
+    if (_confirming) return;
+    HapticFeedback.mediumImpact();
+    setState(() => _confirming = true);
+    try {
+      await widget.onConfirm(tutor);
+    } finally {
+      if (mounted) {
+        setState(() => _confirming = false);
+        _leave();
+      }
+    }
+  }
+
+  /// Ferme cet écran seulement s'il est encore au premier plan.
+  void _leave() {
+    if (ModalRoute.of(context)?.isCurrent == false) return;
+    Navigator.of(context).maybePop();
+  }
+
   int _selectedLevelIndex = 0; // 0=BEPC 1=Proba 2=Bac
 
   static const _levelIds = ['bepc', 'proba', 'bac'];
@@ -142,6 +172,9 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
                   onLevelSelected: _switchLevel,
                   showTabs: false,
                   onSkip: widget.onSkip,
+                  onBack: _confirming || !Navigator.of(context).canPop()
+                      ? null
+                      : _leave,
                 ),
 
                 // Portrait PageView — uses a single stable controller
@@ -177,12 +210,11 @@ class _TutorSelectionScreenState extends State<TutorSelectionScreen> {
                     IntelliaSpacing.xl,
                   ),
                   child: GradientButton(
+                    key: const ValueKey('tutor-confirm'),
                     gradient: LinearGradient(colors: tutor.gradientColors),
                     height: 56,
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      widget.onConfirm(tutor);
-                    },
+                    isLoading: _confirming,
+                    onPressed: () => _confirm(tutor),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -226,7 +258,11 @@ class _TopBar extends StatelessWidget {
     required this.onLevelSelected,
     this.showTabs = true,
     this.onSkip,
+    this.onBack,
   });
+
+  /// Retour visible : l'élève peut toujours renoncer au changement.
+  final VoidCallback? onBack;
 
   final int selectedLevelIndex;
   final List<(String, String)> levels;
@@ -248,7 +284,23 @@ class _TopBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(width: 72),
+              SizedBox(
+                width: 72,
+                child: onBack == null
+                    ? null
+                    : Align(
+                        alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          key: const ValueKey('tutor-selection-back'),
+                          tooltip: context.l10n.backLabel,
+                          onPressed: onBack,
+                          icon: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+              ),
               Text(
                 context.l10n.chooseYourTutor,
                 style: GoogleFonts.playfairDisplay(

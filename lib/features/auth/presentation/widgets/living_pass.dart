@@ -42,6 +42,10 @@ class PassRoom extends InheritedWidget {
   /// Below this, the full card would leave too little room to type.
   static const threshold = 620.0;
 
+  /// Sous cette hauteur, un formulaire à action épinglée (inscription)
+  /// montre le PASS compact : téléphones oui, tablettes et ordinateurs non.
+  static const formThreshold = 860.0;
+
   static bool of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<PassRoom>()?.tight ?? false;
 

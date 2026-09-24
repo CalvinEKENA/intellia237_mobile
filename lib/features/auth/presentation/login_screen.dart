@@ -109,6 +109,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
+      // Le bouton reste visible au-dessus du clavier, sans cacher le PASS.
+      footer: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AnimatedSwitcher(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 220),
+            child: auth.error == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    key: ValueKey(auth.error),
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: AuthErrorBanner(
+                      message: auth.error!,
+                      onRetry: _submit,
+                      onDismiss: controller.clearError,
+                    ),
+                  ),
+          ),
+          AuthPrimaryButton(
+            key: const ValueKey('login-submit'),
+            label: l10n.signIn,
+            onTap: auth.isLoading ? null : _submit,
+            isLoading: auth.isLoading,
+            icon: Icons.login_rounded,
+          ),
+        ],
+      ),
       child: AutofillGroup(
         child: Form(
           key: _formKey,
@@ -180,29 +210,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           onDismiss: () => setState(() => _conflict = null),
                         ),
                       ),
-                    AnimatedSwitcher(
-                      duration: MediaQuery.disableAnimationsOf(context)
-                          ? Duration.zero
-                          : const Duration(milliseconds: 220),
-                      child: auth.error == null
-                          ? const SizedBox.shrink()
-                          : Padding(
-                              key: ValueKey(auth.error),
-                              padding: const EdgeInsets.only(bottom: 14),
-                              child: AuthErrorBanner(
-                                message: auth.error!,
-                                onRetry: _submit,
-                                onDismiss: controller.clearError,
-                              ),
-                            ),
-                    ),
-                    AuthPrimaryButton(
-                      key: const ValueKey('login-submit'),
-                      label: l10n.signIn,
-                      onTap: auth.isLoading ? null : _submit,
-                      isLoading: auth.isLoading,
-                      icon: Icons.login_rounded,
-                    ),
                   ],
                 ),
               ),

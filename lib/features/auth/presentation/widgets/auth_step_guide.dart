@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import 'auth_experience_scaffold.dart';
 
-/// Le fil de l'inscription : à chaque étape, pourquoi on la fait et ce qui
-/// vient ensuite.
+/// Le fil de l'inscription : où l'on en est, pourquoi cette étape et ce qui
+/// vient ensuite — un seul repère, pour laisser la place au contenu.
 ///
 /// Registre (QA appareil, 23/09/2026) : l'inscription est longue ; un parent
 /// doit comprendre ce qu'il fait et où il va. Direction « Encre & Tracé » :
@@ -42,7 +42,9 @@ class AuthStepGuide extends StatelessWidget {
     return Semantics(
       container: true,
       liveRegion: true,
-      label: '${hints[step]} $next',
+      label:
+          '${context.l10n.stepProgressA11y(step + 1, hints.length, labels[step])}. '
+          '${hints[step]} $next',
       excludeSemantics: true,
       child: Container(
         key: guideKey,
@@ -62,9 +64,34 @@ class AuthStepGuide extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _InkProgress(
-                    fraction: (step + 1) / hints.length,
-                    duration: duration,
+                  // Où l'on en est, sur la même ligne que le trait d'encre :
+                  // le guide remplace le fil d'étapes (QA appareil, 24/09).
+                  Row(
+                    children: [
+                      Flexible(
+                        flex: 3,
+                        child: Text(
+                          '${step + 1}/${hints.length}  ${labels[step]}',
+                          key: const ValueKey('registration-guide-step'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: 'CampaignBody',
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            color: AuthExperienceColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 2,
+                        child: _InkProgress(
+                          fraction: (step + 1) / hints.length,
+                          duration: duration,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 9),
                   AnimatedSwitcher(

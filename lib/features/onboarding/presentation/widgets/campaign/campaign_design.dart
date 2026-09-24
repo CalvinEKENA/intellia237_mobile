@@ -79,16 +79,23 @@ class CampaignHeadline extends StatelessWidget {
               animation: animation,
               child: SizedBox(
                 width: double.infinity,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    lines[index],
-                    maxLines: 1,
-                    style: campaignDisplay(
-                      size: size,
-                      color: index == accentLine ? accent : color,
-                    ).copyWith(backgroundColor: background),
+                child: ConstrainedBox(
+                  // Écran court : le titre cède sa hauteur au contenu (le
+                  // reste de la scène garde sa taille réelle).
+                  constraints: BoxConstraints(
+                    maxHeight: CampaignRoom.headlineLineOf(context),
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      lines[index],
+                      maxLines: 1,
+                      style: campaignDisplay(
+                        size: size,
+                        color: index == accentLine ? accent : color,
+                      ).copyWith(backgroundColor: background),
+                    ),
                   ),
                 ),
               ),
@@ -181,15 +188,46 @@ class _CampaignButtonState extends State<CampaignButton> {
   }
 }
 
-/// Scène fixe : jamais de défilement (QA appareil, 23/09/2026).
+/// Hauteur de la scène en cours, pour que les grands titres cèdent leur
+/// place sur un écran court au lieu de réduire toute la scène.
+class CampaignRoom extends InheritedWidget {
+  const CampaignRoom({required this.height, required super.child, super.key});
+
+  final double height;
+
+  /// Hauteur de la scène, ou `null` hors d'une [CampaignPage].
+  static double? heightOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<CampaignRoom>()?.height;
+
+  /// Écran court : les ornements laissent la place à l'essentiel.
+  static bool isShort(BuildContext context) =>
+      (heightOf(context) ?? double.infinity) < 660;
+
+  /// Hauteur maximale d'une ligne de grand titre.
+  static double headlineLineOf(BuildContext context) {
+    final height = heightOf(context);
+    if (height == null || !height.isFinite) return double.infinity;
+    return math.max(40.0, height * 0.095);
+  }
+
+  @override
+  bool updateShouldNotify(CampaignRoom oldWidget) => height != oldWidget.height;
+}
+
+/// Scène fixe : jamais de défilement, bouton toujours visible.
 ///
-/// La scène garde sa hauteur de composition (plus grande sous un grand
-/// texte) ; si l'écran est plus court, elle est réduite pour tenir en
-/// entier, sans jamais réduire la taille relative du texte.
+/// Registre (QA appareil, 24/09/2026) : réduire toute la scène rendait le
+/// texte minuscule et flou. Sur un écran court, ce sont désormais les grands
+/// titres qui cèdent leur hauteur ([CampaignRoom]) ; le reste garde sa
+/// taille réelle. La réduction d'ensemble ne subsiste qu'en dernier recours
+/// (très petit écran avec très grand texte).
 class CampaignPage extends StatelessWidget {
   const CampaignPage({required this.builder, super.key});
   final Widget Function(BuildContext context, double height, double width)
   builder;
+
+  /// Hauteur de composition sous laquelle les scènes se chevaucheraient.
+  static const compositionFloor = 520.0;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -197,13 +235,20 @@ class CampaignPage extends StatelessWidget {
       final scale = MediaQuery.textScalerOf(context).scale(1);
       final minHeight = math.max(
         constraints.maxHeight,
-        scale > 1.25 ? 740.0 + (scale - 1.25) * 190 : 620.0,
+        scale > 1.25 ? 660.0 + (scale - 1.25) * 190 : compositionFloor,
       );
-      return FitViewport(
-        key: const ValueKey('onboarding-scene-fixed'),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: minHeight),
-          child: builder(context, minHeight, constraints.maxWidth),
+      return CampaignRoom(
+        height: constraints.maxHeight,
+        child: FitViewport(
+          key: const ValueKey('onboarding-scene-fixed'),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: minHeight),
+            // Sous la [CampaignRoom], pour que la scène la voie.
+            child: Builder(
+              builder: (context) =>
+                  builder(context, minHeight, constraints.maxWidth),
+            ),
+          ),
         ),
       );
     },

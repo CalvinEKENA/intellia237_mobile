@@ -75,8 +75,8 @@ class AuthRegistrationFrame extends StatelessWidget {
     );
 
     if (pass != null) {
-      // The PASS, form and actions share one scroll position. A keyboard or
-      // large type therefore never steals the form's remaining fixed height.
+      // Le PASS et le formulaire gardent leur taille réelle ; les actions
+      // sont épinglées en bas, toujours visibles (QA appareil, 24/09/2026).
       return Theme(
         data: lightTheme.copyWith(
           textTheme: Theme.of(context).textTheme.apply(
@@ -89,27 +89,34 @@ class AuthRegistrationFrame extends StatelessWidget {
           container: true,
           child: AuthExperienceScaffold(
             onBack: onBack,
+            // Après la première étape, le retour vit à côté du bouton
+            // principal : un seul geste, une seule place.
+            showBackButton: currentStep == 0,
             pass: pass,
-            child: Column(
+            // L'erreur se lit juste au-dessus du bouton, jamais hors écran.
+            footer: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AuthStepIndicator(currentStep: currentStep, labels: labels),
-                if (_guide() case final guide?) ...[
-                  const SizedBox(height: 14),
-                  guide,
-                ],
-                const SizedBox(height: 22),
-                content,
                 if (errorMessage != null) ...[
-                  const SizedBox(height: 16),
                   AuthErrorBanner(
                     message: errorMessage!,
                     onRetry: onRetry,
                     onDismiss: onDismissError,
                   ),
+                  const SizedBox(height: 10),
                 ],
-                const SizedBox(height: 20),
                 actions,
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Le guide porte déjà l'étape en cours : pas de second fil.
+                _guide() ??
+                    AuthStepIndicator(currentStep: currentStep, labels: labels),
+                const SizedBox(height: 18),
+                content,
               ],
             ),
           ),

@@ -1268,12 +1268,6 @@ abstract class AppLocalizations {
   /// **'Rencontre ton compagnon'**
   String get meetCompanionTitle;
 
-  /// No description provided for @meetCompanionSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Découvre Kira, puis Léo. Tu choisiras une fois que tu les auras vus.'**
-  String get meetCompanionSubtitle;
-
   /// No description provided for @secureAccountTitle.
   ///
   /// In fr, this message translates to:
@@ -2339,7 +2333,7 @@ abstract class AppLocalizations {
   /// No description provided for @discoverCompanionBeforeChoice.
   ///
   /// In fr, this message translates to:
-  /// **'Découvre {name} pour pouvoir le choisir'**
+  /// **'Découvre {name} avant de choisir'**
   String discoverCompanionBeforeChoice(String name);
 
   /// No description provided for @companionChosenA11y.

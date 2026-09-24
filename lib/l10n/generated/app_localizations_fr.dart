@@ -661,10 +661,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get meetCompanionTitle => 'Rencontre ton compagnon';
 
   @override
-  String get meetCompanionSubtitle =>
-      'Découvre Kira, puis Léo. Tu choisiras une fois que tu les auras vus.';
-
-  @override
   String get secureAccountTitle => 'Sécurise ton compte';
 
   @override
@@ -1283,7 +1279,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String discoverCompanionBeforeChoice(String name) {
-    return 'Découvre $name pour pouvoir le choisir';
+    return 'Découvre $name avant de choisir';
   }
 
   @override

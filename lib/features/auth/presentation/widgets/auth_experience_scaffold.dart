@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/localization_extensions.dart';
 import 'living_pass.dart';
-import '../../../../core/widgets/fit_viewport.dart';
+import '../../../../core/widgets/pinned_footer_layout.dart';
 import '../../../../core/widgets/intellia_text_wordmark.dart';
 
 abstract final class AuthExperienceColors {
@@ -30,6 +30,7 @@ class AuthExperienceScaffold extends StatelessWidget {
   const AuthExperienceScaffold({
     required this.child,
     this.pass,
+    this.footer,
     this.topBar,
     this.showBackButton = true,
     this.onBack,
@@ -40,6 +41,10 @@ class AuthExperienceScaffold extends StatelessWidget {
 
   final Widget child;
   final Widget? pass;
+
+  /// L'action principale de l'écran, épinglée en bas : toujours visible,
+  /// même clavier ouvert, sans défiler.
+  final Widget? footer;
   final Widget? topBar;
   final bool showBackButton;
   final VoidCallback? onBack;
@@ -52,6 +57,8 @@ class AuthExperienceScaffold extends StatelessWidget {
     final canGoBack =
         onBack != null || (router?.canPop() ?? Navigator.canPop(context));
     final theme = Theme.of(context);
+    // Lu ici, au-dessus du Scaffold qui retire le clavier à son contenu.
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: Colors.transparent,
@@ -84,70 +91,104 @@ class AuthExperienceScaffold extends StatelessWidget {
               const AuthAmbientBackground(),
               SafeArea(
                 child: LayoutBuilder(
-                  builder: (context, constraints) => PassRoom(
-                    tight: constraints.maxHeight < PassRoom.threshold,
-                    // Écran fixe (QA appareil, 23/09/2026) : rien ne défile ;
-                    // le contenu tient au-dessus du clavier, réduit si besoin.
-                    // Le Scaffold consomme une fois la hauteur du clavier.
-                    child: FitViewport(
-                      key: const ValueKey('auth-screen-fixed'),
-                      child: Padding(
-                        padding: padding,
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: maxContentWidth,
-                              minHeight:
-                                  (constraints.maxHeight - padding.vertical)
-                                      .clamp(0.0, double.infinity),
-                            ),
-                            child: Column(
-                              // Tablette, ordinateur : le contenu, plus court
-                              // que l'écran, se tient au milieu, pas en haut.
-                              mainAxisAlignment: constraints.maxWidth >= 600
-                                  ? MainAxisAlignment.center
-                                  : MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                if (topBar != null ||
-                                    (showBackButton && canGoBack)) ...[
-                                  Row(
-                                    children: [
-                                      if (showBackButton && canGoBack)
-                                        IconButton(
-                                          tooltip: context.l10n.backLabel,
-                                          onPressed:
-                                              onBack ??
-                                              () {
-                                                if (router != null) {
-                                                  router.pop();
-                                                } else {
-                                                  Navigator.pop(context);
-                                                }
-                                              },
-                                          icon: const Icon(
-                                            Icons.arrow_back_rounded,
+                  builder: (context, constraints) {
+                    final wide = constraints.maxWidth >= 600;
+                    Widget centered(Widget child) => Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: maxContentWidth),
+                        child: child,
+                      ),
+                    );
+                    final bodyPadding = footer == null
+                        ? padding
+                        : padding.copyWith(bottom: 16);
+                    return PassRoom(
+                      // Un formulaire à action épinglée (inscription) garde le
+                      // PASS compact sur téléphone : la place va aux choix.
+                      tight:
+                          constraints.maxHeight < PassRoom.threshold ||
+                          (footer != null &&
+                              constraints.maxHeight < PassRoom.formThreshold),
+                      // Registre (QA appareil, 24/09/2026) : le texte garde
+                      // sa taille réelle ; l'action principale est épinglée
+                      // en bas, au-dessus du clavier, jamais cachée.
+                      child: PinnedFooterLayout(
+                        key: const ValueKey('auth-screen-fixed'),
+                        bodyKey: const ValueKey('auth-screen-body'),
+                        background: AuthExperienceColors.canvas,
+                        // Avec un pied épinglé, le bouton est déjà visible :
+                        // le contenu ne glisse que pour le champ actif.
+                        keyboardInset: footer == null ? keyboardInset : 0,
+                        bodyBuilder: (context, viewportHeight) => Padding(
+                          padding: bodyPadding,
+                          child: centered(
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight:
+                                    (viewportHeight - bodyPadding.vertical)
+                                        .clamp(0.0, double.infinity),
+                              ),
+                              child: Column(
+                                // Tablette, ordinateur : le contenu, plus
+                                // court que l'écran, se tient au milieu.
+                                mainAxisAlignment: wide
+                                    ? MainAxisAlignment.center
+                                    : MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (topBar != null ||
+                                      (showBackButton && canGoBack)) ...[
+                                    Row(
+                                      children: [
+                                        if (showBackButton && canGoBack)
+                                          IconButton(
+                                            tooltip: context.l10n.backLabel,
+                                            onPressed:
+                                                onBack ??
+                                                () {
+                                                  if (router != null) {
+                                                    router.pop();
+                                                  } else {
+                                                    Navigator.pop(context);
+                                                  }
+                                                },
+                                            icon: const Icon(
+                                              Icons.arrow_back_rounded,
+                                            ),
                                           ),
-                                        ),
-                                      if (topBar != null)
-                                        Expanded(child: topBar!),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 14),
+                                        if (topBar != null)
+                                          Expanded(child: topBar!),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 14),
+                                  ],
+                                  if (pass != null) ...[
+                                    pass!,
+                                    SizedBox(height: footer == null ? 22 : 16),
+                                  ],
+                                  child,
+                                  // En fin de contenu, jamais épinglée : la
+                                  // place fixe va à l'action.
+                                  const _AuthorSignature(),
                                 ],
-                                if (pass != null) ...[
-                                  pass!,
-                                  const SizedBox(height: 26),
-                                ],
-                                child,
-                                const _AuthorSignature(),
-                              ],
+                              ),
                             ),
                           ),
                         ),
+                        footer: footer == null
+                            ? null
+                            : Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                  padding.left,
+                                  10,
+                                  padding.right,
+                                  10,
+                                ),
+                                child: centered(footer!),
+                              ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ],

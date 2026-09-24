@@ -272,7 +272,6 @@
   "lastNameHint": "E.g. Ndi",
   "seriesLabel": "Series",
   "meetCompanionTitle": "Meet your companion",
-  "meetCompanionSubtitle": "Discover Kira, then Léo. You will choose after meeting both.",
   "secureAccountTitle": "Secure your account",
   "secureAccountPhoneVerified": "Your number is verified. Review your choices before creating your space.",
   "phoneVerifiedNoExtraCredential": "Your number is verified. No additional email or password is required.",
@@ -567,7 +566,7 @@
   "leoDiscoveryPhraseThree": "He celebrates every step forward with you.",
   "discoverLeo": "Discover Léo",
   "returnToKira": "Return to Kira",
-  "discoverCompanionBeforeChoice": "Discover {name} before choosing this companion",
+  "discoverCompanionBeforeChoice": "Meet {name} before choosing",
   "@discoverCompanionBeforeChoice": {
     "placeholders": {
       "name": {

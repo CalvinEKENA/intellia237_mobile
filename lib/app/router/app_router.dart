@@ -55,6 +55,7 @@ import '../../features/teacher_registration/presentation/teacher_registration_sc
 import '../../features/teacher/presentation/teacher_class_detail_screen.dart';
 import '../../features/teacher/presentation/teacher_home_screen.dart';
 import 'app_routes.dart';
+import 'router_escape.dart';
 
 /// Écrans substituables par motif de route (`GoRoute.path`).
 ///
@@ -580,9 +581,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final initialId = state.uri.queryParameters['tutorId'];
           final filterLevel = state.uri.queryParameters['filterLevel'];
           final extra = state.extra;
-          final onConfirm = extra is ValueChanged<TutorPersona>
+          // L'écran se ferme lui-même après l'enregistrement.
+          final onConfirm = extra is TutorConfirm
               ? extra
-              : (TutorPersona tutor) => GoRouter.of(context).pop();
+              : (TutorPersona tutor) {};
           // « Passer » n'a de sens qu'à la découverte initiale. Ouvert depuis
           // le profil — le seul chemin existant aujourd'hui — l'écran sert à
           // *changer* de compagnon : proposer une échappatoire y laissait
@@ -609,6 +611,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
   notifier.attach(router);
+  RouterEscape.attach(router);
   return router;
 });
 

@@ -12,7 +12,16 @@ Branche : `fix/auth-v2-final-rework`. Projet Firebase de production :
 - Parcours : scènes animées SVT 6e (`svt_germination_temperature_v1`,
   `svt_germination_watering_v1`, type `interactiveNative`) ; bouton
   « ← Quitter » visible ; images publiées affichées ; notions en fil d'idées.
-- Écrans d'onboarding et d'authentification fixes (`FitViewport`).
+- Écrans d'onboarding et d'authentification : **taille réelle** (QA 24/09).
+  L'auth utilise `PinnedFooterLayout` (bouton épinglé au-dessus du clavier,
+  contenu qui ne glisse que si l'écran est trop court, ombre d'indice) ;
+  l'onboarding garde `FitViewport` en dernier recours seulement : les grands
+  titres cèdent leur hauteur (`CampaignRoom`), scènes ≥ 98,5 % dès 360×640.
+  Étape Compagnon : le choix est porté par le bouton épinglé (« Choisir
+  Léo » → « Continuer avec Léo ») ; plus de flou ni de halo sur les phrases.
+- Changement de compagnon depuis le profil : l'écran de choix n'enregistre
+  qu'une fois (attente visible), se ferme lui-même et a un bouton retour ;
+  l'écran de secours d'affichage a un bouton « Revenir » (`RouterEscape`).
 - Guide d'inscription (parent / élève / enseignant) et guide de l'espace
   parent (6 étapes, boussole + « Revoir le guide »).
 - Compagnon : envoie `tutor` + `tutorId` (le serveur déployé exige `tutor`) ;

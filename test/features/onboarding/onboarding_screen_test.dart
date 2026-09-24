@@ -9,6 +9,7 @@ import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/app/theme/design_tokens.dart';
 import 'package:intellia237/core/animations/app_page_transitions.dart';
 import 'package:intellia237/core/animations/screen_shatter.dart';
+import 'package:intellia237/core/widgets/fit_viewport.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_act.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_micro_challenge.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
@@ -123,6 +124,46 @@ void main() {
       _expectNoLayoutException(tester, '${entry.value} challenge');
     }
   });
+
+  // Taille réelle (QA appareil, 24/09/2026) : réduire toute la scène
+  // rendait le texte minuscule et flou. Sur un téléphone courant, chaque
+  // scène tient sans réduction ; seuls les grands titres cèdent leur place.
+  for (final size in const [Size(360, 640), Size(360, 740)]) {
+    testWidgets(
+      'scenes keep their real size at ${size.width.toInt()}×${size.height.toInt()}',
+      (tester) async {
+        double scale() =>
+            (tester.renderObject(
+                      find.byKey(const ValueKey('onboarding-scene-fixed')),
+                    )
+                    as RenderFitViewport)
+                .scale;
+        Future<void> tap(String key) async {
+          await tester.tap(find.byKey(ValueKey(key)));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 1400));
+        }
+
+        await _pumpOnboarding(tester, size: size);
+        final scales = <String, double>{'opening': scale()};
+        await tap('activation-enter');
+        scales['subjects'] = scale();
+        await tap('subject-french');
+        scales['challenge'] = scale();
+        await tap('challenge-answer-0');
+        scales['answered'] = scale();
+        await tap('challenge-continue');
+        scales['companions'] = scale();
+        await tap('companion-continue');
+        scales['finale'] = scale();
+
+        for (final entry in scales.entries) {
+          expect(entry.value, greaterThanOrEqualTo(0.985), reason: entry.key);
+        }
+        _expectNoLayoutException(tester, 'real-size scenes');
+      },
+    );
+  }
 
   // Écrans fixes (QA appareil, 23/09/2026) : après une réponse, le bouton
   // qui apparaît est vu d'un coup, sans défiler, quel que soit l'exercice.
