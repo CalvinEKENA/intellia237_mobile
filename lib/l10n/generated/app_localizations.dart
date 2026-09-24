@@ -7369,7 +7369,7 @@ abstract class AppLocalizations {
   /// No description provided for @addChildCodeHelp.
   ///
   /// In fr, this message translates to:
-  /// **'Demande à ton enfant son code, visible dans son espace Profil › « Mon code parent ».'**
+  /// **'Demandez à votre enfant son code, visible dans son espace Profil › « Mon code parent ».'**
   String get addChildCodeHelp;
 
   /// No description provided for @addChildSubmit.
@@ -7387,7 +7387,7 @@ abstract class AppLocalizations {
   /// No description provided for @addChildAlready.
   ///
   /// In fr, this message translates to:
-  /// **'{name} est déjà lié à ton compte.'**
+  /// **'{name} est déjà lié à votre compte.'**
   String addChildAlready(String name);
 
   /// No description provided for @studentLinkCodeTitle.
@@ -9321,6 +9321,114 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Quitter'**
   String get flowExit;
+
+  /// No description provided for @parentGuideOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Guide de votre espace'**
+  String get parentGuideOpen;
+
+  /// No description provided for @parentGuideReplay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir le guide'**
+  String get parentGuideReplay;
+
+  /// No description provided for @parentGuideProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'ÉTAPE {current} SUR {total}'**
+  String parentGuideProgress(int current, int total);
+
+  /// No description provided for @parentGuideSkip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get parentGuideSkip;
+
+  /// No description provided for @parentGuideNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get parentGuideNext;
+
+  /// No description provided for @parentGuideDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est compris'**
+  String get parentGuideDone;
+
+  /// No description provided for @parentGuideWelcomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue dans votre espace parent'**
+  String get parentGuideWelcomeTitle;
+
+  /// No description provided for @parentGuideWelcomeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous y suivez la progression de vos enfants, les annonces de leur école et les paiements. Voici l’essentiel en six étapes.'**
+  String get parentGuideWelcomeBody;
+
+  /// No description provided for @parentGuideAddTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un enfant'**
+  String get parentGuideAddTitle;
+
+  /// No description provided for @parentGuideAddBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Onglet « Mes enfants », puis « Ajouter un enfant ». Deux cas : votre enfant a déjà un compte INTELLIA, ou pas encore.'**
+  String get parentGuideAddBody;
+
+  /// No description provided for @parentGuideLinkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il a déjà un compte : le code parent'**
+  String get parentGuideLinkTitle;
+
+  /// No description provided for @parentGuideLinkBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demandez à votre enfant son « code parent » (8 caractères). Il le trouve dans son Profil, rubrique « Mon code parent ». Saisissez-le, puis touchez « Lier l’enfant ».'**
+  String get parentGuideLinkBody;
+
+  /// No description provided for @parentGuideAccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de compte : le code d’accès'**
+  String get parentGuideAccessTitle;
+
+  /// No description provided for @parentGuideAccessBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez « Mon enfant n’a pas encore de compte INTELLIA ». Vous obtenez son code d’accès : notez-le, il n’est affiché qu’une fois. Un nouveau code se crée depuis sa fiche, « Code d’accès élève ».'**
+  String get parentGuideAccessBody;
+
+  /// No description provided for @parentGuideSwitchTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre enfant utilise ce téléphone'**
+  String get parentGuideSwitchTitle;
+
+  /// No description provided for @parentGuideSwitchBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil, puis « Se déconnecter ». Sur l’écran d’accueil, votre enfant touche « J’ai un code élève » et saisit son code d’accès. Pour revenir à votre espace : il se déconnecte, puis vous entrez avec votre numéro.'**
+  String get parentGuideSwitchBody;
+
+  /// No description provided for @parentGuideAgainTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouver ce guide'**
+  String get parentGuideAgainTitle;
+
+  /// No description provided for @parentGuideAgainBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez la boussole en haut de votre espace, ou « Revoir le guide » dans Profil, quand vous le souhaitez.'**
+  String get parentGuideAgainBody;
 }
 
 class _AppLocalizationsDelegate

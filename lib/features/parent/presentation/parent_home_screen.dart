@@ -10,15 +10,13 @@ import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/presentation/widgets/role_switch_action.dart';
-import '../../auth/domain/app_role.dart';
 import '../application/parent_preview.dart';
 import '../application/parent_providers.dart';
 import '../domain/parent_announcement.dart';
 import '../domain/parent_child_profile.dart';
 import '../domain/parent_dashboard.dart';
-import '../../tour_guide/domain/role_tour_steps.dart';
 import '../../tour_guide/domain/tour_guide_target_ids.dart';
-import '../../tour_guide/presentation/contextual_tour_guide.dart';
+import 'widgets/parent_guide.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../../mobile_money/presentation/mobile_money_parent_tab.dart';
 import '../../notifications/presentation/notification_app_bar_action.dart';
@@ -80,7 +78,15 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
       appBar: AppBar(
         toolbarHeight: MediaQuery.textScalerOf(context).scale(56),
         title: Text(_tabTitles(context)[_tabIndex], maxLines: 3),
-        actions: const [NotificationAppBarAction()],
+        actions: [
+          IconButton(
+            key: ParentGuide.openKey,
+            tooltip: context.l10n.parentGuideOpen,
+            icon: const Icon(Icons.explore_outlined),
+            onPressed: () => ParentGuide.show(context),
+          ),
+          const NotificationAppBarAction(),
+        ],
       ),
       body: TabSurface(
         palette: const TabPalette(TabPresentationMode.embeddedLight),
@@ -203,13 +209,11 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
     _tourLaunchRequested = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      maybeShowContextualTourGuide(
-        context: context,
-        ref: ref,
-        expectedRole: AppRole.parent,
-        targets: _tourTargets,
-        steps: roleTourSteps(AppRole.parent),
-      );
+      // Guide pas à pas du parent (24/09/2026), à la place des deux bulles
+      // génériques : codes, ajout d'un enfant, passage à son compte.
+      final uid = ref.read(authControllerProvider).userId;
+      if (uid == null || uid.isEmpty) return;
+      ParentGuide.maybeShowOnce(context, uid);
     });
   }
 }
@@ -532,6 +536,13 @@ class _ProfileTab extends StatelessWidget {
           ),
         ),
         const SizedBox(height: IntelliaSpacing.md),
+        ListTile(
+          leading: const Icon(Icons.explore_outlined),
+          title: Text(context.l10n.parentGuideReplay),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: () => ParentGuide.show(context),
+        ),
+        const SizedBox(height: IntelliaSpacing.sm),
         FilledButton.icon(
           key: signOutKey,
           onPressed: onSignOut,

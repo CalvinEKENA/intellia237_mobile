@@ -5424,4 +5424,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get flowExit => 'Exit';
+
+  @override
+  String get parentGuideOpen => 'Guide to your space';
+
+  @override
+  String get parentGuideReplay => 'See the guide again';
+
+  @override
+  String parentGuideProgress(int current, int total) {
+    return 'STEP $current OF $total';
+  }
+
+  @override
+  String get parentGuideSkip => 'Skip';
+
+  @override
+  String get parentGuideNext => 'Next';
+
+  @override
+  String get parentGuideDone => 'Got it';
+
+  @override
+  String get parentGuideWelcomeTitle => 'Welcome to your parent space';
+
+  @override
+  String get parentGuideWelcomeBody =>
+      'Here you follow your children’s progress, their school’s announcements and payments. Here are the essentials, in six steps.';
+
+  @override
+  String get parentGuideAddTitle => 'Add a child';
+
+  @override
+  String get parentGuideAddBody =>
+      '“My children” tab, then “Add a child”. Two cases: your child already has an INTELLIA account, or not yet.';
+
+  @override
+  String get parentGuideLinkTitle => 'Already has an account: the parent code';
+
+  @override
+  String get parentGuideLinkBody =>
+      'Ask your child for their “parent code” (8 characters). It is in their Profile, under “My parent code”. Enter it, then tap “Link child”.';
+
+  @override
+  String get parentGuideAccessTitle => 'No account yet: the access code';
+
+  @override
+  String get parentGuideAccessBody =>
+      'Choose “My child has no INTELLIA account yet”. You get their access code: write it down, it is shown only once. A new code can be created from their profile, “Student access code”.';
+
+  @override
+  String get parentGuideSwitchTitle => 'Your child uses this phone';
+
+  @override
+  String get parentGuideSwitchBody =>
+      'Profile, then “Sign out”. On the welcome screen, your child taps “I have a student code” and enters their access code. To come back to your space: they sign out, then you sign in with your number.';
+
+  @override
+  String get parentGuideAgainTitle => 'Find this guide again';
+
+  @override
+  String get parentGuideAgainBody =>
+      'Tap the compass at the top of your space, or “See the guide again” in Profile, whenever you like.';
 }

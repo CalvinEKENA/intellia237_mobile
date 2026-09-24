@@ -4263,7 +4263,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addChildCodeHelp =>
-      'Demande à ton enfant son code, visible dans son espace Profil › « Mon code parent ».';
+      'Demandez à votre enfant son code, visible dans son espace Profil › « Mon code parent ».';
 
   @override
   String get addChildSubmit => 'Lier l’enfant';
@@ -4275,7 +4275,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String addChildAlready(String name) {
-    return '$name est déjà lié à ton compte.';
+    return '$name est déjà lié à votre compte.';
   }
 
   @override
@@ -5458,4 +5458,66 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get flowExit => 'Quitter';
+
+  @override
+  String get parentGuideOpen => 'Guide de votre espace';
+
+  @override
+  String get parentGuideReplay => 'Revoir le guide';
+
+  @override
+  String parentGuideProgress(int current, int total) {
+    return 'ÉTAPE $current SUR $total';
+  }
+
+  @override
+  String get parentGuideSkip => 'Passer';
+
+  @override
+  String get parentGuideNext => 'Suivant';
+
+  @override
+  String get parentGuideDone => 'C’est compris';
+
+  @override
+  String get parentGuideWelcomeTitle => 'Bienvenue dans votre espace parent';
+
+  @override
+  String get parentGuideWelcomeBody =>
+      'Vous y suivez la progression de vos enfants, les annonces de leur école et les paiements. Voici l’essentiel en six étapes.';
+
+  @override
+  String get parentGuideAddTitle => 'Ajouter un enfant';
+
+  @override
+  String get parentGuideAddBody =>
+      'Onglet « Mes enfants », puis « Ajouter un enfant ». Deux cas : votre enfant a déjà un compte INTELLIA, ou pas encore.';
+
+  @override
+  String get parentGuideLinkTitle => 'Il a déjà un compte : le code parent';
+
+  @override
+  String get parentGuideLinkBody =>
+      'Demandez à votre enfant son « code parent » (8 caractères). Il le trouve dans son Profil, rubrique « Mon code parent ». Saisissez-le, puis touchez « Lier l’enfant ».';
+
+  @override
+  String get parentGuideAccessTitle => 'Pas encore de compte : le code d’accès';
+
+  @override
+  String get parentGuideAccessBody =>
+      'Choisissez « Mon enfant n’a pas encore de compte INTELLIA ». Vous obtenez son code d’accès : notez-le, il n’est affiché qu’une fois. Un nouveau code se crée depuis sa fiche, « Code d’accès élève ».';
+
+  @override
+  String get parentGuideSwitchTitle => 'Votre enfant utilise ce téléphone';
+
+  @override
+  String get parentGuideSwitchBody =>
+      'Profil, puis « Se déconnecter ». Sur l’écran d’accueil, votre enfant touche « J’ai un code élève » et saisit son code d’accès. Pour revenir à votre espace : il se déconnecte, puis vous entrez avec votre numéro.';
+
+  @override
+  String get parentGuideAgainTitle => 'Retrouver ce guide';
+
+  @override
+  String get parentGuideAgainBody =>
+      'Touchez la boussole en haut de votre espace, ou « Revoir le guide » dans Profil, quand vous le souhaitez.';
 }

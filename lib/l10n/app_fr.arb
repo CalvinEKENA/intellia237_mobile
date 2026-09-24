@@ -2177,7 +2177,7 @@
   "parentPreviewPaymentsBlockedBody": "Vous consultez l’espace d’un autre parent : pour protéger ses données, aucune opération de paiement n’est possible ici.",
   "addChildTitle": "Ajouter un enfant",
   "addChildCodeLabel": "Code de liaison de l’enfant",
-  "addChildCodeHelp": "Demande à ton enfant son code, visible dans son espace Profil › « Mon code parent ».",
+  "addChildCodeHelp": "Demandez à votre enfant son code, visible dans son espace Profil › « Mon code parent ».",
   "addChildSubmit": "Lier l’enfant",
   "addChildSuccess": "{name} est maintenant lié à ton compte.",
   "@addChildSuccess": {
@@ -2187,7 +2187,7 @@
       }
     }
   },
-  "addChildAlready": "{name} est déjà lié à ton compte.",
+  "addChildAlready": "{name} est déjà lié à votre compte.",
   "@addChildAlready": {
     "placeholders": {
       "name": {
@@ -2763,5 +2763,33 @@
   "flowExit": "Quitter",
   "@flowExit": {
     "description": "Bouton visible pour quitter le Parcours."
+  },
+  "parentGuideOpen": "Guide de votre espace",
+  "parentGuideReplay": "Revoir le guide",
+  "parentGuideProgress": "ÉTAPE {current} SUR {total}",
+  "parentGuideSkip": "Passer",
+  "parentGuideNext": "Suivant",
+  "parentGuideDone": "C’est compris",
+  "parentGuideWelcomeTitle": "Bienvenue dans votre espace parent",
+  "parentGuideWelcomeBody": "Vous y suivez la progression de vos enfants, les annonces de leur école et les paiements. Voici l’essentiel en six étapes.",
+  "parentGuideAddTitle": "Ajouter un enfant",
+  "parentGuideAddBody": "Onglet « Mes enfants », puis « Ajouter un enfant ». Deux cas : votre enfant a déjà un compte INTELLIA, ou pas encore.",
+  "parentGuideLinkTitle": "Il a déjà un compte : le code parent",
+  "parentGuideLinkBody": "Demandez à votre enfant son « code parent » (8 caractères). Il le trouve dans son Profil, rubrique « Mon code parent ». Saisissez-le, puis touchez « Lier l’enfant ».",
+  "parentGuideAccessTitle": "Pas encore de compte : le code d’accès",
+  "parentGuideAccessBody": "Choisissez « Mon enfant n’a pas encore de compte INTELLIA ». Vous obtenez son code d’accès : notez-le, il n’est affiché qu’une fois. Un nouveau code se crée depuis sa fiche, « Code d’accès élève ».",
+  "parentGuideSwitchTitle": "Votre enfant utilise ce téléphone",
+  "parentGuideSwitchBody": "Profil, puis « Se déconnecter ». Sur l’écran d’accueil, votre enfant touche « J’ai un code élève » et saisit son code d’accès. Pour revenir à votre espace : il se déconnecte, puis vous entrez avec votre numéro.",
+  "parentGuideAgainTitle": "Retrouver ce guide",
+  "parentGuideAgainBody": "Touchez la boussole en haut de votre espace, ou « Revoir le guide » dans Profil, quand vous le souhaitez.",
+  "@parentGuideProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -307,10 +307,30 @@ class SealJourney {
   Future<void> tapText(String text) => tapFinder(find.text(text));
 
   Future<void> tapFinder(Finder target) async {
+    await _closeParentGuide(target);
     await reveal(target);
     await wait(const Duration(milliseconds: 50));
     await tester.tap(target, warnIfMissed: false);
     await wait(const Duration(milliseconds: 120));
+  }
+
+  /// Le guide de l'espace parent s'ouvre seul à la première arrivée
+  /// (24/09/2026) : comme un parent pressé, le parcours le passe avant de
+  /// toucher autre chose que le guide lui-même.
+  Future<void> _closeParentGuide(Finder target) async {
+    final guide = find.byKey(const ValueKey('parent-guide'));
+    if (guide.evaluate().isEmpty) return;
+    if (find.descendant(of: guide, matching: target).evaluate().isNotEmpty) {
+      return;
+    }
+    final skip = find.byKey(const ValueKey('parent-guide-skip'));
+    await tester.tap(
+      skip.evaluate().isNotEmpty
+          ? skip
+          : find.byKey(const ValueKey('parent-guide-next')),
+      warnIfMissed: false,
+    );
+    await wait(const Duration(milliseconds: 600));
   }
 
   /// Saisie touche par touche, clavier ouvert. Le défilement vers le champ
