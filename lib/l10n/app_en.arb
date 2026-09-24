@@ -2626,5 +2626,6 @@
   "studentGuideSecurity": "Your number protects your account: nobody else can sign in as you.",
   "teacherGuideIdentity": "Your name as your students and your school know it.",
   "teacherGuideTeaching": "Your subjects and classes: your space and content will be prepared for them.",
-  "teacherGuideFinal": "Accept the terms: your school will then approve your account."
+  "teacherGuideFinal": "Accept the terms: your school will then approve your account.",
+  "flowExit": "Exit"
 }

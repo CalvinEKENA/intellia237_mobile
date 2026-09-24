@@ -5421,4 +5421,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get teacherGuideFinal =>
       'Accept the terms: your school will then approve your account.';
+
+  @override
+  String get flowExit => 'Exit';
 }

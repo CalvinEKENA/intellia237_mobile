@@ -2759,5 +2759,9 @@
         "type": "String"
       }
     }
+  },
+  "flowExit": "Quitter",
+  "@flowExit": {
+    "description": "Bouton visible pour quitter le Parcours."
   }
 }

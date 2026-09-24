@@ -53,7 +53,7 @@ void main() {
     await tester.pump();
     // Le composeur ne porte qu'un seul verbe : « Parler » devient « Envoyer »
     // dès qu'un caractère utile est saisi.
-    await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+    await tester.tap(find.byKey(const ValueKey('companion-send')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 

@@ -5455,4 +5455,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get teacherGuideFinal =>
       'Acceptez les conditions : votre établissement validera ensuite votre compte.';
+
+  @override
+  String get flowExit => 'Quitter';
 }

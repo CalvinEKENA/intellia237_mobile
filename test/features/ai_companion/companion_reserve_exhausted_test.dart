@@ -78,7 +78,7 @@ Future<String> _errorShownFor(
   await tester.pump(const Duration(milliseconds: 50));
   await tester.enterText(find.byType(TextField), 'Explique les fractions');
   await tester.pump();
-  await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+  await tester.tap(find.byKey(const ValueKey('companion-send')));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 50));
 

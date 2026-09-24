@@ -33,7 +33,7 @@ class FlowHud extends ConsumerWidget {
           children: [
             Row(
               children: [
-                _circleButton(Icons.close_rounded, onClose),
+                _ExitButton(onTap: onClose),
                 const SizedBox(width: IntelliaSpacing.xs),
                 Expanded(
                   child: SingleChildScrollView(
@@ -137,20 +137,6 @@ class FlowHud extends ConsumerWidget {
     );
   }
 
-  Widget _circleButton(IconData icon, VoidCallback onTap) => IntelliaPressable(
-    onTap: onTap,
-    child: Container(
-      width: 38,
-      height: 38,
-      decoration: BoxDecoration(
-        color: IntelliaColors.surfaceSolid.withValues(alpha: 0.8),
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
-      ),
-      child: Icon(icon, size: 20, color: IntelliaColors.textPrimary),
-    ),
-  );
-
   Widget _pill({
     required IconData icon,
     required String label,
@@ -187,6 +173,65 @@ class FlowHud extends ConsumerWidget {
       child: onTap == null
           ? content
           : IntelliaPressable(onTap: onTap, child: content),
+    );
+  }
+}
+
+/// Sortie du Parcours (retour appareil, 24/09/2026) : une petite croix grise
+/// passait inaperçue. Une pastille foncée, avec une flèche et le mot
+/// « Quitter », se voit du premier coup d'œil.
+class _ExitButton extends StatelessWidget {
+  const _ExitButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  static const exitKey = ValueKey('flow-exit');
+
+  @override
+  Widget build(BuildContext context) {
+    final label = context.l10n.flowExit;
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: IntelliaPressable(
+        key: exitKey,
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.fromLTRB(10, 8, 14, 8),
+          decoration: BoxDecoration(
+            color: IntelliaColors.textPrimary,
+            borderRadius: BorderRadius.circular(IntelliaRadii.full),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.18),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.arrow_back_rounded,
+                size: 20,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

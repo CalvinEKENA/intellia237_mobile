@@ -9315,6 +9315,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Acceptez les conditions : votre établissement validera ensuite votre compte.'**
   String get teacherGuideFinal;
+
+  /// Bouton visible pour quitter le Parcours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter'**
+  String get flowExit;
 }
 
 class _AppLocalizationsDelegate
