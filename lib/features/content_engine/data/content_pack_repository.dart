@@ -105,6 +105,10 @@ class ContentPackRepository {
         b.curriculum.subjectKey,
       );
       if (subject != 0) return subject;
+      final module = (a.curriculum.moduleNumber ?? 0).compareTo(
+        b.curriculum.moduleNumber ?? 0,
+      );
+      if (module != 0) return module;
       return a.curriculum.chapterNumber.compareTo(b.curriculum.chapterNumber);
     });
   }

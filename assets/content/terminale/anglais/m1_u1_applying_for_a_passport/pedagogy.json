@@ -1,0 +1,263 @@
+{
+  "schema_version": "intellia.pedagogy.v3",
+  "content_id": "english_terminale_m1_u1_applying_for_passport",
+  "difficulty_axis": {
+    "1": {
+      "label": "Easy",
+      "focus": "recognise vocabulary, meaning and simple grammar"
+    },
+    "2": {
+      "label": "Intermediate",
+      "focus": "apply reading and grammar skills in context"
+    },
+    "3": {
+      "label": "Bac Challenge",
+      "focus": "analyse, edit and combine skills"
+    }
+  },
+  "explanation_axis": {
+    "standard": {
+      "label": "Terminale",
+      "style": "clear English at final-year secondary level"
+    },
+    "simple": {
+      "label": "Simple English",
+      "style": "shorter sentences and direct examples"
+    },
+    "ultra_simple": {
+      "label": "Very simple",
+      "style": "very accessible English with occasional French support"
+    }
+  },
+  "concepts": [
+    {
+      "id": "personal_information_vocabulary",
+      "lesson": 1,
+      "title": "Personal information and document vocabulary",
+      "aliases": [
+        "biometric",
+        "passport",
+        "minor",
+        "appointment",
+        "expired",
+        "in person",
+        "document",
+        "processing time"
+      ],
+      "explanations": {
+        "standard": "This unit uses a core set of words for personal information and official documents: biometric, passport, processing time, minor, appointment, expired, in person and document.",
+        "simple": "Learn the words that help you understand forms and official documents: passport, appointment, minor, expired, document and others.",
+        "ultra_simple": "These are the key words of the unit. Example: 'expired' means no longer valid; 'appointment' means an arranged meeting."
+      },
+      "common_mistakes": [
+        "confusing 'appointment' with a document",
+        "confusing 'expired' with 'missing'",
+        "using 'in person' as if it meant 'online'"
+      ]
+    },
+    {
+      "id": "listening_specific_information",
+      "lesson": 1,
+      "title": "Listening for specific information",
+      "aliases": [
+        "listening",
+        "yes or no",
+        "specific information",
+        "personal information"
+      ],
+      "explanations": {
+        "standard": "The unit asks you to listen for precise details and judge yes/no statements about what you hear.",
+        "simple": "Listen for the exact detail you need. Do not try to remember every word.",
+        "ultra_simple": "Listen like a detective: one question, one detail. En français : cherche l'information précise, pas tout le texte."
+      },
+      "common_mistakes": [
+        "guessing from general knowledge instead of the listening source",
+        "answering without checking the exact statement"
+      ]
+    },
+    {
+      "id": "speech_practice",
+      "lesson": 1,
+      "title": "Speech practice",
+      "aliases": [
+        "speech",
+        "pronunciation",
+        "tongue twister",
+        "sounds"
+      ],
+      "explanations": {
+        "standard": "The unit includes pronunciation practice and tongue twisters to rehearse problematic English sounds.",
+        "simple": "Read slowly first, then repeat more smoothly. Focus on the target sounds.",
+        "ultra_simple": "Say it slowly, then faster. The goal is clear pronunciation, not speed."
+      },
+      "common_mistakes": [
+        "rushing before producing sounds clearly",
+        "treating pronunciation practice as a spelling exercise"
+      ]
+    },
+    {
+      "id": "prediction_strategy",
+      "lesson": 2,
+      "title": "Predicting before reading",
+      "aliases": [
+        "prediction",
+        "predict",
+        "title",
+        "subheading",
+        "skim",
+        "main idea"
+      ],
+      "explanations": {
+        "standard": "Before detailed reading, use the title, subheadings, bold or capitalised words and quick skimming to anticipate the likely content.",
+        "simple": "Look at the title and important-looking words before reading every sentence.",
+        "ultra_simple": "First look at the big clues. Then guess what the text is about. Après, tu lis en détail."
+      },
+      "common_mistakes": [
+        "reading every sentence before identifying the topic",
+        "ignoring headings and visually prominent words"
+      ]
+    },
+    {
+      "id": "formal_form_navigation",
+      "lesson": 2,
+      "title": "Reading a formal administrative form",
+      "aliases": [
+        "form",
+        "forename",
+        "surname",
+        "marital status",
+        "residential address",
+        "declaration"
+      ],
+      "explanations": {
+        "standard": "A formal form is organised into labelled sections. Read the heading of each section first, then locate the precise field or document requested.",
+        "simple": "Use the section headings to find the right information quickly.",
+        "ultra_simple": "A form is like a map: first choose the right section, then the right box."
+      },
+      "common_mistakes": [
+        "reading a field without checking its section",
+        "confusing personal details with supporting documents"
+      ]
+    },
+    {
+      "id": "formal_form_integrity",
+      "lesson": 3,
+      "title": "Accuracy and integrity in formal forms",
+      "aliases": [
+        "truthful",
+        "correct information",
+        "genuine documents",
+        "declaration",
+        "signature"
+      ],
+      "explanations": {
+        "standard": "The sample form includes a declaration that the information is correct and the submitted documents are genuine.",
+        "simple": "Formal forms must be completed carefully with correct information.",
+        "ultra_simple": "Do not invent information on a form. Check your details before you sign."
+      },
+      "common_mistakes": [
+        "guessing missing details",
+        "signing before checking required information"
+      ]
+    },
+    {
+      "id": "marriage_notice_vocabulary",
+      "lesson": 3,
+      "title": "Vocabulary in a formal notice",
+      "aliases": [
+        "proposed",
+        "bride",
+        "bridegroom",
+        "celebrant",
+        "notice",
+        "solemnise"
+      ],
+      "explanations": {
+        "standard": "The vocabulary activity uses the words proposed, bride, bridegroom, celebrant, notice and solemnise in the context of a marriage notice.",
+        "simple": "These words help you understand the sample formal notice and its context.",
+        "ultra_simple": "Learn each word with its job in the notice: people, action or document."
+      },
+      "common_mistakes": [
+        "confusing bride with bridegroom",
+        "confusing celebrant with notice"
+      ]
+    },
+    {
+      "id": "conjunctions",
+      "lesson": 4,
+      "title": "Coordinating and subordinating conjunctions",
+      "aliases": [
+        "conjunction",
+        "connector",
+        "and",
+        "but",
+        "so",
+        "because",
+        "if",
+        "unless",
+        "before",
+        "after"
+      ],
+      "explanations": {
+        "standard": "Coordinating conjunctions join independent clauses. Subordinating conjunctions connect a dependent clause to an independent clause.",
+        "simple": "Conjunctions link ideas. Some join equal clauses; others introduce conditions, reasons, time or contrast.",
+        "ultra_simple": "A conjunction is a bridge between ideas. 'and' adds; 'but' contrasts; 'if' gives a condition; 'because' gives a reason."
+      },
+      "common_mistakes": [
+        "using 'although' where a condition is needed",
+        "using 'unless' as if it meant 'because'",
+        "joining ideas without checking their relationship"
+      ]
+    },
+    {
+      "id": "passive_voice",
+      "lesson": 5,
+      "title": "Passive voice",
+      "aliases": [
+        "passive",
+        "passive voice",
+        "be signed",
+        "be made",
+        "was completed"
+      ],
+      "explanations": {
+        "standard": "The passive voice puts the receiver of the action in subject position. A common pattern is a form of 'be' followed by a past participle.",
+        "simple": "In the passive, focus on what receives the action: 'The form was completed.'",
+        "ultra_simple": "Active: someone does the action. Passive: the thing receiving the action comes first."
+      },
+      "common_mistakes": [
+        "forgetting 'be' after a modal",
+        "using the base verb instead of the past participle"
+      ]
+    },
+    {
+      "id": "application_writing",
+      "lesson": 5,
+      "title": "Completing an application carefully",
+      "aliases": [
+        "application form",
+        "writing",
+        "truthfully",
+        "sign",
+        "personal information"
+      ],
+      "explanations": {
+        "standard": "The writing task asks you to understand the requested information, complete the application truthfully and sign it.",
+        "simple": "Read every field, give accurate information and remember the signature.",
+        "ultra_simple": "Read → check → fill in → sign. Ne devine jamais une information officielle."
+      },
+      "common_mistakes": [
+        "leaving required information unchecked",
+        "using invented information in a real administrative context",
+        "forgetting the signature field"
+      ]
+    }
+  ],
+  "adaptive_rules": [
+    "After two errors on the same concept, suggest Simple English.",
+    "After one additional error, suggest Very simple.",
+    "After three consecutive correct answers, suggest a higher difficulty.",
+    "Explanation level and exercise difficulty remain independent.",
+    "Use the learner's first name only occasionally."
+  ]
+}

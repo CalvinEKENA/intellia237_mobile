@@ -31,6 +31,7 @@ class Chapter {
     required this.llmRequired,
     this.designPrinciple,
     this.adaptiveRuleTexts = const [],
+    this.explanationLabels = const {},
   });
 
   /// Identifiant du contenu (ex. `maths_td_ch01_arithmetique`).
@@ -59,6 +60,10 @@ class Chapter {
   final bool llmRequired;
   final String? designPrinciple;
   final List<String> adaptiveRuleTexts;
+
+  /// Libellés des niveaux d'explication donnés par le pack, dans la langue
+  /// du contenu (ex. « Simple English »).
+  final Map<ExplanationMode, String> explanationLabels;
 
   /// Un pack en échec de validation ou dépendant d'un modèle de langage
   /// n'est jamais proposé aux élèves.

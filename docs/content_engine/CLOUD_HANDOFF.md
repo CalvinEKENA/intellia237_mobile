@@ -119,6 +119,9 @@ JSON des packs ne sont jamais corrigés en silence.
   embarqués, bundles `draft` prêts dans `build/content_publish/`, rien
   téléversé). Jeux de CH02/CH03 en préparation (aucun moteur) ; 11 réponses
   rédigées non notées. Détail : section dédiée de `CONTENT_ENGINE.md`.
+* **Anglais Terminale M1U1 et M1U2 intégrés** (toutes séries, Matière →
+  Module → Unit, bundles `draft`, rien téléversé). Jeux en préparation ;
+  12 activités ouvertes non notées.
 * Fil des packs plafonné à 60 cartes par composition.
 * Aucune vérification sur appareil de cette branche.
 

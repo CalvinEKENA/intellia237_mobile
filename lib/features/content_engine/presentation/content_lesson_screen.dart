@@ -303,6 +303,7 @@ class _LessonViewState extends ConsumerState<_LessonView> {
               key: ValueKey(_step),
               child: switch (_step) {
                 0 => ExplanationPanel(
+                  modeLabels: widget.chapter.explanationLabels,
                   concept: widget.concept,
                   modes: widget.chapter.explanationModes,
                   preference: snapshot.preference,

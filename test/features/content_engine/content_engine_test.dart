@@ -613,8 +613,9 @@ void main() {
             final subjects = await repository.subjectsFor(
               const ClassKey('terminale', series: 'd'),
             );
-            expect(subjects.single.title, 'Mathématiques');
-            expect(subjects.single.chapters.map((c) => c.contentId), [
+            final maths = subjects.singleWhere((s) => s.key == 'mathematiques');
+            expect(maths.title, 'Mathématiques');
+            expect(maths.chapters.map((c) => c.contentId), [
               'maths_td_ch01_arithmetique',
               'maths_td_ch02_nombres_complexes_algebrique',
               'maths_td_ch03_fonctions_numeriques',
@@ -666,10 +667,12 @@ void main() {
 
     test('une autre classe ne voit pas ce chapitre', () async {
       final repository = ContentPackRepository(source: DiskContentPackSource());
-      expect(
-        await repository.subjectsFor(const ClassKey('terminale', series: 'c')),
-        isEmpty,
+      // Les mathématiques de Terminale D ne sont pas servies en Terminale C
+      // (l'anglais, commun à toute la Terminale, l'est).
+      final subjects = await repository.subjectsFor(
+        const ClassKey('terminale', series: 'c'),
       );
+      expect(subjects.where((s) => s.key == 'mathematiques'), isEmpty);
       await expectLater(
         repository.chapter('inconnu'),
         throwsA(isA<ContentPackNotFound>()),

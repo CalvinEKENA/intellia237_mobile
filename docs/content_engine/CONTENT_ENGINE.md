@@ -218,6 +218,30 @@ Transformations des packs (aucune réponse, aucun énoncé modifié) :
   `manifest.files` mis à jour) ; 6 jeux → `draft` ; 9 réponses rédigées
   → `auto_score: false` ; sha256 recalculés.
 
+## Anglais Terminale — Module 1, units 1 et 2 (embarqués)
+
+| Unit | Dossier | Notées / ouvertes | Jeux |
+|---|---|---|---|
+| M1U1 Applying for a passport | `assets/content/terminale/anglais/m1_u1_applying_for_a_passport/` | 34 / 6 | 5 en préparation |
+| M1U2 Discussing recreational activities | `assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/` | 34 / 6 | 5 en préparation |
+
+* Cible `class_keys: ["terminale"]` : toutes les séries de Terminale.
+* Hiérarchie Matière → Module → Unit → Leçon : `curriculum.module`,
+  `module_title`, `unit`, `unit_title` (une unit tient lieu de chapitre dans
+  son module ; tri par module puis unit). Apprendre affiche « Anglais ·
+  Module 1 — Family and social life », puis chaque unit.
+* Clé de matière : « English » et « Anglais » forment la même matière
+  (`anglais`).
+* Libellés dans la langue du contenu : niveaux d'explication
+  (`explanation_axis`), actions du Compagnon (`quick_actions`, reconnues en
+  anglais) et difficultés viennent du pack ; l'application garde les siens
+  à défaut.
+* Écoute absente : aucune réponse inventée ; seules les questions appuyées
+  sur un texte visible sont notées, les autres restent ouvertes et signalées.
+  Clôture « Yours faithfully / sincerely » contradictoire dans la source :
+  jamais notée (`l5_q08` ouverte, signalée).
+* Aucune transformation des packs.
+
 ## Règles d'adaptation (depuis `runtime.mastery`)
 
 * 2 erreurs sur une notion → proposer « Simple » ; 1 de plus → proposer

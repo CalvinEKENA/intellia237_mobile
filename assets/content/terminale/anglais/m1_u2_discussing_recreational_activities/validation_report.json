@@ -1,0 +1,145 @@
+{
+  "schema_version": "intellia.validation-report.v3",
+  "pack_id": "english_terminale_m1_u2_discussing_recreational_activities",
+  "status": "PASS_FOR_AUTHORING_READY_FOR_ENGINE_INTEGRATION",
+  "automated_checks": [
+    {
+      "check": "class target all Terminale series",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "five lessons",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "ten concepts",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "forty questions",
+      "passed": true,
+      "details": "40"
+    },
+    {
+      "check": "eight questions per lesson",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "unique question ids",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "three difficulty levels",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all questions have hints",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all mcq choices have stable ids",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "qcm never position-bound",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "no runtime llm",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all games draft",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "listening gap protected",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "signoff inconsistency protected",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "open responses unscored",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "offline ready",
+      "passed": true,
+      "details": ""
+    }
+  ],
+  "question_count": 40,
+  "auto_scored_count": 34,
+  "non_auto_scored_count": 6,
+  "non_auto_scored_question_ids": [
+    "l1_q07",
+    "l1_q08",
+    "l2_q08",
+    "l5_q06",
+    "l5_q07",
+    "l5_q08"
+  ],
+  "questions_by_lesson": {
+    "1": 8,
+    "2": 8,
+    "3": 8,
+    "4": 8,
+    "5": 8
+  },
+  "qcm_randomization": {
+    "policy": "deterministic_per_attempt",
+    "correct_answer_bound_to": "stable option id / answer value, never visual index",
+    "stable_within_attempt": true,
+    "shuffle_between_attempts": true,
+    "true_false_fixed_order": true
+  },
+  "source_quality_flags": [
+    {
+      "id": "listening_testimony_incomplete",
+      "severity": "important",
+      "question_ids": [
+        "l1_q07"
+      ],
+      "issue": "The full listening testimony is not present in the supplied extraction.",
+      "runtime_action": "No invented answer key; listening strategy remains self-evaluated."
+    },
+    {
+      "id": "speech_without_validated_audio",
+      "severity": "moderate",
+      "question_ids": [],
+      "issue": "No validated audio accompanies the speech-work text.",
+      "runtime_action": "Knowledge of voiced/unvoiced categories may be scored; pronunciation performance is not."
+    },
+    {
+      "id": "formal_letter_signoff_inconsistency",
+      "severity": "important",
+      "question_ids": [
+        "l5_q08"
+      ],
+      "issue": "The extracted annotation about 'Yours faithfully'/'Yours sincerely' is internally inconsistent.",
+      "runtime_action": "Do not use that rule as an auto-scored criterion; require only a polite formal close."
+    }
+  ],
+  "validation_policy": {
+    "uncertain_source": "never silently repair",
+    "missing_listening_source": "never invent answer key",
+    "conflicting_source_rule": "flag and avoid auto-scoring",
+    "remote_activation": "schema + checksum + class audience + engine compatibility must pass before activation"
+  }
+}

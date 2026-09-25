@@ -5530,6 +5530,19 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String ceModuleHeading(int number, String title) {
+    return 'Module $number — $title';
+  }
+
+  @override
+  String ceUnitNumber(int number) {
+    return 'Unit $number';
+  }
+
+  @override
+  String get ceSubjectEnglish => 'Anglais';
+
+  @override
   String ceLessonCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

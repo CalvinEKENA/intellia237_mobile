@@ -80,6 +80,11 @@ class LearningCardFactory {
       );
     }
 
+    // Une notion peut servir plusieurs leçons : ses cartes (explications,
+    // visuel, pièges, jeux) ne sont produites qu'une fois, à sa première
+    // leçon, pour garder des identifiants uniques.
+    final conceptsDone = <String>{};
+    final gamesDone = <String>{};
     for (final lesson in chapter.lessons) {
       // Une leçon peut porter plusieurs notions : chacune a ses cartes, et
       // chaque question est rattachée à la notion qu'elle travaille.
@@ -89,6 +94,7 @@ class LearningCardFactory {
       final n = lesson.number;
 
       for (final concept in lessonConcepts) {
+        if (!conceptsDone.add(concept.id)) continue;
         if (concept.explanation(ExplanationMode.standard) case final text?) {
           cards.add(
             card(
@@ -198,6 +204,7 @@ class LearningCardFactory {
       }
 
       for (final concept in lessonConcepts) {
+        if (!gamesDone.add(concept.id)) continue;
         for (final game in chapter.gamesForConcept(concept.id)) {
           // Un jeu en préparation ou désactivé n'est jamais proposé.
           if (!game.playable) continue;

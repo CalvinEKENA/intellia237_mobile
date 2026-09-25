@@ -2794,6 +2794,11 @@
   "ceLocalChaptersTitle": "Chapitres interactifs",
   "ceLocalChaptersSubtitle": "Disponibles sans connexion : explications, exercices et jeux.",
   "ceChapterNumber": "Chapitre {number}",
+  "ceModuleHeading": "Module {number} — {title}",
+  "@ceModuleHeading": {"placeholders": {"number": {"type": "int"}, "title": {"type": "String"}}},
+  "ceUnitNumber": "Unit {number}",
+  "@ceUnitNumber": {"placeholders": {"number": {"type": "int"}}},
+  "ceSubjectEnglish": "Anglais",
   "@ceChapterNumber": {
     "placeholders": {
       "number": {

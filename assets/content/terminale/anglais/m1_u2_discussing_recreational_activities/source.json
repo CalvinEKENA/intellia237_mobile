@@ -1,0 +1,110 @@
+{
+  "schema_version": "intellia.source.v2",
+  "content_id": "english_terminale_m1_u2_discussing_recreational_activities",
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale",
+    "class_keys": [
+      "terminale"
+    ],
+    "subject": "English",
+    "module": 1,
+    "module_title": "Family and social life",
+    "unit": 2,
+    "unit_title": "Discussing recreational activities"
+  },
+  "source_location": {
+    "provider": "Google Drive",
+    "file": "cours.txt",
+    "folder": "/Google Drive/INTELLIA_CONTENT_SOURCE/ANGLAIS TERMINALES",
+    "line_range": "449-736",
+    "basis": "User-supplied textbook extraction only."
+  },
+  "unit_objectives": [
+    "listen to a personal testimony on the benefits of a hobby and recreational activities",
+    "talk about hobbies and recreational activities and their benefits",
+    "revise consonant sounds and practise tongue twisters",
+    "read stories about recreational activities",
+    "skim a text for the main ideas and answer questions",
+    "use vocabulary pertaining to recreational activities",
+    "use phrasal verbs and prepositional phrases",
+    "write a formal letter requesting recreational facilities for a community",
+    "develop sociability, collaboration, cooperation and openness"
+  ],
+  "source_sections": [
+    {
+      "lesson": 1,
+      "title": "Hobbies, listening and consonant sounds",
+      "source_scope": "Unit opening, Listening and speaking, Speech work",
+      "verified_content": [
+        "The unit asks learners to discuss popular recreational activities and their benefits.",
+        "A listening activity is built around a fictional personal testimony linked to fashion design.",
+        "Voiced consonants are described as involving vocal-cord vibration; unvoiced consonants are described as not involving it.",
+        "The source explicitly lists examples of voiced and unvoiced consonants."
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Skimming and identifying main ideas",
+      "source_scope": "Reading notes and first two personal stories",
+      "verified_content": [
+        "The skimming note recommends reading the title/subheadings, looking at pictures/charts and reading the first sentence of each paragraph.",
+        "Elenwa describes music and caring for a dog as hobbies that help with stress and relationships.",
+        "Lily describes dressmaking as a childhood hobby that later helps balance her life as a paediatrician."
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Reading stories about the benefits of hobbies",
+      "source_scope": "Elenwa, Lily, Teleu and Eyole plus comprehension",
+      "verified_content": [
+        "Teleu describes gardening, floral arrangements, environmental beauty, improved skills and additional family income.",
+        "Eyole describes drama as helping overcome shyness and improve self-confidence, participation and peer respect.",
+        "The source provides true/false comprehension statements for all four stories."
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Vocabulary, phrasal verbs and prepositional phrases",
+      "source_scope": "Vocabulary and Grammar pages",
+      "verified_content": [
+        "Vocabulary includes stress, hobby, balance, outfit, shy, self-confidence and nurture.",
+        "The phrasal-verb exercise includes calm down, come across, eat out, hang around, shut up, turn down, shape up, call off, break into and figure out.",
+        "The prepositional-phrase exercise contrasts forms such as at the end of, in the world, in a loud voice, on time, at a party and in my opinion."
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Writing a formal letter about recreational facilities",
+      "source_scope": "Writing page",
+      "verified_content": [
+        "The task asks for a formal letter to the mayor about the lack of recreational facilities.",
+        "The learner should address well-being, mental and physical health, relationships, income, community contribution and personal help.",
+        "The requested length is about 200 words in 4-5 paragraphs and the letter should close politely."
+      ]
+    }
+  ],
+  "source_quality": {
+    "overall": "usable_with_specific_gaps",
+    "limitations": [
+      {
+        "id": "listening_testimony_incomplete",
+        "severity": "important",
+        "issue": "The listening questions are present, but the full teacher-read testimony is not available in the supplied extraction; only a short contextual note about Kibonen Nfi is visible.",
+        "runtime_action": "Do not invent answers to the listening-comprehension questions."
+      },
+      {
+        "id": "speech_without_validated_audio",
+        "severity": "moderate",
+        "issue": "Speech-work rules and tongue twisters are present as text, but no validated audio accompanies the extraction.",
+        "runtime_action": "Conceptual voiced/unvoiced knowledge may be auto-scored; pronunciation quality is self-evaluated only."
+      },
+      {
+        "id": "formal_letter_signoff_inconsistency",
+        "severity": "important",
+        "issue": "The extracted formal-letter annotations contain internally inconsistent guidance about 'Yours faithfully'/'Yours sincerely'.",
+        "runtime_action": "Do not auto-score that sign-off rule; teach only source-supported structure and the instruction to close politely."
+      }
+    ]
+  }
+}

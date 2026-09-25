@@ -14,19 +14,25 @@ import '../content_style.dart';
 import '../visuals/concept_visuals.dart';
 import 'practice_panel.dart';
 
-/// Libellé d'une action rapide du Compagnon.
-String companionActionLabel(BuildContext context, CompanionAction action) {
+/// Libellé d'une action rapide du Compagnon : celui du pack d'abord (dans la
+/// langue du contenu, ex. « Explain this »), sinon celui de l'application.
+String companionActionLabel(
+  BuildContext context,
+  CompanionAction action, [
+  Map<CompanionAction, String> packLabels = const {},
+]) {
   final l10n = context.l10n;
-  return switch (action) {
-    CompanionAction.explainStandard => l10n.ceActionExplain,
-    CompanionAction.explainSimple => l10n.ceActionSimpler,
-    CompanionAction.explainUltraSimple => l10n.ceActionUltra,
-    CompanionAction.showMe => l10n.ceActionShow,
-    CompanionAction.example => l10n.ceActionExample,
-    CompanionAction.hint => l10n.ceActionHint,
-    CompanionAction.testMe => l10n.ceActionTest,
-    CompanionAction.whyWrong => l10n.ceActionWhyWrong,
-  };
+  return packLabels[action] ??
+      switch (action) {
+        CompanionAction.explainStandard => l10n.ceActionExplain,
+        CompanionAction.explainSimple => l10n.ceActionSimpler,
+        CompanionAction.explainUltraSimple => l10n.ceActionUltra,
+        CompanionAction.showMe => l10n.ceActionShow,
+        CompanionAction.example => l10n.ceActionExample,
+        CompanionAction.hint => l10n.ceActionHint,
+        CompanionAction.testMe => l10n.ceActionTest,
+        CompanionAction.whyWrong => l10n.ceActionWhyWrong,
+      };
 }
 
 /// Le Compagnon hors ligne : il répond avec le cours, rien d'autre.
@@ -223,7 +229,13 @@ class _CompanionSheetState extends ConsumerState<CompanionSheet> {
                   ActionChip(
                     key: ValueKey('companion-action-${action.name}'),
                     avatar: Icon(_icon(action), size: 18),
-                    label: Text(companionActionLabel(context, action)),
+                    label: Text(
+                      companionActionLabel(
+                        context,
+                        action,
+                        widget.chapter.companion.labels,
+                      ),
+                    ),
                     onPressed: () => _act(action),
                   ),
               ],
@@ -269,6 +281,7 @@ class _CompanionSheetState extends ConsumerState<CompanionSheet> {
                   ),
                 ),
               CompanionReplyCard(
+                modeLabels: widget.chapter.explanationLabels,
                 reply: reply,
                 onTryQuestion: widget.onTryQuestion == null
                     ? null

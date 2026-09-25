@@ -224,7 +224,10 @@ class _PracticePanelState extends ConsumerState<PracticePanel> {
           ),
         if (_help != null) ...[
           const SizedBox(height: IntelliaSpacing.md),
-          CompanionReplyCard(reply: _help!),
+          CompanionReplyCard(
+            reply: _help!,
+            modeLabels: _chapter.explanationLabels,
+          ),
         ],
       ],
     );
@@ -594,7 +597,9 @@ class _SuggestionBanner extends StatelessWidget {
     final l10n = context.l10n;
     final (text, color, icon) = switch (suggestion) {
       SuggestExplanation(:final mode) => (
-        l10n.ceSuggestSimpler(explanationModeLabel(context, mode)),
+        l10n.ceSuggestSimpler(
+          explanationModeLabel(context, mode, chapter.explanationLabels),
+        ),
         ContentPalette.mode(mode),
         Icons.child_care_rounded,
       ),
@@ -696,11 +701,15 @@ class CompanionReplyCard extends StatelessWidget {
   const CompanionReplyCard({
     required this.reply,
     this.onTryQuestion,
+    this.modeLabels = const {},
     super.key,
   });
 
   final CompanionReply reply;
   final ValueChanged<Question>? onTryQuestion;
+
+  /// Libellés des niveaux d'explication donnés par le pack.
+  final Map<ExplanationMode, String> modeLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -727,7 +736,11 @@ class CompanionReplyCard extends StatelessWidget {
         children: [
           if (reply.mode != null)
             Text(
-              explanationModeLabel(context, reply.mode!).toUpperCase(),
+              explanationModeLabel(
+                context,
+                reply.mode!,
+                modeLabels,
+              ).toUpperCase(),
               style: ContentText.eyebrow(color: color),
             ),
           if (gapText != null)
@@ -744,7 +757,7 @@ class CompanionReplyCard extends StatelessWidget {
           if (reply.fallbackMode != null)
             Text(
               l10n.ceShownInsteadMode(
-                explanationModeLabel(context, reply.fallbackMode!),
+                explanationModeLabel(context, reply.fallbackMode!, modeLabels),
               ),
               style: ContentText.label(color: ContentPalette.inkSoft, size: 12),
             ),

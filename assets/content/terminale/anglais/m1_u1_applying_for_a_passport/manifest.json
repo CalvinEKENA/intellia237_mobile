@@ -1,0 +1,54 @@
+{
+  "schema_version": "intellia.pack-manifest.v3",
+  "id": "english_terminale_m1_u1_applying_for_passport",
+  "title": "English Terminale — Module 1 Unit 1: Applying for a passport",
+  "class_keys": [
+    "terminale"
+  ],
+  "subject": "anglais",
+  "module": 1,
+  "unit": 1,
+  "version": 1,
+  "authoring_status": "validated",
+  "publication_status": "draft",
+  "minimum_engine_version": 2,
+  "source_file": "cours.txt",
+  "files": {
+    "source": "source.json",
+    "pedagogy": "pedagogy.json",
+    "runtime": "runtime.json",
+    "validation": "validation_report.json"
+  },
+  "stats": {
+    "lessons": 5,
+    "concepts": 10,
+    "questions": 40,
+    "auto_scored_questions": 34,
+    "non_auto_scored_questions": 6,
+    "game_blueprints": 5,
+    "learning_card_seeds": 13,
+    "difficulty_levels": 3,
+    "explanation_levels": 3
+  },
+  "capabilities": [
+    "deterministic_qcm_shuffle_v1",
+    "stable_option_ids_v1",
+    "deterministic_companion_v1",
+    "learning_cards_v1",
+    "remote_delivery_v1",
+    "offline_first_v1",
+    "language_learning_v1"
+  ],
+  "remote_delivery": {
+    "eligible": true,
+    "preferred_storage": "firebase_storage",
+    "catalog_status": "do_not_publish_until_engine_validation",
+    "cache_policy": "latest_valid_with_rollback"
+  },
+  "sha256": {
+    "pedagogy.json": "d271b3786d567f9c7ad0b07dff84af7426d282cee475193e46a8c79f7c1e658f",
+    "source.json": "1089acb91f21e7da3fd5567cf273fefda991864fc6518a6d2b7f5cf424021438",
+    "validation_report.json": "263d4d388c354b72c74d3eeb71285c1bcedbad919a15c5e85d4cdaef76169189",
+    "runtime.json": "32ce0d9f3710044bc8e4a7f1681d5edf913afee12db782972e7330aad7856a88"
+  }
+}

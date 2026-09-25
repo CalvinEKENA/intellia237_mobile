@@ -79,15 +79,48 @@ class LocalChaptersSection extends ConsumerWidget {
           ],
           const SizedBox(height: IntelliaSpacing.sm),
           for (final subject in subjects)
-            for (final chapter in subject.chapters)
+            for (final (index, chapter) in subject.chapters.indexed) ...[
+              // Matière → Module → Unit : un titre de module avant sa
+              // première unit.
+              if (chapter.curriculum.moduleNumber != null &&
+                  (index == 0 ||
+                      subject.chapters[index - 1].curriculum.moduleNumber !=
+                          chapter.curriculum.moduleNumber))
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: IntelliaSpacing.xs,
+                    bottom: IntelliaSpacing.xs,
+                  ),
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      key: ValueKey(
+                        'local-module-${subject.key}-'
+                        '${chapter.curriculum.moduleNumber}',
+                      ),
+                      _moduleHeading(context, subject, chapter),
+                      style: ContentText.label(size: 14),
+                    ),
+                  ),
+                ),
               Padding(
                 padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
                 child: _LocalChapterTile(subject: subject, chapter: chapter),
               ),
+            ],
         ],
       ),
     );
   }
+}
+
+String _moduleHeading(
+  BuildContext context,
+  Subject subject,
+  ChapterEntry chapter,
+) {
+  final subjectName = subjectDisplayName(context, subject.key, subject.title);
+  return '$subjectName · ${moduleLabel(context, chapter.curriculum)}';
 }
 
 class _LocalChapterTile extends StatelessWidget {
@@ -123,7 +156,12 @@ class _LocalChapterTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${subject.title} · ${subject.levelLabel}',
+                  [
+                    subjectDisplayName(context, subject.key, subject.title),
+                    subject.levelLabel,
+                    if (chapter.curriculum.unitNumber case final unit?)
+                      l10n.ceUnitNumber(unit),
+                  ].join(' · '),
                   style: ContentText.eyebrow(color: ContentPalette.inkSoft),
                 ),
                 const SizedBox(height: 2),

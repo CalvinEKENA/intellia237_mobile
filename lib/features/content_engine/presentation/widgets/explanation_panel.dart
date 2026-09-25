@@ -23,12 +23,16 @@ class ExplanationModeSwitch extends StatelessWidget {
     required this.modes,
     required this.selected,
     required this.onSelected,
+    this.labels = const {},
     super.key,
   });
 
   final List<ExplanationMode> modes;
   final ExplanationMode selected;
   final ValueChanged<ExplanationMode> onSelected;
+
+  /// Libellés du pack (langue du contenu), sinon ceux de l'application.
+  final Map<ExplanationMode, String> labels;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +50,9 @@ class ExplanationModeSwitch extends StatelessWidget {
       ),
       child: AdaptiveChoiceRow(
         spacing: 2,
-        labels: [for (final mode in modes) explanationModeLabel(context, mode)],
+        labels: [
+          for (final mode in modes) explanationModeLabel(context, mode, labels),
+        ],
         labelStyle: style(selected),
         itemBuilder: (context, i, _) {
           final mode = modes[i];
@@ -71,7 +77,7 @@ class ExplanationModeSwitch extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  explanationModeLabel(context, mode),
+                  explanationModeLabel(context, mode, labels),
                   textAlign: TextAlign.center,
                   style: style(mode),
                 ),
@@ -92,11 +98,15 @@ class ExplanationPanel extends StatefulWidget {
     required this.preference,
     required this.onModeSelected,
     required this.onToggleLock,
+    this.modeLabels = const {},
     super.key,
   });
 
   final Concept concept;
   final List<ExplanationMode> modes;
+
+  /// Libellés des niveaux donnés par le pack.
+  final Map<ExplanationMode, String> modeLabels;
   final ExplanationPreference preference;
   final ValueChanged<ExplanationMode> onModeSelected;
   final VoidCallback onToggleLock;
@@ -127,6 +137,7 @@ class _ExplanationPanelState extends State<ExplanationPanel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ExplanationModeSwitch(
+          labels: widget.modeLabels,
           modes: widget.modes,
           selected: mode,
           onSelected: widget.onModeSelected,

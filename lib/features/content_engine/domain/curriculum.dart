@@ -49,6 +49,9 @@ class Curriculum {
     required this.chapterNumber,
     required this.chapterTitle,
     this.module,
+    this.moduleNumber,
+    this.moduleTitle,
+    this.unitNumber,
   });
 
   final String country;
@@ -57,14 +60,36 @@ class Curriculum {
   final String level;
   final String subject;
   final String? module;
+
+  /// Numéro et titre de module (programmes organisés en modules et units,
+  /// comme l'anglais).
+  final int? moduleNumber;
+  final String? moduleTitle;
+
+  /// Numéro d'unit ; `null` pour un chapitre. Une unit reprend aussi
+  /// [chapterNumber] et [chapterTitle] (numéro et titre dans son module).
+  final int? unitNumber;
   final int chapterNumber;
   final String chapterTitle;
+
+  bool get isUnit => unitNumber != null;
 
   /// Clé de classe normalisée (ex. `terminale-d`), comparable au profil élève.
   String get levelKey => normalizeLevelKey(level);
 
-  /// Clé de matière normalisée (ex. `mathematiques`).
-  String get subjectKey => normalizeKey(subject);
+  /// Clé de matière normalisée (ex. `mathematiques`, `anglais`) : un pack
+  /// qui nomme sa matière dans sa langue (« English ») rejoint la même
+  /// matière.
+  String get subjectKey {
+    final key = normalizeKey(subject);
+    return _subjectAliases[key] ?? key;
+  }
+
+  static const _subjectAliases = {
+    'english': 'anglais',
+    'mathematics': 'mathematiques',
+    'maths': 'mathematiques',
+  };
 }
 
 /// Clé de classe : « Terminale D », « Tle D », « terminale » + série « D »

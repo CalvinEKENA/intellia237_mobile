@@ -81,12 +81,22 @@ class _ChapterBody extends StatelessWidget {
       ),
       children: [
         Text(
-          '${curriculum.subject} · ${curriculum.level}'.toUpperCase(),
+          '${subjectDisplayName(context, curriculum.subjectKey, curriculum.subject)}'
+                  ' · ${curriculum.level}'
+              .toUpperCase(),
           style: ContentText.eyebrow(),
         ),
         const SizedBox(height: 6),
         Text(
-          l10n.ceChapterNumber(curriculum.chapterNumber),
+          key: const ValueKey('chapter-position'),
+          [
+            if (curriculum.moduleNumber != null)
+              moduleLabel(context, curriculum),
+            if (curriculum.unitNumber case final unit?)
+              l10n.ceUnitNumber(unit)
+            else
+              l10n.ceChapterNumber(curriculum.chapterNumber),
+          ].join(' · '),
           style: ContentText.label(color: ContentPalette.inkSoft),
         ),
         Semantics(

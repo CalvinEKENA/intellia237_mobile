@@ -1,0 +1,1892 @@
+{
+  "schema_version": "intellia.runtime-learning-pack.v2",
+  "pack_id": "english_terminale_m1_u1_applying_for_passport",
+  "engine_version_required": 2,
+  "llm_required": false,
+  "offline_ready": true,
+  "publication": {
+    "status": "draft",
+    "version": 1,
+    "reason": "Authoring pack validated against supplied source; application engine integration still required."
+  },
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale",
+    "class_keys": [
+      "terminale"
+    ],
+    "subject": "English",
+    "module": 1,
+    "module_title": "Family and social life",
+    "unit": 1,
+    "unit_title": "Applying for a passport"
+  },
+  "lessons": [
+    {
+      "lesson": 1,
+      "title": "Personal information, listening and key vocabulary",
+      "concept_ids": [
+        "personal_information_vocabulary",
+        "listening_specific_information",
+        "speech_practice"
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Prediction and reading a formal form",
+      "concept_ids": [
+        "prediction_strategy",
+        "formal_form_navigation"
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Formal-form vocabulary and integrity",
+      "concept_ids": [
+        "marriage_notice_vocabulary",
+        "formal_form_integrity"
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Conjunctions",
+      "concept_ids": [
+        "conjunctions"
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Passive voice and application writing",
+      "concept_ids": [
+        "passive_voice",
+        "application_writing"
+      ]
+    }
+  ],
+  "explanation_modes": [
+    "standard",
+    "simple",
+    "ultra_simple"
+  ],
+  "difficulty_levels": [
+    1,
+    2,
+    3
+  ],
+  "question_bank": [
+    {
+      "id": "l1_q01",
+      "lesson": 1,
+      "concept_id": "personal_information_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "In this unit, what does 'biometric' mean?",
+      "answer": "Using measurements of human features to identify people",
+      "explanation": "The unit defines biometric identification through measurements of human features.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think about identification through measurable human features."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Using measurements of human features to identify people",
+        "A document that is no longer valid",
+        "A formal arrangement to meet",
+        "A person under a certain age"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Using measurements of human features to identify people",
+          "feedback": "This matches the unit's vocabulary definition."
+        },
+        {
+          "id": "b",
+          "label": "A document that is no longer valid",
+          "feedback": "That describes 'expired'."
+        },
+        {
+          "id": "c",
+          "label": "A formal arrangement to meet",
+          "feedback": "That describes an appointment."
+        },
+        {
+          "id": "d",
+          "label": "A person under a certain age",
+          "feedback": "That describes a minor."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q02",
+      "lesson": 1,
+      "concept_id": "personal_information_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which word means 'no longer valid'?",
+      "answer": "expired",
+      "explanation": "'Expired' means no longer valid.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for the word used when validity has ended."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "minor",
+        "appointment",
+        "expired",
+        "passport"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "minor",
+          "feedback": "A minor is a person under a certain age."
+        },
+        {
+          "id": "b",
+          "label": "appointment",
+          "feedback": "An appointment is an arranged meeting."
+        },
+        {
+          "id": "c",
+          "label": "expired",
+          "feedback": "Expired means no longer valid."
+        },
+        {
+          "id": "d",
+          "label": "passport",
+          "feedback": "A passport is an official travel document."
+        }
+      ],
+      "correct_option_ids": [
+        "c"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q03",
+      "lesson": 1,
+      "concept_id": "personal_information_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "What is an appointment?",
+      "answer": "A formal arrangement to meet",
+      "explanation": "The unit defines an appointment as a formal arrangement to meet.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think of a planned meeting."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "A formal arrangement to meet",
+        "A travel document",
+        "A processing delay",
+        "An electronic document"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "A formal arrangement to meet",
+          "feedback": "This is the meaning given in the unit."
+        },
+        {
+          "id": "b",
+          "label": "A travel document",
+          "feedback": "That describes a passport."
+        },
+        {
+          "id": "c",
+          "label": "A processing delay",
+          "feedback": "That relates to processing time."
+        },
+        {
+          "id": "d",
+          "label": "An electronic document",
+          "feedback": "A document can be electronic, but this is not the meaning of appointment."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q04",
+      "lesson": 1,
+      "concept_id": "personal_information_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which expression means that a person is physically present?",
+      "answer": "in person",
+      "explanation": "'In person' refers to personal physical presence.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for the expression about being there yourself."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "in person",
+        "expired",
+        "processing time",
+        "minor"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "in person",
+          "feedback": "The unit links 'in person' with personal physical presence."
+        },
+        {
+          "id": "b",
+          "label": "expired",
+          "feedback": "Expired means no longer valid."
+        },
+        {
+          "id": "c",
+          "label": "processing time",
+          "feedback": "Processing time is the time required to complete something."
+        },
+        {
+          "id": "d",
+          "label": "minor",
+          "feedback": "A minor is a person under a certain age."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q05",
+      "lesson": 1,
+      "concept_id": "personal_information_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which word refers to an official travel document identifying its holder as a citizen?",
+      "answer": "passport",
+      "explanation": "The unit defines a passport as an official travel document identifying the holder as a citizen.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Choose the most specific travel-document term."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "document",
+        "passport",
+        "appointment",
+        "processing time"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "document",
+          "feedback": "Document is a broad term."
+        },
+        {
+          "id": "b",
+          "label": "passport",
+          "feedback": "This is the specific travel document in the unit."
+        },
+        {
+          "id": "c",
+          "label": "appointment",
+          "feedback": "An appointment is a meeting arrangement."
+        },
+        {
+          "id": "d",
+          "label": "processing time",
+          "feedback": "Processing time is a duration."
+        }
+      ],
+      "correct_option_ids": [
+        "b"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q06",
+      "lesson": 1,
+      "concept_id": "listening_specific_information",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "The unit asks learners to listen for specific information and answer yes/no questions.",
+      "answer": true,
+      "explanation": "This is explicitly listed among the Unit 1 objectives.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Focus on what the unit says learners will do."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_q07",
+      "lesson": 1,
+      "concept_id": "listening_specific_information",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "In a listening task, explain how you would focus on one specific detail without trying to remember every word.",
+      "answer": "Read the question first, listen for the relevant detail, and verify whether the statement matches what is heard.",
+      "explanation": "The listening passage is missing from the supplied extraction, so no listening answer key is invented.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Start from the question you need to answer."
+        },
+        {
+          "level": 2,
+          "content": "Listen for the exact detail connected to that question."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l1_q08",
+      "lesson": 1,
+      "concept_id": "speech_practice",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "Practise the unit's tongue-twister activity slowly, then more smoothly. What should you focus on first?",
+      "answer": "Clear production of the target sounds before speed.",
+      "explanation": "Speech practice is kept for self-evaluation because no validated audio is supplied.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Do not prioritise speed first."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l2_q01",
+      "lesson": 2,
+      "concept_id": "prediction_strategy",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "A title and subheadings can help you predict the main ideas of a text.",
+      "answer": true,
+      "explanation": "The prediction note explicitly recommends using titles and subheadings.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think about visible clues before detailed reading."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_q02",
+      "lesson": 2,
+      "concept_id": "prediction_strategy",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which action best follows the unit's prediction strategy before detailed reading?",
+      "answer": "Use the title, subheadings and visually prominent words",
+      "explanation": "The unit recommends titles, subheadings, prominent words and quick skimming.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for the strategy that uses visible clues first."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Read every sentence word by word first",
+        "Use the title, subheadings and visually prominent words",
+        "Ignore headings and start from the final paragraph",
+        "Translate every word before identifying the topic"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Read every sentence word by word first",
+          "feedback": "Prediction happens before detailed reading."
+        },
+        {
+          "id": "b",
+          "label": "Use the title, subheadings and visually prominent words",
+          "feedback": "These are the clues highlighted in the unit."
+        },
+        {
+          "id": "c",
+          "label": "Ignore headings and start from the final paragraph",
+          "feedback": "The unit recommends using headings."
+        },
+        {
+          "id": "d",
+          "label": "Translate every word before identifying the topic",
+          "feedback": "This is not the prediction strategy described."
+        }
+      ],
+      "correct_option_ids": [
+        "b"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q03",
+      "lesson": 2,
+      "concept_id": "formal_form_navigation",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which item belongs in the sample form's 'About yourself' section?",
+      "answer": "Forename(s)",
+      "explanation": "The sample form places forename(s) in the personal-details section.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the section heading to identify the field."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Forename(s)",
+        "Name of celebrant",
+        "Decree of divorce",
+        "Other party's address"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Forename(s)",
+          "feedback": "Forename(s) is listed under 'About yourself'."
+        },
+        {
+          "id": "b",
+          "label": "Name of celebrant",
+          "feedback": "That belongs to the celebrant section."
+        },
+        {
+          "id": "c",
+          "label": "Decree of divorce",
+          "feedback": "That appears among supporting-document checks."
+        },
+        {
+          "id": "d",
+          "label": "Other party's address",
+          "feedback": "That belongs to the section about the other party."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q04",
+      "lesson": 2,
+      "concept_id": "formal_form_navigation",
+      "difficulty": 2,
+      "type": "multi_select",
+      "prompt": "Which four items are listed in the sample form's personal-details section?",
+      "answer": [
+        "Surname",
+        "Marital status",
+        "Date of birth",
+        "Residential address"
+      ],
+      "explanation": "Surname, marital status, date of birth and residential address are personal details.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Choose fields about the person, not the ceremony or supporting documents."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Surname",
+        "Marital status",
+        "Date of birth",
+        "Residential address",
+        "Name of celebrant",
+        "Decree of divorce"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Surname",
+          "feedback": "Surname is listed in the personal-details section."
+        },
+        {
+          "id": "b",
+          "label": "Marital status",
+          "feedback": "Marital status is listed there."
+        },
+        {
+          "id": "c",
+          "label": "Date of birth",
+          "feedback": "Date of birth is listed there."
+        },
+        {
+          "id": "d",
+          "label": "Residential address",
+          "feedback": "Residential address is listed there."
+        },
+        {
+          "id": "e",
+          "label": "Name of celebrant",
+          "feedback": "This belongs to another section."
+        },
+        {
+          "id": "f",
+          "label": "Decree of divorce",
+          "feedback": "This appears in the supporting-document checks."
+        }
+      ],
+      "correct_option_ids": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q05",
+      "lesson": 2,
+      "concept_id": "formal_form_navigation",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "The sample form asks all persons whether a birth certificate is enclosed.",
+      "answer": true,
+      "explanation": "The supporting-documents section includes this check for all persons.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look at the part of the form that applies to everyone."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_q06",
+      "lesson": 2,
+      "concept_id": "formal_form_navigation",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "A divorced person completing the sample form is specifically asked about which document?",
+      "answer": "A decree of divorce",
+      "explanation": "The sample form asks whether a decree of divorce is enclosed.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think about proof of the previous marriage ending."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "A decree of divorce",
+        "A school certificate",
+        "A bank statement",
+        "An employment contract"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "A decree of divorce",
+          "feedback": "This is the document check shown for a divorced person."
+        },
+        {
+          "id": "b",
+          "label": "A school certificate",
+          "feedback": "This is not listed in that section."
+        },
+        {
+          "id": "c",
+          "label": "A bank statement",
+          "feedback": "This is not listed in the sample form."
+        },
+        {
+          "id": "d",
+          "label": "An employment contract",
+          "feedback": "This is not listed in the sample form."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q07",
+      "lesson": 2,
+      "concept_id": "formal_form_navigation",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Which section contains the declaration that the information supplied is correct?",
+      "answer": "Section H",
+      "explanation": "The sample form labels Section H as the Declaration.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Find the section named 'Declaration'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Section B",
+        "Section E",
+        "Section G",
+        "Section H"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Section B",
+          "feedback": "Section B is about the person."
+        },
+        {
+          "id": "b",
+          "label": "Section E",
+          "feedback": "Section E is about the celebrant."
+        },
+        {
+          "id": "c",
+          "label": "Section G",
+          "feedback": "Section G concerns supporting documents."
+        },
+        {
+          "id": "d",
+          "label": "Section H",
+          "feedback": "Section H is the declaration."
+        }
+      ],
+      "correct_option_ids": [
+        "d"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q08",
+      "lesson": 2,
+      "concept_id": "prediction_strategy",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Explain why prediction can make a long formal text easier to read.",
+      "answer": "Prediction gives you an initial idea of the topic and structure, so you know what information to look for during detailed reading.",
+      "explanation": "Several valid wordings are possible, so this task is kept for self-evaluation.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Mention what headings and key words help you anticipate."
+        },
+        {
+          "level": 2,
+          "content": "Connect that anticipation to detailed reading."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l3_q01",
+      "lesson": 3,
+      "concept_id": "marriage_notice_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "In the unit's formal-notice vocabulary, who is the 'celebrant'?",
+      "answer": "The person who solemnises the marriage",
+      "explanation": "The vocabulary context uses 'celebrant' for the person who solemnises the marriage.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think of the person performing the ceremony."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "The person who solemnises the marriage",
+        "The bride",
+        "The bridegroom",
+        "The document itself"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "The person who solemnises the marriage",
+          "feedback": "This matches the context used in the unit."
+        },
+        {
+          "id": "b",
+          "label": "The bride",
+          "feedback": "The bride is one of the people getting married."
+        },
+        {
+          "id": "c",
+          "label": "The bridegroom",
+          "feedback": "The bridegroom is one of the people getting married."
+        },
+        {
+          "id": "d",
+          "label": "The document itself",
+          "feedback": "The document is the notice, not the celebrant."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q02",
+      "lesson": 3,
+      "concept_id": "marriage_notice_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which word names the woman who is getting married?",
+      "answer": "bride",
+      "explanation": "The vocabulary exercise uses 'bride' for the woman getting married.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Distinguish the person getting married from the person conducting the ceremony."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "bride",
+        "bridegroom",
+        "celebrant",
+        "notice"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "bride",
+          "feedback": "Bride is the woman getting married."
+        },
+        {
+          "id": "b",
+          "label": "bridegroom",
+          "feedback": "Bridegroom refers to the man getting married."
+        },
+        {
+          "id": "c",
+          "label": "celebrant",
+          "feedback": "The celebrant performs the ceremony."
+        },
+        {
+          "id": "d",
+          "label": "notice",
+          "feedback": "A notice is a document or formal announcement."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q03",
+      "lesson": 3,
+      "concept_id": "marriage_notice_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which word names the man who is getting married?",
+      "answer": "bridegroom",
+      "explanation": "The unit uses 'bridegroom' for the man getting married.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for the partner term to 'bride'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "bridegroom",
+        "bride",
+        "celebrant",
+        "notice"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "bridegroom",
+          "feedback": "Bridegroom refers to the man getting married."
+        },
+        {
+          "id": "b",
+          "label": "bride",
+          "feedback": "Bride refers to the woman getting married."
+        },
+        {
+          "id": "c",
+          "label": "celebrant",
+          "feedback": "The celebrant performs the ceremony."
+        },
+        {
+          "id": "d",
+          "label": "notice",
+          "feedback": "A notice is not a person."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q04",
+      "lesson": 3,
+      "concept_id": "marriage_notice_vocabulary",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Which verb in the unit means to formally perform a marriage ceremony?",
+      "answer": "solemnise",
+      "explanation": "The vocabulary exercise uses 'solemnise' for formally performing the union.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think of the action carried out by the celebrant."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "solemnise",
+        "expire",
+        "process",
+        "predict"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "solemnise",
+          "feedback": "This is the verb used in the unit."
+        },
+        {
+          "id": "b",
+          "label": "expire",
+          "feedback": "Expire relates to validity ending."
+        },
+        {
+          "id": "c",
+          "label": "process",
+          "feedback": "Process has a different meaning in this unit."
+        },
+        {
+          "id": "d",
+          "label": "predict",
+          "feedback": "Predict is a reading strategy."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q05",
+      "lesson": 3,
+      "concept_id": "formal_form_integrity",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "The sample form says to use block capitals except for the signature.",
+      "answer": true,
+      "explanation": "This instruction appears at the top of the sample form.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Remember the special exception mentioned in the form instructions."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q06",
+      "lesson": 3,
+      "concept_id": "formal_form_integrity",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "The declaration in the sample form says that submitted documents should be genuine.",
+      "answer": true,
+      "explanation": "The declaration explicitly includes the genuineness of submitted documents.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look at what the person signing the declaration confirms."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q07",
+      "lesson": 3,
+      "concept_id": "formal_form_integrity",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Which behaviour best matches the integrity message of the sample form?",
+      "answer": "Provide correct information and check documents before signing",
+      "explanation": "The form and writing task emphasise correct, truthful information and careful completion.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Choose the behaviour that protects accuracy before signing."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Guess missing facts so the form looks complete",
+        "Provide correct information and check documents before signing",
+        "Use a nickname instead of requested details",
+        "Sign before checking the information"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Guess missing facts so the form looks complete",
+          "feedback": "Guessing official details conflicts with accuracy."
+        },
+        {
+          "id": "b",
+          "label": "Provide correct information and check documents before signing",
+          "feedback": "This matches the form's declaration and writing guidance."
+        },
+        {
+          "id": "c",
+          "label": "Use a nickname instead of requested details",
+          "feedback": "The form asks for specific personal information."
+        },
+        {
+          "id": "d",
+          "label": "Sign before checking the information",
+          "feedback": "The unit stresses careful, truthful completion."
+        }
+      ],
+      "correct_option_ids": [
+        "b"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q08",
+      "lesson": 3,
+      "concept_id": "formal_form_integrity",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Why is it important to check a formal application before signing it?",
+      "answer": "Because the signer is confirming that the supplied information is correct and that required information and documents have been handled properly.",
+      "explanation": "Several valid formulations are possible, so this is a self-evaluation task.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think about what a declaration means."
+        },
+        {
+          "level": 2,
+          "content": "Connect the signature to responsibility for the information supplied."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l4_q01",
+      "lesson": 4,
+      "concept_id": "conjunctions",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which word is a coordinating conjunction listed in the unit?",
+      "answer": "and",
+      "explanation": "The unit lists 'and' among coordinating conjunctions.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for the conjunction that joins equal clauses."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "and",
+        "because",
+        "unless",
+        "although"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "and",
+          "feedback": "'And' is listed among coordinating conjunctions."
+        },
+        {
+          "id": "b",
+          "label": "because",
+          "feedback": "'Because' is used as a subordinating conjunction."
+        },
+        {
+          "id": "c",
+          "label": "unless",
+          "feedback": "'Unless' is subordinating."
+        },
+        {
+          "id": "d",
+          "label": "although",
+          "feedback": "'Although' is subordinating."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q02",
+      "lesson": 4,
+      "concept_id": "conjunctions",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Choose the best connector: 'Mum will be very angry ___ you return home at midnight again.'",
+      "answer": "if",
+      "explanation": "'If' expresses the condition in this sentence.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Ask which word means 'on the condition that'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "if",
+        "and",
+        "but",
+        "after"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "if",
+          "feedback": "'If' introduces the condition."
+        },
+        {
+          "id": "b",
+          "label": "and",
+          "feedback": "'And' adds information but does not express the condition."
+        },
+        {
+          "id": "c",
+          "label": "but",
+          "feedback": "'But' expresses contrast."
+        },
+        {
+          "id": "d",
+          "label": "after",
+          "feedback": "'After' expresses time, not the intended condition."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q03",
+      "lesson": 4,
+      "concept_id": "conjunctions",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Choose the best connector: 'You should not go to the Embassy ___ you have an appointment.'",
+      "answer": "unless",
+      "explanation": "The source exercise uses 'unless' to express the condition.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think 'except if'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "unless",
+        "and",
+        "while",
+        "because"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "unless",
+          "feedback": "'Unless' means except if the required condition is met."
+        },
+        {
+          "id": "b",
+          "label": "and",
+          "feedback": "'And' does not express the required condition."
+        },
+        {
+          "id": "c",
+          "label": "while",
+          "feedback": "'While' mainly expresses time or contrast."
+        },
+        {
+          "id": "d",
+          "label": "because",
+          "feedback": "'Because' gives a reason, not this condition."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q04",
+      "lesson": 4,
+      "concept_id": "conjunctions",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Choose the best connector: 'The Mathematics teacher would like to talk to us ___ we go home.'",
+      "answer": "before",
+      "explanation": "'Before' shows that the conversation should happen prior to going home.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for a time connector."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "before",
+        "although",
+        "and",
+        "unless"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "before",
+          "feedback": "'Before' correctly expresses the time relationship."
+        },
+        {
+          "id": "b",
+          "label": "although",
+          "feedback": "'Although' expresses contrast."
+        },
+        {
+          "id": "c",
+          "label": "and",
+          "feedback": "'And' does not show the intended timing."
+        },
+        {
+          "id": "d",
+          "label": "unless",
+          "feedback": "'Unless' expresses a condition."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q05",
+      "lesson": 4,
+      "concept_id": "conjunctions",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Choose the best revision: 'I did not have a biometric passport. I had to start the application process.'",
+      "answer": "I did not have a biometric passport, so I had to start the application process.",
+      "explanation": "'So' connects the first situation to its result.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Identify the cause-result relationship."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "I did not have a biometric passport, so I had to start the application process.",
+        "I did not have a biometric passport, although I had to start the application process.",
+        "I did not have a biometric passport, unless I had to start the application process.",
+        "I did not have a biometric passport, before I had to start the application process."
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "I did not have a biometric passport, so I had to start the application process.",
+          "feedback": "'So' clearly expresses the result."
+        },
+        {
+          "id": "b",
+          "label": "I did not have a biometric passport, although I had to start the application process.",
+          "feedback": "'Although' expresses contrast, not result."
+        },
+        {
+          "id": "c",
+          "label": "I did not have a biometric passport, unless I had to start the application process.",
+          "feedback": "'Unless' expresses a condition."
+        },
+        {
+          "id": "d",
+          "label": "I did not have a biometric passport, before I had to start the application process.",
+          "feedback": "'Before' does not express the cause-result relation."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q06",
+      "lesson": 4,
+      "concept_id": "conjunctions",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Coordinating conjunctions join independent clauses.",
+      "answer": true,
+      "explanation": "This is the rule stated in the unit's conjunction note.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Recall the difference between coordinating and subordinating conjunctions."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q07",
+      "lesson": 4,
+      "concept_id": "conjunctions",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "The conjunction 'unless' is used in the unit as a subordinating conjunction.",
+      "answer": true,
+      "explanation": "The unit lists 'unless' among subordinating conjunctions.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Check which family introduces a condition."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q08",
+      "lesson": 4,
+      "concept_id": "conjunctions",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Write one original sentence using a conjunction from the unit and explain the relationship it expresses.",
+      "answer": "Example: 'I checked the form before I signed it.' The conjunction 'before' expresses time.",
+      "explanation": "Many correct sentences are possible, so this task is kept for self-evaluation.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Choose one relationship: addition, contrast, reason, condition or time."
+        },
+        {
+          "level": 2,
+          "content": "Then choose a conjunction that matches that relationship."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l5_q01",
+      "lesson": 5,
+      "concept_id": "passive_voice",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which sentence is in the passive voice?",
+      "answer": "The form was completed by the future bride.",
+      "explanation": "The passive sentence uses the form as subject and 'was completed'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for a form of 'be' plus a past participle."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "The future bride completed the form.",
+        "The form was completed by the future bride.",
+        "The future bride will complete the form.",
+        "The future bride completes the form."
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "The future bride completed the form.",
+          "feedback": "This is active voice."
+        },
+        {
+          "id": "b",
+          "label": "The form was completed by the future bride.",
+          "feedback": "The receiver of the action is the subject, with 'was' + past participle."
+        },
+        {
+          "id": "c",
+          "label": "The future bride will complete the form.",
+          "feedback": "This is active voice."
+        },
+        {
+          "id": "d",
+          "label": "The future bride completes the form.",
+          "feedback": "This is active voice."
+        }
+      ],
+      "correct_option_ids": [
+        "b"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q02",
+      "lesson": 5,
+      "concept_id": "passive_voice",
+      "difficulty": 2,
+      "type": "expression",
+      "prompt": "Complete only the verb phrase: 'The marriage forms ___ by the future bride and bridegroom last week.'",
+      "answer": "were completed",
+      "explanation": "The past passive form is 'were completed'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "The plural subject needs past 'be' + past participle."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l5_q03",
+      "lesson": 5,
+      "concept_id": "passive_voice",
+      "difficulty": 2,
+      "type": "expression",
+      "prompt": "Complete only the verb phrase: 'If you are a minor, application forms must ___ by a parent or legal guardian.'",
+      "answer": "be signed",
+      "explanation": "After 'must', the passive uses 'be' + past participle.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the modal pattern: must + be + past participle."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l5_q04",
+      "lesson": 5,
+      "concept_id": "passive_voice",
+      "difficulty": 2,
+      "type": "expression",
+      "prompt": "Complete only the verb phrase: 'All passport applications must ___ in person and by appointment.'",
+      "answer": "be made",
+      "explanation": "The source exercise requires the passive phrase 'be made'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use must + be + the past participle of 'make'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l5_q05",
+      "lesson": 5,
+      "concept_id": "passive_voice",
+      "difficulty": 2,
+      "type": "expression",
+      "prompt": "Complete only the verb phrase: 'My marriage ___ by my parents because they thought I was too young.'",
+      "answer": "was opposed",
+      "explanation": "The singular subject takes 'was' plus the past participle 'opposed'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use past 'be' + the past participle of 'oppose'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l5_q06",
+      "lesson": 5,
+      "concept_id": "passive_voice",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "A common passive pattern uses a form of 'be' followed by a past participle.",
+      "answer": true,
+      "explanation": "This pattern is reinforced by the unit's passive-voice exercises.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look at forms such as 'was completed' and 'must be signed'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l5_q07",
+      "lesson": 5,
+      "concept_id": "application_writing",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which action is explicitly part of the unit's application-writing task?",
+      "answer": "Fill in the form truthfully and sign it",
+      "explanation": "The writing task says to understand the requested information, fill in the form truthfully and sign it.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Focus on the steps given in the writing task."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Fill in the form truthfully and sign it",
+        "Invent missing personal information",
+        "Skip fields you do not understand without checking them",
+        "Remove the signature section"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Fill in the form truthfully and sign it",
+          "feedback": "This is explicitly required by the writing task."
+        },
+        {
+          "id": "b",
+          "label": "Invent missing personal information",
+          "feedback": "The unit stresses truthful completion."
+        },
+        {
+          "id": "c",
+          "label": "Skip fields you do not understand without checking them",
+          "feedback": "The task says to check that you understand the required information."
+        },
+        {
+          "id": "d",
+          "label": "Remove the signature section",
+          "feedback": "The task explicitly includes signing the form."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q08",
+      "lesson": 5,
+      "concept_id": "application_writing",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Complete a short fictional application form and then use a checklist to review it.",
+      "answer": "Check that all required fictional fields are completed, the information is internally consistent, and the signature field is completed.",
+      "explanation": "This production task can have many valid answers and is therefore not auto-scored.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use fictional information only for practice."
+        },
+        {
+          "level": 2,
+          "content": "Review every required field before the signature."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    }
+  ],
+  "qcm_policy": {
+    "correctness_never_bound_to_position": true,
+    "correctness_key": "option_id_or_answer_value",
+    "single_and_multi_choice_shuffle": "deterministic_per_attempt",
+    "stable_within_attempt": true,
+    "shuffle_between_attempts": true,
+    "true_false_shuffle": false
+  },
+  "games": [
+    {
+      "id": "document_dash",
+      "title": "Document Dash",
+      "status": "draft",
+      "concept_id": "personal_information_vocabulary",
+      "description": "Match key vocabulary to its source-backed definition.",
+      "reason_draft": "No generic language matching game engine is implemented yet."
+    },
+    {
+      "id": "form_detective",
+      "title": "Form Detective",
+      "status": "draft",
+      "concept_id": "formal_form_navigation",
+      "description": "Locate the correct section or field on a simplified fictional form.",
+      "reason_draft": "No form-hotspot game engine is implemented yet."
+    },
+    {
+      "id": "connector_bridge",
+      "title": "Connector Bridge",
+      "status": "draft",
+      "concept_id": "conjunctions",
+      "description": "Choose a conjunction that expresses the intended relationship between clauses.",
+      "reason_draft": "No dedicated language connector engine is implemented yet."
+    },
+    {
+      "id": "passive_forge",
+      "title": "Passive Forge",
+      "status": "draft",
+      "concept_id": "passive_voice",
+      "description": "Rebuild passive verb phrases from word tiles.",
+      "reason_draft": "No language tile-reorder game engine is implemented yet."
+    },
+    {
+      "id": "application_desk",
+      "title": "Application Desk",
+      "status": "draft",
+      "concept_id": "application_writing",
+      "description": "Review a fictional form for completeness and internal consistency.",
+      "reason_draft": "No branching form-review engine is implemented yet."
+    }
+  ],
+  "learning_card_seeds": [
+    {
+      "id": "feed_vocab_explain",
+      "type": "explanation",
+      "lesson": 1,
+      "concept_id": "personal_information_vocabulary",
+      "priority": 85
+    },
+    {
+      "id": "feed_vocab_flash",
+      "type": "flashQuestion",
+      "lesson": 1,
+      "question_id": "l1_q02",
+      "priority": 80
+    },
+    {
+      "id": "feed_prediction_explain",
+      "type": "explanation",
+      "lesson": 2,
+      "concept_id": "prediction_strategy",
+      "priority": 85
+    },
+    {
+      "id": "feed_form_flash",
+      "type": "flashQuestion",
+      "lesson": 2,
+      "question_id": "l2_q03",
+      "priority": 80
+    },
+    {
+      "id": "feed_form_mcq",
+      "type": "mcq",
+      "lesson": 2,
+      "question_id": "l2_q06",
+      "priority": 75
+    },
+    {
+      "id": "feed_integrity_explain",
+      "type": "explanation",
+      "lesson": 3,
+      "concept_id": "formal_form_integrity",
+      "priority": 75
+    },
+    {
+      "id": "feed_vocab_notice",
+      "type": "flashQuestion",
+      "lesson": 3,
+      "question_id": "l3_q04",
+      "priority": 70
+    },
+    {
+      "id": "feed_conjunction_explain",
+      "type": "explanation",
+      "lesson": 4,
+      "concept_id": "conjunctions",
+      "priority": 85
+    },
+    {
+      "id": "feed_conjunction_mcq",
+      "type": "mcq",
+      "lesson": 4,
+      "question_id": "l4_q05",
+      "priority": 80
+    },
+    {
+      "id": "feed_passive_explain",
+      "type": "explanation",
+      "lesson": 5,
+      "concept_id": "passive_voice",
+      "priority": 85
+    },
+    {
+      "id": "feed_passive_mcq",
+      "type": "mcq",
+      "lesson": 5,
+      "question_id": "l5_q01",
+      "priority": 80
+    },
+    {
+      "id": "feed_application_explain",
+      "type": "explanation",
+      "lesson": 5,
+      "concept_id": "application_writing",
+      "priority": 70
+    },
+    {
+      "id": "feed_new_content",
+      "type": "newContent",
+      "lesson": 0,
+      "chapter_id": "english_terminale_m1_u1_applying_for_passport",
+      "priority": 100
+    }
+  ],
+  "companion": {
+    "runtime_llm_required": false,
+    "knowledge_scope": "current_pack_only",
+    "quick_actions": [
+      "Explain this",
+      "Simpler English",
+      "Very simple",
+      "Give me an example",
+      "Give me a hint",
+      "Why is my answer wrong?",
+      "Test me"
+    ],
+    "free_text_routing": {
+      "method": "normalisation + aliases + concept scoring + lesson context",
+      "network_fallback": false
+    },
+    "address_style": {
+      "person": "second_person",
+      "first_name_usage": "occasional",
+      "avoid_repetition": true
+    },
+    "source_boundaries": [
+      "Do not answer the missing listening passage questions from general knowledge.",
+      "Do not present this unit as current official passport guidance."
+    ]
+  },
+  "mastery": {
+    "scope": "concept",
+    "same_state_for_feed_lessons_and_games": true,
+    "suggest_harder_after_consecutive_correct": 3,
+    "suggest_simple_after_errors": 2,
+    "suggest_ultra_simple_after_additional_error": 1
+  },
+  "dynamic_delivery": {
+    "remote_eligible": true,
+    "cache_required": true,
+    "activation_policy": "validate_before_activate",
+    "fallback_to_embedded": true
+  }
+}

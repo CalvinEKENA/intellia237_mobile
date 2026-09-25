@@ -79,7 +79,9 @@ void main(List<String> args) {
       sizeBytes: encoded.bytes.length,
       status: value('--status') ?? 'published',
       subject: curriculum?['subject'] as String?,
-      chapterTitle: curriculum?['chapter_title'] as String?,
+      chapterTitle:
+          (curriculum?['chapter_title'] ?? curriculum?['unit_title'])
+              as String?,
       minimumEngineVersion: minimumEngine,
     ),
   );

@@ -17,16 +17,28 @@ enum CompanionAction {
   /// (« Donne un indice », « Donne-moi un indice »…).
   static CompanionAction? fromLabel(String label) {
     final key = normalizeKey(label);
-    if (key.contains('12-ans') || key.contains('ultra')) {
+    if (key.contains('12-ans') ||
+        key.contains('ultra') ||
+        key.contains('very-simple')) {
       return explainUltraSimple;
     }
-    if (key.contains('plus-simple') || key == 'simple') return explainSimple;
-    if (key.contains('explique')) return explainStandard;
-    if (key.contains('montre')) return showMe;
+    if (key.contains('plus-simple') ||
+        key == 'simple' ||
+        key.contains('simpler')) {
+      return explainSimple;
+    }
+    if (key.contains('explique') || key.contains('explain')) {
+      return explainStandard;
+    }
+    if (key.contains('montre') || key.contains('show-me')) return showMe;
     if (key.contains('exemple') || key.contains('example')) return example;
     if (key.contains('indice') || key.contains('hint')) return hint;
     if (key.contains('teste') || key.contains('test-me')) return testMe;
-    if (key.contains('pourquoi') || key.contains('faux')) return whyWrong;
+    if (key.contains('pourquoi') ||
+        key.contains('faux') ||
+        key.contains('wrong')) {
+      return whyWrong;
+    }
     return null;
   }
 }
@@ -38,6 +50,7 @@ class CompanionConfig {
     required this.actions,
     this.unrecognizedLabels = const [],
     this.fallbackSuggestions = 3,
+    this.labels = const {},
   });
 
   static const defaults = CompanionConfig(actions: CompanionAction.values);
@@ -57,4 +70,8 @@ class CompanionConfig {
 
   /// Nombre de notions proches proposées quand une demande sort du pack.
   final int fallbackSuggestions;
+
+  /// Libellés du pack pour ses actions, dans la langue du contenu (ex.
+  /// « Explain this » pour l'anglais) ; à défaut, ceux de l'application.
+  final Map<CompanionAction, String> labels;
 }

@@ -186,6 +186,13 @@ class ContentPackParser {
       llmRequired: llmRequired,
       designPrinciple: _string(pedagogy['design_principle']),
       adaptiveRuleTexts: _stringList(pedagogy['adaptive_rules']),
+      explanationLabels: {
+        for (final MapEntry(:key, :value)
+            in (_map(pedagogy['explanation_axis']) ?? const {}).entries)
+          if ((ExplanationMode.fromKey(key), _string(_map(value)?['label']))
+              case (final mode?, final label?))
+            mode: label,
+      },
     );
   }
 
@@ -268,13 +275,20 @@ class ContentPackParser {
         'Aucun curriculum : le chapitre ne peut pas être rangé.',
       );
     }
+    // Programmes en modules et units (anglais) : l'unit tient lieu de
+    // chapitre dans son module.
+    final unit = _int(map?['unit']);
     return Curriculum(
       country: _string(map?['country']) ?? '',
       level: _string(map?['level']) ?? '',
       subject: _string(map?['subject']) ?? '',
       module: _string(map?['module']),
-      chapterNumber: (map?['chapter_number'] as num?)?.toInt() ?? 0,
-      chapterTitle: _string(map?['chapter_title']) ?? '',
+      moduleNumber: _int(map?['module']),
+      moduleTitle: _string(map?['module_title']),
+      unitNumber: unit,
+      chapterNumber: (map?['chapter_number'] as num?)?.toInt() ?? unit ?? 0,
+      chapterTitle:
+          _string(map?['chapter_title']) ?? _string(map?['unit_title']) ?? '',
     );
   }
 
@@ -357,7 +371,8 @@ class ContentPackParser {
     _IssueSink issue,
   ) {
     final provenance = <int, Map<String, Object?>>{};
-    final chapterMap = source['chapter_map'];
+    // v1 : `chapter_map` ; v2 : `source_sections`.
+    final chapterMap = source['chapter_map'] ?? source['source_sections'];
     if (chapterMap is List) {
       for (final item in chapterMap) {
         final map = _map(item);
@@ -401,9 +416,13 @@ class ContentPackParser {
             title:
                 _string(map['title']) ?? _string(origin?['title']) ?? '$number',
             conceptIds: List.unmodifiable(conceptIds),
-            verifiedCore: _stringList(origin?['verified_core']),
+            verifiedCore: _stringList(
+              origin?['verified_core'] ?? origin?['verified_content'],
+            ),
             sourceSituation: _string(origin?['source_situation']),
-            sourcePages: _stringList(origin?['images']),
+            sourcePages: _stringList(
+              origin?['images'] ?? origin?['source_ranges'],
+            ),
           ),
         );
       }
@@ -1009,7 +1028,9 @@ class ContentPackParser {
             severity: ValidationSeverity.fromKey(_string(map['severity'])),
             source:
                 _string(map['source']) ??
-                _stringList(map['source_pages']).join(', '),
+                _stringList(map['source_pages']).join(', ').emptyAsNull ??
+                _string(map['id']) ??
+                '',
             sourcePage:
                 _pageOf(_string(map['source'])) ??
                 _stringList(map['source_pages']).firstOrNull,
@@ -1217,8 +1238,10 @@ class ContentPackParser {
     if (labels.isEmpty) return CompanionConfig.defaults;
     final actions = <CompanionAction>[];
     final unknown = <String>[];
+    final packLabels = <CompanionAction, String>{};
     for (final label in labels) {
       final action = CompanionAction.fromLabel(label);
+      if (action != null) packLabels.putIfAbsent(action, () => label);
       if (action == null) {
         unknown.add(label);
         issue(
@@ -1242,6 +1265,7 @@ class ContentPackParser {
       actions: actions,
       unrecognizedLabels: unknown,
       fallbackSuggestions: suggestions ?? 3,
+      labels: Map.unmodifiable(packLabels),
     );
   }
 
@@ -1338,6 +1362,10 @@ class ContentPackParser {
 
   // ── Lecture tolérante ─────────────────────────────────────────────────
 
+  /// Un entier, seulement s'il est écrit comme un nombre (un module peut
+  /// aussi être un intitulé).
+  static int? _int(Object? raw) => raw is num ? raw.toInt() : null;
+
   static Map<String, Object?>? _map(Object? raw) =>
       raw is Map ? raw.map((key, value) => MapEntry('$key', value)) : null;
 
@@ -1349,6 +1377,10 @@ class ContentPackParser {
 
   static List<String> _stringList(Object? raw) =>
       raw is List ? [for (final value in raw) ?_string(value)] : const [];
+}
+
+extension on String {
+  String? get emptyAsNull => isEmpty ? null : this;
 }
 
 typedef _IssueSink =

@@ -9442,6 +9442,24 @@ abstract class AppLocalizations {
   /// **'Chapitre {number}'**
   String ceChapterNumber(int number);
 
+  /// No description provided for @ceModuleHeading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Module {number} — {title}'**
+  String ceModuleHeading(int number, String title);
+
+  /// No description provided for @ceUnitNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Unit {number}'**
+  String ceUnitNumber(int number);
+
+  /// No description provided for @ceSubjectEnglish.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anglais'**
+  String get ceSubjectEnglish;
+
   /// No description provided for @ceLessonCount.
   ///
   /// In fr, this message translates to:

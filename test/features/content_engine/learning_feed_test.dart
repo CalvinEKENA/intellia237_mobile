@@ -383,7 +383,10 @@ void main() {
         classKey: _terminaleC,
         repository: repository(),
       ).read(learningFeedProvider.future);
-      expect(forC.chapters.keys, ['maths_td_ch02_complexes']);
+      // (Les units d'anglais, communes à toute la Terminale, s'y ajoutent.)
+      expect(forC.chapters.keys.where((id) => id.startsWith('maths')), [
+        'maths_td_ch02_complexes',
+      ]);
     });
 
     test('hors ligne : le fil se compose sans aucun appel réseau', () async {

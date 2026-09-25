@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../domain/chapter.dart';
+import '../domain/curriculum.dart';
 import '../domain/pedagogy.dart';
 
 /// Direction visuelle des chapitres interactifs : papier clair, encre
@@ -101,13 +102,36 @@ LinearGradient subjectGradient(String subjectKey) {
   return AppGradients.forSubject(null);
 }
 
-/// Libellé d'un niveau d'explication.
-String explanationModeLabel(BuildContext context, ExplanationMode mode) =>
+/// Libellé d'un niveau d'explication : celui du pack d'abord (dans la
+/// langue du contenu, ex. « Simple English »), sinon celui de l'application.
+String explanationModeLabel(
+  BuildContext context,
+  ExplanationMode mode, [
+  Map<ExplanationMode, String> packLabels = const {},
+]) =>
+    packLabels[mode] ??
     switch (mode) {
       ExplanationMode.standard => context.l10n.ceModeStandard,
       ExplanationMode.simple => context.l10n.ceModeSimple,
       ExplanationMode.ultraSimple => context.l10n.ceModeUltra,
     };
+
+/// Nom d'une matière dans la langue de l'application (« English » d'un pack
+/// d'anglais devient « Anglais » en français) ; sinon le nom donné par le pack.
+String subjectDisplayName(BuildContext context, String key, String fallback) =>
+    switch (key) {
+      'anglais' => context.l10n.ceSubjectEnglish,
+      _ => fallback,
+    };
+
+/// « Module 1 — Family and social life » ; « Module 1 » sans titre.
+String moduleLabel(BuildContext context, Curriculum curriculum) {
+  final heading = context.l10n.ceModuleHeading(
+    curriculum.moduleNumber ?? 0,
+    curriculum.moduleTitle ?? '',
+  );
+  return curriculum.moduleTitle == null ? heading.split(' — ').first : heading;
+}
 
 /// Libellé d'une difficulté : celui du pack d'abord.
 String difficultyLabel(BuildContext context, Chapter chapter, int level) =>

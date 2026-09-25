@@ -68,7 +68,12 @@ void main() {
         "Fonctions numériques d'une variable réelle",
       ]);
       final chapters = await repository.chaptersFor(_terminaleD);
-      expect(chapters.map((c) => c.contentId), [_ch01, _ch02, _ch03]);
+      expect(
+        chapters
+            .where((c) => c.curriculum.subjectKey == 'mathematiques')
+            .map((c) => c.contentId),
+        [_ch01, _ch02, _ch03],
+      );
       expect(chapters.every((c) => c.isPlayable), isTrue);
     });
 
