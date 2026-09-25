@@ -131,6 +131,21 @@ ajuster q, observer r jusqu'à 0 ≤ r < |b|, 3 niveaux dont diviseur
 négatif), `integration_mission` (Mission Awa : étapes tirées des questions
 d'intégration, avertissements de source affichés, esprit critique valorisé).
 
+## QCM : ordre des propositions
+
+* La bonne réponse est une **valeur** (`ChoiceAnswer`, `MultiChoiceAnswer`),
+  jamais une place : aucun pack ne doit supposer que « A » est juste.
+* Affichage mélangé par `choiceOrder` (`lib/core/academics/choice_order.dart`) :
+  permutation déterministe de `questionId` + clé de tentative. Même ordre
+  pendant toute la tentative (reconstruction, clavier, correction), autre
+  ordre à la tentative suivante. Les objets entiers sont déplacés.
+* Vrai/Faux et Oui/Non ne sont pas mélangés (convention fixe).
+* Anciens contenus 6e : 19 QCM de Mon Parcours sur 23 avaient la bonne
+  réponse en premier (le Studio présélectionne la première proposition) et
+  aucun écran ne mélangeait. Les données ne sont pas migrées ; le mélange
+  s'applique désormais à l'affichage (Mon Parcours, quiz, mini-quiz de
+  leçon), la correction serveur reçoit toujours l'index d'origine.
+
 ## Compagnon (sans modèle de langage)
 
 Actions : « Explique-moi », « Plus simplement », « Comme si j'avais 12 ans »,

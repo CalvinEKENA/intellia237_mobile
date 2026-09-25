@@ -9,6 +9,7 @@ import '../../../rewards/domain/reward_pattern.dart';
 import '../../../rewards/presentation/reward_stage.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/academics/choice_order.dart';
 import '../../application/flow_controller.dart';
 import '../../domain/flow_card.dart';
 import 'flow_card_scaffold.dart';
@@ -32,6 +33,14 @@ class FlowMiniQuizCardView extends ConsumerStatefulWidget {
 class _FlowMiniQuizCardViewState extends ConsumerState<FlowMiniQuizCardView> {
   int? _selected;
   RewardPattern? _reward;
+
+  /// Ordre d'affichage fixé pour toute la tentative : il ne bouge ni après
+  /// la réponse ni à la correction. Les index restent ceux du contenu.
+  late final List<int> _order = choiceOrder(
+    widget.card.options.length,
+    questionId: widget.card.id,
+    attemptKey: newChoiceAttemptKey(),
+  );
 
   bool get _locked => _selected != null;
 
@@ -86,12 +95,11 @@ class _FlowMiniQuizCardViewState extends ConsumerState<FlowMiniQuizCardView> {
               style: FlowTypography.title(context),
             ).animate().fadeIn(duration: 420.ms).slideY(begin: 0.1, end: 0),
             const SizedBox(height: IntelliaSpacing.xl),
-            ...card.options.asMap().entries.map(
-              (e) => Padding(
+            for (final index in _order)
+              Padding(
                 padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
-                child: _option(e.key, e.value, accent),
+                child: _option(index, card.options[index], accent),
               ),
-            ),
           ],
         ),
       ),

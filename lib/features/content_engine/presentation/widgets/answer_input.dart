@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/academics/choice_order.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/question.dart';
 import '../../engine/answer_checker.dart';
@@ -36,6 +37,7 @@ class AnswerInput extends StatefulWidget {
     required this.onChanged,
     this.enabled = true,
     this.grade,
+    this.attemptKey,
     super.key,
   });
 
@@ -43,6 +45,10 @@ class AnswerInput extends StatefulWidget {
   final ValueChanged<StudentResponse?> onChanged;
   final bool enabled;
   final GradeResult? grade;
+
+  /// Tentative en cours : fixe l'ordre des propositions d'un QCM. Par
+  /// défaut, chaque montage (ou chaque nouvelle question) est une tentative.
+  final String? attemptKey;
 
   @override
   State<AnswerInput> createState() => _AnswerInputState();
@@ -54,6 +60,16 @@ class _AnswerInputState extends State<AnswerInput> {
   final _choices = <AnswerAtom>{};
   bool? _bool;
   final _set = <int>{};
+  late String _attemptKey = widget.attemptKey ?? newChoiceAttemptKey();
+
+  @override
+  void didUpdateWidget(AnswerInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.attemptKey != oldWidget.attemptKey ||
+        widget.question.id != oldWidget.question.id) {
+      _attemptKey = widget.attemptKey ?? newChoiceAttemptKey();
+    }
+  }
 
   TextEditingController _controller(String key) =>
       _controllers.putIfAbsent(key, () {
@@ -245,11 +261,25 @@ class _AnswerInputState extends State<AnswerInput> {
     );
   }
 
+  /// Propositions dans l'ordre fixé par la tentative. Les objets entiers
+  /// sont déplacés ; la correction compare des valeurs, jamais des places.
+  List<AnswerAtom> _orderedChoices() {
+    final choices = widget.question.choices;
+    return [
+      for (final index in choiceOrder(
+        choices.length,
+        questionId: widget.question.id,
+        attemptKey: _attemptKey,
+      ))
+        choices[index],
+    ];
+  }
+
   Widget _choiceChips({required bool multi}) => Wrap(
     spacing: IntelliaSpacing.xs,
     runSpacing: IntelliaSpacing.xs,
     children: [
-      for (final choice in widget.question.choices)
+      for (final choice in _orderedChoices())
         ChoiceChip(
           key: ValueKey('answer-choice-${choice.display}'),
           label: Text(choice.display, style: ContentText.math(size: 17)),

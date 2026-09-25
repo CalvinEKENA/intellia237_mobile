@@ -297,6 +297,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
           question: question,
           selectedIndex: selectedIndex,
           onSelected: (value) => _setAnswer(question.id, '$value'),
+          attemptKey: _clientAttemptId,
         );
       case QuizQuestionType.trueFalse:
         final answer = _answersByQuestion[question.id];

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
+import '../../../core/academics/choice_order.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
 import '../../../core/widgets/intellia_async_states.dart';
@@ -51,6 +52,10 @@ class LessonViewerScreen extends ConsumerStatefulWidget {
 
 class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
   final Map<String, int> _miniQuizAnswers = {};
+
+  /// Une seule tentative de mini-quiz par ouverture de la leçon : l'ordre
+  /// des propositions ne bouge plus jusqu'à la correction.
+  final String _quizAttemptKey = newChoiceAttemptKey();
   final ScrollController _scrollCtrl = ScrollController();
 
   bool _quizSubmitted = false;
@@ -134,6 +139,7 @@ class _LessonViewerScreenState extends ConsumerState<LessonViewerScreen> {
                     lesson: lesson,
                     scrollCtrl: _scrollCtrl,
                     miniQuizAnswers: _miniQuizAnswers,
+                    quizAttemptKey: _quizAttemptKey,
                     quizSubmitted: _quizSubmitted,
                     quizScore: _quizScore,
                     showFinishButton: _showFinishButton,
@@ -384,6 +390,7 @@ class _LessonBody extends StatelessWidget {
     required this.lesson,
     required this.scrollCtrl,
     required this.miniQuizAnswers,
+    required this.quizAttemptKey,
     required this.quizSubmitted,
     required this.quizScore,
     required this.showFinishButton,
@@ -399,6 +406,7 @@ class _LessonBody extends StatelessWidget {
   final LearnLesson lesson;
   final ScrollController scrollCtrl;
   final Map<String, int> miniQuizAnswers;
+  final String quizAttemptKey;
   final bool quizSubmitted;
   final int quizScore;
   final bool showFinishButton;
@@ -480,6 +488,7 @@ class _LessonBody extends StatelessWidget {
                   _MiniQuizSection(
                     questions: lesson.miniQuiz,
                     selectedAnswers: miniQuizAnswers,
+                    attemptKey: quizAttemptKey,
                     submitted: quizSubmitted,
                     score: quizScore,
                     onAnswer: onAnswer,
@@ -747,6 +756,7 @@ class _MiniQuizSection extends StatelessWidget {
   const _MiniQuizSection({
     required this.questions,
     required this.selectedAnswers,
+    required this.attemptKey,
     required this.submitted,
     required this.score,
     required this.onAnswer,
@@ -755,6 +765,7 @@ class _MiniQuizSection extends StatelessWidget {
 
   final List<LessonMiniQuizQuestion> questions;
   final Map<String, int> selectedAnswers;
+  final String attemptKey;
   final bool submitted;
   final int score;
   final void Function(String questionId, int index) onAnswer;
@@ -796,7 +807,12 @@ class _MiniQuizSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: IntelliaSpacing.sm),
-            for (int index = 0; index < question.options.length; index++)
+            // Ordre mélangé, index d'origine conservés pour la correction.
+            for (final index in choiceOrder(
+              question.options.length,
+              questionId: question.id,
+              attemptKey: attemptKey,
+            ))
               Padding(
                 padding: const EdgeInsets.only(bottom: IntelliaSpacing.xs),
                 child: _QuizOptionTile(

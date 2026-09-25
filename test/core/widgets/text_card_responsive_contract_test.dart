@@ -151,6 +151,7 @@ void main() {
         question: _longQuestion,
         selectedIndex: 0,
         onSelected: _ignoreInt,
+        attemptKey: 'contrat-mobile',
       ),
     ),
     (
