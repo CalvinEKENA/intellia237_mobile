@@ -33,6 +33,15 @@ const wire = (data: unknown): unknown => {
   return data;
 };
 
+/** True when a catalog document states which class(es) it is for. */
+export function declaresClass(data: DocumentData): boolean {
+  const list = (value: unknown) => Array.isArray(value) && value.some(v => typeof v === "string" && v.trim().length > 0);
+  if (data.audience?.clauses && Array.isArray(data.audience.clauses)) {
+    return data.audience.clauses.some((clause: DocumentData) => list(clause.classLevels));
+  }
+  return list(data.classLevels) || (typeof data.classLevel === "string" && data.classLevel.trim().length > 0);
+}
+
 export function createLearningCatalogHandler(firestore: Firestore = db) {
   return async (request: CallableRequest) => {
     if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
@@ -90,6 +99,10 @@ export function createLearningCatalogHandler(firestore: Firestore = db) {
       ? { ...data, audience: subject.data()!.audience } : data;
     const visibleChapter = async (doc: FirebaseFirestore.DocumentSnapshot) => {
       if (!doc.exists || !allowed(inherited(doc.data()!), level)) return null;
+      // A chapter whose class is declared nowhere (chapter or subject) is not
+      // served: its location alone proves nothing (legacy seeds copied the
+      // same first-cycle course under several classes).
+      if (!declaresClass(doc.data()!) && !declaresClass(subject.data()!)) return null;
       const lessons = await doc.ref.collection("lessons").where("status", "==", "published").get();
       const previews = result(lessons.docs, level).map(item => ({ id: item.id, title: item.data.title || "",
         summary: item.data.summary || "", order: item.data.order || 0, estimatedMinutes: item.data.estimatedMinutes || 20,

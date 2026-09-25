@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/localization/localization_extensions.dart';
+import '../../../rewards/application/reward_providers.dart';
+import '../../../rewards/domain/reward_event.dart';
+import '../../../rewards/domain/reward_pattern.dart';
+import '../../../rewards/presentation/reward_stage.dart';
+import '../../application/content_providers.dart';
 import '../../application/practice_session.dart';
+import '../../application/reward_bridge.dart';
 import '../../domain/chapter.dart';
 import '../../domain/companion_action.dart';
 import '../../domain/mastery.dart';
@@ -32,7 +38,7 @@ String diagnosisText(BuildContext context, GradeResult grade) {
 }
 
 /// « S'entraîner » : difficulté choisie par l'élève, correction immédiate.
-class PracticePanel extends StatefulWidget {
+class PracticePanel extends ConsumerStatefulWidget {
   const PracticePanel({
     required this.session,
     required this.preference,
@@ -49,12 +55,19 @@ class PracticePanel extends StatefulWidget {
   final bool showDifficulty;
 
   @override
-  State<PracticePanel> createState() => _PracticePanelState();
+  ConsumerState<PracticePanel> createState() => _PracticePanelState();
 }
 
-class _PracticePanelState extends State<PracticePanel> {
+class _PracticePanelState extends ConsumerState<PracticePanel> {
   StudentResponse? _draft;
   CompanionReply? _help;
+
+  /// Récompense de la dernière réussite (effacée à la question suivante).
+  RewardPattern? _reward;
+
+  /// Début de la question en cours : une réponse rapide reçoit un retour
+  /// minimal, pour ne jamais ralentir l'élève.
+  DateTime _startedAt = DateTime.now();
 
   PracticeSession get _session => widget.session;
   Chapter get _chapter => _session.chapter;
@@ -90,6 +103,8 @@ class _PracticePanelState extends State<PracticePanel> {
         _lastKey = _session.attemptKey;
         _draft = null;
         _help = null;
+        _reward = null;
+        _startedAt = DateTime.now();
       }
     });
   }
@@ -125,9 +140,34 @@ class _PracticePanelState extends State<PracticePanel> {
     final draft = _draft;
     if (draft == null) return;
     FocusScope.of(context).unfocus();
+    final question = _session.current;
+    final before =
+        ref.read(learnerContentControllerProvider).valueOrNull ??
+        LearnerContentSnapshot.empty;
     final grade = await _session.submit(draft);
-    if (grade == null) return;
-    HapticFeedback.mediumImpact();
+    if (grade == null || !mounted) return;
+    final rewards = ref.read(rewardDispatcherProvider);
+    if (!grade.correct || question == null) {
+      rewards.incorrect();
+      return;
+    }
+    final after =
+        ref.read(learnerContentControllerProvider).valueOrNull ?? before;
+    setState(
+      () => _reward = rewards.correct(
+        contentRewardEvent(
+          source: question.isIntegration
+              ? RewardSource.integration
+              : RewardSource.practice,
+          chapter: _chapter,
+          question: question,
+          before: before,
+          after: after,
+          suggestions: _session.suggestions,
+          responseTime: DateTime.now().difference(_startedAt),
+        ),
+      ),
+    );
   }
 
   @override
@@ -180,6 +220,7 @@ class _PracticePanelState extends State<PracticePanel> {
             onHint: () => _ask(CompanionAction.hint),
             onSimpler: _simpler,
             onWhyWrong: () => _ask(CompanionAction.whyWrong),
+            reward: _reward,
           ),
         if (_help != null) ...[
           const SizedBox(height: IntelliaSpacing.md),
@@ -201,23 +242,25 @@ class _DifficultyPicker extends StatelessWidget {
       chapter,
       session.lessonNumber,
     );
-    return Row(
-      children: [
-        for (final level in chapter.difficulties)
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: _DifficultyChip(
-                key: ValueKey('difficulty-${level.value}'),
-                label: difficultyLabel(context, chapter, level.value),
-                color: ContentPalette.difficulty(level.value),
-                selected: session.difficulty == level.value,
-                enabled: available.contains(level.value),
-                onTap: () => session.chooseDifficulty(level.value),
-              ),
-            ),
-          ),
+    final levels = chapter.difficulties;
+    return AdaptiveChoiceRow(
+      labels: [
+        for (final level in levels)
+          difficultyLabel(context, chapter, level.value),
       ],
+      labelStyle: ContentText.label(size: 11.5),
+      reservedWidth: 16,
+      itemBuilder: (context, i, _) {
+        final level = levels[i];
+        return _DifficultyChip(
+          key: ValueKey('difficulty-${level.value}'),
+          label: difficultyLabel(context, chapter, level.value),
+          color: ContentPalette.difficulty(level.value),
+          selected: session.difficulty == level.value,
+          enabled: available.contains(level.value),
+          onTap: () => session.chooseDifficulty(level.value),
+        );
+      },
     );
   }
 }
@@ -254,6 +297,7 @@ class _DifficultyChip extends StatelessWidget {
             border: Border.all(color: color, width: selected ? 2 : 1.2),
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
                 width: 10,
@@ -267,7 +311,6 @@ class _DifficultyChip extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                maxLines: 2,
                 style: ContentText.label(
                   size: 11.5,
                   color: selected ? Colors.white : ContentPalette.ink,
@@ -291,9 +334,11 @@ class _QuestionCard extends StatelessWidget {
     required this.onHint,
     required this.onSimpler,
     required this.onWhyWrong,
+    this.reward,
     super.key,
   });
 
+  final RewardPattern? reward;
   final PracticeSession session;
   final Question question;
   final ValueChanged<StudentResponse?> onDraft;
@@ -308,86 +353,101 @@ class _QuestionCard extends StatelessWidget {
     final l10n = context.l10n;
     final grade = session.lastGrade;
     final color = ContentPalette.difficulty(question.difficulty);
-    return ContentCard(
-      borderColor: color.withValues(alpha: 0.4),
-      padding: const EdgeInsets.all(IntelliaSpacing.lg),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Wrap(
-            spacing: 6,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(
-                l10n.ceQuestionProgress(
-                  session.index + 1,
-                  session.questions.length,
-                ),
-                style: ContentText.eyebrow(color: color),
-              ),
-              if (question.tags.contains('situation_probleme'))
-                _Tag(label: l10n.ceSituationTag, color: ContentPalette.accent),
-              if (question.isIntegration)
-                _Tag(label: l10n.ceIntegrationTag, color: ContentPalette.warm),
-            ],
-          ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          Text(
-            question.prompt,
-            style: ContentText.body(size: 18, weight: FontWeight.w700),
-          ),
-          if (question.visibleFlags.isNotEmpty) ...[
-            const SizedBox(height: IntelliaSpacing.sm),
-            _SourceCaution(question: question),
-          ],
-          const SizedBox(height: IntelliaSpacing.md),
-          AnswerInput(
-            question: question,
-            onChanged: onDraft,
-            enabled: grade == null,
-            grade: grade,
-          ),
-          const SizedBox(height: IntelliaSpacing.md),
-          if (grade == null) ...[
-            FilledButton(
-              key: const ValueKey('practice-check'),
-              onPressed: canCheck ? onCheck : null,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
-                backgroundColor: ContentPalette.ink,
-              ),
-              child: Text(l10n.ceCheck),
-            ),
-            const SizedBox(height: IntelliaSpacing.xs),
+    final reward = grade?.correct == true ? this.reward : null;
+    return RewardStage(
+      pattern: reward,
+      child: ContentCard(
+        borderColor: color.withValues(alpha: 0.4),
+        padding: const EdgeInsets.all(IntelliaSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Wrap(
-              alignment: WrapAlignment.center,
-              spacing: IntelliaSpacing.xs,
+              spacing: 6,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                TextButton.icon(
-                  key: const ValueKey('practice-hint'),
-                  onPressed: onHint,
-                  icon: const Icon(Icons.lightbulb_outline_rounded),
-                  label: Text(l10n.ceHint),
+                Text(
+                  l10n.ceQuestionProgress(
+                    session.index + 1,
+                    session.questions.length,
+                  ),
+                  style: ContentText.eyebrow(color: color),
                 ),
-                TextButton.icon(
-                  key: const ValueKey('practice-simpler'),
-                  onPressed: onSimpler,
-                  icon: const Icon(Icons.child_care_rounded),
-                  label: Text(l10n.ceSimpler),
-                ),
+                if (question.tags.contains('situation_probleme'))
+                  _Tag(
+                    label: l10n.ceSituationTag,
+                    color: ContentPalette.accent,
+                  ),
+                if (question.isIntegration)
+                  _Tag(
+                    label: l10n.ceIntegrationTag,
+                    color: ContentPalette.warm,
+                  ),
               ],
             ),
-          ] else
-            _Feedback(
-              question: question,
-              grade: grade,
-              onNext: session.next,
-              onRetry: session.retry,
-              onWhyWrong: onWhyWrong,
-              onSimpler: onSimpler,
+            const SizedBox(height: IntelliaSpacing.sm),
+            Text(
+              question.prompt,
+              style: ContentText.body(size: 18, weight: FontWeight.w700),
             ),
-        ],
+            if (question.visibleFlags.isNotEmpty) ...[
+              const SizedBox(height: IntelliaSpacing.sm),
+              _SourceCaution(question: question),
+            ],
+            const SizedBox(height: IntelliaSpacing.md),
+            AnswerInput(
+              question: question,
+              onChanged: onDraft,
+              enabled: grade == null,
+              grade: grade,
+            ),
+            const SizedBox(height: IntelliaSpacing.md),
+            if (grade == null) ...[
+              FilledButton(
+                key: const ValueKey('practice-check'),
+                onPressed: canCheck ? onCheck : null,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                  backgroundColor: ContentPalette.ink,
+                ),
+                child: Text(l10n.ceCheck),
+              ),
+              const SizedBox(height: IntelliaSpacing.xs),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: IntelliaSpacing.xs,
+                children: [
+                  TextButton.icon(
+                    key: const ValueKey('practice-hint'),
+                    onPressed: onHint,
+                    icon: const Icon(Icons.lightbulb_outline_rounded),
+                    label: Text(l10n.ceHint),
+                  ),
+                  TextButton.icon(
+                    key: const ValueKey('practice-simpler'),
+                    onPressed: onSimpler,
+                    icon: const Icon(Icons.child_care_rounded),
+                    label: Text(l10n.ceSimpler),
+                  ),
+                ],
+              ),
+            ] else ...[
+              if (reward != null) ...[
+                RewardMessageLine(pattern: reward),
+                const SizedBox(height: IntelliaSpacing.xs),
+              ],
+              _Feedback(
+                question: question,
+                grade: grade,
+                onNext: session.next,
+                onRetry: session.retry,
+                onWhyWrong: onWhyWrong,
+                onSimpler: onSimpler,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -652,6 +712,7 @@ class CompanionReplyCard extends StatelessWidget {
       CompanionGap.nothingToExplain => l10n.ceCompanionNothingWrong,
       CompanionGap.noQuestionLeft => l10n.ceCompanionNoQuestion,
       CompanionGap.noConcept => l10n.ceCompanionNoConcept,
+      CompanionGap.noExample => l10n.ceCompanionNoExample,
       null => null,
     };
     final color = reply.mode == null
@@ -755,6 +816,7 @@ class _PartText extends StatelessWidget {
       CompanionPartRole.mistake => l10n.ceCompanionTrap,
       CompanionPartRole.correction => l10n.ceCompanionCorrection,
       CompanionPartRole.hint => l10n.ceHint,
+      CompanionPartRole.example => l10n.ceCompanionExample,
       CompanionPartRole.explanation || CompanionPartRole.visual => null,
     };
     final color = part.role == CompanionPartRole.mistake

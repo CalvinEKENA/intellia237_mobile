@@ -33,3 +33,26 @@ List<T> mergeFlowNextPage<T>({
     ...done,
   ];
 }
+
+/// Entrelace les cartes publiées et les cartes des packs d'une même classe.
+///
+/// Chaque source garde son ordre (éditorial ou classé pour l'élève) ; les
+/// deux alternent tant qu'elles ont des cartes, puis la plus longue se
+/// poursuit seule. Aucune carte n'est dupliquée.
+List<T> interleaveFlowSources<T>({
+  required List<T> published,
+  required List<T> packs,
+  required String Function(T card) idOf,
+}) {
+  final known = <String>{};
+  final out = <T>[];
+  final length = published.length > packs.length
+      ? published.length
+      : packs.length;
+  for (var i = 0; i < length; i++) {
+    for (final source in [published, packs]) {
+      if (i < source.length && known.add(idOf(source[i]))) out.add(source[i]);
+    }
+  }
+  return out;
+}

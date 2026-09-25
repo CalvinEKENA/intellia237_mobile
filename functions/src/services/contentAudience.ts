@@ -56,6 +56,11 @@ export function audienceAllows(data: DocumentData, user: DocumentData, profile: 
     if (!parsed.success) return false;
     return parsed.data.clauses.some(clause => Object.entries(clause).every(([key, allowed]) => {
       const actual = context[key as keyof typeof context];
+      // A clause without class levels never means "every class": it stays
+      // bound to the class the document physically belongs to, when known.
+      if (key === "classLevels" && allowed.length === 0 && fallbackClass) {
+        return canonicalClass(fallbackClass) === actual;
+      }
       return allowed.length === 0 || allowed.some(value => key === "classLevels" ? canonicalClass(value) === actual : value === actual);
     }));
   }

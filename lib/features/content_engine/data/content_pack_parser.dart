@@ -1,3 +1,4 @@
+import '../../../core/academics/class_key.dart';
 import '../domain/chapter.dart';
 import '../domain/companion_action.dart';
 import '../domain/content_issue.dart';
@@ -112,7 +113,10 @@ class ContentPackParser {
     final validation = _validation(raw.validation, packId, issue);
     var questions = _questions(runtimeMap, lessons, difficulties, issue);
     questions = _attachFlags(questions, validation.flags, issue);
-    final games = _games(runtimeMap, concepts, difficulties, issue);
+    final games = _games(runtimeMap, concepts, difficulties, [
+      for (final q in questions)
+        if (q.isIntegration && q.autoScorable) q,
+    ], issue);
     final companion = _companion(_map(runtimeMap['companion']), issue);
     final mastery = _mastery(_map(runtimeMap['mastery']));
     final llmRequired =
@@ -169,6 +173,14 @@ class ContentPackParser {
     if (curriculumMap == null) return null;
     final curriculum = _curriculum(curriculumMap, (_, _, _, [_]) {});
     final stats = _map(raw.manifest['stats']);
+    // Classes visées : déclarées par le manifeste, sinon lues dans le
+    // curriculum (« Terminale D » → `terminale-d`). Aucune : pack ignoré.
+    final declared = _stringList(raw.manifest['class_keys']);
+    final classKeys = [
+      for (final key in declared.isEmpty ? [curriculum.level] : declared)
+        ...ClassKey.parseTargets(key),
+    ];
+    if (classKeys.isEmpty) return null;
     return ChapterEntry(
       contentId:
           _string(raw.manifest['content_id']) ??
@@ -177,6 +189,8 @@ class ContentPackParser {
       directory: raw.directory,
       curriculum: curriculum,
       lessonCount: (stats?['lessons'] as num?)?.toInt() ?? 0,
+      classKeys: classKeys,
+      version: (raw.manifest['version'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -772,6 +786,7 @@ class ContentPackParser {
     Map<String, Object?> runtime,
     Map<String, Concept> concepts,
     List<DifficultyLevel> difficulties,
+    List<Question> integrationQuestions,
     _IssueSink issue,
   ) {
     final maxLevel = difficulties.isEmpty ? 3 : difficulties.last.value;
@@ -811,7 +826,7 @@ class ContentPackParser {
       final engine =
           GameEngineKind.fromKey(_string(map['engine'])) ??
           (concept == null
-              ? null
+              ? _integrationEngine(conceptId, integrationQuestions)
               : GameEngineKind.forVisual(concept.visualKind));
       if (engine == null) {
         issue(
@@ -837,11 +852,26 @@ class ContentPackParser {
             maxLevel: maxLevel,
           ),
           engine: engine,
+          status:
+              GameStatus.fromKey(_string(map['status'])) ??
+              (engine == null ? GameStatus.draft : GameStatus.ready),
         ),
       );
     }
     return games;
   }
+
+  /// Un jeu qui vise le chapitre entier (convention `…integration…`) et
+  /// dont le chapitre porte des activités d'intégration notables devient une
+  /// mission d'intégration. Le champ explicite `engine` reste préférable.
+  GameEngineKind? _integrationEngine(
+    String conceptId,
+    List<Question> integrationQuestions,
+  ) =>
+      normalizeKey(conceptId).contains('integration') &&
+          integrationQuestions.isNotEmpty
+      ? GameEngineKind.integrationMission
+      : null;
 
   CompanionConfig _companion(Map<String, Object?>? map, _IssueSink issue) {
     if (map == null) return CompanionConfig.defaults;

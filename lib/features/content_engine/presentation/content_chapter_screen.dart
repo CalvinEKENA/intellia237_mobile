@@ -96,13 +96,13 @@ class _ChapterBody extends StatelessWidget {
             style: ContentText.title(size: 32),
           ),
         ),
-        if (chapter.designPrinciple case final principle?) ...[
-          const SizedBox(height: IntelliaSpacing.xs),
-          Text(
-            principle,
-            style: ContentText.body(color: ContentPalette.inkSoft, size: 14),
-          ),
-        ],
+        // INTELLIA parle à l'élève, jamais de l'élève : la note de
+        // conception du pack reste une donnée interne.
+        const SizedBox(height: IntelliaSpacing.xs),
+        Text(
+          l10n.ceChapterPromise,
+          style: ContentText.body(color: ContentPalette.inkSoft, size: 14),
+        ),
         const SizedBox(height: IntelliaSpacing.lg),
         const JourneyRibbon(),
         const SizedBox(height: IntelliaSpacing.lg),
@@ -198,19 +198,18 @@ class JourneyRibbon extends StatelessWidget {
             Text(l10n.ceJourneyTitle, style: ContentText.label()),
             const SizedBox(height: IntelliaSpacing.sm),
           ],
-          Row(
-            children: [
-              for (var i = 0; i < steps.length; i++) ...[
-                Expanded(
-                  child: _JourneyStep(
-                    icon: steps[i].$1,
-                    label: steps[i].$2,
-                    active: current == null || i <= current!,
-                    current: i == current,
-                  ),
-                ),
-              ],
-            ],
+          AdaptiveChoiceRow(
+            labels: [for (final step in steps) step.$2],
+            labelStyle: ContentText.label(size: 10.5),
+            reservedWidth: 2,
+            spacing: 2,
+            itemBuilder: (context, i, stacked) => _JourneyStep(
+              icon: steps[i].$1,
+              label: steps[i].$2,
+              active: current == null || i <= current!,
+              current: i == current,
+              stacked: stacked,
+            ),
           ),
         ],
       ),
@@ -224,6 +223,7 @@ class _JourneyStep extends StatelessWidget {
     required this.label,
     required this.active,
     required this.current,
+    this.stacked = false,
   });
 
   final IconData icon;
@@ -231,10 +231,15 @@ class _JourneyStep extends StatelessWidget {
   final bool active;
   final bool current;
 
+  /// Disposition en liste (icône à gauche) quand les colonnes sont trop
+  /// étroites pour les libellés.
+  final bool stacked;
+
   @override
   Widget build(BuildContext context) {
     final color = active ? ContentPalette.accent : ContentPalette.inkSoft;
-    return Column(
+    return Flex(
+      direction: stacked ? Axis.horizontal : Axis.vertical,
       children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 250),
@@ -248,12 +253,14 @@ class _JourneyStep extends StatelessWidget {
           ),
           child: Icon(icon, size: 18, color: current ? Colors.white : color),
         ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          maxLines: 2,
-          style: ContentText.label(color: color, size: 10.5),
+        const SizedBox(height: 6, width: 10),
+        Flexible(
+          fit: stacked ? FlexFit.tight : FlexFit.loose,
+          child: Text(
+            label,
+            textAlign: stacked ? TextAlign.start : TextAlign.center,
+            style: ContentText.label(color: color, size: 10.5),
+          ),
         ),
       ],
     );

@@ -360,6 +360,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               contentId: state.pathParameters['contentId'] ?? '',
               lessonNumber:
                   int.tryParse(state.pathParameters['lesson'] ?? '') ?? 0,
+              initialStep:
+                  int.tryParse(state.uri.queryParameters['step'] ?? '') ?? 0,
             ),
           ),
         ),

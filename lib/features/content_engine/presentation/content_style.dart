@@ -190,3 +190,105 @@ class MasteryRing extends StatelessWidget {
     ),
   );
 }
+
+/// Largeur, à l'échelle de texte de l'appareil, du plus long mot de [text].
+/// Une étiquette plus étroite que cette largeur couperait un mot en deux.
+double longestWordWidth(BuildContext context, String text, TextStyle style) {
+  final scaler = MediaQuery.textScalerOf(context);
+  var widest = 0.0;
+  for (final word in text.split(RegExp(r'\s+'))) {
+    if (word.isEmpty) continue;
+    final painter = TextPainter(
+      text: TextSpan(text: word, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout();
+    if (painter.width > widest) widest = painter.width;
+    painter.dispose();
+  }
+  return widest;
+}
+
+/// Rangée de choix de même largeur (segments, étapes, difficultés).
+///
+/// Aucune étiquette n'est jamais tronquée : les libellés passent à la ligne,
+/// et si un seul mot ne tient pas dans sa colonne (petit écran, grand
+/// texte, traduction plus longue), les choix s'empilent verticalement.
+class AdaptiveChoiceRow extends StatelessWidget {
+  const AdaptiveChoiceRow({
+    required this.labels,
+    required this.labelStyle,
+    required this.itemBuilder,
+    this.reservedWidth = 12,
+    this.spacing = 6,
+    super.key,
+  });
+
+  final List<String> labels;
+  final TextStyle labelStyle;
+
+  /// Construit le choix [index] ; [stacked] vaut `true` en disposition
+  /// verticale (le choix peut alors placer son icône à côté du libellé).
+  final Widget Function(BuildContext context, int index, bool stacked)
+  itemBuilder;
+
+  /// Largeur occupée dans chaque colonne par autre chose que le texte
+  /// (marges intérieures, bordure).
+  final double reservedWidth;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final count = labels.length;
+      final column =
+          (constraints.maxWidth - spacing * (count - 1)) / count -
+          reservedWidth;
+      final fits = labels.every(
+        (label) => longestWordWidth(context, label, labelStyle) <= column,
+      );
+      if (fits) {
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < count; i++) ...[
+                if (i > 0) SizedBox(width: spacing),
+                Expanded(child: itemBuilder(context, i, false)),
+              ],
+            ],
+          ),
+        );
+      }
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < count; i++) ...[
+            if (i > 0) SizedBox(height: spacing),
+            itemBuilder(context, i, true),
+          ],
+        ],
+      );
+    },
+  );
+}
+
+/// Titre long toujours lisible en entier : il passe à la ligne autant que
+/// nécessaire, et les lecteurs d'écran l'annoncent comme un titre.
+class ContentHeading extends StatelessWidget {
+  const ContentHeading(this.text, {this.style, super.key});
+
+  final String text;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    header: true,
+    child: Text(
+      text,
+      softWrap: true,
+      style: style ?? ContentText.title(size: 24),
+    ),
+  );
+}

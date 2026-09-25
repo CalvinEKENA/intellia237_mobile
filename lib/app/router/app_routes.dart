@@ -115,8 +115,8 @@ abstract final class AppRoutes {
 
   static String subjectDetail(String subjectId) => '/learn/subject/$subjectId';
   static String contentChapter(String contentId) => '/learn/local/$contentId';
-  static String contentLesson(String contentId, int lesson) =>
-      '/learn/local/$contentId/lesson/$lesson';
+  static String contentLesson(String contentId, int lesson, {int? step}) =>
+      '/learn/local/$contentId/lesson/$lesson${step == null ? '' : '?step=$step'}';
   static String contentGame(String contentId, String gameId) =>
       '/learn/local/$contentId/game/$gameId';
   static String contentIntegration(String contentId) =>

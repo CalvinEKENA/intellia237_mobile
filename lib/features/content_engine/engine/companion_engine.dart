@@ -9,6 +9,8 @@ import '../domain/visual_kind.dart';
 import 'adaptive_engine.dart';
 import 'answer_checker.dart';
 
+export 'companion_name_policy.dart';
+
 /// Ce que le Compagnon sait de la situation de l'élève.
 @immutable
 class CompanionContext {
@@ -20,7 +22,19 @@ class CompanionContext {
     this.hintsShown = 0,
     this.difficulty = 1,
     this.answered = const {},
+    this.examplesShown = 0,
+    this.mastery,
+    this.difficultyChosen = false,
   });
+
+  /// Exemples déjà montrés pour cette notion.
+  final int examplesShown;
+
+  /// Maîtrise actuelle de la notion (score 0–100), si connue.
+  final int? mastery;
+
+  /// Vrai si l'élève a choisi lui-même la difficulté (elle prime alors).
+  final bool difficultyChosen;
 
   final String? conceptId;
   final int lessonNumber;
@@ -52,6 +66,10 @@ enum CompanionPartRole {
   /// Correction officielle d'une question.
   correction,
 
+  /// Exemple : énoncé d'une question du pack, suivi de sa correction, ou
+  /// exemple vérifié tiré du cours.
+  example,
+
   /// Description du modèle visuel.
   visual,
 }
@@ -82,6 +100,9 @@ enum CompanionGap {
 
   /// Aucune notion en cours.
   noConcept,
+
+  /// Aucun exemple disponible dans le pack pour cette notion.
+  noExample,
 }
 
 /// Réponse du Compagnon, construite uniquement à partir du pack.
@@ -172,6 +193,7 @@ class CompanionEngine {
             CompanionPart(CompanionPartRole.visual, text),
         ],
       ),
+      CompanionAction.example => _example(action, concept!, context),
       CompanionAction.hint => _hint(action, concept!, context),
       CompanionAction.testMe => _test(action, concept, context),
       CompanionAction.whyWrong => _whyWrong(action, concept, context),
@@ -260,6 +282,64 @@ class CompanionEngine {
     );
   }
 
+  /// Exemples de la notion, sans rien inventer :
+  /// 1. les exemples vérifiés du cours (`verified_core` qui en annoncent un) ;
+  /// 2. les questions faciles de la leçon, énoncé puis correction du pack.
+  List<CompanionPart> examplesFor(Concept concept, int lessonNumber) {
+    final lesson =
+        chapter.lesson(lessonNumber) ??
+        (concept.lessonNumber == null
+            ? null
+            : chapter.lesson(concept.lessonNumber!));
+    return [
+      for (final statement in lesson?.verifiedCore ?? const <String>[])
+        if (normalizeKey(statement).contains('exemple') ||
+            normalizeKey(statement).contains('example'))
+          CompanionPart(CompanionPartRole.example, statement),
+      for (final question in chapter.questions)
+        if (question.lessonNumber == (lesson?.number ?? -1) &&
+            question.autoScorable &&
+            question.difficulty == 1 &&
+            question.explanation != null)
+          CompanionPart(
+            CompanionPartRole.example,
+            '${question.prompt}\n→ ${question.explanation}',
+          ),
+    ];
+  }
+
+  CompanionReply _example(
+    CompanionAction action,
+    Concept concept,
+    CompanionContext context,
+  ) {
+    final examples = examplesFor(concept, context.lessonNumber);
+    if (examples.isEmpty) {
+      return CompanionReply(
+        action: action,
+        concept: concept,
+        gap: CompanionGap.noExample,
+      );
+    }
+    return CompanionReply(
+      action: action,
+      concept: concept,
+      parts: [examples[context.examplesShown % examples.length]],
+    );
+  }
+
+  /// Difficulté de « Teste-moi » : celle choisie par l'élève, sinon celle
+  /// qui convient à sa maîtrise actuelle.
+  int _testDifficulty(CompanionContext context) {
+    if (context.difficultyChosen) return context.difficulty;
+    final mastery = context.mastery;
+    if (mastery == null) return context.difficulty;
+    final max = chapter.maxDifficulty;
+    if (mastery < 40) return 1;
+    if (mastery < 75) return 2.clamp(1, max);
+    return max;
+  }
+
   CompanionReply _test(
     CompanionAction action,
     Concept? concept,
@@ -268,7 +348,7 @@ class CompanionEngine {
     final question = selector.next(
       chapter,
       lessonNumber: context.lessonNumber,
-      difficulty: context.difficulty,
+      difficulty: _testDifficulty(context),
       answered: context.answered,
       excludeId: context.question?.id,
     );
@@ -313,9 +393,10 @@ class CompanionEngine {
   }
 
   /// Une question libre : les notions du pack les plus proches, ou rien.
-  CompanionReply ask(String text, {int? limit}) {
+  CompanionReply ask(String text, {int? limit, String? contextConceptId}) {
     final matches = ConceptRouter(
       chapter,
+      contextConceptId: contextConceptId,
     ).match(text, limit: limit ?? chapter.companion.fallbackSuggestions);
     if (matches.isEmpty) {
       return const CompanionReply(action: null, gap: CompanionGap.unknownTopic);
@@ -339,10 +420,14 @@ class CompanionEngine {
 ///
 /// Déterministe : identifiant, titre, alias, prérequis et pièges de chaque
 /// notion forment son vocabulaire ; le score compte les mots en commun.
+/// S'y ajoutent un petit lexique de synonymes du vocabulaire scolaire
+/// (commun à tous les packs), la tolérance aux fautes de frappe et un léger
+/// avantage à la notion de la leçon en cours.
 class ConceptRouter {
-  ConceptRouter(this.chapter);
+  ConceptRouter(this.chapter, {this.contextConceptId});
 
   final Chapter chapter;
+  final String? contextConceptId;
 
   static const _stopWords = {
     'le',
@@ -392,12 +477,49 @@ class ConceptRouter {
     'nombre',
     'nombres',
     'deux',
+    'calculer',
+    'faire',
+    'veut',
+    'dire',
+    'signifie',
+    'cest',
+    'mon',
+    'ma',
+    'mes',
+    'ton',
+    'ta',
   };
 
-  static Set<String> _words(String text) => {
-    for (final word in normalizeKey(text).split('-'))
-      if (word.length > 1 && !_stopWords.contains(word)) _stem(word),
+  /// Synonymes du vocabulaire scolaire : une expression → mots équivalents.
+  static const _synonyms = <String, List<String>>{
+    'plus-grand-diviseur-commun': ['pgcd'],
+    'plus-petit-multiple-commun': ['ppcm'],
+    'base-2': ['binaire'],
+    'base-deux': ['binaire'],
+    'base-10': ['decimale'],
+    'modulo': ['congruence'],
+    'congru': ['congruence'],
+    'premier': ['premiers'],
+    'reste': ['division', 'euclidienne'],
+    'quotient': ['division', 'euclidienne'],
+    'gcd': ['pgcd'],
+    'lcm': ['ppcm'],
+    'prime': ['premiers'],
   };
+
+  static Set<String> _words(String text) {
+    final key = normalizeKey(text);
+    final words = {
+      for (final word in key.split('-'))
+        if (word.length > 1 && !_stopWords.contains(word)) _stem(word),
+    };
+    for (final entry in _synonyms.entries) {
+      if (key.contains(entry.key)) {
+        words.addAll(entry.value.map(_stem));
+      }
+    }
+    return words;
+  }
 
   /// Racine grossière : pluriels et terminaisons courantes retirés.
   static String _stem(String word) {
@@ -415,6 +537,34 @@ class ConceptRouter {
       }
     }
     return word;
+  }
+
+  /// Distance d'édition bornée : une faute de frappe sur un mot assez long.
+  static bool _close(String a, String b) {
+    if (a == b) return true;
+    if (a.length < 5 || b.length < 5 || (a.length - b.length).abs() > 1) {
+      return false;
+    }
+    var i = 0;
+    var j = 0;
+    var edits = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] == b[j]) {
+        i++;
+        j++;
+        continue;
+      }
+      if (++edits > 1) return false;
+      if (a.length > b.length) {
+        i++;
+      } else if (b.length > a.length) {
+        j++;
+      } else {
+        i++;
+        j++;
+      }
+    }
+    return edits + (a.length - i) + (b.length - j) <= 1;
   }
 
   List<Concept> match(String text, {int limit = 3}) {
@@ -438,10 +588,13 @@ class ConceptRouter {
       for (final word in query) {
         if (strong.contains(word)) {
           score += 3;
+        } else if (strong.any((known) => _close(known, word))) {
+          score += 2;
         } else if (weak.contains(word)) {
           score += 1;
         }
       }
+      if (score >= 2 && concept.id == contextConceptId) score += 1;
       if (score >= 3) scored.add((concept, score));
     }
     scored.sort((a, b) {

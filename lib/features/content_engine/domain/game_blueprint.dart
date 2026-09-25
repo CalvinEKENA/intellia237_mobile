@@ -18,7 +18,14 @@ enum GameEngineKind {
   factorForge('factor_forge'),
 
   /// Paver un rectangle, synchroniser deux rangées.
-  tiling('tiling');
+  tiling('tiling'),
+
+  /// Déplacer le quotient jusqu'à ce que le reste tombe dans 0 ≤ r < |b|.
+  remainderZone('remainder_zone'),
+
+  /// Mission d'intégration : plusieurs étapes tirées des activités validées
+  /// du chapitre (questions hors leçon).
+  integrationMission('integration_mission');
 
   const GameEngineKind(this.key);
   final String key;
@@ -37,7 +44,8 @@ enum GameEngineKind {
     VisualKind.modularClock => modularClock,
     VisualKind.factorBricks => factorForge,
     VisualKind.tiling => tiling,
-    VisualKind.remainderBand || VisualKind.none => null,
+    VisualKind.remainderBand => remainderZone,
+    VisualKind.none => null,
   };
 }
 
@@ -103,6 +111,25 @@ class ScoringRule {
   }
 }
 
+/// État de publication d'un jeu.
+enum GameStatus {
+  /// Jouable : proposé aux élèves.
+  ready,
+
+  /// En préparation : jamais proposé.
+  draft,
+
+  /// Désactivé volontairement : jamais proposé.
+  disabled;
+
+  static GameStatus? fromKey(String? key) => switch (key) {
+    'ready' || 'published' => ready,
+    'draft' => draft,
+    'disabled' || 'withdrawn' => disabled,
+    _ => null,
+  };
+}
+
 /// Un jeu décrit par le pack.
 @immutable
 class GameBlueprint {
@@ -114,6 +141,7 @@ class GameBlueprint {
     required this.levels,
     required this.scoring,
     this.engine,
+    this.status = GameStatus.ready,
   });
 
   final String id;
@@ -130,5 +158,10 @@ class GameBlueprint {
   /// Moteur retenu ; `null` : aucun moteur ne sait encore jouer ce blueprint.
   final GameEngineKind? engine;
 
-  bool get playable => engine != null && levels.isNotEmpty;
+  /// État déclaré par le pack, ou déduit : `ready` s'il est jouable, sinon
+  /// `draft`. Un jeu qui n'est pas `ready` n'est jamais montré à un élève.
+  final GameStatus status;
+
+  bool get playable =>
+      status == GameStatus.ready && engine != null && levels.isNotEmpty;
 }

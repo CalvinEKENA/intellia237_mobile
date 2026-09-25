@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/localization/localization_extensions.dart';
+import '../../../auth/application/auth_controller.dart';
 import '../../../tutor/application/tutor_preference_provider.dart';
+import '../../application/content_providers.dart';
 import '../../domain/chapter.dart';
 import '../../domain/companion_action.dart';
 import '../../domain/question.dart';
@@ -20,6 +22,7 @@ String companionActionLabel(BuildContext context, CompanionAction action) {
     CompanionAction.explainSimple => l10n.ceActionSimpler,
     CompanionAction.explainUltraSimple => l10n.ceActionUltra,
     CompanionAction.showMe => l10n.ceActionShow,
+    CompanionAction.example => l10n.ceActionExample,
     CompanionAction.hint => l10n.ceActionHint,
     CompanionAction.testMe => l10n.ceActionTest,
     CompanionAction.whyWrong => l10n.ceActionWhyWrong,
@@ -72,6 +75,39 @@ class CompanionSheet extends ConsumerStatefulWidget {
 class _CompanionSheetState extends ConsumerState<CompanionSheet> {
   final _ask = TextEditingController();
   CompanionReply? _reply;
+  String? _addressedName;
+  CompanionMoment _moment = CompanionMoment.routine;
+  int _examplesShown = 0;
+
+  /// Moment de la conversation, pour décider (avec parcimonie) si le
+  /// Compagnon appelle l'élève par son prénom.
+  CompanionMoment _momentFor(
+    CompanionAction? action,
+    CompanionContext context,
+  ) {
+    if (action == CompanionAction.whyWrong &&
+        (context.lastGrade?.correct == false) &&
+        context.hintsShown + 1 >= 2) {
+      return CompanionMoment.afterErrors;
+    }
+    if ((context.mastery ?? 0) >= 90 && action == CompanionAction.testMe) {
+      return CompanionMoment.notableSuccess;
+    }
+    return CompanionMoment.routine;
+  }
+
+  void _address(CompanionAction? action, CompanionContext context) {
+    final moment = _momentFor(action, context);
+    final name = ref
+        .read(companionNamePolicyProvider)
+        .nameFor(moment, ref.read(authControllerProvider).firstName);
+    _addressedName = name;
+    _moment = name == null
+        ? moment
+        : (moment == CompanionMoment.routine
+              ? CompanionMoment.firstInteraction
+              : moment);
+  }
 
   @override
   void dispose() {
@@ -80,19 +116,38 @@ class _CompanionSheetState extends ConsumerState<CompanionSheet> {
   }
 
   void _act(CompanionAction action) {
-    final reply = CompanionEngine(
-      widget.chapter,
-    ).respond(action, widget.context());
+    final base = widget.context();
+    final context = CompanionContext(
+      conceptId: base.conceptId,
+      lessonNumber: base.lessonNumber,
+      question: base.question,
+      lastGrade: base.lastGrade,
+      hintsShown: base.hintsShown,
+      difficulty: base.difficulty,
+      answered: base.answered,
+      mastery: base.mastery,
+      difficultyChosen: base.difficultyChosen,
+      examplesShown: _examplesShown,
+    );
+    final reply = CompanionEngine(widget.chapter).respond(action, context);
     if (action == CompanionAction.hint && reply.answered) {
       widget.onHintShown?.call();
     }
+    if (action == CompanionAction.example && reply.answered) _examplesShown++;
+    _address(action, context);
     setState(() => _reply = reply);
   }
 
   void _submitQuestion() {
     final text = _ask.text.trim();
     if (text.isEmpty) return;
-    setState(() => _reply = CompanionEngine(widget.chapter).ask(text));
+    final context = widget.context();
+    _address(null, context);
+    setState(
+      () => _reply = CompanionEngine(
+        widget.chapter,
+      ).ask(text, contextConceptId: context.conceptId),
+    );
   }
 
   @override
@@ -164,7 +219,7 @@ class _CompanionSheetState extends ConsumerState<CompanionSheet> {
               spacing: IntelliaSpacing.xs,
               runSpacing: IntelliaSpacing.xs,
               children: [
-                for (final action in widget.chapter.companion.actions)
+                for (final action in widget.chapter.companion.effectiveActions)
                   ActionChip(
                     key: ValueKey('companion-action-${action.name}'),
                     avatar: Icon(_icon(action), size: 18),
@@ -177,10 +232,13 @@ class _CompanionSheetState extends ConsumerState<CompanionSheet> {
             TextField(
               key: const ValueKey('companion-ask'),
               controller: _ask,
+              minLines: 1,
+              maxLines: 4,
               textInputAction: TextInputAction.search,
               onSubmitted: (_) => _submitQuestion(),
               decoration: InputDecoration(
                 hintText: l10n.ceAskHint,
+                hintMaxLines: 6,
                 filled: true,
                 fillColor: Colors.white,
                 suffixIcon: IconButton(
@@ -195,6 +253,21 @@ class _CompanionSheetState extends ConsumerState<CompanionSheet> {
             ),
             if (_reply case final reply?) ...[
               const SizedBox(height: IntelliaSpacing.md),
+              if (_addressedName case final firstName?)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    switch (_moment) {
+                      CompanionMoment.afterErrors =>
+                        l10n.ceCompanionNameAfterErrors(firstName),
+                      CompanionMoment.notableSuccess =>
+                        l10n.ceCompanionNameSuccess(firstName),
+                      _ => l10n.ceCompanionNameHello(firstName),
+                    },
+                    key: const ValueKey('companion-name-line'),
+                    style: ContentText.label(size: 14),
+                  ),
+                ),
               CompanionReplyCard(
                 reply: reply,
                 onTryQuestion: widget.onTryQuestion == null
@@ -221,6 +294,7 @@ class _CompanionSheetState extends ConsumerState<CompanionSheet> {
     CompanionAction.explainSimple => Icons.short_text_rounded,
     CompanionAction.explainUltraSimple => Icons.child_care_rounded,
     CompanionAction.showMe => Icons.visibility_rounded,
+    CompanionAction.example => Icons.format_list_numbered_rounded,
     CompanionAction.hint => Icons.lightbulb_outline_rounded,
     CompanionAction.testMe => Icons.quiz_outlined,
     CompanionAction.whyWrong => Icons.help_outline_rounded,

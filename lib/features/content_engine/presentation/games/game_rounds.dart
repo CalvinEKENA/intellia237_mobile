@@ -9,7 +9,10 @@ import '../../../../core/localization/localization_extensions.dart';
 import '../../data/content_pack_parser.dart' show isPrime;
 import '../../domain/game_blueprint.dart';
 import '../../engine/answer_checker.dart' show parseInteger;
+import '../../domain/question.dart';
+import '../../engine/answer_checker.dart' show AnswerChecker, StudentResponse;
 import '../../engine/number_theory.dart';
+import '../widgets/answer_input.dart';
 import '../content_style.dart';
 import '../visuals/concept_visuals.dart';
 import '../visuals/visual_controls.dart';
@@ -23,8 +26,12 @@ class GameRound extends StatelessWidget {
     required this.random,
     required this.round,
     required this.onResolved,
+    this.missionSteps = const [],
     super.key,
   });
+
+  /// Étapes d'une mission d'intégration (vide pour les autres moteurs).
+  final List<Question> missionSteps;
 
   final GameEngineKind engine;
   final int level;
@@ -59,6 +66,17 @@ class GameRound extends StatelessWidget {
       level: level,
       random: random,
       round: round,
+      onResolved: onResolved,
+    ),
+    GameEngineKind.remainderZone => RemainderZoneRound(
+      level: level,
+      random: random,
+      onResolved: onResolved,
+    ),
+    GameEngineKind.integrationMission => MissionStepRound(
+      question: missionSteps[round.clamp(0, missionSteps.length - 1)],
+      step: round,
+      steps: missionSteps.length,
       onResolved: onResolved,
     ),
   };
@@ -150,7 +168,6 @@ mixin _Resolves<T extends StatefulWidget> on State<T> {
   void resolve(bool correct, ValueChanged<bool> onResolved) {
     if (verdict != null) return;
     setState(() => verdict = correct);
-    HapticFeedback.heavyImpact();
     onResolved(correct);
   }
 }
@@ -1054,6 +1071,274 @@ class _TilingRoundState extends State<TilingRound> with _Resolves<TilingRound> {
                 ? '${l10n.ceLcm}($_a, $_b) = $target'
                 : '${l10n.ceGcd}($_a, $_b) = $target',
           ),
+      ],
+    );
+  }
+}
+
+// ── Zone du Reste (division euclidienne dans Z) ─────────────────────────
+
+class RemainderZoneRound extends StatefulWidget {
+  const RemainderZoneRound({
+    required this.level,
+    required this.random,
+    required this.onResolved,
+    super.key,
+  });
+
+  final int level;
+  final math.Random random;
+  final ValueChanged<bool> onResolved;
+
+  @override
+  State<RemainderZoneRound> createState() => _RemainderZoneRoundState();
+}
+
+class _RemainderZoneRoundState extends State<RemainderZoneRound>
+    with _Resolves<RemainderZoneRound> {
+  late final int _a;
+  late final int _b;
+  int _q = 0;
+  String? _justification;
+
+  /// Niveau 3 : la condition qui justifie le reste.
+  static const _conditions = ['0 ≤ r < |b|', '0 ≤ r < b', '−|b| < r ≤ 0'];
+
+  @override
+  void initState() {
+    super.initState();
+    final r = widget.random;
+    switch (widget.level) {
+      case 1:
+        _a = _between(r, 10, 90);
+        _b = _between(r, 3, 12);
+      case 2:
+        _a = -_between(r, 10, 90);
+        _b = _between(r, 3, 12);
+      default:
+        _a = _between(r, -60, 90);
+        _b = -_between(r, 3, 12);
+    }
+  }
+
+  int get _r => _a - _b * _q;
+  bool get _inZone => _r >= 0 && _r < _b.abs();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final size = _b.abs();
+    final bText = _b < 0 ? '($_b)' : '$_b';
+    final qText = _q < 0 ? '($_q)' : '$_q';
+    final needsJustification = widget.level >= 3;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Goal(l10n.ceRemainderGoal(_a, _b)),
+        Text(
+          l10n.ceVisAllowedRemainders(size - 1),
+          textAlign: TextAlign.center,
+          style: ContentText.label(color: ContentPalette.inkSoft),
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            _Edge(active: _r < 0, pointsLeft: true),
+            for (var i = 0; i < size; i++)
+              Expanded(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: i == _r
+                        ? ContentPalette.success
+                        : ContentPalette.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  alignment: Alignment.center,
+                  child: FittedBox(
+                    child: Text(
+                      '$i',
+                      style: ContentText.math(
+                        size: 15,
+                        color: i == _r ? Colors.white : ContentPalette.success,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            _Edge(active: _r >= size, pointsLeft: false),
+          ],
+        ),
+        const SizedBox(height: IntelliaSpacing.sm),
+        FormulaBanner(
+          '$_a = $bText × $qText + $_r',
+          color: _inZone ? ContentPalette.success : ContentPalette.error,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          _inZone
+              ? l10n.ceRemainderInZone
+              : _r < 0
+              ? l10n.ceRemainderTooSmall
+              : l10n.ceRemainderTooLarge,
+          textAlign: TextAlign.center,
+          style: ContentText.label(
+            color: _inZone ? ContentPalette.success : ContentPalette.error,
+          ),
+        ),
+        const SizedBox(height: IntelliaSpacing.sm),
+        Center(
+          child: ValueStepper(
+            key: const ValueKey('remainder-q'),
+            label: l10n.ceFieldQuotient,
+            value: _q,
+            min: -60,
+            max: 60,
+            onChanged: verdict == null ? (v) => setState(() => _q = v) : (_) {},
+          ),
+        ),
+        if (needsJustification) ...[
+          const SizedBox(height: IntelliaSpacing.md),
+          Text(l10n.ceRemainderWhy, style: ContentText.label(size: 14)),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final condition in _conditions)
+                ChoiceChip(
+                  key: ValueKey('remainder-why-$condition'),
+                  label: Text(condition, style: ContentText.math(size: 16)),
+                  selected: _justification == condition,
+                  onSelected: verdict == null
+                      ? (_) => setState(() => _justification = condition)
+                      : null,
+                ),
+            ],
+          ),
+        ],
+        const SizedBox(height: IntelliaSpacing.md),
+        _Action(
+          label: l10n.ceGameValidate,
+          onPressed:
+              verdict == null && (!needsJustification || _justification != null)
+              ? () => resolve(
+                  _inZone &&
+                      (!needsJustification ||
+                          _justification == _conditions.first),
+                  widget.onResolved,
+                )
+              : null,
+        ),
+        if (verdict != null)
+          _Outcome(
+            correct: verdict!,
+            detail:
+                '$_a = $bText × ${euclideanQuotient(_a, _b)} + '
+                '${euclideanMod(_a, _b)}',
+          ),
+      ],
+    );
+  }
+}
+
+/// Flèche de bord : le reste est sorti de la zone, de ce côté.
+class _Edge extends StatelessWidget {
+  const _Edge({required this.active, required this.pointsLeft});
+
+  final bool active;
+  final bool pointsLeft;
+
+  @override
+  Widget build(BuildContext context) => AnimatedOpacity(
+    duration: const Duration(milliseconds: 200),
+    opacity: active ? 1 : 0.15,
+    child: Icon(
+      pointsLeft ? Icons.chevron_left_rounded : Icons.chevron_right_rounded,
+      color: ContentPalette.error,
+      size: 28,
+    ),
+  );
+}
+
+// ── Mission d'intégration ───────────────────────────────────────────────
+
+class MissionStepRound extends StatefulWidget {
+  const MissionStepRound({
+    required this.question,
+    required this.step,
+    required this.steps,
+    required this.onResolved,
+    super.key,
+  });
+
+  final Question question;
+  final int step;
+  final int steps;
+  final ValueChanged<bool> onResolved;
+
+  @override
+  State<MissionStepRound> createState() => _MissionStepRoundState();
+}
+
+class _MissionStepRoundState extends State<MissionStepRound>
+    with _Resolves<MissionStepRound> {
+  StudentResponse? _draft;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final question = widget.question;
+    final critical = question.tags.any(Question.sensitiveTags.contains);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.ceMissionStep(widget.step + 1, widget.steps).toUpperCase(),
+          style: ContentText.eyebrow(color: ContentPalette.warm),
+        ),
+        const SizedBox(height: 6),
+        _Goal(question.prompt),
+        for (final flag in question.visibleFlags)
+          Container(
+            margin: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
+            padding: const EdgeInsets.all(IntelliaSpacing.sm),
+            decoration: BoxDecoration(
+              color: ContentPalette.warm.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(IntelliaRadii.small),
+            ),
+            child: Text(flag.issue, style: ContentText.body(size: 13)),
+          ),
+        AnswerInput(
+          question: question,
+          enabled: verdict == null,
+          onChanged: (draft) => setState(() => _draft = draft),
+        ),
+        const SizedBox(height: IntelliaSpacing.md),
+        _Action(
+          label: l10n.ceGameValidate,
+          onPressed: verdict == null && _draft != null
+              ? () => resolve(
+                  const AnswerChecker().grade(question, _draft!).correct,
+                  widget.onResolved,
+                )
+              : null,
+        ),
+        if (verdict != null) ...[
+          const SizedBox(height: IntelliaSpacing.md),
+          if (verdict! && critical)
+            Text(
+              l10n.ceMissionCriticalThinking,
+              style: ContentText.label(color: ContentPalette.success, size: 14),
+            ),
+          if (question.explanation case final text?)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(text, style: ContentText.body(size: 14.5)),
+            ),
+        ],
       ],
     );
   }

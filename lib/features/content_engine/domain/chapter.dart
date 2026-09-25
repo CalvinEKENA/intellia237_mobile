@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/academics/class_key.dart';
 import 'companion_action.dart';
 import 'content_issue.dart';
 import 'curriculum.dart';
@@ -120,18 +121,29 @@ class Subject {
   const Subject({
     required this.key,
     required this.title,
-    required this.levelKey,
+    required this.classKey,
     required this.levelLabel,
     required this.chapters,
   });
 
   final String key;
   final String title;
-  final String levelKey;
+
+  /// Classe de l'élève pour laquelle cette matière a été composée.
+  final ClassKey classKey;
   final String levelLabel;
 
   /// Triés par numéro de chapitre.
   final List<ChapterEntry> chapters;
+}
+
+/// D'où vient la version d'un pack actuellement servie.
+enum PackOrigin {
+  /// Téléchargé, vérifié et mis en cache sur l'appareil.
+  remote,
+
+  /// Embarqué dans l'application (secours).
+  embedded,
 }
 
 /// Ce que le catalogue sait d'un pack avant de le charger en entier.
@@ -142,12 +154,23 @@ class ChapterEntry {
     required this.directory,
     required this.curriculum,
     required this.lessonCount,
+    this.classKeys = const [],
+    this.version = 0,
+    this.origin = PackOrigin.embedded,
   });
 
   final String contentId;
 
-  /// Dossier du pack dans les assets.
+  /// Emplacement du pack (dossier d'assets, ou `remote/<id>/v<version>`).
   final String directory;
   final Curriculum curriculum;
   final int lessonCount;
+
+  /// Classes visées par le pack.
+  final List<ClassKey> classKeys;
+  final int version;
+  final PackOrigin origin;
+
+  bool servesClass(ClassKey? student) =>
+      student != null && student.admitsAny(classKeys);
 }

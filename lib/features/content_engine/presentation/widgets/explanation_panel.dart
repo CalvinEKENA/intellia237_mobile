@@ -31,16 +31,28 @@ class ExplanationModeSwitch extends StatelessWidget {
   final ValueChanged<ExplanationMode> onSelected;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(4),
-    decoration: BoxDecoration(
-      color: ContentPalette.ink.withValues(alpha: 0.05),
-      borderRadius: BorderRadius.circular(IntelliaRadii.full),
-    ),
-    child: Row(
-      children: [
-        for (final mode in modes)
-          Expanded(
+  Widget build(BuildContext context) {
+    TextStyle style(ExplanationMode mode) => ContentText.label(
+      size: 12,
+      color: mode == selected ? Colors.white : ContentPalette.ink,
+    );
+    // Rayon de 24 : une pilule sur une ligne, une carte arrondie si les
+    // niveaux s'empilent.
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: ContentPalette.ink.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: AdaptiveChoiceRow(
+        spacing: 2,
+        labels: [for (final mode in modes) explanationModeLabel(context, mode)],
+        labelStyle: style(selected),
+        itemBuilder: (context, i, _) {
+          final mode = modes[i];
+          return Semantics(
+            button: true,
+            selected: mode == selected,
             child: GestureDetector(
               key: ValueKey('explanation-mode-${mode.key}'),
               onTap: () => onSelected(mode),
@@ -55,24 +67,21 @@ class ExplanationModeSwitch extends StatelessWidget {
                   color: mode == selected
                       ? ContentPalette.mode(mode)
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(IntelliaRadii.full),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   explanationModeLabel(context, mode),
                   textAlign: TextAlign.center,
-                  maxLines: 2,
-                  style: ContentText.label(
-                    size: 12,
-                    color: mode == selected ? Colors.white : ContentPalette.ink,
-                  ),
+                  style: style(mode),
                 ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
+          );
+        },
+      ),
+    );
+  }
 }
 
 /// « Comprendre » : la notion au niveau d'explication choisi.
@@ -142,7 +151,7 @@ class _ExplanationPanelState extends State<ExplanationPanel> {
                     widget.preference.locked
                         ? l10n.ceModeUnlock
                         : l10n.ceModeLock,
-                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
                   ),
                 ),
               ],
@@ -319,11 +328,7 @@ class _IdeaByIdea extends StatelessWidget {
                         style: FilledButton.styleFrom(backgroundColor: color),
                         onPressed: () => onIndex(current + 1),
                         icon: const Icon(Icons.arrow_forward_rounded),
-                        label: Text(
-                          l10n.ceNextIdea,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        label: Text(l10n.ceNextIdea),
                       ),
                     ),
                 ],

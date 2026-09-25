@@ -20,6 +20,8 @@ import '../../learn/application/learn_providers.dart';
 import '../data/flow_feed_repository.dart';
 import '../domain/flow_feed_strategy.dart';
 import '../domain/flow_item_mapper.dart';
+import '../../content_engine/application/learning_feed_providers.dart';
+import 'flow_page_merge.dart';
 
 /// D'où viennent les cartes servies à l'élève.
 enum FlowCatalogOrigin {
@@ -184,6 +186,84 @@ final flowCatalogProvider = FutureProvider<FlowCatalog>((ref) async {
   return FlowCatalog(
     cards: FlowItemMapper.toCards(strategy.order(cached, learner)),
     origin: FlowCatalogOrigin.cache,
+  );
+});
+
+/// Au-delà, le fil s'affiche sans attendre les packs.
+const kFlowPackCardsTimeout = Duration(seconds: 4);
+
+/// Cartes « Mon Parcours » tirées des packs de la classe de l'élève.
+///
+/// Registre de décisions : « Aucune carte n'est encore publiée pour ta
+/// classe » s'affichait en Terminale D parce que le fil ne lisait que les
+/// publications `flow_items`, toutes ciblées 6e. Les packs de la classe
+/// (filtrés par classe et série avant toute fabrication) alimentent
+/// désormais le même fil. Ils sont sur l'appareil : le fil reste riche hors
+/// ligne, et un nouveau pack le recompose sans redémarrage.
+final flowPackCardsProvider = FutureProvider<List<FlowCard>>((ref) async {
+  final LearningFeed feed;
+  try {
+    feed = await ref
+        .watch(learningFeedProvider.future)
+        .timeout(kFlowPackCardsTimeout);
+  } catch (_) {
+    // Un pack illisible ou un appareil très lent ne bloque jamais le fil :
+    // il s'affiche sans les packs (ou vide), jamais en chargement infini.
+    return const [];
+  }
+  return [
+    for (final card in feed.cards)
+      if (feed.chapters[card.chapterId] case final chapter?)
+        FlowLearningCard(learning: card, chapter: chapter),
+  ];
+});
+
+/// Le fil affiché : publications et packs, entrelacés.
+///
+/// Les deux sources ne s'attendent pas : les publications s'affichent dès
+/// qu'elles sont prêtes, les cartes des packs les rejoignent ensuite (le
+/// pager les insère après la carte regardée, sans remontage). « Aucune
+/// carte » n'apparaît que lorsque les deux sources ont répondu sans rien.
+final flowComposedCatalogProvider = Provider<AsyncValue<FlowCatalog>>((ref) {
+  final published = ref.watch(flowCatalogProvider);
+  final packs = ref.watch(flowPackCardsProvider);
+  final publishedReady = published.hasValue || published.hasError;
+  final packsReady = packs.hasValue || packs.hasError;
+  final packCards = packs.valueOrNull ?? const <FlowCard>[];
+  final base = published.valueOrNull;
+
+  if (!publishedReady && packCards.isEmpty) return const AsyncLoading();
+  if (base == null || base.cards.isEmpty) {
+    if (packCards.isNotEmpty) {
+      return AsyncData(
+        FlowCatalog(
+          cards: packCards,
+          origin: base?.origin ?? FlowCatalogOrigin.live,
+          classLevel: base?.classLevel,
+          learner: base?.learner,
+        ),
+      );
+    }
+    if (!packsReady) return const AsyncLoading();
+    if (published case AsyncError(:final error, :final stackTrace)) {
+      return AsyncError(error, stackTrace);
+    }
+    return AsyncData(base ?? FlowCatalog.empty);
+  }
+  if (packCards.isEmpty) return AsyncData(base);
+  return AsyncData(
+    FlowCatalog(
+      cards: interleaveFlowSources(
+        published: base.cards,
+        packs: packCards,
+        idOf: (card) => card.id,
+      ),
+      origin: base.origin,
+      nextCursor: base.nextCursor,
+      classLevel: base.classLevel,
+      cacheKey: base.cacheKey,
+      learner: base.learner,
+    ),
   );
 });
 

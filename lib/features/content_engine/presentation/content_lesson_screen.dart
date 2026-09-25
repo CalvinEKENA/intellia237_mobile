@@ -26,11 +26,16 @@ class ContentLessonScreen extends ConsumerWidget {
   const ContentLessonScreen({
     required this.contentId,
     required this.lessonNumber,
+    this.initialStep = 0,
     super.key,
   });
 
   final String contentId;
   final int lessonNumber;
+
+  /// Étape ouverte à l'arrivée (0 comprendre … 4 formaliser) : « Approfondir »
+  /// depuis Mon Parcours mène directement à l'étape utile.
+  final int initialStep;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,7 +52,12 @@ class ContentLessonScreen extends ConsumerWidget {
         if (!chapter.isPlayable || lesson == null || concept == null) {
           return _Missing(message: context.l10n.ceUnavailableBody);
         }
-        return _LessonView(chapter: chapter, lesson: lesson, concept: concept);
+        return _LessonView(
+          chapter: chapter,
+          lesson: lesson,
+          concept: concept,
+          initialStep: initialStep,
+        );
       },
     );
   }
@@ -77,11 +87,13 @@ class _LessonView extends ConsumerStatefulWidget {
     required this.chapter,
     required this.lesson,
     required this.concept,
+    this.initialStep = 0,
   });
 
   final Chapter chapter;
   final Lesson lesson;
   final Concept concept;
+  final int initialStep;
 
   @override
   ConsumerState<_LessonView> createState() => _LessonViewState();
@@ -89,7 +101,7 @@ class _LessonView extends ConsumerStatefulWidget {
 
 class _LessonViewState extends ConsumerState<_LessonView> {
   static const _steps = 5;
-  int _step = 0;
+  late int _step = widget.initialStep.clamp(0, _steps - 1);
   late final PracticeSession _session;
 
   @override
@@ -133,7 +145,13 @@ class _LessonViewState extends ConsumerState<_LessonView> {
     lastGrade: _step == 2 ? _session.lastGrade : null,
     hintsShown: _session.hintsShown,
     difficulty: _session.difficulty,
+    difficultyChosen: _step == 2,
     answered: _session.answeredIds,
+    mastery:
+        (ref.read(learnerContentControllerProvider).valueOrNull ??
+                LearnerContentSnapshot.empty)
+            .conceptState(widget.concept.id)
+            .score,
   );
 
   @override
@@ -157,20 +175,9 @@ class _LessonViewState extends ConsumerState<_LessonView> {
         surfaceTintColor: Colors.transparent,
         foregroundColor: ContentPalette.ink,
         titleSpacing: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.ceLessonLabel(widget.lesson.number).toUpperCase(),
-              style: ContentText.eyebrow(),
-            ),
-            Text(
-              widget.lesson.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: ContentText.label(size: 16),
-            ),
-          ],
+        title: Text(
+          l10n.ceLessonLabel(widget.lesson.number).toUpperCase(),
+          style: ContentText.eyebrow(),
         ),
         actions: [
           Padding(
@@ -183,7 +190,7 @@ class _LessonViewState extends ConsumerState<_LessonView> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(70),
+          preferredSize: Size.fromHeight(_StepBar.heightFor(context)),
           child: _StepBar(
             current: _step,
             onSelected: (step) => setState(() => _step = step),
@@ -215,9 +222,17 @@ class _LessonViewState extends ConsumerState<_LessonView> {
           120,
         ),
         children: [
+          // Titre de la leçon en entier, quelle que soit sa longueur.
+          ContentHeading(
+            widget.lesson.title,
+            key: const ValueKey('lesson-title'),
+            style: ContentText.title(size: 22),
+          ),
+          const SizedBox(height: IntelliaSpacing.sm),
           Text(journey[_step].toUpperCase(), style: ContentText.eyebrow()),
           const SizedBox(height: 4),
-          Text(widget.concept.title, style: ContentText.title(size: 26)),
+          if (widget.concept.title != widget.lesson.title)
+            Text(widget.concept.title, style: ContentText.title(size: 20)),
           const SizedBox(height: IntelliaSpacing.md),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 240),
@@ -278,6 +293,16 @@ class _StepBar extends StatelessWidget {
   final int current;
   final ValueChanged<int> onSelected;
 
+  static TextStyle _style(Color color) =>
+      ContentText.label(size: 10.5, color: color);
+
+  /// Hauteur de la barre à l'échelle de texte de l'appareil : l'étiquette
+  /// n'est jamais rognée, même avec un texte agrandi.
+  static double heightFor(BuildContext context) {
+    final line = MediaQuery.textScalerOf(context).scale(10.5) * 1.35;
+    return 34 + 4 + line + 14;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -288,57 +313,73 @@ class _StepBar extends StatelessWidget {
       (Icons.sports_esports_outlined, l10n.ceStepPlay),
       (Icons.functions_rounded, l10n.ceStepFormal),
     ];
-    return SizedBox(
-      height: 70,
-      child: Row(
-        children: [
-          for (var i = 0; i < steps.length; i++)
-            Expanded(
-              child: InkWell(
-                key: ValueKey('lesson-step-$i'),
-                onTap: () => onSelected(i),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: i == current
-                            ? ContentPalette.accent
-                            : i < current
-                            ? ContentPalette.accent.withValues(alpha: 0.15)
-                            : ContentPalette.ink.withValues(alpha: 0.05),
-                      ),
-                      child: Icon(
-                        steps[i].$1,
-                        size: 18,
-                        color: i == current
-                            ? Colors.white
-                            : i < current
-                            ? ContentPalette.accent
-                            : ContentPalette.inkSoft,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      steps[i].$2,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: ContentText.label(
-                        size: 10.5,
-                        color: i == current
-                            ? ContentPalette.accent
-                            : ContentPalette.inkSoft,
-                      ),
-                    ),
-                  ],
-                ),
+    Widget step(int i) => InkWell(
+      key: ValueKey('lesson-step-$i'),
+      onTap: () => onSelected(i),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: i == current
+                    ? ContentPalette.accent
+                    : i < current
+                    ? ContentPalette.accent.withValues(alpha: 0.15)
+                    : ContentPalette.ink.withValues(alpha: 0.05),
+              ),
+              child: Icon(
+                steps[i].$1,
+                size: 18,
+                color: i == current
+                    ? Colors.white
+                    : i < current
+                    ? ContentPalette.accent
+                    : ContentPalette.inkSoft,
               ),
             ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              steps[i].$2,
+              softWrap: false,
+              style: _style(
+                i == current ? ContentPalette.accent : ContentPalette.inkSoft,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    return SizedBox(
+      height: heightFor(context),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final column = constraints.maxWidth / steps.length - 12;
+          final fits = steps.every(
+            (s) =>
+                longestWordWidth(context, s.$2, _style(ContentPalette.ink)) <=
+                column,
+          );
+          if (fits) {
+            return Row(
+              children: [
+                for (var i = 0; i < steps.length; i++) Expanded(child: step(i)),
+              ],
+            );
+          }
+          // Écran étroit ou grand texte : les étapes défilent de côté,
+          // chacune avec son libellé complet.
+          return ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            children: [for (var i = 0; i < steps.length; i++) step(i)],
+          );
+        },
       ),
     );
   }
@@ -378,7 +419,11 @@ class _PlayStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final games = chapter.gamesForConcept(concept.id);
+    // Seuls les jeux prêts sont annoncés : jamais de promesse injouable.
+    final games = [
+      for (final game in chapter.gamesForConcept(concept.id))
+        if (game.playable) game,
+    ];
     if (games.isEmpty) {
       return ContentCard(
         child: Text(

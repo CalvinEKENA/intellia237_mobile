@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intellia237/core/academics/class_key.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_parser.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_repository.dart';
 import 'package:intellia237/features/content_engine/data/learner_content_store.dart';
@@ -605,7 +606,9 @@ void main() {
           () async {
             final source = DiskContentPackSource();
             final repository = ContentPackRepository(source: source);
-            final subjects = await repository.subjectsFor('terminale-d');
+            final subjects = await repository.subjectsFor(
+              const ClassKey('terminale', series: 'd'),
+            );
             expect(subjects.single.title, 'Mathématiques');
             expect(
               subjects.single.chapters.single.contentId,
@@ -658,7 +661,10 @@ void main() {
 
     test('une autre classe ne voit pas ce chapitre', () async {
       final repository = ContentPackRepository(source: DiskContentPackSource());
-      expect(await repository.subjectsFor('terminale-c'), isEmpty);
+      expect(
+        await repository.subjectsFor(const ClassKey('terminale', series: 'c')),
+        isEmpty,
+      );
       await expectLater(
         repository.chapter('inconnu'),
         throwsA(isA<ContentPackNotFound>()),

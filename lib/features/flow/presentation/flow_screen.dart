@@ -10,6 +10,8 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/flow_controller.dart';
 import '../application/flow_page_merge.dart';
+import '../../content_engine/application/content_providers.dart';
+import '../../content_engine/application/learning_feed_providers.dart';
 import '../domain/flow_card.dart';
 import '../data/flow_feed_repository.dart';
 import '../data/flow_points_gateway.dart';
@@ -29,7 +31,10 @@ class FlowScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final catalog = ref.watch(flowCatalogProvider);
+    final catalog = ref.watch(flowComposedCatalogProvider);
+    // Mise à jour des packs de la classe en arrière-plan : un pack publié
+    // rejoint le fil sans redémarrage, sans jamais retarder l'affichage.
+    ref.watch(contentSyncControllerProvider);
 
     return catalog.when(
       // Une recomposition en arrière-plan — nouvelle révision du catalogue,
@@ -171,6 +176,37 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
     });
   }
 
+  /// Cartes de pack auxquelles l'élève a répondu pendant la séance.
+  final _answeredPackCards = <String>{};
+
+  /// Un nouveau pack (ou une nouvelle version) recompose le catalogue : les
+  /// cartes inédites s'ajoutent juste après la carte regardée, sans que le
+  /// fil ne recule ni ne se réordonne sous les doigts de l'élève.
+  @override
+  void didUpdateWidget(_FlowPager old) {
+    super.didUpdateWidget(old);
+    if (identical(old.catalog, widget.catalog)) return;
+    final known = {for (final card in _cards) card.id};
+    final fresh = [
+      for (final card in widget.catalog.cards)
+        if (!known.contains(card.id)) card,
+    ];
+    if (fresh.isEmpty) return;
+    final at = (_index + 1).clamp(0, _cards.length);
+    setState(() {
+      _cards = [
+        ..._cards.take(at),
+        // Le nouveau d'abord, juste après la carte regardée, puis en
+        // alternance avec la suite déjà prévue.
+        ...interleaveFlowSources(
+          published: fresh,
+          packs: _cards.skip(at).toList(),
+          idOf: (card) => card.id,
+        ),
+      ];
+    });
+  }
+
   @override
   void dispose() {
     _dwell?.cancel();
@@ -225,6 +261,16 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
     final notifier = ref.read(flowControllerProvider.notifier);
     notifier.markSeen(card);
     _dwell?.cancel();
+
+    // Carte de pack : l'historique local (vue, réponse, passée) nourrit la
+    // révision espacée. Aucun point serveur : la maîtrise suit le même
+    // moteur que « S'entraîner ».
+    if (card is FlowLearningCard) {
+      unawaited(
+        ref.read(learningCardHistoryProvider.notifier).shown(card.learning.id),
+      );
+      return;
+    }
 
     // Le mini-quiz attend une réponse explicite.
     if (card is FlowExerciseCard) return;
@@ -314,6 +360,18 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
             scrollDirection: Axis.vertical,
             itemCount: _cards.length,
             onPageChanged: (i) {
+              // Une question de pack quittée sans réponse compte comme
+              // passée : elle reviendra plus tard, pas tout de suite.
+              final left = _cards[_index];
+              if (left is FlowLearningCard &&
+                  left.learning.type.asksAnswer &&
+                  !_answeredPackCards.contains(left.id)) {
+                unawaited(
+                  ref
+                      .read(learningCardHistoryProvider.notifier)
+                      .skipped(left.learning.id),
+                );
+              }
               // Chaque changement de page est un balayage démontré : l'invite
               // se réduira après plusieurs gestes.
               ref.read(flowSwipeTutorProvider.notifier).recordSwipe();
@@ -327,9 +385,15 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
             itemBuilder: (context, i) => FlowCardView(
               card: _cards[i],
               onAward: (award) {
+                if (_cards[i] is FlowLearningCard) {
+                  _answeredPackCards.add(_cards[i].id);
+                }
                 _handleAward(award);
                 // Après une réponse révélée, on rappelle discrètement le geste.
-                if (_cards[i] is FlowExerciseCard) _flashAffordance();
+                if (_cards[i] is FlowExerciseCard ||
+                    _cards[i] is FlowLearningCard) {
+                  _flashAffordance();
+                }
               },
             ),
           ),

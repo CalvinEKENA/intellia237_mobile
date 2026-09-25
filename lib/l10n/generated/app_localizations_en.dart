@@ -6059,7 +6059,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Answers taken from your course, even offline.';
 
   @override
-  String get ceActionExplain => 'Explain normally';
+  String get ceActionExplain => 'Explain it to me';
 
   @override
   String get ceActionSimpler => 'More simply';
@@ -6077,7 +6077,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ceActionTest => 'Test me';
 
   @override
-  String get ceActionWhyWrong => 'Why is it wrong?';
+  String get ceActionWhyWrong => 'Why is my answer wrong?';
 
   @override
   String get ceAskHint => 'Ask about this chapter…';
@@ -6128,5 +6128,226 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String ceFormalProgress(int score, int correct, int attempts) {
     return 'Mastery $score% · $correct correct out of $attempts';
+  }
+
+  @override
+  String ceRemainderGoal(int a, int b) {
+    return 'Divide $a by $b: adjust q until the remainder r lands in the allowed zone.';
+  }
+
+  @override
+  String get ceRemainderInZone => 'The remainder is in the zone: 0 ≤ r < |b|.';
+
+  @override
+  String get ceRemainderTooSmall => 'Negative remainder: change q.';
+
+  @override
+  String get ceRemainderTooLarge =>
+      'Remainder too large: one more whole share still fits.';
+
+  @override
+  String get ceRemainderWhy => 'Which condition must the remainder meet?';
+
+  @override
+  String ceMissionStep(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get ceMissionCriticalThinking =>
+      'Well spotted: knowing when the data isn\'t enough is maths too.';
+
+  @override
+  String get ceActionExample => 'Give me an example';
+
+  @override
+  String get ceCompanionExample => 'Example';
+
+  @override
+  String get ceCompanionNoExample =>
+      'I don\'t have an example for this idea in your course yet.';
+
+  @override
+  String ceCompanionNameHello(String name) {
+    return '$name, here\'s what your course says.';
+  }
+
+  @override
+  String ceCompanionNameAfterErrors(String name) {
+    return '$name, let\'s take it slowly: you\'re nearly there.';
+  }
+
+  @override
+  String ceCompanionNameSuccess(String name) {
+    return 'Well done $name, you really master this idea.';
+  }
+
+  @override
+  String get ceChapterPromise =>
+      'Even when an exercise is hard, you can ask for a simpler explanation without changing its level.';
+
+  @override
+  String get ceFeedKickerExplanation => 'Key idea';
+
+  @override
+  String get ceFeedKickerUltraSimple => 'As if I were 12';
+
+  @override
+  String get ceFeedKickerFlash => 'Quick question';
+
+  @override
+  String get ceFeedKickerMcq => 'Pick the right answer';
+
+  @override
+  String get ceFeedKickerTrueFalse => 'True or false';
+
+  @override
+  String get ceFeedKickerExercise => 'Exercise';
+
+  @override
+  String get ceFeedKickerVisual => 'Look';
+
+  @override
+  String get ceFeedKickerGame => 'Game';
+
+  @override
+  String get ceFeedKickerMistake => 'Common trap';
+
+  @override
+  String get ceFeedKickerRevision => 'Remember';
+
+  @override
+  String get ceFeedKickerChallenge => 'Challenge';
+
+  @override
+  String get ceFeedKickerMastery => 'Have you got it?';
+
+  @override
+  String get ceFeedKickerNew => 'New chapter';
+
+  @override
+  String get ceFeedKickerCompanion => 'A question?';
+
+  @override
+  String get ceFeedDeepen => 'Go deeper';
+
+  @override
+  String get ceFeedAskCompanion => 'Ask the Companion';
+
+  @override
+  String get ceFeedCheck => 'Check';
+
+  @override
+  String get ceFeedCorrect => 'Right answer!';
+
+  @override
+  String get ceFeedWrong =>
+      'Not yet. Read the explanation, then try again later.';
+
+  @override
+  String get ceFeedPlay => 'Play';
+
+  @override
+  String get ceFeedOpenChapter => 'Discover the chapter';
+
+  @override
+  String get ceFeedNewBody =>
+      'A new chapter has just arrived for your class. It starts with:';
+
+  @override
+  String ceFeedCompanionBody(String concept) {
+    return 'Something unclear about “$concept”? The Companion explains it from your course, as simply as you like.';
+  }
+
+  @override
+  String get ceFeedMistakeLead => 'Many students get this wrong:';
+
+  @override
+  String ceFeedNameAfterErrors(String name) {
+    return '$name, that\'s okay: a simpler explanation is coming up in your feed.';
+  }
+
+  @override
+  String ceFeedNameSuccess(String name) {
+    return 'Well done $name, that was a real challenge.';
+  }
+
+  @override
+  String get ceNewContentAvailable =>
+      'New content is available for your class.';
+
+  @override
+  String get hapticsLabel => 'Learning vibrations';
+
+  @override
+  String get hapticsDescription => 'Small vibrations accompany your successes.';
+
+  @override
+  String get hapticsOn => 'On';
+
+  @override
+  String get hapticsReduced => 'Reduced: only for real progress';
+
+  @override
+  String get hapticsOff => 'Off';
+
+  @override
+  String get rewardExact => 'Exactly.';
+
+  @override
+  String get rewardWellSeen => 'Well spotted.';
+
+  @override
+  String get rewardYes => 'Yes.';
+
+  @override
+  String get rewardVeryClean => 'Very clean.';
+
+  @override
+  String get rewardGotIt => 'You\'ve got it.';
+
+  @override
+  String get rewardNiceProgress => 'Nice progress.';
+
+  @override
+  String rewardStreak(int count) {
+    return '$count in a row.';
+  }
+
+  @override
+  String get rewardLevelUp => 'Next level unlocked.';
+
+  @override
+  String get rewardGotItThisTime => 'Yes. This time, you\'ve got it.';
+
+  @override
+  String get rewardFoundIt => 'There it is. You found it.';
+
+  @override
+  String get rewardRealStep =>
+      'Very good. You\'ve just crossed a real milestone.';
+
+  @override
+  String get rewardChallengeMet => 'Challenge met.';
+
+  @override
+  String rewardConceptMastered(String concept) {
+    return 'Idea mastered: $concept';
+  }
+
+  @override
+  String get rewardConceptMasteredGeneric => 'Idea mastered.';
+
+  @override
+  String rewardChapterDone(String chapter) {
+    return 'Chapter complete: $chapter';
+  }
+
+  @override
+  String get rewardChapterDoneGeneric => 'Chapter complete.';
+
+  @override
+  String rewardWithName(String name, String message) {
+    return '$name, $message';
   }
 }

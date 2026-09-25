@@ -639,6 +639,8 @@ Future<_Probe> _pumpFlow(
         ),
         flowFeedRepositoryProvider.overrideWithValue(feed),
         flowPointsGatewayProvider.overrideWithValue(gateway),
+        // Ces tests suivent le fil publié : la classe n'a pas de pack.
+        flowPackCardsProvider.overrideWith((ref) async => const []),
       ],
       child: MaterialApp(
         locale: locale,

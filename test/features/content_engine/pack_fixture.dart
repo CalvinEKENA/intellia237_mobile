@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'dart:typed_data';
+
+import 'package:intellia237/features/content_engine/data/content_delivery.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_parser.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_repository.dart';
 import 'package:intellia237/features/content_engine/domain/chapter.dart';
@@ -50,4 +53,16 @@ class DiskContentPackSource implements ContentPackSource {
     final file = File(path);
     return file.existsSync() ? file.readAsStringSync() : null;
   }
+}
+
+/// Aucun réseau : le catalogue distant est inaccessible.
+class OfflineGateway implements RemoteContentGateway {
+  const OfflineGateway();
+
+  @override
+  Future<Uint8List?> fetchCatalog() async => null;
+
+  @override
+  Future<Uint8List> fetchBundle(String path) =>
+      Future.error(StateError('hors ligne'));
 }

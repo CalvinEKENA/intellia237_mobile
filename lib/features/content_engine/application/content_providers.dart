@@ -2,19 +2,47 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
 import '../../learn/application/learn_providers.dart';
+import '../../../core/academics/class_key.dart';
+import '../data/content_delivery.dart';
+import '../data/content_pack_cache.dart';
 import '../data/content_pack_repository.dart';
+import '../data/firebase_content_gateway.dart';
 import '../data/learner_content_store.dart';
 import '../domain/chapter.dart';
-import '../domain/curriculum.dart';
 import '../domain/mastery.dart';
 import '../domain/pedagogy.dart';
 import '../domain/question.dart';
 import '../engine/adaptive_engine.dart';
+import '../engine/companion_name_policy.dart';
 
-/// Packs embarqués : lus depuis les assets, jamais depuis le réseau.
-final contentPackRepositoryProvider = Provider<ContentPackRepository>(
-  (ref) => ContentPackRepository(source: AssetContentPackSource()),
+/// Cache des packs distants validés, propre à la plateforme.
+final contentPackCacheProvider = Provider<ContentPackCache>(
+  (ref) => createPlatformContentPackCache(),
 );
+
+/// Source distante (Firebase Storage). Remplacée dans les tests.
+final remoteContentGatewayProvider = Provider<RemoteContentGateway>(
+  (ref) => FirebaseStorageContentGateway(),
+);
+
+/// Change quand de nouveaux packs ont été activés : tout le catalogue se
+/// recompose alors, sans redémarrer l'application.
+final contentCatalogRevisionProvider = StateProvider<int>((ref) => 0);
+
+/// Packs : cache distant validé d'abord, packs embarqués en secours.
+final contentPackRepositoryProvider = Provider<ContentPackRepository>((ref) {
+  ref.watch(contentCatalogRevisionProvider);
+  return ContentPackRepository(
+    source: AssetContentPackSource(),
+    cache: ref.watch(contentPackCacheProvider),
+  );
+});
+
+/// Règle du prénom, pour toute la séance de l'élève connecté.
+final companionNamePolicyProvider = Provider<CompanionNamePolicy>((ref) {
+  ref.watch(authControllerProvider.select((auth) => auth.userId));
+  return CompanionNamePolicy();
+});
 
 final learnerContentStoreProvider = Provider<LearnerContentStore>(
   (ref) => const LocalLearnerContentStore(),
@@ -25,20 +53,64 @@ final contentChapterProvider = FutureProvider.family<Chapter, String>(
       ref.watch(contentPackRepositoryProvider).chapter(contentId),
 );
 
-/// Clé de classe de l'élève (ex. `terminale-d`), comparable aux packs.
-final contentLevelKeyProvider = FutureProvider<String>((ref) async {
+/// Classe réelle de l'élève (classe + série), d'après son profil.
+final contentClassKeyProvider = FutureProvider<ClassKey?>((ref) async {
   final context = await ref.watch(studentAcademicContextProvider.future);
-  return normalizeLevelKey(
+  return ClassKey.fromProfile(
     context.quizAndCatalogClassLevel,
     series: context.series,
   );
 });
 
-/// Matières locales de la classe de l'élève (seulement les packs jouables).
+/// Matières de la classe de l'élève (seulement ses packs, jamais d'autres).
 final localContentSubjectsProvider = FutureProvider<List<Subject>>((ref) async {
-  final levelKey = await ref.watch(contentLevelKeyProvider.future);
-  return ref.watch(contentPackRepositoryProvider).subjectsFor(levelKey);
+  final classKey = await ref.watch(contentClassKeyProvider.future);
+  return ref.watch(contentPackRepositoryProvider).subjectsFor(classKey);
 });
+
+/// Synchronisation des packs de la classe de l'élève.
+///
+/// Lancée à l'ouverture (et à chaque changement de classe), puis à la
+/// demande (« tirer pour actualiser »). Hors ligne, rien ne change.
+final contentSyncControllerProvider =
+    AsyncNotifierProvider<ContentSyncController, ContentSyncReport?>(
+      ContentSyncController.new,
+    );
+
+class ContentSyncController extends AsyncNotifier<ContentSyncReport?> {
+  @override
+  Future<ContentSyncReport?> build() async {
+    final classKey = await ref.watch(contentClassKeyProvider.future);
+    if (classKey == null) return null;
+    return _run(classKey);
+  }
+
+  Future<ContentSyncReport?> _run(ClassKey classKey) async {
+    try {
+      final report = await ContentSyncService(
+        gateway: ref.read(remoteContentGatewayProvider),
+        cache: ref.read(contentPackCacheProvider),
+      ).sync(classKey);
+      if (report.changed) {
+        ref.read(contentCatalogRevisionProvider.notifier).state++;
+      }
+      return report;
+    } catch (_) {
+      // Une synchronisation ratée ne touche jamais aux contenus en place.
+      return ContentSyncReport.offline;
+    }
+  }
+
+  /// Rafraîchir maintenant ; renvoie le rapport.
+  Future<ContentSyncReport?> refresh() async {
+    final classKey = await ref.read(contentClassKeyProvider.future);
+    if (classKey == null) return null;
+    state = const AsyncLoading<ContentSyncReport?>().copyWithPrevious(state);
+    final report = await _run(classKey);
+    state = AsyncData(report);
+    return report;
+  }
+}
 
 /// Progression de l'élève connecté dans les contenus locaux.
 final learnerContentControllerProvider =

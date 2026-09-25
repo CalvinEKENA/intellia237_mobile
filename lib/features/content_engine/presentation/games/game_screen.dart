@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../rewards/application/reward_providers.dart';
+import '../../../rewards/domain/reward_event.dart';
+import '../../../rewards/domain/reward_pattern.dart';
+import '../../../rewards/presentation/reward_stage.dart';
 import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import '../../../../core/widgets/intellia_state_view.dart';
@@ -11,6 +14,8 @@ import '../../application/content_providers.dart';
 import '../../domain/chapter.dart';
 import '../../domain/game_blueprint.dart';
 import '../content_style.dart';
+import '../../domain/question.dart';
+import '../../engine/mission_planner.dart';
 import 'game_rounds.dart';
 
 /// Un jeu du pack, joué par son moteur générique.
@@ -64,7 +69,7 @@ class _Unavailable extends StatelessWidget {
 }
 
 /// Partie : choix du niveau, manches, score, série, bilan.
-class GameShell extends StatefulWidget {
+class GameShell extends ConsumerStatefulWidget {
   const GameShell({
     required this.chapter,
     required this.game,
@@ -79,10 +84,10 @@ class GameShell extends StatefulWidget {
   final int rounds;
 
   @override
-  State<GameShell> createState() => _GameShellState();
+  ConsumerState<GameShell> createState() => _GameShellState();
 }
 
-class _GameShellState extends State<GameShell> {
+class _GameShellState extends ConsumerState<GameShell> {
   int? _level;
   int _round = 0;
   int _score = 0;
@@ -91,7 +96,19 @@ class _GameShellState extends State<GameShell> {
   int _wins = 0;
   bool? _lastCorrect;
   int _lastPoints = 0;
+  RewardPattern? _reward;
+  DateTime _roundStartedAt = DateTime.now();
   late math.Random _random;
+
+  /// Étapes validées d'une mission d'intégration (sinon vide).
+  late final List<Question> _missionSteps =
+      widget.game.engine == GameEngineKind.integrationMission
+      ? missionSteps(widget.chapter, widget.game)
+      : const [];
+
+  /// Une mission compte autant de manches que d'étapes.
+  int get _rounds =>
+      _missionSteps.isEmpty ? widget.rounds : _missionSteps.length;
 
   @override
   void initState() {
@@ -111,7 +128,22 @@ class _GameShellState extends State<GameShell> {
 
   void _resolved(bool correct) {
     if (_lastCorrect != null) return;
-    HapticFeedback.mediumImpact();
+    // Même moteur de récompense que les exercices : la manche la plus
+    // difficile compte comme un défi, les séries sont annoncées.
+    final rewards = ref.read(rewardDispatcherProvider);
+    if (correct) {
+      _reward = rewards.correct(
+        RewardEvent.correct(
+          source: RewardSource.game,
+          difficulty: _level,
+          maxDifficulty: widget.game.levels.keys.fold<int>(1, math.max),
+          responseTime: DateTime.now().difference(_roundStartedAt),
+        ),
+      );
+    } else {
+      _reward = null;
+      rewards.incorrect();
+    }
     setState(() {
       _streak = correct ? _streak + 1 : 0;
       _bestStreak = math.max(_bestStreak, _streak);
@@ -129,20 +161,22 @@ class _GameShellState extends State<GameShell> {
   void _next() => setState(() {
     _round++;
     _lastCorrect = null;
+    _reward = null;
+    _roundStartedAt = DateTime.now();
   });
 
   @override
   Widget build(BuildContext context) {
     final level = _level;
     if (level == null) return _LevelPicker(game: widget.game, onPick: _start);
-    if (_round >= widget.rounds) {
+    if (_round >= _rounds) {
       final levels = widget.game.levels.keys.toList();
       final nextLevel = levels.where((l) => l > level).firstOrNull;
       return _Summary(
         game: widget.game,
         score: _score,
         wins: _wins,
-        rounds: widget.rounds,
+        rounds: _rounds,
         bestStreak: _bestStreak,
         onReplay: () => _start(level),
         onNextLevel: nextLevel == null ? null : () => _start(nextLevel),
@@ -154,7 +188,7 @@ class _GameShellState extends State<GameShell> {
         _Hud(
           title: widget.game.title,
           round: _round + 1,
-          rounds: widget.rounds,
+          rounds: _rounds,
           score: _score,
           streak: _streak,
           levelLabel: widget.game.levels[level] ?? '',
@@ -174,13 +208,17 @@ class _GameShellState extends State<GameShell> {
                 color: ContentPalette.paper,
                 borderRadius: BorderRadius.circular(IntelliaRadii.hero),
               ),
-              child: GameRound(
-                key: ValueKey('round-$level-$_round'),
-                engine: widget.game.engine!,
-                level: level,
-                random: _random,
-                round: _round,
-                onResolved: _resolved,
+              child: RewardStage(
+                pattern: _lastCorrect == true ? _reward : null,
+                child: GameRound(
+                  key: ValueKey('round-$level-$_round'),
+                  engine: widget.game.engine!,
+                  level: level,
+                  random: _random,
+                  round: _round,
+                  onResolved: _resolved,
+                  missionSteps: _missionSteps,
+                ),
               ),
             ),
           ),
@@ -209,13 +247,26 @@ class _GameShellState extends State<GameShell> {
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                          '${_lastCorrect! ? l10n.ceGameGreat : l10n.ceGameMissed}'
-                          '  ${_lastPoints >= 0 ? '+' : ''}$_lastPoints',
-                          style: ContentText.label(
-                            color: Colors.white,
-                            size: 16,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${_lastCorrect! ? l10n.ceGameGreat : l10n.ceGameMissed}'
+                              '  ${_lastPoints >= 0 ? '+' : ''}$_lastPoints',
+                              style: ContentText.label(
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                            if (_lastCorrect! && _reward != null)
+                              RewardMessageLine(
+                                pattern: _reward,
+                                style: ContentText.label(
+                                  color: IntelliaFlag.yellowOnInk,
+                                  size: 14,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                       FilledButton.icon(
@@ -269,7 +320,10 @@ class _Hud extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: ContentText.title(color: Colors.white, size: 22)),
+          ContentHeading(
+            title,
+            style: ContentText.title(color: Colors.white, size: 22),
+          ),
           const SizedBox(height: 4),
           Text(
             levelLabel,

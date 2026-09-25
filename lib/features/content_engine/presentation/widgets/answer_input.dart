@@ -159,7 +159,7 @@ class _AnswerInputState extends State<AnswerInput> {
         : status
         ? ContentPalette.success
         : ContentPalette.error;
-    return TextField(
+    final field = TextField(
       key: ValueKey('answer-field-$key'),
       controller: _controller(key),
       enabled: widget.enabled,
@@ -169,8 +169,8 @@ class _AnswerInputState extends State<AnswerInput> {
       inputFormatters: [LengthLimitingTextInputFormatter(60)],
       style: ContentText.math(size: 20),
       decoration: InputDecoration(
-        labelText: label,
         hintText: hint,
+        hintMaxLines: 3,
         filled: true,
         fillColor: Colors.white,
         suffixIcon: status == null
@@ -193,6 +193,18 @@ class _AnswerInputState extends State<AnswerInput> {
           borderRadius: BorderRadius.circular(IntelliaRadii.medium),
           borderSide: BorderSide(color: color, width: 2),
         ),
+      ),
+    );
+    // Libellé au-dessus du champ : il passe à la ligne au lieu d'être
+    // coupé, et reste annoncé avec le champ par les lecteurs d'écran.
+    return MergeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(label, style: ContentText.label(size: 13.5)),
+          const SizedBox(height: 4),
+          field,
+        ],
       ),
     );
   }

@@ -147,7 +147,7 @@ void main() {
       expect(steps.fields['binary'], isA<ScalarAnswer>());
     });
 
-    test('sept blueprints ; cinq ont un moteur jouable', () {
+    test('sept blueprints, tous jouables', () {
       expect(chapter.games, hasLength(7));
       final engines = {for (final g in chapter.games) g.id: g.engine};
       expect(engines['soap_factory'], GameEngineKind.grouping);
@@ -155,8 +155,10 @@ void main() {
       expect(engines['modulo_clock'], GameEngineKind.modularClock);
       expect(engines['prime_forge'], GameEngineKind.factorForge);
       expect(engines['tile_master'], GameEngineKind.tiling);
-      expect(engines['remainder_zone'], isNull);
-      expect(engines['mission_awa'], isNull);
+      expect(engines['remainder_zone'], GameEngineKind.remainderZone);
+      expect(engines['mission_awa'], GameEngineKind.integrationMission);
+      expect(chapter.games.every((g) => g.playable), isTrue);
+      expect(chapter.games.every((g) => g.status == GameStatus.ready), isTrue);
       final soap = chapter.games.firstWhere((g) => g.id == 'soap_factory');
       expect(soap.levels.keys, [1, 2, 3]);
       expect(soap.scoring.correct, 100);
@@ -255,15 +257,35 @@ void main() {
   group('anomalies du pilote signalées, jamais corrigées', () {
     final chapter = pilotChapter();
 
-    test('mission_awa vise une notion absente : signalé, pas de faux jeu', () {
+    test('mission_awa vise une notion absente : signalé, devenu mission', () {
       final issue = chapter.issues.firstWhere(
         (i) => i.code == 'game_concept_unknown',
       );
       expect(issue.path, contains('mission_awa'));
-      expect(
-        chapter.games.firstWhere((g) => g.id == 'mission_awa').playable,
-        isFalse,
+      final mission = chapter.games.firstWhere((g) => g.id == 'mission_awa');
+      expect(mission.engine, GameEngineKind.integrationMission);
+      expect(mission.levels.keys, [3]);
+    });
+
+    test("un jeu `draft` ou `disabled` du pack n'est jamais jouable", () {
+      final raw = pilotRaw();
+      final runtime = deepCopy(raw.runtime!);
+      final games = runtime['games']! as List;
+      (games[0] as Map)['status'] = 'draft';
+      (games[1] as Map)['status'] = 'disabled';
+      final altered = const ContentPackParser().parse(
+        RawContentPack(
+          directory: raw.directory,
+          manifest: raw.manifest,
+          source: raw.source,
+          pedagogy: raw.pedagogy,
+          runtime: runtime,
+          validation: raw.validation,
+        ),
       );
+      expect(altered.games[0].playable, isFalse);
+      expect(altered.games[1].playable, isFalse);
+      expect(altered.games[2].playable, isTrue);
     });
 
     test('aucune erreur bloquante sur le pilote', () {

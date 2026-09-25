@@ -19,6 +19,7 @@ import 'subject_detail_screen.dart';
 import 'widgets/learn_unavailable_state.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
+import '../../content_engine/application/content_providers.dart';
 import '../../content_engine/presentation/local_chapters_section.dart';
 
 class LearnHubScreen extends ConsumerStatefulWidget {
@@ -69,11 +70,19 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
           onContinuePath: () => context.push(AppRoutes.flow),
         );
       },
-      data: (snapshot) => _LearnHubBody(
-        classLabel: snapshot.context.label,
-        subjects: snapshot.subjects,
-        searchQuery: _searchQuery,
-        searchCtrl: _searchCtrl,
+      // Tirer pour actualiser : le catalogue et les packs de la classe.
+      data: (snapshot) => RefreshIndicator(
+        key: const ValueKey('learn-refresh'),
+        onRefresh: () async {
+          await ref.read(contentSyncControllerProvider.notifier).refresh();
+          ref.invalidate(learnHubProvider);
+        },
+        child: _LearnHubBody(
+          classLabel: snapshot.context.label,
+          subjects: snapshot.subjects,
+          searchQuery: _searchQuery,
+          searchCtrl: _searchCtrl,
+        ),
       ),
     );
 

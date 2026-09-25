@@ -1,3 +1,5 @@
+import '../../content_engine/domain/chapter.dart';
+import '../../content_engine/feed/learning_card.dart';
 import 'flow_subject.dart';
 
 /// Type d'illustration animée pour une [FlowAnimationCard].
@@ -270,4 +272,27 @@ final class FlowRewardCard extends FlowCard {
 
   final String title;
   final String message;
+}
+
+/// Une carte tirée d'un pack de la Content Engine (toutes les classes).
+///
+/// Le fil publié et les packs partagent le même pager, le même HUD et la
+/// même progression locale : ce n'est pas un second fil, c'est une nouvelle
+/// source de cartes. Les réponses passent par le moteur de maîtrise des
+/// packs, jamais par le serveur de points du fil publié.
+final class FlowLearningCard extends FlowCard {
+  FlowLearningCard({required this.learning, required this.chapter})
+    : super(
+        id: 'pack:${learning.id}',
+        subject:
+            FlowSubjects.fromLabel(learning.subject) ??
+            FlowSubjects.fromLabel(chapter.curriculum.subject) ??
+            FlowSubjects.maths,
+        kicker: learning.type.name,
+        estimatedSeconds: learning.estimatedSeconds,
+        pointsReward: 0,
+      );
+
+  final LearningCard learning;
+  final Chapter chapter;
 }

@@ -3280,13 +3280,13 @@
     }
   },
   "ceCompanionOffline": "Réponses tirées de ton cours, même sans connexion.",
-  "ceActionExplain": "Explique normalement",
+  "ceActionExplain": "Explique-moi",
   "ceActionSimpler": "Plus simplement",
   "ceActionUltra": "Comme si j'avais 12 ans",
   "ceActionShow": "Montre-moi",
   "ceActionHint": "Donne-moi un indice",
   "ceActionTest": "Teste-moi",
-  "ceActionWhyWrong": "Pourquoi c'est faux ?",
+  "ceActionWhyWrong": "Pourquoi ma réponse est fausse ?",
   "ceAskHint": "Pose ta question sur ce chapitre…",
   "ceAskSend": "Envoyer",
   "ceCompanionUnknown": "Je n'ai pas encore d'explication sur ce sujet dans ce chapitre.",
@@ -3312,6 +3312,162 @@
       },
       "attempts": {
         "type": "int"
+      }
+    }
+  },
+  "ceRemainderGoal": "Fais la division de {a} par {b} : règle q jusqu'à ce que le reste r tombe dans la zone permise.",
+  "@ceRemainderGoal": {
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "ceRemainderInZone": "Le reste est dans la zone : 0 ≤ r < |b|.",
+  "ceRemainderTooSmall": "Reste négatif : il faut changer q.",
+  "ceRemainderTooLarge": "Reste trop grand : une part entière de plus tient encore.",
+  "ceRemainderWhy": "Quelle condition doit vérifier le reste ?",
+  "ceMissionStep": "Étape {current} sur {total}",
+  "@ceMissionStep": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ceMissionCriticalThinking": "Bien vu : savoir dire quand les données ne suffisent pas, c'est aussi des mathématiques.",
+  "ceActionExample": "Donne-moi un exemple",
+  "ceCompanionExample": "Exemple",
+  "ceCompanionNoExample": "Je n'ai pas encore d'exemple pour cette notion dans ton cours.",
+  "ceCompanionNameHello": "{name}, voici ce que dit ton cours.",
+  "@ceCompanionNameHello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceCompanionNameAfterErrors": "{name}, reprenons calmement : tu y es presque.",
+  "@ceCompanionNameAfterErrors": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceCompanionNameSuccess": "Bravo {name}, tu maîtrises très bien cette notion.",
+  "@ceCompanionNameSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceChapterPromise": "Même si l'exercice est difficile, tu peux demander une explication plus simple sans changer son niveau.",
+  "ceFeedKickerExplanation": "L'idée clé",
+  "ceFeedKickerUltraSimple": "Comme si j'avais 12 ans",
+  "ceFeedKickerFlash": "Question éclair",
+  "ceFeedKickerMcq": "Choisis la bonne réponse",
+  "ceFeedKickerTrueFalse": "Vrai ou faux",
+  "ceFeedKickerExercise": "Exercice",
+  "ceFeedKickerVisual": "Regarde",
+  "ceFeedKickerGame": "Jeu",
+  "ceFeedKickerMistake": "Piège fréquent",
+  "ceFeedKickerRevision": "À retenir",
+  "ceFeedKickerChallenge": "Défi",
+  "ceFeedKickerMastery": "Tu maîtrises ?",
+  "ceFeedKickerNew": "Nouveau chapitre",
+  "ceFeedKickerCompanion": "Une question ?",
+  "ceFeedDeepen": "Approfondir",
+  "ceFeedAskCompanion": "Demander au Compagnon",
+  "ceFeedCheck": "Vérifier",
+  "ceFeedCorrect": "Bonne réponse !",
+  "ceFeedWrong": "Pas encore. Regarde l'explication, puis réessaie plus tard.",
+  "ceFeedPlay": "Jouer",
+  "ceFeedOpenChapter": "Découvrir le chapitre",
+  "ceFeedNewBody": "Un nouveau chapitre vient d'arriver pour ta classe. Il commence par :",
+  "ceFeedCompanionBody": "Quelque chose n'est pas clair sur « {concept} » ? Le Compagnon t'explique à partir de ton cours, aussi simplement que tu veux.",
+  "@ceFeedCompanionBody": {
+    "placeholders": {
+      "concept": {
+        "type": "String"
+      }
+    }
+  },
+  "ceFeedMistakeLead": "Beaucoup d'élèves se trompent ici :",
+  "ceFeedNameAfterErrors": "{name}, ce n'est pas grave : une explication plus simple arrive dans ton fil.",
+  "@ceFeedNameAfterErrors": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceFeedNameSuccess": "Bravo {name}, c'était un vrai défi.",
+  "@ceFeedNameSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceNewContentAvailable": "Nouveaux contenus disponibles pour ta classe.",
+  "hapticsLabel": "Vibrations pédagogiques",
+  "hapticsDescription": "De petites vibrations accompagnent tes réussites.",
+  "hapticsOn": "Activées",
+  "hapticsReduced": "Réduites : seulement pour les vrais progrès",
+  "hapticsOff": "Désactivées",
+  "rewardExact": "Exact.",
+  "rewardWellSeen": "Bien vu.",
+  "rewardYes": "Oui.",
+  "rewardVeryClean": "Très propre.",
+  "rewardGotIt": "Tu l'as.",
+  "rewardNiceProgress": "Belle progression.",
+  "rewardStreak": "{count} de suite.",
+  "@rewardStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardLevelUp": "Niveau supérieur débloqué.",
+  "rewardGotItThisTime": "Oui. Cette fois, tu l'as.",
+  "rewardFoundIt": "Voilà. Tu as trouvé.",
+  "rewardRealStep": "Très bien. Tu viens de franchir un vrai cap.",
+  "rewardChallengeMet": "Défi relevé.",
+  "rewardConceptMastered": "Notion maîtrisée : {concept}",
+  "@rewardConceptMastered": {
+    "placeholders": {
+      "concept": {
+        "type": "String"
+      }
+    }
+  },
+  "rewardConceptMasteredGeneric": "Notion maîtrisée.",
+  "rewardChapterDone": "Chapitre réussi : {chapter}",
+  "@rewardChapterDone": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "rewardChapterDoneGeneric": "Chapitre réussi.",
+  "rewardWithName": "{name}, {message}",
+  "@rewardWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
       }
     }
   }

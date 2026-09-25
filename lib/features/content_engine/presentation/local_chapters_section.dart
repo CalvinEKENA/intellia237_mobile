@@ -21,8 +21,14 @@ class LocalChaptersSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Ouvrir Apprendre lance la mise à jour des packs de la classe, en
+    // arrière-plan : les contenus en place restent affichés, les nouveaux
+    // apparaissent d'eux-mêmes (aucun redémarrage).
+    final sync = ref.watch(contentSyncControllerProvider).valueOrNull;
     final subjects = ref.watch(localContentSubjectsProvider).valueOrNull;
     if (subjects == null || subjects.isEmpty) return const SizedBox.shrink();
+    final fresh =
+        sync != null && (sync.added.isNotEmpty || sync.updated.isNotEmpty);
     final s = TabSurface.of(context);
     final l10n = context.l10n;
     return Padding(
@@ -45,6 +51,32 @@ class LocalChaptersSection extends ConsumerWidget {
             l10n.ceLocalChaptersSubtitle,
             style: ContentText.body(color: s.textSecondary, size: 13),
           ),
+          if (fresh) ...[
+            const SizedBox(height: IntelliaSpacing.sm),
+            Semantics(
+              liveRegion: true,
+              child: Row(
+                key: const ValueKey('content-new-available'),
+                children: [
+                  const Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 18,
+                    color: ContentPalette.accent,
+                  ),
+                  const SizedBox(width: IntelliaSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      l10n.ceNewContentAvailable,
+                      style: ContentText.label(
+                        color: ContentPalette.accent,
+                        size: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: IntelliaSpacing.sm),
           for (final subject in subjects)
             for (final chapter in subject.chapters)

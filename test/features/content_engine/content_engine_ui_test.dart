@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intellia237/core/academics/class_key.dart';
+import 'package:intellia237/features/content_engine/data/content_delivery.dart';
 import 'package:intellia237/features/content_engine/application/content_providers.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_repository.dart';
 import 'package:intellia237/features/content_engine/data/learner_content_store.dart';
@@ -34,7 +36,11 @@ Future<ProviderContainer> _pump(
       learnerContentStoreProvider.overrideWithValue(
         InMemoryLearnerContentStore(),
       ),
-      contentLevelKeyProvider.overrideWith((ref) async => 'terminale-d'),
+      contentClassKeyProvider.overrideWith(
+        (ref) async => const ClassKey('terminale', series: 'd'),
+      ),
+      contentPackCacheProvider.overrideWithValue(InMemoryContentPackCache()),
+      remoteContentGatewayProvider.overrideWithValue(const OfflineGateway()),
     ],
   );
   addTearDown(container.dispose);
@@ -232,21 +238,18 @@ void main() {
     },
   );
 
-  testWidgets(
-    'Jouer : cinq jeux jouables, deux honnêtement « en préparation »',
-    (tester) async {
-      await _pump(
-        tester,
-        const ContentLessonScreen(contentId: _contentId, lessonNumber: 3),
-      );
-      await _tap(tester, find.byKey(const ValueKey('lesson-step-3')));
-      expect(
-        find.byKey(const ValueKey('game-card-remainder_zone')),
-        findsOneWidget,
-      );
-      expect(find.text('En préparation'), findsOneWidget);
-    },
-  );
+  testWidgets('Jouer : aucun jeu annoncé qui ne soit jouable', (tester) async {
+    await _pump(
+      tester,
+      const ContentLessonScreen(contentId: _contentId, lessonNumber: 3),
+    );
+    await _tap(tester, find.byKey(const ValueKey('lesson-step-3')));
+    expect(
+      find.byKey(const ValueKey('game-card-remainder_zone')),
+      findsOneWidget,
+    );
+    expect(find.text('En préparation'), findsNothing);
+  });
 
   testWidgets('petit écran, grand texte : chaque étape de chaque leçon tient', (
     tester,
@@ -300,6 +303,99 @@ void main() {
     }
   });
 
+  testWidgets(
+    'Mission Awa : trois étapes validées, toutes les solutions exigées, '
+    'esprit critique valorisé',
+    (tester) async {
+      await _pump(
+        tester,
+        const ContentGameScreen(
+          contentId: _contentId,
+          gameId: 'mission_awa',
+          seed: 1,
+        ),
+        size: const Size(390, 900),
+      );
+      await _tap(tester, find.byKey(const ValueKey('game-level-3')));
+      expect(find.text('Étape 1 sur 3'.toUpperCase()), findsOneWidget);
+
+      // Étape 1 : combien de savons ajouter ? (14)
+      await tester.enterText(
+        find.byKey(const ValueKey('answer-field-value')),
+        '14',
+      );
+      await _settle(tester, 2);
+      await _tap(tester, find.byKey(const ValueKey('game-action-Valider')));
+      expect(find.textContaining('+100'), findsOneWidget);
+      await _tap(tester, find.byKey(const ValueKey('game-next-round')));
+
+      // Étape 2 : trois solutions ; une seule ne suffit jamais.
+      expect(
+        find.textContaining('Les contraintes donnent trois valeurs'),
+        findsOneWidget,
+      );
+      for (final value in ['23', '58', '93']) {
+        await tester.enterText(
+          find.byKey(const ValueKey('answer-set-input')),
+          value,
+        );
+        await _tap(tester, find.byKey(const ValueKey('answer-set-add')));
+      }
+      await _tap(tester, find.byKey(const ValueKey('game-action-Valider')));
+      expect(find.byKey(const ValueKey('game-outcome')), findsNothing);
+      await _settle(tester);
+      await _tap(tester, find.byKey(const ValueKey('game-next-round')));
+
+      // Étape 3 : le volume seul ne suffit pas.
+      await _tap(tester, find.byKey(const ValueKey('answer-bool-false')));
+      await _tap(tester, find.byKey(const ValueKey('game-action-Valider')));
+      expect(find.textContaining('Bien vu'), findsOneWidget);
+      await _tap(tester, find.byKey(const ValueKey('game-next-round')));
+      expect(find.byKey(const ValueKey('game-final-score')), findsOneWidget);
+      expect(find.textContaining('3 manches réussies sur 3'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('Zone du Reste : le bon quotient place le reste dans la zone', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const ContentGameScreen(
+        contentId: _contentId,
+        gameId: 'remainder_zone',
+        seed: 4,
+      ),
+    );
+    await _tap(tester, find.byKey(const ValueKey('game-level-2')));
+    final goal = tester
+        .widget<Text>(find.byKey(const ValueKey('game-goal')))
+        .data!;
+    final numbers = RegExp(
+      r'-?\d+',
+    ).allMatches(goal).map((m) => int.parse(m.group(0)!)).toList();
+    final a = numbers[0];
+    final b = numbers[1];
+    final q = (a - (a % b + b) % b) ~/ b;
+    final stepper = find.byKey(const ValueKey('remainder-q'));
+    final minus = find.descendant(
+      of: stepper,
+      matching: find.byIcon(Icons.remove_rounded),
+    );
+    for (var i = 0; i < -q; i++) {
+      await tester.tap(minus);
+      await tester.pump();
+    }
+    await _settle(tester, 2);
+    expect(
+      find.text('Le reste est dans la zone : 0 ≤ r < |b|.'),
+      findsOneWidget,
+    );
+    await _tap(tester, find.byKey(const ValueKey('game-action-Valider')));
+    expect(find.textContaining('+100'), findsOneWidget);
+  });
+
   group('les cinq jeux se jouent jusqu\'au bilan', () {
     for (final gameId in const [
       'soap_factory',
@@ -307,6 +403,7 @@ void main() {
       'modulo_clock',
       'prime_forge',
       'tile_master',
+      'remainder_zone',
     ]) {
       for (final level in const [1, 2, 3]) {
         testWidgets('$gameId niveau $level', (tester) async {
@@ -447,6 +544,14 @@ Future<void> _resolveRound(
         ].firstWhere((p) => value % p == 0);
         await _tap(tester, find.byKey(ValueKey('hammer-$prime')));
       }
+    case 'remainder_zone':
+      if (level == 3) {
+        await _tap(
+          tester,
+          find.byKey(const ValueKey('remainder-why-0 ≤ r < |b|')),
+        );
+      }
+      await _tap(tester, action('Valider'));
     case 'tile_master':
       if (level == 3 && action('PGCD').evaluate().isNotEmpty) {
         await _tap(tester, action('PGCD'));

@@ -8,6 +8,7 @@ enum CompanionAction {
   explainSimple,
   explainUltraSimple,
   showMe,
+  example,
   hint,
   testMe,
   whyWrong;
@@ -22,6 +23,7 @@ enum CompanionAction {
     if (key.contains('plus-simple') || key == 'simple') return explainSimple;
     if (key.contains('explique')) return explainStandard;
     if (key.contains('montre')) return showMe;
+    if (key.contains('exemple') || key.contains('example')) return example;
     if (key.contains('indice') || key.contains('hint')) return hint;
     if (key.contains('teste') || key.contains('test-me')) return testMe;
     if (key.contains('pourquoi') || key.contains('faux')) return whyWrong;
@@ -39,6 +41,13 @@ class CompanionConfig {
   });
 
   static const defaults = CompanionConfig(actions: CompanionAction.values);
+
+  /// Actions toujours proposées : « Donne-moi un exemple » s'ajoute à
+  /// celles du pack dès que le pack contient de quoi le nourrir.
+  List<CompanionAction> get effectiveActions => [
+    ...actions,
+    if (!actions.contains(CompanionAction.example)) CompanionAction.example,
+  ];
 
   /// Actions proposées, dans l'ordre du pack.
   final List<CompanionAction> actions;

@@ -6095,7 +6095,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Réponses tirées de ton cours, même sans connexion.';
 
   @override
-  String get ceActionExplain => 'Explique normalement';
+  String get ceActionExplain => 'Explique-moi';
 
   @override
   String get ceActionSimpler => 'Plus simplement';
@@ -6113,7 +6113,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get ceActionTest => 'Teste-moi';
 
   @override
-  String get ceActionWhyWrong => 'Pourquoi c\'est faux ?';
+  String get ceActionWhyWrong => 'Pourquoi ma réponse est fausse ?';
 
   @override
   String get ceAskHint => 'Pose ta question sur ce chapitre…';
@@ -6164,5 +6164,226 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String ceFormalProgress(int score, int correct, int attempts) {
     return 'Maîtrise $score % · $correct bonnes réponses sur $attempts';
+  }
+
+  @override
+  String ceRemainderGoal(int a, int b) {
+    return 'Fais la division de $a par $b : règle q jusqu\'à ce que le reste r tombe dans la zone permise.';
+  }
+
+  @override
+  String get ceRemainderInZone => 'Le reste est dans la zone : 0 ≤ r < |b|.';
+
+  @override
+  String get ceRemainderTooSmall => 'Reste négatif : il faut changer q.';
+
+  @override
+  String get ceRemainderTooLarge =>
+      'Reste trop grand : une part entière de plus tient encore.';
+
+  @override
+  String get ceRemainderWhy => 'Quelle condition doit vérifier le reste ?';
+
+  @override
+  String ceMissionStep(int current, int total) {
+    return 'Étape $current sur $total';
+  }
+
+  @override
+  String get ceMissionCriticalThinking =>
+      'Bien vu : savoir dire quand les données ne suffisent pas, c\'est aussi des mathématiques.';
+
+  @override
+  String get ceActionExample => 'Donne-moi un exemple';
+
+  @override
+  String get ceCompanionExample => 'Exemple';
+
+  @override
+  String get ceCompanionNoExample =>
+      'Je n\'ai pas encore d\'exemple pour cette notion dans ton cours.';
+
+  @override
+  String ceCompanionNameHello(String name) {
+    return '$name, voici ce que dit ton cours.';
+  }
+
+  @override
+  String ceCompanionNameAfterErrors(String name) {
+    return '$name, reprenons calmement : tu y es presque.';
+  }
+
+  @override
+  String ceCompanionNameSuccess(String name) {
+    return 'Bravo $name, tu maîtrises très bien cette notion.';
+  }
+
+  @override
+  String get ceChapterPromise =>
+      'Même si l\'exercice est difficile, tu peux demander une explication plus simple sans changer son niveau.';
+
+  @override
+  String get ceFeedKickerExplanation => 'L\'idée clé';
+
+  @override
+  String get ceFeedKickerUltraSimple => 'Comme si j\'avais 12 ans';
+
+  @override
+  String get ceFeedKickerFlash => 'Question éclair';
+
+  @override
+  String get ceFeedKickerMcq => 'Choisis la bonne réponse';
+
+  @override
+  String get ceFeedKickerTrueFalse => 'Vrai ou faux';
+
+  @override
+  String get ceFeedKickerExercise => 'Exercice';
+
+  @override
+  String get ceFeedKickerVisual => 'Regarde';
+
+  @override
+  String get ceFeedKickerGame => 'Jeu';
+
+  @override
+  String get ceFeedKickerMistake => 'Piège fréquent';
+
+  @override
+  String get ceFeedKickerRevision => 'À retenir';
+
+  @override
+  String get ceFeedKickerChallenge => 'Défi';
+
+  @override
+  String get ceFeedKickerMastery => 'Tu maîtrises ?';
+
+  @override
+  String get ceFeedKickerNew => 'Nouveau chapitre';
+
+  @override
+  String get ceFeedKickerCompanion => 'Une question ?';
+
+  @override
+  String get ceFeedDeepen => 'Approfondir';
+
+  @override
+  String get ceFeedAskCompanion => 'Demander au Compagnon';
+
+  @override
+  String get ceFeedCheck => 'Vérifier';
+
+  @override
+  String get ceFeedCorrect => 'Bonne réponse !';
+
+  @override
+  String get ceFeedWrong =>
+      'Pas encore. Regarde l\'explication, puis réessaie plus tard.';
+
+  @override
+  String get ceFeedPlay => 'Jouer';
+
+  @override
+  String get ceFeedOpenChapter => 'Découvrir le chapitre';
+
+  @override
+  String get ceFeedNewBody =>
+      'Un nouveau chapitre vient d\'arriver pour ta classe. Il commence par :';
+
+  @override
+  String ceFeedCompanionBody(String concept) {
+    return 'Quelque chose n\'est pas clair sur « $concept » ? Le Compagnon t\'explique à partir de ton cours, aussi simplement que tu veux.';
+  }
+
+  @override
+  String get ceFeedMistakeLead => 'Beaucoup d\'élèves se trompent ici :';
+
+  @override
+  String ceFeedNameAfterErrors(String name) {
+    return '$name, ce n\'est pas grave : une explication plus simple arrive dans ton fil.';
+  }
+
+  @override
+  String ceFeedNameSuccess(String name) {
+    return 'Bravo $name, c\'était un vrai défi.';
+  }
+
+  @override
+  String get ceNewContentAvailable =>
+      'Nouveaux contenus disponibles pour ta classe.';
+
+  @override
+  String get hapticsLabel => 'Vibrations pédagogiques';
+
+  @override
+  String get hapticsDescription =>
+      'De petites vibrations accompagnent tes réussites.';
+
+  @override
+  String get hapticsOn => 'Activées';
+
+  @override
+  String get hapticsReduced => 'Réduites : seulement pour les vrais progrès';
+
+  @override
+  String get hapticsOff => 'Désactivées';
+
+  @override
+  String get rewardExact => 'Exact.';
+
+  @override
+  String get rewardWellSeen => 'Bien vu.';
+
+  @override
+  String get rewardYes => 'Oui.';
+
+  @override
+  String get rewardVeryClean => 'Très propre.';
+
+  @override
+  String get rewardGotIt => 'Tu l\'as.';
+
+  @override
+  String get rewardNiceProgress => 'Belle progression.';
+
+  @override
+  String rewardStreak(int count) {
+    return '$count de suite.';
+  }
+
+  @override
+  String get rewardLevelUp => 'Niveau supérieur débloqué.';
+
+  @override
+  String get rewardGotItThisTime => 'Oui. Cette fois, tu l\'as.';
+
+  @override
+  String get rewardFoundIt => 'Voilà. Tu as trouvé.';
+
+  @override
+  String get rewardRealStep => 'Très bien. Tu viens de franchir un vrai cap.';
+
+  @override
+  String get rewardChallengeMet => 'Défi relevé.';
+
+  @override
+  String rewardConceptMastered(String concept) {
+    return 'Notion maîtrisée : $concept';
+  }
+
+  @override
+  String get rewardConceptMasteredGeneric => 'Notion maîtrisée.';
+
+  @override
+  String rewardChapterDone(String chapter) {
+    return 'Chapitre réussi : $chapter';
+  }
+
+  @override
+  String get rewardChapterDoneGeneric => 'Chapitre réussi.';
+
+  @override
+  String rewardWithName(String name, String message) {
+    return '$name, $message';
   }
 }

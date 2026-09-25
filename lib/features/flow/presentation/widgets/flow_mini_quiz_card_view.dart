@@ -1,9 +1,12 @@
 import 'flow_typography.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../rewards/application/reward_providers.dart';
+import '../../../rewards/domain/reward_event.dart';
+import '../../../rewards/domain/reward_pattern.dart';
+import '../../../rewards/presentation/reward_stage.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 import '../../application/flow_controller.dart';
@@ -28,6 +31,7 @@ class FlowMiniQuizCardView extends ConsumerStatefulWidget {
 
 class _FlowMiniQuizCardViewState extends ConsumerState<FlowMiniQuizCardView> {
   int? _selected;
+  RewardPattern? _reward;
 
   bool get _locked => _selected != null;
 
@@ -35,10 +39,14 @@ class _FlowMiniQuizCardViewState extends ConsumerState<FlowMiniQuizCardView> {
     if (_locked) return;
     setState(() => _selected = index);
     final localCorrect = index == widget.card.correctIndex;
+    // Même moteur de récompense que le reste d'INTELLIA.
+    final rewards = ref.read(rewardDispatcherProvider);
     if (localCorrect) {
-      HapticFeedback.mediumImpact();
+      _reward = rewards.correct(
+        const RewardEvent.correct(source: RewardSource.feed),
+      );
     } else {
-      HapticFeedback.heavyImpact();
+      rewards.incorrect();
     }
     final award = await ref
         .read(flowControllerProvider.notifier)
@@ -55,22 +63,37 @@ class _FlowMiniQuizCardViewState extends ConsumerState<FlowMiniQuizCardView> {
     return FlowCardScaffold(
       subject: card.subject,
       kicker: card.kicker,
-      footer: _locked ? _explanation(card, accent) : null,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            card.question,
-            style: FlowTypography.title(context),
-          ).animate().fadeIn(duration: 420.ms).slideY(begin: 0.1, end: 0),
-          const SizedBox(height: IntelliaSpacing.xl),
-          ...card.options.asMap().entries.map(
-            (e) => Padding(
-              padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
-              child: _option(e.key, e.value, accent),
+      footer: _locked
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_reward != null) ...[
+                  RewardMessageLine(pattern: _reward),
+                  const SizedBox(height: IntelliaSpacing.sm),
+                ],
+                _explanation(card, accent),
+              ],
+            )
+          : null,
+      child: RewardStage(
+        pattern: _reward,
+        accent: accent,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              card.question,
+              style: FlowTypography.title(context),
+            ).animate().fadeIn(duration: 420.ms).slideY(begin: 0.1, end: 0),
+            const SizedBox(height: IntelliaSpacing.xl),
+            ...card.options.asMap().entries.map(
+              (e) => Padding(
+                padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
+                child: _option(e.key, e.value, accent),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

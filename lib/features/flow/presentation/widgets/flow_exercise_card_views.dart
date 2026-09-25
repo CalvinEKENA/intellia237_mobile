@@ -1,6 +1,11 @@
 import 'flow_typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import '../../../rewards/application/reward_providers.dart';
+import '../../../rewards/domain/reward_event.dart';
+import '../../../rewards/domain/reward_pattern.dart';
+import '../../../rewards/presentation/reward_stage.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,12 +32,13 @@ class FlowTrueFalseCardView extends ConsumerStatefulWidget {
 
 class _FlowTrueFalseCardViewState extends ConsumerState<FlowTrueFalseCardView> {
   bool? _answer;
+  RewardPattern? _reward;
 
   Future<void> _submit(bool answer) async {
     if (_answer != null) return;
     final correct = answer == widget.card.correctValue;
     setState(() => _answer = answer);
-    _feedbackHaptic(correct);
+    _reward = _rewardFor(ref, correct);
     final award = await ref
         .read(flowControllerProvider.notifier)
         .answerExercise(widget.card, answer: answer, localCorrect: correct);
@@ -51,6 +57,7 @@ class _FlowTrueFalseCardViewState extends ConsumerState<FlowTrueFalseCardView> {
           ? _ExerciseFeedback(
               correct: correct,
               explanation: widget.card.explanation,
+              reward: _reward,
             )
           : null,
       // Pas de scroll imbriqué : le châssis fournit déjà le défilement interne
@@ -111,6 +118,7 @@ class FlowFillBlankCardView extends ConsumerStatefulWidget {
 class _FlowFillBlankCardViewState extends ConsumerState<FlowFillBlankCardView> {
   final _controller = TextEditingController();
   bool? _correct;
+  RewardPattern? _reward;
 
   @override
   void dispose() {
@@ -124,7 +132,7 @@ class _FlowFillBlankCardViewState extends ConsumerState<FlowFillBlankCardView> {
     final correct = widget.card.accepts(answer);
     setState(() => _correct = correct);
     FocusManager.instance.primaryFocus?.unfocus();
-    _feedbackHaptic(correct);
+    _reward = _rewardFor(ref, correct);
     final award = await ref
         .read(flowControllerProvider.notifier)
         .answerExercise(widget.card, answer: answer, localCorrect: correct);
@@ -142,6 +150,7 @@ class _FlowFillBlankCardViewState extends ConsumerState<FlowFillBlankCardView> {
           ? _ExerciseFeedback(
               correct: _correct!,
               explanation: widget.card.explanation,
+              reward: _reward,
               correction: _correct!
                   ? null
                   : context.l10n.expectedAnswer(
@@ -216,6 +225,7 @@ class FlowOrderingCardView extends ConsumerStatefulWidget {
 class _FlowOrderingCardViewState extends ConsumerState<FlowOrderingCardView> {
   late final List<String> _items;
   bool? _correct;
+  RewardPattern? _reward;
 
   @override
   void initState() {
@@ -227,7 +237,7 @@ class _FlowOrderingCardViewState extends ConsumerState<FlowOrderingCardView> {
     if (_correct != null) return;
     final correct = widget.card.accepts(_items);
     setState(() => _correct = correct);
-    _feedbackHaptic(correct);
+    _reward = _rewardFor(ref, correct);
     final award = await ref
         .read(flowControllerProvider.notifier)
         .answerExercise(
@@ -249,6 +259,7 @@ class _FlowOrderingCardViewState extends ConsumerState<FlowOrderingCardView> {
           ? _ExerciseFeedback(
               correct: _correct!,
               explanation: widget.card.explanation,
+              reward: _reward,
               correction: _correct!
                   ? null
                   : context.l10n.flowExpectedOrder(
@@ -369,65 +380,80 @@ class _ExerciseFeedback extends StatelessWidget {
     required this.correct,
     required this.explanation,
     this.correction,
+    this.reward,
   });
 
   final bool correct;
   final String explanation;
   final String? correction;
+  final RewardPattern? reward;
 
   @override
   Widget build(BuildContext context) {
     final color = correct ? IntelliaColors.success : IntelliaColors.error;
     return Semantics(
       liveRegion: true,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(IntelliaSpacing.md),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.09),
-          borderRadius: BorderRadius.circular(IntelliaRadii.large),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              correct ? Icons.check_circle_rounded : Icons.tips_and_updates,
-              color: color,
-            ),
-            const SizedBox(width: IntelliaSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    correct
-                        ? context.l10n.flowFeedbackCorrect
-                        : context.l10n.flowFeedbackIncorrect,
-                    style: FlowTypography.choice(
-                      context,
-                    ).copyWith(color: color),
-                  ),
-                  const SizedBox(height: 4),
-                  if (correction != null) ...[
-                    Text(correction!, style: FlowTypography.body(context)),
-                    const SizedBox(height: 4),
-                  ],
-                  Text(explanation, style: FlowTypography.explanation(context)),
-                ],
+      child: RewardStage(
+        pattern: correct ? reward : null,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(IntelliaSpacing.md),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.09),
+            borderRadius: BorderRadius.circular(IntelliaRadii.large),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                correct ? Icons.check_circle_rounded : Icons.tips_and_updates,
+                color: color,
               ),
-            ),
-          ],
+              const SizedBox(width: IntelliaSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      correct
+                          ? context.l10n.flowFeedbackCorrect
+                          : context.l10n.flowFeedbackIncorrect,
+                      style: FlowTypography.choice(
+                        context,
+                      ).copyWith(color: color),
+                    ),
+                    if (correct && reward != null) ...[
+                      const SizedBox(height: 2),
+                      RewardMessageLine(pattern: reward),
+                    ],
+                    const SizedBox(height: 4),
+                    if (correction != null) ...[
+                      Text(correction!, style: FlowTypography.body(context)),
+                      const SizedBox(height: 4),
+                    ],
+                    Text(
+                      explanation,
+                      style: FlowTypography.explanation(context),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ).animate().fadeIn(duration: 260.ms).slideY(begin: 0.12, end: 0),
     );
   }
 }
 
-void _feedbackHaptic(bool correct) {
-  if (correct) {
-    HapticFeedback.mediumImpact();
-  } else {
-    HapticFeedback.heavyImpact();
+/// Réussite ou réponse à revoir : même moteur de récompense et même
+/// vocabulaire haptique que le reste d'INTELLIA (jamais d'impulsion forte).
+RewardPattern? _rewardFor(WidgetRef ref, bool correct) {
+  final rewards = ref.read(rewardDispatcherProvider);
+  if (!correct) {
+    rewards.incorrect();
+    return null;
   }
+  return rewards.correct(const RewardEvent.correct(source: RewardSource.feed));
 }

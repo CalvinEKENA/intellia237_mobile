@@ -10333,7 +10333,7 @@ abstract class AppLocalizations {
   /// No description provided for @ceActionExplain.
   ///
   /// In fr, this message translates to:
-  /// **'Explique normalement'**
+  /// **'Explique-moi'**
   String get ceActionExplain;
 
   /// No description provided for @ceActionSimpler.
@@ -10369,7 +10369,7 @@ abstract class AppLocalizations {
   /// No description provided for @ceActionWhyWrong.
   ///
   /// In fr, this message translates to:
-  /// **'Pourquoi c\'est faux ?'**
+  /// **'Pourquoi ma réponse est fausse ?'**
   String get ceActionWhyWrong;
 
   /// No description provided for @ceAskHint.
@@ -10461,6 +10461,384 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Maîtrise {score} % · {correct} bonnes réponses sur {attempts}'**
   String ceFormalProgress(int score, int correct, int attempts);
+
+  /// No description provided for @ceRemainderGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fais la division de {a} par {b} : règle q jusqu\'à ce que le reste r tombe dans la zone permise.'**
+  String ceRemainderGoal(int a, int b);
+
+  /// No description provided for @ceRemainderInZone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le reste est dans la zone : 0 ≤ r < |b|.'**
+  String get ceRemainderInZone;
+
+  /// No description provided for @ceRemainderTooSmall.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste négatif : il faut changer q.'**
+  String get ceRemainderTooSmall;
+
+  /// No description provided for @ceRemainderTooLarge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste trop grand : une part entière de plus tient encore.'**
+  String get ceRemainderTooLarge;
+
+  /// No description provided for @ceRemainderWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle condition doit vérifier le reste ?'**
+  String get ceRemainderWhy;
+
+  /// No description provided for @ceMissionStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {current} sur {total}'**
+  String ceMissionStep(int current, int total);
+
+  /// No description provided for @ceMissionCriticalThinking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien vu : savoir dire quand les données ne suffisent pas, c\'est aussi des mathématiques.'**
+  String get ceMissionCriticalThinking;
+
+  /// No description provided for @ceActionExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donne-moi un exemple'**
+  String get ceActionExample;
+
+  /// No description provided for @ceCompanionExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exemple'**
+  String get ceCompanionExample;
+
+  /// No description provided for @ceCompanionNoExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'ai pas encore d\'exemple pour cette notion dans ton cours.'**
+  String get ceCompanionNoExample;
+
+  /// No description provided for @ceCompanionNameHello.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, voici ce que dit ton cours.'**
+  String ceCompanionNameHello(String name);
+
+  /// No description provided for @ceCompanionNameAfterErrors.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, reprenons calmement : tu y es presque.'**
+  String ceCompanionNameAfterErrors(String name);
+
+  /// No description provided for @ceCompanionNameSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bravo {name}, tu maîtrises très bien cette notion.'**
+  String ceCompanionNameSuccess(String name);
+
+  /// No description provided for @ceChapterPromise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même si l\'exercice est difficile, tu peux demander une explication plus simple sans changer son niveau.'**
+  String get ceChapterPromise;
+
+  /// No description provided for @ceFeedKickerExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'idée clé'**
+  String get ceFeedKickerExplanation;
+
+  /// No description provided for @ceFeedKickerUltraSimple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comme si j\'avais 12 ans'**
+  String get ceFeedKickerUltraSimple;
+
+  /// No description provided for @ceFeedKickerFlash.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question éclair'**
+  String get ceFeedKickerFlash;
+
+  /// No description provided for @ceFeedKickerMcq.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis la bonne réponse'**
+  String get ceFeedKickerMcq;
+
+  /// No description provided for @ceFeedKickerTrueFalse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vrai ou faux'**
+  String get ceFeedKickerTrueFalse;
+
+  /// No description provided for @ceFeedKickerExercise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exercice'**
+  String get ceFeedKickerExercise;
+
+  /// No description provided for @ceFeedKickerVisual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Regarde'**
+  String get ceFeedKickerVisual;
+
+  /// No description provided for @ceFeedKickerGame.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jeu'**
+  String get ceFeedKickerGame;
+
+  /// No description provided for @ceFeedKickerMistake.
+  ///
+  /// In fr, this message translates to:
+  /// **'Piège fréquent'**
+  String get ceFeedKickerMistake;
+
+  /// No description provided for @ceFeedKickerRevision.
+  ///
+  /// In fr, this message translates to:
+  /// **'À retenir'**
+  String get ceFeedKickerRevision;
+
+  /// No description provided for @ceFeedKickerChallenge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi'**
+  String get ceFeedKickerChallenge;
+
+  /// No description provided for @ceFeedKickerMastery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu maîtrises ?'**
+  String get ceFeedKickerMastery;
+
+  /// No description provided for @ceFeedKickerNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau chapitre'**
+  String get ceFeedKickerNew;
+
+  /// No description provided for @ceFeedKickerCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une question ?'**
+  String get ceFeedKickerCompanion;
+
+  /// No description provided for @ceFeedDeepen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approfondir'**
+  String get ceFeedDeepen;
+
+  /// No description provided for @ceFeedAskCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander au Compagnon'**
+  String get ceFeedAskCompanion;
+
+  /// No description provided for @ceFeedCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier'**
+  String get ceFeedCheck;
+
+  /// No description provided for @ceFeedCorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne réponse !'**
+  String get ceFeedCorrect;
+
+  /// No description provided for @ceFeedWrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore. Regarde l\'explication, puis réessaie plus tard.'**
+  String get ceFeedWrong;
+
+  /// No description provided for @ceFeedPlay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jouer'**
+  String get ceFeedPlay;
+
+  /// No description provided for @ceFeedOpenChapter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir le chapitre'**
+  String get ceFeedOpenChapter;
+
+  /// No description provided for @ceFeedNewBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un nouveau chapitre vient d\'arriver pour ta classe. Il commence par :'**
+  String get ceFeedNewBody;
+
+  /// No description provided for @ceFeedCompanionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelque chose n\'est pas clair sur « {concept} » ? Le Compagnon t\'explique à partir de ton cours, aussi simplement que tu veux.'**
+  String ceFeedCompanionBody(String concept);
+
+  /// No description provided for @ceFeedMistakeLead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Beaucoup d\'élèves se trompent ici :'**
+  String get ceFeedMistakeLead;
+
+  /// No description provided for @ceFeedNameAfterErrors.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, ce n\'est pas grave : une explication plus simple arrive dans ton fil.'**
+  String ceFeedNameAfterErrors(String name);
+
+  /// No description provided for @ceFeedNameSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bravo {name}, c\'était un vrai défi.'**
+  String ceFeedNameSuccess(String name);
+
+  /// No description provided for @ceNewContentAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux contenus disponibles pour ta classe.'**
+  String get ceNewContentAvailable;
+
+  /// No description provided for @hapticsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vibrations pédagogiques'**
+  String get hapticsLabel;
+
+  /// No description provided for @hapticsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'De petites vibrations accompagnent tes réussites.'**
+  String get hapticsDescription;
+
+  /// No description provided for @hapticsOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activées'**
+  String get hapticsOn;
+
+  /// No description provided for @hapticsReduced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduites : seulement pour les vrais progrès'**
+  String get hapticsReduced;
+
+  /// No description provided for @hapticsOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivées'**
+  String get hapticsOff;
+
+  /// No description provided for @rewardExact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exact.'**
+  String get rewardExact;
+
+  /// No description provided for @rewardWellSeen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien vu.'**
+  String get rewardWellSeen;
+
+  /// No description provided for @rewardYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui.'**
+  String get rewardYes;
+
+  /// No description provided for @rewardVeryClean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très propre.'**
+  String get rewardVeryClean;
+
+  /// No description provided for @rewardGotIt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu l\'as.'**
+  String get rewardGotIt;
+
+  /// No description provided for @rewardNiceProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Belle progression.'**
+  String get rewardNiceProgress;
+
+  /// No description provided for @rewardStreak.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} de suite.'**
+  String rewardStreak(int count);
+
+  /// No description provided for @rewardLevelUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau supérieur débloqué.'**
+  String get rewardLevelUp;
+
+  /// No description provided for @rewardGotItThisTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui. Cette fois, tu l\'as.'**
+  String get rewardGotItThisTime;
+
+  /// No description provided for @rewardFoundIt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voilà. Tu as trouvé.'**
+  String get rewardFoundIt;
+
+  /// No description provided for @rewardRealStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très bien. Tu viens de franchir un vrai cap.'**
+  String get rewardRealStep;
+
+  /// No description provided for @rewardChallengeMet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi relevé.'**
+  String get rewardChallengeMet;
+
+  /// No description provided for @rewardConceptMastered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notion maîtrisée : {concept}'**
+  String rewardConceptMastered(String concept);
+
+  /// No description provided for @rewardConceptMasteredGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notion maîtrisée.'**
+  String get rewardConceptMasteredGeneric;
+
+  /// No description provided for @rewardChapterDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitre réussi : {chapter}'**
+  String rewardChapterDone(String chapter);
+
+  /// No description provided for @rewardChapterDoneGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitre réussi.'**
+  String get rewardChapterDoneGeneric;
+
+  /// No description provided for @rewardWithName.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, {message}'**
+  String rewardWithName(String name, String message);
 }
 
 class _AppLocalizationsDelegate

@@ -8,6 +8,7 @@ import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../student_home/application/personal_goal_providers.dart';
 import '../../student_home/presentation/widgets/weekly_goal_card.dart';
+import '../../rewards/domain/haptic_pattern.dart';
 import '../application/user_preferences_controller.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../../auth/application/auth_controller.dart';
@@ -68,6 +69,33 @@ class SettingsScreen extends ConsumerWidget {
                   subtitle: Text(l10n.reduceMotionDescription),
                   value: preferences.reduceMotion,
                   onChanged: controller.setReduceMotion,
+                ),
+                // Vibrations pédagogiques : trois choix lisibles en entier,
+                // même en grand texte (pas de segments qui se tronquent).
+                ListTile(
+                  leading: const Icon(Icons.vibration_rounded),
+                  title: Text(l10n.hapticsLabel),
+                  subtitle: Text(l10n.hapticsDescription),
+                ),
+                RadioGroup<HapticMode>(
+                  groupValue: preferences.haptics,
+                  onChanged: (mode) {
+                    if (mode != null) controller.setHaptics(mode);
+                  },
+                  child: Column(
+                    children: [
+                      for (final (mode, label) in [
+                        (HapticMode.on, l10n.hapticsOn),
+                        (HapticMode.reduced, l10n.hapticsReduced),
+                        (HapticMode.off, l10n.hapticsOff),
+                      ])
+                        RadioListTile<HapticMode>(
+                          key: ValueKey('haptics-${mode.name}'),
+                          value: mode,
+                          title: Text(label),
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ),
