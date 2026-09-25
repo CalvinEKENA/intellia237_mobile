@@ -92,6 +92,15 @@ void main() {
     expect(find.byKey(const ValueKey('reward-message')), findsOneWidget);
   });
 
+  testWidgets('sans motif joué, la scène se retire proprement', (tester) async {
+    // Carte jamais répondue : la scène ne joue rien, puis on passe à la
+    // suivante. Le démontage ne doit rien lever.
+    await _pump(tester, _card(null));
+    await tester.pump();
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('animations réduites : aucun effet, la réussite reste lisible '
       'et annoncée', (tester) async {
     final handle = tester.ensureSemantics();

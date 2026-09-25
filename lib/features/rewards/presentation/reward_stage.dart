@@ -44,11 +44,15 @@ class RewardStage extends StatefulWidget {
 
 class _RewardStageState extends State<RewardStage>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this);
+  late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
+    // Créé ici, pas à la première lecture : sans motif joué, la première
+    // lecture serait dispose(), et créer le ticker d'un élément déjà
+    // désactivé y déclenche une assertion (Flutter 3.44 de la CI).
+    _controller = AnimationController(vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) => _play());
   }
 
