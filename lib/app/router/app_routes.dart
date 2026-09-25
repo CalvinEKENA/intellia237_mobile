@@ -49,6 +49,12 @@ abstract final class AppRoutes {
       '/learn/subject/:subjectId/chapter/:chapterId';
   static const lessonViewerRoute =
       '/learn/subject/:subjectId/chapter/:chapterId/lesson/:lessonId';
+
+  /// Chapitres interactifs locaux (Content Engine), sans réseau.
+  static const contentChapterRoute = '/learn/local/:contentId';
+  static const contentLessonRoute = '/learn/local/:contentId/lesson/:lesson';
+  static const contentGameRoute = '/learn/local/:contentId/game/:gameId';
+  static const contentIntegrationRoute = '/learn/local/:contentId/integration';
   static const quizHub = '/quiz';
   static const quizPlayRoute = '/quiz/play/:quizId';
   static const quizResult = '/quiz/result';
@@ -108,6 +114,13 @@ abstract final class AppRoutes {
   };
 
   static String subjectDetail(String subjectId) => '/learn/subject/$subjectId';
+  static String contentChapter(String contentId) => '/learn/local/$contentId';
+  static String contentLesson(String contentId, int lesson) =>
+      '/learn/local/$contentId/lesson/$lesson';
+  static String contentGame(String contentId, String gameId) =>
+      '/learn/local/$contentId/game/$gameId';
+  static String contentIntegration(String contentId) =>
+      '/learn/local/$contentId/integration';
   static String chapterDetail(String subjectId, String chapterId) =>
       '/learn/subject/$subjectId/chapter/$chapterId';
   static String lessonViewer(

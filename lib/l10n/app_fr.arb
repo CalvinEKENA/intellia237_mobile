@@ -2790,5 +2790,529 @@
         "type": "int"
       }
     }
+  },
+  "ceLocalChaptersTitle": "Chapitres interactifs",
+  "ceLocalChaptersSubtitle": "Disponibles sans connexion : explications, exercices et jeux.",
+  "ceChapterNumber": "Chapitre {number}",
+  "@ceChapterNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceLessonCount": "{count, plural, =0{Aucune leçon} =1{1 leçon} other{{count} leçons}}",
+  "@ceLessonCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceLessonLabel": "Leçon {number}",
+  "@ceLessonLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceLessonRecommendedAfter": "Conseillée après {score} % sur la leçon précédente",
+  "@ceLessonRecommendedAfter": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "ceMasteryPercent": "Maîtrise : {score} %",
+  "@ceMasteryPercent": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "ceJourneyTitle": "Ton chemin dans chaque leçon",
+  "ceJourneyUnderstand": "Je comprends",
+  "ceJourneySee": "Je vois",
+  "ceJourneyTry": "J'essaie",
+  "ceJourneySucceed": "Je réussis",
+  "ceJourneyFormal": "Je passe au formalisme",
+  "ceIntegrationTitle": "Défis d'intégration",
+  "ceIntegrationBody": "Des situations complètes qui mêlent les notions du chapitre.",
+  "ceIntegrationTag": "Intégration",
+  "ceSituationTag": "Situation du manuel",
+  "ceUnavailableTitle": "Ce chapitre n'est pas encore prêt",
+  "ceUnavailableBody": "Il sera proposé dès qu'il aura été vérifié.",
+  "ceLoadError": "Ce chapitre n'a pas pu s'ouvrir. Reviens en arrière et réessaie.",
+  "ceStepUnderstand": "Comprendre",
+  "ceStepSee": "Voir",
+  "ceStepPractice": "S'entraîner",
+  "ceStepPlay": "Jouer",
+  "ceStepFormal": "Formalisme",
+  "ceNextStep": "Ensuite : {step}",
+  "@ceNextStep": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "ceModeStandard": "Terminale",
+  "ceModeSimple": "Simple",
+  "ceModeUltra": "Comme si j'avais 12 ans",
+  "ceModeLock": "Garder ce niveau",
+  "ceModeUnlock": "Niveau gardé · libérer",
+  "ceIdeaProgress": "Idée {current} sur {total}",
+  "@ceIdeaProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ceNextIdea": "Idée suivante",
+  "cePreviousIdea": "Idée précédente",
+  "ceOfficialWording": "Voir la formulation officielle",
+  "ceExplanationUnavailable": "Cette explication n'est pas encore disponible dans ce cours.",
+  "ceShownInsteadMode": "Voici la version « {mode} ».",
+  "@ceShownInsteadMode": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "ceMistakesTitle": "Pièges à éviter",
+  "cePrerequisitesTitle": "À savoir avant",
+  "ceSeeCaption": "Manipule : tout se met à jour sous tes yeux.",
+  "ceNoVisual": "Pas encore de schéma animé pour cette notion.",
+  "ceVisItems": "Objets",
+  "ceVisBoxSize": "Taille d'une boîte",
+  "ceVisLeftover": "{count, plural, =0{Rien ne reste dehors.} =1{1 objet reste dehors.} other{{count} objets restent dehors.}}",
+  "@ceVisLeftover": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceVisDividend": "Nombre a",
+  "ceVisDivisor": "Diviseur b",
+  "ceVisAllowedRemainders": "Restes permis : de 0 à {max}",
+  "@ceVisAllowedRemainders": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ceVisModulus": "Modulo n",
+  "ceVisNumber": "Nombre",
+  "ceVisPrimeBadge": "Nombre premier : une seule brique, impossible à casser.",
+  "ceVisWidth": "Largeur",
+  "ceVisHeight": "Hauteur",
+  "ceVisRhythmA": "Rythme A",
+  "ceVisRhythmB": "Rythme B",
+  "ceVisTilesFit": "Les carreaux tombent juste.",
+  "ceVisTilesCut": "Il faudrait couper des carreaux.",
+  "ceClockLaps": "{value} = {laps} tours de {modulus} + {rest}",
+  "@ceClockLaps": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      },
+      "laps": {
+        "type": "int"
+      },
+      "modulus": {
+        "type": "int"
+      },
+      "rest": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGcd": "PGCD",
+  "ceLcm": "PPCM",
+  "ceDifficultyLevel": "Niveau {level}",
+  "@ceDifficultyLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "ceQuestionProgress": "Question {current} sur {total}",
+  "@ceQuestionProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ceCheck": "Vérifier",
+  "ceCorrect": "Juste !",
+  "ceIncorrect": "Pas encore.",
+  "ceTryAgain": "Réessayer",
+  "ceNextQuestion": "Question suivante",
+  "ceHint": "Indice",
+  "ceSimpler": "Plus simple",
+  "ceWhyWrong": "Pourquoi c'est faux ?",
+  "ceTrue": "Vrai",
+  "ceFalse": "Faux",
+  "ceYes": "Oui",
+  "ceNo": "Non",
+  "ceYourAnswer": "Ta réponse",
+  "ceFactorizationHint": "Écris par exemple 2²×3×5",
+  "ceListHint": "Sépare les nombres par des virgules",
+  "ceSetPrompt": "Ajoute chaque solution, puis vérifie.",
+  "ceAddValue": "Ajouter",
+  "ceSelectAll": "Choisis toutes les bonnes réponses.",
+  "ceResiduesPrompt": "Touche les restes qui conviennent (modulo {modulus}).",
+  "@ceResiduesPrompt": {
+    "placeholders": {
+      "modulus": {
+        "type": "int"
+      }
+    }
+  },
+  "ceFieldQuotient": "Quotient q",
+  "ceFieldRemainder": "Reste r",
+  "ceFieldDivisor": "Diviseur b",
+  "ceFieldBinary": "Écriture en base 2",
+  "ceFieldDecimal": "Valeur en base 10",
+  "ceFieldDecomposition": "Décomposition",
+  "ceFieldLitres": "Litres",
+  "ceFieldBuckets": "Nombre de seaux",
+  "ceDiagnosisUnreadable": "Je n'arrive pas à lire ta réponse : vérifie l'écriture.",
+  "ceDiagnosisSomeFields": "Une partie est juste : regarde les cases en rouge.",
+  "ceDiagnosisMissing": "{count, plural, =1{Il te manque une solution.} other{Il te manque {count} solutions.}}",
+  "@ceDiagnosisMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceDiagnosisExtra": "{count, plural, =1{Une valeur est en trop.} other{{count} valeurs sont en trop.}}",
+  "@ceDiagnosisExtra": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceDiagnosisNotPrime": "Le produit est bon, mais un facteur n'est pas premier.",
+  "ceDiagnosisExponents": "Les facteurs sont bons : vérifie les exposants.",
+  "ceDiagnosisProduct": "Le produit ne redonne pas le nombre de départ.",
+  "ceDiagnosisDifferent": "Ce n'est pas la réponse attendue.",
+  "ceSourceCaution": "Point signalé dans le manuel",
+  "ceNoQuestions": "Pas encore d'exercice à ce niveau pour cette leçon.",
+  "ceLessonDone": "Tu as fait toutes les questions de ce niveau. Essaie un autre niveau ou joue !",
+  "ceSuggestSimpler": "Veux-tu l'explication « {mode} » ? La difficulté ne change pas.",
+  "@ceSuggestSimpler": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "ceSuggestHarder": "Trois réussites d'affilée ! Passer au niveau « {level} » ?",
+  "@ceSuggestHarder": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "ceAccept": "Oui, allons-y",
+  "ceDismiss": "Pas maintenant",
+  "ceNoGame": "Pas encore de jeu pour cette leçon.",
+  "ceGameComingSoon": "En préparation",
+  "ceGameChooseLevel": "Choisis ton niveau",
+  "ceGameRound": "Manche {current}/{total}",
+  "@ceGameRound": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameScore": "{points} pts",
+  "@ceGameScore": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameStreak": "Série ×{count}",
+  "@ceGameStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameTimeLeft": "{seconds} s",
+  "@ceGameTimeLeft": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameValidate": "Valider",
+  "ceGameGreat": "Bravo !",
+  "ceGameMissed": "Raté, la prochaine sera la bonne.",
+  "ceGameContinue": "Continuer",
+  "ceGameFinished": "Partie terminée",
+  "ceGameFinalScore": "Score : {points}",
+  "@ceGameFinalScore": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameWins": "{wins} manches réussies sur {rounds} · meilleure série : {streak}",
+  "@ceGameWins": {
+    "placeholders": {
+      "wins": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "int"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameReplay": "Rejouer",
+  "ceGameNextLevel": "Niveau suivant",
+  "ceGroupingQuotientGoal": "{items} objets, des boîtes de {capacity}. Remplis le plus de boîtes possible.",
+  "@ceGroupingQuotientGoal": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingFullBoxesLabel": "Boîtes pleines",
+  "ceGroupingState": "{full} boîtes pleines · {left} dehors",
+  "@ceGroupingState": {
+    "placeholders": {
+      "full": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingTooMany": "Pas assez d'objets pour autant de boîtes.",
+  "ceGroupingCapacity": "Taille d'une boîte",
+  "ceGroupingCapacityGoal": "{items} objets donnent {full} boîtes pleines et {left} dehors. Quelle est la taille d'une boîte ?",
+  "@ceGroupingCapacityGoal": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "full": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingReportGoal": "Rapport : {items} objets, exactement {full} boîtes pleines. Est-ce possible ?",
+  "@ceGroupingReportGoal": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "full": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingPossibleWith": "Possible (boîtes de {capacity})",
+  "@ceGroupingPossibleWith": {
+    "placeholders": {
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingImpossible": "Impossible",
+  "ceBinaryTarget": "Allume les interrupteurs pour faire {value}.",
+  "@ceBinaryTarget": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "ceBinaryCurrent": "Valeur actuelle : {value}",
+  "@ceBinaryCurrent": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "ceBinaryReadGoal": "Lis le code de la valise et écris sa valeur en base 10.",
+  "ceClockGoalReduce": "Sur une horloge de {modulus} cases, où s'arrête {expression} ?",
+  "@ceClockGoalReduce": {
+    "placeholders": {
+      "expression": {
+        "type": "String"
+      },
+      "modulus": {
+        "type": "int"
+      }
+    }
+  },
+  "ceClockGoalOperation": "Où s'arrête {expression} modulo {modulus} ?",
+  "@ceClockGoalOperation": {
+    "placeholders": {
+      "expression": {
+        "type": "String"
+      },
+      "modulus": {
+        "type": "int"
+      }
+    }
+  },
+  "ceClockTap": "Touche la case d'arrivée.",
+  "ceForgePrimeGoal": "{number} est-il premier ? Essaie les marteaux.",
+  "@ceForgePrimeGoal": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceForgeSplitGoal": "Casse {number} en briques premières.",
+  "@ceForgeSplitGoal": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceForgeBounce": "{prime} rebondit : il ne divise pas ce bloc.",
+  "@ceForgeBounce": {
+    "placeholders": {
+      "prime": {
+        "type": "int"
+      }
+    }
+  },
+  "ceForgeDivisorsGoal": "Combien de diviseurs positifs a {number} ?",
+  "@ceForgeDivisorsGoal": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceForgeDivisorsLabel": "Nombre de diviseurs",
+  "ceForgeIsPrime": "{number} est premier.",
+  "@ceForgeIsPrime": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "cePrime": "Premier",
+  "ceComposite": "Composé",
+  "ceTilingGcdGoal": "Un sol de {width} × {height} : quel est le plus grand carreau carré sans découpe ?",
+  "@ceTilingGcdGoal": {
+    "placeholders": {
+      "width": {
+        "type": "int"
+      },
+      "height": {
+        "type": "int"
+      }
+    }
+  },
+  "ceTilingLcmGoal": "Des carreaux de {a} et de {b} : où leurs bords se rejoignent-ils à nouveau ?",
+  "@ceTilingLcmGoal": {
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "ceTilingChooseTool": "Quel outil faut-il ici ?",
+  "ceTilingFitsButSmaller": "Ça tombe juste, mais un carreau plus grand existe.",
+  "ceTilingDistance": "Distance",
+  "ceTilingTile": "Côté du carreau",
+  "ceCompanionButton": "Compagnon",
+  "ceCompanionTitle": "{name} t'aide",
+  "@ceCompanionTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceCompanionOffline": "Réponses tirées de ton cours, même sans connexion.",
+  "ceActionExplain": "Explique normalement",
+  "ceActionSimpler": "Plus simplement",
+  "ceActionUltra": "Comme si j'avais 12 ans",
+  "ceActionShow": "Montre-moi",
+  "ceActionHint": "Donne-moi un indice",
+  "ceActionTest": "Teste-moi",
+  "ceActionWhyWrong": "Pourquoi c'est faux ?",
+  "ceAskHint": "Pose ta question sur ce chapitre…",
+  "ceAskSend": "Envoyer",
+  "ceCompanionUnknown": "Je n'ai pas encore d'explication sur ce sujet dans ce chapitre.",
+  "ceCompanionClosest": "Notions proches :",
+  "ceCompanionNoMoreHints": "Tu as vu tous les indices de ce cours. Essaie « Plus simplement ».",
+  "ceCompanionNothingWrong": "Réponds d'abord à une question : je t'expliquerai ce qui cloche.",
+  "ceCompanionNoQuestion": "Tu as réussi toutes les questions de cette leçon !",
+  "ceCompanionNoConcept": "Ouvre une leçon pour que je t'aide.",
+  "ceCompanionTrap": "Piège à éviter",
+  "ceCompanionCorrection": "Correction",
+  "ceCompanionTryIt": "Essayer cette question",
+  "ceFormalTitle": "La formulation officielle",
+  "ceCourseSays": "Ce que dit le cours",
+  "ceSituationTitle": "La situation du manuel",
+  "ceFormalProgress": "Maîtrise {score} % · {correct} bonnes réponses sur {attempts}",
+  "@ceFormalProgress": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "correct": {
+        "type": "int"
+      },
+      "attempts": {
+        "type": "int"
+      }
+    }
   }
 }

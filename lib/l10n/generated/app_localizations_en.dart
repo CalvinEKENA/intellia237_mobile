@@ -5482,4 +5482,651 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get parentGuideAgainBody =>
       'Tap the compass at the top of your space, or “See the guide again” in Profile, whenever you like.';
+
+  @override
+  String get ceLocalChaptersTitle => 'Interactive chapters';
+
+  @override
+  String get ceLocalChaptersSubtitle =>
+      'Available offline: explanations, exercises and games.';
+
+  @override
+  String ceChapterNumber(int number) {
+    return 'Chapter $number';
+  }
+
+  @override
+  String ceLessonCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lessons',
+      one: '1 lesson',
+      zero: 'No lessons',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ceLessonLabel(int number) {
+    return 'Lesson $number';
+  }
+
+  @override
+  String ceLessonRecommendedAfter(int score) {
+    return 'Recommended after $score% on the previous lesson';
+  }
+
+  @override
+  String ceMasteryPercent(int score) {
+    return 'Mastery: $score%';
+  }
+
+  @override
+  String get ceJourneyTitle => 'Your path through each lesson';
+
+  @override
+  String get ceJourneyUnderstand => 'I understand';
+
+  @override
+  String get ceJourneySee => 'I see';
+
+  @override
+  String get ceJourneyTry => 'I try';
+
+  @override
+  String get ceJourneySucceed => 'I succeed';
+
+  @override
+  String get ceJourneyFormal => 'I move to the formal version';
+
+  @override
+  String get ceIntegrationTitle => 'Integration challenges';
+
+  @override
+  String get ceIntegrationBody =>
+      'Full situations that combine the ideas of the chapter.';
+
+  @override
+  String get ceIntegrationTag => 'Integration';
+
+  @override
+  String get ceSituationTag => 'Textbook situation';
+
+  @override
+  String get ceUnavailableTitle => 'This chapter isn\'t ready yet';
+
+  @override
+  String get ceUnavailableBody =>
+      'It will appear as soon as it has been checked.';
+
+  @override
+  String get ceLoadError =>
+      'This chapter couldn\'t open. Go back and try again.';
+
+  @override
+  String get ceStepUnderstand => 'Understand';
+
+  @override
+  String get ceStepSee => 'See';
+
+  @override
+  String get ceStepPractice => 'Practise';
+
+  @override
+  String get ceStepPlay => 'Play';
+
+  @override
+  String get ceStepFormal => 'Formal';
+
+  @override
+  String ceNextStep(String step) {
+    return 'Next: $step';
+  }
+
+  @override
+  String get ceModeStandard => 'Final year';
+
+  @override
+  String get ceModeSimple => 'Simple';
+
+  @override
+  String get ceModeUltra => 'Like I\'m 12';
+
+  @override
+  String get ceModeLock => 'Keep this level';
+
+  @override
+  String get ceModeUnlock => 'Level kept · release';
+
+  @override
+  String ceIdeaProgress(int current, int total) {
+    return 'Idea $current of $total';
+  }
+
+  @override
+  String get ceNextIdea => 'Next idea';
+
+  @override
+  String get cePreviousIdea => 'Previous idea';
+
+  @override
+  String get ceOfficialWording => 'See the official wording';
+
+  @override
+  String get ceExplanationUnavailable =>
+      'This explanation isn\'t available in this course yet.';
+
+  @override
+  String ceShownInsteadMode(String mode) {
+    return 'Here is the “$mode” version.';
+  }
+
+  @override
+  String get ceMistakesTitle => 'Traps to avoid';
+
+  @override
+  String get cePrerequisitesTitle => 'Know this first';
+
+  @override
+  String get ceSeeCaption => 'Play with it: everything updates as you go.';
+
+  @override
+  String get ceNoVisual => 'No animated diagram for this idea yet.';
+
+  @override
+  String get ceVisItems => 'Items';
+
+  @override
+  String get ceVisBoxSize => 'Box size';
+
+  @override
+  String ceVisLeftover(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items are left over.',
+      one: '1 item is left over.',
+      zero: 'Nothing is left over.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ceVisDividend => 'Number a';
+
+  @override
+  String get ceVisDivisor => 'Divisor b';
+
+  @override
+  String ceVisAllowedRemainders(int max) {
+    return 'Allowed remainders: 0 to $max';
+  }
+
+  @override
+  String get ceVisModulus => 'Modulo n';
+
+  @override
+  String get ceVisNumber => 'Number';
+
+  @override
+  String get ceVisPrimeBadge =>
+      'Prime number: a single brick that can\'t be broken.';
+
+  @override
+  String get ceVisWidth => 'Width';
+
+  @override
+  String get ceVisHeight => 'Height';
+
+  @override
+  String get ceVisRhythmA => 'Rhythm A';
+
+  @override
+  String get ceVisRhythmB => 'Rhythm B';
+
+  @override
+  String get ceVisTilesFit => 'The tiles fit exactly.';
+
+  @override
+  String get ceVisTilesCut => 'Some tiles would have to be cut.';
+
+  @override
+  String ceClockLaps(int value, int laps, int modulus, int rest) {
+    return '$value = $laps laps of $modulus + $rest';
+  }
+
+  @override
+  String get ceGcd => 'GCD';
+
+  @override
+  String get ceLcm => 'LCM';
+
+  @override
+  String ceDifficultyLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String ceQuestionProgress(int current, int total) {
+    return 'Question $current of $total';
+  }
+
+  @override
+  String get ceCheck => 'Check';
+
+  @override
+  String get ceCorrect => 'Correct!';
+
+  @override
+  String get ceIncorrect => 'Not yet.';
+
+  @override
+  String get ceTryAgain => 'Try again';
+
+  @override
+  String get ceNextQuestion => 'Next question';
+
+  @override
+  String get ceHint => 'Hint';
+
+  @override
+  String get ceSimpler => 'Simpler';
+
+  @override
+  String get ceWhyWrong => 'Why is it wrong?';
+
+  @override
+  String get ceTrue => 'True';
+
+  @override
+  String get ceFalse => 'False';
+
+  @override
+  String get ceYes => 'Yes';
+
+  @override
+  String get ceNo => 'No';
+
+  @override
+  String get ceYourAnswer => 'Your answer';
+
+  @override
+  String get ceFactorizationHint => 'Write for example 2²×3×5';
+
+  @override
+  String get ceListHint => 'Separate the numbers with commas';
+
+  @override
+  String get ceSetPrompt => 'Add each solution, then check.';
+
+  @override
+  String get ceAddValue => 'Add';
+
+  @override
+  String get ceSelectAll => 'Choose every correct answer.';
+
+  @override
+  String ceResiduesPrompt(int modulus) {
+    return 'Tap the remainders that work (modulo $modulus).';
+  }
+
+  @override
+  String get ceFieldQuotient => 'Quotient q';
+
+  @override
+  String get ceFieldRemainder => 'Remainder r';
+
+  @override
+  String get ceFieldDivisor => 'Divisor b';
+
+  @override
+  String get ceFieldBinary => 'Base-2 writing';
+
+  @override
+  String get ceFieldDecimal => 'Base-10 value';
+
+  @override
+  String get ceFieldDecomposition => 'Decomposition';
+
+  @override
+  String get ceFieldLitres => 'Litres';
+
+  @override
+  String get ceFieldBuckets => 'Number of buckets';
+
+  @override
+  String get ceDiagnosisUnreadable =>
+      'I can\'t read your answer: check how it\'s written.';
+
+  @override
+  String get ceDiagnosisSomeFields =>
+      'Part of it is right: look at the boxes in red.';
+
+  @override
+  String ceDiagnosisMissing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count solutions are missing.',
+      one: 'One solution is missing.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ceDiagnosisExtra(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count values are extra.',
+      one: 'One value is extra.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ceDiagnosisNotPrime =>
+      'The product is right, but one factor isn\'t prime.';
+
+  @override
+  String get ceDiagnosisExponents =>
+      'The factors are right: check the exponents.';
+
+  @override
+  String get ceDiagnosisProduct =>
+      'The product doesn\'t give back the starting number.';
+
+  @override
+  String get ceDiagnosisDifferent => 'That isn\'t the expected answer.';
+
+  @override
+  String get ceSourceCaution => 'Point flagged in the textbook';
+
+  @override
+  String get ceNoQuestions => 'No exercise at this level for this lesson yet.';
+
+  @override
+  String get ceLessonDone =>
+      'You\'ve done every question at this level. Try another level or play!';
+
+  @override
+  String ceSuggestSimpler(String mode) {
+    return 'Would you like the “$mode” explanation? The difficulty stays the same.';
+  }
+
+  @override
+  String ceSuggestHarder(String level) {
+    return 'Three in a row! Move up to “$level”?';
+  }
+
+  @override
+  String get ceAccept => 'Yes, let\'s go';
+
+  @override
+  String get ceDismiss => 'Not now';
+
+  @override
+  String get ceNoGame => 'No game for this lesson yet.';
+
+  @override
+  String get ceGameComingSoon => 'Coming soon';
+
+  @override
+  String get ceGameChooseLevel => 'Choose your level';
+
+  @override
+  String ceGameRound(int current, int total) {
+    return 'Round $current/$total';
+  }
+
+  @override
+  String ceGameScore(int points) {
+    return '$points pts';
+  }
+
+  @override
+  String ceGameStreak(int count) {
+    return 'Streak ×$count';
+  }
+
+  @override
+  String ceGameTimeLeft(int seconds) {
+    return '${seconds}s';
+  }
+
+  @override
+  String get ceGameValidate => 'Confirm';
+
+  @override
+  String get ceGameGreat => 'Well done!';
+
+  @override
+  String get ceGameMissed => 'Missed, next one\'s yours.';
+
+  @override
+  String get ceGameContinue => 'Continue';
+
+  @override
+  String get ceGameFinished => 'Game over';
+
+  @override
+  String ceGameFinalScore(int points) {
+    return 'Score: $points';
+  }
+
+  @override
+  String ceGameWins(int wins, int rounds, int streak) {
+    return '$wins of $rounds rounds won · best streak: $streak';
+  }
+
+  @override
+  String get ceGameReplay => 'Play again';
+
+  @override
+  String get ceGameNextLevel => 'Next level';
+
+  @override
+  String ceGroupingQuotientGoal(int items, int capacity) {
+    return '$items items, boxes of $capacity. Fill as many boxes as you can.';
+  }
+
+  @override
+  String get ceGroupingFullBoxesLabel => 'Full boxes';
+
+  @override
+  String ceGroupingState(int full, int left) {
+    return '$full full boxes · $left left over';
+  }
+
+  @override
+  String get ceGroupingTooMany => 'Not enough items for that many boxes.';
+
+  @override
+  String get ceGroupingCapacity => 'Box size';
+
+  @override
+  String ceGroupingCapacityGoal(int items, int full, int left) {
+    return '$items items make $full full boxes with $left left over. What is the box size?';
+  }
+
+  @override
+  String ceGroupingReportGoal(int items, int full) {
+    return 'Report: $items items, exactly $full full boxes. Is it possible?';
+  }
+
+  @override
+  String ceGroupingPossibleWith(int capacity) {
+    return 'Possible (boxes of $capacity)';
+  }
+
+  @override
+  String get ceGroupingImpossible => 'Impossible';
+
+  @override
+  String ceBinaryTarget(int value) {
+    return 'Switch on the switches to make $value.';
+  }
+
+  @override
+  String ceBinaryCurrent(int value) {
+    return 'Current value: $value';
+  }
+
+  @override
+  String get ceBinaryReadGoal =>
+      'Read the suitcase code and write its base-10 value.';
+
+  @override
+  String ceClockGoalReduce(String expression, int modulus) {
+    return 'On a $modulus-slot clock, where does $expression stop?';
+  }
+
+  @override
+  String ceClockGoalOperation(String expression, int modulus) {
+    return 'Where does $expression stop modulo $modulus?';
+  }
+
+  @override
+  String get ceClockTap => 'Tap the landing slot.';
+
+  @override
+  String ceForgePrimeGoal(int number) {
+    return 'Is $number prime? Try the hammers.';
+  }
+
+  @override
+  String ceForgeSplitGoal(int number) {
+    return 'Break $number into prime bricks.';
+  }
+
+  @override
+  String ceForgeBounce(int prime) {
+    return '$prime bounces off: it doesn\'t divide this block.';
+  }
+
+  @override
+  String ceForgeDivisorsGoal(int number) {
+    return 'How many positive divisors does $number have?';
+  }
+
+  @override
+  String get ceForgeDivisorsLabel => 'Number of divisors';
+
+  @override
+  String ceForgeIsPrime(int number) {
+    return '$number is prime.';
+  }
+
+  @override
+  String get cePrime => 'Prime';
+
+  @override
+  String get ceComposite => 'Composite';
+
+  @override
+  String ceTilingGcdGoal(int width, int height) {
+    return 'A $width × $height floor: what is the largest square tile with no cutting?';
+  }
+
+  @override
+  String ceTilingLcmGoal(int a, int b) {
+    return 'Tiles of $a and $b: where do their edges line up again?';
+  }
+
+  @override
+  String get ceTilingChooseTool => 'Which tool do you need here?';
+
+  @override
+  String get ceTilingFitsButSmaller => 'It fits, but a larger tile exists.';
+
+  @override
+  String get ceTilingDistance => 'Distance';
+
+  @override
+  String get ceTilingTile => 'Tile side';
+
+  @override
+  String get ceCompanionButton => 'Companion';
+
+  @override
+  String ceCompanionTitle(String name) {
+    return '$name is here to help';
+  }
+
+  @override
+  String get ceCompanionOffline =>
+      'Answers taken from your course, even offline.';
+
+  @override
+  String get ceActionExplain => 'Explain normally';
+
+  @override
+  String get ceActionSimpler => 'More simply';
+
+  @override
+  String get ceActionUltra => 'Like I\'m 12';
+
+  @override
+  String get ceActionShow => 'Show me';
+
+  @override
+  String get ceActionHint => 'Give me a hint';
+
+  @override
+  String get ceActionTest => 'Test me';
+
+  @override
+  String get ceActionWhyWrong => 'Why is it wrong?';
+
+  @override
+  String get ceAskHint => 'Ask about this chapter…';
+
+  @override
+  String get ceAskSend => 'Send';
+
+  @override
+  String get ceCompanionUnknown =>
+      'I don\'t have an explanation on this topic in this chapter yet.';
+
+  @override
+  String get ceCompanionClosest => 'Related ideas:';
+
+  @override
+  String get ceCompanionNoMoreHints =>
+      'You\'ve seen every hint in this course. Try “More simply”.';
+
+  @override
+  String get ceCompanionNothingWrong =>
+      'Answer a question first: I\'ll explain what went wrong.';
+
+  @override
+  String get ceCompanionNoQuestion =>
+      'You\'ve solved every question in this lesson!';
+
+  @override
+  String get ceCompanionNoConcept => 'Open a lesson so I can help.';
+
+  @override
+  String get ceCompanionTrap => 'Trap to avoid';
+
+  @override
+  String get ceCompanionCorrection => 'Solution';
+
+  @override
+  String get ceCompanionTryIt => 'Try this question';
+
+  @override
+  String get ceFormalTitle => 'The official wording';
+
+  @override
+  String get ceCourseSays => 'What the course says';
+
+  @override
+  String get ceSituationTitle => 'The textbook situation';
+
+  @override
+  String ceFormalProgress(int score, int correct, int attempts) {
+    return 'Mastery $score% · $correct correct out of $attempts';
+  }
 }

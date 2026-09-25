@@ -63,6 +63,11 @@ const _coveredPublicCardTypes = {
   // Dedicated FR/EN test at 360 px up to textScale 2.0, word tiles and
   // stacked steps: test/features/interactive_learning/ordering_exercise_view_test.dart.
   'InteractiveExerciseCard',
+  // Dedicated FR/EN test at 360 px / textScale 1.5 (chapitres interactifs) :
+  // test/features/content_engine/content_cards_responsive_test.dart.
+  'ContentCard',
+  'GameCard',
+  'CompanionReplyCard',
 };
 
 const _longQuestion = QuizQuestion(

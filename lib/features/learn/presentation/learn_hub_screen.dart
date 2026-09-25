@@ -19,6 +19,7 @@ import 'subject_detail_screen.dart';
 import 'widgets/learn_unavailable_state.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
+import '../../content_engine/presentation/local_chapters_section.dart';
 
 class LearnHubScreen extends ConsumerStatefulWidget {
   const LearnHubScreen({super.key, this.embedded = false});
@@ -61,6 +62,8 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
           error: error.runtimeType.toString(),
         );
         return LearnUnavailableState(
+          // Les chapitres embarqués restent ouverts, même sans le catalogue.
+          leading: const LocalChaptersSection(),
           offline: stateKindForError(error) == IntelliaStateKind.offline,
           onRetry: () => ref.invalidate(learnHubProvider),
           onContinuePath: () => context.push(AppRoutes.flow),
@@ -169,6 +172,9 @@ class _LearnHubBody extends StatelessWidget {
         // (Chips de filtre sans effet retirées : fausse affordance. Le
         // contexte de classe est déjà affiché dans le banner.)
         const SliverToBoxAdapter(child: SizedBox(height: IntelliaSpacing.md)),
+
+        // ── Chapitres interactifs locaux (hors connexion) ──
+        const SliverToBoxAdapter(child: LocalChaptersSection()),
 
         // ── Subject grid ───────────────────────────────────
         if (subjects.isEmpty)

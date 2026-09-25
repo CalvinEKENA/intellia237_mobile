@@ -17,8 +17,13 @@ class LearnUnavailableState extends StatelessWidget {
     required this.onRetry,
     required this.onContinuePath,
     this.offline = false,
+    this.leading,
     super.key,
   });
+
+  /// Contenu toujours disponible, montré avant l'étagère (ex. chapitres
+  /// embarqués sur l'appareil).
+  final Widget? leading;
 
   final VoidCallback onRetry;
   final VoidCallback onContinuePath;
@@ -48,6 +53,7 @@ class LearnUnavailableState extends StatelessWidget {
           eyebrow: l10n.studentSpaceEyebrow,
           title: l10n.learnTitle,
         ),
+        if (leading case final leading?) SliverToBoxAdapter(child: leading),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             IntelliaSpacing.lg,

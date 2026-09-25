@@ -30,6 +30,10 @@ import '../../features/ai_companion/presentation/ai_companion_screen.dart';
 import '../../features/bootstrap/presentation/bootstrap_screen.dart';
 import '../../features/flow/presentation/flow_screen.dart';
 import '../../features/learn/presentation/chapter_detail_screen.dart';
+import '../../features/content_engine/presentation/content_chapter_screen.dart';
+import '../../features/content_engine/presentation/content_integration_screen.dart';
+import '../../features/content_engine/presentation/content_lesson_screen.dart';
+import '../../features/content_engine/presentation/games/game_screen.dart';
 import '../../features/learn/presentation/learn_hub_screen.dart';
 import '../../features/learn/presentation/lesson_viewer_screen.dart';
 import '../../features/learn/presentation/subject_detail_screen.dart';
@@ -331,6 +335,61 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ),
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.contentChapterRoute,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(
+            context,
+            state,
+            ContentChapterScreen(
+              contentId: state.pathParameters['contentId'] ?? '',
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.contentLessonRoute,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(
+            context,
+            state,
+            ContentLessonScreen(
+              contentId: state.pathParameters['contentId'] ?? '',
+              lessonNumber:
+                  int.tryParse(state.pathParameters['lesson'] ?? '') ?? 0,
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.contentGameRoute,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(
+            context,
+            state,
+            ContentGameScreen(
+              contentId: state.pathParameters['contentId'] ?? '',
+              gameId: state.pathParameters['gameId'] ?? '',
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.contentIntegrationRoute,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(
+            context,
+            state,
+            ContentIntegrationScreen(
+              contentId: state.pathParameters['contentId'] ?? '',
+            ),
+          ),
+        ),
       ),
       GoRoute(
         path: AppRoutes.learnChapterRoute,

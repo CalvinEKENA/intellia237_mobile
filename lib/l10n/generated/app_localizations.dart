@@ -9423,6 +9423,1044 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Touchez la boussole en haut de votre espace, ou « Revoir le guide » dans Profil, quand vous le souhaitez.'**
   String get parentGuideAgainBody;
+
+  /// No description provided for @ceLocalChaptersTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitres interactifs'**
+  String get ceLocalChaptersTitle;
+
+  /// No description provided for @ceLocalChaptersSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponibles sans connexion : explications, exercices et jeux.'**
+  String get ceLocalChaptersSubtitle;
+
+  /// No description provided for @ceChapterNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitre {number}'**
+  String ceChapterNumber(int number);
+
+  /// No description provided for @ceLessonCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune leçon} =1{1 leçon} other{{count} leçons}}'**
+  String ceLessonCount(int count);
+
+  /// No description provided for @ceLessonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Leçon {number}'**
+  String ceLessonLabel(int number);
+
+  /// No description provided for @ceLessonRecommendedAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conseillée après {score} % sur la leçon précédente'**
+  String ceLessonRecommendedAfter(int score);
+
+  /// No description provided for @ceMasteryPercent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrise : {score} %'**
+  String ceMasteryPercent(int score);
+
+  /// No description provided for @ceJourneyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton chemin dans chaque leçon'**
+  String get ceJourneyTitle;
+
+  /// No description provided for @ceJourneyUnderstand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je comprends'**
+  String get ceJourneyUnderstand;
+
+  /// No description provided for @ceJourneySee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je vois'**
+  String get ceJourneySee;
+
+  /// No description provided for @ceJourneyTry.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'essaie'**
+  String get ceJourneyTry;
+
+  /// No description provided for @ceJourneySucceed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je réussis'**
+  String get ceJourneySucceed;
+
+  /// No description provided for @ceJourneyFormal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je passe au formalisme'**
+  String get ceJourneyFormal;
+
+  /// No description provided for @ceIntegrationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défis d\'intégration'**
+  String get ceIntegrationTitle;
+
+  /// No description provided for @ceIntegrationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des situations complètes qui mêlent les notions du chapitre.'**
+  String get ceIntegrationBody;
+
+  /// No description provided for @ceIntegrationTag.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intégration'**
+  String get ceIntegrationTag;
+
+  /// No description provided for @ceSituationTag.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation du manuel'**
+  String get ceSituationTag;
+
+  /// No description provided for @ceUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce chapitre n\'est pas encore prêt'**
+  String get ceUnavailableTitle;
+
+  /// No description provided for @ceUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il sera proposé dès qu\'il aura été vérifié.'**
+  String get ceUnavailableBody;
+
+  /// No description provided for @ceLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce chapitre n\'a pas pu s\'ouvrir. Reviens en arrière et réessaie.'**
+  String get ceLoadError;
+
+  /// No description provided for @ceStepUnderstand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre'**
+  String get ceStepUnderstand;
+
+  /// No description provided for @ceStepSee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get ceStepSee;
+
+  /// No description provided for @ceStepPractice.
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'entraîner'**
+  String get ceStepPractice;
+
+  /// No description provided for @ceStepPlay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jouer'**
+  String get ceStepPlay;
+
+  /// No description provided for @ceStepFormal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formalisme'**
+  String get ceStepFormal;
+
+  /// No description provided for @ceNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ensuite : {step}'**
+  String ceNextStep(String step);
+
+  /// No description provided for @ceModeStandard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminale'**
+  String get ceModeStandard;
+
+  /// No description provided for @ceModeSimple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simple'**
+  String get ceModeSimple;
+
+  /// No description provided for @ceModeUltra.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comme si j\'avais 12 ans'**
+  String get ceModeUltra;
+
+  /// No description provided for @ceModeLock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder ce niveau'**
+  String get ceModeLock;
+
+  /// No description provided for @ceModeUnlock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau gardé · libérer'**
+  String get ceModeUnlock;
+
+  /// No description provided for @ceIdeaProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idée {current} sur {total}'**
+  String ceIdeaProgress(int current, int total);
+
+  /// No description provided for @ceNextIdea.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idée suivante'**
+  String get ceNextIdea;
+
+  /// No description provided for @cePreviousIdea.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idée précédente'**
+  String get cePreviousIdea;
+
+  /// No description provided for @ceOfficialWording.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir la formulation officielle'**
+  String get ceOfficialWording;
+
+  /// No description provided for @ceExplanationUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette explication n\'est pas encore disponible dans ce cours.'**
+  String get ceExplanationUnavailable;
+
+  /// No description provided for @ceShownInsteadMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici la version « {mode} ».'**
+  String ceShownInsteadMode(String mode);
+
+  /// No description provided for @ceMistakesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pièges à éviter'**
+  String get ceMistakesTitle;
+
+  /// No description provided for @cePrerequisitesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À savoir avant'**
+  String get cePrerequisitesTitle;
+
+  /// No description provided for @ceSeeCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Manipule : tout se met à jour sous tes yeux.'**
+  String get ceSeeCaption;
+
+  /// No description provided for @ceNoVisual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de schéma animé pour cette notion.'**
+  String get ceNoVisual;
+
+  /// No description provided for @ceVisItems.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objets'**
+  String get ceVisItems;
+
+  /// No description provided for @ceVisBoxSize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille d\'une boîte'**
+  String get ceVisBoxSize;
+
+  /// No description provided for @ceVisLeftover.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Rien ne reste dehors.} =1{1 objet reste dehors.} other{{count} objets restent dehors.}}'**
+  String ceVisLeftover(int count);
+
+  /// No description provided for @ceVisDividend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre a'**
+  String get ceVisDividend;
+
+  /// No description provided for @ceVisDivisor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diviseur b'**
+  String get ceVisDivisor;
+
+  /// No description provided for @ceVisAllowedRemainders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restes permis : de 0 à {max}'**
+  String ceVisAllowedRemainders(int max);
+
+  /// No description provided for @ceVisModulus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modulo n'**
+  String get ceVisModulus;
+
+  /// No description provided for @ceVisNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre'**
+  String get ceVisNumber;
+
+  /// No description provided for @ceVisPrimeBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre premier : une seule brique, impossible à casser.'**
+  String get ceVisPrimeBadge;
+
+  /// No description provided for @ceVisWidth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Largeur'**
+  String get ceVisWidth;
+
+  /// No description provided for @ceVisHeight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hauteur'**
+  String get ceVisHeight;
+
+  /// No description provided for @ceVisRhythmA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme A'**
+  String get ceVisRhythmA;
+
+  /// No description provided for @ceVisRhythmB.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme B'**
+  String get ceVisRhythmB;
+
+  /// No description provided for @ceVisTilesFit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les carreaux tombent juste.'**
+  String get ceVisTilesFit;
+
+  /// No description provided for @ceVisTilesCut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il faudrait couper des carreaux.'**
+  String get ceVisTilesCut;
+
+  /// No description provided for @ceClockLaps.
+  ///
+  /// In fr, this message translates to:
+  /// **'{value} = {laps} tours de {modulus} + {rest}'**
+  String ceClockLaps(int value, int laps, int modulus, int rest);
+
+  /// No description provided for @ceGcd.
+  ///
+  /// In fr, this message translates to:
+  /// **'PGCD'**
+  String get ceGcd;
+
+  /// No description provided for @ceLcm.
+  ///
+  /// In fr, this message translates to:
+  /// **'PPCM'**
+  String get ceLcm;
+
+  /// No description provided for @ceDifficultyLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau {level}'**
+  String ceDifficultyLevel(int level);
+
+  /// No description provided for @ceQuestionProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question {current} sur {total}'**
+  String ceQuestionProgress(int current, int total);
+
+  /// No description provided for @ceCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier'**
+  String get ceCheck;
+
+  /// No description provided for @ceCorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Juste !'**
+  String get ceCorrect;
+
+  /// No description provided for @ceIncorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore.'**
+  String get ceIncorrect;
+
+  /// No description provided for @ceTryAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get ceTryAgain;
+
+  /// No description provided for @ceNextQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question suivante'**
+  String get ceNextQuestion;
+
+  /// No description provided for @ceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indice'**
+  String get ceHint;
+
+  /// No description provided for @ceSimpler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus simple'**
+  String get ceSimpler;
+
+  /// No description provided for @ceWhyWrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi c\'est faux ?'**
+  String get ceWhyWrong;
+
+  /// No description provided for @ceTrue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vrai'**
+  String get ceTrue;
+
+  /// No description provided for @ceFalse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux'**
+  String get ceFalse;
+
+  /// No description provided for @ceYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get ceYes;
+
+  /// No description provided for @ceNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get ceNo;
+
+  /// No description provided for @ceYourAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse'**
+  String get ceYourAnswer;
+
+  /// No description provided for @ceFactorizationHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris par exemple 2²×3×5'**
+  String get ceFactorizationHint;
+
+  /// No description provided for @ceListHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sépare les nombres par des virgules'**
+  String get ceListHint;
+
+  /// No description provided for @ceSetPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute chaque solution, puis vérifie.'**
+  String get ceSetPrompt;
+
+  /// No description provided for @ceAddValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter'**
+  String get ceAddValue;
+
+  /// No description provided for @ceSelectAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis toutes les bonnes réponses.'**
+  String get ceSelectAll;
+
+  /// No description provided for @ceResiduesPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche les restes qui conviennent (modulo {modulus}).'**
+  String ceResiduesPrompt(int modulus);
+
+  /// No description provided for @ceFieldQuotient.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quotient q'**
+  String get ceFieldQuotient;
+
+  /// No description provided for @ceFieldRemainder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste r'**
+  String get ceFieldRemainder;
+
+  /// No description provided for @ceFieldDivisor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diviseur b'**
+  String get ceFieldDivisor;
+
+  /// No description provided for @ceFieldBinary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écriture en base 2'**
+  String get ceFieldBinary;
+
+  /// No description provided for @ceFieldDecimal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur en base 10'**
+  String get ceFieldDecimal;
+
+  /// No description provided for @ceFieldDecomposition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décomposition'**
+  String get ceFieldDecomposition;
+
+  /// No description provided for @ceFieldLitres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Litres'**
+  String get ceFieldLitres;
+
+  /// No description provided for @ceFieldBuckets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de seaux'**
+  String get ceFieldBuckets;
+
+  /// No description provided for @ceDiagnosisUnreadable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'arrive pas à lire ta réponse : vérifie l\'écriture.'**
+  String get ceDiagnosisUnreadable;
+
+  /// No description provided for @ceDiagnosisSomeFields.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une partie est juste : regarde les cases en rouge.'**
+  String get ceDiagnosisSomeFields;
+
+  /// No description provided for @ceDiagnosisMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Il te manque une solution.} other{Il te manque {count} solutions.}}'**
+  String ceDiagnosisMissing(int count);
+
+  /// No description provided for @ceDiagnosisExtra.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Une valeur est en trop.} other{{count} valeurs sont en trop.}}'**
+  String ceDiagnosisExtra(int count);
+
+  /// No description provided for @ceDiagnosisNotPrime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le produit est bon, mais un facteur n\'est pas premier.'**
+  String get ceDiagnosisNotPrime;
+
+  /// No description provided for @ceDiagnosisExponents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les facteurs sont bons : vérifie les exposants.'**
+  String get ceDiagnosisExponents;
+
+  /// No description provided for @ceDiagnosisProduct.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le produit ne redonne pas le nombre de départ.'**
+  String get ceDiagnosisProduct;
+
+  /// No description provided for @ceDiagnosisDifferent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce n\'est pas la réponse attendue.'**
+  String get ceDiagnosisDifferent;
+
+  /// No description provided for @ceSourceCaution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Point signalé dans le manuel'**
+  String get ceSourceCaution;
+
+  /// No description provided for @ceNoQuestions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore d\'exercice à ce niveau pour cette leçon.'**
+  String get ceNoQuestions;
+
+  /// No description provided for @ceLessonDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as fait toutes les questions de ce niveau. Essaie un autre niveau ou joue !'**
+  String get ceLessonDone;
+
+  /// No description provided for @ceSuggestSimpler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veux-tu l\'explication « {mode} » ? La difficulté ne change pas.'**
+  String ceSuggestSimpler(String mode);
+
+  /// No description provided for @ceSuggestHarder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trois réussites d\'affilée ! Passer au niveau « {level} » ?'**
+  String ceSuggestHarder(String level);
+
+  /// No description provided for @ceAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, allons-y'**
+  String get ceAccept;
+
+  /// No description provided for @ceDismiss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas maintenant'**
+  String get ceDismiss;
+
+  /// No description provided for @ceNoGame.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de jeu pour cette leçon.'**
+  String get ceNoGame;
+
+  /// No description provided for @ceGameComingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'En préparation'**
+  String get ceGameComingSoon;
+
+  /// No description provided for @ceGameChooseLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ton niveau'**
+  String get ceGameChooseLevel;
+
+  /// No description provided for @ceGameRound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Manche {current}/{total}'**
+  String ceGameRound(int current, int total);
+
+  /// No description provided for @ceGameScore.
+  ///
+  /// In fr, this message translates to:
+  /// **'{points} pts'**
+  String ceGameScore(int points);
+
+  /// No description provided for @ceGameStreak.
+  ///
+  /// In fr, this message translates to:
+  /// **'Série ×{count}'**
+  String ceGameStreak(int count);
+
+  /// No description provided for @ceGameTimeLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'{seconds} s'**
+  String ceGameTimeLeft(int seconds);
+
+  /// No description provided for @ceGameValidate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider'**
+  String get ceGameValidate;
+
+  /// No description provided for @ceGameGreat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bravo !'**
+  String get ceGameGreat;
+
+  /// No description provided for @ceGameMissed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Raté, la prochaine sera la bonne.'**
+  String get ceGameMissed;
+
+  /// No description provided for @ceGameContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get ceGameContinue;
+
+  /// No description provided for @ceGameFinished.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partie terminée'**
+  String get ceGameFinished;
+
+  /// No description provided for @ceGameFinalScore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score : {points}'**
+  String ceGameFinalScore(int points);
+
+  /// No description provided for @ceGameWins.
+  ///
+  /// In fr, this message translates to:
+  /// **'{wins} manches réussies sur {rounds} · meilleure série : {streak}'**
+  String ceGameWins(int wins, int rounds, int streak);
+
+  /// No description provided for @ceGameReplay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejouer'**
+  String get ceGameReplay;
+
+  /// No description provided for @ceGameNextLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau suivant'**
+  String get ceGameNextLevel;
+
+  /// No description provided for @ceGroupingQuotientGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{items} objets, des boîtes de {capacity}. Remplis le plus de boîtes possible.'**
+  String ceGroupingQuotientGoal(int items, int capacity);
+
+  /// No description provided for @ceGroupingFullBoxesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boîtes pleines'**
+  String get ceGroupingFullBoxesLabel;
+
+  /// No description provided for @ceGroupingState.
+  ///
+  /// In fr, this message translates to:
+  /// **'{full} boîtes pleines · {left} dehors'**
+  String ceGroupingState(int full, int left);
+
+  /// No description provided for @ceGroupingTooMany.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas assez d\'objets pour autant de boîtes.'**
+  String get ceGroupingTooMany;
+
+  /// No description provided for @ceGroupingCapacity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille d\'une boîte'**
+  String get ceGroupingCapacity;
+
+  /// No description provided for @ceGroupingCapacityGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{items} objets donnent {full} boîtes pleines et {left} dehors. Quelle est la taille d\'une boîte ?'**
+  String ceGroupingCapacityGoal(int items, int full, int left);
+
+  /// No description provided for @ceGroupingReportGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rapport : {items} objets, exactement {full} boîtes pleines. Est-ce possible ?'**
+  String ceGroupingReportGoal(int items, int full);
+
+  /// No description provided for @ceGroupingPossibleWith.
+  ///
+  /// In fr, this message translates to:
+  /// **'Possible (boîtes de {capacity})'**
+  String ceGroupingPossibleWith(int capacity);
+
+  /// No description provided for @ceGroupingImpossible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible'**
+  String get ceGroupingImpossible;
+
+  /// No description provided for @ceBinaryTarget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allume les interrupteurs pour faire {value}.'**
+  String ceBinaryTarget(int value);
+
+  /// No description provided for @ceBinaryCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur actuelle : {value}'**
+  String ceBinaryCurrent(int value);
+
+  /// No description provided for @ceBinaryReadGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lis le code de la valise et écris sa valeur en base 10.'**
+  String get ceBinaryReadGoal;
+
+  /// No description provided for @ceClockGoalReduce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur une horloge de {modulus} cases, où s\'arrête {expression} ?'**
+  String ceClockGoalReduce(String expression, int modulus);
+
+  /// No description provided for @ceClockGoalOperation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où s\'arrête {expression} modulo {modulus} ?'**
+  String ceClockGoalOperation(String expression, int modulus);
+
+  /// No description provided for @ceClockTap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche la case d\'arrivée.'**
+  String get ceClockTap;
+
+  /// No description provided for @ceForgePrimeGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{number} est-il premier ? Essaie les marteaux.'**
+  String ceForgePrimeGoal(int number);
+
+  /// No description provided for @ceForgeSplitGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Casse {number} en briques premières.'**
+  String ceForgeSplitGoal(int number);
+
+  /// No description provided for @ceForgeBounce.
+  ///
+  /// In fr, this message translates to:
+  /// **'{prime} rebondit : il ne divise pas ce bloc.'**
+  String ceForgeBounce(int prime);
+
+  /// No description provided for @ceForgeDivisorsGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien de diviseurs positifs a {number} ?'**
+  String ceForgeDivisorsGoal(int number);
+
+  /// No description provided for @ceForgeDivisorsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de diviseurs'**
+  String get ceForgeDivisorsLabel;
+
+  /// No description provided for @ceForgeIsPrime.
+  ///
+  /// In fr, this message translates to:
+  /// **'{number} est premier.'**
+  String ceForgeIsPrime(int number);
+
+  /// No description provided for @cePrime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier'**
+  String get cePrime;
+
+  /// No description provided for @ceComposite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Composé'**
+  String get ceComposite;
+
+  /// No description provided for @ceTilingGcdGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un sol de {width} × {height} : quel est le plus grand carreau carré sans découpe ?'**
+  String ceTilingGcdGoal(int width, int height);
+
+  /// No description provided for @ceTilingLcmGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des carreaux de {a} et de {b} : où leurs bords se rejoignent-ils à nouveau ?'**
+  String ceTilingLcmGoal(int a, int b);
+
+  /// No description provided for @ceTilingChooseTool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel outil faut-il ici ?'**
+  String get ceTilingChooseTool;
+
+  /// No description provided for @ceTilingFitsButSmaller.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ça tombe juste, mais un carreau plus grand existe.'**
+  String get ceTilingFitsButSmaller;
+
+  /// No description provided for @ceTilingDistance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance'**
+  String get ceTilingDistance;
+
+  /// No description provided for @ceTilingTile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Côté du carreau'**
+  String get ceTilingTile;
+
+  /// No description provided for @ceCompanionButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compagnon'**
+  String get ceCompanionButton;
+
+  /// No description provided for @ceCompanionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} t\'aide'**
+  String ceCompanionTitle(String name);
+
+  /// No description provided for @ceCompanionOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponses tirées de ton cours, même sans connexion.'**
+  String get ceCompanionOffline;
+
+  /// No description provided for @ceActionExplain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique normalement'**
+  String get ceActionExplain;
+
+  /// No description provided for @ceActionSimpler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus simplement'**
+  String get ceActionSimpler;
+
+  /// No description provided for @ceActionUltra.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comme si j\'avais 12 ans'**
+  String get ceActionUltra;
+
+  /// No description provided for @ceActionShow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montre-moi'**
+  String get ceActionShow;
+
+  /// No description provided for @ceActionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donne-moi un indice'**
+  String get ceActionHint;
+
+  /// No description provided for @ceActionTest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Teste-moi'**
+  String get ceActionTest;
+
+  /// No description provided for @ceActionWhyWrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi c\'est faux ?'**
+  String get ceActionWhyWrong;
+
+  /// No description provided for @ceAskHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pose ta question sur ce chapitre…'**
+  String get ceAskHint;
+
+  /// No description provided for @ceAskSend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get ceAskSend;
+
+  /// No description provided for @ceCompanionUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'ai pas encore d\'explication sur ce sujet dans ce chapitre.'**
+  String get ceCompanionUnknown;
+
+  /// No description provided for @ceCompanionClosest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notions proches :'**
+  String get ceCompanionClosest;
+
+  /// No description provided for @ceCompanionNoMoreHints.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as vu tous les indices de ce cours. Essaie « Plus simplement ».'**
+  String get ceCompanionNoMoreHints;
+
+  /// No description provided for @ceCompanionNothingWrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponds d\'abord à une question : je t\'expliquerai ce qui cloche.'**
+  String get ceCompanionNothingWrong;
+
+  /// No description provided for @ceCompanionNoQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as réussi toutes les questions de cette leçon !'**
+  String get ceCompanionNoQuestion;
+
+  /// No description provided for @ceCompanionNoConcept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvre une leçon pour que je t\'aide.'**
+  String get ceCompanionNoConcept;
+
+  /// No description provided for @ceCompanionTrap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Piège à éviter'**
+  String get ceCompanionTrap;
+
+  /// No description provided for @ceCompanionCorrection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Correction'**
+  String get ceCompanionCorrection;
+
+  /// No description provided for @ceCompanionTryIt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essayer cette question'**
+  String get ceCompanionTryIt;
+
+  /// No description provided for @ceFormalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La formulation officielle'**
+  String get ceFormalTitle;
+
+  /// No description provided for @ceCourseSays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que dit le cours'**
+  String get ceCourseSays;
+
+  /// No description provided for @ceSituationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La situation du manuel'**
+  String get ceSituationTitle;
+
+  /// No description provided for @ceFormalProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrise {score} % · {correct} bonnes réponses sur {attempts}'**
+  String ceFormalProgress(int score, int correct, int attempts);
 }
 
 class _AppLocalizationsDelegate
