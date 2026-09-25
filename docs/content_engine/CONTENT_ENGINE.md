@@ -6,7 +6,7 @@ cours à trois niveaux d'explication, visuels manipulables, exercices corrigés
 de façon déterministe, jeux, Compagnon hors ligne, adaptation et maîtrise
 par notion, fil « Mon Parcours ».
 
-Pilote : `assets/content/terminale_d/mathematiques/ch01_arithmetique/`.
+Packs embarqués : `assets/content/terminale_d/mathematiques/ch01…ch03/`.
 Aucune ligne du moteur n'est propre à ce chapitre.
 
 ## Principes
@@ -180,18 +180,43 @@ erreurs, réussite notable ; jamais deux fois de suite
 * Historique local par élève (vue, répondue, juste, fausse, passée,
   dernière présentation).
 
-## Anomalies relevées sur le pilote (non corrigées dans les JSON)
+## Mathématiques Terminale D — chapitres 1 à 3 (embarqués)
 
-| Code | Détail | Effet / proposition |
-|---|---|---|
-| `validation_flag_page_level` ×2 | Les anomalies de `page_025.jpg` nomment une page, pas des questions | Rattachées aux 5 questions de la page. **Proposition : ajouter `question_ids`.** |
-| `game_concept_unknown` | `mission_awa` vise `chapter_integration`, absent de `pedagogy.concepts` | Jouable via la convention « notion d'intégration ». **Proposition : `engine: "integration_mission"` et `status: "ready"` explicites.** |
-| — | `remainder_zone` sans `engine` | Déduit de la notion (`remainder_band`). **Proposition : `engine: "remainder_zone"` explicite.** |
-| — | Aucun `manifest.class_keys` | Classe déduite de `curriculum.level` (« Terminale D »). **Proposition : `class_keys: ["terminale-d"]`, ou `terminale-c-d` si le chapitre est commun.** |
+| Pack | Dossier | Questions notées | Jeux |
+|---|---|---|---|
+| CH01 Arithmétique | `ch01_arithmetique/` | 41/41 | 7 prêts |
+| CH02 Nombres complexes : approche algébrique | `ch02_nombres_complexes/` | 35/37 | 6 en préparation |
+| CH03 Fonctions numériques d'une variable réelle | `ch03_fonctions_numeriques/` | 36/45 | 6 en préparation |
 
-Autres constats : aucune question n'a d'indice propre (le Compagnon utilise
-les pièges, puis l'explication « simple ») ; peu d'exemples explicites
-(« Donne-moi un exemple » s'appuie sur les questions faciles corrigées).
+Les trois passent `validate_packs_test.dart` sans erreur ni avertissement.
+Ils constituent le secours embarqué de la matière ; les chapitres suivants
+arrivent par le catalogue distant.
+
+**Moteur v2** (`kContentEngineVersion = 2`), rétrocompatible v1 : plusieurs
+notions par leçon (`lessons` / `concept_ids`, sélecteur dans la leçon),
+`concept_id` par question, indices gradués `{level, content}`,
+`visual_model` objet (un moteur visuel inconnu n'est jamais deviné),
+`option_metadata` + `correct_option_ids` (vérifiés contre la réponse,
+retour affiché par proposition), jeux `concept_id` / `engine_blueprint`
+(moteur nommé mais inconnu → `draft`, jamais remplacé), anomalies
+`question_ids: []` (source non reprise), `auto_score: false` (réponse
+rédigée, non notée). Nouveaux types corrigés de façon déterministe :
+`complex_parts`, `complex_number`, `solution_set_complex` (accepte `1±2i`),
+`numeric_radical` (`5√2`, `√50`), `numeric_approx` (demi-unité du dernier
+chiffre), `interval`, `expression`, `multi_answer`, décimaux et fractions
+(`0,25`, `1/4`). Une réponse de raisonnement courte (intervalle, formule
+d'un seul bloc) est corrigée ; une phrase ne l'est jamais.
+
+Transformations des packs (aucune réponse, aucun énoncé modifié) :
+* CH01 : manifeste v2 (`id`, `class_keys: ["terminale-d"]`, version 1,
+  moteur 2) ; notion `chapter_integration` ; runtime v2 (`concept_ids`,
+  `concept_id` par question, indices sans la réponse, moteurs et statuts
+  de jeux explicites) ; `question_ids` sur les deux anomalies de la page 025.
+* CH02 : 6 jeux `ready` → `draft` (aucun moteur) ; `l2_h1`, `l3_h3`
+  → `auto_score: false` ; sha256 du manifeste recalculés.
+* CH03 : fichiers renommés (`ch03_*.json` → noms canoniques,
+  `manifest.files` mis à jour) ; 6 jeux → `draft` ; 9 réponses rédigées
+  → `auto_score: false` ; sha256 recalculés.
 
 ## Règles d'adaptation (depuis `runtime.mastery`)
 

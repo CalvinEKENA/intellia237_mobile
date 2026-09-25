@@ -48,14 +48,14 @@ class ContentLessonScreen extends ConsumerWidget {
       error: (_, _) => _Missing(message: context.l10n.ceLoadError),
       data: (chapter) {
         final lesson = chapter.lesson(lessonNumber);
-        final concept = chapter.conceptForLesson(lessonNumber);
-        if (!chapter.isPlayable || lesson == null || concept == null) {
+        final concepts = chapter.conceptsForLesson(lessonNumber);
+        if (!chapter.isPlayable || lesson == null || concepts.isEmpty) {
           return _Missing(message: context.l10n.ceUnavailableBody);
         }
-        return _LessonView(
+        return _LessonHost(
           chapter: chapter,
           lesson: lesson,
-          concept: concept,
+          concepts: concepts,
           initialStep: initialStep,
         );
       },
@@ -82,17 +82,58 @@ class _Missing extends StatelessWidget {
   );
 }
 
+/// Une leçon peut porter plusieurs notions : l'élève passe de l'une à
+/// l'autre sans quitter la leçon.
+class _LessonHost extends StatefulWidget {
+  const _LessonHost({
+    required this.chapter,
+    required this.lesson,
+    required this.concepts,
+    required this.initialStep,
+  });
+
+  final Chapter chapter;
+  final Lesson lesson;
+  final List<Concept> concepts;
+  final int initialStep;
+
+  @override
+  State<_LessonHost> createState() => _LessonHostState();
+}
+
+class _LessonHostState extends State<_LessonHost> {
+  late Concept _concept = widget.concepts.first;
+
+  @override
+  Widget build(BuildContext context) => _LessonView(
+    key: ValueKey(_concept.id),
+    chapter: widget.chapter,
+    lesson: widget.lesson,
+    concept: _concept,
+    siblings: widget.concepts,
+    onConcept: (concept) => setState(() => _concept = concept),
+    initialStep: widget.initialStep,
+  );
+}
+
 class _LessonView extends ConsumerStatefulWidget {
   const _LessonView({
     required this.chapter,
     required this.lesson,
     required this.concept,
+    this.siblings = const [],
+    this.onConcept,
     this.initialStep = 0,
+    super.key,
   });
 
   final Chapter chapter;
   final Lesson lesson;
   final Concept concept;
+
+  /// Toutes les notions de la leçon (au moins [concept]).
+  final List<Concept> siblings;
+  final ValueChanged<Concept>? onConcept;
   final int initialStep;
 
   @override
@@ -228,6 +269,28 @@ class _LessonViewState extends ConsumerState<_LessonView> {
             key: const ValueKey('lesson-title'),
             style: ContentText.title(size: 22),
           ),
+          if (widget.siblings.length > 1) ...[
+            const SizedBox(height: IntelliaSpacing.sm),
+            Wrap(
+              spacing: IntelliaSpacing.xs,
+              runSpacing: IntelliaSpacing.xs,
+              children: [
+                for (final concept in widget.siblings)
+                  ChoiceChip(
+                    key: ValueKey('lesson-concept-${concept.id}'),
+                    // Titre en entier, sur plusieurs lignes au besoin.
+                    label: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.sizeOf(context).width - 120,
+                      ),
+                      child: Text(concept.title, softWrap: true),
+                    ),
+                    selected: concept.id == widget.concept.id,
+                    onSelected: (_) => widget.onConcept?.call(concept),
+                  ),
+              ],
+            ),
+          ],
           const SizedBox(height: IntelliaSpacing.sm),
           Text(journey[_step].toUpperCase(), style: ContentText.eyebrow()),
           const SizedBox(height: 4),

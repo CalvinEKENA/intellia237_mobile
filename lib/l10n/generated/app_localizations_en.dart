@@ -5755,6 +5755,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ceFactorizationHint => 'Write for example 2²×3×5';
 
   @override
+  String get ceFieldRealPart => 'Real part';
+
+  @override
+  String get ceFieldImaginaryPart => 'Imaginary part';
+
+  @override
+  String get ceFieldConjugate => 'Conjugate';
+
+  @override
+  String get ceFieldModulus => 'Modulus';
+
+  @override
+  String get ceFieldSolutions => 'Solutions';
+
+  @override
+  String get ceComplexHint => 'Form a+bi, for example 3−2i';
+
+  @override
+  String get ceComplexSetHint => 'Separate the solutions with ; or write 1±2i';
+
+  @override
+  String get ceRadicalHint => 'Exact value, for example 5√2';
+
+  @override
+  String get ceDecimalHint => 'Decimal or fraction, for example 0.25 or 1/4';
+
+  @override
+  String get ceIntervalHint => 'For example [0;4] or ]1;+∞[';
+
+  @override
+  String get ceExpressionHint => 'For example y=x+1';
+
+  @override
+  String get ceExpressionSetHint => 'Separate your answers with ;';
+
+  @override
   String get ceListHint => 'Separate the numbers with commas';
 
   @override

@@ -88,6 +88,8 @@ flutter:
     # Packs pédagogiques locaux (Content Engine) : un dossier par chapitre.
     # Un test vérifie que chaque pack présent ici est bien déclaré.
     - assets/content/terminale_d/mathematiques/ch01_arithmetique/
+    - assets/content/terminale_d/mathematiques/ch02_nombres_complexes/
+    - assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/
 
 # Icône de lancement uniquement. Les plateformes non mobiles restent hors de
 # ce mécanisme : leurs ressources déjà versionnées, dont le favicon web, ne

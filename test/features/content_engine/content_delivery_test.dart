@@ -172,9 +172,10 @@ void main() {
       gateway.put(publish(id: 'maths_td_ch01_arithmetique', version: 1));
       await service().sync(terminaleD);
       cache.bundles.clear();
-      final entry = (await repository(
-        embedded: true,
-      ).subjectsFor(terminaleD)).single.chapters.single;
+      final entry = (await repository(embedded: true).subjectsFor(terminaleD))
+          .single
+          .chapters
+          .firstWhere((c) => c.contentId == 'maths_td_ch01_arithmetique');
       expect(entry.origin, PackOrigin.embedded);
       expect(
         (await repository(

@@ -6,7 +6,7 @@ import '../../../core/academics/class_key.dart';
 
 /// Version de ce moteur. Un pack qui exige davantage n'est jamais activé :
 /// il attend une mise à jour de l'application, sans rien casser.
-const kContentEngineVersion = 1;
+const kContentEngineVersion = 2;
 
 /// État de publication d'un pack dans le catalogue distant.
 enum PackStatus {

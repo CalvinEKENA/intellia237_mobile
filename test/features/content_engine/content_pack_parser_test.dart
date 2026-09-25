@@ -33,7 +33,10 @@ void main() {
         expect(lesson.verifiedCore, isNotEmpty, reason: '${lesson.number}');
         expect(lesson.sourcePages, isNotEmpty);
       }
-      expect(chapter.learningPath, hasLength(6));
+      // Six notions de leçon, puis la notion d'intégration du chapitre.
+      expect(chapter.learningPath, hasLength(7));
+      expect(chapter.learningPath.last, 'chapter_integration');
+      expect(chapter.concepts['chapter_integration']!.lessonNumber, 0);
     });
 
     test('trois niveaux d\'explication pour chaque notion', () {
@@ -200,25 +203,46 @@ void main() {
       );
     });
 
-    test('les anomalies accompagnent les questions de la page concernée', () {
-      final flagged = chapter.questions.where((q) => q.flags.isNotEmpty);
-      expect(flagged.map((q) => q.sourceAnchor).toSet(), {'page_025.jpg'});
+    test('chaque anomalie accompagne exactement la question qu\'elle vise', () {
       final awa2 = chapter.question('int_awa2')!;
-      expect(awa2.flags, hasLength(2));
+      expect(awa2.flags, hasLength(1));
       // « Ne jamais afficher une valeur unique comme corrigé » : la réponse
       // attendue est l'ensemble complet des trois possibilités.
       expect((awa2.answer as IntegerSetAnswer).values, {23, 58, 93});
-      // Visibles seulement là où le pack marque la question comme fragile.
-      expect(awa2.visibleFlags, hasLength(2));
-      expect(chapter.question('int_awa3')!.visibleFlags, hasLength(2));
-      expect(chapter.question('int_water1')!.visibleFlags, isEmpty);
-      expect(chapter.question('int_awa1')!.visibleFlags, isEmpty);
-      // L'imprécision du rapport (page, pas question) est signalée.
+      expect(awa2.visibleFlags.single.issue, contains('23, 58 et 93'));
+      expect(chapter.question('int_awa3')!.visibleFlags, hasLength(1));
+      expect(chapter.question('int_water1')!.flags, isEmpty);
+      expect(chapter.question('int_awa1')!.flags, isEmpty);
       expect(
         chapter.issues.map((i) => i.code),
-        contains('validation_flag_page_level'),
+        isNot(contains('validation_flag_page_level')),
       );
     });
+
+    test(
+      'une anomalie qui ne nomme qu\'une page suit toutes ses questions',
+      () {
+        final raw = pilotRaw();
+        final validation = deepCopy(raw.validation!);
+        for (final flag in validation['source_quality_flags']! as List) {
+          (flag as Map).remove('question_ids');
+        }
+        final chapter = const ContentPackParser().parse(
+          RawContentPackCopy.withValidation(raw, validation),
+        );
+        final flagged = chapter.questions.where((q) => q.flags.isNotEmpty);
+        expect(flagged.map((q) => q.sourceAnchor).toSet(), {'page_025.jpg'});
+        expect(chapter.question('int_awa2')!.flags, hasLength(2));
+        // Visibles seulement là où le pack marque la question comme fragile.
+        expect(chapter.question('int_awa2')!.visibleFlags, hasLength(2));
+        expect(chapter.question('int_water1')!.visibleFlags, isEmpty);
+        // L'imprécision du rapport (page, pas question) est signalée.
+        expect(
+          chapter.issues.map((i) => i.code),
+          contains('validation_flag_page_level'),
+        );
+      },
+    );
 
     test('un rapport en échec bloque le pack', () {
       final raw = pilotRaw();
@@ -246,6 +270,8 @@ void main() {
       final validation = deepCopy(raw.validation!);
       final flags = validation['source_quality_flags']! as List;
       (flags.first as Map)['question_ids'] = ['int_awa2'];
+      // La seconde ne nomme que sa page.
+      (flags.last as Map).remove('question_ids');
       final chapter = const ContentPackParser().parse(
         RawContentPackCopy.withValidation(raw, validation),
       );
@@ -257,14 +283,51 @@ void main() {
   group('anomalies du pilote signalées, jamais corrigées', () {
     final chapter = pilotChapter();
 
-    test('mission_awa vise une notion absente : signalé, devenu mission', () {
-      final issue = chapter.issues.firstWhere(
+    test('mission_awa : notion d\'intégration et moteur explicites', () {
+      expect(
+        chapter.issues.map((i) => i.code),
+        isNot(contains('game_concept_unknown')),
+      );
+      final mission = chapter.games.firstWhere((g) => g.id == 'mission_awa');
+      expect(mission.conceptId, 'chapter_integration');
+      expect(mission.engine, GameEngineKind.integrationMission);
+      expect(mission.levels.keys, [3]);
+    });
+
+    test('jeu visant une notion absente, sans moteur : signalé, mission par '
+        'convention', () {
+      final raw = pilotRaw();
+      final pedagogy = deepCopy(raw.pedagogy!);
+      (pedagogy['concepts']! as List).removeWhere(
+        (c) => (c as Map)['id'] == 'chapter_integration',
+      );
+      (pedagogy['learning_path']! as List).remove('chapter_integration');
+      final runtime = deepCopy(raw.runtime!);
+      final mission =
+          (runtime['games']! as List).firstWhere(
+                (g) => (g as Map)['id'] == 'mission_awa',
+              )
+              as Map;
+      mission.remove('engine');
+      mission.remove('status');
+      final altered = const ContentPackParser().parse(
+        RawContentPack(
+          directory: raw.directory,
+          manifest: raw.manifest,
+          source: raw.source,
+          pedagogy: pedagogy,
+          runtime: runtime,
+          validation: raw.validation,
+        ),
+      );
+      final issue = altered.issues.firstWhere(
         (i) => i.code == 'game_concept_unknown',
       );
       expect(issue.path, contains('mission_awa'));
-      final mission = chapter.games.firstWhere((g) => g.id == 'mission_awa');
-      expect(mission.engine, GameEngineKind.integrationMission);
-      expect(mission.levels.keys, [3]);
+      expect(
+        altered.games.firstWhere((g) => g.id == 'mission_awa').engine,
+        GameEngineKind.integrationMission,
+      );
     });
 
     test("un jeu `draft` ou `disabled` du pack n'est jamais jouable", () {

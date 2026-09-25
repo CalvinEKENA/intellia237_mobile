@@ -113,7 +113,7 @@ class Lesson {
   const Lesson({
     required this.number,
     required this.title,
-    this.conceptId,
+    this.conceptIds = const [],
     this.verifiedCore = const [],
     this.sourceSituation,
     this.sourcePages = const [],
@@ -121,7 +121,12 @@ class Lesson {
 
   final int number;
   final String title;
-  final String? conceptId;
+
+  /// Notions de la leçon, dans l'ordre du pack (une ou plusieurs).
+  final List<String> conceptIds;
+
+  /// Notion principale de la leçon (la première).
+  String? get conceptId => conceptIds.isEmpty ? null : conceptIds.first;
 
   /// Énoncés vérifiés sur la source (couche de provenance).
   final List<String> verifiedCore;

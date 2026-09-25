@@ -26,6 +26,7 @@ class ValidationFlag {
     this.runtimeAction,
     this.sourcePage,
     this.questionIds = const {},
+    this.concernsRuntime = true,
   });
 
   final ValidationSeverity severity;
@@ -40,6 +41,10 @@ class ValidationFlag {
 
   /// Questions visées explicitement (champ facultatif `question_ids`).
   final Set<String> questionIds;
+
+  /// Faux quand le rapport déclare `question_ids: []` : l'anomalie porte sur
+  /// une partie de la source dont aucune question n'a été tirée.
+  final bool concernsRuntime;
 }
 
 /// Un contrôle automatique du rapport de validation.

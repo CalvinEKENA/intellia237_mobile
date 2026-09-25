@@ -201,7 +201,11 @@ void main() {
 
       await _tap(tester, find.byKey(const ValueKey('practice-hint')));
       expect(find.byKey(const ValueKey('companion-reply')), findsOneWidget);
-      expect(find.text('accepter r≥b'), findsOneWidget);
+      // Premier indice : celui de la question, qui ne donne pas la réponse.
+      expect(
+        find.text('Cherche le plus grand multiple de 6 qui ne dépasse pas 47.'),
+        findsOneWidget,
+      );
 
       await tester.enterText(find.byKey(const ValueKey('answer-field-q')), '7');
       await tester.enterText(find.byKey(const ValueKey('answer-field-r')), '6');

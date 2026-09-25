@@ -118,6 +118,71 @@ final class FactorizationAnswer extends Answer {
   });
 }
 
+/// Un nombre non entier (ex. 0,25), comparé avec une [tolerance] : nulle en
+/// pratique pour une valeur exacte, une demi-unité du dernier chiffre pour
+/// une valeur approchée (« à 10⁻² près »).
+final class DecimalAnswer extends Answer {
+  const DecimalAnswer(this.value, {this.tolerance = 1e-9});
+  final double value;
+  final double tolerance;
+}
+
+/// Un nombre complexe x+iy (parties réelles, éventuellement fractionnaires).
+final class ComplexAnswer extends Answer {
+  const ComplexAnswer(this.re, this.im, {this.acceptedTexts = const []});
+  final double re;
+  final double im;
+
+  /// Écritures équivalentes fournies par le pack (ex. « (2+i)/5 »).
+  final List<String> acceptedTexts;
+
+  String get display => formatComplex(re, im);
+}
+
+/// Toutes les solutions complexes, sans ordre ni doublon.
+final class ComplexSetAnswer extends Answer {
+  const ComplexSetAnswer(this.values);
+  final List<ComplexAnswer> values;
+}
+
+/// Une valeur exacte avec radical (ex. 5√2), comparée par sa valeur.
+final class RadicalAnswer extends Answer {
+  const RadicalAnswer({required this.exact, required this.value});
+
+  /// Écriture exacte du pack.
+  final String exact;
+  final double value;
+}
+
+/// Un intervalle de réels, bornes et crochets compris.
+final class IntervalAnswer extends Answer {
+  const IntervalAnswer({
+    required this.lower,
+    required this.upper,
+    required this.lowerClosed,
+    required this.upperClosed,
+    required this.display,
+  });
+  final double lower;
+  final double upper;
+  final bool lowerClosed;
+  final bool upperClosed;
+  final String display;
+}
+
+/// Une expression ou une équation courte (ex. « y=x+1 »), comparée après
+/// normalisation typographique.
+final class ExpressionAnswer extends Answer {
+  const ExpressionAnswer(this.text);
+  final String text;
+}
+
+/// Plusieurs expressions, sans ordre (ex. les deux asymptotes).
+final class ExpressionSetAnswer extends Answer {
+  const ExpressionSetAnswer(this.texts);
+  final List<String> texts;
+}
+
 /// Réponse que le moteur ne sait pas corriger seul : elle n'est jamais
 /// proposée en exercice noté.
 final class UnscorableAnswer extends Answer {
@@ -136,6 +201,14 @@ enum QuestionType {
   multiSelect('multi_select'),
   factorization('factorization'),
   procedure('procedure'),
+  complexParts('complex_parts'),
+  complexNumber('complex_number'),
+  solutionSetComplex('solution_set_complex'),
+  numericRadical('numeric_radical'),
+  numericApprox('numeric_approx'),
+  interval('interval'),
+  expression('expression'),
+  multiAnswer('multi_answer'),
   unknown('unknown');
 
   const QuestionType(this.key);
@@ -167,6 +240,8 @@ class Question {
     this.hints = const [],
     this.flags = const [],
     this.disabledReason,
+    this.conceptId,
+    this.choiceFeedback = const {},
   });
 
   final String id;
@@ -193,6 +268,13 @@ class Question {
 
   /// Raison pour laquelle la question est retirée des exercices notés.
   final String? disabledReason;
+
+  /// Notion visée, quand le pack la déclare (sinon : celle de la leçon).
+  final String? conceptId;
+
+  /// Retour propre à chaque proposition d'un QCM (lié à la valeur, jamais à
+  /// la place à l'écran).
+  final Map<AnswerAtom, String> choiceFeedback;
 
   bool get isIntegration => lessonNumber == 0;
 
@@ -230,5 +312,38 @@ class Question {
     hints: hints,
     flags: flags,
     disabledReason: disabledReason,
+    conceptId: conceptId,
+    choiceFeedback: choiceFeedback,
   );
+}
+
+/// « 3−4i », « 2/5+1/5i », « −i », « 16 » : écriture algébrique lisible.
+String formatComplex(double re, double im) {
+  String number(double value) {
+    final rational = _rational(value.abs());
+    return rational ?? _decimal(value.abs());
+  }
+
+  final parts = <String>[];
+  if (re != 0 || im == 0) parts.add('${re < 0 ? '−' : ''}${number(re)}');
+  if (im != 0) {
+    final magnitude = im.abs() == 1 ? '' : number(im);
+    final sign = im < 0 ? '−' : (parts.isEmpty ? '' : '+');
+    parts.add('$sign${magnitude}i');
+  }
+  return parts.join();
+}
+
+String _decimal(double value) {
+  final text = value.toStringAsFixed(6);
+  return text.replaceFirst(RegExp(r'\.?0+$'), '');
+}
+
+/// Fraction simple (dénominateur ≤ 12) si la valeur en est une.
+String? _rational(double value) {
+  for (var d = 1; d <= 12; d++) {
+    final n = (value * d).round();
+    if ((n / d - value).abs() < 1e-9) return d == 1 ? '$n' : '$n/$d';
+  }
+  return null;
 }

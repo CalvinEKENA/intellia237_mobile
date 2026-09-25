@@ -1,0 +1,215 @@
+{
+  "schema_version": "intellia.pedagogy.v2",
+  "content_id": "maths_td_ch02_nombres_complexes_algebrique",
+  "difficulty_axis": {
+    "1": {
+      "label": "Facile",
+      "focus": "identifier et appliquer une règle directe"
+    },
+    "2": {
+      "label": "Intermédiaire",
+      "focus": "combiner deux propriétés et justifier"
+    },
+    "3": {
+      "label": "Difficile / Défi Bac",
+      "focus": "raisonnement multi-étapes, transfert et preuve"
+    }
+  },
+  "explanation_axis": {
+    "standard": {
+      "label": "Terminale",
+      "style": "notation complète et vocabulaire mathématique du programme"
+    },
+    "simple": {
+      "label": "Simple",
+      "style": "étapes courtes, règle puis exemple"
+    },
+    "ultra_simple": {
+      "label": "Comme si j'avais 12 ans",
+      "style": "intuition visuelle puis remontée progressive vers la notation officielle"
+    }
+  },
+  "concepts": [
+    {
+      "id": "complex_algebraic_form",
+      "lesson": 1,
+      "title": "Écriture algébrique d'un nombre complexe",
+      "aliases": [
+        "partie réelle",
+        "partie imaginaire",
+        "forme algébrique",
+        "x+iy",
+        "nombre complexe"
+      ],
+      "prerequisites": [
+        "calcul algébrique",
+        "équations du second degré dans R"
+      ],
+      "explanations": {
+        "standard": "Tout nombre complexe z s'écrit de manière unique z=x+iy avec x,y∈R et i²=-1. On note Re(z)=x et Im(z)=y.",
+        "simple": "Un nombre complexe possède deux coordonnées : une partie réelle x et une partie imaginaire y. On les écrit ensemble : z=x+iy.",
+        "ultra_simple": "Imagine une adresse avec deux cases. La première dit combien tu avances horizontalement : x. La seconde dit combien tu montes ou descends : y. On écrit cette adresse x+iy. Le symbole i est spécial : i²=-1."
+      },
+      "visual_model": {
+        "engine": "complex_plane_sliders",
+        "description": "Deux curseurs x et y modifient z=x+iy et affichent Re(z), Im(z)."
+      },
+      "common_mistakes": [
+        "croire que Im(z) contient i",
+        "oublier que i²=-1",
+        "confondre égalité des complexes et égalité des modules"
+      ]
+    },
+    {
+      "id": "complex_conjugate_operations",
+      "lesson": 1,
+      "title": "Conjugué et opérations",
+      "aliases": [
+        "conjugué",
+        "barre de z",
+        "addition complexe",
+        "multiplication complexe",
+        "inverse complexe",
+        "quotient complexe"
+      ],
+      "prerequisites": [
+        "complex_algebraic_form"
+      ],
+      "explanations": {
+        "standard": "Si z=x+iy, alors z̄=x-iy. On a z+z̄=2Re(z), z-z̄=2iIm(z) et zz̄=x²+y². Pour diviser par un complexe non nul, on multiplie numérateur et dénominateur par son conjugué.",
+        "simple": "Le conjugué garde la partie réelle et change seulement le signe de la partie imaginaire. Il aide à faire disparaître i du dénominateur.",
+        "ultra_simple": "Le conjugué est le reflet de ton nombre dans un miroir : 3+4i devient 3-4i. Si tu multiplies un nombre par son reflet, les termes avec i s'annulent et il reste un vrai nombre positif."
+      },
+      "visual_model": {
+        "engine": "conjugate_mirror",
+        "description": "z et z̄ sont affichés symétriquement par rapport à l'axe réel."
+      },
+      "common_mistakes": [
+        "changer aussi le signe de la partie réelle",
+        "oublier i²=-1 pendant une multiplication",
+        "mal appliquer le conjugué à une expression"
+      ]
+    },
+    {
+      "id": "complex_modulus",
+      "lesson": 2,
+      "title": "Module d'un nombre complexe",
+      "aliases": [
+        "module",
+        "valeur absolue complexe",
+        "distance à l'origine",
+        "hypoténuse"
+      ],
+      "prerequisites": [
+        "complex_algebraic_form",
+        "théorème de Pythagore"
+      ],
+      "explanations": {
+        "standard": "Pour z=x+iy, |z|=√(x²+y²). Ainsi |z|²=zz̄. Le module vérifie |zz'|=|z||z'| et, si z'≠0, |z/z'|=|z|/|z'|.",
+        "simple": "Le module mesure la distance entre le point représentant z et l'origine. On utilise donc Pythagore : √(x²+y²).",
+        "ultra_simple": "Si z=x+iy est une position sur une carte, son module est la longueur du trajet tout droit entre l'origine et ce point. Tu fabriques un triangle rectangle de côtés x et y, puis tu appliques Pythagore."
+      },
+      "visual_model": {
+        "engine": "module_triangle",
+        "description": "Triangle rectangle interactif dont les côtés sont Re(z), Im(z), et l'hypoténuse |z|."
+      },
+      "common_mistakes": [
+        "écrire |x+iy|=|x|+|y|",
+        "oublier les carrés",
+        "confondre |z| avec z²"
+      ]
+    },
+    {
+      "id": "complex_square_roots",
+      "lesson": 3,
+      "title": "Racines carrées d'un nombre complexe",
+      "aliases": [
+        "racine carrée complexe",
+        "delta complexe",
+        "a+ib au carré"
+      ],
+      "prerequisites": [
+        "complex_conjugate_operations",
+        "complex_modulus"
+      ],
+      "explanations": {
+        "standard": "Chercher δ=a+ib tel que δ²=u+iv revient à résoudre a²-b²=u et 2ab=v, avec a²+b²=|u+iv|.",
+        "simple": "On pose δ=a+ib, on développe δ² puis on compare séparément la partie réelle et la partie imaginaire.",
+        "ultra_simple": "On cherche deux nombres a et b qui, après le carré de a+ib, fabriquent exactement la partie réelle et la partie imaginaire demandées. On transforme donc une question complexe en petites équations réelles."
+      },
+      "visual_model": {
+        "engine": "complex_square_root_forge",
+        "description": "Deux curseurs a,b affichent (a+ib)² et comparent ses deux composantes à la cible."
+      },
+      "common_mistakes": [
+        "oublier le terme 2abi",
+        "oublier que b²i²=-b²",
+        "ne donner qu'une seule racine carrée"
+      ]
+    },
+    {
+      "id": "complex_quadratic",
+      "lesson": 3,
+      "title": "Équations du second degré dans C",
+      "aliases": [
+        "second degré",
+        "discriminant complexe",
+        "delta",
+        "solutions complexes"
+      ],
+      "prerequisites": [
+        "complex_square_roots"
+      ],
+      "explanations": {
+        "standard": "Pour az²+bz+c=0 avec a≠0, on calcule Δ=b²-4ac. Si δ²=Δ, alors z₁=(-b+δ)/(2a) et z₂=(-b-δ)/(2a). Si Δ=0, la solution double est -b/(2a).",
+        "simple": "La méthode ressemble à celle de R. La différence est que Δ peut être complexe : il faut alors trouver une racine carrée complexe de Δ.",
+        "ultra_simple": "Tu connais déjà la recette du second degré. Ici, la seule nouvelle étape est que la « racine de Δ » peut contenir i. Une fois cette racine trouvée, tu remets exactement la même formule."
+      },
+      "visual_model": {
+        "engine": "complex_delta_solver",
+        "description": "Pipeline interactif : coefficients → Δ → racines de Δ → solutions."
+      },
+      "common_mistakes": [
+        "arrêter le calcul parce que Δ est négatif ou non réel",
+        "oublier les deux racines ±δ",
+        "perdre le facteur 2a au dénominateur"
+      ]
+    },
+    {
+      "id": "chapter_integration",
+      "lesson": 0,
+      "title": "Intégration — nombres complexes",
+      "aliases": [
+        "synthèse",
+        "défi chapitre",
+        "application"
+      ],
+      "prerequisites": [
+        "complex_algebraic_form",
+        "complex_conjugate_operations",
+        "complex_modulus",
+        "complex_quadratic"
+      ],
+      "explanations": {
+        "standard": "Une situation d'intégration combine l'écriture algébrique, le module et la résolution d'équations pour interpréter une situation géométrique ou physique.",
+        "simple": "Identifie d'abord ce que représente chaque donnée, puis choisis l'outil complexe adapté.",
+        "ultra_simple": "Ne cherche pas tout de suite une grosse formule. Découpe la mission : quelle est l'adresse complexe ? quelle distance ? quelle équation ? puis traite chaque morceau."
+      },
+      "visual_model": {
+        "engine": "complex_mission_board",
+        "description": "Carte de mission reliant représentation, calcul, module et équation."
+      },
+      "common_mistakes": [
+        "mélanger les étapes sans identifier la notion utile",
+        "utiliser une formule géométrique sans vérifier ses données"
+      ]
+    }
+  ],
+  "adaptive_rules": [
+    "Deux erreurs sur un concept → proposer le niveau Simple.",
+    "Une erreur supplémentaire → proposer Comme si j'avais 12 ans.",
+    "Trois réussites consécutives → proposer le niveau d'exercice supérieur.",
+    "Le niveau d'explication ne change jamais automatiquement la difficulté.",
+    "Le prénom peut être utilisé ponctuellement par le Compagnon, jamais à chaque message."
+  ]
+}

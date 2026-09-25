@@ -151,6 +151,33 @@
         "oublier la valeur absolue dans le produit",
         "arrêter l'algorithme d'Euclide avant le dernier reste non nul"
       ]
+    },
+    {
+      "id": "chapter_integration",
+      "lesson": 0,
+      "title": "Intégration — arithmétique",
+      "aliases": [
+        "synthèse",
+        "mission Awa",
+        "activité d'intégration",
+        "problème"
+      ],
+      "prerequisites": [
+        "euclidean_division_N",
+        "congruence",
+        "prime_numbers",
+        "gcd_lcm"
+      ],
+      "explanations": {
+        "standard": "Une situation d'intégration mobilise ensemble division euclidienne, congruences, nombres premiers, PGCD et PPCM pour modéliser un problème concret et justifier chaque conclusion.",
+        "simple": "Repère d'abord ce que demande la situation : un partage exact, un reste, une décomposition ou une mesure commune. Choisis ensuite l'outil du chapitre qui y répond.",
+        "ultra_simple": "Imagine une caisse à outils : la division pour partager, le modulo pour les restes, les briques premières pour décomposer, le PGCD et le PPCM pour mesurer ou synchroniser. Pour chaque morceau de la mission, tu prends le bon outil."
+      },
+      "visual_model": "Carte de mission reliant chaque étape à l'outil du chapitre.",
+      "common_mistakes": [
+        "annoncer une valeur unique quand les données en admettent plusieurs",
+        "conclure sans vérifier que les données suffisent"
+      ]
     }
   ],
   "learning_path": [
@@ -159,7 +186,8 @@
     "euclidean_division_Z",
     "congruence",
     "prime_numbers",
-    "gcd_lcm"
+    "gcd_lcm",
+    "chapter_integration"
   ],
   "adaptive_rules": [
     "Deux erreurs sur un même concept déclenchent l'explication 'simple'.",

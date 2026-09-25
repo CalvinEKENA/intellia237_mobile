@@ -9874,6 +9874,78 @@ abstract class AppLocalizations {
   /// **'Écris par exemple 2²×3×5'**
   String get ceFactorizationHint;
 
+  /// No description provided for @ceFieldRealPart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partie réelle'**
+  String get ceFieldRealPart;
+
+  /// No description provided for @ceFieldImaginaryPart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partie imaginaire'**
+  String get ceFieldImaginaryPart;
+
+  /// No description provided for @ceFieldConjugate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conjugué'**
+  String get ceFieldConjugate;
+
+  /// No description provided for @ceFieldModulus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Module'**
+  String get ceFieldModulus;
+
+  /// No description provided for @ceFieldSolutions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solutions'**
+  String get ceFieldSolutions;
+
+  /// No description provided for @ceComplexHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Forme a+bi, par exemple 3−2i'**
+  String get ceComplexHint;
+
+  /// No description provided for @ceComplexSetHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sépare les solutions par ; ou écris 1±2i'**
+  String get ceComplexSetHint;
+
+  /// No description provided for @ceRadicalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur exacte, par exemple 5√2'**
+  String get ceRadicalHint;
+
+  /// No description provided for @ceDecimalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre décimal ou fraction, par exemple 0,25 ou 1/4'**
+  String get ceDecimalHint;
+
+  /// No description provided for @ceIntervalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par exemple [0;4] ou ]1;+∞['**
+  String get ceIntervalHint;
+
+  /// No description provided for @ceExpressionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par exemple y=x+1'**
+  String get ceExpressionHint;
+
+  /// No description provided for @ceExpressionSetHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sépare tes réponses par ;'**
+  String get ceExpressionSetHint;
+
   /// No description provided for @ceListHint.
   ///
   /// In fr, this message translates to:

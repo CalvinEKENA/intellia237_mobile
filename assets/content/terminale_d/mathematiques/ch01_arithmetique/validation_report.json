@@ -148,13 +148,19 @@
       "severity": "important",
       "source": "page_025.jpg – Activité 1, tâche 2",
       "issue": "Les contraintes donnent trois valeurs possibles sous 100 : 23, 58 et 93.",
-      "runtime_action": "Ne jamais afficher une valeur unique comme corrigé."
+      "runtime_action": "Ne jamais afficher une valeur unique comme corrigé.",
+      "question_ids": [
+        "int_awa2"
+      ]
     },
     {
       "severity": "important",
       "source": "page_025.jpg – Activité 1, tâche 3",
       "issue": "Le volume 31117 cm³ et des dimensions entières ne déterminent pas un pavé droit unique.",
-      "runtime_action": "Transformer en activité d'esprit critique ou exiger une contrainte supplémentaire."
+      "runtime_action": "Transformer en activité d'esprit critique ou exiger une contrainte supplémentaire.",
+      "question_ids": [
+        "int_awa3"
+      ]
     }
   ],
   "question_count": 41,

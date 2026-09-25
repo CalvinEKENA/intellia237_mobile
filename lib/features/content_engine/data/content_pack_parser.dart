@@ -5,6 +5,8 @@ import '../domain/content_issue.dart';
 import '../domain/curriculum.dart';
 import '../domain/game_blueprint.dart';
 import '../domain/mastery.dart';
+import '../domain/math_text.dart';
+import '../domain/pack_catalog.dart';
 import '../domain/pedagogy.dart';
 import '../domain/question.dart';
 import '../domain/validation.dart';
@@ -41,11 +43,15 @@ class ContentPackParser {
   const ContentPackParser();
 
   /// Versions majeures que ce moteur sait lire, par famille de document.
+  ///
+  /// Les versions récentes ajoutent des champs (plusieurs notions par
+  /// leçon, indices gradués, identifiants de propositions, nouveaux types de
+  /// réponse) ; elles ne retirent rien : v1 reste lisible.
   static const supportedMajors = <String, int>{
-    'source': 1,
-    'pedagogy': 1,
-    'runtime-learning-pack': 1,
-    'validation-report': 1,
+    'source': 2,
+    'pedagogy': 3,
+    'runtime-learning-pack': 2,
+    'validation-report': 3,
   };
 
   Chapter parse(RawContentPack raw) {
@@ -86,6 +92,18 @@ class ContentPackParser {
     final runtimeMap = runtime ?? const <String, Object?>{};
     final pedagogy = raw.pedagogy ?? const <String, Object?>{};
     final source = raw.source ?? const <String, Object?>{};
+    final requiredEngine = [
+      (raw.manifest['minimum_engine_version'] as num?)?.toInt() ?? 0,
+      (runtimeMap['engine_version_required'] as num?)?.toInt() ?? 0,
+    ].reduce((a, b) => a > b ? a : b);
+    if (requiredEngine > kContentEngineVersion) {
+      issue(
+        ContentIssueSeverity.error,
+        'pack_engine_too_old',
+        'Le pack demande le moteur v$requiredEngine ; celui-ci est en '
+            'v$kContentEngineVersion.',
+      );
+    }
 
     final curriculum = _curriculum(
       _map(runtimeMap['curriculum']) ?? _map(source['curriculum']),
@@ -95,6 +113,7 @@ class ContentPackParser {
         _string(source['content_id']) ??
         _string(pedagogy['content_id']) ??
         _string(raw.manifest['content_id']) ??
+        _string(raw.manifest['id']) ??
         normalizeKey(raw.directory.split('/').last);
     final packId = _string(runtimeMap['pack_id']) ?? contentId;
     if (_string(pedagogy['content_id']) case final pedagogyId?
@@ -111,7 +130,13 @@ class ContentPackParser {
     final difficulties = _difficulties(runtimeMap, pedagogy);
     final modes = _explanationModes(runtimeMap, pedagogy, issue);
     final validation = _validation(raw.validation, packId, issue);
-    var questions = _questions(runtimeMap, lessons, difficulties, issue);
+    var questions = _questions(
+      runtimeMap,
+      lessons,
+      concepts,
+      difficulties,
+      issue,
+    );
     questions = _attachFlags(questions, validation.flags, issue);
     final games = _games(runtimeMap, concepts, difficulties, [
       for (final q in questions)
@@ -185,6 +210,7 @@ class ContentPackParser {
       contentId:
           _string(raw.manifest['content_id']) ??
           _string(raw.source?['content_id']) ??
+          _string(raw.manifest['id']) ??
           normalizeKey(raw.directory.split('/').last),
       directory: raw.directory,
       curriculum: curriculum,
@@ -297,8 +323,18 @@ class ContentPackParser {
           );
         }
       }
-      final visualModel = _string(map['visual_model']);
-      final explicitKind = VisualKind.fromKey(_string(map['visual_kind']));
+      // v1 : texte libre (primitive reconnue dans le texte). v2+ : objet
+      // `{engine, description}` ; seul un moteur connu donne un visuel, un
+      // moteur inconnu n'est jamais deviné.
+      final visualObject = _map(map['visual_model']);
+      final visualModel =
+          _string(map['visual_model']) ?? _string(visualObject?['description']);
+      final explicitKind =
+          VisualKind.fromKey(_string(map['visual_kind'])) ??
+          (visualObject == null
+              ? null
+              : VisualKind.fromKey(_string(visualObject['engine'])) ??
+                    VisualKind.none);
       concepts[id] = Concept(
         id: id,
         lessonNumber: (map['lesson'] as num?)?.toInt(),
@@ -330,7 +366,7 @@ class ContentPackParser {
       }
     }
     final lessons = <Lesson>[];
-    final refs = runtime['lesson_refs'];
+    final refs = runtime['lesson_refs'] ?? runtime['lessons'];
     if (refs is List) {
       for (final (index, item) in refs.indexed) {
         final map = _map(item);
@@ -344,8 +380,12 @@ class ContentPackParser {
           );
           continue;
         }
-        final conceptId = _string(map['concept_id']);
-        if (conceptId != null && !concepts.containsKey(conceptId)) {
+        final conceptIds = [
+          ..._stringList(map['concept_ids']),
+          ?_string(map['concept_id']),
+        ];
+        for (final conceptId in conceptIds) {
+          if (concepts.containsKey(conceptId)) continue;
           issue(
             ContentIssueSeverity.warning,
             'lesson_concept_unknown',
@@ -360,7 +400,7 @@ class ContentPackParser {
             number: number,
             title:
                 _string(map['title']) ?? _string(origin?['title']) ?? '$number',
-            conceptId: conceptId,
+            conceptIds: List.unmodifiable(conceptIds),
             verifiedCore: _stringList(origin?['verified_core']),
             sourceSituation: _string(origin?['source_situation']),
             sourcePages: _stringList(origin?['images']),
@@ -423,6 +463,7 @@ class ContentPackParser {
   List<Question> _questions(
     Map<String, Object?> runtime,
     List<Lesson> lessons,
+    Map<String, Concept> concepts,
     List<DifficultyLevel> difficulties,
     _IssueSink issue,
   ) {
@@ -458,14 +499,16 @@ class ContentPackParser {
       final type = QuestionType.fromKey(rawType);
       final lessonNumber = (map['lesson'] as num?)?.toInt() ?? 0;
       final difficulty = (map['difficulty'] as num?)?.toInt() ?? 0;
-      final choices = [
-        for (final choice in (map['choices'] as List?) ?? const [])
-          ?AnswerAtom.fromJson(choice),
-      ];
+      final options = _options(map);
+      final choices = options.choices;
       final prompt = _string(map['prompt']);
       String? disabled;
-      void disable(String code, String message) {
-        issue(ContentIssueSeverity.error, code, message, path);
+      void disable(
+        String code,
+        String message, {
+        ContentIssueSeverity severity = ContentIssueSeverity.error,
+      }) {
+        issue(severity, code, message, path);
         disabled ??= code;
       }
 
@@ -490,8 +533,53 @@ class ContentPackParser {
           'Type « $rawType » inconnu de ce moteur : question non notée.',
         );
       }
-      final answer = _answer(type, map['answer'], choices);
-      if (answer is UnscorableAnswer && type != QuestionType.unknown) {
+      // Réponse rédigée assumée par le pack : elle n'est pas notée par le
+      // moteur, sans que ce soit une anomalie.
+      final manual = map['auto_score'] == false;
+      if (manual) {
+        disable(
+          'question_not_auto_scored',
+          'Réponse rédigée : question non notée par le moteur.',
+          severity: ContentIssueSeverity.info,
+        );
+      }
+      final conceptId = _string(map['concept_id']);
+      if (conceptId != null && !concepts.containsKey(conceptId)) {
+        issue(
+          ContentIssueSeverity.warning,
+          'question_concept_unknown',
+          'La question vise la notion « $conceptId », absente de la '
+              'pédagogie.',
+          path,
+        );
+      }
+      var answer = _answer(
+        type,
+        map['answer'],
+        choices,
+        accepted: _stringList(map['accepted_answers']),
+      );
+      // Les identifiants de propositions, quand le pack en donne, doivent
+      // désigner exactement la réponse : sinon la correction est douteuse.
+      if (options.correctLabels case final labels?
+          when answer is! UnscorableAnswer) {
+        final consistent = switch (answer) {
+          ChoiceAnswer(:final choice) =>
+            labels.length == 1 && labels.first == choice,
+          MultiChoiceAnswer(:final choices) =>
+            labels.toSet().containsAll(choices) && choices.containsAll(labels),
+          _ => true,
+        };
+        if (!consistent) {
+          answer = const UnscorableAnswer(
+            'Les identifiants de la bonne proposition ne correspondent pas à '
+            'la réponse.',
+          );
+        }
+      }
+      if (answer is UnscorableAnswer &&
+          type != QuestionType.unknown &&
+          !manual) {
         disable('question_answer_unscorable', answer.reason);
       }
       questions.add(
@@ -507,19 +595,90 @@ class ContentPackParser {
           sourceAnchor: _string(map['source_anchor']),
           tags: _stringList(map['tags']),
           choices: choices,
-          hints: [..._stringList(map['hints']), ?_string(map['hint'])],
+          hints: _hints(map),
           disabledReason: disabled,
+          conceptId: conceptId,
+          choiceFeedback: options.feedback,
         ),
       );
     }
     return questions;
   }
 
-  Answer _answer(QuestionType type, Object? raw, List<AnswerAtom> choices) {
+  /// Indices : textes (v1) ou objets `{level, content}` rangés par niveau.
+  List<String> _hints(Map<String, Object?> map) {
+    final graded = <(int, String)>[];
+    final texts = <String>[];
+    for (final item in (map['hints'] as List?) ?? const []) {
+      if (_string(item) case final text?) {
+        texts.add(text);
+      } else if (_map(item) case final hint?) {
+        final content = _string(hint['content']) ?? _string(hint['text']);
+        if (content != null) {
+          graded.add(((hint['level'] as num?)?.toInt() ?? 99, content));
+        }
+      }
+    }
+    graded.sort((a, b) => a.$1.compareTo(b.$1));
+    return [
+      ...texts,
+      for (final (_, text) in graded) text,
+      ?_string(map['hint']),
+    ];
+  }
+
+  /// Propositions d'un QCM : `choices` (v1) ou `option_metadata` (v2+), avec
+  /// le retour propre à chaque proposition et, s'ils existent, les libellés
+  /// désignés par `correct_option_ids`.
+  ({
+    List<AnswerAtom> choices,
+    Map<AnswerAtom, String> feedback,
+    List<AnswerAtom>? correctLabels,
+  })
+  _options(Map<String, Object?> map) {
+    final choices = [
+      for (final choice in (map['choices'] as List?) ?? const [])
+        ?AnswerAtom.fromJson(choice),
+    ];
+    final byId = <String, AnswerAtom>{};
+    final feedback = <AnswerAtom, String>{};
+    for (final item in (map['option_metadata'] as List?) ?? const []) {
+      final option = _map(item);
+      final label = AnswerAtom.fromJson(option?['label']);
+      if (option == null || label == null) continue;
+      if (_string(option['id']) case final id?) byId[id] = label;
+      if (_string(option['feedback']) case final text?) feedback[label] = text;
+      if (!choices.contains(label)) choices.add(label);
+    }
+    final ids = _stringList(map['correct_option_ids']);
+    return (
+      choices: List.unmodifiable(choices),
+      feedback: Map.unmodifiable(feedback),
+      correctLabels: ids.isEmpty
+          ? null
+          : [for (final id in ids) byId[id] ?? AnswerAtom.text('?$id')],
+    );
+  }
+
+  Answer _answer(
+    QuestionType type,
+    Object? raw,
+    List<AnswerAtom> choices, {
+    List<String> accepted = const [],
+  }) {
     switch (type) {
-      case QuestionType.numeric:
+      case QuestionType.numeric || QuestionType.multiStep:
+        if (raw is String && _isProse(raw)) {
+          return const UnscorableAnswer(
+            'Réponse rédigée : le moteur ne la corrige pas seul.',
+          );
+        }
         return _valueAnswer(raw) ??
-            const UnscorableAnswer('Réponse numérique illisible.');
+            UnscorableAnswer(
+              type == QuestionType.numeric
+                  ? 'Réponse numérique illisible.'
+                  : 'Réponse en plusieurs étapes illisible.',
+            );
       case QuestionType.mcq:
         final atom = AnswerAtom.fromJson(raw);
         if (atom == null) {
@@ -551,26 +710,163 @@ class ContentPackParser {
             ? BooleanAnswer(raw)
             : const UnscorableAnswer('Réponse vrai/faux illisible.');
       case QuestionType.reasoning || QuestionType.procedure:
-        return _verdict(raw) ??
-            const UnscorableAnswer(
-              'Réponse rédigée : le moteur ne corrige que « oui » ou « non ».',
+        // Oui/non ; sinon une réponse courte à la forme sûre (intervalle,
+        // formule d'un seul bloc). Une phrase reste une réponse rédigée.
+        if (_verdict(raw) case final verdict?) return verdict;
+        final text = _string(raw);
+        if (text != null && !_isProse(text)) {
+          if (parseInterval(text) case final interval?) {
+            return IntervalAnswer(
+              lower: interval.lower,
+              upper: interval.upper,
+              lowerClosed: interval.lowerClosed,
+              upperClosed: interval.upperClosed,
+              display: text,
             );
-      case QuestionType.multiStep:
-        return _valueAnswer(raw) ??
-            const UnscorableAnswer('Réponse en plusieurs étapes illisible.');
+          }
+          if (!RegExp(r'\s').hasMatch(text)) return ExpressionAnswer(text);
+        }
+        return const UnscorableAnswer(
+          'Réponse rédigée : le moteur ne corrige pas une phrase seul.',
+        );
       case QuestionType.solutionSet:
         return _solutionSet(raw);
       case QuestionType.factorization:
         return _factorization(raw);
+      case QuestionType.complexParts:
+        final parts = _complex(raw);
+        if (parts == null) {
+          return const UnscorableAnswer(
+            'Parties réelle et imaginaire illisibles.',
+          );
+        }
+        return FieldsAnswer({
+          're': _realAnswer(parts.re),
+          'im': _realAnswer(parts.im),
+        });
+      case QuestionType.complexNumber:
+        final value = _complex(raw);
+        if (value == null) {
+          return const UnscorableAnswer('Nombre complexe illisible.');
+        }
+        return ComplexAnswer(value.re, value.im, acceptedTexts: accepted);
+      case QuestionType.solutionSetComplex:
+        return _complexSet(raw) ??
+            const UnscorableAnswer('Solutions complexes illisibles.');
+      case QuestionType.numericRadical:
+        final map = _map(raw);
+        final exact = _string(map?['exact']) ?? _string(raw);
+        final value = exact == null ? null : evaluateRadical(exact);
+        final approx = (map?['approx'] as num?)?.toDouble();
+        if (exact == null || value == null) {
+          return const UnscorableAnswer('Valeur exacte illisible.');
+        }
+        if (approx != null && !nearlyEqual(value, approx, tolerance: 1e-6)) {
+          return UnscorableAnswer(
+            'La valeur exacte « $exact » ne vaut pas $approx.',
+          );
+        }
+        return RadicalAnswer(exact: exact, value: value);
+      case QuestionType.numericApprox:
+        if (raw is! num) {
+          return const UnscorableAnswer('Valeur approchée illisible.');
+        }
+        // « 0.68 » : précision du dernier chiffre écrit, soit ±0,005.
+        final decimals =
+            raw.toString().split('.').elementAtOrNull(1)?.length ?? 0;
+        return DecimalAnswer(
+          raw.toDouble(),
+          tolerance: 0.5 * _pow10(-decimals) + 1e-12,
+        );
+      case QuestionType.interval:
+        final text = _string(raw);
+        final interval = text == null ? null : parseInterval(text);
+        if (interval == null) {
+          return const UnscorableAnswer('Intervalle illisible.');
+        }
+        return IntervalAnswer(
+          lower: interval.lower,
+          upper: interval.upper,
+          lowerClosed: interval.lowerClosed,
+          upperClosed: interval.upperClosed,
+          display: text!,
+        );
+      case QuestionType.expression:
+        final text = _string(raw);
+        return text == null
+            ? const UnscorableAnswer('Expression illisible.')
+            : ExpressionAnswer(text);
+      case QuestionType.multiAnswer:
+        final texts = _stringList(raw);
+        return texts.isEmpty || texts.length != ((raw as List?)?.length ?? 0)
+            ? const UnscorableAnswer('Réponses multiples illisibles.')
+            : ExpressionSetAnswer(texts);
       case QuestionType.unknown:
         return const UnscorableAnswer('Type de question inconnu.');
     }
   }
 
-  /// Entier, texte, liste d'entiers ou champs nommés.
-  Answer? _valueAnswer(Object? raw) {
+  /// Une phrase (au moins trois mots) n'est pas une valeur à comparer.
+  static bool _isProse(String text) =>
+      RegExp(r'\s+').allMatches(text.trim()).length >= 2;
+
+  static double _pow10(int exponent) {
+    var value = 1.0;
+    for (var i = 0; i < exponent.abs(); i++) {
+      value = exponent < 0 ? value / 10 : value * 10;
+    }
+    return value;
+  }
+
+  /// Un réel du pack : entier, décimal ou fraction écrite (« 2/5 »).
+  static double? _real(Object? raw) => switch (raw) {
+    final num value => value.toDouble(),
+    final String text => parseRealNumber(text),
+    _ => null,
+  };
+
+  static Answer _realAnswer(double value) =>
+      value == value.roundToDouble() && value.abs() < 1e15
+      ? ScalarAnswer(AnswerAtom.integer(value.toInt()))
+      : DecimalAnswer(value);
+
+  /// `{re, im}` → nombre complexe.
+  static ({double re, double im})? _complex(Object? raw) {
+    final map = _map(raw);
+    if (map == null) return null;
+    final re = _real(map['re']);
+    final im = _real(map['im']);
+    return re == null || im == null ? null : (re: re, im: im);
+  }
+
+  static ComplexSetAnswer? _complexSet(Object? raw) {
+    if (raw is! List || raw.isEmpty) return null;
+    final values = <ComplexAnswer>[];
+    for (final item in raw) {
+      final value = _complex(item);
+      if (value == null) return null;
+      values.add(ComplexAnswer(value.re, value.im));
+    }
+    return ComplexSetAnswer(values);
+  }
+
+  /// Entier, décimal, texte, liste d'entiers, complexe, radical, ou champs
+  /// nommés (dont les valeurs peuvent être complexes).
+  Answer? _valueAnswer(Object? raw, {bool nested = false}) {
+    if (raw is num && raw != raw.roundToDouble()) {
+      return DecimalAnswer(raw.toDouble());
+    }
+    if (raw is String) {
+      final text = raw.trim();
+      if (text.contains('√') && evaluateRadical(text) != null) {
+        return RadicalAnswer(exact: text, value: evaluateRadical(text)!);
+      }
+      final complex = text.contains('i') ? parseComplex(text) : null;
+      if (complex != null) return ComplexAnswer(complex.re, complex.im);
+    }
     if (AnswerAtom.fromJson(raw) case final atom?) return ScalarAnswer(atom);
     if (raw is List) {
+      if (_complexSet(raw) case final set?) return set;
       final ints = raw.whereType<num>().map((value) => value.toInt()).toList();
       return ints.length == raw.length && ints.isNotEmpty
           ? MultisetAnswer(ints)
@@ -578,9 +874,12 @@ class ContentPackParser {
     }
     final map = _map(raw);
     if (map == null || map.isEmpty) return null;
+    final complex = map.length == 2 ? _complex(map) : null;
+    if (complex != null) return ComplexAnswer(complex.re, complex.im);
+    if (nested) return null;
     final fields = <String, Answer>{};
     for (final entry in map.entries) {
-      final value = _valueAnswer(entry.value);
+      final value = _valueAnswer(entry.value, nested: true);
       if (value == null || value is FieldsAnswer) return null;
       fields[entry.key] = value;
     }
@@ -612,6 +911,12 @@ class ContentPackParser {
         return const UnscorableAnswer('Solutions en double dans le pack.');
       }
       return IntegerSetAnswer(values);
+    }
+    // Solutions écrites (ex. « 1−√2 », « 1+√2 ») : comparées une à une,
+    // sans ordre, après normalisation.
+    if (raw.every((value) => value is String) &&
+        !raw.any((value) => _congruence.hasMatch(value as String))) {
+      return ExpressionSetAnswer([for (final value in raw) value as String]);
     }
     int? modulus;
     String? variable;
@@ -702,11 +1007,20 @@ class ContentPackParser {
         if (_map(item) case final map?)
           ValidationFlag(
             severity: ValidationSeverity.fromKey(_string(map['severity'])),
-            source: _string(map['source']) ?? '',
-            sourcePage: _pageOf(_string(map['source'])),
+            source:
+                _string(map['source']) ??
+                _stringList(map['source_pages']).join(', '),
+            sourcePage:
+                _pageOf(_string(map['source'])) ??
+                _stringList(map['source_pages']).firstOrNull,
             issue: _string(map['issue']) ?? '',
             runtimeAction: _string(map['runtime_action']),
             questionIds: _stringList(map['question_ids']).toSet(),
+            // `question_ids: []` écrit explicitement : l'anomalie concerne des
+            // pages de la source qui n'ont produit aucune question du pack.
+            concernsRuntime:
+                map['question_ids'] is! List ||
+                (map['question_ids'] as List).isNotEmpty,
           ),
     ];
     final status = _string(raw['status']) ?? 'UNKNOWN';
@@ -745,6 +1059,15 @@ class ContentPackParser {
     if (flags.isEmpty) return questions;
     final attached = <String, List<ValidationFlag>>{};
     for (final flag in flags) {
+      if (!flag.concernsRuntime) {
+        issue(
+          ContentIssueSeverity.info,
+          'validation_flag_source_only',
+          'L\'anomalie « ${flag.source} » ne vise aucune question du pack '
+              '(source non reprise).',
+        );
+        continue;
+      }
       final targets = flag.questionIds.isNotEmpty
           ? questions.where((q) => flag.questionIds.contains(q.id))
           : questions.where(
@@ -804,7 +1127,8 @@ class ContentPackParser {
         );
         continue;
       }
-      final conceptId = _string(map['concept']) ?? '';
+      final conceptId =
+          _string(map['concept']) ?? _string(map['concept_id']) ?? '';
       final concept = concepts[conceptId];
       if (concept == null) {
         issue(
@@ -823,11 +1147,25 @@ class ContentPackParser {
       // Le moteur vient d'un champ explicite `engine`, ou de la primitive
       // visuelle de la notion visée. Jamais d'un texte libre de mécanique :
       // « carton » dans une mini-aventure ne fait pas un jeu de regroupement.
-      final engine =
-          GameEngineKind.fromKey(_string(map['engine'])) ??
-          (concept == null
-              ? _integrationEngine(conceptId, integrationQuestions)
-              : GameEngineKind.forVisual(concept.visualKind));
+      // Un moteur nommé mais inconnu n'est jamais remplacé par un autre :
+      // le jeu reste en préparation plutôt que de devenir un faux jeu.
+      final declaredEngine =
+          _string(map['engine']) ?? _string(map['engine_blueprint']);
+      final engine = declaredEngine != null
+          ? GameEngineKind.fromKey(declaredEngine)
+          : concept == null
+          ? _integrationEngine(conceptId, integrationQuestions)
+          : GameEngineKind.forVisual(concept.visualKind);
+      final declaredStatus = GameStatus.fromKey(_string(map['status']));
+      if (engine == null && declaredStatus == GameStatus.ready) {
+        issue(
+          ContentIssueSeverity.warning,
+          'game_ready_without_engine',
+          'Le jeu « $id » est déclaré prêt mais aucun moteur « '
+              '${declaredEngine ?? '?'} » n\'existe : il reste en préparation.',
+          'runtime.games[$id]',
+        );
+      }
       if (engine == null) {
         issue(
           ContentIssueSeverity.info,
@@ -852,9 +1190,9 @@ class ContentPackParser {
             maxLevel: maxLevel,
           ),
           engine: engine,
-          status:
-              GameStatus.fromKey(_string(map['status'])) ??
-              (engine == null ? GameStatus.draft : GameStatus.ready),
+          status: engine == null
+              ? GameStatus.draft
+              : declaredStatus ?? GameStatus.ready,
         ),
       );
     }
@@ -892,7 +1230,9 @@ class ContentPackParser {
         actions.add(action);
       }
     }
-    final fallback = _string(map['fallback']);
+    final fallback =
+        _string(map['fallback']) ??
+        _string(_map(map['free_text_routing'])?['fallback']);
     final suggestions = int.tryParse(
       RegExp(r'(\d+)').firstMatch(fallback ?? '')?.group(1) ??
           _numberWord(fallback) ??
@@ -934,10 +1274,17 @@ class ContentPackParser {
           : 100,
       unlockNextLessonAt: read('unlock_next_lesson_at') ?? 70,
       suggestHarderAfterConsecutiveCorrect:
-          read('suggest_harder_level_after_consecutive_correct') ?? 3,
-      showSimpleAfterErrors: read('show_simple_after_errors') ?? 2,
+          read('suggest_harder_level_after_consecutive_correct') ??
+          read('suggest_harder_after_consecutive_correct') ??
+          3,
+      showSimpleAfterErrors:
+          read('show_simple_after_errors') ??
+          read('suggest_simple_after_errors') ??
+          2,
       showUltraSimpleAfterAdditionalErrors:
-          read('show_ultra_simple_after_additional_error') ?? 1,
+          read('show_ultra_simple_after_additional_error') ??
+          read('suggest_ultra_simple_after_additional_error') ??
+          1,
     );
   }
 
@@ -955,7 +1302,9 @@ class ContentPackParser {
     for (final (key, actual) in [
       ('lessons', lessons.length),
       ('runtime_questions', questions.length),
+      ('questions', questions.length),
       ('games', games.length),
+      ('game_blueprints', games.length),
     ]) {
       final declared = (stats[key] as num?)?.toInt();
       if (declared != null && declared != actual) {

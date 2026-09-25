@@ -369,10 +369,14 @@ void main() {
 
     test('indices : échelle issue du pack, puis « plus d\'indice »', () {
       final concept = chapter.concepts['congruence']!;
+      // Les indices propres à la question d'abord, puis les pièges de la
+      // notion, puis l'explication simple.
       final ladder = [
+        ...q('l4_e1').hints,
         ...concept.commonMistakes,
         concept.explanation(ExplanationMode.simple),
       ];
+      expect(q('l4_e1').hints, isNotEmpty);
       for (var i = 0; i < ladder.length; i++) {
         final reply = companion.respond(
           CompanionAction.hint,
@@ -578,7 +582,7 @@ void main() {
 
     test('schéma majeur trop récent : refusé, jamais deviné', () {
       final runtime = deepCopy(pilotRaw().runtime!)
-        ..['schema_version'] = 'intellia.runtime-learning-pack.v2';
+        ..['schema_version'] = 'intellia.runtime-learning-pack.v3';
       final altered = const ContentPackParser().parse(withRuntime(runtime));
       expect(altered.isPlayable, isFalse);
       expect(
@@ -610,10 +614,11 @@ void main() {
               const ClassKey('terminale', series: 'd'),
             );
             expect(subjects.single.title, 'Mathématiques');
-            expect(
-              subjects.single.chapters.single.contentId,
+            expect(subjects.single.chapters.map((c) => c.contentId), [
               'maths_td_ch01_arithmetique',
-            );
+              'maths_td_ch02_nombres_complexes_algebrique',
+              'maths_td_ch03_fonctions_numeriques',
+            ]);
             final loaded = await repository.chapter(
               'maths_td_ch01_arithmetique',
             );

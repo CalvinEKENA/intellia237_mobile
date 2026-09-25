@@ -57,6 +57,13 @@ void main(List<String> args) {
   final curriculum =
       (documents['runtime']?['curriculum'] as Map?) ??
       (documents['source']?['curriculum'] as Map?);
+  // Version de moteur exigée par le pack : une application plus ancienne
+  // ne téléchargera jamais un bundle qu'elle ne saurait pas lire.
+  final minimumEngine = [
+    1,
+    (documents['manifest']?['minimum_engine_version'] as num?)?.toInt() ?? 0,
+    (documents['runtime']?['engine_version_required'] as num?)?.toInt() ?? 0,
+  ].reduce((a, b) => a > b ? a : b);
   final catalogPath = value('--catalog') ?? '${out.path}/catalog.json';
   final catalogFile = File(catalogPath);
   final previous = catalogFile.existsSync()
@@ -73,6 +80,7 @@ void main(List<String> args) {
       status: value('--status') ?? 'published',
       subject: curriculum?['subject'] as String?,
       chapterTitle: curriculum?['chapter_title'] as String?,
+      minimumEngineVersion: minimumEngine,
     ),
   );
   File(
@@ -83,6 +91,7 @@ void main(List<String> args) {
     ..writeln('Bundle   : ${bundleFile.path}')
     ..writeln('SHA-256  : ${encoded.sha256}')
     ..writeln('Taille   : ${encoded.bytes.length} octets')
+    ..writeln('Moteur   : v$minimumEngine minimum')
     ..writeln(
       'Catalogue: ${out.path}/catalog.json '
       '(version ${catalog['catalog_version']})',

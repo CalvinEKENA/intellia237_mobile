@@ -21,6 +21,13 @@ String fieldLabel(BuildContext context, String key) {
   if (normalized == 'binary') return l10n.ceFieldBinary;
   if (normalized == 'decimal') return l10n.ceFieldDecimal;
   if (normalized == 'decomposition') return l10n.ceFieldDecomposition;
+  if (normalized == 're') return l10n.ceFieldRealPart;
+  if (normalized == 'im') return l10n.ceFieldImaginaryPart;
+  if (normalized == 'conjugate') return l10n.ceFieldConjugate;
+  if (normalized == 'modulus' || normalized == 'module') {
+    return l10n.ceFieldModulus;
+  }
+  if (normalized == 'solutions') return l10n.ceFieldSolutions;
   if (normalized.startsWith('litre') || normalized.startsWith('liter')) {
     return l10n.ceFieldLitres;
   }
@@ -92,7 +99,16 @@ class _AnswerInputState extends State<AnswerInput> {
     final answer = widget.question.answer;
     String text(String key) => _controller(key).text.trim();
     return switch (answer) {
-      ScalarAnswer() || MultisetAnswer() || FactorizationAnswer() =>
+      ScalarAnswer() ||
+      MultisetAnswer() ||
+      FactorizationAnswer() ||
+      DecimalAnswer() ||
+      ComplexAnswer() ||
+      ComplexSetAnswer() ||
+      RadicalAnswer() ||
+      IntervalAnswer() ||
+      ExpressionAnswer() ||
+      ExpressionSetAnswer() =>
         text('value').isEmpty ? null : TextResponse(text('value')),
       FieldsAnswer(:final fields) =>
         fields.keys.any((key) => text(key).isEmpty)
@@ -123,7 +139,39 @@ class _AnswerInputState extends State<AnswerInput> {
         label: context.l10n.ceYourAnswer,
         hint: context.l10n.ceListHint,
       ),
-      FactorizationAnswer() => _factorization(),
+      FactorizationAnswer() => _symbolField(
+        hint: context.l10n.ceFactorizationHint,
+        symbols: const ['×', '²', '³', '^'],
+      ),
+      DecimalAnswer() => _field(
+        'value',
+        label: context.l10n.ceYourAnswer,
+        hint: context.l10n.ceDecimalHint,
+      ),
+      ComplexAnswer() => _symbolField(
+        hint: context.l10n.ceComplexHint,
+        symbols: const ['i', '−', '/'],
+      ),
+      ComplexSetAnswer() => _symbolField(
+        hint: context.l10n.ceComplexSetHint,
+        symbols: const ['i', '±', '−', ';'],
+      ),
+      RadicalAnswer() => _symbolField(
+        hint: context.l10n.ceRadicalHint,
+        symbols: const ['√', '/'],
+      ),
+      IntervalAnswer() => _symbolField(
+        hint: context.l10n.ceIntervalHint,
+        symbols: const ['[', ']', ';', '∞'],
+      ),
+      ExpressionAnswer() => _symbolField(
+        hint: context.l10n.ceExpressionHint,
+        symbols: const ['=', '√', '²', '−'],
+      ),
+      ExpressionSetAnswer() => _symbolField(
+        hint: context.l10n.ceExpressionSetHint,
+        symbols: const ['=', ';', '∞', '−'],
+      ),
       FieldsAnswer(:final fields) => Column(
         children: [
           for (final entry in fields.entries)
@@ -135,9 +183,14 @@ class _AnswerInputState extends State<AnswerInput> {
                 numeric:
                     entry.value is ScalarAnswer &&
                     (entry.value as ScalarAnswer).value.isInteger,
-                hint: entry.value is MultisetAnswer
-                    ? context.l10n.ceListHint
-                    : null,
+                hint: switch (entry.value) {
+                  MultisetAnswer() => context.l10n.ceListHint,
+                  ComplexAnswer() => context.l10n.ceComplexHint,
+                  ComplexSetAnswer() => context.l10n.ceComplexSetHint,
+                  RadicalAnswer() => context.l10n.ceRadicalHint,
+                  DecimalAnswer() => context.l10n.ceDecimalHint,
+                  _ => null,
+                },
                 status: widget.grade?.fieldResults[entry.key],
               ),
             ),
@@ -225,7 +278,8 @@ class _AnswerInputState extends State<AnswerInput> {
     );
   }
 
-  Widget _factorization() {
+  /// Un champ libre et quelques touches de symboles mathématiques.
+  Widget _symbolField({required String hint, required List<String> symbols}) {
     final controller = _controller('value');
     void insert(String symbol) {
       final selection = controller.selection;
@@ -241,16 +295,12 @@ class _AnswerInputState extends State<AnswerInput> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _field(
-          'value',
-          label: context.l10n.ceYourAnswer,
-          hint: context.l10n.ceFactorizationHint,
-        ),
+        _field('value', label: context.l10n.ceYourAnswer, hint: hint),
         const SizedBox(height: 6),
         Wrap(
           spacing: 6,
           children: [
-            for (final symbol in const ['×', '²', '³', '^'])
+            for (final symbol in symbols)
               ActionChip(
                 label: Text(symbol, style: ContentText.math(size: 16)),
                 onPressed: widget.enabled ? () => insert(symbol) : null,
@@ -275,7 +325,36 @@ class _AnswerInputState extends State<AnswerInput> {
     ];
   }
 
-  Widget _choiceChips({required bool multi}) => Wrap(
+  Widget _choiceChips({required bool multi}) {
+    final chips = _chipWrap(multi: multi);
+    // Après correction : le retour du pack propre à chaque proposition
+    // choisie, lié à sa valeur (jamais à sa place à l'écran).
+    final feedback = widget.question.choiceFeedback;
+    final chosen = [
+      for (final choice in _orderedChoices())
+        if ((multi ? _choices.contains(choice) : _choice == choice) &&
+            feedback[choice] != null)
+          choice,
+    ];
+    if (widget.grade == null || chosen.isEmpty) return chips;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        chips,
+        for (final choice in chosen)
+          Padding(
+            padding: const EdgeInsets.only(top: IntelliaSpacing.xs),
+            child: Text(
+              '${choice.display} — ${feedback[choice]}',
+              key: ValueKey('answer-choice-feedback-${choice.display}'),
+              style: ContentText.body(color: ContentPalette.inkSoft, size: 14),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _chipWrap({required bool multi}) => Wrap(
     spacing: IntelliaSpacing.xs,
     runSpacing: IntelliaSpacing.xs,
     children: [

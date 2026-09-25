@@ -5,7 +5,9 @@ import '../domain/question.dart';
 
 /// Toutes les notions du chapitre ont atteint le seuil de maîtrise du pack.
 bool chapterMastered(Chapter chapter, LearnerContentSnapshot snapshot) {
-  final conceptIds = {for (final lesson in chapter.lessons) ?lesson.conceptId};
+  final conceptIds = {
+    for (final lesson in chapter.lessons) ...lesson.conceptIds,
+  };
   if (conceptIds.isEmpty) return false;
   final threshold = chapter.mastery.unlockNextLessonAt;
   return conceptIds.every((id) => snapshot.conceptState(id).score >= threshold);

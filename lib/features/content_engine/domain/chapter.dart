@@ -83,9 +83,16 @@ class Chapter {
     return id == null ? null : concepts[id];
   }
 
-  /// Notion rattachée à une question (via sa leçon).
+  /// Notions d'une leçon, dans l'ordre du pack (celles qui existent).
+  List<Concept> conceptsForLesson(int number) => [
+    for (final id in lesson(number)?.conceptIds ?? const <String>[])
+      ?concepts[id],
+  ];
+
+  /// Notion rattachée à une question : celle qu'elle déclare, sinon celle de
+  /// sa leçon.
   Concept? conceptForQuestion(Question question) =>
-      conceptForLesson(question.lessonNumber);
+      concepts[question.conceptId] ?? conceptForLesson(question.lessonNumber);
 
   Question? question(String id) {
     for (final question in questions) {

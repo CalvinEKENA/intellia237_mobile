@@ -1,0 +1,1293 @@
+{
+  "schema_version": "intellia.runtime-learning-pack.v2",
+  "pack_id": "maths_td_ch03_fonctions_numeriques",
+  "engine_version_required": 2,
+  "llm_required": false,
+  "offline_ready": true,
+  "publication": {
+    "status": "draft",
+    "version": 1,
+    "reason": "authoring validated; engine mapping/publish pending"
+  },
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale D",
+    "class_keys": [
+      "terminale-d"
+    ],
+    "subject": "Mathématiques",
+    "chapter_number": 3,
+    "chapter_title": "Fonctions numériques d'une variable réelle"
+  },
+  "lessons": [
+    {
+      "lesson": 1,
+      "title": "Fonction continue sur un intervalle",
+      "concept_ids": [
+        "continuous_image_interval",
+        "intermediate_value_root",
+        "unique_root_bisection"
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Fonction continue et strictement monotone",
+      "concept_ids": [
+        "inverse_function",
+        "inverse_derivative",
+        "roots_limits_inequalities"
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Représentations graphiques",
+      "concept_ids": [
+        "asymptotes",
+        "asymptotic_directions",
+        "complete_function_study"
+      ]
+    }
+  ],
+  "explanation_modes": [
+    "standard",
+    "simple",
+    "ultra_simple"
+  ],
+  "difficulty_levels": [
+    1,
+    2,
+    3
+  ],
+  "question_bank": [
+    {
+      "id": "l1_e1",
+      "lesson": 1,
+      "concept_id": "continuous_image_interval",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quelle est l'image de [0;2] par f(x)=x²+1 ?",
+      "answer": "[1;5]",
+      "explanation": "Sur [0;2], x² varie de 0 à 4, donc x²+1 varie de 1 à 5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Étudie le minimum et le maximum de x² sur [0;2]."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": [],
+      "choices": [
+        "[0;4]",
+        "[1;5]",
+        "[1;4]",
+        "[0;5]"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "[0;4]",
+          "feedback": "Cela oublie le +1."
+        },
+        {
+          "id": "b",
+          "label": "[1;5]",
+          "feedback": "C'est l'intervalle obtenu en ajoutant 1 à [0;4]."
+        },
+        {
+          "id": "c",
+          "label": "[1;4]",
+          "feedback": "La borne supérieure doit aussi augmenter de 1."
+        },
+        {
+          "id": "d",
+          "label": "[0;5]",
+          "feedback": "La borne inférieure vaut f(0)=1."
+        }
+      ],
+      "correct_option_ids": [
+        "b"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_e2",
+      "lesson": 1,
+      "concept_id": "continuous_image_interval",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Toute fonction polynôme est continue sur R.",
+      "answer": true,
+      "explanation": "Les fonctions polynômes sont continues sur R.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Rappelle-toi les fonctions usuelles continues."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_e3",
+      "lesson": 1,
+      "concept_id": "intermediate_value_root",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Si f est continue sur [a,b] et f(a)f(b)<0, alors f(x)=0 possède au moins une solution dans ]a,b[.",
+      "answer": true,
+      "explanation": "0 est compris entre f(a) et f(b), donc le théorème des valeurs intermédiaires s'applique.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "La condition de signes opposés place 0 entre les deux valeurs."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_e4",
+      "lesson": 1,
+      "concept_id": "intermediate_value_root",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "La continuité seule garantit toujours qu'une équation f(x)=0 possède une unique solution.",
+      "answer": false,
+      "explanation": "La continuité peut aider à prouver l'existence, mais pas l'unicité sans information supplémentaire.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense à une courbe continue qui coupe plusieurs fois l'axe des abscisses."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_e5",
+      "lesson": 1,
+      "concept_id": "continuous_image_interval",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Pour f(x)=x³+x−1, calcule f(0).",
+      "answer": -1,
+      "explanation": "f(0)=−1.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Remplace x par 0."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_m1",
+      "lesson": 1,
+      "concept_id": "unique_root_bisection",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "Pourquoi x³+x−1=0 possède-t-elle une unique solution dans [0,1] ?",
+      "answer": "f est continue, f(0)<0<f(1), et f est strictement croissante",
+      "explanation": "f est continue ; f(0)=−1, f(1)=1 ; f'(x)=3x²+1>0, donc f est strictement croissante.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Sépare existence et unicité."
+        },
+        {
+          "level": 2,
+          "content": "Pour l'unicité, étudie la dérivée."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_m2",
+      "lesson": 1,
+      "concept_id": "unique_root_bisection",
+      "difficulty": 2,
+      "type": "interval",
+      "prompt": "Pour la racine de x³+x−1=0 dans [0,1], quel intervalle garde-t-on après le test du milieu 0,5 ?",
+      "answer": "[0.5;1]",
+      "explanation": "f(0,5)=−0,375<0 et f(1)=1>0, donc la racine reste dans [0,5;1].",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule le signe de f(0,5)."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_m3",
+      "lesson": 1,
+      "concept_id": "unique_root_bisection",
+      "difficulty": 2,
+      "type": "interval",
+      "prompt": "Après [0,5;1], on teste 0,75 pour x³+x−1=0. Quel nouvel intervalle garde-t-on ?",
+      "answer": "[0.5;0.75]",
+      "explanation": "f(0,75)=0,171875>0 tandis que f(0,5)<0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule 0,75³+0,75−1."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_m4",
+      "lesson": 1,
+      "concept_id": "continuous_image_interval",
+      "difficulty": 2,
+      "type": "interval",
+      "prompt": "Détermine l'image de [-1;2] par f(x)=x².",
+      "answer": "[0;4]",
+      "explanation": "Le minimum 0 est atteint en x=0 et le maximum 4 en x=2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le minimum n'est pas forcément à une borne."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_m5",
+      "lesson": 1,
+      "concept_id": "intermediate_value_root",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Combien l'équation x³−3x=1 possède-t-elle de solutions réelles ?",
+      "answer": 3,
+      "explanation": "f(x)=x³−3x a des extrema en −1 et 1, avec f(−1)=2 et f(1)=−2 ; la droite y=1 coupe la courbe trois fois.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Étudie f'(x)=3(x²−1)."
+        },
+        {
+          "level": 2,
+          "content": "Compare 1 aux valeurs des extrema."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_h1",
+      "lesson": 1,
+      "concept_id": "unique_root_bisection",
+      "difficulty": 3,
+      "type": "numeric_approx",
+      "prompt": "Donne une valeur approchée à 10⁻² près de l'unique racine de x³+x−1=0.",
+      "answer": 0.68,
+      "explanation": "La racine vaut environ 0,6823278 ; à 10⁻² près, 0,68.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Poursuis les subdivisions autour de 0,68."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_h2",
+      "lesson": 1,
+      "concept_id": "unique_root_bisection",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Justifie que x⁵+x−1=0 possède une unique solution dans [0,1].",
+      "answer": "continuité + changement de signe + stricte croissance",
+      "explanation": "f(0)=−1, f(1)=1 et f'(x)=5x⁴+1>0. Il existe donc exactement une racine.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Commence par les valeurs aux bornes."
+        },
+        {
+          "level": 2,
+          "content": "La dérivée est strictement positive."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_h3",
+      "lesson": 1,
+      "concept_id": "continuous_image_interval",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Soit f continue sur [−2,3] avec minimum −4 et maximum 7. Quel est f([−2,3]) ?",
+      "answer": "[-4;7]",
+      "explanation": "Une fonction continue sur un segment atteint ses extrema et prend toutes les valeurs intermédiaires.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise l'image d'un segment par une fonction continue."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_h4",
+      "lesson": 1,
+      "concept_id": "intermediate_value_root",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Une fonction continue sur [a,b] ne s'annule jamais et f(a)>0. Quel est son signe sur tout [a,b] ?",
+      "answer": "strictement positif",
+      "explanation": "Si elle devenait négative, elle devrait passer par 0, contradiction.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Raisonne par contradiction avec le TVI."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_h5",
+      "lesson": 1,
+      "concept_id": "unique_root_bisection",
+      "difficulty": 3,
+      "type": "numeric",
+      "prompt": "Combien de subdivisions par dichotomie faut-il au minimum pour faire passer une largeur 1 à une largeur ≤1/100 ?",
+      "answer": 7,
+      "explanation": "Après n subdivisions, la largeur vaut 1/2ⁿ ; 2⁷=128≥100 alors que 2⁶=64<100.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche n tel que 2ⁿ≥100."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_e1",
+      "lesson": 2,
+      "concept_id": "inverse_function",
+      "difficulty": 1,
+      "type": "expression",
+      "prompt": "Sur [0,+∞[, la fonction f(x)=x²+1 a pour réciproque :",
+      "answer": "f⁻¹(y)=√(y−1)",
+      "explanation": "Résoudre y=x²+1 avec x≥0 donne x=√(y−1).",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Isole x en tenant compte de x≥0."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_e2",
+      "lesson": 2,
+      "concept_id": "inverse_function",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Les courbes d'une fonction bijective et de sa réciproque sont symétriques par rapport à y=x.",
+      "answer": true,
+      "explanation": "Un point (x,y) devient (y,x) pour la réciproque.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Observe l'échange des coordonnées."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_e3",
+      "lesson": 2,
+      "concept_id": "inverse_function",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Que signifie f⁻¹(x) ?",
+      "answer": "la valeur qui revient à l'antécédent de x",
+      "explanation": "f⁻¹ est la fonction réciproque, pas le quotient 1/f.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Ne confonds pas fonction réciproque et inverse multiplicatif."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": [],
+      "choices": [
+        "1/f(x)",
+        "la valeur qui revient à l'antécédent de x",
+        "−f(x)",
+        "f(x−1)"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "1/f(x)",
+          "feedback": "C'est l'inverse multiplicatif, pas la fonction réciproque."
+        },
+        {
+          "id": "b",
+          "label": "la valeur qui revient à l'antécédent de x",
+          "feedback": "La réciproque annule l'action de f sur son image."
+        },
+        {
+          "id": "c",
+          "label": "−f(x)",
+          "feedback": "Changer le signe n'inverse pas la fonction."
+        },
+        {
+          "id": "d",
+          "label": "f(x−1)",
+          "feedback": "Décaler l'entrée ne construit pas la réciproque."
+        }
+      ],
+      "correct_option_ids": [
+        "b"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_e4",
+      "lesson": 2,
+      "concept_id": "roots_limits_inequalities",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Quelle est la racine quatrième positive de 81 ?",
+      "answer": 3,
+      "explanation": "3⁴=81.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche un nombre positif dont la quatrième puissance vaut 81."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_e5",
+      "lesson": 2,
+      "concept_id": "roots_limits_inequalities",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Résous ∛(x+1)=2.",
+      "answer": 7,
+      "explanation": "x+1=8, donc x=7.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Élève les deux membres au cube."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_m1",
+      "lesson": 2,
+      "concept_id": "inverse_derivative",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Pour f(x)=x²+1 sur [0,+∞[, combien vaut (f⁻¹)'(5) ?",
+      "answer": 0.25,
+      "explanation": "f⁻¹(5)=2 et f'(2)=4, donc (f⁻¹)'(5)=1/4.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Trouve d'abord l'antécédent de 5."
+        },
+        {
+          "level": 2,
+          "content": "Puis prends l'inverse de f' à cet antécédent."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_m2",
+      "lesson": 2,
+      "concept_id": "roots_limits_inequalities",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Calcule limₓ→0 sin(x)/x.",
+      "answer": 1,
+      "explanation": "C'est une limite remarquable.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "C'est une limite trigonométrique de référence."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_m3",
+      "lesson": 2,
+      "concept_id": "roots_limits_inequalities",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Calcule limₓ→0 (cos(x)−1)/x.",
+      "answer": 0,
+      "explanation": "cos(x)−1 est d'ordre x² près de 0, donc le quotient par x tend vers 0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Relie-la aux limites trigonométriques remarquables."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_m4",
+      "lesson": 2,
+      "concept_id": "roots_limits_inequalities",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Calcule limₓ→+∞ [√(x+7)−√(x−1)].",
+      "answer": 0,
+      "explanation": "Après multiplication par le conjugué, l'expression vaut 8/[√(x+7)+√(x−1)] et tend vers 0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Multiplie par l'expression conjuguée."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_m5",
+      "lesson": 2,
+      "concept_id": "roots_limits_inequalities",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "Si |f'(x)|≤3 sur un intervalle contenant a et b, quelle majoration peut-on donner de |f(b)−f(a)| ?",
+      "answer": "|f(b)-f(a)|≤3|b-a|",
+      "explanation": "C'est la forme majorée de l'inégalité des accroissements finis.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "La borne sur la dérivée contrôle la variation maximale."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_h1",
+      "lesson": 2,
+      "concept_id": "inverse_derivative",
+      "difficulty": 3,
+      "type": "numeric",
+      "prompt": "Soit f(x)=x³+x sur R. Sachant que f(1)=2, calcule (f⁻¹)'(2).",
+      "answer": 0.25,
+      "explanation": "f'(1)=4, donc (f⁻¹)'(2)=1/4.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise l'antécédent 1 de 2."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_h2",
+      "lesson": 2,
+      "concept_id": "roots_limits_inequalities",
+      "difficulty": 3,
+      "type": "numeric",
+      "prompt": "Calcule limₓ→+∞ [√(x²+x)−x].",
+      "answer": 0.5,
+      "explanation": "En rationalisant : x/[√(x²+x)+x]=1/[√(1+1/x)+1]→1/2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise le conjugué puis factorise x."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_h3",
+      "lesson": 2,
+      "concept_id": "roots_limits_inequalities",
+      "difficulty": 3,
+      "type": "true_false",
+      "prompt": "Pour tout réel x, |sin x|≤|x|.",
+      "answer": true,
+      "explanation": "La dérivée de sin est cos et |cos|≤1 ; l'inégalité des accroissements finis entre 0 et x donne le résultat.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Applique la majoration des accroissements entre 0 et x."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_h4",
+      "lesson": 2,
+      "concept_id": "inverse_function",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Si f est continue et strictement décroissante sur un intervalle I, quel est le sens de variation de f⁻¹ sur f(I) ?",
+      "answer": "strictement décroissante",
+      "explanation": "La réciproque conserve le sens de monotonie.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Échange les rôles des entrées et sorties."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_h5",
+      "lesson": 2,
+      "concept_id": "roots_limits_inequalities",
+      "difficulty": 3,
+      "type": "numeric",
+      "prompt": "Résous ∛(2x−1)=3.",
+      "answer": 14,
+      "explanation": "2x−1=27, donc x=14.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Élève au cube puis isole x."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_e1",
+      "lesson": 3,
+      "concept_id": "asymptotes",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Pour f(x)=1/(x−2), quelle est l'asymptote verticale ?",
+      "answer": "x=2",
+      "explanation": "Quand x tend vers 2, le dénominateur tend vers 0 et f devient non bornée.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche la valeur qui annule le dénominateur."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": [],
+      "choices": [
+        "x=0",
+        "x=2",
+        "y=2",
+        "y=0"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "x=0",
+          "feedback": "Le dénominateur ne s'annule pas en 0."
+        },
+        {
+          "id": "b",
+          "label": "x=2",
+          "feedback": "Le dénominateur s'annule en 2 et la fonction diverge."
+        },
+        {
+          "id": "c",
+          "label": "y=2",
+          "feedback": "Une asymptote verticale a une équation x=constante."
+        },
+        {
+          "id": "d",
+          "label": "y=0",
+          "feedback": "y=0 est l'asymptote horizontale ici."
+        }
+      ],
+      "correct_option_ids": [
+        "b"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_e2",
+      "lesson": 3,
+      "concept_id": "asymptotes",
+      "difficulty": 1,
+      "type": "expression",
+      "prompt": "Pour f(x)=1/(x−2), quelle est l'asymptote horizontale ?",
+      "answer": "y=0",
+      "explanation": "Quand x tend vers ±∞, 1/(x−2) tend vers 0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule la limite à l'infini."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_e3",
+      "lesson": 3,
+      "concept_id": "asymptotes",
+      "difficulty": 1,
+      "type": "expression",
+      "prompt": "Pour f(x)=(2x+1)/(x−3), quelle est l'asymptote horizontale ?",
+      "answer": "y=2",
+      "explanation": "Le quotient des coefficients dominants vaut 2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare les termes de plus haut degré."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_e4",
+      "lesson": 3,
+      "concept_id": "asymptotes",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Si f(x)−(3x−1) tend vers 0 quand x tend vers +∞, alors y=3x−1 est une asymptote oblique en +∞.",
+      "answer": true,
+      "explanation": "C'est exactement le critère d'une asymptote oblique.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Observe la distance verticale entre courbe et droite."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_e5",
+      "lesson": 3,
+      "concept_id": "complete_function_study",
+      "difficulty": 1,
+      "type": "reasoning",
+      "prompt": "Quelle étape doit précéder l'étude des limites d'une fonction rationnelle ?",
+      "answer": "déterminer son ensemble de définition",
+      "explanation": "Les limites pertinentes dépendent d'abord des valeurs où la fonction existe.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Repère d'abord les valeurs interdites."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_m1",
+      "lesson": 3,
+      "concept_id": "asymptotes",
+      "difficulty": 2,
+      "type": "expression",
+      "prompt": "Détermine l'asymptote oblique de f(x)=(x²+1)/(x−1).",
+      "answer": "y=x+1",
+      "explanation": "La division donne f(x)=x+1+2/(x−1).",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Effectue la division du numérateur par x−1."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_m2",
+      "lesson": 3,
+      "concept_id": "asymptotes",
+      "difficulty": 2,
+      "type": "multi_answer",
+      "prompt": "Donne les deux asymptotes de f(x)=(2x+1)/(x−3).",
+      "answer": [
+        "x=3",
+        "y=2"
+      ],
+      "explanation": "x=3 est verticale et y=2 est horizontale.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Une vient du dénominateur, l'autre de la limite à l'infini."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_m3",
+      "lesson": 3,
+      "concept_id": "asymptotic_directions",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "Pour f(x)=√x quand x→+∞, f(x)→+∞ et f(x)/x→0. Quelle direction asymptotique est indiquée ?",
+      "answer": "direction de l'axe des abscisses",
+      "explanation": "La croissance verticale est beaucoup plus lente que la progression horizontale.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare la hauteur à x."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_m4",
+      "lesson": 3,
+      "concept_id": "asymptotic_directions",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "Pour f(x)=x² quand x→+∞, f(x)/x→+∞. Quelle direction asymptotique est indiquée ?",
+      "answer": "direction de l'axe des ordonnées",
+      "explanation": "La hauteur domine très fortement la progression horizontale.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le rapport hauteur/distance devient infini."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_m5",
+      "lesson": 3,
+      "concept_id": "asymptotes",
+      "difficulty": 2,
+      "type": "expression",
+      "prompt": "Pour f(x)=√(x²+1), quelle asymptote a-t-on en +∞ ?",
+      "answer": "y=x",
+      "explanation": "√(x²+1)−x=1/[√(x²+1)+x]→0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Étudie f(x)−x avec le conjugué."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_h1",
+      "lesson": 3,
+      "concept_id": "complete_function_study",
+      "difficulty": 3,
+      "type": "multi_answer",
+      "prompt": "Pour f(x)=(x²+1)/(x−1), donne les asymptotes verticale et oblique.",
+      "answer": [
+        "x=1",
+        "y=x+1"
+      ],
+      "explanation": "Le domaine exclut 1, où f diverge ; la division donne x+1+2/(x−1).",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Commence par le domaine puis effectue la division."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_h2",
+      "lesson": 3,
+      "concept_id": "complete_function_study",
+      "difficulty": 3,
+      "type": "solution_set",
+      "prompt": "Pour f(x)=(x²+1)/(x−1), résous f'(x)=0.",
+      "answer": [
+        "1-√2",
+        "1+√2"
+      ],
+      "explanation": "f'(x)=(x²−2x−1)/(x−1)² ; le numérateur s'annule pour x=1±√2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le dénominateur est positif sur le domaine."
+        },
+        {
+          "level": 2,
+          "content": "Résous x²−2x−1=0."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_h3",
+      "lesson": 3,
+      "concept_id": "asymptotes",
+      "difficulty": 3,
+      "type": "multi_answer",
+      "prompt": "Pour f(x)=√(x²−4x), quelles droites sont asymptotes aux deux extrémités du domaine infini ?",
+      "answer": [
+        "y=x−2 en +∞",
+        "y=−x+2 en −∞"
+      ],
+      "explanation": "Par rationalisation, les écarts à ces deux droites tendent vers 0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "À +∞, compare f à x−2 ; à −∞, compare f à −x+2."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_h4",
+      "lesson": 3,
+      "concept_id": "complete_function_study",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Pourquoi une valeur interdite du domaine n'est-elle pas automatiquement une asymptote verticale ?",
+      "answer": "il faut aussi que la fonction tende vers ±∞ au voisinage de cette valeur",
+      "explanation": "Une discontinuité amovible peut créer un trou sans divergence.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Distingue « non défini » et « non borné »."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_h5",
+      "lesson": 3,
+      "concept_id": "chapter_integration",
+      "difficulty": 3,
+      "type": "multi_step",
+      "prompt": "On modélise une grandeur par f(x)=x³+x−1 sur [0,1]. Décris une méthode complète pour obtenir une valeur à 0,01 près de l'unique solution f(x)=0.",
+      "answer": "vérifier continuité et changement de signe, prouver la stricte croissance, puis appliquer la dichotomie jusqu'à une largeur ≤0,01",
+      "explanation": "Cette démarche combine existence, unicité et approximation contrôlée.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Sépare les trois objectifs : existe ? unique ? suffisamment précis ?"
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept",
+      "tags": [
+        "integration"
+      ]
+    }
+  ],
+  "qcm_policy": {
+    "correctness_never_bound_to_position": true,
+    "correctness_key": "option_id",
+    "single_and_multi_choice_shuffle": "deterministic_per_attempt",
+    "stable_within_attempt": true,
+    "shuffle_between_attempts": true,
+    "true_false_shuffle": false
+  },
+  "games": [
+    {
+      "id": "bridge_bisection",
+      "title": "Pont au bon intervalle",
+      "status": "draft",
+      "concept_id": "unique_root_bisection",
+      "engine_blueprint": "bisection_zoom",
+      "mechanic": "Choisir à chaque manche la moitié qui conserve la racine.",
+      "difficulty": {
+        "1": "1–2 subdivisions",
+        "2": "3–4 subdivisions",
+        "3": "précision imposée et justification"
+      }
+    },
+    {
+      "id": "tvi_crossing_game",
+      "title": "Traverse Zéro",
+      "status": "draft",
+      "concept_id": "intermediate_value_root",
+      "engine_blueprint": "tvi_crossing",
+      "mechanic": "Placer deux bornes et décider si le TVI garantit une intersection.",
+      "difficulty": {
+        "1": "cible 0",
+        "2": "cible k",
+        "3": "existence versus unicité"
+      }
+    },
+    {
+      "id": "inverse_mirror_game",
+      "title": "Miroir Réciproque",
+      "status": "draft",
+      "concept_id": "inverse_function",
+      "engine_blueprint": "inverse_mirror",
+      "mechanic": "Relier des points à leurs reflets sur y=x.",
+      "difficulty": {
+        "1": "lecture",
+        "2": "expression",
+        "3": "dérivée de la réciproque"
+      }
+    },
+    {
+      "id": "limit_toolbox_game",
+      "title": "Atelier des Limites",
+      "status": "draft",
+      "concept_id": "roots_limits_inequalities",
+      "engine_blueprint": "limit_toolbox",
+      "mechanic": "Choisir le bon outil : limite remarquable, conjugué ou borne par dérivée.",
+      "difficulty": {
+        "1": "reconnaissance",
+        "2": "calcul guidé",
+        "3": "méthode sans indication"
+      }
+    },
+    {
+      "id": "asymptote_radar_game",
+      "title": "Radar d'Asymptotes",
+      "status": "draft",
+      "concept_id": "asymptotes",
+      "engine_blueprint": "asymptote_radar",
+      "mechanic": "Associer une courbe à ses asymptotes candidates et justifier par les limites.",
+      "difficulty": {
+        "1": "verticale/horizontale",
+        "2": "oblique",
+        "3": "trous et fausses asymptotes"
+      }
+    },
+    {
+      "id": "orbit_mission",
+      "title": "Mission Trajectoire",
+      "status": "draft",
+      "concept_id": "chapter_integration",
+      "engine_blueprint": "function_mission_board",
+      "mechanic": "Mission multi-étapes : domaine, limites, direction, variation, approximation et interprétation.",
+      "difficulty": {
+        "2": "guidée",
+        "3": "synthèse type Bac"
+      }
+    }
+  ],
+  "learning_card_seeds": [
+    {
+      "id": "feed_l1_explain",
+      "type": "explanation",
+      "lesson": 1,
+      "concept_id": "intermediate_value_root",
+      "priority": 85
+    },
+    {
+      "id": "feed_l1_12",
+      "type": "ultraSimple",
+      "lesson": 1,
+      "concept_id": "unique_root_bisection",
+      "priority": 75
+    },
+    {
+      "id": "feed_l1_flash",
+      "type": "flashQuestion",
+      "lesson": 1,
+      "question_id": "l1_e3",
+      "priority": 80
+    },
+    {
+      "id": "feed_l1_challenge",
+      "type": "challenge",
+      "lesson": 1,
+      "question_id": "l1_h1",
+      "priority": 50
+    },
+    {
+      "id": "feed_l1_game",
+      "type": "game",
+      "lesson": 1,
+      "game_id": "bridge_bisection",
+      "priority": 60
+    },
+    {
+      "id": "feed_l2_visual",
+      "type": "visual",
+      "lesson": 2,
+      "concept_id": "inverse_function",
+      "priority": 75
+    },
+    {
+      "id": "feed_l2_flash",
+      "type": "flashQuestion",
+      "lesson": 2,
+      "question_id": "l2_m1",
+      "priority": 80
+    },
+    {
+      "id": "feed_l2_mistake",
+      "type": "commonMistake",
+      "lesson": 2,
+      "concept_id": "inverse_function",
+      "priority": 60
+    },
+    {
+      "id": "feed_l2_game",
+      "type": "game",
+      "lesson": 2,
+      "game_id": "inverse_mirror_game",
+      "priority": 60
+    },
+    {
+      "id": "feed_l3_explain",
+      "type": "explanation",
+      "lesson": 3,
+      "concept_id": "asymptotes",
+      "priority": 85
+    },
+    {
+      "id": "feed_l3_flash",
+      "type": "flashQuestion",
+      "lesson": 3,
+      "question_id": "l3_e1",
+      "priority": 80
+    },
+    {
+      "id": "feed_l3_visual",
+      "type": "visual",
+      "lesson": 3,
+      "concept_id": "asymptotic_directions",
+      "priority": 70
+    },
+    {
+      "id": "feed_l3_game",
+      "type": "game",
+      "lesson": 3,
+      "game_id": "asymptote_radar_game",
+      "priority": 60
+    },
+    {
+      "id": "feed_integration",
+      "type": "challenge",
+      "lesson": 0,
+      "question_id": "l3_h5",
+      "priority": 55
+    },
+    {
+      "id": "feed_new_content",
+      "type": "newContent",
+      "lesson": 0,
+      "chapter_id": "maths_td_ch03_fonctions_numeriques",
+      "priority": 100
+    }
+  ],
+  "companion": {
+    "runtime_llm_required": false,
+    "knowledge_scope": "current_pack_only",
+    "quick_actions": [
+      "Explique-moi",
+      "Plus simplement",
+      "Comme si j'avais 12 ans",
+      "Montre-moi",
+      "Donne-moi un exemple",
+      "Donne-moi un indice",
+      "Pourquoi ma réponse est fausse ?",
+      "Teste-moi"
+    ],
+    "free_text_routing": {
+      "method": "normalisation + aliases + scoring de concepts + contexte",
+      "network_fallback": false
+    },
+    "address_style": {
+      "person": "second_person_singular",
+      "first_name_usage": "occasional",
+      "avoid_repetition": true
+    }
+  },
+  "mastery": {
+    "scope": "concept",
+    "same_state_for_feed_lessons_and_games": true,
+    "suggest_harder_after_consecutive_correct": 3,
+    "suggest_simple_after_errors": 2,
+    "suggest_ultra_simple_after_additional_error": 1
+  },
+  "dynamic_delivery": {
+    "remote_eligible": true,
+    "cache_required": true,
+    "activation_policy": "validate_before_activate",
+    "fallback_to_embedded": true
+  }
+}

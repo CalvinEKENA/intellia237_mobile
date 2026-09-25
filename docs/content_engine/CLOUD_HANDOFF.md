@@ -115,11 +115,10 @@ JSON des packs ne sont jamais corrigés en silence.
 ## Limites restantes
 * **Apprendre encore partiellement unifié** : packs dans « Chapitres
   interactifs », pas encore dans la grille des matières.
-* **CH01 pilote à normaliser avant publication distante** : ajouter
-  `class_keys`, `engine` explicite pour `remainder_zone` et `mission_awa`,
-  `question_ids` sur les anomalies de page.
-* **CH02** : suit le nouveau standard mais n'est ni présent dans ce dépôt,
-  ni intégré, ni publié.
+* **Mathématiques Terminale D, CH01 à CH03 intégrés** (moteur v2,
+  embarqués, bundles `draft` prêts dans `build/content_publish/`, rien
+  téléversé). Jeux de CH02/CH03 en préparation (aucun moteur) ; 11 réponses
+  rédigées non notées. Détail : section dédiée de `CONTENT_ENGINE.md`.
 * Fil des packs plafonné à 60 cartes par composition.
 * Aucune vérification sur appareil de cette branche.
 
@@ -128,8 +127,8 @@ JSON des packs ne sont jamais corrigés en silence.
    ressenti haptique et animations réduites.
 2. Avec accord : déployer Functions + `storage.rules`, dépublier les 6
    contenus mal classés.
-3. Normaliser CH01, intégrer CH02, publier un premier catalogue (avec
-   accord) via `tool/content/publish_pack.dart`.
+3. Publier le premier catalogue (avec accord) via
+   `tool/content/publish_pack.dart`, puis CH04 et suivants par le catalogue.
 4. Unifier la grille Apprendre (matières Firestore + packs).
 
 Ne jamais committer `delete_test_user.cjs` (script d'administration local)

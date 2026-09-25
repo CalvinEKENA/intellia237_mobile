@@ -81,69 +81,73 @@ class LearningCardFactory {
     }
 
     for (final lesson in chapter.lessons) {
-      final conceptId = lesson.conceptId;
-      final concept = conceptId == null ? null : chapter.concepts[conceptId];
-      if (concept == null) continue;
+      // Une leçon peut porter plusieurs notions : chacune a ses cartes, et
+      // chaque question est rattachée à la notion qu'elle travaille.
+      final lessonConcepts = chapter.conceptsForLesson(lesson.number);
+      if (lessonConcepts.isEmpty) continue;
+      final main = lessonConcepts.first;
       final n = lesson.number;
 
-      if (concept.explanation(ExplanationMode.standard) case final text?) {
-        cards.add(
-          card(
-            conceptId: concept.id,
-            lessonNumber: n,
-            type: LearningCardType.explanation,
-            suffix: 'standard',
-            title: concept.title,
-            body: text,
-            mode: ExplanationMode.standard,
-          ),
-        );
-      }
-      if (concept.explanation(ExplanationMode.ultraSimple) case final text?) {
-        cards.add(
-          card(
-            conceptId: concept.id,
-            lessonNumber: n,
-            type: LearningCardType.ultraSimple,
-            suffix: 'ultra',
-            title: concept.title,
-            body: text,
-            mode: ExplanationMode.ultraSimple,
-          ),
-        );
-      }
-      if (concept.visualKind != VisualKind.none) {
-        cards.add(
-          card(
-            conceptId: concept.id,
-            lessonNumber: n,
-            type: LearningCardType.visual,
-            suffix: concept.visualKind.name,
-            title: concept.title,
-            body: concept.visualModel,
-            visual: concept.visualKind,
-            lessonStep: LessonStep.see,
-          ),
-        );
-      }
-      for (final (i, mistake)
-          in concept.commonMistakes.take(maxMistakesPerConcept).indexed) {
-        cards.add(
-          card(
-            conceptId: concept.id,
-            lessonNumber: n,
-            type: LearningCardType.commonMistake,
-            suffix: '$i',
-            title: concept.title,
-            body: mistake,
-          ),
-        );
+      for (final concept in lessonConcepts) {
+        if (concept.explanation(ExplanationMode.standard) case final text?) {
+          cards.add(
+            card(
+              conceptId: concept.id,
+              lessonNumber: n,
+              type: LearningCardType.explanation,
+              suffix: 'standard',
+              title: concept.title,
+              body: text,
+              mode: ExplanationMode.standard,
+            ),
+          );
+        }
+        if (concept.explanation(ExplanationMode.ultraSimple) case final text?) {
+          cards.add(
+            card(
+              conceptId: concept.id,
+              lessonNumber: n,
+              type: LearningCardType.ultraSimple,
+              suffix: 'ultra',
+              title: concept.title,
+              body: text,
+              mode: ExplanationMode.ultraSimple,
+            ),
+          );
+        }
+        if (concept.visualKind != VisualKind.none) {
+          cards.add(
+            card(
+              conceptId: concept.id,
+              lessonNumber: n,
+              type: LearningCardType.visual,
+              suffix: concept.visualKind.name,
+              title: concept.title,
+              body: concept.visualModel,
+              visual: concept.visualKind,
+              lessonStep: LessonStep.see,
+            ),
+          );
+        }
+        for (final (i, mistake)
+            in concept.commonMistakes.take(maxMistakesPerConcept).indexed) {
+          cards.add(
+            card(
+              conceptId: concept.id,
+              lessonNumber: n,
+              type: LearningCardType.commonMistake,
+              suffix: '$i',
+              title: concept.title,
+              body: mistake,
+            ),
+          );
+        }
       }
       for (final (i, statement)
           in lesson.verifiedCore.take(maxRevisionsPerLesson).indexed) {
         cards.add(
           card(
-            conceptId: concept.id,
+            conceptId: main.id,
             lessonNumber: n,
             type: LearningCardType.revision,
             suffix: '$i',
@@ -177,6 +181,7 @@ class LearningCardFactory {
           _ => null,
         };
         if (type == null) continue;
+        final concept = chapter.conceptForQuestion(q) ?? main;
         cards.add(
           card(
             conceptId: concept.id,
@@ -192,30 +197,32 @@ class LearningCardFactory {
         );
       }
 
-      for (final game in chapter.gamesForConcept(concept.id)) {
-        // Un jeu en préparation ou désactivé n'est jamais proposé.
-        if (!game.playable) continue;
-        cards.add(
-          card(
-            conceptId: concept.id,
-            lessonNumber: n,
-            type: LearningCardType.game,
-            suffix: game.id,
-            title: game.title,
-            body: game.mechanic,
-            gameId: game.id,
-            lessonStep: LessonStep.play,
-          ),
-        );
+      for (final concept in lessonConcepts) {
+        for (final game in chapter.gamesForConcept(concept.id)) {
+          // Un jeu en préparation ou désactivé n'est jamais proposé.
+          if (!game.playable) continue;
+          cards.add(
+            card(
+              conceptId: concept.id,
+              lessonNumber: n,
+              type: LearningCardType.game,
+              suffix: game.id,
+              title: game.title,
+              body: game.mechanic,
+              gameId: game.id,
+              lessonStep: LessonStep.play,
+            ),
+          );
+        }
       }
 
       cards.add(
         card(
-          conceptId: concept.id,
+          conceptId: main.id,
           lessonNumber: n,
           type: LearningCardType.companionPrompt,
           suffix: 'ask',
-          title: concept.title,
+          title: main.title,
         ),
       );
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../data/content_pack_parser.dart' show isPrime;
+import '../domain/math_text.dart';
 import '../domain/question.dart';
 
 /// Ce que l'élève a répondu, sous une forme que le correcteur comprend.
@@ -146,6 +147,29 @@ class AnswerChecker {
         answer as FactorizationAnswer,
         text,
       ),
+      (
+        DecimalAnswer(:final value, :final tolerance),
+        TextResponse(:final text),
+      ) =>
+        _decimal(value, tolerance, text),
+      (ComplexAnswer(), TextResponse(:final text)) => _complex(
+        answer as ComplexAnswer,
+        text,
+      ),
+      (ComplexSetAnswer(:final values), TextResponse(:final text)) =>
+        _complexSet(values, text),
+      (RadicalAnswer(), TextResponse(:final text)) => _radical(
+        answer as RadicalAnswer,
+        text,
+      ),
+      (IntervalAnswer(), TextResponse(:final text)) => _interval(
+        answer as IntervalAnswer,
+        text,
+      ),
+      (ExpressionAnswer(text: final expected), TextResponse(:final text)) =>
+        _bool(sameExpression(expected, text)),
+      (ExpressionSetAnswer(:final texts), TextResponse(:final text)) =>
+        _expressionSet(texts, text),
       _ => const GradeResult(
         correct: false,
         diagnosis: GradeDiagnosis.unreadable,
@@ -242,6 +266,120 @@ class AnswerChecker {
     return _bool(listEquals(a, b));
   }
 
+  static const _unreadable = GradeResult(
+    correct: false,
+    diagnosis: GradeDiagnosis.unreadable,
+  );
+
+  GradeResult _decimal(double expected, double tolerance, String text) {
+    final given = parseRealNumber(text);
+    if (given == null) return _unreadable;
+    return _bool((given - expected).abs() <= tolerance);
+  }
+
+  GradeResult _complex(ComplexAnswer expected, String text) {
+    final given = parseComplex(text);
+    if (given != null) {
+      return _bool(
+        nearlyEqual(given.re, expected.re) &&
+            nearlyEqual(given.im, expected.im),
+      );
+    }
+    final normalized = normalizeExpression(text);
+    if (expected.acceptedTexts.any(
+      (accepted) => normalizeExpression(accepted) == normalized,
+    )) {
+      return const GradeResult(correct: true);
+    }
+    return _unreadable;
+  }
+
+  GradeResult _complexSet(List<ComplexAnswer> expected, String text) {
+    final parsed = parseComplexList(text);
+    if (parsed == null) return _unreadable;
+    bool same(({double re, double im}) a, ComplexAnswer b) =>
+        nearlyEqual(a.re, b.re) && nearlyEqual(a.im, b.im);
+    // Doublons ignorés : « 1±2i » et « 1+2i ; 1−2i » disent la même chose.
+    final given = <({double re, double im})>[];
+    for (final value in parsed) {
+      if (!given.any(
+        (other) =>
+            nearlyEqual(other.re, value.re) && nearlyEqual(other.im, value.im),
+      )) {
+        given.add(value);
+      }
+    }
+    final missing = expected.where((e) => !given.any((g) => same(g, e))).length;
+    final extra = given.where((g) => !expected.any((e) => same(g, e))).length;
+    final correct = missing == 0 && extra == 0;
+    return GradeResult(
+      correct: correct,
+      missingCount: missing,
+      extraCount: extra,
+      diagnosis: correct
+          ? null
+          : missing > 0
+          ? GradeDiagnosis.missingSolutions
+          : GradeDiagnosis.extraSolutions,
+    );
+  }
+
+  GradeResult _radical(RadicalAnswer expected, String text) {
+    if (normalizeExpression(text) == normalizeExpression(expected.exact)) {
+      return const GradeResult(correct: true);
+    }
+    final given = evaluateRadical(text);
+    if (given == null) return _unreadable;
+    return _bool(nearlyEqual(given, expected.value));
+  }
+
+  GradeResult _interval(IntervalAnswer expected, String text) {
+    final given = parseInterval(text);
+    if (given == null) return _unreadable;
+    return _bool(
+      nearlyEqual(given.lower, expected.lower) &&
+          nearlyEqual(given.upper, expected.upper) &&
+          given.lowerClosed == expected.lowerClosed &&
+          given.upperClosed == expected.upperClosed,
+    );
+  }
+
+  GradeResult _expressionSet(List<String> expected, String text) {
+    // « 1±√2 » vaut « 1+√2 ; 1−√2 ».
+    final given = [
+      for (final answer in splitAnswers(text))
+        ...answer.contains('±')
+            ? [answer.replaceFirst('±', '+'), answer.replaceFirst('±', '-')]
+            : [answer],
+    ];
+    if (given.isEmpty) return _unreadable;
+    final matched = <int>{};
+    var extra = 0;
+    for (final answer in given) {
+      final index = [
+        for (final (i, e) in expected.indexed)
+          if (!matched.contains(i) && sameExpression(e, answer)) i,
+      ].firstOrNull;
+      if (index == null) {
+        extra++;
+      } else {
+        matched.add(index);
+      }
+    }
+    final missing = expected.length - matched.length;
+    final correct = missing == 0 && extra == 0;
+    return GradeResult(
+      correct: correct,
+      missingCount: missing,
+      extraCount: extra,
+      diagnosis: correct
+          ? null
+          : missing > 0
+          ? GradeDiagnosis.missingSolutions
+          : GradeDiagnosis.extraSolutions,
+    );
+  }
+
   GradeResult _factorization(FactorizationAnswer expected, String text) {
     final given = parseFactorization(text);
     if (given == null) {
@@ -267,6 +405,25 @@ class AnswerChecker {
 }
 
 // ── Lecture des saisies ─────────────────────────────────────────────────
+
+/// Même expression après normalisation. Une réponse sans membre de gauche
+/// est comparée au membre de droite attendu (« x+1 » pour « y=x+1 ») ; une
+/// précision finale « en +∞ » du pack est facultative dans la saisie.
+bool sameExpression(String expected, String given) {
+  final e = normalizeExpression(expected);
+  final g = normalizeExpression(given);
+  if (g.isEmpty) return false;
+  if (e == g) return true;
+  final core = normalizeExpression(expected.split(RegExp(r'\s+en\s+')).first);
+  if (core == g) return true;
+  for (final candidate in {e, core}) {
+    final equal = candidate.indexOf('=');
+    if (equal > 0 && !g.contains('=') && candidate.substring(equal + 1) == g) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /// Signes moins et espaces typographiques ramenés à leur forme simple.
 String _plain(String text) =>
