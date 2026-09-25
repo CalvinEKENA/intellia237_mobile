@@ -171,6 +171,45 @@ void main() {
   });
 
   group('organic motion', () {
+    testWidgets('a seal built but never laid out is disposed cleanly', (
+      tester,
+    ) async {
+      // Sous une page opaque (maintainState), le sceau est construit sans
+      // être mis en page : son LayoutBuilder n'a jamais tourné.
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(),
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: Overlay(
+              initialEntries: [
+                OverlayEntry(
+                  maintainState: true,
+                  builder: (_) => const Center(
+                    child: SizedBox(
+                      width: 74,
+                      height: 102,
+                      child: Intellia237Membrane(stage: PassSealStage.secret),
+                    ),
+                  ),
+                ),
+                OverlayEntry(
+                  opaque: true,
+                  builder: (_) => const SizedBox.expand(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      expect(
+        find.byType(Intellia237Membrane, skipOffstage: false),
+        findsOneWidget,
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('the seal breathes: frames keep coming and the transform '
         'changes (the old filament never moved)', (tester) async {
       await _pumpSeal(tester, stage: PassSealStage.verified);
