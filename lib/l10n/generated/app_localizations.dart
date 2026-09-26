@@ -9532,6 +9532,84 @@ abstract class AppLocalizations {
   /// **'Défis d\'intégration'**
   String get ceIntegrationTitle;
 
+  /// No description provided for @ceSynthesis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synthèse'**
+  String get ceSynthesis;
+
+  /// No description provided for @ceSelfEvaluation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto-évaluation'**
+  String get ceSelfEvaluation;
+
+  /// No description provided for @ceOpenResponseHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris ta réponse, courte ou développée. Tu pourras ensuite la comparer à une réponse modèle.'**
+  String get ceOpenResponseHelp;
+
+  /// No description provided for @ceYourResponse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse'**
+  String get ceYourResponse;
+
+  /// No description provided for @ceRevealModel.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai terminé · Voir la réponse modèle'**
+  String get ceRevealModel;
+
+  /// No description provided for @ceModelAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse modèle'**
+  String get ceModelAnswer;
+
+  /// No description provided for @ceExpectedPoints.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points clés attendus'**
+  String get ceExpectedPoints;
+
+  /// No description provided for @ceSelfEvaluationHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare les idées avec ta réponse. Ce choix indique ta confiance ; ce n\'est pas une note ni une correction automatique.'**
+  String get ceSelfEvaluationHelp;
+
+  /// No description provided for @ceNeedsReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je dois revoir'**
+  String get ceNeedsReview;
+
+  /// No description provided for @cePartialConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presque'**
+  String get cePartialConfidence;
+
+  /// No description provided for @ceSelfMastered.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai compris'**
+  String get ceSelfMastered;
+
+  /// No description provided for @ceSelfEvaluationSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton auto-évaluation est enregistrée pour guider tes révisions.'**
+  String get ceSelfEvaluationSaved;
+
+  /// No description provided for @ceSelfSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton auto-évaluation n\'a pas pu être enregistrée. Réessaie.'**
+  String get ceSelfSaveError;
+
   /// No description provided for @ceIntegrationBody.
   ///
   /// In fr, this message translates to:

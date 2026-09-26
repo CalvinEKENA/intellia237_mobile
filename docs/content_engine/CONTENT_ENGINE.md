@@ -3,11 +3,13 @@
 Moteur générique qui transforme des packs JSON validés en expérience
 d'apprentissage complète **sans aucun appel à un modèle de langage** :
 cours à trois niveaux d'explication, visuels manipulables, exercices corrigés
-de façon déterministe, jeux, Compagnon hors ligne, adaptation et maîtrise
+de façon déterministe, réponses ouvertes avec auto-évaluation, jeux,
+Compagnon hors ligne, adaptation et maîtrise
 par notion, fil « Mon Parcours ».
 
-Packs embarqués : `assets/content/terminale_d/mathematiques/ch01…ch03/`.
-Aucune ligne du moteur n'est propre à ce chapitre.
+Packs embarqués : Mathématiques Terminale D CH01–CH03, Anglais Terminale
+M1U1–M1U2 et Physique Terminales C-D M1S1 (dossiers détaillés ci-dessous).
+Les mécanismes du moteur sont indépendants de la matière.
 
 ## Principes
 
@@ -162,8 +164,8 @@ erreurs, réussite notable ; jamais deux fois de suite
 
 * Cause de l'ancien « Aucune carte n'est encore publiée pour ta classe »
   en Terminale D : le fil ne lisait que `flow_items`, toutes ciblées 6e.
-* `LearningCardFactory` fabrique, sans rien rédiger, 14 types de cartes
-  (explication, 12 ans, question éclair, QCM, vrai/faux, exercice, visuel,
+* `LearningCardFactory` fabrique, sans rien rédiger, 15 types de cartes
+  (explication, 12 ans, question éclair, QCM, vrai/faux, exercice, auto-évaluation, visuel,
   jeu, piège fréquent, à retenir, défi, maîtrise, nouveau chapitre,
   invitation au Compagnon). Identifiants stables
   `contentId:conceptId:type:suffixe`.
@@ -261,12 +263,70 @@ Transformations des packs (aucune réponse, aucun énoncé modifié) :
 * Anomalies de source conservées (formules de type B et tableaux
   partiellement lisibles) : aucune valeur reconstruite, aucune question
   visée.
-* Réponses rédigées (`l1_q08` … `l5_q08`) : jamais notées, jamais une
-  erreur, jamais un blocage (7 questions notées par leçon).
+* Réponses rédigées (`l1_q08` … `l5_q08`) : utilisables en auto-évaluation,
+  jamais notées automatiquement (7 questions notées par leçon).
 * Compagnon : une lettre isolée qualifie le mot qui la précède (« type A »
   et « type B » restent deux notions distinctes).
-* `learning_card_seeds` : non lues par le moteur ; chaque cible qu'elles
-  désignent reçoit déjà sa carte (vérifié par test).
+* `learning_card_seeds` restent des indications éditoriales : la fabrique
+  consomme les concepts et questions. `sequence_integration` reçoit une
+  synthèse ; `l5_q07` et `l5_q08` conservent leur unique carte de leçon 5.
+
+## Réponses ouvertes et auto-évaluation (moteur v2)
+
+`auto_score: false` interdit toute correction automatique, même si la valeur
+attendue est techniquement corrigeable. Les réponses en prose reconnues mais
+non corrigeables utilisent aussi cette expérience. Un modèle textuel est
+requis : `model_answer`, sinon `answer` (texte ou nombre). `expected_points`
+peut contenir une liste de points clés. `hints` et `explanation` restent les
+données du pack ; aucune phrase n'est générée. Une question invalide, de type
+inconnu ou sans modèle reste exclue.
+
+`OpenResponsePanel` est partagé par Apprendre → leçon → S'entraîner et par
+MON PARCOURS (`LearningCardType.selfEvaluation`, seul nouveau type).
+L'élève saisit une réponse courte ou développée, peut révéler les indices,
+puis valide « J'ai terminé · Voir la réponse modèle ». Le modèle,
+l'explication et les points clés sont absents de l'interface avant validation.
+La réponse saisie reste visible. L'élève choisit « Je dois revoir », « Presque »
+ou « J'ai compris ». La question suivante devient accessible après ce choix.
+Les avertissements de source restent visibles ; les questions signalées
+restent dans la leçon et sont exclues du fil, comme auparavant.
+
+Le signal est enregistré dans `MasteryState.selfEvaluations`, par question,
+avec `needs_review`, `partial_confidence` ou `self_mastered`. Une nouvelle
+auto-évaluation remplace le signal précédent : aucune accumulation de points.
+Le score, les tentatives corrigées, les réussites, les erreurs, les séries,
+la difficulté réussie et les questions objectivement réussies restent inchangés.
+Les deux premiers signaux favorisent la révision de la notion dans le classement
+existant ; le dernier lève ce besoin déclaré. Il ne certifie pas la maîtrise et
+ne débloque pas artificiellement la leçon suivante. L'historique du fil retient
+une carte parcourue, sans réponse juste/fausse et sans récompense.
+
+Le stockage local par élève et la sérialisation de `MasteryState` sont réutilisés
+(les anciens instantanés restent lisibles). La saisie reste dans l'écran et
+n'est pas envoyée ni persistée. Tout fonctionne hors ligne avec un pack embarqué
+ou déjà en cache. **Aucun appel réseau ni LLM pour répondre ou s'auto-évaluer.**
+
+## Concepts transversaux `lesson: 0`
+
+Une notion déclarée avec `lesson: 0` est une synthèse du chapitre, de l'unité
+ou de la séquence. Elle n'ajoute aucun élément à `Chapter.lessons`. Dans
+Apprendre, l'entrée « Synthèse » suit les vraies leçons et ouvre l'écran
+d'intégration existant, avec les niveaux d'explication du pack et le Compagnon.
+L'interface n'affiche jamais « Leçon 0 » ni une fausse leçon supplémentaire.
+
+La fabrique ajoute une seule carte `revision` par concept transversal,
+avec l'explication standard du pack. Dans MON PARCOURS, son libellé est
+« Synthèse » et « Approfondir » ouvre l'intégration. Elle est éligible après
+une première rencontre de chaque vraie leçon : lecture d'une carte, réponse
+ou auto-évaluation. Les cartes `lesson: 0` sont exclues du calcul de la première
+leçon à travailler. Le plafond habituel du fil reste applicable.
+
+Les questions conservent **leur propre** `lesson`, indépendante de celle du
+concept : en M1S1, `l5_q07` et `l5_q08` restent en leçon 5, sans duplication dans
+la synthèse. Les questions réellement hors leçon (`lesson: 0`) restent dans
+l'écran d'intégration ; les jeux continuent de sélectionner uniquement les
+questions automatiquement corrigeables. Aucun pack, aucun M1S2 n'est créé ou
+modifié pour cette évolution.
 
 ## Leçon : barre d'actions et retour au niveau de référence
 

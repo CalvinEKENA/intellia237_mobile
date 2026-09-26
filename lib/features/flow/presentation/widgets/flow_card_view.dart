@@ -38,7 +38,11 @@ class FlowCardView extends StatelessWidget {
           ),
           FlowOrderingCard c => FlowOrderingCardView(card: c, onAward: onAward),
           FlowRewardCard c => FlowRewardCardView(card: c),
-          FlowLearningCard c => FlowLearningCardView(card: c, onAward: onAward),
+          FlowLearningCard c => FlowLearningCardView(
+            key: ValueKey(c.learning),
+            card: c,
+            onAward: onAward,
+          ),
         },
       ),
     );

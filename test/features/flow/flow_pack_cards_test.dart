@@ -32,6 +32,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../content_engine/pack_fixture.dart';
+import '../content_engine/self_evaluation_test.dart' show physicsChapter;
 
 /// « Mon Parcours » en Terminale D : le fil est alimenté par les packs de la
 /// classe, même sans aucune publication `flow_items`.
@@ -74,6 +75,49 @@ void main() {
     await _pump(tester, feed: LearningFeed.empty);
     expect(find.byType(FlowEmptyView), findsOneWidget);
   });
+
+  testWidgets(
+    'auto-évaluation puis carte suivante : aucune erreur, aucun abandon noté',
+    (tester) async {
+      final physics = physicsChapter();
+      final cards = const LearningCardFactory().build(physics);
+      final open = cards.singleWhere((c) => c.question?.id == 'l1_q08');
+      final h = await _pump(
+        tester,
+        feed: LearningFeed(
+          cards: [open, cards.first],
+          chapters: {physics.contentId: physics},
+        ),
+      );
+      Finder key(String key) => find.byKey(ValueKey(key));
+      final input = key('open-response-input');
+      await tester.ensureVisible(input);
+      await tester.enterText(input, 'Les mesures sont proches.');
+      for (final action in [
+        'open-response-reveal',
+        'self-evaluation-needs_review',
+      ]) {
+        await tester.ensureVisible(key(action));
+        await h.watch(const Duration(milliseconds: 100));
+        expect(key(action).hitTestable(), findsOneWidget, reason: action);
+        await tester.tap(key(action));
+        await h.watch(const Duration(milliseconds: 300));
+      }
+      expect(key('self-evaluation-saved'), findsOneWidget);
+      tester.widget<PageView>(find.byType(PageView)).controller!.jumpToPage(1);
+      await h.watch(const Duration(milliseconds: 700));
+      expect(h.currentCardId(), 'pack:${cards.first.id}');
+      final entry = h.container
+          .read(learningCardHistoryProvider)
+          .requireValue
+          .of(open.id);
+      expect(entry.skipped, 0);
+      expect(entry.incorrect, 0);
+      expect(entry.correct, 0);
+      expect(entry.answered, 0);
+      expect(h.gateway.submissions, isEmpty);
+    },
+  );
 
   testWidgets('« Approfondir » ouvre la leçon à l\'étape utile, le retour '
       'retrouve la même carte', (tester) async {

@@ -62,7 +62,7 @@ class LearningCardFactory {
       gameId: gameId,
       explanationMode: mode,
       visual: visual,
-      masteryImpact: type.asksAnswer ? 1 : 0,
+      masteryImpact: question?.autoScorable == true ? 1 : 0,
       lessonStep: lessonStep,
       sourceVersion: version,
     );
@@ -175,6 +175,7 @@ class LearningCardFactory {
       ];
       for (final q in questions) {
         final type = switch (q) {
+          _ when q.requiresSelfEvaluation => LearningCardType.selfEvaluation,
           _ when q.type == QuestionType.mcq => LearningCardType.mcq,
           _ when q.type == QuestionType.trueFalse => LearningCardType.trueFalse,
           _ when hardest.isNotEmpty && identical(q, hardest.first) =>
@@ -233,15 +234,33 @@ class LearningCardFactory {
         ),
       );
     }
+    // Une seule carte de synthèse par notion transversale, après les leçons.
+    // Les questions gardent leur leçon déclarée et ne sont pas recopiées ici.
+    for (final concept in chapter.integrationConcepts) {
+      if (!conceptsDone.add(concept.id)) continue;
+      final text = concept.explanation(ExplanationMode.standard);
+      if (text == null) continue;
+      cards.add(
+        card(
+          conceptId: concept.id,
+          lessonNumber: 0,
+          type: LearningCardType.revision,
+          suffix: 'integration',
+          title: concept.title,
+          body: text,
+          mode: ExplanationMode.standard,
+        ),
+      );
+    }
     return List.unmodifiable(cards);
   }
 
-  /// Une question jouable dans une carte : notée automatiquement, active,
+  /// Une question jouable dans une carte : correction ou auto-évaluation, active,
   /// et sans signalement de source (celles-là restent dans la leçon, où
   /// l'avertissement et l'esprit critique ont leur place).
   static bool _feedable(Question q) =>
       !q.isIntegration &&
-      q.autoScorable &&
+      q.isPracticeReady &&
       q.disabledReason == null &&
       q.visibleFlags.isEmpty &&
       !q.tags.any(Question.sensitiveTags.contains);
@@ -256,6 +275,7 @@ class LearningCardFactory {
     LearningCardType.trueFalse: 42,
     LearningCardType.commonMistake: 38,
     LearningCardType.exercise: 35,
+    LearningCardType.selfEvaluation: 35,
     LearningCardType.game: 32,
     LearningCardType.revision: 28,
     LearningCardType.challenge: 22,
@@ -273,6 +293,7 @@ class LearningCardFactory {
     LearningCardType.trueFalse: 20,
     LearningCardType.commonMistake: 20,
     LearningCardType.exercise: 45,
+    LearningCardType.selfEvaluation: 90,
     LearningCardType.game: 60,
     LearningCardType.revision: 20,
     LearningCardType.challenge: 60,

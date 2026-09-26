@@ -130,7 +130,8 @@ class _ChapterBody extends StatelessWidget {
               ),
             ),
           ),
-        if (chapter.integrationQuestions.isNotEmpty) ...[
+        if (chapter.integrationConcepts.isNotEmpty ||
+            chapter.integrationPracticeQuestions.isNotEmpty) ...[
           const SizedBox(height: IntelliaSpacing.md),
           ContentCard(
             key: const ValueKey('content-integration-entry'),
@@ -152,7 +153,9 @@ class _ChapterBody extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        l10n.ceIntegrationTitle,
+                        chapter.integrationConcepts.isNotEmpty
+                            ? l10n.ceSynthesis
+                            : l10n.ceIntegrationTitle,
                         style: ContentText.title(color: Colors.white, size: 20),
                       ),
                       const SizedBox(height: 4),

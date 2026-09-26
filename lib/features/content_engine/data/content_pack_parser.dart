@@ -563,10 +563,11 @@ class ContentPackParser {
       // moteur, sans que ce soit une anomalie.
       final manual = map['auto_score'] == false;
       if (manual) {
-        disable(
+        issue(
+          ContentIssueSeverity.info,
           'question_not_auto_scored',
           'Réponse rédigée : question non notée par le moteur.',
-          severity: ContentIssueSeverity.info,
+          path,
         );
       }
       final conceptId = _string(map['concept_id']);
@@ -603,9 +604,29 @@ class ContentPackParser {
           );
         }
       }
+      final rawAnswer = map['answer'];
+      final explicitModel = _string(map['model_answer']);
+      final written =
+          answer is UnscorableAnswer &&
+          (((type == QuestionType.reasoning ||
+                      type == QuestionType.procedure) &&
+                  (_string(rawAnswer) != null || explicitModel != null)) ||
+              ((type == QuestionType.numeric ||
+                      type == QuestionType.multiStep) &&
+                  rawAnswer is String &&
+                  _isProse(rawAnswer)));
+      final modelAnswer = manual || written
+          ? explicitModel ??
+                _string(rawAnswer) ??
+                (rawAnswer is num ? rawAnswer.toString() : null)
+          : null;
+      if (manual && modelAnswer == null) {
+        disable('question_model_missing', 'Réponse modèle absente.');
+      }
       if (answer is UnscorableAnswer &&
           type != QuestionType.unknown &&
-          !manual) {
+          !manual &&
+          !written) {
         disable('question_answer_unscorable', answer.reason);
       }
       questions.add(
@@ -625,6 +646,9 @@ class ContentPackParser {
           disabledReason: disabled,
           conceptId: conceptId,
           choiceFeedback: options.feedback,
+          autoScore: !manual,
+          modelAnswer: modelAnswer,
+          expectedPoints: _stringList(map['expected_points']),
         ),
       );
     }

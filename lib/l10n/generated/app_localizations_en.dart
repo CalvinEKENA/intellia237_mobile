@@ -5562,6 +5562,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ceIntegrationTitle => 'Integration challenges';
 
   @override
+  String get ceSynthesis => 'Synthesis';
+
+  @override
+  String get ceSelfEvaluation => 'Self-evaluation';
+
+  @override
+  String get ceOpenResponseHelp =>
+      'Write a short or detailed response. You can then compare it with a model answer.';
+
+  @override
+  String get ceYourResponse => 'Your response';
+
+  @override
+  String get ceRevealModel => 'I\'m done · Show the model answer';
+
+  @override
+  String get ceModelAnswer => 'Model answer';
+
+  @override
+  String get ceExpectedPoints => 'Expected key points';
+
+  @override
+  String get ceSelfEvaluationHelp =>
+      'Compare the ideas with your response. Your choice describes your confidence; it is neither a grade nor an automatic correction.';
+
+  @override
+  String get ceNeedsReview => 'I need to review';
+
+  @override
+  String get cePartialConfidence => 'Almost there';
+
+  @override
+  String get ceSelfMastered => 'I understand';
+
+  @override
+  String get ceSelfEvaluationSaved =>
+      'Your self-evaluation has been saved to guide your revision.';
+
+  @override
+  String get ceSelfSaveError =>
+      'Your self-evaluation could not be saved. Try again.';
+
+  @override
   String get ceIntegrationBody =>
       'Full situations that combine the ideas of the chapter.';
 

@@ -1,4 +1,4 @@
-# Handoff Cloud — Content Engine, Mon Parcours, Reward & Haptic (25/09/2026)
+# Handoff Cloud — Content Engine v2, auto-évaluation et synthèse (26/09/2026)
 
 Branche : **`feat/content-engine`** (partie de `fix/auth-v2-final-rework`,
 jamais fusionnée dans `main`). Ne pas merger sans accord du propriétaire.
@@ -51,10 +51,29 @@ d'Apprendre / Mon Parcours et par « tirer pour actualiser ».
 
 ### Mon Parcours
 Même pager que le fil 6e (`flow_items`). Les packs de la classe produisent
-14 types de cartes (fabrique déterministe, aucun texte rédigé) ; classement :
+15 types de cartes (fabrique déterministe, aucun texte rédigé) ; classement :
 leçon en cours, remédiation après erreurs, révision espacée, variété.
 Publications et packs s'entrelacent ; un nouveau pack s'insère après la
 carte courante. Réponses → même `MasteryState` que S'entraîner.
+
+### Réponses ouvertes et synthèse (26/09/2026)
+`auto_score:false` et les réponses en prose non corrigeables ont une saisie
+multiligne, des indices, une révélation explicite du modèle et une auto-évaluation
+« Je dois revoir / Presque / J'ai compris ». `OpenResponsePanel` est partagé
+entre les leçons et MON PARCOURS (`selfEvaluation`). Modèle, explication et
+points clés proviennent du pack ; aucun réseau ni LLM n'est utilisé.
+
+`MasteryState.selfEvaluations` conserve le dernier signal par question.
+Les compteurs objectifs et le score ne changent pas ; les signaux de besoin de
+révision alimentent le classement existant. Aucun second système de progression,
+aucune fausse erreur, aucune récompense. Stockage local par élève inchangé.
+
+Les concepts `lesson:0` produisent une carte `revision` affichée « Synthèse ».
+Apprendre la propose après les vraies leçons ; le fil attend une première
+rencontre de chacune d'elles. « Approfondir » ouvre l'intégration existante.
+`sequence_integration` n'est pas une sixième leçon : `l5_q07` et `l5_q08` restent
+en leçon 5, une seule fois. `learning_card_seeds` n'est pas un second générateur.
+M1S2 reste hors périmètre et n'est pas commencé.
 
 ### Compagnon 100 % sans LLM
 Réponses tirées du pack uniquement ; hors pack : « pas encore disponible »
@@ -66,7 +85,7 @@ Statut `ready` / `draft` / `disabled`. Moteurs : grouping, place_value,
 modular_clock, factor_forge, tiling, remainder_zone (Zone du Reste),
 integration_mission (Mission Awa).
 
-### Reward & Haptic Engine (implémenté dans ce commit)
+### Reward & Haptic Engine (disponible dans cette branche)
 Niveaux ordinaire, progrès, série, niveau supérieur, récupération, défi,
 maîtrise, chapitre ; anti-répétition, 25 s entre grandes animations ;
 préférence « Vibrations pédagogiques » (activées / réduites / désactivées) ;
@@ -80,14 +99,23 @@ jeux, correction des quiz. **Non vérifié sur appareil** (ressenti haptique
 dart format --output=none --set-exit-if-changed lib test tool
 dart run tool/check_brand_references.dart
 dart run tool/user_facing_jargon_audit.dart
-flutter analyze
-flutter test
+flutter analyze --no-pub lib test tool
+flutter test --no-pub
 cd functions && npm test && npm run build
 ```
 
-Derniers résultats (25/09/2026) : analyze 0 ; **1 893 tests Flutter** OK
-(barrière complète) puis 53 tests ciblés après un dernier changement de
-libellés ; Functions **430 tests** OK, build OK ; jargon 0 ; marque OK.
+Derniers résultats (26/09/2026), après auto-évaluation et synthèse :
+**2 018 / 2 018 tests Flutter** sur **3.44.2** et sur **3.47.5**, soit
+28 tests supplémentaires depuis la base validée de 1 990. Analyse sans anomalie
+et formatage conforme avec les deux SDK. Functions **430 / 430 tests**, build
+OK, sans modification du backend ; jargon 0 ; marque OK. `pubspec.lock`
+restauré : aucune nouvelle dépendance fonctionnelle.
+
+Les tests couvrent les vraies réponses ouvertes de Physique M1S1, la maîtrise
+partagée, les parcours leçon/fil, les synthèses et les non-régressions Maths,
+Anglais, Physique. Matrice de widgets : 320 / 360 / 412 dp × textScale 1.0 / 1.3,
+avec clavier simulé, SafeArea, CTA et Compagnon. Cela ne remplace pas une
+vérification sur appareil Android réel.
 
 Tests clés : `test/features/content_engine/` (moteur, diffusion, matrice
 responsive, fil, sans LLM), `test/features/flow/flow_pack_cards_test.dart`,

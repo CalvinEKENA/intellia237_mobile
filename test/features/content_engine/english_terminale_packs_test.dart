@@ -132,7 +132,8 @@ void main() {
           expect(open.map((q) => q.id), manual, reason: id);
           for (final question in open) {
             expect(question.type, QuestionType.reasoning);
-            expect(question.disabledReason, 'question_not_auto_scored');
+            expect(question.disabledReason, isNull);
+            expect(question.requiresSelfEvaluation, isTrue);
             expect(
               () => const AnswerChecker().grade(
                 question,
@@ -144,11 +145,21 @@ void main() {
           final cards = const LearningCardFactory().build(chapter);
           expect(
             cards.map((c) => c.question?.id).whereType<String>().toSet(),
-            isNot(containsAll(manual)),
+            containsAll(
+              open
+                  .where(
+                    (q) =>
+                        q.visibleFlags.isEmpty &&
+                        !q.tags.any(Question.sensitiveTags.contains),
+                  )
+                  .map((q) => q.id),
+            ),
           );
           expect(
-            cards.any((c) => c.question != null && !c.question!.autoScorable),
-            isFalse,
+            cards
+                .where((c) => c.question?.requiresSelfEvaluation == true)
+                .every((c) => c.type == LearningCardType.selfEvaluation),
+            isTrue,
           );
         }
       },

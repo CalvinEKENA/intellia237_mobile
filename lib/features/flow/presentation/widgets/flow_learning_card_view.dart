@@ -21,6 +21,7 @@ import '../../../content_engine/feed/learning_card.dart';
 import '../../../content_engine/presentation/content_style.dart';
 import '../../../content_engine/presentation/visuals/concept_visuals.dart';
 import '../../../content_engine/presentation/widgets/answer_input.dart';
+import '../../../content_engine/presentation/widgets/open_response_panel.dart';
 import '../../../content_engine/presentation/widgets/companion_sheet.dart';
 import '../../application/flow_controller.dart';
 import '../../domain/flow_card.dart';
@@ -38,6 +39,7 @@ String learningCardKicker(BuildContext context, LearningCardType type) {
     LearningCardType.mcq => l10n.ceFeedKickerMcq,
     LearningCardType.trueFalse => l10n.ceFeedKickerTrueFalse,
     LearningCardType.exercise => l10n.ceFeedKickerExercise,
+    LearningCardType.selfEvaluation => l10n.ceSelfEvaluation,
     LearningCardType.visual => l10n.ceFeedKickerVisual,
     LearningCardType.game => l10n.ceFeedKickerGame,
     LearningCardType.commonMistake => l10n.ceFeedKickerMistake,
@@ -82,7 +84,12 @@ class _FlowLearningCardViewState extends ConsumerState<FlowLearningCardView> {
   Future<void> _check() async {
     final question = _learning.question;
     final response = _response;
-    if (question == null || response == null || _grade != null) return;
+    if (question == null ||
+        !question.autoScorable ||
+        response == null ||
+        _grade != null) {
+      return;
+    }
     final grade = const AnswerChecker().grade(question, response);
     setState(() => _grade = grade);
     final before = await ref.read(learnerContentControllerProvider.future);
@@ -131,11 +138,13 @@ class _FlowLearningCardViewState extends ConsumerState<FlowLearningCardView> {
   }
 
   void _deepen() => context.push(
-    AppRoutes.contentLesson(
-      _learning.contentId,
-      _learning.lessonNumber,
-      step: _learning.lessonStep,
-    ),
+    _learning.lessonNumber == 0
+        ? AppRoutes.contentIntegration(_learning.contentId)
+        : AppRoutes.contentLesson(
+            _learning.contentId,
+            _learning.lessonNumber,
+            step: _learning.lessonStep,
+          ),
   );
 
   void _askCompanion() => CompanionSheet.show(
@@ -159,7 +168,9 @@ class _FlowLearningCardViewState extends ConsumerState<FlowLearningCardView> {
     final concept = card.chapter.concepts[_learning.conceptId];
     return FlowCardScaffold(
       subject: card.subject,
-      kicker: learningCardKicker(context, _learning.type),
+      kicker: _learning.lessonNumber == 0
+          ? l10n.ceSynthesis
+          : learningCardKicker(context, _learning.type),
       footer: Wrap(
         spacing: IntelliaSpacing.sm,
         runSpacing: IntelliaSpacing.sm,
@@ -221,6 +232,20 @@ class _FlowLearningCardViewState extends ConsumerState<FlowLearningCardView> {
         Text(value, style: FlowTypography.body(context));
 
     switch (_learning.type) {
+      case LearningCardType.selfEvaluation:
+        return [
+          OpenResponsePanel(
+            key: ValueKey('flow-open-${_learning.question!.id}'),
+            question: _learning.question!,
+            onEvaluate: (evaluation) => ref
+                .read(learningCardHistoryProvider.notifier)
+                .recordSelfEvaluation(
+                  chapter: widget.card.chapter,
+                  card: _learning,
+                  evaluation: evaluation,
+                ),
+          ),
+        ];
       case LearningCardType.explanation:
         // Le niveau d'explication préféré de l'élève, s'il existe dans le pack.
         final preferred = _snapshot.preference.mode;

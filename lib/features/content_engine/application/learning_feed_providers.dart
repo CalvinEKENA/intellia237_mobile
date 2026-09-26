@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/application/auth_controller.dart';
 import '../data/content_pack_repository.dart';
 import '../domain/chapter.dart';
+import '../domain/mastery.dart';
 import '../feed/learning_card.dart';
 import '../feed/learning_card_factory.dart';
 import '../feed/learning_card_history.dart';
@@ -61,6 +62,7 @@ class LearningCardHistoryController extends AsyncNotifier<LearningCardHistory> {
     required LearningCard card,
     required bool correct,
   }) async {
+    if (card.question?.autoScorable != true) return;
     if (card.question case final question?) {
       // La progression doit être chargée avant d'enregistrer : sinon la
       // lecture du stockage, en finissant, effacerait cette réponse.
@@ -70,6 +72,24 @@ class LearningCardHistoryController extends AsyncNotifier<LearningCardHistory> {
           .recordAnswer(chapter: chapter, question: question, correct: correct);
     }
     await answered(card.id, correct: correct);
+  }
+
+  Future<void> recordSelfEvaluation({
+    required Chapter chapter,
+    required LearningCard card,
+    required SelfEvaluation evaluation,
+  }) async {
+    final question = card.question;
+    if (question == null || !question.requiresSelfEvaluation) return;
+    await ref
+        .read(learnerContentControllerProvider.notifier)
+        .recordSelfEvaluation(
+          chapter: chapter,
+          question: question,
+          evaluation: evaluation,
+        );
+    // Carte parcourue, sans alimenter les compteurs de correction du fil.
+    await shown(card.id);
   }
 }
 

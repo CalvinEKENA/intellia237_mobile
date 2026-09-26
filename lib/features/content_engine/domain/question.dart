@@ -242,6 +242,9 @@ class Question {
     this.disabledReason,
     this.conceptId,
     this.choiceFeedback = const {},
+    this.autoScore = true,
+    this.modelAnswer,
+    this.expectedPoints = const [],
   });
 
   final String id;
@@ -276,6 +279,11 @@ class Question {
   /// la place à l'écran).
   final Map<AnswerAtom, String> choiceFeedback;
 
+  /// Une déclaration du pack prime toujours sur les capacités du correcteur.
+  final bool autoScore;
+  final String? modelAnswer;
+  final List<String> expectedPoints;
+
   bool get isIntegration => lessonNumber == 0;
 
   /// Étiquettes par lesquelles un pack marque lui-même une question fragile.
@@ -295,7 +303,17 @@ class Question {
 
   /// Vrai si le moteur peut la corriger seul, de façon sûre.
   bool get autoScorable =>
-      disabledReason == null && answer is! UnscorableAnswer;
+      autoScore && disabledReason == null && answer is! UnscorableAnswer;
+
+  /// Une réponse rédigée valide, avec un modèle fourni par le pack.
+  /// Une question mal formée reste exclue, même si elle porte auto_score:false.
+  bool get requiresSelfEvaluation =>
+      disabledReason == null &&
+      !autoScorable &&
+      modelAnswer != null &&
+      modelAnswer!.trim().isNotEmpty;
+
+  bool get isPracticeReady => autoScorable || requiresSelfEvaluation;
 
   Question withFlags(List<ValidationFlag> flags) => Question(
     id: id,
@@ -314,6 +332,9 @@ class Question {
     disabledReason: disabledReason,
     conceptId: conceptId,
     choiceFeedback: choiceFeedback,
+    autoScore: autoScore,
+    modelAnswer: modelAnswer,
+    expectedPoints: expectedPoints,
   );
 }
 

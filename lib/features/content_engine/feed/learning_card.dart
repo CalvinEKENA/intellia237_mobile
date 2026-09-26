@@ -25,6 +25,9 @@ enum LearningCardType {
   /// Exercice à saisir (niveau intermédiaire).
   exercise,
 
+  /// Réponse rédigée, comparaison au modèle puis confiance déclarée.
+  selfEvaluation,
+
   /// Représentation visuelle de la notion.
   visual,
 
@@ -55,6 +58,7 @@ enum LearningCardType {
     mcq ||
     trueFalse ||
     exercise ||
+    selfEvaluation ||
     challenge ||
     mastery => true,
     _ => false,
@@ -135,8 +139,8 @@ class LearningCard {
   final ExplanationMode? explanationMode;
   final VisualKind visual;
 
-  /// Effet sur la maîtrise : 0 pour une carte de lecture, 1 pour une
-  /// question (la réponse passe par le même moteur que « S'entraîner »).
+  /// Effet sur le score objectif : 1 pour une question corrigée, 0 pour
+  /// une lecture ou une auto-évaluation (signal distinct dans MasteryState).
   final int masteryImpact;
 
   /// Étape de la leçon qu'ouvre « Approfondir ».

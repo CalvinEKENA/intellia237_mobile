@@ -7,7 +7,7 @@ import '../domain/question.dart';
 class QuestionSelector {
   const QuestionSelector();
 
-  /// Questions notables d'une leçon à une difficulté, dans l'ordre du pack.
+  /// Questions utilisables d'une leçon à une difficulté, dans l'ordre du pack.
   /// Les questions déjà réussies passent après les autres.
   List<Question> forLesson(
     Chapter chapter, {
@@ -19,7 +19,7 @@ class QuestionSelector {
       for (final question in chapter.questions)
         if (question.lessonNumber == lessonNumber &&
             question.difficulty == difficulty &&
-            question.autoScorable)
+            question.isPracticeReady)
           question,
     ];
     return [
@@ -28,11 +28,11 @@ class QuestionSelector {
     ];
   }
 
-  /// Difficultés qui ont au moins une question notable pour cette leçon.
+  /// Difficultés qui ont au moins une question utilisable pour cette leçon.
   List<int> availableDifficulties(Chapter chapter, int lessonNumber) {
     final values = {
       for (final question in chapter.questions)
-        if (question.lessonNumber == lessonNumber && question.autoScorable)
+        if (question.lessonNumber == lessonNumber && question.isPracticeReady)
           question.difficulty,
     }.toList()..sort();
     return values;
@@ -96,6 +96,7 @@ class AdaptiveEngine {
     required bool correct,
     required ExplanationPreference preference,
   }) {
+    if (!question.autoScorable) return AdaptiveOutcome(state: state);
     final attempts = state.attempts + 1;
     var next = state.copyWith(
       attempts: attempts,
@@ -126,6 +127,19 @@ class AdaptiveEngine {
       next = next.copyWith(consecutiveCorrect: 0);
     }
     return AdaptiveOutcome(state: next, suggestions: suggestions);
+  }
+
+  /// La confiance nourrit la révision, sans gonfler un score ni enregistrer
+  /// une erreur. Refaire une question remplace seulement son dernier signal.
+  MasteryState recordSelfEvaluation({
+    required MasteryState state,
+    required Question question,
+    required SelfEvaluation evaluation,
+  }) {
+    if (!question.requiresSelfEvaluation) return state;
+    return state.copyWith(
+      selfEvaluations: {...state.selfEvaluations, question.id: evaluation},
+    );
   }
 
   /// L'élève a changé d'explication : le compteur d'erreurs repart de zéro.

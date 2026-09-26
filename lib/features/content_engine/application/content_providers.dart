@@ -175,6 +175,8 @@ class LearnerContentController extends AsyncNotifier<LearnerContentSnapshot> {
     required Question question,
     required bool correct,
   }) async {
+    if (!question.autoScorable) return const [];
+    if (state.valueOrNull == null) await future;
     final concept = chapter.conceptForQuestion(question);
     final conceptId = concept?.id ?? 'chapter:${chapter.contentId}';
     final engine = AdaptiveEngine(
@@ -189,5 +191,23 @@ class LearnerContentController extends AsyncNotifier<LearnerContentSnapshot> {
     );
     await _commit(_current.withConcept(outcome.state));
     return outcome.suggestions;
+  }
+
+  Future<void> recordSelfEvaluation({
+    required Chapter chapter,
+    required Question question,
+    required SelfEvaluation evaluation,
+  }) async {
+    if (!question.requiresSelfEvaluation) return;
+    if (state.valueOrNull == null) await future;
+    final conceptId =
+        chapter.conceptForQuestion(question)?.id ??
+        'chapter:${chapter.contentId}';
+    final next = AdaptiveEngine(chapter.mastery).recordSelfEvaluation(
+      state: _current.conceptState(conceptId),
+      question: question,
+      evaluation: evaluation,
+    );
+    await _commit(_current.withConcept(next));
   }
 }

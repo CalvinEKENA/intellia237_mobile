@@ -125,7 +125,8 @@ void main() {
       expect(open.map((q) => q.id), _open);
       for (final question in open) {
         expect(question.type, QuestionType.reasoning);
-        expect(question.disabledReason, 'question_not_auto_scored');
+        expect(question.disabledReason, isNull);
+        expect(question.requiresSelfEvaluation, isTrue);
         expect(
           () => const AnswerChecker().grade(
             question,
@@ -229,29 +230,40 @@ void main() {
   );
 
   group('Mon Parcours, jeux et Compagnon', () {
-    test('cartes : chaque cible prévue par le pack a sa carte, aucune '
-        'réponse rédigée, aucun jeu', () async {
-      final chapter = await pack();
-      final cards = const LearningCardFactory().build(
-        chapter,
-        classKeys: const [ClassKey('terminale', series: 'c')],
-      );
-      expect(cards.map((c) => c.id).toSet(), hasLength(cards.length));
-      final questionIds = cards.map((c) => c.question?.id).toSet();
-      final conceptIds = cards.map((c) => c.conceptId).toSet();
-      for (final seed
-          in (_json('runtime.json')['learning_card_seeds']! as List)
-              .cast<Map<String, Object?>>()) {
-        if (seed['question_id'] case final String id) {
-          expect(questionIds, contains(id), reason: seed['id'] as String);
+    test(
+      'cartes : chaque cible et réponse rédigée a sa carte, aucun jeu',
+      () async {
+        final chapter = await pack();
+        final cards = const LearningCardFactory().build(
+          chapter,
+          classKeys: const [ClassKey('terminale', series: 'c')],
+        );
+        expect(cards.map((c) => c.id).toSet(), hasLength(cards.length));
+        final questionIds = cards.map((c) => c.question?.id).toSet();
+        final conceptIds = cards.map((c) => c.conceptId).toSet();
+        for (final seed
+            in (_json('runtime.json')['learning_card_seeds']! as List)
+                .cast<Map<String, Object?>>()) {
+          if (seed['question_id'] case final String id) {
+            expect(questionIds, contains(id), reason: seed['id'] as String);
+          }
+          if (seed['concept_id'] case final String id) {
+            expect(conceptIds, contains(id), reason: seed['id'] as String);
+          }
         }
-        if (seed['concept_id'] case final String id) {
-          expect(conceptIds, contains(id), reason: seed['id'] as String);
-        }
-      }
-      expect(questionIds, isNot(contains(anyOf(_open))));
-      expect(cards.map((c) => c.type), isNot(contains(LearningCardType.game)));
-    });
+        expect(questionIds, containsAll(_open));
+        expect(
+          cards
+              .where((c) => _open.contains(c.question?.id))
+              .every((c) => c.type == LearningCardType.selfEvaluation),
+          isTrue,
+        );
+        expect(
+          cards.map((c) => c.type),
+          isNot(contains(LearningCardType.game)),
+        );
+      },
+    );
 
     test('5 jeux en préparation, jamais jouables', () async {
       final chapter = await pack();

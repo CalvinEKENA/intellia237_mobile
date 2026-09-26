@@ -112,6 +112,17 @@ class Chapter {
       if (question.isIntegration && question.autoScorable) question,
   ];
 
+  /// Synthèses transversales : elles ne deviennent jamais des leçons.
+  List<Concept> get integrationConcepts => [
+    for (final concept in concepts.values)
+      if (concept.lessonNumber == 0) concept,
+  ];
+
+  List<Question> get integrationPracticeQuestions => [
+    for (final question in questions)
+      if (question.isIntegration && question.isPracticeReady) question,
+  ];
+
   List<GameBlueprint> gamesForConcept(String conceptId) => [
     for (final game in games)
       if (game.conceptId == conceptId) game,

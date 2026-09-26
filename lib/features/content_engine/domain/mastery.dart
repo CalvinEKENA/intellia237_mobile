@@ -2,6 +2,23 @@ import 'package:flutter/foundation.dart';
 
 import 'pedagogy.dart';
 
+/// Confiance déclarée par l'élève, jamais un verdict de correction.
+enum SelfEvaluation {
+  needsReview('needs_review'),
+  partialConfidence('partial_confidence'),
+  selfMastered('self_mastered');
+
+  const SelfEvaluation(this.key);
+  final String key;
+
+  static SelfEvaluation? fromKey(Object? key) {
+    for (final value in values) {
+      if (value.key == key) return value;
+    }
+    return null;
+  }
+}
+
 /// Règles d'adaptation et de maîtrise déclarées par le pack (`runtime.mastery`).
 @immutable
 class MasteryConfig {
@@ -34,6 +51,7 @@ class MasteryState {
     this.consecutiveCorrect = 0,
     this.bestDifficulty = 0,
     this.answeredQuestionIds = const {},
+    this.selfEvaluations = const {},
   });
 
   final String conceptId;
@@ -51,6 +69,12 @@ class MasteryState {
   final int bestDifficulty;
   final Set<String> answeredQuestionIds;
 
+  /// Dernière auto-évaluation par question. Aucun point ni réussite objective.
+  final Map<String, SelfEvaluation> selfEvaluations;
+  bool get needsSelfReview => selfEvaluations.values.any(
+    (value) => value != SelfEvaluation.selfMastered,
+  );
+
   MasteryState copyWith({
     int? score,
     int? attempts,
@@ -59,6 +83,7 @@ class MasteryState {
     int? consecutiveCorrect,
     int? bestDifficulty,
     Set<String>? answeredQuestionIds,
+    Map<String, SelfEvaluation>? selfEvaluations,
   }) => MasteryState(
     conceptId: conceptId,
     score: score ?? this.score,
@@ -69,6 +94,7 @@ class MasteryState {
     consecutiveCorrect: consecutiveCorrect ?? this.consecutiveCorrect,
     bestDifficulty: bestDifficulty ?? this.bestDifficulty,
     answeredQuestionIds: answeredQuestionIds ?? this.answeredQuestionIds,
+    selfEvaluations: selfEvaluations ?? this.selfEvaluations,
   );
 
   Map<String, Object?> toJson() => {
@@ -80,6 +106,9 @@ class MasteryState {
     'consecutiveCorrect': consecutiveCorrect,
     'bestDifficulty': bestDifficulty,
     'answered': answeredQuestionIds.toList()..sort(),
+    'selfEvaluations': {
+      for (final entry in selfEvaluations.entries) entry.key: entry.value.key,
+    },
   };
 
   /// Tolérant : un champ absent ou mal formé reprend sa valeur initiale.
@@ -97,6 +126,12 @@ class MasteryState {
       errorsSinceExplanationChange: read('errorsSinceExplanationChange'),
       consecutiveCorrect: read('consecutiveCorrect'),
       bestDifficulty: read('bestDifficulty'),
+      selfEvaluations: {
+        if (raw['selfEvaluations'] case final Map values)
+          for (final entry in values.entries)
+            if (entry.key is String)
+              entry.key as String: ?SelfEvaluation.fromKey(entry.value),
+      },
       answeredQuestionIds: answered is List
           ? {
               for (final id in answered)

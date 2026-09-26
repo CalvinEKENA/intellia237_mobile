@@ -5596,6 +5596,49 @@ class AppLocalizationsFr extends AppLocalizations {
   String get ceIntegrationTitle => 'Défis d\'intégration';
 
   @override
+  String get ceSynthesis => 'Synthèse';
+
+  @override
+  String get ceSelfEvaluation => 'Auto-évaluation';
+
+  @override
+  String get ceOpenResponseHelp =>
+      'Écris ta réponse, courte ou développée. Tu pourras ensuite la comparer à une réponse modèle.';
+
+  @override
+  String get ceYourResponse => 'Ta réponse';
+
+  @override
+  String get ceRevealModel => 'J\'ai terminé · Voir la réponse modèle';
+
+  @override
+  String get ceModelAnswer => 'Réponse modèle';
+
+  @override
+  String get ceExpectedPoints => 'Points clés attendus';
+
+  @override
+  String get ceSelfEvaluationHelp =>
+      'Compare les idées avec ta réponse. Ce choix indique ta confiance ; ce n\'est pas une note ni une correction automatique.';
+
+  @override
+  String get ceNeedsReview => 'Je dois revoir';
+
+  @override
+  String get cePartialConfidence => 'Presque';
+
+  @override
+  String get ceSelfMastered => 'J\'ai compris';
+
+  @override
+  String get ceSelfEvaluationSaved =>
+      'Ton auto-évaluation est enregistrée pour guider tes révisions.';
+
+  @override
+  String get ceSelfSaveError =>
+      'Ton auto-évaluation n\'a pas pu être enregistrée. Réessaie.';
+
+  @override
   String get ceIntegrationBody =>
       'Des situations complètes qui mêlent les notions du chapitre.';
 

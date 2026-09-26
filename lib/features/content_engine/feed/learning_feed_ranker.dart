@@ -71,10 +71,15 @@ class LearningFeedRanker {
     if (cards.isEmpty) return const [];
     final frontier = _frontierLessons(cards, context);
     final struggling = _strugglingConcepts(cards, context);
+    final integrationReady = _integrationReady(cards, context);
 
     final eligible = <LearningCard>[];
     final resting = <LearningCard>[];
     for (final card in cards) {
+      if (card.lessonNumber == 0 &&
+          !integrationReady.contains(card.chapterId)) {
+        continue;
+      }
       if (!_relevant(card, context, struggling)) continue;
       (_due(card, context) ? eligible : resting).add(card);
     }
@@ -124,7 +129,9 @@ class LearningFeedRanker {
   ) {
     final lessonsByChapter = <String, Map<int, String>>{};
     for (final card in cards) {
-      if (card.type == LearningCardType.newContent) continue;
+      if (card.type == LearningCardType.newContent || card.lessonNumber == 0) {
+        continue;
+      }
       lessonsByChapter.putIfAbsent(
         card.chapterId,
         () => {},
@@ -141,6 +148,33 @@ class LearningFeedRanker {
           }
           return lessons.isEmpty ? 1 : lessons.last;
         }(),
+    };
+  }
+
+  /// La synthèse arrive seulement après une première rencontre avec chaque
+  /// vraie leçon (lecture, réponse ou auto-évaluation). Aucun faux numéro.
+  Set<String> _integrationReady(
+    List<LearningCard> cards,
+    LearningFeedContext context,
+  ) {
+    final lessons = <String, Set<int>>{};
+    final visited = <String, Set<int>>{};
+    for (final card in cards) {
+      if (card.lessonNumber <= 0 || card.type == LearningCardType.newContent) {
+        continue;
+      }
+      lessons.putIfAbsent(card.chapterId, () => {}).add(card.lessonNumber);
+      final state = context.mastery[card.conceptId];
+      if (context.history.of(card.id).seen > 0 ||
+          context.history.of(card.id).answered > 0 ||
+          (state?.attempts ?? 0) > 0 ||
+          (state?.selfEvaluations.isNotEmpty ?? false)) {
+        visited.putIfAbsent(card.chapterId, () => {}).add(card.lessonNumber);
+      }
+    }
+    return {
+      for (final entry in lessons.entries)
+        if (visited[entry.key]?.containsAll(entry.value) ?? false) entry.key,
     };
   }
 
@@ -164,8 +198,9 @@ class LearningFeedRanker {
       }
     }
     for (final state in context.mastery.values) {
-      if (state.errorsSinceExplanationChange >= 2 &&
-          state.consecutiveCorrect == 0) {
+      if (state.needsSelfReview ||
+          (state.errorsSinceExplanationChange >= 2 &&
+              state.consecutiveCorrect == 0)) {
         latest.putIfAbsent(state.conceptId, () => DateTime(0));
       }
     }
@@ -229,7 +264,7 @@ class LearningFeedRanker {
     // Distance à la leçon en cours : devant, la leçon en cours ; derrière,
     // les suivantes (on ne saute pas le programme) puis les acquises.
     final current = frontier[card.chapterId] ?? 1;
-    final offset = card.lessonNumber - current;
+    final offset = card.lessonNumber == 0 ? 9 : card.lessonNumber - current;
     final distance = offset >= 0
         ? offset.clamp(0, 9)
         : (3 - offset).clamp(0, 9);

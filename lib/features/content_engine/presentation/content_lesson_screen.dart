@@ -165,6 +165,13 @@ class _LessonViewState extends ConsumerState<_LessonView> {
       chapter: widget.chapter,
       lessonNumber: widget.lesson.number,
       answered: snapshot.conceptState(widget.concept.id).answeredQuestionIds,
+      selfEvaluationRecorder: (question, evaluation) => ref
+          .read(learnerContentControllerProvider.notifier)
+          .recordSelfEvaluation(
+            chapter: widget.chapter,
+            question: question,
+            evaluation: evaluation,
+          ),
       recorder: (question, correct) => ref
           .read(learnerContentControllerProvider.notifier)
           .recordAnswer(

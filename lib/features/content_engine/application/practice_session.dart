@@ -10,6 +10,9 @@ import '../engine/answer_checker.dart';
 typedef AnswerRecorder =
     Future<List<AdaptiveSuggestion>> Function(Question question, bool correct);
 
+typedef SelfEvaluationRecorder =
+    Future<void> Function(Question question, SelfEvaluation evaluation);
+
 /// Une séance d'entraînement : difficulté choisie, question en cours,
 /// dernière correction, indices vus. Partagée avec le Compagnon.
 class PracticeSession extends ChangeNotifier {
@@ -17,6 +20,7 @@ class PracticeSession extends ChangeNotifier {
     required this.chapter,
     required this.lessonNumber,
     required this.recorder,
+    this.selfEvaluationRecorder,
     Set<String> answered = const {},
     int difficulty = 1,
     this.questionsOverride,
@@ -32,6 +36,7 @@ class PracticeSession extends ChangeNotifier {
   /// Leçon ; `0` pour les défis d'intégration.
   final int lessonNumber;
   final AnswerRecorder recorder;
+  final SelfEvaluationRecorder? selfEvaluationRecorder;
 
   /// Questions imposées (défis d'intégration) au lieu de la sélection.
   final List<Question>? questionsOverride;
@@ -47,6 +52,8 @@ class PracticeSession extends ChangeNotifier {
   bool _busy = false;
   List<AdaptiveSuggestion> _suggestions = const [];
   int _session = 0;
+  SelfEvaluation? _selfEvaluation;
+  bool _disposed = false;
 
   int get difficulty => _difficulty;
   List<Question> get questions => _questions;
@@ -54,7 +61,7 @@ class PracticeSession extends ChangeNotifier {
       _index < _questions.length ? _questions[_index] : null;
   int get index => _index;
   GradeResult? get lastGrade => _grade;
-  bool get answered => _grade != null;
+  bool get answered => _grade != null || _selfEvaluation != null;
   int get hintsShown => _hintsShown;
   bool get busy => _busy;
   Set<String> get answeredIds => _answered;
@@ -74,6 +81,7 @@ class PracticeSession extends ChangeNotifier {
         );
     _index = 0;
     _grade = null;
+    _selfEvaluation = null;
     _hintsShown = 0;
     _session++;
   }
@@ -89,7 +97,9 @@ class PracticeSession extends ChangeNotifier {
 
   Future<GradeResult?> submit(StudentResponse response) async {
     final question = current;
-    if (question == null || _busy || answered) return null;
+    if (question == null || !question.autoScorable || _busy || answered) {
+      return null;
+    }
     _busy = true;
     notifyListeners();
     final grade = checker.grade(question, response);
@@ -104,9 +114,32 @@ class PracticeSession extends ChangeNotifier {
     return grade;
   }
 
+  Future<void> selfEvaluate(SelfEvaluation evaluation) async {
+    final question = current;
+    final record = selfEvaluationRecorder;
+    if (question == null ||
+        !question.requiresSelfEvaluation ||
+        _busy ||
+        answered) {
+      return;
+    }
+    if (record == null) throw StateError('Self-evaluation recorder missing');
+    final attempt = attemptKey;
+    _busy = true;
+    notifyListeners();
+    try {
+      await record(question, evaluation);
+      if (attemptKey == attempt) _selfEvaluation = evaluation;
+    } finally {
+      _busy = false;
+      if (!_disposed) notifyListeners();
+    }
+  }
+
   /// Réessayer la même question après une erreur.
   void retry() {
     _grade = null;
+    _selfEvaluation = null;
     _session++;
     notifyListeners();
   }
@@ -114,6 +147,7 @@ class PracticeSession extends ChangeNotifier {
   void next() {
     if (_index < _questions.length) _index++;
     _grade = null;
+    _selfEvaluation = null;
     _hintsShown = 0;
     notifyListeners();
   }
@@ -141,9 +175,16 @@ class PracticeSession extends ChangeNotifier {
     if (position >= 0) {
       _index = position;
       _grade = null;
+      _selfEvaluation = null;
       _hintsShown = 0;
       _session++;
     }
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

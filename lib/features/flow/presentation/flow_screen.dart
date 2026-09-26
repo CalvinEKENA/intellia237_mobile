@@ -360,11 +360,11 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
             scrollDirection: Axis.vertical,
             itemCount: _cards.length,
             onPageChanged: (i) {
-              // Une question de pack quittée sans réponse compte comme
+              // Une question notée de pack quittée sans réponse compte comme
               // passée : elle reviendra plus tard, pas tout de suite.
               final left = _cards[_index];
               if (left is FlowLearningCard &&
-                  left.learning.type.asksAnswer &&
+                  left.learning.question?.autoScorable == true &&
                   !_answeredPackCards.contains(left.id)) {
                 unawaited(
                   ref

@@ -19,6 +19,7 @@ import '../../engine/answer_checker.dart';
 import '../../engine/companion_engine.dart';
 import '../content_style.dart';
 import 'answer_input.dart';
+import 'open_response_panel.dart';
 
 /// Texte humain d'un diagnostic de correction.
 String diagnosisText(BuildContext context, GradeResult grade) {
@@ -207,6 +208,16 @@ class _PracticePanelState extends ConsumerState<PracticePanel> {
                   ? l10n.ceNoQuestions
                   : l10n.ceLessonDone,
               style: ContentText.body(),
+            ),
+          )
+        else if (question.requiresSelfEvaluation)
+          ContentCard(
+            child: OpenResponsePanel(
+              key: ValueKey('open-${question.id}-${_session.attemptKey}'),
+              question: question,
+              onEvaluate: _session.selfEvaluate,
+              onNext: _session.next,
+              onHintShown: _session.hintShown,
             ),
           )
         else

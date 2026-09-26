@@ -280,10 +280,7 @@ void main() {
       final ch03 = await chapter(_ch03);
       final manual = ch03.questions.where((q) => !q.autoScorable).toList();
       expect(manual.map((q) => q.id), hasLength(9));
-      expect(
-        manual.every((q) => q.disabledReason == 'question_not_auto_scored'),
-        isTrue,
-      );
+      expect(manual.every((q) => q.requiresSelfEvaluation), isTrue);
     });
   });
 
