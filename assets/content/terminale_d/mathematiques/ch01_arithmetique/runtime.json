@@ -1,0 +1,1129 @@
+{
+  "schema_version": "intellia.runtime-learning-pack.v2",
+  "pack_id": "maths_td_ch01_arithmetique_runtime_v1",
+  "llm_required": false,
+  "engine_version_required": 2,
+  "publication": {
+    "status": "published",
+    "version": 1
+  },
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale D",
+    "class_keys": [
+      "terminale-d"
+    ],
+    "subject": "Mathématiques",
+    "module": "Relations et opérations fondamentales dans l'ensemble des nombres complexes",
+    "chapter_number": 1,
+    "chapter_title": "Arithmétique"
+  },
+  "explanation_modes": [
+    "standard",
+    "simple",
+    "ultra_simple"
+  ],
+  "difficulty_levels": [
+    1,
+    2,
+    3
+  ],
+  "lesson_refs": [
+    {
+      "lesson": 1,
+      "title": "Division euclidienne dans N",
+      "concept_ids": [
+        "euclidean_division_N"
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Système de numération décimale et système binaire",
+      "concept_ids": [
+        "binary_decimal"
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Division euclidienne et divisibilité dans Z",
+      "concept_ids": [
+        "euclidean_division_Z"
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Congruence dans Z",
+      "concept_ids": [
+        "congruence"
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Nombres premiers",
+      "concept_ids": [
+        "prime_numbers"
+      ]
+    },
+    {
+      "lesson": 6,
+      "title": "PGCD et PPCM de deux nombres entiers non nuls",
+      "concept_ids": [
+        "gcd_lcm"
+      ]
+    }
+  ],
+  "question_bank": [
+    {
+      "id": "l1_e1",
+      "lesson": 1,
+      "concept_id": "euclidean_division_N",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Dans 47=6q+r avec 0≤r<6, donne q et r.",
+      "answer": {
+        "q": 7,
+        "r": 5
+      },
+      "explanation": "6×7=42 et 47−42=5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche le plus grand multiple de 6 qui ne dépasse pas 47."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l1_e2",
+      "lesson": 1,
+      "concept_id": "euclidean_division_N",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Dans 1964=17×115+9, quel est le reste ?",
+      "answer": 9,
+      "explanation": "Le reste est le terme ajouté après le produit et il vérifie 0≤9<17.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Dans a=bq+r, le reste est le terme ajouté au produit bq."
+        }
+      ],
+      "source_anchor": "page_007.jpg",
+      "tags": [],
+      "choices": [
+        17,
+        115,
+        9,
+        1964
+      ]
+    },
+    {
+      "id": "l1_e3",
+      "lesson": 1,
+      "concept_id": "euclidean_division_N",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Dans une division euclidienne par 8, un reste égal à 8 est autorisé.",
+      "answer": false,
+      "explanation": "Le reste doit vérifier 0≤r<8.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Rappelle-toi l'encadrement que doit vérifier le reste : 0≤r<b."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l1_m1",
+      "lesson": 1,
+      "concept_id": "euclidean_division_N",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Effectue la division euclidienne de 2550 par 27.",
+      "answer": {
+        "q": 94,
+        "r": 12
+      },
+      "explanation": "27×94=2538 et 2550−2538=12.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Encadre 2550 entre deux multiples consécutifs de 27."
+        },
+        {
+          "level": 2,
+          "content": "Calcule 27×90, puis ajoute des 27 sans dépasser 2550."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l1_m2",
+      "lesson": 1,
+      "concept_id": "euclidean_division_N",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Quel entier b permet d'avoir 2851=55b+r avec 0≤r<b ?",
+      "answer": {
+        "b": 51,
+        "r": 46
+      },
+      "explanation": "Les inégalités imposent 2851/56<b≤2851/55 ; le seul entier est 51, puis r=46.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Les conditions 0≤r<b donnent 55b≤2851<56b."
+        },
+        {
+          "level": 2,
+          "content": "Divise 2851 par 56, puis par 55, pour encadrer b."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l1_h1",
+      "lesson": 1,
+      "concept_id": "euclidean_division_N",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Peut-on avoir 56 cartons pleins dans la situation des 2851 savons, avec tous les cartons de même capacité entière ?",
+      "answer": "non",
+      "explanation": "Si 2851=56b+r avec 0≤r<b, alors b≤50 par r≥0, mais b≥51 par r<b. Contradiction.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Écris 2851=56b+r avec 0≤r<b."
+        },
+        {
+          "level": 2,
+          "content": "Compare ce que r≥0 et r<b imposent chacun à b."
+        }
+      ],
+      "source_anchor": "page_006.jpg",
+      "tags": [
+        "situation_probleme"
+      ]
+    },
+    {
+      "id": "l2_e1",
+      "lesson": 2,
+      "concept_id": "binary_decimal",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Convertis 101101₂ en base 10.",
+      "answer": 45,
+      "explanation": "32+8+4+1=45.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Associe à chaque chiffre la puissance de 2 de sa colonne, en partant de 2⁰ à droite."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l2_e2",
+      "lesson": 2,
+      "concept_id": "binary_decimal",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Convertis 13 en base 2.",
+      "answer": "1101",
+      "explanation": "13=8+4+1.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Décompose 13 en somme de puissances de 2 distinctes : 8, 4, 2, 1…"
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l2_e3",
+      "lesson": 2,
+      "concept_id": "binary_decimal",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quel chiffre n'existe pas dans l'écriture binaire ?",
+      "answer": 2,
+      "explanation": "La base 2 n'utilise que 0 et 1.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Combien de chiffres différents une écriture en base b utilise-t-elle ?"
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "choices": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "id": "l2_m1",
+      "lesson": 2,
+      "concept_id": "binary_decimal",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Le code binaire 1111101₂ de la valise correspond à quel entier décimal ?",
+      "answer": 125,
+      "explanation": "64+32+16+8+4+1=125.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Additionne les puissances de 2 des colonnes où se trouve un 1."
+        }
+      ],
+      "source_anchor": "page_008.jpg",
+      "tags": []
+    },
+    {
+      "id": "l2_m2",
+      "lesson": 2,
+      "concept_id": "binary_decimal",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Quel est le plus petit entier naturel qui s'écrit avec exactement 10 chiffres en base 2 ? Donne sa valeur décimale.",
+      "answer": {
+        "binary": "1000000000",
+        "decimal": 512
+      },
+      "explanation": "Le premier chiffre doit être 1 et les neuf suivants 0 : 2^9=512.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le premier chiffre d'une écriture binaire est toujours 1."
+        },
+        {
+          "level": 2,
+          "content": "Quelle puissance de 2 correspond au 10ᵉ chiffre en partant de la droite ?"
+        }
+      ],
+      "source_anchor": "page_022.jpg",
+      "tags": []
+    },
+    {
+      "id": "l2_h1",
+      "lesson": 2,
+      "concept_id": "binary_decimal",
+      "difficulty": 3,
+      "type": "multi_step",
+      "prompt": "Écris 1000 en base 2 puis vérifie en recomposant avec des puissances de 2.",
+      "answer": {
+        "binary": "1111101000",
+        "decomposition": [
+          512,
+          256,
+          128,
+          64,
+          32,
+          8
+        ]
+      },
+      "explanation": "512+256+128+64+32+8=1000.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche la plus grande puissance de 2 inférieure ou égale à 1000."
+        },
+        {
+          "level": 2,
+          "content": "Retire-la, puis recommence avec ce qui reste."
+        }
+      ],
+      "source_anchor": "page_022.jpg",
+      "tags": []
+    },
+    {
+      "id": "l3_e1",
+      "lesson": 3,
+      "concept_id": "euclidean_division_Z",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Division euclidienne de −54 par 5 : donne q et r.",
+      "answer": {
+        "q": -11,
+        "r": 1
+      },
+      "explanation": "−54=5×(−11)+1 et 0≤1<5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le reste doit vérifier 0≤r<5, même si le dividende est négatif."
+        },
+        {
+          "level": 2,
+          "content": "Cherche le multiple de 5 juste en dessous de −54."
+        }
+      ],
+      "source_anchor": "page_011.jpg",
+      "tags": []
+    },
+    {
+      "id": "l3_e2",
+      "lesson": 3,
+      "concept_id": "euclidean_division_Z",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Si b divise a, alors le reste de la division euclidienne de a par b est 0.",
+      "answer": true,
+      "explanation": "C'est précisément le cas r=0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Traduis « b divise a » avec l'égalité a=bq+r."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l3_e3",
+      "lesson": 3,
+      "concept_id": "euclidean_division_Z",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Division euclidienne de 27 par −5 : donne q et r.",
+      "answer": {
+        "q": -5,
+        "r": 2
+      },
+      "explanation": "27=(−5)×(−5)+2 et 0≤2<5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le reste vérifie 0≤r<|−5|."
+        },
+        {
+          "level": 2,
+          "content": "Cherche q tel que (−5)×q soit juste en dessous de 27."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l3_m1",
+      "lesson": 3,
+      "concept_id": "euclidean_division_Z",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Si 6 divise a et 6 divise c, lequel est toujours divisible par 6 ?",
+      "answer": "3a-5c",
+      "explanation": "Toute combinaison ax+cy avec x,y entiers reste divisible par 6.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Si b divise a et c, b divise toute combinaison ax+cy avec x et y entiers."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "choices": [
+        "a+1",
+        "3a-5c",
+        "a/6+c",
+        "a+c+1"
+      ]
+    },
+    {
+      "id": "l3_m2",
+      "lesson": 3,
+      "concept_id": "euclidean_division_Z",
+      "difficulty": 2,
+      "type": "solution_set",
+      "prompt": "Pour quels n entiers (2n+6)/(n−1) est-il entier ?",
+      "answer": [
+        -7,
+        -3,
+        -1,
+        0,
+        2,
+        3,
+        5,
+        9
+      ],
+      "explanation": "(2n+6)/(n−1)=2+8/(n−1), donc n−1 doit diviser 8.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Écris 2n+6 sous la forme 2(n−1)+…"
+        },
+        {
+          "level": 2,
+          "content": "n−1 doit alors diviser le nombre restant."
+        }
+      ],
+      "source_anchor": "page_011.jpg",
+      "tags": []
+    },
+    {
+      "id": "l3_h1",
+      "lesson": 3,
+      "concept_id": "euclidean_division_Z",
+      "difficulty": 3,
+      "type": "numeric",
+      "prompt": "Dans la situation de Paul, sa note est la somme de tous les entiers n admissibles. Quelle est-elle ?",
+      "answer": 8,
+      "explanation": "−7−3−1+0+2+3+5+9=8.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Reprends tous les entiers n pour lesquels (2n+6)/(n−1) est entier, puis additionne-les."
+        }
+      ],
+      "source_anchor": "page_011.jpg",
+      "tags": [
+        "situation_probleme"
+      ]
+    },
+    {
+      "id": "l4_e1",
+      "lesson": 4,
+      "concept_id": "congruence",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Quel est le représentant dans {0,…,11} de −15 modulo 12 ?",
+      "answer": 9,
+      "explanation": "−15=−24+9, donc −15≡9 (mod 12).",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Ajoute des multiples de 12 à −15 jusqu'à tomber entre 0 et 11."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l4_e2",
+      "lesson": 4,
+      "concept_id": "congruence",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "23 et 8 sont congrus modulo 5.",
+      "answer": true,
+      "explanation": "23−8=15, multiple de 5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule 23−8 et regarde si c'est un multiple de 5."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l4_e3",
+      "lesson": 4,
+      "concept_id": "congruence",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Quel est le reste de 137 dans la division par 12 ?",
+      "answer": 5,
+      "explanation": "137=12×11+5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche le plus grand multiple de 12 inférieur ou égal à 137."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l4_m1",
+      "lesson": 4,
+      "concept_id": "congruence",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Sachant que 2^12≡1 (mod 65), calcule le reste de 2^100 modulo 65.",
+      "answer": 16,
+      "explanation": "100=8×12+4, donc 2^100≡(2^12)^8×2^4≡16.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Écris la division euclidienne de 100 par 12."
+        },
+        {
+          "level": 2,
+          "content": "Utilise (2¹²)ᵏ≡1 (mod 65)."
+        }
+      ],
+      "source_anchor": "page_013.jpg",
+      "tags": []
+    },
+    {
+      "id": "l4_m2",
+      "lesson": 4,
+      "concept_id": "congruence",
+      "difficulty": 2,
+      "type": "multi_select",
+      "prompt": "Quels nombres sont congrus à 2 modulo 5 ?",
+      "answer": [
+        7,
+        12,
+        -3
+      ],
+      "explanation": "Ils diffèrent tous de 2 d'un multiple de 5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pour chaque nombre x, regarde si x−2 est un multiple de 5."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "choices": [
+        7,
+        8,
+        12,
+        -3,
+        14
+      ]
+    },
+    {
+      "id": "l4_h1",
+      "lesson": 4,
+      "concept_id": "congruence",
+      "difficulty": 3,
+      "type": "solution_set",
+      "prompt": "Résous n²+6≡0 (mod 5).",
+      "answer": [
+        "n≡2 (mod 5)",
+        "n≡3 (mod 5)"
+      ],
+      "explanation": "n²≡−6≡4 (mod 5), donc n≡±2, soit 2 ou 3 modulo 5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Réécris l'équation n²≡−6 (mod 5) avec un représentant entre 0 et 4."
+        },
+        {
+          "level": 2,
+          "content": "Teste n=0, 1, 2, 3 et 4 modulo 5."
+        }
+      ],
+      "source_anchor": "page_015.jpg",
+      "tags": []
+    },
+    {
+      "id": "l5_e1",
+      "lesson": 5,
+      "concept_id": "prime_numbers",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "1 est un nombre premier.",
+      "answer": false,
+      "explanation": "Un nombre premier a exactement deux diviseurs positifs distincts ; 1 n'en a qu'un.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compte les diviseurs positifs de 1."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l5_e2",
+      "lesson": 5,
+      "concept_id": "prime_numbers",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Lequel est premier ?",
+      "answer": 29,
+      "explanation": "29 n'a aucun diviseur premier ≤√29.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pour chaque nombre, cherche un diviseur premier inférieur ou égal à sa racine carrée."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "choices": [
+        21,
+        27,
+        29,
+        33
+      ]
+    },
+    {
+      "id": "l5_e3",
+      "lesson": 5,
+      "concept_id": "prime_numbers",
+      "difficulty": 1,
+      "type": "factorization",
+      "prompt": "Décompose 60 en facteurs premiers.",
+      "answer": {
+        "2": 2,
+        "3": 1,
+        "5": 1
+      },
+      "explanation": "60=2²×3×5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Divise 60 par 2 tant que c'est possible, puis par 3, puis par 5."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l5_m1",
+      "lesson": 5,
+      "concept_id": "prime_numbers",
+      "difficulty": 2,
+      "type": "factorization",
+      "prompt": "Décompose 6647 en facteurs premiers.",
+      "answer": {
+        "17": 2,
+        "23": 1
+      },
+      "explanation": "6647=17²×23.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Teste les nombres premiers jusqu'à √6647≈81,5."
+        },
+        {
+          "level": 2,
+          "content": "Quand un premier divise, divise puis recommence avec le quotient."
+        }
+      ],
+      "source_anchor": "page_016.jpg",
+      "tags": []
+    },
+    {
+      "id": "l5_m2",
+      "lesson": 5,
+      "concept_id": "prime_numbers",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Combien de diviseurs positifs possède 6647=17²×23 ?",
+      "answer": 6,
+      "explanation": "Pour p^αq^β, le nombre de diviseurs positifs est (α+1)(β+1)=3×2=6.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pour p^α×q^β, un diviseur s'écrit p^a×q^b avec 0≤a≤α et 0≤b≤β."
+        }
+      ],
+      "source_anchor": "page_016.jpg",
+      "tags": []
+    },
+    {
+      "id": "l5_h1",
+      "lesson": 5,
+      "concept_id": "prime_numbers",
+      "difficulty": 3,
+      "type": "multi_step",
+      "prompt": "Un coffret a un volume de 6647 cm³ et une face carrée. Détermine ses trois arêtes entières.",
+      "answer": [
+        17,
+        17,
+        23
+      ],
+      "explanation": "6647=17²×23 ; la face carrée fournit les deux arêtes égales 17 et 17.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise la décomposition en facteurs premiers de 6647."
+        },
+        {
+          "level": 2,
+          "content": "Une face carrée impose deux arêtes égales."
+        }
+      ],
+      "source_anchor": "page_016.jpg",
+      "tags": [
+        "situation_probleme"
+      ]
+    },
+    {
+      "id": "l6_e1",
+      "lesson": 6,
+      "concept_id": "gcd_lcm",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Calcule PGCD(60,36).",
+      "answer": 12,
+      "explanation": "60=12×5 et 36=12×3 ; aucun diviseur commun plus grand ne convient.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Décompose 60 et 36 en facteurs premiers, puis garde les facteurs communs avec le plus petit exposant."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l6_e2",
+      "lesson": 6,
+      "concept_id": "gcd_lcm",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Calcule PPCM(12,18).",
+      "answer": 36,
+      "explanation": "36 est le plus petit multiple positif commun.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Liste les multiples de 18 et cherche le premier qui est aussi multiple de 12."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l6_e3",
+      "lesson": 6,
+      "concept_id": "gcd_lcm",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "PGCD(14,25)=1.",
+      "answer": true,
+      "explanation": "14=2×7 et 25=5² n'ont aucun facteur premier commun.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare les décompositions en facteurs premiers de 14 et de 25."
+        }
+      ],
+      "source_anchor": null,
+      "tags": []
+    },
+    {
+      "id": "l6_m1",
+      "lesson": 6,
+      "concept_id": "gcd_lcm",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Une douche mesure 240 cm×180 cm. Quel est le plus grand côté possible pour des carreaux carrés identiques sans découpe ?",
+      "answer": 60,
+      "explanation": "Il faut le PGCD(240,180)=60 cm.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le côté du carreau doit diviser les deux dimensions."
+        },
+        {
+          "level": 2,
+          "content": "On cherche donc le plus grand diviseur commun."
+        }
+      ],
+      "source_anchor": "page_018.jpg",
+      "tags": []
+    },
+    {
+      "id": "l6_m2",
+      "lesson": 6,
+      "concept_id": "gcd_lcm",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Deux longueurs de carreaux sont 24 cm et 18 cm. À quelle distance minimale leurs extrémités coïncident-elles à nouveau ?",
+      "answer": 72,
+      "explanation": "Il faut PPCM(24,18)=72 cm.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "La distance cherchée est un multiple commun de 24 et de 18."
+        },
+        {
+          "level": 2,
+          "content": "On veut le plus petit de ces multiples communs."
+        }
+      ],
+      "source_anchor": "page_018.jpg",
+      "tags": []
+    },
+    {
+      "id": "l6_h1",
+      "lesson": 6,
+      "concept_id": "gcd_lcm",
+      "difficulty": 3,
+      "type": "multi_step",
+      "prompt": "Calcule PGCD(46269,16854) par l'algorithme d'Euclide, puis le PPCM.",
+      "answer": {
+        "gcd": 159,
+        "lcm": 4904514
+      },
+      "explanation": "Le dernier reste non nul vaut 159, puis PPCM=|46269×16854|/159.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Divise 46269 par 16854, puis le diviseur par le reste, et continue."
+        },
+        {
+          "level": 2,
+          "content": "Le PGCD est le dernier reste non nul ; utilise ensuite PGCD×PPCM=|ab|."
+        }
+      ],
+      "source_anchor": "page_021.jpg",
+      "tags": []
+    },
+    {
+      "id": "int_awa1",
+      "lesson": 0,
+      "concept_id": "chapter_integration",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Awa a 250 savons de toilette pour 22 clients. Combien faut-il en ajouter au minimum pour un partage exact ?",
+      "answer": 14,
+      "explanation": "250≡8 (mod 22), il faut donc ajouter 22−8=14.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule le reste de 250 dans la division par 22."
+        },
+        {
+          "level": 2,
+          "content": "Combien manque-t-il pour atteindre le multiple suivant de 22 ?"
+        }
+      ],
+      "source_anchor": "page_025.jpg",
+      "tags": [
+        "integration",
+        "congruence"
+      ]
+    },
+    {
+      "id": "int_awa2",
+      "lesson": 0,
+      "concept_id": "chapter_integration",
+      "difficulty": 3,
+      "type": "solution_set",
+      "prompt": "Moins de 100 savons de ménage vérifient N≡3 (mod 5) et N≡2 (mod 7). Donne toutes les possibilités.",
+      "answer": [
+        23,
+        58,
+        93
+      ],
+      "explanation": "La résolution modulo 35 donne N≡23 (mod 35), puis sous 100 : 23,58,93.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Liste les nombres inférieurs à 100 qui s'écrivent 5k+3."
+        },
+        {
+          "level": 2,
+          "content": "Garde ceux dont le reste dans la division par 7 vaut 2."
+        }
+      ],
+      "source_anchor": "page_025.jpg",
+      "tags": [
+        "integration",
+        "quality_sensitive"
+      ]
+    },
+    {
+      "id": "int_awa3",
+      "lesson": 0,
+      "concept_id": "chapter_integration",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Le volume 31117 cm³ suffit-il, à lui seul, à déterminer un unique triplet de dimensions entières d'un pavé droit ?",
+      "answer": "non",
+      "explanation": "31117=29²×37, mais le volume seul admet plusieurs répartitions entières des facteurs. Il faut une contrainte supplémentaire pour l'unicité.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Décompose 31117 en facteurs premiers."
+        },
+        {
+          "level": 2,
+          "content": "Cherche s'il existe plusieurs façons de répartir ces facteurs en trois dimensions."
+        }
+      ],
+      "source_anchor": "page_025.jpg",
+      "tags": [
+        "integration",
+        "critical_thinking"
+      ]
+    },
+    {
+      "id": "int_water1",
+      "lesson": 0,
+      "concept_id": "chapter_integration",
+      "difficulty": 3,
+      "type": "procedure",
+      "prompt": "Avec des seaux de 20 L et 28 L, peut-on mesurer exactement 52 L par transvasements ?",
+      "answer": "oui",
+      "explanation": "PGCD(20,28)=4 et 4 divise 52. Une stratégie permet de mesurer 24 L avec les deux seaux, puis 28+24=52.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule PGCD(20,28)."
+        },
+        {
+          "level": 2,
+          "content": "Une quantité mesurable par transvasements est un multiple de ce PGCD."
+        }
+      ],
+      "source_anchor": "page_025.jpg",
+      "tags": [
+        "integration",
+        "bezout"
+      ]
+    },
+    {
+      "id": "int_water2",
+      "lesson": 0,
+      "concept_id": "chapter_integration",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Quelle est la plus petite quantité d'eau qui soit un multiple de 20 L, 28 L et 36 L ? Combien de seaux de 20 L cela représente-t-il ?",
+      "answer": {
+        "litres": 1260,
+        "buckets20": 63
+      },
+      "explanation": "PPCM(20,28,36)=1260 ; 1260/20=63.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Décompose 20, 28 et 36 en facteurs premiers."
+        },
+        {
+          "level": 2,
+          "content": "Le PPCM prend chaque facteur avec son plus grand exposant ; divise ensuite par 20."
+        }
+      ],
+      "source_anchor": "page_025.jpg",
+      "tags": [
+        "integration",
+        "lcm"
+      ]
+    }
+  ],
+  "games": [
+    {
+      "id": "soap_factory",
+      "title": "Savonnerie Express",
+      "status": "ready",
+      "engine": "grouping",
+      "concept": "euclidean_division_N",
+      "mechanic": "Choisir la capacité des cartons, observer leur remplissage et déterminer quotient/reste.",
+      "difficulty": {
+        "1": "petits nombres + aide visuelle",
+        "2": "capacité à retrouver",
+        "3": "détecter un rapport impossible comme les 2851 savons"
+      },
+      "scoring": "100 correct, +25 série, −20 seulement en Défi Bac"
+    },
+    {
+      "id": "binary_suitcase",
+      "title": "La Valise Binaire",
+      "status": "ready",
+      "engine": "place_value",
+      "concept": "binary_decimal",
+      "mechanic": "Interrupteurs 1/0 pondérés par 1,2,4,8,… ; la valise s'ouvre quand la valeur cible est atteinte.",
+      "difficulty": {
+        "1": "≤31",
+        "2": "≤255",
+        "3": "conversion dans les deux sens avec chrono"
+      }
+    },
+    {
+      "id": "remainder_zone",
+      "title": "Zone du Reste",
+      "status": "ready",
+      "engine": "remainder_zone",
+      "concept": "euclidean_division_Z",
+      "mechanic": "Déplacer q jusqu'à ce que r tombe dans 0≤r<|b|.",
+      "difficulty": {
+        "1": "dividendes positifs",
+        "2": "dividendes négatifs",
+        "3": "diviseurs négatifs + justification"
+      }
+    },
+    {
+      "id": "modulo_clock",
+      "title": "Horloge Modulo",
+      "status": "ready",
+      "engine": "modular_clock",
+      "concept": "congruence",
+      "mechanic": "Une roue modulo n tourne ; prévoir la case d'arrivée d'entiers et de puissances.",
+      "difficulty": {
+        "1": "réduction directe",
+        "2": "opérations de congruences",
+        "3": "cycles de puissances et équations"
+      }
+    },
+    {
+      "id": "prime_forge",
+      "title": "Forge des Premiers",
+      "status": "ready",
+      "engine": "factor_forge",
+      "concept": "prime_numbers",
+      "mechanic": "Casser un entier en briques premières, reconstruire des volumes et compter les diviseurs.",
+      "difficulty": {
+        "1": "premier/composé",
+        "2": "factorisation",
+        "3": "reconstruction"
+      }
+    },
+    {
+      "id": "tile_master",
+      "title": "Maître Carreleur",
+      "status": "ready",
+      "engine": "tiling",
+      "concept": "gcd_lcm",
+      "mechanic": "Recouvrir des rectangles sans découpe et synchroniser deux rangées de carreaux.",
+      "difficulty": {
+        "1": "PGCD/PPCM simples",
+        "2": "dimensions réelles",
+        "3": "choisir PGCD ou PPCM"
+      }
+    },
+    {
+      "id": "mission_awa",
+      "title": "Mission Awa",
+      "status": "ready",
+      "engine": "integration_mission",
+      "concept": "chapter_integration",
+      "mechanic": "Mini-aventure : répartir les savons, résoudre les restes, contrôler si les données du carton suffisent.",
+      "difficulty": {
+        "3": "multi-étapes + esprit critique"
+      }
+    }
+  ],
+  "companion": {
+    "runtime_llm_required": false,
+    "quick_actions": [
+      "Explique normalement",
+      "Plus simplement",
+      "Comme si j'avais 12 ans",
+      "Montre-moi",
+      "Donne un indice",
+      "Teste-moi",
+      "Pourquoi c'est faux ?"
+    ],
+    "routing": "concept_id + alias de mots-clés + contexte de la leçon",
+    "fallback": "Proposer les trois concepts les plus proches ; ne jamais inventer une réponse hors pack.",
+    "answer_policy": "Les réponses automatiques proviennent uniquement des contenus validés."
+  },
+  "mastery": {
+    "concept_score_range": [
+      0,
+      100
+    ],
+    "unlock_next_lesson_at": 70,
+    "suggest_harder_level_after_consecutive_correct": 3,
+    "show_simple_after_errors": 2,
+    "show_ultra_simple_after_additional_error": 1
+  },
+  "offline_ready": true
+}

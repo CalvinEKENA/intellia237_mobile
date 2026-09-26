@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../services/profile_image_service.dart';
 
@@ -21,7 +21,7 @@ class AvatarPickerWidget extends StatefulWidget {
 class _AvatarPickerWidgetState extends State<AvatarPickerWidget> {
   final ProfileImageService _service = ProfileImageService();
 
-  File? _localImage;
+  Uint8List? _localImage;
   bool _isLoading = false;
 
   Future<void> _showPickerOptions() async {
@@ -92,7 +92,7 @@ class _AvatarPickerWidgetState extends State<AvatarPickerWidget> {
   }
 
   Future<void> _pickAndUpload({required bool fromCamera}) async {
-    File? file;
+    Uint8List? file;
 
     if (fromCamera) {
       file = await _service.pickFromCamera();
@@ -159,7 +159,7 @@ class _AvatarPickerWidgetState extends State<AvatarPickerWidget> {
             radius: widget.radius,
             backgroundColor: Colors.grey.shade200,
             backgroundImage: _localImage != null
-                ? FileImage(_localImage!)
+                ? MemoryImage(_localImage!)
                 : (widget.currentPhotoUrl != null &&
                       widget.currentPhotoUrl!.isNotEmpty)
                 ? NetworkImage(widget.currentPhotoUrl!) as ImageProvider

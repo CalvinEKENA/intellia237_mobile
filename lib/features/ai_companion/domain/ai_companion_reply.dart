@@ -32,6 +32,9 @@ class AICompanionReply {
 
 enum AICompanionFailureKind {
   quotaExhausted,
+
+  /// Réserve d'étude vide pour le cycle : distinct du quota quotidien.
+  studyReserveExhausted,
   network,
   serviceUnavailable,
   authorizationProfile,

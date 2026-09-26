@@ -55,6 +55,7 @@ import 'widgets/streak_motivation_card.dart';
 import 'widgets/student_home_header.dart';
 import 'widgets/student_home_skeleton.dart';
 import 'widgets/subjects_carousel.dart';
+import '../../study_reserve/presentation/study_reserve_card.dart';
 
 /// Compteur de taps de navigation : outil de diagnostic de terrain.
 ///
@@ -846,6 +847,9 @@ class StudentProfileTab extends ConsumerWidget {
       const StudentLearningIdentity(),
       const SizedBox(height: 12),
       _TutorSection(classLevel: academicAsync.valueOrNull?.classLevel),
+      const SizedBox(height: 16),
+      // Réserve d'étude de l'élève (product-safe) : gouverne le tuteur IA.
+      const StudyReserveCard(),
       const SizedBox(height: 24),
       const StudentMasterySummary(),
       const SizedBox(height: 28),
@@ -1036,10 +1040,25 @@ class _TutorSection extends ConsumerWidget {
         ? ''
         : '?${params.entries.map((e) => '${e.key}=${e.value}').join('&')}';
 
+    // Le conteneur, pas `ref` : l'enregistrement peut finir après que cette
+    // section a été reconstruite.
+    final container = ProviderScope.containerOf(context, listen: false);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final l10n = context.l10n;
     context.push(
       AppRoutes.tutorSelection + query,
-      extra: (TutorPersona chosen) =>
-          unawaited(_persistTutorSelection(context, ref, current, chosen)),
+      extra: (TutorPersona chosen) => _persistTutorSelection(
+        container,
+        chosen,
+        onDeferred: () => messenger
+          ?..clearSnackBars()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(l10n.companionSaveDeferred(chosen.name)),
+              behavior: SnackBarBehavior.floating,
+            ),
+          ),
+      ),
     );
   }
 
@@ -1056,38 +1075,33 @@ class _TutorSection extends ConsumerWidget {
   /// message existant n'est réattribué : chacun garde le compagnon qui l'a
   /// écrit.
   Future<void> _persistTutorSelection(
-    BuildContext context,
-    WidgetRef ref,
-    TutorPersona? current,
-    TutorPersona chosen,
-  ) async {
-    final userId = ref.read(authControllerProvider).userId;
+    ProviderContainer container,
+    TutorPersona chosen, {
+    required VoidCallback onDeferred,
+  }) async {
+    final userId = container.read(authControllerProvider).userId;
     if (userId == null) return;
+    final preference = container.read(tutorPreferenceProvider.notifier);
 
     // Le choix prend effet immédiatement, en attente de confirmation.
-    await ref
-        .read(tutorPreferenceProvider.notifier)
-        .select(chosen.id, pendingSync: true);
+    await preference.select(chosen.id, pendingSync: true);
 
     try {
-      await ref
+      await container
           .read(tutorPreferenceRepositoryProvider)
           .save(userId: userId, tutorId: chosen.id);
-      await ref.read(tutorPreferenceProvider.notifier).markSynced();
-      ref.invalidate(studentAcademicContextProvider);
-      if (context.mounted) context.pop();
     } catch (_) {
       // Le compagnon reste changé : seule la synchronisation a échoué.
-      if (!context.mounted) return;
-      context.pop();
-      ScaffoldMessenger.of(context)
-        ..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.companionSaveDeferred(chosen.name)),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+      onDeferred();
+      return;
+    }
+    try {
+      // Le profil relu porte le nouveau compagnon avant que la synchronisation
+      // ne soit déclarée : l'ancien ne réapparaît jamais, même un instant.
+      await container.refresh(studentAcademicContextProvider.future);
+      await preference.markSynced();
+    } catch (_) {
+      // Relecture impossible : le choix local reste prioritaire.
     }
   }
 }

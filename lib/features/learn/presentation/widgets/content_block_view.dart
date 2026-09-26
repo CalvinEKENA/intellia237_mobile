@@ -145,7 +145,7 @@ class _MediaSurface extends ConsumerWidget {
 
     switch (block.mediaType) {
       case MediaType.image:
-        return _RemoteImage(storagePath: block.storagePath);
+        return EducationalRemoteImage(storagePath: block.storagePath);
       case MediaType.audio:
         final caption = block.caption?.trim();
         return AudioOverviewPlayer(
@@ -173,8 +173,8 @@ class _MediaSurface extends ConsumerWidget {
 ///
 /// L'URL est résolue à l'affichage et jamais stockée : c'est ce qui permettra
 /// de basculer vers un CDN ou des URLs signées sans migrer les documents.
-class _RemoteImage extends ConsumerWidget {
-  const _RemoteImage({required this.storagePath});
+class EducationalRemoteImage extends ConsumerWidget {
+  const EducationalRemoteImage({required this.storagePath, super.key});
 
   final String storagePath;
 

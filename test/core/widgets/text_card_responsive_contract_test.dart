@@ -47,7 +47,6 @@ const _coveredPublicCardTypes = {
   'ResumeCourseCard',
   'StreakMotivationCard',
   'WeeklyGoalCard',
-  'ChapterOfflineActionCard',
   'StudentProfileTutorCard',
   // Dedicated FR/EN matrix: test/features/mastery/mastery_widget_test.dart.
   'MasterySubjectCard',
@@ -55,6 +54,20 @@ const _coveredPublicCardTypes = {
   // Dedicated test (needs a ProviderScope for the link-code provider):
   // test/features/student_home/student_link_code_card_test.dart.
   'StudentLinkCodeCard',
+  // Dedicated test (provider-backed; the rendered gauge is covered at 360 px /
+  // textScale 1.5): test/features/study_reserve/study_reserve_gauge_test.dart.
+  'StudyReserveCard',
+  // Dedicated FR/EN test at 360 px / textScale 1.5 (provider-backed reserve,
+  // pending first sign-in): test/features/parent/parent_child_card_test.dart.
+  'ParentChildCard',
+  // Dedicated FR/EN test at 360 px up to textScale 2.0, word tiles and
+  // stacked steps: test/features/interactive_learning/ordering_exercise_view_test.dart.
+  'InteractiveExerciseCard',
+  // Dedicated FR/EN test at 360 px / textScale 1.5 (chapitres interactifs) :
+  // test/features/content_engine/content_cards_responsive_test.dart.
+  'ContentCard',
+  'GameCard',
+  'CompanionReplyCard',
 };
 
 const _longQuestion = QuizQuestion(
@@ -138,6 +151,7 @@ void main() {
         question: _longQuestion,
         selectedIndex: 0,
         onSelected: _ignoreInt,
+        attemptKey: 'contrat-mobile',
       ),
     ),
     (

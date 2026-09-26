@@ -202,7 +202,7 @@ class _CampaignSignatureState extends State<CampaignSignature>
                   const SizedBox(height: 8),
                   SizedBox(
                     key: _padKey,
-                    height: 104,
+                    height: CampaignRoom.isShort(context) ? 78 : 104,
                     child: CustomPaint(
                       painter: _FingerprintPainter(
                         inked: CampaignSignatureMotion.inked(_reading.value),

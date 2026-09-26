@@ -6,6 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../rewards/application/reward_providers.dart';
+import '../../rewards/domain/reward_event.dart';
+import '../../rewards/domain/reward_pattern.dart';
+import '../../rewards/presentation/reward_stage.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
@@ -293,6 +297,7 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
           question: question,
           selectedIndex: selectedIndex,
           onSelected: (value) => _setAnswer(question.id, '$value'),
+          attemptKey: _clientAttemptId,
         );
       case QuizQuestionType.trueFalse:
         final answer = _answersByQuestion[question.id];
@@ -481,6 +486,16 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
   }
 
   Future<void> _showTrainingCorrection(QuizQuestionCorrection correction) {
+    // Même moteur de récompense que les exercices et Mon Parcours.
+    final rewards = ref.read(rewardDispatcherProvider);
+    RewardPattern? reward;
+    if (correction.isCorrect) {
+      reward = rewards.correct(
+        const RewardEvent.correct(source: RewardSource.quiz),
+      );
+    } else {
+      rewards.incorrect();
+    }
     final color = correction.isCorrect
         ? const Color(0xFF4ADE80)
         : const Color(0xFFFBBF24);
@@ -495,12 +510,16 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(
-                correction.isCorrect
-                    ? Icons.check_circle_rounded
-                    : Icons.tips_and_updates_rounded,
-                color: color,
-                size: 42,
+              RewardStage(
+                pattern: reward,
+                accent: color,
+                child: Icon(
+                  correction.isCorrect
+                      ? Icons.check_circle_rounded
+                      : Icons.tips_and_updates_rounded,
+                  color: color,
+                  size: 42,
+                ),
               ),
               const SizedBox(height: IntelliaSpacing.sm),
               Text(
@@ -514,6 +533,18 @@ class _QuizPlayScreenState extends ConsumerState<QuizPlayScreen>
                   fontWeight: FontWeight.w800,
                 ),
               ),
+              if (reward != null) ...[
+                const SizedBox(height: IntelliaSpacing.xs),
+                RewardMessageLine(
+                  pattern: reward,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
               if (!correction.isCorrect) ...[
                 const SizedBox(height: IntelliaSpacing.sm),
                 Text(

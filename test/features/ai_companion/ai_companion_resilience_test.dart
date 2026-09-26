@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/features/ai_companion/application/ai_companion_controller.dart';
+import 'package:intellia237/features/ai_companion/domain/tutor_turn_options.dart';
 import 'package:intellia237/features/ai_companion/data/ai_repository.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_companion_reply.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
@@ -52,7 +53,7 @@ void main() {
     await tester.pump();
     // Le composeur ne porte qu'un seul verbe : « Parler » devient « Envoyer »
     // dès qu'un caractère utile est saisi.
-    await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+    await tester.tap(find.byKey(const ValueKey('companion-send')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
 
@@ -129,6 +130,7 @@ class _UnavailableTutorRepository implements AIRepository {
     required String classLevel,
     required List<AIMessage> history,
     required String userMessage,
+    TutorTurnOptions options = const TutorTurnOptions(),
   }) async {
     calls += 1;
     throw const AICompanionException(
@@ -153,6 +155,7 @@ class _CapturingTutorRepository implements AIRepository {
     required String classLevel,
     required List<AIMessage> history,
     required String userMessage,
+    TutorTurnOptions options = const TutorTurnOptions(),
   }) async {
     calls += 1;
     this.classLevel = classLevel;

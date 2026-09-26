@@ -1,0 +1,1699 @@
+{
+  "schema_version": "intellia.runtime-learning-pack.v2",
+  "pack_id": "physique_terminale_cd_m1_s1_erreurs_et_incertitudes",
+  "engine_version_required": 2,
+  "llm_required": false,
+  "offline_ready": true,
+  "publication": {
+    "status": "draft",
+    "version": 1,
+    "reason": "Pack pédagogique validé sur les pages source ; intégration applicative encore requise."
+  },
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale C-D",
+    "class_keys": [
+      "terminale-c-d"
+    ],
+    "subject": "Physique",
+    "module": 1,
+    "module_title": "Mesures et incertitudes",
+    "sequence": 1,
+    "sequence_title": "Erreurs et incertitudes"
+  },
+  "lessons": [
+    {
+      "lesson": 1,
+      "title": "Qualités d'un appareil de mesure et types d'erreurs",
+      "concept_ids": [
+        "measurement_range",
+        "accuracy_precision",
+        "random_systematic_errors"
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Incertitude de type A",
+      "concept_ids": [
+        "type_a_uncertainty"
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Incertitude de type B et incertitude composée",
+      "concept_ids": [
+        "type_b_uncertainty",
+        "combined_uncertainty"
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Incertitude absolue et niveau de confiance",
+      "concept_ids": [
+        "expanded_uncertainty",
+        "measurement_result_format"
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Écriture correcte d'un résultat et règles d'arrondissage",
+      "concept_ids": [
+        "measurement_result_format",
+        "rounding_uncertainty"
+      ]
+    }
+  ],
+  "explanation_modes": [
+    "standard",
+    "simple",
+    "ultra_simple"
+  ],
+  "difficulty_levels": [
+    1,
+    2,
+    3
+  ],
+  "question_bank": [
+    {
+      "id": "l1_q01",
+      "lesson": 1,
+      "concept_id": "measurement_range",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Que désigne l'étendue de mesurage d'un appareil ?",
+      "answer": "Le domaine compris entre la plus petite et la plus grande valeur mesurable",
+      "explanation": "L'étendue de mesurage est la plage de valeurs que l'appareil peut mesurer.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche la notion définie par une valeur minimale et une valeur maximale."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Le domaine compris entre la plus petite et la plus grande valeur mesurable",
+        "La durée nécessaire pour afficher une mesure",
+        "La proximité entre deux mesures répétées",
+        "La proximité de la valeur vraie"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Le domaine compris entre la plus petite et la plus grande valeur mesurable",
+          "feedback": "C'est la définition de l'étendue de mesurage."
+        },
+        {
+          "id": "b",
+          "label": "La durée nécessaire pour afficher une mesure",
+          "feedback": "Cela concerne la rapidité d'indication."
+        },
+        {
+          "id": "c",
+          "label": "La proximité entre deux mesures répétées",
+          "feedback": "Cela concerne la fidélité."
+        },
+        {
+          "id": "d",
+          "label": "La proximité de la valeur vraie",
+          "feedback": "Cela concerne la justesse."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q02",
+      "lesson": 1,
+      "concept_id": "accuracy_precision",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quelle qualité traduit le fait qu'un appareil donne des indications très voisines lors de mesures répétées dans les mêmes conditions ?",
+      "answer": "Fidélité",
+      "explanation": "La fidélité est liée à la reproductibilité des indications.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense à plusieurs mesures faites de la même manière."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Fidélité",
+        "Justesse",
+        "Étendue de mesurage",
+        "Rapidité d'indication"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Fidélité",
+          "feedback": "La fidélité concerne la dispersion faible entre répétitions."
+        },
+        {
+          "id": "b",
+          "label": "Justesse",
+          "feedback": "La justesse concerne la proximité de la valeur vraie."
+        },
+        {
+          "id": "c",
+          "label": "Étendue de mesurage",
+          "feedback": "L'étendue concerne la plage de mesure."
+        },
+        {
+          "id": "d",
+          "label": "Rapidité d'indication",
+          "feedback": "La rapidité concerne le temps de réponse."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q03",
+      "lesson": 1,
+      "concept_id": "accuracy_precision",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "D'après le cours, un appareil exact ou précis est à la fois…",
+      "answer": "juste et fidèle",
+      "explanation": "Le texte associe exactitude/précision à la justesse et à la fidélité.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Réunis la proximité de la valeur vraie et la répétabilité."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "juste et fidèle",
+        "rapide et fidèle",
+        "sensible et rapide",
+        "juste et lent"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "juste et fidèle",
+          "feedback": "C'est l'association retenue dans le texte."
+        },
+        {
+          "id": "b",
+          "label": "rapide et fidèle",
+          "feedback": "La rapidité ne suffit pas à définir l'exactitude."
+        },
+        {
+          "id": "c",
+          "label": "sensible et rapide",
+          "feedback": "Ce n'est pas la définition donnée."
+        },
+        {
+          "id": "d",
+          "label": "juste et lent",
+          "feedback": "La lenteur n'intervient pas dans cette définition."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q04",
+      "lesson": 1,
+      "concept_id": "random_systematic_errors",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Répéter davantage une mesure peut aider à réduire l'effet des erreurs aléatoires.",
+      "answer": true,
+      "explanation": "Le texte recommande notamment la répétition pour réduire l'influence des erreurs aléatoires.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense à des fluctuations imprévisibles d'une mesure à l'autre."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_q05",
+      "lesson": 1,
+      "concept_id": "random_systematic_errors",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Une erreur systématique disparaît nécessairement si l'on répète un très grand nombre de fois la même mesure.",
+      "answer": false,
+      "explanation": "La répétition seule ne supprime pas un biais systématique.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Demande-toi ce qui se passe si l'appareil est toujours décalé de la même façon."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_q06",
+      "lesson": 1,
+      "concept_id": "random_systematic_errors",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quel exemple correspond le mieux à une erreur systématique ?",
+      "answer": "Un appareil donne toujours environ 0,3 unité de trop",
+      "explanation": "Une erreur systématique agit comme un biais reproductible.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche le cas qui garde le même sens d'erreur."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Un appareil donne toujours environ 0,3 unité de trop",
+        "Les valeurs fluctuent de façon imprévisible autour d'une moyenne",
+        "Deux élèves lisent parfois une graduation différemment",
+        "Une série comporte de petites fluctuations sans sens privilégié"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Un appareil donne toujours environ 0,3 unité de trop",
+          "feedback": "Un biais constant est typiquement systématique."
+        },
+        {
+          "id": "b",
+          "label": "Les valeurs fluctuent de façon imprévisible autour d'une moyenne",
+          "feedback": "Cela ressemble plutôt à une erreur aléatoire."
+        },
+        {
+          "id": "c",
+          "label": "Deux élèves lisent parfois une graduation différemment",
+          "feedback": "Ce comportement est plutôt variable."
+        },
+        {
+          "id": "d",
+          "label": "Une série comporte de petites fluctuations sans sens privilégié",
+          "feedback": "Cela correspond à de l'aléatoire."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q07",
+      "lesson": 1,
+      "concept_id": "random_systematic_errors",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Pour limiter une erreur systématique identifiée, quelle action est la plus pertinente ?",
+      "answer": "Contrôler ou corriger l'appareil ou la méthode",
+      "explanation": "Un biais identifié appelle une correction ou un contrôle.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Agis sur la cause, pas seulement sur le nombre de répétitions."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Contrôler ou corriger l'appareil ou la méthode",
+        "Répéter uniquement la même mesure sans rien changer",
+        "Supprimer l'unité du résultat",
+        "Arrondir davantage le résultat"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Contrôler ou corriger l'appareil ou la méthode",
+          "feedback": "Le texte indique que les erreurs systématiques peuvent nécessiter correction ou contrôle."
+        },
+        {
+          "id": "b",
+          "label": "Répéter uniquement la même mesure sans rien changer",
+          "feedback": "La répétition seule ne corrige pas un biais systématique."
+        },
+        {
+          "id": "c",
+          "label": "Supprimer l'unité du résultat",
+          "feedback": "Cela n'agit pas sur l'erreur."
+        },
+        {
+          "id": "d",
+          "label": "Arrondir davantage le résultat",
+          "feedback": "L'arrondissage ne corrige pas la cause."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q08",
+      "lesson": 1,
+      "concept_id": "accuracy_precision",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Un appareil donne cinq mesures presque identiques, mais toutes éloignées de la valeur vraie. Que peux-tu dire de sa fidélité et de sa justesse ?",
+      "answer": "Il peut être fidèle mais peu juste.",
+      "explanation": "La fidélité décrit la proximité entre répétitions ; la justesse décrit la proximité de la valeur vraie.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Observe d'abord la dispersion entre les cinq mesures."
+        },
+        {
+          "level": 2,
+          "content": "Compare ensuite leur centre à la valeur vraie."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l2_q01",
+      "lesson": 2,
+      "concept_id": "type_a_uncertainty",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "L'incertitude de type A repose principalement sur…",
+      "answer": "une série de mesures répétées et leur traitement statistique",
+      "explanation": "Le type A est une estimation statistique obtenue à partir de répétitions.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche l'option qui parle de plusieurs mesures."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "une série de mesures répétées et leur traitement statistique",
+        "la seule notice du constructeur",
+        "une valeur vraie connue exactement",
+        "une seule lecture sans aucune autre information"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "une série de mesures répétées et leur traitement statistique",
+          "feedback": "C'est le principe du type A."
+        },
+        {
+          "id": "b",
+          "label": "la seule notice du constructeur",
+          "feedback": "Cela relève plutôt du type B."
+        },
+        {
+          "id": "c",
+          "label": "une valeur vraie connue exactement",
+          "feedback": "Ce n'est pas la démarche décrite."
+        },
+        {
+          "id": "d",
+          "label": "une seule lecture sans aucune autre information",
+          "feedback": "Le type A utilise une série d'observations."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q02",
+      "lesson": 2,
+      "concept_id": "type_a_uncertainty",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Trois mesures indépendantes valent 10,1 ; 10,2 ; 10,3. Quelle est leur moyenne ?",
+      "answer": 10.2,
+      "explanation": "La moyenne vaut (10,1+10,2+10,3)/3 = 10,2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Additionne les trois valeurs puis divise par 3."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "tolerance": 1e-09
+    },
+    {
+      "id": "l2_q03",
+      "lesson": 2,
+      "concept_id": "type_a_uncertainty",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Quatre mesures valent 5,0 ; 5,2 ; 4,8 ; 5,0. Quelle est leur moyenne ?",
+      "answer": 5.0,
+      "explanation": "La somme vaut 20,0 ; divisée par 4, elle donne 5,0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule la somme avant de diviser par le nombre de mesures."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "tolerance": 1e-09
+    },
+    {
+      "id": "l2_q04",
+      "lesson": 2,
+      "concept_id": "type_a_uncertainty",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Une estimation de type A peut être réalisée à partir d'une seule mesure isolée sans autre donnée.",
+      "answer": false,
+      "explanation": "Le type A s'appuie sur une série de mesures répétées indépendantes.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le mot clé est 'série'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_q05",
+      "lesson": 2,
+      "concept_id": "type_a_uncertainty",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Pourquoi effectue-t-on plusieurs mesures dans une évaluation de type A ?",
+      "answer": "Pour caractériser statistiquement la dispersion des observations",
+      "explanation": "Les répétitions donnent accès à la dispersion statistique.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Demande-toi ce que plusieurs observations permettent d'estimer."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Pour caractériser statistiquement la dispersion des observations",
+        "Pour transformer automatiquement une erreur systématique en erreur nulle",
+        "Pour éviter d'utiliser une unité",
+        "Pour garantir la valeur vraie exacte"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Pour caractériser statistiquement la dispersion des observations",
+          "feedback": "C'est la raison centrale du traitement de type A."
+        },
+        {
+          "id": "b",
+          "label": "Pour transformer automatiquement une erreur systématique en erreur nulle",
+          "feedback": "La répétition ne fait pas disparaître un biais systématique."
+        },
+        {
+          "id": "c",
+          "label": "Pour éviter d'utiliser une unité",
+          "feedback": "L'unité reste nécessaire."
+        },
+        {
+          "id": "d",
+          "label": "Pour garantir la valeur vraie exacte",
+          "feedback": "Une série de mesures ne garantit pas une valeur vraie exacte."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q06",
+      "lesson": 2,
+      "concept_id": "type_a_uncertainty",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "Si les mesures répétées sont très dispersées, l'évaluation statistique doit tenir compte de cette dispersion.",
+      "answer": true,
+      "explanation": "La dispersion fait partie des informations utilisées pour l'incertitude de type A.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Une série très groupée et une série très dispersée ne doivent pas conduire à la même appréciation."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_q07",
+      "lesson": 2,
+      "concept_id": "type_a_uncertainty",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quel couple de grandeurs est directement utile dans un traitement statistique d'une série de mesures ?",
+      "answer": "La moyenne et une mesure de dispersion",
+      "explanation": "Un traitement de série s'intéresse au centre et à la dispersion.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense à ce qu'il faut pour décrire plusieurs valeurs."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "La moyenne et une mesure de dispersion",
+        "La tension nominale et la couleur de l'appareil",
+        "La masse et le nom de l'opérateur uniquement",
+        "La valeur maximale de l'étendue seule"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "La moyenne et une mesure de dispersion",
+          "feedback": "Ces deux éléments résument le centre et l'étalement de la série."
+        },
+        {
+          "id": "b",
+          "label": "La tension nominale et la couleur de l'appareil",
+          "feedback": "La couleur n'a pas de rôle métrologique."
+        },
+        {
+          "id": "c",
+          "label": "La masse et le nom de l'opérateur uniquement",
+          "feedback": "Cela ne décrit pas la série."
+        },
+        {
+          "id": "d",
+          "label": "La valeur maximale de l'étendue seule",
+          "feedback": "Cela ne suffit pas à traiter statistiquement la série."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q08",
+      "lesson": 2,
+      "concept_id": "type_a_uncertainty",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Deux groupes mesurent la même durée. Le groupe A obtient des valeurs très resserrées ; le groupe B des valeurs beaucoup plus dispersées. Sans calcul détaillé, lequel devrait avoir la plus petite incertitude statistique ? Pourquoi ?",
+      "answer": "Le groupe A, car sa dispersion est plus faible.",
+      "explanation": "À conditions comparables, une dispersion plus faible traduit une meilleure répétabilité statistique.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare l'étalement des deux séries."
+        },
+        {
+          "level": 2,
+          "content": "Relie cet étalement à l'incertitude de type A."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l3_q01",
+      "lesson": 3,
+      "concept_id": "type_b_uncertainty",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Laquelle de ces informations relève typiquement d'une évaluation de type B ?",
+      "answer": "La résolution indiquée pour l'appareil",
+      "explanation": "Le type B utilise notamment les caractéristiques de l'instrument.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche l'information fournie par l'appareil ou sa documentation."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "La résolution indiquée pour l'appareil",
+        "La moyenne de 50 répétitions",
+        "Le nombre de valeurs supérieures à la moyenne",
+        "L'écart entre deux observations successives seulement"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "La résolution indiquée pour l'appareil",
+          "feedback": "La résolution est une information instrumentale typique du type B."
+        },
+        {
+          "id": "b",
+          "label": "La moyenne de 50 répétitions",
+          "feedback": "Cela relève du traitement statistique de type A."
+        },
+        {
+          "id": "c",
+          "label": "Le nombre de valeurs supérieures à la moyenne",
+          "feedback": "C'est une information issue d'une série."
+        },
+        {
+          "id": "d",
+          "label": "L'écart entre deux observations successives seulement",
+          "feedback": "Cela ne définit pas à lui seul une évaluation de type B."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q02",
+      "lesson": 3,
+      "concept_id": "type_b_uncertainty",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Une tolérance ou une indication du constructeur peut intervenir dans une incertitude de type B.",
+      "answer": true,
+      "explanation": "Le cours cite les caractéristiques et données constructeur parmi les sources du type B.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense aux informations qui ne viennent pas d'une série répétée."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q03",
+      "lesson": 3,
+      "concept_id": "combined_uncertainty",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Deux contributions indépendantes u₁ et u₂ se combinent quadratiquement. Quelle relation est correcte ?",
+      "answer": "u = √(u₁² + u₂²)",
+      "explanation": "On additionne les carrés puis on prend la racine.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Souviens-toi : carré + carré → racine."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "u = √(u₁² + u₂²)",
+        "u = u₁ − u₂",
+        "u = u₁ × u₂",
+        "u = 1/(u₁+u₂)"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "u = √(u₁² + u₂²)",
+          "feedback": "C'est la somme quadratique."
+        },
+        {
+          "id": "b",
+          "label": "u = u₁ − u₂",
+          "feedback": "Ce n'est pas la combinaison indiquée."
+        },
+        {
+          "id": "c",
+          "label": "u = u₁ × u₂",
+          "feedback": "Le produit n'est pas la relation utilisée ici."
+        },
+        {
+          "id": "d",
+          "label": "u = 1/(u₁+u₂)",
+          "feedback": "Cette relation n'est pas utilisée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q04",
+      "lesson": 3,
+      "concept_id": "combined_uncertainty",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Deux contributions indépendantes valent 0,03 et 0,04. Quelle est leur incertitude composée ?",
+      "answer": 0.05,
+      "explanation": "u = √(0,03²+0,04²)=√0,0025=0,05.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise la somme quadratique."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "tolerance": 1e-09
+    },
+    {
+      "id": "l3_q05",
+      "lesson": 3,
+      "concept_id": "combined_uncertainty",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Deux contributions indépendantes valent 0,06 et 0,08. Quelle est leur incertitude composée ?",
+      "answer": 0.1,
+      "explanation": "u = √(0,06²+0,08²)=√0,01=0,10.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Tu reconnais un triplet 6-8-10 après changement d'échelle."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "tolerance": 1e-09
+    },
+    {
+      "id": "l3_q06",
+      "lesson": 3,
+      "concept_id": "combined_uncertainty",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "Pour deux contributions indépendantes, l'incertitude composée est toujours égale à leur simple somme u₁+u₂.",
+      "answer": false,
+      "explanation": "Le cours utilise une somme quadratique, pas une simple addition.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare u₁+u₂ à √(u₁²+u₂²)."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q07",
+      "lesson": 3,
+      "concept_id": "type_b_uncertainty",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quel scénario relève le plus clairement du type B ?",
+      "answer": "On utilise la résolution et la tolérance indiquées pour un voltmètre",
+      "explanation": "Le type B vient d'informations non statistiques sur l'appareil ou la méthode.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche le scénario qui utilise la fiche ou les caractéristiques de l'instrument."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "On utilise la résolution et la tolérance indiquées pour un voltmètre",
+        "On calcule la moyenne de vingt lectures indépendantes",
+        "On augmente le nombre de répétitions pour estimer la dispersion",
+        "On trace l'histogramme de cinquante observations"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "On utilise la résolution et la tolérance indiquées pour un voltmètre",
+          "feedback": "Ce sont des informations instrumentales."
+        },
+        {
+          "id": "b",
+          "label": "On calcule la moyenne de vingt lectures indépendantes",
+          "feedback": "Cela correspond au type A."
+        },
+        {
+          "id": "c",
+          "label": "On augmente le nombre de répétitions pour estimer la dispersion",
+          "feedback": "Cela correspond au type A."
+        },
+        {
+          "id": "d",
+          "label": "On trace l'histogramme de cinquante observations",
+          "feedback": "C'est encore un traitement statistique."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q08",
+      "lesson": 3,
+      "concept_id": "combined_uncertainty",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Pourquoi la somme quadratique est-elle préférable à l'addition simple pour combiner des contributions indépendantes dans le modèle du cours ?",
+      "answer": "Parce que le modèle considère des contributions indépendantes dont les effets se combinent par leurs carrés plutôt que de supposer qu'elles agissent toutes dans le même sens maximal.",
+      "explanation": "La relation du cours est une combinaison quadratique des contributions indépendantes.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Relis le mot 'indépendantes'."
+        },
+        {
+          "level": 2,
+          "content": "Compare l'idée d'un pire cas aligné avec celle de contributions indépendantes."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l4_q01",
+      "lesson": 4,
+      "concept_id": "expanded_uncertainty",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quelle relation relie l'incertitude absolue élargie ΔX à l'incertitude type u dans le cours ?",
+      "answer": "ΔX = k·u",
+      "explanation": "L'incertitude élargie est obtenue en multipliant u par k.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le mot 'facteur d'élargissement' indique une multiplication."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "ΔX = k·u",
+        "ΔX = u/k",
+        "ΔX = k+u",
+        "ΔX = u²"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "ΔX = k·u",
+          "feedback": "C'est la relation donnée."
+        },
+        {
+          "id": "b",
+          "label": "ΔX = u/k",
+          "feedback": "Le facteur d'élargissement multiplie u."
+        },
+        {
+          "id": "c",
+          "label": "ΔX = k+u",
+          "feedback": "Ce n'est pas la relation."
+        },
+        {
+          "id": "d",
+          "label": "ΔX = u²",
+          "feedback": "Ce n'est pas la relation donnée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q02",
+      "lesson": 4,
+      "concept_id": "expanded_uncertainty",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Si u = 0,05 et k = 2, quelle est l'incertitude absolue élargie ΔX ?",
+      "answer": 0.1,
+      "explanation": "ΔX = k·u = 2×0,05 = 0,10.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Multiplie l'incertitude type par k."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "tolerance": 1e-09
+    },
+    {
+      "id": "l4_q03",
+      "lesson": 4,
+      "concept_id": "expanded_uncertainty",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Si u = 0,12 et k = 2, quelle est ΔX ?",
+      "answer": 0.24,
+      "explanation": "ΔX = 2×0,12 = 0,24.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Applique ΔX = k·u."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "tolerance": 1e-09
+    },
+    {
+      "id": "l4_q04",
+      "lesson": 4,
+      "concept_id": "expanded_uncertainty",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Le facteur d'élargissement k est lié au niveau de confiance retenu.",
+      "answer": true,
+      "explanation": "Le cours relie k au niveau de confiance choisi.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Demande-toi pourquoi k n'est pas toujours présenté comme une constante universelle."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q05",
+      "lesson": 4,
+      "concept_id": "measurement_result_format",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Laquelle de ces écritures est la plus complète pour communiquer un résultat de mesure ?",
+      "answer": "X = x ± ΔX, avec l'unité et le niveau de confiance",
+      "explanation": "La communication doit associer valeur, incertitude, unité et niveau de confiance.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Un résultat scientifique ne se réduit pas à un nombre isolé."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "X = x ± ΔX, avec l'unité et le niveau de confiance",
+        "X = x seulement, sans unité",
+        "ΔX seulement",
+        "Une valeur sans aucune indication de confiance"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "X = x ± ΔX, avec l'unité et le niveau de confiance",
+          "feedback": "C'est la structure complète décrite dans le cours."
+        },
+        {
+          "id": "b",
+          "label": "X = x seulement, sans unité",
+          "feedback": "L'incertitude et l'unité manquent."
+        },
+        {
+          "id": "c",
+          "label": "ΔX seulement",
+          "feedback": "La valeur mesurée manque."
+        },
+        {
+          "id": "d",
+          "label": "Une valeur sans aucune indication de confiance",
+          "feedback": "Cela ne reprend pas la forme complète du cours."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q06",
+      "lesson": 4,
+      "concept_id": "measurement_result_format",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "Une incertitude absolue doit être accompagnée de la même unité physique que la grandeur mesurée.",
+      "answer": true,
+      "explanation": "Une incertitude absolue s'exprime dans l'unité de la grandeur correspondante.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare X et ΔX dans l'écriture X = x ± ΔX."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q07",
+      "lesson": 4,
+      "concept_id": "expanded_uncertainty",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Une mesure a une incertitude type composée u = 0,025. Pour k = 2, quelle incertitude élargie obtient-on avant arrondissage ?",
+      "answer": 0.05,
+      "explanation": "ΔX = 2×0,025 = 0,05.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Multiplie par 2."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "tolerance": 1e-09
+    },
+    {
+      "id": "l4_q08",
+      "lesson": 4,
+      "concept_id": "measurement_result_format",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Pourquoi un résultat scientifique doit-il indiquer une incertitude au lieu de fournir seulement une valeur numérique ?",
+      "answer": "Parce qu'une mesure n'est pas parfaitement exacte ; l'incertitude renseigne sur la dispersion ou la confiance associée à la valeur communiquée.",
+      "explanation": "L'incertitude permet de qualifier la mesure et d'éviter de présenter une précision fictive.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense à la différence entre mesurer et connaître exactement."
+        },
+        {
+          "level": 2,
+          "content": "Explique ce que l'incertitude apprend au lecteur."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l5_q01",
+      "lesson": 5,
+      "concept_id": "rounding_uncertainty",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Après avoir arrondi l'incertitude, comment doit-on écrire la valeur mesurée ?",
+      "answer": "Jusqu'à la même position décimale que l'incertitude",
+      "explanation": "La valeur et l'incertitude doivent être cohérentes en position décimale.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Aligne le dernier chiffre significatif de la valeur sur celui de l'incertitude."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Jusqu'à la même position décimale que l'incertitude",
+        "Avec toujours six décimales",
+        "Sans aucune décimale",
+        "Avec plus de précision que l'incertitude"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Jusqu'à la même position décimale que l'incertitude",
+          "feedback": "C'est la règle de cohérence donnée dans le cours."
+        },
+        {
+          "id": "b",
+          "label": "Avec toujours six décimales",
+          "feedback": "Ce serait souvent une précision fictive."
+        },
+        {
+          "id": "c",
+          "label": "Sans aucune décimale",
+          "feedback": "Cela dépend de l'incertitude."
+        },
+        {
+          "id": "d",
+          "label": "Avec plus de précision que l'incertitude",
+          "feedback": "Le cours déconseille cela."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q02",
+      "lesson": 5,
+      "concept_id": "rounding_uncertainty",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Le cours recommande d'effectuer l'arrondissage sur le résultat final plutôt que de multiplier les arrondis à chaque étape intermédiaire.",
+      "answer": true,
+      "explanation": "Cela limite le cumul d'erreurs d'arrondissage.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Garde plus de chiffres pendant les calculs intermédiaires."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l5_q03",
+      "lesson": 5,
+      "concept_id": "rounding_uncertainty",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Dans l'exercice source, un voltmètre affiche 6,1234 V avec une incertitude relative de 3 %. Quelle est l'incertitude absolue non arrondie ΔU ?",
+      "answer": 0.183702,
+      "explanation": "ΔU = 0,03 × 6,1234 = 0,183702 V.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Transforme 3 % en 0,03 puis multiplie."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "tolerance": 1e-09
+    },
+    {
+      "id": "l5_q04",
+      "lesson": 5,
+      "concept_id": "rounding_uncertainty",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "En appliquant la règle d'un chiffre significatif par excès à ΔU = 0,183702 V, quelle incertitude retiens-tu ?",
+      "answer": "0,2 V",
+      "explanation": "Par prudence, l'incertitude est arrondie par excès.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Un seul chiffre significatif est demandé dans cette règle."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "0,2 V",
+        "0,1 V",
+        "0,18 V",
+        "0,183702 V"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "0,2 V",
+          "feedback": "À un chiffre significatif et par excès, on retient 0,2 V."
+        },
+        {
+          "id": "b",
+          "label": "0,1 V",
+          "feedback": "Ce serait un arrondi par défaut et sous-estimerait l'incertitude."
+        },
+        {
+          "id": "c",
+          "label": "0,18 V",
+          "feedback": "Cela conserve deux chiffres significatifs."
+        },
+        {
+          "id": "d",
+          "label": "0,183702 V",
+          "feedback": "L'incertitude doit être arrondie."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q05",
+      "lesson": 5,
+      "concept_id": "measurement_result_format",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Si la valeur mesurée vaut 6,1234 V et l'incertitude retenue 0,2 V, quelle écriture respecte la même position décimale ?",
+      "answer": "(6,1 ± 0,2) V",
+      "explanation": "Le dernier chiffre de la valeur doit être à la même position que celui de l'incertitude.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "0,2 est au dixième."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "(6,1 ± 0,2) V",
+        "(6,1234 ± 0,2) V",
+        "(6 ± 0,2) V",
+        "6,1234 V"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "(6,1 ± 0,2) V",
+          "feedback": "La valeur et l'incertitude s'arrêtent au dixième."
+        },
+        {
+          "id": "b",
+          "label": "(6,1234 ± 0,2) V",
+          "feedback": "La valeur affiche une précision injustifiée."
+        },
+        {
+          "id": "c",
+          "label": "(6 ± 0,2) V",
+          "feedback": "La valeur est arrondie trop grossièrement."
+        },
+        {
+          "id": "d",
+          "label": "6,1234 V",
+          "feedback": "L'incertitude manque."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q06",
+      "lesson": 5,
+      "concept_id": "rounding_uncertainty",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "Une incertitude ne doit pas être écrite avec une précision supérieure à celle du résultat final.",
+      "answer": true,
+      "explanation": "Le texte insiste sur la cohérence de précision entre valeur et incertitude.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare le dernier chiffre significatif des deux écritures."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l5_q07",
+      "lesson": 5,
+      "concept_id": "sequence_integration",
+      "difficulty": 3,
+      "type": "mcq",
+      "prompt": "Quel enchaînement représente le mieux une démarche complète de mesure ?",
+      "answer": "Mesurer → identifier les sources d'erreur → estimer l'incertitude → écrire correctement le résultat",
+      "explanation": "La séquence relie choix de mesure, erreurs, incertitude et communication.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche la démarche qui va du mesurage à la communication fiable."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Mesurer → identifier les sources d'erreur → estimer l'incertitude → écrire correctement le résultat",
+        "Arrondir d'abord → choisir ensuite l'appareil → supprimer l'unité",
+        "Donner une valeur → ignorer la dispersion → ajouter une unité au hasard",
+        "Répéter uniquement jusqu'à obtenir la valeur voulue"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Mesurer → identifier les sources d'erreur → estimer l'incertitude → écrire correctement le résultat",
+          "feedback": "Cette suite correspond à la logique de la séquence."
+        },
+        {
+          "id": "b",
+          "label": "Arrondir d'abord → choisir ensuite l'appareil → supprimer l'unité",
+          "feedback": "Cet ordre est incohérent."
+        },
+        {
+          "id": "c",
+          "label": "Donner une valeur → ignorer la dispersion → ajouter une unité au hasard",
+          "feedback": "Cela ne constitue pas une démarche scientifique."
+        },
+        {
+          "id": "d",
+          "label": "Répéter uniquement jusqu'à obtenir la valeur voulue",
+          "feedback": "La répétition ne remplace pas l'analyse des incertitudes."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q08",
+      "lesson": 5,
+      "concept_id": "sequence_integration",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Un élève écrit simplement « U = 6,1234 V » après une mesure dont l'incertitude est connue. Que manque-t-il pour communiquer correctement le résultat ?",
+      "answer": "Il faut inclure l'incertitude correctement arrondie, ajuster la valeur à la même position décimale, conserver l'unité et préciser le niveau de confiance si demandé.",
+      "explanation": "La séquence insiste sur une écriture cohérente du résultat et de son incertitude.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Commence par l'incertitude."
+        },
+        {
+          "level": 2,
+          "content": "Pense ensuite aux décimales et au niveau de confiance."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    }
+  ],
+  "qcm_policy": {
+    "correctness_never_bound_to_position": true,
+    "correctness_key": "option_id_or_answer_value",
+    "single_and_multi_choice_shuffle": "deterministic_per_attempt",
+    "stable_within_attempt": true,
+    "shuffle_between_attempts": true,
+    "true_false_shuffle": false
+  },
+  "games": [
+    {
+      "id": "precision_lab",
+      "title": "Laboratoire de précision",
+      "status": "draft",
+      "concept_id": "accuracy_precision",
+      "description": "Comparer plusieurs séries de mesures pour distinguer justesse, fidélité et exactitude.",
+      "reason_draft": "Aucun moteur générique de laboratoire métrologique n'est encore implémenté."
+    },
+    {
+      "id": "error_detective",
+      "title": "Détective des erreurs",
+      "status": "draft",
+      "concept_id": "random_systematic_errors",
+      "description": "Classer des situations en erreurs aléatoires ou systématiques et choisir l'action appropriée.",
+      "reason_draft": "Aucun moteur de classification scientifique dédié n'est encore implémenté."
+    },
+    {
+      "id": "uncertainty_mixer",
+      "title": "Mélangeur d'incertitudes",
+      "status": "draft",
+      "concept_id": "combined_uncertainty",
+      "description": "Combiner visuellement des contributions indépendantes par somme quadratique.",
+      "reason_draft": "Aucun moteur interactif de propagation d'incertitudes n'est encore implémenté."
+    },
+    {
+      "id": "confidence_gauge",
+      "title": "Jauge de confiance",
+      "status": "draft",
+      "concept_id": "expanded_uncertainty",
+      "description": "Explorer le lien entre incertitude type, facteur d'élargissement et incertitude absolue.",
+      "reason_draft": "Aucun moteur de jauge de confiance n'est encore implémenté."
+    },
+    {
+      "id": "measurement_report",
+      "title": "Rapport de mesure",
+      "status": "draft",
+      "concept_id": "sequence_integration",
+      "description": "Construire un résultat scientifique complet : valeur, incertitude, unité et niveau de confiance.",
+      "reason_draft": "Aucun moteur de construction de rapport de mesure n'est encore implémenté."
+    }
+  ],
+  "learning_card_seeds": [
+    {
+      "id": "feed_range_explain",
+      "type": "explanation",
+      "lesson": 1,
+      "concept_id": "measurement_range",
+      "priority": 75
+    },
+    {
+      "id": "feed_precision_explain",
+      "type": "explanation",
+      "lesson": 1,
+      "concept_id": "accuracy_precision",
+      "priority": 85
+    },
+    {
+      "id": "feed_error_mcq",
+      "type": "mcq",
+      "lesson": 1,
+      "question_id": "l1_q06",
+      "priority": 80
+    },
+    {
+      "id": "feed_type_a_explain",
+      "type": "explanation",
+      "lesson": 2,
+      "concept_id": "type_a_uncertainty",
+      "priority": 85
+    },
+    {
+      "id": "feed_type_a_numeric",
+      "type": "flashQuestion",
+      "lesson": 2,
+      "question_id": "l2_q02",
+      "priority": 80
+    },
+    {
+      "id": "feed_type_b_explain",
+      "type": "explanation",
+      "lesson": 3,
+      "concept_id": "type_b_uncertainty",
+      "priority": 80
+    },
+    {
+      "id": "feed_combined_numeric",
+      "type": "flashQuestion",
+      "lesson": 3,
+      "question_id": "l3_q04",
+      "priority": 85
+    },
+    {
+      "id": "feed_expanded_explain",
+      "type": "explanation",
+      "lesson": 4,
+      "concept_id": "expanded_uncertainty",
+      "priority": 85
+    },
+    {
+      "id": "feed_confidence_numeric",
+      "type": "flashQuestion",
+      "lesson": 4,
+      "question_id": "l4_q02",
+      "priority": 80
+    },
+    {
+      "id": "feed_rounding_explain",
+      "type": "explanation",
+      "lesson": 5,
+      "concept_id": "rounding_uncertainty",
+      "priority": 85
+    },
+    {
+      "id": "feed_voltmeter_q",
+      "type": "mcq",
+      "lesson": 5,
+      "question_id": "l5_q04",
+      "priority": 80
+    },
+    {
+      "id": "feed_measurement_format",
+      "type": "mcq",
+      "lesson": 5,
+      "question_id": "l5_q05",
+      "priority": 80
+    },
+    {
+      "id": "feed_integration",
+      "type": "challenge",
+      "lesson": 0,
+      "question_id": "l5_q07",
+      "priority": 60
+    },
+    {
+      "id": "feed_new_content",
+      "type": "newContent",
+      "lesson": 0,
+      "chapter_id": "physique_terminale_cd_m1_s1_erreurs_et_incertitudes",
+      "priority": 100
+    }
+  ],
+  "companion": {
+    "runtime_llm_required": false,
+    "knowledge_scope": "current_pack_only",
+    "quick_actions": [
+      "Explique-moi",
+      "Plus simplement",
+      "Comme si j'avais 12 ans",
+      "Montre-moi un exemple",
+      "Donne-moi un indice",
+      "Pourquoi ma réponse est fausse ?",
+      "Teste-moi"
+    ],
+    "free_text_routing": {
+      "method": "normalisation + aliases + scoring de concepts + contexte de leçon",
+      "network_fallback": false
+    },
+    "address_style": {
+      "person": "second_person_singular",
+      "first_name_usage": "occasional",
+      "avoid_repetition": true
+    },
+    "source_boundaries": [
+      "Ne pas reconstruire les coefficients illisibles de certaines formules de type B.",
+      "Ne pas inventer les valeurs partiellement illisibles des tableaux d'exercices."
+    ]
+  },
+  "mastery": {
+    "scope": "concept",
+    "same_state_for_feed_lessons_and_games": true,
+    "suggest_harder_after_consecutive_correct": 3,
+    "suggest_simple_after_errors": 2,
+    "suggest_ultra_simple_after_additional_error": 1
+  },
+  "dynamic_delivery": {
+    "remote_eligible": true,
+    "cache_required": true,
+    "activation_policy": "validate_before_activate",
+    "fallback_to_embedded": true
+  }
+}

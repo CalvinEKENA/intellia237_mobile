@@ -6,26 +6,44 @@ class AuthUserData {
     required this.uid,
     required this.email,
     required this.role,
+    this.roles = const [],
     required this.firstName,
     required this.lastName,
     required this.profileCompleted,
     this.legacyProfile = false,
     this.isSuperAdmin = false,
     this.establishmentId,
+    this.accountStatus,
   });
 
   final String uid;
   final String email;
   final AppRole role;
+  final List<AppRole> roles;
   final String firstName;
   final String lastName;
   final bool profileCompleted;
   final bool legacyProfile;
   final bool isSuperAdmin;
 
+  /// Returns all authorized roles for this account, ensuring at least [role] is present.
+  List<AppRole> get resolvedRoles {
+    if (roles.isNotEmpty) {
+      if (!roles.contains(role)) {
+        return [role, ...roles];
+      }
+      return roles;
+    }
+    return [role];
+  }
+
   /// L'école à laquelle ce compte appartient ; absente pour l'administration
   /// générale et pour un compte que personne n'a encore rattaché.
   final String? establishmentId;
+
+  /// Statut serveur du compte (`active`, `pending_validation`…), absent pour
+  /// les comptes historiques.
+  final String? accountStatus;
 }
 
 enum AuthSessionResolutionKind {
@@ -43,6 +61,7 @@ class AuthSessionResolution {
     this.firebaseEmail,
     this.user,
     this.errorCode,
+    this.signInProviders = const [],
   });
 
   final AuthSessionResolutionKind kind;
@@ -50,6 +69,10 @@ class AuthSessionResolution {
   final String? firebaseEmail;
   final AuthUserData? user;
   final String? errorCode;
+
+  /// Méthodes d'accès de l'identité Firebase (`phone`, `google.com`,
+  /// `password`) ; vide pour une session ouverte par un jeton serveur.
+  final List<String> signInProviders;
 }
 
 /// Interface du repository d'authentification

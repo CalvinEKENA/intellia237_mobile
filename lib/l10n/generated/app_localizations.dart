@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminCreateStudentBody.
   ///
   /// In fr, this message translates to:
-  /// **'Crée son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.'**
+  /// **'Créez son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.'**
   String get adminCreateStudentBody;
 
   /// No description provided for @adminStudentCreated.
@@ -173,7 +173,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminStudentContactExists.
   ///
   /// In fr, this message translates to:
-  /// **'Ce téléphone ou cet e-mail possède déjà un compte. Retrouve-le avec la recherche.'**
+  /// **'Ce téléphone ou cet e-mail possède déjà un compte. Retrouvez-le avec la recherche.'**
   String get adminStudentContactExists;
 
   /// No description provided for @adminStudentFirstName.
@@ -203,7 +203,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminInvalidEmail.
   ///
   /// In fr, this message translates to:
-  /// **'Vérifie l’adresse e-mail.'**
+  /// **'Vérifiez l’adresse e-mail.'**
   String get adminInvalidEmail;
 
   /// No description provided for @adminStatusSuspended.
@@ -491,7 +491,7 @@ abstract class AppLocalizations {
   /// No description provided for @establishmentSecurityNote.
   ///
   /// In fr, this message translates to:
-  /// **'La sélection d’un établissement ne donne accès à aucune donnée privée. L’autorisation du serveur reste obligatoire.'**
+  /// **'Choisir ton école ne donne accès à aucune donnée privée. Ton accès est vérifié avant d’être ouvert.'**
   String get establishmentSecurityNote;
 
   /// No description provided for @individualAccount.
@@ -683,14 +683,8 @@ abstract class AppLocalizations {
   /// No description provided for @phoneIdentityTarget.
   ///
   /// In fr, this message translates to:
-  /// **'Identité cible : téléphone + code OTP'**
+  /// **'Ton numéro de téléphone'**
   String get phoneIdentityTarget;
-
-  /// No description provided for @temporaryEmailNotice.
-  ///
-  /// In fr, this message translates to:
-  /// **'Dans cette version, un e-mail technique reste temporairement nécessaire pour créer le compte Firebase. Il ne constitue pas l’identité principale cible.'**
-  String get temporaryEmailNotice;
 
   /// No description provided for @temporaryEmailLabel.
   ///
@@ -983,7 +977,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneErrorTooManyRequests.
   ///
   /// In fr, this message translates to:
-  /// **'Les demandes de code sont temporairement bloquées par Firebase. Le délai de déblocage n’est pas communiqué et peut dépasser une heure. Évite les demandes répétées. Si tu as déjà associé un e-mail à ton compte, utilise-le pour te connecter.'**
+  /// **'Trop de demandes de code pour ce numéro. Attends un moment avant de réessayer : cela peut prendre plus d’une heure. Si ton compte a un e-mail, tu peux t’en servir pour te connecter.'**
   String get phoneErrorTooManyRequests;
 
   /// No description provided for @phoneErrorAppVerification.
@@ -1019,7 +1013,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneErrorDisabled.
   ///
   /// In fr, this message translates to:
-  /// **'La connexion par téléphone doit être activée dans Firebase Authentication.'**
+  /// **'La connexion par téléphone n’est pas disponible pour le moment. Réessaie plus tard.'**
   String get phoneErrorDisabled;
 
   /// No description provided for @phoneErrorCollision.
@@ -1274,12 +1268,6 @@ abstract class AppLocalizations {
   /// **'Rencontre ton compagnon'**
   String get meetCompanionTitle;
 
-  /// No description provided for @meetCompanionSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Découvre Kira, puis Léo. Tu choisiras une fois que tu les auras vus.'**
-  String get meetCompanionSubtitle;
-
   /// No description provided for @secureAccountTitle.
   ///
   /// In fr, this message translates to:
@@ -1367,19 +1355,19 @@ abstract class AppLocalizations {
   /// No description provided for @linkChildrenSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ajoutez un identifiant élève maintenant, ou plus tard.'**
+  /// **'Votre enfant trouve ce code dans son profil, rubrique « Mon code parent ». Vous pouvez aussi le relier plus tard.'**
   String get linkChildrenSubtitle;
 
   /// No description provided for @childIdentifierLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Code / Identifiant enfant'**
+  /// **'Code parent de votre enfant'**
   String get childIdentifierLabel;
 
   /// No description provided for @childIdentifierHint.
   ///
   /// In fr, this message translates to:
-  /// **'Ex. STU-94K2'**
+  /// **'Ex. K7PM2QXA'**
   String get childIdentifierHint;
 
   /// No description provided for @addLabel.
@@ -1631,7 +1619,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteRequestBody.
   ///
   /// In fr, this message translates to:
-  /// **'La demande sera enregistrée pour vérification et traitement sécurisé. Cette action te déconnectera.'**
+  /// **'Le compte et ses données seront supprimés dans 7 jours. D’ici là, le compte reste utilisable et la demande peut être annulée depuis cet écran.'**
   String get deleteRequestBody;
 
   /// No description provided for @sendRequestLabel.
@@ -1645,6 +1633,54 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Impossible d’envoyer la demande maintenant. Réessaie plus tard.'**
   String get deleteRequestError;
+
+  /// No description provided for @deleteScheduledSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression prévue le {date}. Touchez pour annuler.'**
+  String deleteScheduledSubtitle(String date);
+
+  /// No description provided for @deleteScheduledConfirmation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression programmée le {date}. Elle peut être annulée d’ici là.'**
+  String deleteScheduledConfirmation(String date);
+
+  /// No description provided for @deleteInProgressSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppression en cours de traitement.'**
+  String get deleteInProgressSubtitle;
+
+  /// No description provided for @cancelDeletionQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la suppression ?'**
+  String get cancelDeletionQuestion;
+
+  /// No description provided for @cancelDeletionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le compte sera conservé et la demande abandonnée.'**
+  String get cancelDeletionBody;
+
+  /// No description provided for @cancelDeletionAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler la suppression'**
+  String get cancelDeletionAction;
+
+  /// No description provided for @cancelDeletionDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'La suppression est annulée.'**
+  String get cancelDeletionDone;
+
+  /// No description provided for @cancelDeletionError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’annuler la demande maintenant. Réessayez plus tard.'**
+  String get cancelDeletionError;
 
   /// No description provided for @chooseReminderTime.
   ///
@@ -1718,17 +1754,35 @@ abstract class AppLocalizations {
   /// **'Apprendre'**
   String get learnTitle;
 
+  /// No description provided for @learnEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer · comprendre · progresser'**
+  String get learnEyebrow;
+
+  /// No description provided for @learnUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes matières arrivent'**
+  String get learnUnavailableTitle;
+
+  /// No description provided for @learnUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien à afficher pour l’instant. Continue ton parcours, puis reviens ici.'**
+  String get learnUnavailableBody;
+
+  /// No description provided for @learnUnavailableOfflineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta connexion, puis actualise. Ton parcours reste disponible.'**
+  String get learnUnavailableOfflineBody;
+
   /// No description provided for @learnSubtitle.
   ///
   /// In fr, this message translates to:
   /// **'Tes matières, adaptées à ton niveau.'**
   String get learnSubtitle;
-
-  /// No description provided for @subjectsLoadError.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impossible de charger les matières'**
-  String get subjectsLoadError;
 
   /// No description provided for @subjectsComingTitle.
   ///
@@ -1861,18 +1915,6 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Prépare toutes les leçons pour une lecture hors connexion.'**
   String get prepareOfflineLessons;
-
-  /// No description provided for @chapterReadyOffline.
-  ///
-  /// In fr, this message translates to:
-  /// **'Chapitre prêt pour une lecture hors connexion.'**
-  String get chapterReadyOffline;
-
-  /// No description provided for @downloadFailed.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le téléchargement n’a pas abouti. Vérifie la connexion et réessaie.'**
-  String get downloadFailed;
 
   /// No description provided for @nextLabelShort.
   ///
@@ -2030,29 +2072,11 @@ abstract class AppLocalizations {
   /// **'{done}/{total} terminées'**
   String completedProgress(int done, int total);
 
-  /// No description provided for @saveChapterOffline.
-  ///
-  /// In fr, this message translates to:
-  /// **'Enregistrer ce chapitre pour la lecture hors connexion'**
-  String get saveChapterOffline;
-
-  /// No description provided for @reconnectToPrepareLessons.
-  ///
-  /// In fr, this message translates to:
-  /// **'Reconnecte-toi pour préparer toutes les leçons.'**
-  String get reconnectToPrepareLessons;
-
   /// No description provided for @prepareChapterLessons.
   ///
   /// In fr, this message translates to:
   /// **'Prépare les {count} leçons de ce chapitre.'**
   String prepareChapterLessons(int count);
-
-  /// No description provided for @prepareLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Préparer'**
-  String get prepareLabel;
 
   /// No description provided for @backLabel.
   ///
@@ -2117,7 +2141,7 @@ abstract class AppLocalizations {
   /// No description provided for @authChooseProfileBody.
   ///
   /// In fr, this message translates to:
-  /// **'Choisis le profil à créer. Ta session Firebase vérifiée sera réutilisée.'**
+  /// **'Choisis le profil à créer. Ton numéro est déjà vérifié.'**
   String get authChooseProfileBody;
 
   /// No description provided for @authProfileSyncFailureBody.
@@ -2309,7 +2333,7 @@ abstract class AppLocalizations {
   /// No description provided for @discoverCompanionBeforeChoice.
   ///
   /// In fr, this message translates to:
-  /// **'Découvre {name} pour pouvoir le choisir'**
+  /// **'Découvre {name} avant de choisir'**
   String discoverCompanionBeforeChoice(String name);
 
   /// No description provided for @companionChosenA11y.
@@ -2531,38 +2555,32 @@ abstract class AppLocalizations {
   /// No description provided for @quizProfileIncompleteBody.
   ///
   /// In fr, this message translates to:
-  /// **'Ton profil scolaire doit être complété ou resynchronisé avant de choisir les quiz de ton niveau.'**
+  /// **'Choisis ta classe dans ton profil pour voir les quiz de ton niveau.'**
   String get quizProfileIncompleteBody;
 
   /// No description provided for @quizCatalogDeniedBody.
   ///
   /// In fr, this message translates to:
-  /// **'L’accès au catalogue n’a pas été autorisé pour ce profil. Tu peux continuer avec tes cours pendant la vérification.'**
+  /// **'Tes quiz ne sont pas encore ouverts pour ton profil. Tu peux continuer avec tes cours en attendant.'**
   String get quizCatalogDeniedBody;
 
   /// No description provided for @quizCatalogUnavailableBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec le Flow ou tes cours.'**
+  /// **'Tes quiz sont momentanément inaccessibles. Continue ton parcours ou tes cours en attendant.'**
   String get quizCatalogUnavailableBody;
 
   /// No description provided for @quizCatalogInvalidBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le catalogue reçu est incomplet. Il n’est pas affiché afin de ne pas te proposer un contenu incorrect.'**
+  /// **'Certains quiz ne sont pas encore prêts. Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.'**
   String get quizCatalogInvalidBody;
 
   /// No description provided for @quizCatalogNetworkBody.
   ///
   /// In fr, this message translates to:
-  /// **'La connexion au catalogue est interrompue. Tes cours et le Flow restent disponibles.'**
+  /// **'La connexion est interrompue. Tes cours et ton parcours restent disponibles.'**
   String get quizCatalogNetworkBody;
-
-  /// No description provided for @quizLoadErrorTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impossible de charger les quiz pour le moment.'**
-  String get quizLoadErrorTitle;
 
   /// No description provided for @quizOfflineTitle.
   ///
@@ -2573,13 +2591,13 @@ abstract class AppLocalizations {
   /// No description provided for @quizOfflineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec le Flow ou une leçon téléchargée.'**
+  /// **'Un quiz a besoin d’internet : sa correction se fait en ligne et tes réponses ne sont pas gardées sur le téléphone. Tu peux continuer ton parcours ou une leçon téléchargée.'**
   String get quizOfflineBody;
 
   /// No description provided for @openOfflineFlow.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir le Flow hors ligne'**
+  /// **'Ouvrir mon parcours hors ligne'**
   String get openOfflineFlow;
 
   /// No description provided for @viewDownloadedLessons.
@@ -2633,7 +2651,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizPausedOfflineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les corrections et l’envoi sont vérifiés par le serveur. Pour protéger l’évaluation, aucune réponse ni aucun corrigé n’est conservé hors ligne.'**
+  /// **'La correction se fait en ligne. Tes réponses et les corrigés ne sont pas gardés sur le téléphone.'**
   String get quizPausedOfflineBody;
 
   /// No description provided for @displayLabel.
@@ -2657,7 +2675,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizComingBody.
   ///
   /// In fr, this message translates to:
-  /// **'De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance le Flow depuis l’accueil.'**
+  /// **'De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance ton parcours depuis l’accueil.'**
   String get quizComingBody;
 
   /// No description provided for @quizTrainingAction.
@@ -2695,6 +2713,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Quiz'**
   String get quizTitle;
+
+  /// No description provided for @quizEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'S’entraîner · se tester'**
+  String get quizEyebrow;
+
+  /// No description provided for @quizUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes quiz arrivent'**
+  String get quizUnavailableTitle;
+
+  /// No description provided for @quizUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien à t’entraîner pour l’instant. Continue ton parcours, puis reviens ici.'**
+  String get quizUnavailableBody;
+
+  /// No description provided for @quizUnavailableOfflineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta connexion, puis actualise. Ton parcours reste disponible.'**
+  String get quizUnavailableOfflineBody;
+
+  /// No description provided for @quizUnavailableModesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deux façons de t’entraîner t’attendent'**
+  String get quizUnavailableModesLabel;
 
   /// No description provided for @quizHistoryLoading.
   ///
@@ -2735,7 +2783,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizFirstResultBody.
   ///
   /// In fr, this message translates to:
-  /// **'Aucun résultat inventé ici : ta première tentative apparaîtra après sa validation par le serveur.'**
+  /// **'Ton premier résultat apparaîtra ici une fois ta tentative corrigée.'**
   String get quizFirstResultBody;
 
   /// No description provided for @quizMasteryUnavailable.
@@ -2795,7 +2843,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizNeedsNetworkBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le serveur protège la correction et valide l’envoi. Intellia237 ne met ni tes réponses ni les corrigés en cache. Reconnecte-toi pour commencer, ou poursuis une activité disponible hors ligne.'**
+  /// **'La correction se fait en ligne, et rien n’est gardé sur le téléphone. Reconnecte-toi pour commencer, ou continue une activité disponible sans internet.'**
   String get quizNeedsNetworkBody;
 
   /// No description provided for @quizPlayOfflineTitle.
@@ -2807,7 +2855,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizPlayOfflineBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le contenu, la correction et l’envoi sont vérifiés par le serveur. Intellia237 ne conserve ni tes réponses ni les corrigés hors ligne. Reconnecte-toi, ou poursuis une activité déjà disponible sur cet appareil.'**
+  /// **'Ce quiz a besoin d’internet pour être corrigé. Reconnecte-toi, ou continue une activité déjà disponible sur ce téléphone.'**
   String get quizPlayOfflineBody;
 
   /// No description provided for @quizQuestionsComingTitle.
@@ -2867,7 +2915,7 @@ abstract class AppLocalizations {
   /// No description provided for @guidedCorrectionFailureBody.
   ///
   /// In fr, this message translates to:
-  /// **'{reason}\nTa réponse reste saisie sur cet écran et n’est pas mise en cache.'**
+  /// **'{reason}\nTa réponse reste sur cet écran.'**
   String guidedCorrectionFailureBody(String reason);
 
   /// No description provided for @continueWithoutCorrection.
@@ -2987,7 +3035,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizSubmissionUnavailable.
   ///
   /// In fr, this message translates to:
-  /// **'Le serveur n’a pas pu valider cette tentative pour le moment.'**
+  /// **'Ta tentative n’a pas pu être corrigée pour le moment. Réessaie dans un instant.'**
   String get quizSubmissionUnavailable;
 
   /// No description provided for @singleAnswerQcm.
@@ -3143,7 +3191,7 @@ abstract class AppLocalizations {
   /// No description provided for @continueWithFlow.
   ///
   /// In fr, this message translates to:
-  /// **'Continuer avec le Flow'**
+  /// **'Continuer mon parcours'**
   String get continueWithFlow;
 
   /// No description provided for @homeLabel.
@@ -3167,13 +3215,13 @@ abstract class AppLocalizations {
   /// No description provided for @homeLoadError.
   ///
   /// In fr, this message translates to:
-  /// **'Impossible de charger l’accueil'**
+  /// **'L’accueil n’a pas pu s’afficher'**
   String get homeLoadError;
 
   /// No description provided for @flowSyncSignedOut.
   ///
   /// In fr, this message translates to:
-  /// **'Connecte-toi pour faire valider tes points FLOW.'**
+  /// **'Connecte-toi pour faire valider tes points du parcours.'**
   String get flowSyncSignedOut;
 
   /// No description provided for @flowSyncUnavailable.
@@ -3191,13 +3239,13 @@ abstract class AppLocalizations {
   /// No description provided for @flowSyncNotEligible.
   ///
   /// In fr, this message translates to:
-  /// **'La validation des points FLOW est réservée aux profils élèves.'**
+  /// **'La validation des points du parcours est réservée aux profils élèves.'**
   String get flowSyncNotEligible;
 
   /// No description provided for @flowSyncContentNotValidated.
   ///
   /// In fr, this message translates to:
-  /// **'Cette activité FLOW n’est pas encore validée par le serveur.'**
+  /// **'Cette activité du parcours n’est pas encore prête.'**
   String get flowSyncContentNotValidated;
 
   /// No description provided for @flowSyncDuplicate.
@@ -3209,13 +3257,13 @@ abstract class AppLocalizations {
   /// No description provided for @flowSyncInvalidAnswer.
   ///
   /// In fr, this message translates to:
-  /// **'La réponse FLOW envoyée est invalide.'**
+  /// **'La réponse envoyée pour cette activité est invalide.'**
   String get flowSyncInvalidAnswer;
 
   /// No description provided for @flowSyncUnknown.
   ///
   /// In fr, this message translates to:
-  /// **'Impossible de valider les points FLOW pour le moment.'**
+  /// **'Impossible de valider les points du parcours pour le moment.'**
   String get flowSyncUnknown;
 
   /// No description provided for @flowDailyCapReached.
@@ -3224,77 +3272,11 @@ abstract class AppLocalizations {
   /// **'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.'**
   String get flowDailyCapReached;
 
-  /// No description provided for @companionSpeak.
-  ///
-  /// In fr, this message translates to:
-  /// **'Parler'**
-  String get companionSpeak;
-
   /// No description provided for @companionSend.
   ///
   /// In fr, this message translates to:
   /// **'Envoyer'**
   String get companionSend;
-
-  /// No description provided for @companionMicRationale.
-  ///
-  /// In fr, this message translates to:
-  /// **'{name} a besoin du micro pour t’écouter. Rien n’est enregistré sans que tu envoies.'**
-  String companionMicRationale(String name);
-
-  /// No description provided for @companionMicDenied.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le micro est refusé. Tu peux l’autoriser dans les réglages, ou écrire ta question.'**
-  String get companionMicDenied;
-
-  /// No description provided for @companionMicUnavailable.
-  ///
-  /// In fr, this message translates to:
-  /// **'La dictée n’est pas disponible sur cet appareil. Tu peux écrire ta question.'**
-  String get companionMicUnavailable;
-
-  /// No description provided for @companionListening.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je t’écoute'**
-  String get companionListening;
-
-  /// No description provided for @companionDictationCancel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Annuler'**
-  String get companionDictationCancel;
-
-  /// No description provided for @companionDictationStop.
-  ///
-  /// In fr, this message translates to:
-  /// **'Arrêter'**
-  String get companionDictationStop;
-
-  /// No description provided for @companionDictationNearEnd.
-  ///
-  /// In fr, this message translates to:
-  /// **'Bientôt la fin'**
-  String get companionDictationNearEnd;
-
-  /// No description provided for @companionDictationFailed.
-  ///
-  /// In fr, this message translates to:
-  /// **'Je n’ai pas bien entendu. Tu peux réessayer ou écrire.'**
-  String get companionDictationFailed;
-
-  /// No description provided for @companionListen.
-  ///
-  /// In fr, this message translates to:
-  /// **'Écouter'**
-  String get companionListen;
-
-  /// No description provided for @companionPauseListening.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pause'**
-  String get companionPauseListening;
 
   /// No description provided for @companionHistoryTitle.
   ///
@@ -3329,7 +3311,7 @@ abstract class AppLocalizations {
   /// No description provided for @authGatewaySubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Quel espace veux-tu ouvrir ?'**
+  /// **'Un espace éducatif sécurisé, pensé pour le Cameroun.'**
   String get authGatewaySubtitle;
 
   /// No description provided for @todayEyebrow.
@@ -3383,19 +3365,19 @@ abstract class AppLocalizations {
   /// No description provided for @homeLessonsComingBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les leçons de ta classe sont en cours de préparation. En attendant, découvre le Flow ou révise avec ton compagnon.'**
+  /// **'Les leçons de ta classe sont en cours de préparation. En attendant, découvre ton parcours ou révise avec ton compagnon.'**
   String get homeLessonsComingBody;
 
   /// No description provided for @discoverFlow.
   ///
   /// In fr, this message translates to:
-  /// **'Découvrir le Flow'**
+  /// **'Découvrir mon parcours'**
   String get discoverFlow;
 
   /// No description provided for @talkToCompanion.
   ///
   /// In fr, this message translates to:
-  /// **'Parler à mon compagnon'**
+  /// **'Écrire à mon compagnon'**
   String get talkToCompanion;
 
   /// No description provided for @forYouEyebrow.
@@ -4091,7 +4073,7 @@ abstract class AppLocalizations {
   /// No description provided for @totalPendingValidation.
   ///
   /// In fr, this message translates to:
-  /// **'Total en attente de validation serveur'**
+  /// **'Total en attente de vérification'**
   String get totalPendingValidation;
 
   /// No description provided for @totalVerifiedPoints.
@@ -4883,7 +4865,7 @@ abstract class AppLocalizations {
   /// No description provided for @mobileMoneyParentDescription.
   ///
   /// In fr, this message translates to:
-  /// **'Paiement Mobile Money déclaré puis vérifié manuellement par votre établissement.'**
+  /// **'Paiement Mobile Money déclaré, puis vérifié manuellement par l’établissement de l’enfant concerné.'**
   String get mobileMoneyParentDescription;
 
   /// No description provided for @myPaymentRequests.
@@ -5001,13 +4983,13 @@ abstract class AppLocalizations {
   /// No description provided for @multipleSchoolsLinked.
   ///
   /// In fr, this message translates to:
-  /// **'Plusieurs établissements sont liés. Contactez l’assistance pour choisir celui qui facturera l’accès.'**
+  /// **'Vos enfants sont inscrits dans plusieurs établissements : choisissez l’enfant pour qui vous payez.'**
   String get multipleSchoolsLinked;
 
   /// No description provided for @noActiveMobileMoneyOffer.
   ///
   /// In fr, this message translates to:
-  /// **'Votre établissement n’a pas encore publié d’offre Mobile Money active.'**
+  /// **'L’établissement de cet enfant n’a pas encore publié d’offre Mobile Money active.'**
   String get noActiveMobileMoneyOffer;
 
   /// No description provided for @offerUnavailable.
@@ -6103,13 +6085,13 @@ abstract class AppLocalizations {
   /// No description provided for @aiGenerationBackendOnly.
   ///
   /// In fr, this message translates to:
-  /// **'La génération IA n’est plus disponible côté client. Le flux backend-only passe désormais par Cloud Functions et le microservice LLM.'**
+  /// **'La génération automatique ne se lance pas depuis cet écran.'**
   String get aiGenerationBackendOnly;
 
   /// No description provided for @aiGenerationBackendInstructions.
   ///
   /// In fr, this message translates to:
-  /// **'Rédigez la leçon manuellement ici, puis utilisez le parcours backend sécurisé pour produire résumés et quiz.'**
+  /// **'Rédigez la leçon ici. Pour partir de pages de cours photographiées, utilisez « Importer des pages » depuis le chapitre : des brouillons sont préparés, que vous relisez avant publication.'**
   String get aiGenerationBackendInstructions;
 
   /// No description provided for @courseSectionsCount.
@@ -7381,7 +7363,7 @@ abstract class AppLocalizations {
   /// No description provided for @addChildCodeHelp.
   ///
   /// In fr, this message translates to:
-  /// **'Demande à ton enfant son code, visible dans son espace Profil › « Mon code parent ».'**
+  /// **'Demandez à votre enfant son code, visible dans son espace Profil › « Mon code parent ».'**
   String get addChildCodeHelp;
 
   /// No description provided for @addChildSubmit.
@@ -7399,7 +7381,7 @@ abstract class AppLocalizations {
   /// No description provided for @addChildAlready.
   ///
   /// In fr, this message translates to:
-  /// **'{name} est déjà lié à ton compte.'**
+  /// **'{name} est déjà lié à votre compte.'**
   String addChildAlready(String name);
 
   /// No description provided for @studentLinkCodeTitle.
@@ -7545,6 +7527,3492 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Ville'**
   String get establishmentCityLabel;
+
+  /// No description provided for @flowChoiceTrue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vrai'**
+  String get flowChoiceTrue;
+
+  /// No description provided for @flowChoiceFalse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux'**
+  String get flowChoiceFalse;
+
+  /// No description provided for @flowHintPrefix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indice : {hint}'**
+  String flowHintPrefix(String hint);
+
+  /// No description provided for @flowFeedbackCorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exact !'**
+  String get flowFeedbackCorrect;
+
+  /// No description provided for @flowFeedbackIncorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore.'**
+  String get flowFeedbackIncorrect;
+
+  /// No description provided for @flowExpectedOrder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordre attendu : {order}'**
+  String flowExpectedOrder(String order);
+
+  /// No description provided for @flowSwipeToContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Balaie vers le haut pour continuer'**
+  String get flowSwipeToContinue;
+
+  /// No description provided for @childLinkErrorNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code enfant est introuvable. Vérifie-le avec ton enfant.'**
+  String get childLinkErrorNotFound;
+
+  /// No description provided for @childLinkErrorInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis le code de liaison de ton enfant.'**
+  String get childLinkErrorInvalid;
+
+  /// No description provided for @childLinkErrorPermission.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seul un compte parent peut rattacher un enfant.'**
+  String get childLinkErrorPermission;
+
+  /// No description provided for @childLinkErrorUnauthenticated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta session a expiré. Reconnecte-toi puis réessaie.'**
+  String get childLinkErrorUnauthenticated;
+
+  /// No description provided for @childLinkErrorTooMany.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Réessaie un peu plus tard.'**
+  String get childLinkErrorTooMany;
+
+  /// No description provided for @childLinkErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'La liaison n’a pas abouti. Réessaie dans un instant.'**
+  String get childLinkErrorGeneric;
+
+  /// No description provided for @studyReserveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve d’étude'**
+  String get studyReserveTitle;
+
+  /// No description provided for @studyReserveRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} % restants'**
+  String studyReserveRemaining(int percent);
+
+  /// No description provided for @studyReserveRenews.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renouvellement le {date}'**
+  String studyReserveRenews(String date);
+
+  /// No description provided for @studyReserveStatusHealthy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne réserve'**
+  String get studyReserveStatusHealthy;
+
+  /// No description provided for @studyReserveStatusWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'À surveiller'**
+  String get studyReserveStatusWarning;
+
+  /// No description provided for @studyReserveStatusLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve basse'**
+  String get studyReserveStatusLow;
+
+  /// No description provided for @studyReserveStatusCritical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presque épuisée'**
+  String get studyReserveStatusCritical;
+
+  /// No description provided for @studyReserveStatusDepleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve épuisée'**
+  String get studyReserveStatusDepleted;
+
+  /// No description provided for @studyReserveDepletedHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le tuteur IA se repose jusqu’au renouvellement. Les cours, quiz et lectures restent accessibles.'**
+  String get studyReserveDepletedHelp;
+
+  /// No description provided for @studyReserveUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve d’étude indisponible pour le moment.'**
+  String get studyReserveUnavailable;
+
+  /// No description provided for @studyReserveNotifTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réserve d’étude'**
+  String get studyReserveNotifTitle;
+
+  /// No description provided for @studyReserveNotifInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il reste {percent} % de la réserve d’étude ce cycle.'**
+  String studyReserveNotifInfo(int percent);
+
+  /// No description provided for @studyReserveNotifLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'La réserve d’étude est à {percent} %. Pense à la ménager pour le tuteur.'**
+  String studyReserveNotifLow(int percent);
+
+  /// No description provided for @studyReserveNotifCritical.
+  ///
+  /// In fr, this message translates to:
+  /// **'La réserve d’étude est presque épuisée ({percent} %).'**
+  String studyReserveNotifCritical(int percent);
+
+  /// No description provided for @studyReserveNotifDepleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'La réserve d’étude est épuisée ; elle se renouvelle au prochain cycle. Les cours et quiz restent accessibles.'**
+  String get studyReserveNotifDepleted;
+
+  /// No description provided for @studyReserveLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger la réserve d’étude pour le moment.'**
+  String get studyReserveLoadError;
+
+  /// No description provided for @companionStudyReserveDepleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réserve d’étude est épuisée pour ce cycle. {name} reprendra au renouvellement ; tes cours et quiz restent accessibles.'**
+  String companionStudyReserveDepleted(String name);
+
+  /// No description provided for @parentEntryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reliez votre enfant'**
+  String get parentEntryTitle;
+
+  /// No description provided for @parentEntrySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez son code, puis connectez-vous avec votre propre numéro.'**
+  String get parentEntrySubtitle;
+
+  /// No description provided for @parentEntryHaveCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un code enfant'**
+  String get parentEntryHaveCode;
+
+  /// No description provided for @parentEntryCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code de l’enfant'**
+  String get parentEntryCodeLabel;
+
+  /// No description provided for @parentEntryCodeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ex. K7MP2QXA'**
+  String get parentEntryCodeHint;
+
+  /// No description provided for @parentEntryCodeHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre enfant le trouve dans son profil, rubrique « Mon code parent ».'**
+  String get parentEntryCodeHelp;
+
+  /// No description provided for @parentEntryCodeInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un code enfant compte 8 lettres et chiffres. Vérifiez-le avec votre enfant.'**
+  String get parentEntryCodeInvalid;
+
+  /// No description provided for @parentEntryPaste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coller'**
+  String get parentEntryPaste;
+
+  /// No description provided for @parentEntryAlreadyParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis déjà parent'**
+  String get parentEntryAlreadyParent;
+
+  /// No description provided for @parentEntryPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code sert uniquement à relier votre enfant, une fois votre connexion établie.'**
+  String get parentEntryPrivacy;
+
+  /// No description provided for @phonePendingChildCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code enfant prêt : il sera relié après votre connexion.'**
+  String get phonePendingChildCode;
+
+  /// No description provided for @phoneLinkingChild.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rattachement de votre enfant…'**
+  String get phoneLinkingChild;
+
+  /// No description provided for @passNumberAlreadyUsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro déjà associé'**
+  String get passNumberAlreadyUsed;
+
+  /// No description provided for @roleConflictStudentAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est déjà associé à un compte élève.'**
+  String get roleConflictStudentAccount;
+
+  /// No description provided for @roleConflictParentAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est déjà associé à un compte parent.'**
+  String get roleConflictParentAccount;
+
+  /// No description provided for @roleConflictStaffAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est déjà associé à un compte de l’établissement.'**
+  String get roleConflictStaffAccount;
+
+  /// No description provided for @roleConflictCredentialsStudentAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces identifiants ouvrent un compte élève.'**
+  String get roleConflictCredentialsStudentAccount;
+
+  /// No description provided for @roleConflictCredentialsParentAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces identifiants ouvrent un compte parent.'**
+  String get roleConflictCredentialsParentAccount;
+
+  /// No description provided for @roleConflictCredentialsStaffAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces identifiants ouvrent un compte de l’établissement.'**
+  String get roleConflictCredentialsStaffAccount;
+
+  /// No description provided for @roleConflictUseParentCredentials.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour créer ou ouvrir un espace parent, utilisez les identifiants du parent.'**
+  String get roleConflictUseParentCredentials;
+
+  /// No description provided for @roleConflictUseStudentCredentials.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour ouvrir l’espace élève, utilisez les identifiants de l’élève.'**
+  String get roleConflictUseStudentCredentials;
+
+  /// No description provided for @roleConflictChildCodeKept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code enfant reste enregistré.'**
+  String get roleConflictChildCodeKept;
+
+  /// No description provided for @roleConflictUseAnotherNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser un autre numéro'**
+  String get roleConflictUseAnotherNumber;
+
+  /// No description provided for @childLinkReportFailedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code enfant n’a pas pu être relié'**
+  String get childLinkReportFailedTitle;
+
+  /// No description provided for @childLinkBatchSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 enfant relié à votre compte.} other{{count} enfants reliés à votre compte.}}'**
+  String childLinkBatchSuccess(int count);
+
+  /// No description provided for @parentEntryCodePurpose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code permet de rattacher l’enfant.\nVotre numéro de téléphone sert à vous identifier comme parent.'**
+  String get parentEntryCodePurpose;
+
+  /// No description provided for @passFamilyNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de la famille'**
+  String get passFamilyNumber;
+
+  /// No description provided for @familyPhoneMigrationPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est actuellement utilisé pour l’accès d’un élève. Souhaitez-vous l’utiliser comme numéro du parent ? L’élève conservera son profil et utilisera désormais son code d’accès INTELLIA.'**
+  String get familyPhoneMigrationPrompt;
+
+  /// No description provided for @familyPhoneMigrationConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser ce numéro pour le parent'**
+  String get familyPhoneMigrationConfirm;
+
+  /// No description provided for @familyPhoneMigrationNothingChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le transfert n’a pas abouti. Rien n’a changé : réessayez.'**
+  String get familyPhoneMigrationNothingChanged;
+
+  /// No description provided for @familyPhoneMigrationVerifyAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour votre sécurité, vérifiez à nouveau ce numéro avant de le transférer.'**
+  String get familyPhoneMigrationVerifyAgain;
+
+  /// No description provided for @familyPhoneMigrationVerifyAgainAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier à nouveau le numéro'**
+  String get familyPhoneMigrationVerifyAgainAction;
+
+  /// No description provided for @familyPhoneMigrationInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un transfert est déjà en cours pour ce numéro. Patientez un instant puis réessayez.'**
+  String get familyPhoneMigrationInProgress;
+
+  /// No description provided for @familyPhoneMigrationVerifyAgainToFinish.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’élève a déjà son code d’accès. Vérifiez à nouveau ce numéro pour terminer l’ouverture de votre espace parent.'**
+  String get familyPhoneMigrationVerifyAgainToFinish;
+
+  /// No description provided for @familyPhoneMigrationRefused.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro ne peut pas être transféré depuis ce compte. Utilisez un autre numéro ou contactez l’établissement.'**
+  String get familyPhoneMigrationRefused;
+
+  /// No description provided for @familyPhoneMigrationUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le transfert du numéro n’est pas encore disponible. Réessayez plus tard ou utilisez un autre numéro.'**
+  String get familyPhoneMigrationUnavailable;
+
+  /// No description provided for @familyPhoneMigratedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro est désormais le vôtre'**
+  String get familyPhoneMigratedTitle;
+
+  /// No description provided for @familyPhoneMigratedContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai noté le code, ouvrir mon espace parent'**
+  String get familyPhoneMigratedContinue;
+
+  /// No description provided for @studentNoPhoneUseAccessCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de téléphone ? Entre avec ton code d’accès INTELLIA'**
+  String get studentNoPhoneUseAccessCode;
+
+  /// No description provided for @studentAccessCodePhase.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton code d’accès'**
+  String get studentAccessCodePhase;
+
+  /// No description provided for @studentAccessCodeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre avec ton code d’accès'**
+  String get studentAccessCodeTitle;
+
+  /// No description provided for @studentAccessCodeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis les 12 caractères que ton parent ou ton établissement t’a donnés. Pas besoin de téléphone.'**
+  String get studentAccessCodeSubtitle;
+
+  /// No description provided for @studentAccessCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès INTELLIA'**
+  String get studentAccessCodeLabel;
+
+  /// No description provided for @studentAccessCodeSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrer dans mon espace'**
+  String get studentAccessCodeSubmit;
+
+  /// No description provided for @studentAccessCodePrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garde ce code pour toi : il ouvre ton espace. Si tu l’as perdu, demande un nouveau code à ton parent ou à ton établissement.'**
+  String get studentAccessCodePrivacy;
+
+  /// No description provided for @studentAccessCodeUsePhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un téléphone : recevoir un SMS'**
+  String get studentAccessCodeUsePhone;
+
+  /// No description provided for @studentAccessCodeInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code ne fonctionne pas. Vérifie-le, ou demande un nouveau code à ton parent ou à ton établissement.'**
+  String get studentAccessCodeInvalid;
+
+  /// No description provided for @studentAccessCodeTooManyAttempts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop d’essais. Attends quelques minutes avant de réessayer.'**
+  String get studentAccessCodeTooManyAttempts;
+
+  /// No description provided for @studentAccessCodeUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le service ne répond pas pour le moment. Réessaie dans un instant.'**
+  String get studentAccessCodeUnavailable;
+
+  /// No description provided for @studentAccessCodeRevealTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès INTELLIA de {name}'**
+  String studentAccessCodeRevealTitle(String name);
+
+  /// No description provided for @studentAccessCodeRevealTitleGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès INTELLIA de l’élève'**
+  String get studentAccessCodeRevealTitleGeneric;
+
+  /// No description provided for @studentAccessCodeRevealBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notez ce code et remettez-le à {name} : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.'**
+  String studentAccessCodeRevealBody(String name);
+
+  /// No description provided for @studentAccessCodeRevealBodyGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notez ce code et remettez-le à l’élève : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.'**
+  String get studentAccessCodeRevealBodyGeneric;
+
+  /// No description provided for @studentAccessCodeNotShownAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code d’accès de l’élève a déjà été créé. Pour sa sécurité, il n’est jamais affiché à nouveau : générez-en un nouveau depuis sa fiche.'**
+  String get studentAccessCodeNotShownAgain;
+
+  /// No description provided for @studentAccessCodeCopy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier le code'**
+  String get studentAccessCodeCopy;
+
+  /// No description provided for @studentAccessCodeCopied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code copié'**
+  String get studentAccessCodeCopied;
+
+  /// No description provided for @studentAccessCodeSheetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code permet à votre enfant d’ouvrir son espace INTELLIA sans téléphone. Pour sa sécurité, il n’est jamais affiché à nouveau : générer un nouveau code remplace l’ancien, qui cesse aussitôt de fonctionner.'**
+  String get studentAccessCodeSheetBody;
+
+  /// No description provided for @studentAccessCodeGenerate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher / générer un nouveau code d’accès'**
+  String get studentAccessCodeGenerate;
+
+  /// No description provided for @studentAccessCodeReplaceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer le code d’accès ?'**
+  String get studentAccessCodeReplaceTitle;
+
+  /// No description provided for @studentAccessCodeReplaceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ancien code de {name} cessera immédiatement de fonctionner.'**
+  String studentAccessCodeReplaceBody(String name);
+
+  /// No description provided for @studentAccessCodeReplaceConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Générer le nouveau code'**
+  String get studentAccessCodeReplaceConfirm;
+
+  /// No description provided for @studentAccessCodeDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai noté le code'**
+  String get studentAccessCodeDone;
+
+  /// No description provided for @studentAccessCodeIssueFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code n’a pas pu être généré. Réessayez.'**
+  String get studentAccessCodeIssueFailed;
+
+  /// No description provided for @studentAccessCodeActiveSince.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès actif depuis le {date}'**
+  String studentAccessCodeActiveSince(String date);
+
+  /// No description provided for @studentAccessCodeActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès actif'**
+  String get studentAccessCodeActive;
+
+  /// No description provided for @studentAccessCodeNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun code d’accès pour l’instant'**
+  String get studentAccessCodeNone;
+
+  /// No description provided for @childAccessOwnPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecté avec son propre accès INTELLIA'**
+  String get childAccessOwnPhone;
+
+  /// No description provided for @childAccessCodeOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecte avec son code d’accès INTELLIA'**
+  String get childAccessCodeOnly;
+
+  /// No description provided for @childAccessUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès de l’enfant non disponible pour le moment'**
+  String get childAccessUnknown;
+
+  /// No description provided for @childAccessNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun accès personnel : générez son code d’accès'**
+  String get childAccessNone;
+
+  /// No description provided for @childActionViewProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le profil'**
+  String get childActionViewProfile;
+
+  /// No description provided for @childActionViewActivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir son activité'**
+  String get childActionViewActivity;
+
+  /// No description provided for @childActionAccessCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code d’accès élève'**
+  String get childActionAccessCode;
+
+  /// No description provided for @childActionSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement'**
+  String get childActionSubscription;
+
+  /// No description provided for @childSubscriptionActiveUntil.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement actif jusqu’au {date}'**
+  String childSubscriptionActiveUntil(String date);
+
+  /// No description provided for @childSubscriptionPaidByAnotherGuardian.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglé par un autre responsable de l’enfant'**
+  String get childSubscriptionPaidByAnotherGuardian;
+
+  /// No description provided for @childSubscriptionInactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun abonnement actif pour cet enfant'**
+  String get childSubscriptionInactive;
+
+  /// No description provided for @childSchoolUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Établissement non renseigné'**
+  String get childSchoolUnknown;
+
+  /// No description provided for @parentChildrenCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 enfant} other{{count} enfants}}'**
+  String parentChildrenCount(int count);
+
+  /// No description provided for @parentModeProfileBanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'MODE PARENT — PROFIL DE {name}'**
+  String parentModeProfileBanner(String name);
+
+  /// No description provided for @parentModeProfileNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous consultez ce profil avec votre compte parent. Vous ne pouvez rien y modifier au nom de votre enfant.'**
+  String get parentModeProfileNote;
+
+  /// No description provided for @childProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil de l’enfant'**
+  String get childProfileTitle;
+
+  /// No description provided for @childProfileClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classe'**
+  String get childProfileClass;
+
+  /// No description provided for @childProfileSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Établissement'**
+  String get childProfileSchool;
+
+  /// No description provided for @childProfileAccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès INTELLIA'**
+  String get childProfileAccess;
+
+  /// No description provided for @childProfileSubscription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Abonnement'**
+  String get childProfileSubscription;
+
+  /// No description provided for @parentSchoolsAnnouncements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annonces des écoles de vos enfants'**
+  String get parentSchoolsAnnouncements;
+
+  /// No description provided for @mobileMoneyChooseChild.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour quel enfant payez-vous ?'**
+  String get mobileMoneyChooseChild;
+
+  /// No description provided for @mobileMoneyOfferOfSchool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Offre de {school}'**
+  String mobileMoneyOfferOfSchool(String school);
+
+  /// No description provided for @mobileMoneyCoversChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce paiement couvre : {names}'**
+  String mobileMoneyCoversChildren(String names);
+
+  /// No description provided for @childPendingFirstSignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente de sa première connexion'**
+  String get childPendingFirstSignIn;
+
+  /// No description provided for @addChildNoAccountAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon enfant n’a pas encore de compte INTELLIA'**
+  String get addChildNoAccountAction;
+
+  /// No description provided for @addChildNoAccountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir l’accès de votre enfant'**
+  String get addChildNoAccountTitle;
+
+  /// No description provided for @addChildNoAccountBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre enfant n’a pas besoin de téléphone. Vous recevrez son code d’accès INTELLIA ; il complétera lui-même son profil scolaire à sa première connexion.'**
+  String get addChildNoAccountBody;
+
+  /// No description provided for @addChildNoAccountNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prénom de l’enfant'**
+  String get addChildNoAccountNameLabel;
+
+  /// No description provided for @addChildNoAccountNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez le prénom de votre enfant.'**
+  String get addChildNoAccountNameRequired;
+
+  /// No description provided for @addChildNoAccountSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer son code d’accès'**
+  String get addChildNoAccountSubmit;
+
+  /// No description provided for @addChildNoAccountFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’accès n’a pas pu être ouvert. Réessayez.'**
+  String get addChildNoAccountFailed;
+
+  /// No description provided for @adminStudentAccessRecoveryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récupérer l’accès de l’élève'**
+  String get adminStudentAccessRecoveryTitle;
+
+  /// No description provided for @adminStudentAccessRecoveryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un nouveau code d’accès INTELLIA remplace le précédent, qui cesse aussitôt de fonctionner. Remettez-le à l’élève ou à sa famille en main propre : il ne sera plus affiché.'**
+  String get adminStudentAccessRecoveryBody;
+
+  /// No description provided for @adminStudentPhoneOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone de l’élève (facultatif)'**
+  String get adminStudentPhoneOptional;
+
+  /// No description provided for @childActionLinkCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code de liaison parent'**
+  String get childActionLinkCode;
+
+  /// No description provided for @guardianLinkCodeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code permet à un autre parent ou responsable de rattacher {name} à son propre compte. Il n’ouvre pas l’espace de l’élève : pour cela, utilisez le code d’accès élève.'**
+  String guardianLinkCodeBody(String name);
+
+  /// No description provided for @guardianLinkCodeRotate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer ce code'**
+  String get guardianLinkCodeRotate;
+
+  /// No description provided for @guardianLinkCodeRotateBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’ancien code de liaison cessera immédiatement de fonctionner. Les responsables déjà rattachés le restent.'**
+  String get guardianLinkCodeRotateBody;
+
+  /// No description provided for @guardianLinkCodeUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le code de liaison n’a pas pu être obtenu. Réessayez.'**
+  String get guardianLinkCodeUnavailable;
+
+  /// No description provided for @ilbWordOrderInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remets les mots dans le bon ordre.'**
+  String get ilbWordOrderInstruction;
+
+  /// No description provided for @ilbStepOrderInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remets les étapes dans le bon ordre.'**
+  String get ilbStepOrderInstruction;
+
+  /// No description provided for @ilbTimelineInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remets ces événements dans l’ordre chronologique.'**
+  String get ilbTimelineInstruction;
+
+  /// No description provided for @ilbProcessInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remets les étapes de ce processus dans l’ordre.'**
+  String get ilbProcessInstruction;
+
+  /// No description provided for @ilbCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier'**
+  String get ilbCheck;
+
+  /// No description provided for @ilbRestart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommencer'**
+  String get ilbRestart;
+
+  /// No description provided for @ilbHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un indice'**
+  String get ilbHint;
+
+  /// No description provided for @ilbShowSolution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir la solution'**
+  String get ilbShowSolution;
+
+  /// No description provided for @ilbContinueWith.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec {name}'**
+  String ilbContinueWith(String name);
+
+  /// No description provided for @ilbContinueMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai terminé l’exercice. On continue ?'**
+  String get ilbContinueMessage;
+
+  /// No description provided for @ilbCorrect1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exact.'**
+  String get ilbCorrect1;
+
+  /// No description provided for @ilbCorrect2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très bien.'**
+  String get ilbCorrect2;
+
+  /// No description provided for @ilbCorrect3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, c’est ça.'**
+  String get ilbCorrect3;
+
+  /// No description provided for @ilbAlmost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presque.'**
+  String get ilbAlmost;
+
+  /// No description provided for @ilbTryAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essaie encore.'**
+  String get ilbTryAgain;
+
+  /// No description provided for @ilbPositionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Regarde la position {position}.'**
+  String ilbPositionHint(int position);
+
+  /// No description provided for @ilbAttempt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essai {count}'**
+  String ilbAttempt(int count);
+
+  /// No description provided for @ilbHintsUsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun indice} =1{1 indice} other{{count} indices}}'**
+  String ilbHintsUsed(int count);
+
+  /// No description provided for @ilbAnswerZoneEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche ou glisse les mots ici'**
+  String get ilbAnswerZoneEmpty;
+
+  /// No description provided for @ilbAnswerZoneA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse'**
+  String get ilbAnswerZoneA11y;
+
+  /// No description provided for @ilbWordBankA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mots à placer'**
+  String get ilbWordBankA11y;
+
+  /// No description provided for @ilbPlaceWordA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Placer « {word} »'**
+  String ilbPlaceWordA11y(String word);
+
+  /// No description provided for @ilbRemoveWordA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer « {word} », position {position}'**
+  String ilbRemoveWordA11y(String word, int position);
+
+  /// No description provided for @ilbMoveUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Monter'**
+  String get ilbMoveUp;
+
+  /// No description provided for @ilbMoveDown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Descendre'**
+  String get ilbMoveDown;
+
+  /// No description provided for @ilbStepA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {position} : {text}'**
+  String ilbStepA11y(int position, String text);
+
+  /// No description provided for @ilbSolutionShown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici la bonne réponse.'**
+  String get ilbSolutionShown;
+
+  /// No description provided for @ilbKiraWords.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essaie de remettre cette phrase dans le bon ordre.'**
+  String get ilbKiraWords;
+
+  /// No description provided for @ilbLeoWords.
+  ///
+  /// In fr, this message translates to:
+  /// **'À toi. Reconstruis cette phrase.'**
+  String get ilbLeoWords;
+
+  /// No description provided for @ilbKiraSteps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prends ton temps : remets les étapes dans l’ordre.'**
+  String get ilbKiraSteps;
+
+  /// No description provided for @ilbLeoSteps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi : remets les étapes dans l’ordre, sans aide si tu peux.'**
+  String get ilbLeoSteps;
+
+  /// No description provided for @parcoursEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton parcours se prépare'**
+  String get parcoursEmptyTitle;
+
+  /// No description provided for @parcoursEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune carte n’est encore publiée pour ta classe. Reviens après une synchronisation.'**
+  String get parcoursEmptyBody;
+
+  /// No description provided for @parcoursEmptyRefresh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actualiser'**
+  String get parcoursEmptyRefresh;
+
+  /// No description provided for @parcoursEmptyHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à l’accueil'**
+  String get parcoursEmptyHome;
+
+  /// No description provided for @parcoursVideoPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette vidéo n’est pas encore disponible.'**
+  String get parcoursVideoPending;
+
+  /// No description provided for @authGatewayPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec mon numéro'**
+  String get authGatewayPhone;
+
+  /// No description provided for @authGatewayPhoneSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec mon numéro de téléphone camerounais'**
+  String get authGatewayPhoneSemantics;
+
+  /// No description provided for @authGatewayStudentCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un code élève'**
+  String get authGatewayStudentCode;
+
+  /// No description provided for @authGatewayStudentCodeSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un code élève : connexion sans téléphone ni e-mail'**
+  String get authGatewayStudentCodeSemantics;
+
+  /// No description provided for @authGatewayOr.
+  ///
+  /// In fr, this message translates to:
+  /// **'ou'**
+  String get authGatewayOr;
+
+  /// No description provided for @authGatewayStaff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnel scolaire, enseignant ou direction ?'**
+  String get authGatewayStaff;
+
+  /// No description provided for @authGatewayTerms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions d’utilisation'**
+  String get authGatewayTerms;
+
+  /// No description provided for @authGatewayPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité'**
+  String get authGatewayPrivacy;
+
+  /// No description provided for @authAccountSuspended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.'**
+  String get authAccountSuspended;
+
+  /// No description provided for @authGoogleContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get authGoogleContinue;
+
+  /// No description provided for @authGoogleInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion Google en cours'**
+  String get authGoogleInProgress;
+
+  /// No description provided for @authGoogleQuestionEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte Google'**
+  String get authGoogleQuestionEyebrow;
+
+  /// No description provided for @authGoogleQuestionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous utilisez déjà INTELLIA237 ?'**
+  String get authGoogleQuestionTitle;
+
+  /// No description provided for @authGoogleQuestionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte Google n’ouvre encore aucun compte INTELLIA237. Si vous avez déjà un compte, par numéro de téléphone ou par e-mail, retrouvez-le : Google y sera ajouté, et votre espace comme vos données restent les mêmes.'**
+  String get authGoogleQuestionBody;
+
+  /// No description provided for @authGoogleQuestionAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte Google choisi : {email}'**
+  String authGoogleQuestionAccount(String email);
+
+  /// No description provided for @authGoogleQuestionYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, retrouver mon compte'**
+  String get authGoogleQuestionYes;
+
+  /// No description provided for @authGoogleQuestionNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non, continuer'**
+  String get authGoogleQuestionNo;
+
+  /// No description provided for @authGoogleQuestionNoHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous découvrez l’application, puis créez votre espace quand vous le souhaitez.'**
+  String get authGoogleQuestionNoHint;
+
+  /// No description provided for @authGoogleQuestionOtherAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser un autre compte Google'**
+  String get authGoogleQuestionOtherAccount;
+
+  /// No description provided for @authGoogleStepExpired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette étape a expiré. Recommencez avec « Continuer avec Google ».'**
+  String get authGoogleStepExpired;
+
+  /// No description provided for @authBackToGateway.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à l’accueil'**
+  String get authBackToGateway;
+
+  /// No description provided for @authRecoveryEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouver mon compte'**
+  String get authRecoveryEyebrow;
+
+  /// No description provided for @authRecoveryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connectez-vous à votre compte existant'**
+  String get authRecoveryTitle;
+
+  /// No description provided for @authRecoveryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prouvez que ce compte est le vôtre. Google y sera ensuite ajouté comme nouvelle façon de vous connecter.'**
+  String get authRecoveryBody;
+
+  /// No description provided for @authRecoveryEmailInUse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un compte INTELLIA237 utilise déjà l’adresse {email}. Connectez-vous à ce compte pour y ajouter Google.'**
+  String authRecoveryEmailInUse(String email);
+
+  /// No description provided for @authRecoveryByPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par téléphone'**
+  String get authRecoveryByPhone;
+
+  /// No description provided for @authRecoveryByEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par e-mail'**
+  String get authRecoveryByEmail;
+
+  /// No description provided for @authRecoveryPhoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro de téléphone'**
+  String get authRecoveryPhoneLabel;
+
+  /// No description provided for @authRecoveryPhoneHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'6XX XX XX XX'**
+  String get authRecoveryPhoneHint;
+
+  /// No description provided for @authRecoverySendCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir le code par SMS'**
+  String get authRecoverySendCode;
+
+  /// No description provided for @authRecoveryCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code reçu par SMS'**
+  String get authRecoveryCodeLabel;
+
+  /// No description provided for @authRecoveryCodeSentTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code envoyé au {phone}.'**
+  String authRecoveryCodeSentTo(String phone);
+
+  /// No description provided for @authRecoveryVerifyCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier le code'**
+  String get authRecoveryVerifyCode;
+
+  /// No description provided for @authRecoveryChangeNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le numéro'**
+  String get authRecoveryChangeNumber;
+
+  /// No description provided for @authRecoveryResendIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau code possible dans {seconds} s'**
+  String authRecoveryResendIn(int seconds);
+
+  /// No description provided for @authRecoveryResend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer le code'**
+  String get authRecoveryResend;
+
+  /// No description provided for @authRecoveryEmailLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse e-mail'**
+  String get authRecoveryEmailLabel;
+
+  /// No description provided for @authRecoveryPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get authRecoveryPasswordLabel;
+
+  /// No description provided for @authRecoverySignIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Me connecter et ajouter Google'**
+  String get authRecoverySignIn;
+
+  /// No description provided for @authRecoveryLinking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajout de Google à votre compte…'**
+  String get authRecoveryLinking;
+
+  /// No description provided for @authRecoveryNoAccountForPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte INTELLIA237 n’utilise ce numéro. Vérifiez-le, ou revenez en arrière et choisissez « Non, continuer ».'**
+  String get authRecoveryNoAccountForPhone;
+
+  /// No description provided for @authRecoveryNoProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte n’a pas encore d’espace INTELLIA237. Revenez en arrière et choisissez « Non, continuer ».'**
+  String get authRecoveryNoProfile;
+
+  /// No description provided for @authRecoveryLinkedElsewhere.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte Google est déjà associé à un autre compte INTELLIA237.'**
+  String get authRecoveryLinkedElsewhere;
+
+  /// No description provided for @authRecoveryLinkedElsewhereHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien n’a été modifié ni fusionné. Pour utiliser ce compte Google, choisissez « Continuer avec Google » depuis l’accueil. En cas de doute, contactez votre établissement ou l’assistance INTELLIA237.'**
+  String get authRecoveryLinkedElsewhereHelp;
+
+  /// No description provided for @authRecoveryProviderTaken.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte INTELLIA237 est déjà associé à un autre compte Google.'**
+  String get authRecoveryProviderTaken;
+
+  /// No description provided for @authRecoveryProviderTakenHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien n’a été modifié. Connectez-vous avec le compte Google déjà associé, ou avec votre numéro.'**
+  String get authRecoveryProviderTakenHelp;
+
+  /// No description provided for @authRecoveryOpenWithoutGoogle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir mon espace sans Google'**
+  String get authRecoveryOpenWithoutGoogle;
+
+  /// No description provided for @authRecoveryCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler et revenir à l’accueil'**
+  String get authRecoveryCancel;
+
+  /// No description provided for @authRecoveryCleanupFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La vérification de ce numéro n’a pas pu être annulée. Aucun espace n’a été créé ; réessayez plus tard ou contactez l’assistance INTELLIA237.'**
+  String get authRecoveryCleanupFailed;
+
+  /// No description provided for @authWelcomeEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau sur INTELLIA237'**
+  String get authWelcomeEyebrow;
+
+  /// No description provided for @authWelcomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment voulez-vous commencer ?'**
+  String get authWelcomeTitle;
+
+  /// No description provided for @authWelcomeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre identité est vérifiée. Aucun espace n’existe encore pour elle.'**
+  String get authWelcomeBody;
+
+  /// No description provided for @authWelcomeParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis parent'**
+  String get authWelcomeParent;
+
+  /// No description provided for @authWelcomeParentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon espace famille, puis rattacher mon enfant avec son code.'**
+  String get authWelcomeParentHint;
+
+  /// No description provided for @authWelcomeStudent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre mon école'**
+  String get authWelcomeStudent;
+
+  /// No description provided for @authWelcomeStudentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élève : choisir mon établissement et ma classe.'**
+  String get authWelcomeStudentHint;
+
+  /// No description provided for @authWelcomeDiscover.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir INTELLIA237'**
+  String get authWelcomeDiscover;
+
+  /// No description provided for @authWelcomeDiscoverHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir comment fonctionne l’application, sans créer d’espace.'**
+  String get authWelcomeDiscoverHint;
+
+  /// No description provided for @authWelcomeStaffNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enseignant ou direction : votre accès est ouvert par votre établissement, puis validé.'**
+  String get authWelcomeStaffNote;
+
+  /// No description provided for @authUseAnotherAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utiliser un autre compte'**
+  String get authUseAnotherAccount;
+
+  /// No description provided for @authStudentPhoneTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro ouvre l’espace élève de {name}.'**
+  String authStudentPhoneTitle(String name);
+
+  /// No description provided for @authStudentPhoneTitleUnnamed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro ouvre un espace élève.'**
+  String get authStudentPhoneTitleUnnamed;
+
+  /// No description provided for @authStudentPhoneBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur un téléphone de famille, dites-nous qui se connecte.'**
+  String get authStudentPhoneBody;
+
+  /// No description provided for @authStudentPhoneContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer comme {name}'**
+  String authStudentPhoneContinue(String name);
+
+  /// No description provided for @authStudentPhoneContinueUnnamed.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est mon espace, continuer'**
+  String get authStudentPhoneContinueUnnamed;
+
+  /// No description provided for @authStudentPhoneParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis son parent'**
+  String get authStudentPhoneParent;
+
+  /// No description provided for @authSpaceEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs espaces'**
+  String get authSpaceEyebrow;
+
+  /// No description provided for @authSpaceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre espace'**
+  String get authSpaceTitle;
+
+  /// No description provided for @authSpaceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte donne accès à plusieurs espaces. Vous pourrez en changer à tout moment depuis votre profil, sans vous déconnecter.'**
+  String get authSpaceBody;
+
+  /// No description provided for @authSpaceStudent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace élève'**
+  String get authSpaceStudent;
+
+  /// No description provided for @authSpaceStudentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cours, exercices, Parcours et compagnons KIRA et LÉO.'**
+  String get authSpaceStudentHint;
+
+  /// No description provided for @authSpaceParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace parent'**
+  String get authSpaceParent;
+
+  /// No description provided for @authSpaceParentHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivre le travail et les progrès de vos enfants.'**
+  String get authSpaceParentHint;
+
+  /// No description provided for @authSpaceTeacher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace enseignant'**
+  String get authSpaceTeacher;
+
+  /// No description provided for @authSpaceTeacherHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos classes, vos contenus et le suivi de vos élèves.'**
+  String get authSpaceTeacherHint;
+
+  /// No description provided for @authSpaceAdmin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace direction'**
+  String get authSpaceAdmin;
+
+  /// No description provided for @authSpaceAdminHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administration et pilotage de l’établissement.'**
+  String get authSpaceAdminHint;
+
+  /// No description provided for @authSpaceCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace actuel'**
+  String get authSpaceCurrent;
+
+  /// No description provided for @authSpaceSignOut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Me déconnecter'**
+  String get authSpaceSignOut;
+
+  /// No description provided for @authSwitchSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer d’espace'**
+  String get authSwitchSpace;
+
+  /// No description provided for @authSwitchSpaceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer à un autre espace de votre compte, sans vous déconnecter.'**
+  String get authSwitchSpaceHint;
+
+  /// No description provided for @authErrorNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion Internet instable. Vérifiez votre réseau, puis réessayez.'**
+  String get authErrorNetwork;
+
+  /// No description provided for @authErrorInvalidCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce code est incorrect ou a expiré. Vérifiez le SMS, ou demandez un nouveau code.'**
+  String get authErrorInvalidCode;
+
+  /// No description provided for @authErrorTooManyRequests.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trop de tentatives. Patientez quelques minutes avant de réessayer.'**
+  String get authErrorTooManyRequests;
+
+  /// No description provided for @authErrorAccountExists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un compte INTELLIA237 utilise déjà cette adresse avec un autre mode de connexion. Connectez-vous à ce compte pour y ajouter Google.'**
+  String get authErrorAccountExists;
+
+  /// No description provided for @authErrorCredentialInUse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte Google est déjà associé à un autre compte INTELLIA237.'**
+  String get authErrorCredentialInUse;
+
+  /// No description provided for @authErrorWrongPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Adresse e-mail ou mot de passe incorrect.'**
+  String get authErrorWrongPassword;
+
+  /// No description provided for @authErrorUserDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.'**
+  String get authErrorUserDisabled;
+
+  /// No description provided for @authErrorProviderAlreadyLinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte est déjà associé à un autre compte Google.'**
+  String get authErrorProviderAlreadyLinked;
+
+  /// No description provided for @authErrorGoogleNotConfigured.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion Google bientôt disponible. Utilisez votre numéro de téléphone.'**
+  String get authErrorGoogleNotConfigured;
+
+  /// No description provided for @authErrorGoogleUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le sélecteur de comptes Google ne s’est pas ouvert. Vérifiez qu’un compte Google est présent sur l’appareil, puis réessayez.'**
+  String get authErrorGoogleUnavailable;
+
+  /// No description provided for @authErrorInvalidPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro n’est pas un numéro mobile camerounais valide. Exemple : 6 99 12 34 56.'**
+  String get authErrorInvalidPhone;
+
+  /// No description provided for @authErrorMissingFields.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseignez l’adresse e-mail et le mot de passe.'**
+  String get authErrorMissingFields;
+
+  /// No description provided for @authErrorGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion n’a pas abouti. Réessayez dans un instant.'**
+  String get authErrorGeneric;
+
+  /// No description provided for @discoveryBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découverte'**
+  String get discoveryBadge;
+
+  /// No description provided for @discoveryExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter'**
+  String get discoveryExit;
+
+  /// No description provided for @discoveryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrez INTELLIA237'**
+  String get discoveryTitle;
+
+  /// No description provided for @discoveryIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un aperçu de l’application, sans espace ni donnée scolaire. Rien de ce que vous voyez ici n’est enregistré.'**
+  String get discoveryIntro;
+
+  /// No description provided for @discoveryFictionalNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exemples fictifs, à titre d’illustration : ils ne décrivent aucun élève réel.'**
+  String get discoveryFictionalNotice;
+
+  /// No description provided for @discoveryTutorsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des compagnons qui guident, sans donner la réponse'**
+  String get discoveryTutorsTitle;
+
+  /// No description provided for @discoveryKiraRole.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sciences et mathématiques'**
+  String get discoveryKiraRole;
+
+  /// No description provided for @discoveryKiraSample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour isoler x, quelle opération ferais-tu d’abord des deux côtés de l’égalité ?'**
+  String get discoveryKiraSample;
+
+  /// No description provided for @discoveryLeoRole.
+  ///
+  /// In fr, this message translates to:
+  /// **'Méthode, langues et rédaction'**
+  String get discoveryLeoRole;
+
+  /// No description provided for @discoveryLeoSample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commençons par ce que la solidarité évoque pour toi. Peux-tu citer deux exemples ?'**
+  String get discoveryLeoSample;
+
+  /// No description provided for @discoveryParcoursTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours, leçons et quiz'**
+  String get discoveryParcoursTitle;
+
+  /// No description provided for @discoveryParcoursBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des leçons courtes, des exercices et des quiz alignés sur le programme camerounais, avec une correction expliquée.'**
+  String get discoveryParcoursBody;
+
+  /// No description provided for @discoveryParentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le suivi des parents'**
+  String get discoveryParentTitle;
+
+  /// No description provided for @discoveryParentBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un parent rattache son enfant avec un code, puis suit son travail : régularité, matières travaillées, points à revoir.'**
+  String get discoveryParentBody;
+
+  /// No description provided for @discoveryParentExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exemple fictif : « Élève A » a travaillé régulièrement cette semaine ; une notion de géométrie est à revoir.'**
+  String get discoveryParentExample;
+
+  /// No description provided for @discoveryCreateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon espace'**
+  String get discoveryCreateTitle;
+
+  /// No description provided for @discoveryCtaParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis parent'**
+  String get discoveryCtaParent;
+
+  /// No description provided for @discoveryCtaStudent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejoindre mon école'**
+  String get discoveryCtaStudent;
+
+  /// No description provided for @discoveryCtaCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai un code élève'**
+  String get discoveryCtaCode;
+
+  /// No description provided for @registrationGuideNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ensuite : {step}'**
+  String registrationGuideNext(String step);
+
+  /// No description provided for @registrationGuideLast.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière étape'**
+  String get registrationGuideLast;
+
+  /// No description provided for @parentGuideIdentity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre prénom et votre nom s’afficheront dans votre espace parent. Votre numéro est déjà vérifié : aucun mot de passe à créer.'**
+  String get parentGuideIdentity;
+
+  /// No description provided for @parentGuideChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demandez à votre enfant son « code parent » (8 caractères) : il le trouve dans son profil, rubrique « Mon code parent ». Pas encore de code ? Continuez, vous le relierez plus tard.'**
+  String get parentGuideChildren;
+
+  /// No description provided for @parentGuideFinal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acceptez les conditions pour ouvrir votre espace. Vous y suivrez les progrès de votre enfant et pourrez en ajouter d’autres.'**
+  String get parentGuideFinal;
+
+  /// No description provided for @studentGuideIdentity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris ton prénom et ton nom comme à l’école : ton professeur te reconnaîtra.'**
+  String get studentGuideIdentity;
+
+  /// No description provided for @studentGuideClass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ta classe : tes cours, tes quiz et ton parcours seront faits pour elle.'**
+  String get studentGuideClass;
+
+  /// No description provided for @studentGuideCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre Kira et Léo, puis choisis celui qui t’aidera à réviser.'**
+  String get studentGuideCompanion;
+
+  /// No description provided for @studentGuideSecurity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton numéro protège ton compte : personne d’autre ne pourra entrer à ta place.'**
+  String get studentGuideSecurity;
+
+  /// No description provided for @teacherGuideIdentity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre nom tel que vos élèves et votre établissement le connaissent.'**
+  String get teacherGuideIdentity;
+
+  /// No description provided for @teacherGuideTeaching.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos matières et vos classes : votre espace et vos contenus seront préparés pour elles.'**
+  String get teacherGuideTeaching;
+
+  /// No description provided for @teacherGuideFinal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acceptez les conditions : votre établissement validera ensuite votre compte.'**
+  String get teacherGuideFinal;
+
+  /// Bouton visible pour quitter le Parcours.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter'**
+  String get flowExit;
+
+  /// No description provided for @parentGuideOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Guide de votre espace'**
+  String get parentGuideOpen;
+
+  /// No description provided for @parentGuideReplay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir le guide'**
+  String get parentGuideReplay;
+
+  /// No description provided for @parentGuideProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'ÉTAPE {current} SUR {total}'**
+  String parentGuideProgress(int current, int total);
+
+  /// No description provided for @parentGuideSkip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get parentGuideSkip;
+
+  /// No description provided for @parentGuideNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get parentGuideNext;
+
+  /// No description provided for @parentGuideDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est compris'**
+  String get parentGuideDone;
+
+  /// No description provided for @parentGuideWelcomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue dans votre espace parent'**
+  String get parentGuideWelcomeTitle;
+
+  /// No description provided for @parentGuideWelcomeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous y suivez la progression de vos enfants, les annonces de leur école et les paiements. Voici l’essentiel en six étapes.'**
+  String get parentGuideWelcomeBody;
+
+  /// No description provided for @parentGuideAddTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un enfant'**
+  String get parentGuideAddTitle;
+
+  /// No description provided for @parentGuideAddBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Onglet « Mes enfants », puis « Ajouter un enfant ». Deux cas : votre enfant a déjà un compte INTELLIA, ou pas encore.'**
+  String get parentGuideAddBody;
+
+  /// No description provided for @parentGuideLinkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il a déjà un compte : le code parent'**
+  String get parentGuideLinkTitle;
+
+  /// No description provided for @parentGuideLinkBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demandez à votre enfant son « code parent » (8 caractères). Il le trouve dans son Profil, rubrique « Mon code parent ». Saisissez-le, puis touchez « Lier l’enfant ».'**
+  String get parentGuideLinkBody;
+
+  /// No description provided for @parentGuideAccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de compte : le code d’accès'**
+  String get parentGuideAccessTitle;
+
+  /// No description provided for @parentGuideAccessBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez « Mon enfant n’a pas encore de compte INTELLIA ». Vous obtenez son code d’accès : notez-le, il n’est affiché qu’une fois. Un nouveau code se crée depuis sa fiche, « Code d’accès élève ».'**
+  String get parentGuideAccessBody;
+
+  /// No description provided for @parentGuideSwitchTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre enfant utilise ce téléphone'**
+  String get parentGuideSwitchTitle;
+
+  /// No description provided for @parentGuideSwitchBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil, puis « Se déconnecter ». Sur l’écran d’accueil, votre enfant touche « J’ai un code élève » et saisit son code d’accès. Pour revenir à votre espace : il se déconnecte, puis vous entrez avec votre numéro.'**
+  String get parentGuideSwitchBody;
+
+  /// No description provided for @parentGuideAgainTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouver ce guide'**
+  String get parentGuideAgainTitle;
+
+  /// No description provided for @parentGuideAgainBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez la boussole en haut de votre espace, ou « Revoir le guide » dans Profil, quand vous le souhaitez.'**
+  String get parentGuideAgainBody;
+
+  /// No description provided for @ceLocalChaptersTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitres interactifs'**
+  String get ceLocalChaptersTitle;
+
+  /// No description provided for @ceLocalChaptersSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponibles sans connexion : explications, exercices et jeux.'**
+  String get ceLocalChaptersSubtitle;
+
+  /// No description provided for @ceChapterNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitre {number}'**
+  String ceChapterNumber(int number);
+
+  /// No description provided for @ceModuleHeading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Module {number} — {title}'**
+  String ceModuleHeading(int number, String title);
+
+  /// No description provided for @ceSequenceNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séquence {number}'**
+  String ceSequenceNumber(int number);
+
+  /// No description provided for @ceUnitNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Unit {number}'**
+  String ceUnitNumber(int number);
+
+  /// No description provided for @ceSubjectEnglish.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anglais'**
+  String get ceSubjectEnglish;
+
+  /// No description provided for @ceLessonCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune leçon} =1{1 leçon} other{{count} leçons}}'**
+  String ceLessonCount(int count);
+
+  /// No description provided for @ceLessonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Leçon {number}'**
+  String ceLessonLabel(int number);
+
+  /// No description provided for @ceLessonRecommendedAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conseillée après {score} % sur la leçon précédente'**
+  String ceLessonRecommendedAfter(int score);
+
+  /// No description provided for @ceMasteryPercent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrise : {score} %'**
+  String ceMasteryPercent(int score);
+
+  /// No description provided for @ceJourneyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton chemin dans chaque leçon'**
+  String get ceJourneyTitle;
+
+  /// No description provided for @ceJourneyUnderstand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je comprends'**
+  String get ceJourneyUnderstand;
+
+  /// No description provided for @ceJourneySee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je vois'**
+  String get ceJourneySee;
+
+  /// No description provided for @ceJourneyTry.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'essaie'**
+  String get ceJourneyTry;
+
+  /// No description provided for @ceJourneySucceed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je réussis'**
+  String get ceJourneySucceed;
+
+  /// No description provided for @ceJourneyFormal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je passe au formalisme'**
+  String get ceJourneyFormal;
+
+  /// No description provided for @ceIntegrationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défis d\'intégration'**
+  String get ceIntegrationTitle;
+
+  /// No description provided for @ceSynthesis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synthèse'**
+  String get ceSynthesis;
+
+  /// No description provided for @ceSelfEvaluation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto-évaluation'**
+  String get ceSelfEvaluation;
+
+  /// No description provided for @ceOpenResponseHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris ta réponse, courte ou développée. Tu pourras ensuite la comparer à une réponse modèle.'**
+  String get ceOpenResponseHelp;
+
+  /// No description provided for @ceYourResponse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse'**
+  String get ceYourResponse;
+
+  /// No description provided for @ceRevealModel.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai terminé · Voir la réponse modèle'**
+  String get ceRevealModel;
+
+  /// No description provided for @ceModelAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse modèle'**
+  String get ceModelAnswer;
+
+  /// No description provided for @ceExpectedPoints.
+  ///
+  /// In fr, this message translates to:
+  /// **'Points clés attendus'**
+  String get ceExpectedPoints;
+
+  /// No description provided for @ceSelfEvaluationHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare les idées avec ta réponse. Ce choix indique ta confiance ; ce n\'est pas une note ni une correction automatique.'**
+  String get ceSelfEvaluationHelp;
+
+  /// No description provided for @ceNeedsReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je dois revoir'**
+  String get ceNeedsReview;
+
+  /// No description provided for @cePartialConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presque'**
+  String get cePartialConfidence;
+
+  /// No description provided for @ceSelfMastered.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai compris'**
+  String get ceSelfMastered;
+
+  /// No description provided for @ceSelfEvaluationSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton auto-évaluation est enregistrée pour guider tes révisions.'**
+  String get ceSelfEvaluationSaved;
+
+  /// No description provided for @ceSelfSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton auto-évaluation n\'a pas pu être enregistrée. Réessaie.'**
+  String get ceSelfSaveError;
+
+  /// No description provided for @ceIntegrationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des situations complètes qui mêlent les notions du chapitre.'**
+  String get ceIntegrationBody;
+
+  /// No description provided for @ceIntegrationTag.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intégration'**
+  String get ceIntegrationTag;
+
+  /// No description provided for @ceSituationTag.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation du manuel'**
+  String get ceSituationTag;
+
+  /// No description provided for @ceUnavailableTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce chapitre n\'est pas encore prêt'**
+  String get ceUnavailableTitle;
+
+  /// No description provided for @ceUnavailableBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il sera proposé dès qu\'il aura été vérifié.'**
+  String get ceUnavailableBody;
+
+  /// No description provided for @ceLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce chapitre n\'a pas pu s\'ouvrir. Reviens en arrière et réessaie.'**
+  String get ceLoadError;
+
+  /// No description provided for @ceStepUnderstand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre'**
+  String get ceStepUnderstand;
+
+  /// No description provided for @ceStepSee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get ceStepSee;
+
+  /// No description provided for @ceStepPractice.
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'entraîner'**
+  String get ceStepPractice;
+
+  /// No description provided for @ceStepPlay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jouer'**
+  String get ceStepPlay;
+
+  /// No description provided for @ceStepFormal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formalisme'**
+  String get ceStepFormal;
+
+  /// No description provided for @ceNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ensuite : {step}'**
+  String ceNextStep(String step);
+
+  /// No description provided for @ceModeStandard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminale'**
+  String get ceModeStandard;
+
+  /// No description provided for @ceModeSimple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simple'**
+  String get ceModeSimple;
+
+  /// No description provided for @ceModeUltra.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comme si j\'avais 12 ans'**
+  String get ceModeUltra;
+
+  /// No description provided for @ceModeLock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder ce niveau'**
+  String get ceModeLock;
+
+  /// No description provided for @ceModeUnlock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau gardé · libérer'**
+  String get ceModeUnlock;
+
+  /// No description provided for @ceIdeaProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idée {current} sur {total}'**
+  String ceIdeaProgress(int current, int total);
+
+  /// No description provided for @ceNextIdea.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idée suivante'**
+  String get ceNextIdea;
+
+  /// No description provided for @cePreviousIdea.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idée précédente'**
+  String get cePreviousIdea;
+
+  /// No description provided for @ceSeeStandardVersion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir la version {mode}'**
+  String ceSeeStandardVersion(String mode);
+
+  /// No description provided for @ceExplanationUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette explication n\'est pas encore disponible dans ce cours.'**
+  String get ceExplanationUnavailable;
+
+  /// No description provided for @ceShownInsteadMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici la version « {mode} ».'**
+  String ceShownInsteadMode(String mode);
+
+  /// No description provided for @ceMistakesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pièges à éviter'**
+  String get ceMistakesTitle;
+
+  /// No description provided for @cePrerequisitesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À savoir avant'**
+  String get cePrerequisitesTitle;
+
+  /// No description provided for @ceSeeCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Manipule : tout se met à jour sous tes yeux.'**
+  String get ceSeeCaption;
+
+  /// No description provided for @ceNoVisual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de schéma animé pour cette notion.'**
+  String get ceNoVisual;
+
+  /// No description provided for @ceVisItems.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objets'**
+  String get ceVisItems;
+
+  /// No description provided for @ceVisBoxSize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille d\'une boîte'**
+  String get ceVisBoxSize;
+
+  /// No description provided for @ceVisLeftover.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Rien ne reste dehors.} =1{1 objet reste dehors.} other{{count} objets restent dehors.}}'**
+  String ceVisLeftover(int count);
+
+  /// No description provided for @ceVisDividend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre a'**
+  String get ceVisDividend;
+
+  /// No description provided for @ceVisDivisor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diviseur b'**
+  String get ceVisDivisor;
+
+  /// No description provided for @ceVisAllowedRemainders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Restes permis : de 0 à {max}'**
+  String ceVisAllowedRemainders(int max);
+
+  /// No description provided for @ceVisModulus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modulo n'**
+  String get ceVisModulus;
+
+  /// No description provided for @ceVisNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre'**
+  String get ceVisNumber;
+
+  /// No description provided for @ceVisPrimeBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre premier : une seule brique, impossible à casser.'**
+  String get ceVisPrimeBadge;
+
+  /// No description provided for @ceVisWidth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Largeur'**
+  String get ceVisWidth;
+
+  /// No description provided for @ceVisHeight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hauteur'**
+  String get ceVisHeight;
+
+  /// No description provided for @ceVisRhythmA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme A'**
+  String get ceVisRhythmA;
+
+  /// No description provided for @ceVisRhythmB.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rythme B'**
+  String get ceVisRhythmB;
+
+  /// No description provided for @ceVisTilesFit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les carreaux tombent juste.'**
+  String get ceVisTilesFit;
+
+  /// No description provided for @ceVisTilesCut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il faudrait couper des carreaux.'**
+  String get ceVisTilesCut;
+
+  /// No description provided for @ceClockLaps.
+  ///
+  /// In fr, this message translates to:
+  /// **'{value} = {laps} tours de {modulus} + {rest}'**
+  String ceClockLaps(int value, int laps, int modulus, int rest);
+
+  /// No description provided for @ceGcd.
+  ///
+  /// In fr, this message translates to:
+  /// **'PGCD'**
+  String get ceGcd;
+
+  /// No description provided for @ceLcm.
+  ///
+  /// In fr, this message translates to:
+  /// **'PPCM'**
+  String get ceLcm;
+
+  /// No description provided for @ceDifficultyLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau {level}'**
+  String ceDifficultyLevel(int level);
+
+  /// No description provided for @ceQuestionProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question {current} sur {total}'**
+  String ceQuestionProgress(int current, int total);
+
+  /// No description provided for @ceCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier'**
+  String get ceCheck;
+
+  /// No description provided for @ceCorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Juste !'**
+  String get ceCorrect;
+
+  /// No description provided for @ceIncorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore.'**
+  String get ceIncorrect;
+
+  /// No description provided for @ceTryAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get ceTryAgain;
+
+  /// No description provided for @ceNextQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question suivante'**
+  String get ceNextQuestion;
+
+  /// No description provided for @ceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indice'**
+  String get ceHint;
+
+  /// No description provided for @ceSimpler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus simple'**
+  String get ceSimpler;
+
+  /// No description provided for @ceWhyWrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi c\'est faux ?'**
+  String get ceWhyWrong;
+
+  /// No description provided for @ceTrue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vrai'**
+  String get ceTrue;
+
+  /// No description provided for @ceFalse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faux'**
+  String get ceFalse;
+
+  /// No description provided for @ceYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get ceYes;
+
+  /// No description provided for @ceNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get ceNo;
+
+  /// No description provided for @ceYourAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse'**
+  String get ceYourAnswer;
+
+  /// No description provided for @ceFactorizationHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris par exemple 2²×3×5'**
+  String get ceFactorizationHint;
+
+  /// No description provided for @ceFieldRealPart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partie réelle'**
+  String get ceFieldRealPart;
+
+  /// No description provided for @ceFieldImaginaryPart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partie imaginaire'**
+  String get ceFieldImaginaryPart;
+
+  /// No description provided for @ceFieldConjugate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conjugué'**
+  String get ceFieldConjugate;
+
+  /// No description provided for @ceFieldModulus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Module'**
+  String get ceFieldModulus;
+
+  /// No description provided for @ceFieldSolutions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solutions'**
+  String get ceFieldSolutions;
+
+  /// No description provided for @ceComplexHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Forme a+bi, par exemple 3−2i'**
+  String get ceComplexHint;
+
+  /// No description provided for @ceComplexSetHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sépare les solutions par ; ou écris 1±2i'**
+  String get ceComplexSetHint;
+
+  /// No description provided for @ceRadicalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur exacte, par exemple 5√2'**
+  String get ceRadicalHint;
+
+  /// No description provided for @ceDecimalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre décimal ou fraction, par exemple 0,25 ou 1/4'**
+  String get ceDecimalHint;
+
+  /// No description provided for @ceIntervalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par exemple [0;4] ou ]1;+∞['**
+  String get ceIntervalHint;
+
+  /// No description provided for @ceExpressionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par exemple y=x+1'**
+  String get ceExpressionHint;
+
+  /// No description provided for @ceExpressionSetHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sépare tes réponses par ;'**
+  String get ceExpressionSetHint;
+
+  /// No description provided for @ceListHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sépare les nombres par des virgules'**
+  String get ceListHint;
+
+  /// No description provided for @ceSetPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute chaque solution, puis vérifie.'**
+  String get ceSetPrompt;
+
+  /// No description provided for @ceAddValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter'**
+  String get ceAddValue;
+
+  /// No description provided for @ceSelectAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis toutes les bonnes réponses.'**
+  String get ceSelectAll;
+
+  /// No description provided for @ceResiduesPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche les restes qui conviennent (modulo {modulus}).'**
+  String ceResiduesPrompt(int modulus);
+
+  /// No description provided for @ceFieldQuotient.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quotient q'**
+  String get ceFieldQuotient;
+
+  /// No description provided for @ceFieldRemainder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste r'**
+  String get ceFieldRemainder;
+
+  /// No description provided for @ceFieldDivisor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Diviseur b'**
+  String get ceFieldDivisor;
+
+  /// No description provided for @ceFieldBinary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écriture en base 2'**
+  String get ceFieldBinary;
+
+  /// No description provided for @ceFieldDecimal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur en base 10'**
+  String get ceFieldDecimal;
+
+  /// No description provided for @ceFieldDecomposition.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décomposition'**
+  String get ceFieldDecomposition;
+
+  /// No description provided for @ceFieldLitres.
+  ///
+  /// In fr, this message translates to:
+  /// **'Litres'**
+  String get ceFieldLitres;
+
+  /// No description provided for @ceFieldBuckets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de seaux'**
+  String get ceFieldBuckets;
+
+  /// No description provided for @ceDiagnosisUnreadable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'arrive pas à lire ta réponse : vérifie l\'écriture.'**
+  String get ceDiagnosisUnreadable;
+
+  /// No description provided for @ceDiagnosisSomeFields.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une partie est juste : regarde les cases en rouge.'**
+  String get ceDiagnosisSomeFields;
+
+  /// No description provided for @ceDiagnosisMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Il te manque une solution.} other{Il te manque {count} solutions.}}'**
+  String ceDiagnosisMissing(int count);
+
+  /// No description provided for @ceDiagnosisExtra.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Une valeur est en trop.} other{{count} valeurs sont en trop.}}'**
+  String ceDiagnosisExtra(int count);
+
+  /// No description provided for @ceDiagnosisNotPrime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le produit est bon, mais un facteur n\'est pas premier.'**
+  String get ceDiagnosisNotPrime;
+
+  /// No description provided for @ceDiagnosisExponents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les facteurs sont bons : vérifie les exposants.'**
+  String get ceDiagnosisExponents;
+
+  /// No description provided for @ceDiagnosisProduct.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le produit ne redonne pas le nombre de départ.'**
+  String get ceDiagnosisProduct;
+
+  /// No description provided for @ceDiagnosisDifferent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce n\'est pas la réponse attendue.'**
+  String get ceDiagnosisDifferent;
+
+  /// No description provided for @ceSourceCaution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Point signalé dans le manuel'**
+  String get ceSourceCaution;
+
+  /// No description provided for @ceNoQuestions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore d\'exercice à ce niveau pour cette leçon.'**
+  String get ceNoQuestions;
+
+  /// No description provided for @ceLessonDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as fait toutes les questions de ce niveau. Essaie un autre niveau ou joue !'**
+  String get ceLessonDone;
+
+  /// No description provided for @ceSuggestSimpler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veux-tu l\'explication « {mode} » ? La difficulté ne change pas.'**
+  String ceSuggestSimpler(String mode);
+
+  /// No description provided for @ceSuggestHarder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trois réussites d\'affilée ! Passer au niveau « {level} » ?'**
+  String ceSuggestHarder(String level);
+
+  /// No description provided for @ceAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, allons-y'**
+  String get ceAccept;
+
+  /// No description provided for @ceDismiss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas maintenant'**
+  String get ceDismiss;
+
+  /// No description provided for @ceNoGame.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de jeu pour cette leçon.'**
+  String get ceNoGame;
+
+  /// No description provided for @ceGameComingSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'En préparation'**
+  String get ceGameComingSoon;
+
+  /// No description provided for @ceGameChooseLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ton niveau'**
+  String get ceGameChooseLevel;
+
+  /// No description provided for @ceGameRound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Manche {current}/{total}'**
+  String ceGameRound(int current, int total);
+
+  /// No description provided for @ceGameScore.
+  ///
+  /// In fr, this message translates to:
+  /// **'{points} pts'**
+  String ceGameScore(int points);
+
+  /// No description provided for @ceGameStreak.
+  ///
+  /// In fr, this message translates to:
+  /// **'Série ×{count}'**
+  String ceGameStreak(int count);
+
+  /// No description provided for @ceGameTimeLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'{seconds} s'**
+  String ceGameTimeLeft(int seconds);
+
+  /// No description provided for @ceGameValidate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider'**
+  String get ceGameValidate;
+
+  /// No description provided for @ceGameGreat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bravo !'**
+  String get ceGameGreat;
+
+  /// No description provided for @ceGameMissed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Raté, la prochaine sera la bonne.'**
+  String get ceGameMissed;
+
+  /// No description provided for @ceGameContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get ceGameContinue;
+
+  /// No description provided for @ceGameFinished.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partie terminée'**
+  String get ceGameFinished;
+
+  /// No description provided for @ceGameFinalScore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score : {points}'**
+  String ceGameFinalScore(int points);
+
+  /// No description provided for @ceGameWins.
+  ///
+  /// In fr, this message translates to:
+  /// **'{wins} manches réussies sur {rounds} · meilleure série : {streak}'**
+  String ceGameWins(int wins, int rounds, int streak);
+
+  /// No description provided for @ceGameReplay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejouer'**
+  String get ceGameReplay;
+
+  /// No description provided for @ceGameNextLevel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau suivant'**
+  String get ceGameNextLevel;
+
+  /// No description provided for @ceGroupingQuotientGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{items} objets, des boîtes de {capacity}. Remplis le plus de boîtes possible.'**
+  String ceGroupingQuotientGoal(int items, int capacity);
+
+  /// No description provided for @ceGroupingFullBoxesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boîtes pleines'**
+  String get ceGroupingFullBoxesLabel;
+
+  /// No description provided for @ceGroupingState.
+  ///
+  /// In fr, this message translates to:
+  /// **'{full} boîtes pleines · {left} dehors'**
+  String ceGroupingState(int full, int left);
+
+  /// No description provided for @ceGroupingTooMany.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas assez d\'objets pour autant de boîtes.'**
+  String get ceGroupingTooMany;
+
+  /// No description provided for @ceGroupingCapacity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille d\'une boîte'**
+  String get ceGroupingCapacity;
+
+  /// No description provided for @ceGroupingCapacityGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{items} objets donnent {full} boîtes pleines et {left} dehors. Quelle est la taille d\'une boîte ?'**
+  String ceGroupingCapacityGoal(int items, int full, int left);
+
+  /// No description provided for @ceGroupingReportGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rapport : {items} objets, exactement {full} boîtes pleines. Est-ce possible ?'**
+  String ceGroupingReportGoal(int items, int full);
+
+  /// No description provided for @ceGroupingPossibleWith.
+  ///
+  /// In fr, this message translates to:
+  /// **'Possible (boîtes de {capacity})'**
+  String ceGroupingPossibleWith(int capacity);
+
+  /// No description provided for @ceGroupingImpossible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible'**
+  String get ceGroupingImpossible;
+
+  /// No description provided for @ceBinaryTarget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allume les interrupteurs pour faire {value}.'**
+  String ceBinaryTarget(int value);
+
+  /// No description provided for @ceBinaryCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur actuelle : {value}'**
+  String ceBinaryCurrent(int value);
+
+  /// No description provided for @ceBinaryReadGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lis le code de la valise et écris sa valeur en base 10.'**
+  String get ceBinaryReadGoal;
+
+  /// No description provided for @ceClockGoalReduce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur une horloge de {modulus} cases, où s\'arrête {expression} ?'**
+  String ceClockGoalReduce(String expression, int modulus);
+
+  /// No description provided for @ceClockGoalOperation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où s\'arrête {expression} modulo {modulus} ?'**
+  String ceClockGoalOperation(String expression, int modulus);
+
+  /// No description provided for @ceClockTap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche la case d\'arrivée.'**
+  String get ceClockTap;
+
+  /// No description provided for @ceForgePrimeGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{number} est-il premier ? Essaie les marteaux.'**
+  String ceForgePrimeGoal(int number);
+
+  /// No description provided for @ceForgeSplitGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Casse {number} en briques premières.'**
+  String ceForgeSplitGoal(int number);
+
+  /// No description provided for @ceForgeBounce.
+  ///
+  /// In fr, this message translates to:
+  /// **'{prime} rebondit : il ne divise pas ce bloc.'**
+  String ceForgeBounce(int prime);
+
+  /// No description provided for @ceForgeDivisorsGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien de diviseurs positifs a {number} ?'**
+  String ceForgeDivisorsGoal(int number);
+
+  /// No description provided for @ceForgeDivisorsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de diviseurs'**
+  String get ceForgeDivisorsLabel;
+
+  /// No description provided for @ceForgeIsPrime.
+  ///
+  /// In fr, this message translates to:
+  /// **'{number} est premier.'**
+  String ceForgeIsPrime(int number);
+
+  /// No description provided for @cePrime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Premier'**
+  String get cePrime;
+
+  /// No description provided for @ceComposite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Composé'**
+  String get ceComposite;
+
+  /// No description provided for @ceTilingGcdGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un sol de {width} × {height} : quel est le plus grand carreau carré sans découpe ?'**
+  String ceTilingGcdGoal(int width, int height);
+
+  /// No description provided for @ceTilingLcmGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des carreaux de {a} et de {b} : où leurs bords se rejoignent-ils à nouveau ?'**
+  String ceTilingLcmGoal(int a, int b);
+
+  /// No description provided for @ceTilingChooseTool.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel outil faut-il ici ?'**
+  String get ceTilingChooseTool;
+
+  /// No description provided for @ceTilingFitsButSmaller.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ça tombe juste, mais un carreau plus grand existe.'**
+  String get ceTilingFitsButSmaller;
+
+  /// No description provided for @ceTilingDistance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Distance'**
+  String get ceTilingDistance;
+
+  /// No description provided for @ceTilingTile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Côté du carreau'**
+  String get ceTilingTile;
+
+  /// No description provided for @ceCompanionButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compagnon'**
+  String get ceCompanionButton;
+
+  /// No description provided for @ceCompanionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} t\'aide'**
+  String ceCompanionTitle(String name);
+
+  /// No description provided for @ceCompanionOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponses tirées de ton cours, même sans connexion.'**
+  String get ceCompanionOffline;
+
+  /// No description provided for @ceActionExplain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Explique-moi'**
+  String get ceActionExplain;
+
+  /// No description provided for @ceActionSimpler.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus simplement'**
+  String get ceActionSimpler;
+
+  /// No description provided for @ceActionUltra.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comme si j\'avais 12 ans'**
+  String get ceActionUltra;
+
+  /// No description provided for @ceActionShow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montre-moi'**
+  String get ceActionShow;
+
+  /// No description provided for @ceActionHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donne-moi un indice'**
+  String get ceActionHint;
+
+  /// No description provided for @ceActionTest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Teste-moi'**
+  String get ceActionTest;
+
+  /// No description provided for @ceActionWhyWrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi ma réponse est fausse ?'**
+  String get ceActionWhyWrong;
+
+  /// No description provided for @ceAskHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pose ta question sur ce chapitre…'**
+  String get ceAskHint;
+
+  /// No description provided for @ceAskSend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get ceAskSend;
+
+  /// No description provided for @ceCompanionUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'ai pas encore d\'explication sur ce sujet dans ce chapitre.'**
+  String get ceCompanionUnknown;
+
+  /// No description provided for @ceCompanionClosest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notions proches :'**
+  String get ceCompanionClosest;
+
+  /// No description provided for @ceCompanionNoMoreHints.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as vu tous les indices de ce cours. Essaie « Plus simplement ».'**
+  String get ceCompanionNoMoreHints;
+
+  /// No description provided for @ceCompanionNothingWrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponds d\'abord à une question : je t\'expliquerai ce qui cloche.'**
+  String get ceCompanionNothingWrong;
+
+  /// No description provided for @ceCompanionNoQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as réussi toutes les questions de cette leçon !'**
+  String get ceCompanionNoQuestion;
+
+  /// No description provided for @ceCompanionNoConcept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvre une leçon pour que je t\'aide.'**
+  String get ceCompanionNoConcept;
+
+  /// No description provided for @ceCompanionTrap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Piège à éviter'**
+  String get ceCompanionTrap;
+
+  /// No description provided for @ceCompanionCorrection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Correction'**
+  String get ceCompanionCorrection;
+
+  /// No description provided for @ceCompanionTryIt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essayer cette question'**
+  String get ceCompanionTryIt;
+
+  /// No description provided for @ceFormalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La formulation officielle'**
+  String get ceFormalTitle;
+
+  /// No description provided for @ceCourseSays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que dit le cours'**
+  String get ceCourseSays;
+
+  /// No description provided for @ceSituationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La situation du manuel'**
+  String get ceSituationTitle;
+
+  /// No description provided for @ceFormalProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maîtrise {score} % · {correct} bonnes réponses sur {attempts}'**
+  String ceFormalProgress(int score, int correct, int attempts);
+
+  /// No description provided for @ceRemainderGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fais la division de {a} par {b} : règle q jusqu\'à ce que le reste r tombe dans la zone permise.'**
+  String ceRemainderGoal(int a, int b);
+
+  /// No description provided for @ceRemainderInZone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le reste est dans la zone : 0 ≤ r < |b|.'**
+  String get ceRemainderInZone;
+
+  /// No description provided for @ceRemainderTooSmall.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste négatif : il faut changer q.'**
+  String get ceRemainderTooSmall;
+
+  /// No description provided for @ceRemainderTooLarge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste trop grand : une part entière de plus tient encore.'**
+  String get ceRemainderTooLarge;
+
+  /// No description provided for @ceRemainderWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle condition doit vérifier le reste ?'**
+  String get ceRemainderWhy;
+
+  /// No description provided for @ceMissionStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape {current} sur {total}'**
+  String ceMissionStep(int current, int total);
+
+  /// No description provided for @ceMissionCriticalThinking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien vu : savoir dire quand les données ne suffisent pas, c\'est aussi des mathématiques.'**
+  String get ceMissionCriticalThinking;
+
+  /// No description provided for @ceActionExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donne-moi un exemple'**
+  String get ceActionExample;
+
+  /// No description provided for @ceCompanionExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exemple'**
+  String get ceCompanionExample;
+
+  /// No description provided for @ceCompanionNoExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'ai pas encore d\'exemple pour cette notion dans ton cours.'**
+  String get ceCompanionNoExample;
+
+  /// No description provided for @ceCompanionNameHello.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, voici ce que dit ton cours.'**
+  String ceCompanionNameHello(String name);
+
+  /// No description provided for @ceCompanionNameAfterErrors.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, reprenons calmement : tu y es presque.'**
+  String ceCompanionNameAfterErrors(String name);
+
+  /// No description provided for @ceCompanionNameSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bravo {name}, tu maîtrises très bien cette notion.'**
+  String ceCompanionNameSuccess(String name);
+
+  /// No description provided for @ceChapterPromise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même si l\'exercice est difficile, tu peux demander une explication plus simple sans changer son niveau.'**
+  String get ceChapterPromise;
+
+  /// No description provided for @ceFeedKickerExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'idée clé'**
+  String get ceFeedKickerExplanation;
+
+  /// No description provided for @ceFeedKickerUltraSimple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comme si j\'avais 12 ans'**
+  String get ceFeedKickerUltraSimple;
+
+  /// No description provided for @ceFeedKickerFlash.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question éclair'**
+  String get ceFeedKickerFlash;
+
+  /// No description provided for @ceFeedKickerMcq.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis la bonne réponse'**
+  String get ceFeedKickerMcq;
+
+  /// No description provided for @ceFeedKickerTrueFalse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vrai ou faux'**
+  String get ceFeedKickerTrueFalse;
+
+  /// No description provided for @ceFeedKickerExercise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exercice'**
+  String get ceFeedKickerExercise;
+
+  /// No description provided for @ceFeedKickerVisual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Regarde'**
+  String get ceFeedKickerVisual;
+
+  /// No description provided for @ceFeedKickerGame.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jeu'**
+  String get ceFeedKickerGame;
+
+  /// No description provided for @ceFeedKickerMistake.
+  ///
+  /// In fr, this message translates to:
+  /// **'Piège fréquent'**
+  String get ceFeedKickerMistake;
+
+  /// No description provided for @ceFeedKickerRevision.
+  ///
+  /// In fr, this message translates to:
+  /// **'À retenir'**
+  String get ceFeedKickerRevision;
+
+  /// No description provided for @ceFeedKickerChallenge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi'**
+  String get ceFeedKickerChallenge;
+
+  /// No description provided for @ceFeedKickerMastery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu maîtrises ?'**
+  String get ceFeedKickerMastery;
+
+  /// No description provided for @ceFeedKickerNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau chapitre'**
+  String get ceFeedKickerNew;
+
+  /// No description provided for @ceFeedKickerCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une question ?'**
+  String get ceFeedKickerCompanion;
+
+  /// No description provided for @ceFeedDeepen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approfondir'**
+  String get ceFeedDeepen;
+
+  /// No description provided for @ceFeedAskCompanion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander au Compagnon'**
+  String get ceFeedAskCompanion;
+
+  /// No description provided for @ceFeedCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier'**
+  String get ceFeedCheck;
+
+  /// No description provided for @ceFeedCorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne réponse !'**
+  String get ceFeedCorrect;
+
+  /// No description provided for @ceFeedWrong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore. Regarde l\'explication, puis réessaie plus tard.'**
+  String get ceFeedWrong;
+
+  /// No description provided for @ceFeedPlay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jouer'**
+  String get ceFeedPlay;
+
+  /// No description provided for @ceFeedOpenChapter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvrir le chapitre'**
+  String get ceFeedOpenChapter;
+
+  /// No description provided for @ceFeedNewBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un nouveau chapitre vient d\'arriver pour ta classe. Il commence par :'**
+  String get ceFeedNewBody;
+
+  /// No description provided for @ceFeedCompanionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelque chose n\'est pas clair sur « {concept} » ? Le Compagnon t\'explique à partir de ton cours, aussi simplement que tu veux.'**
+  String ceFeedCompanionBody(String concept);
+
+  /// No description provided for @ceFeedMistakeLead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Beaucoup d\'élèves se trompent ici :'**
+  String get ceFeedMistakeLead;
+
+  /// No description provided for @ceFeedNameAfterErrors.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, ce n\'est pas grave : une explication plus simple arrive dans ton fil.'**
+  String ceFeedNameAfterErrors(String name);
+
+  /// No description provided for @ceFeedNameSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bravo {name}, c\'était un vrai défi.'**
+  String ceFeedNameSuccess(String name);
+
+  /// No description provided for @ceNewContentAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux contenus disponibles pour ta classe.'**
+  String get ceNewContentAvailable;
+
+  /// No description provided for @hapticsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vibrations pédagogiques'**
+  String get hapticsLabel;
+
+  /// No description provided for @hapticsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'De petites vibrations accompagnent tes réussites.'**
+  String get hapticsDescription;
+
+  /// No description provided for @hapticsOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activées'**
+  String get hapticsOn;
+
+  /// No description provided for @hapticsReduced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduites : seulement pour les vrais progrès'**
+  String get hapticsReduced;
+
+  /// No description provided for @hapticsOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivées'**
+  String get hapticsOff;
+
+  /// No description provided for @rewardExact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exact.'**
+  String get rewardExact;
+
+  /// No description provided for @rewardWellSeen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien vu.'**
+  String get rewardWellSeen;
+
+  /// No description provided for @rewardYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui.'**
+  String get rewardYes;
+
+  /// No description provided for @rewardVeryClean.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très propre.'**
+  String get rewardVeryClean;
+
+  /// No description provided for @rewardGotIt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu l\'as.'**
+  String get rewardGotIt;
+
+  /// No description provided for @rewardNiceProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Belle progression.'**
+  String get rewardNiceProgress;
+
+  /// No description provided for @rewardStreak.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} de suite.'**
+  String rewardStreak(int count);
+
+  /// No description provided for @rewardLevelUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveau supérieur débloqué.'**
+  String get rewardLevelUp;
+
+  /// No description provided for @rewardGotItThisTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui. Cette fois, tu l\'as.'**
+  String get rewardGotItThisTime;
+
+  /// No description provided for @rewardFoundIt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voilà. Tu as trouvé.'**
+  String get rewardFoundIt;
+
+  /// No description provided for @rewardRealStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très bien. Tu viens de franchir un vrai cap.'**
+  String get rewardRealStep;
+
+  /// No description provided for @rewardChallengeMet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Défi relevé.'**
+  String get rewardChallengeMet;
+
+  /// No description provided for @rewardConceptMastered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notion maîtrisée : {concept}'**
+  String rewardConceptMastered(String concept);
+
+  /// No description provided for @rewardConceptMasteredGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notion maîtrisée.'**
+  String get rewardConceptMasteredGeneric;
+
+  /// No description provided for @rewardChapterDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitre réussi : {chapter}'**
+  String rewardChapterDone(String chapter);
+
+  /// No description provided for @rewardChapterDoneGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitre réussi.'**
+  String get rewardChapterDoneGeneric;
+
+  /// No description provided for @rewardWithName.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, {message}'**
+  String rewardWithName(String name, String message);
 }
 
 class _AppLocalizationsDelegate

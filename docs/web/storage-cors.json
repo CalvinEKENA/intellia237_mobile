@@ -1,0 +1,13 @@
+[
+  {
+    "origin": [
+      "https://savoir.intellia237.com",
+      "https://intellia237.com",
+      "https://www.intellia237.com",
+      "http://localhost:8765"
+    ],
+    "method": ["GET", "HEAD"],
+    "responseHeader": ["Content-Type", "Content-Length", "Range"],
+    "maxAgeSeconds": 3600
+  }
+]

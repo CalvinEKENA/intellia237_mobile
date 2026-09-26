@@ -1,17 +1,20 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
+import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../../auth/domain/app_role.dart';
-import '../../auth/presentation/widgets/auth_choices.dart';
+import '../../auth/presentation/widgets/auth_step_guide.dart';
 import '../../auth/presentation/widgets/auth_controls.dart';
 import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/presentation/widgets/auth_selection_pill.dart';
 import '../../auth/presentation/widgets/auth_success_screen.dart';
 import '../../auth/presentation/widgets/living_pass.dart';
+import '../../auth/presentation/widgets/pass_auth_progress.dart';
 import '../../tutor/domain/tutor_persona.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../application/student_registration_controller.dart';
@@ -31,6 +34,8 @@ class StudentRegistrationFlowScreen extends ConsumerStatefulWidget {
 
 class _StudentRegistrationFlowScreenState
     extends ConsumerState<StudentRegistrationFlowScreen> {
+  CompanionChoice? _companionChoice;
+
   final _identityFormKey = GlobalKey<FormState>();
   final _securityFormKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
@@ -67,6 +72,8 @@ class _StudentRegistrationFlowScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(studentRegistrationControllerProvider);
     final controller = ref.read(studentRegistrationControllerProvider.notifier);
+    // Le sceau dit la session réellement établie, pas l'étape du formulaire.
+    final seal = PassAuthProgress.session(ref.watch(authControllerProvider));
     final companion = TutorPersona.resolve(state.selectedTutorId);
     final l10n = context.l10n;
     final labels = [
@@ -82,6 +89,7 @@ class _StudentRegistrationFlowScreenState
         companionName: companion.name,
         companionAsset: companion.imagePath,
         onContinue: controller.completeRegistration,
+        seal: seal,
       );
     }
 
@@ -98,8 +106,14 @@ class _StudentRegistrationFlowScreenState
             ? null
             : companion.imagePath,
         phase: labels[state.currentStep],
-        progress: 0.42 + state.currentStep * 0.15,
+        progress: PassAuthProgress.registrationLine(
+          step: state.currentStep,
+          steps: labels.length,
+        ),
+        seal: seal,
       ),
+      // Après la première étape, le retour vit à côté du bouton principal.
+      showBackButton: state.isFirstStep,
       onBack: state.isFirstStep
           ? () => context.pop()
           : () {
@@ -110,10 +124,45 @@ class _StudentRegistrationFlowScreenState
               });
               controller.goToPreviousStep();
             },
+      // L'erreur se lit juste au-dessus du bouton, jamais hors de l'écran.
+      footer: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            child: _errorMessage(state) == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    key: ValueKey(_errorMessage(state)),
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: AuthErrorBanner(
+                      message: _errorMessage(state)!,
+                      onRetry: state.isLastStep ? () => _submit(state) : null,
+                      onDismiss: () {
+                        controller.clearError();
+                        setState(() => _localError = null);
+                      },
+                    ),
+                  ),
+          ),
+          _actions(state),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AuthStepIndicator(currentStep: state.currentStep, labels: labels),
+          // Le guide porte l'étape en cours, le conseil et la suite.
+          AuthStepGuide(
+            currentStep: state.currentStep,
+            labels: labels,
+            hints: [
+              l10n.studentGuideIdentity,
+              l10n.studentGuideClass,
+              l10n.studentGuideCompanion,
+              l10n.studentGuideSecurity,
+            ],
+          ),
           const SizedBox(height: 18),
           PageTransitionSwitcher(
             duration: MediaQuery.of(context).disableAnimations
@@ -131,28 +180,13 @@ class _StudentRegistrationFlowScreenState
             },
             child: AuthGlassPanel(
               key: ValueKey(state.currentStep),
+              // La scène des compagnons occupe le panneau jusqu'aux bords.
+              padding: state.currentStep == 2
+                  ? const EdgeInsets.fromLTRB(8, 10, 8, 10)
+                  : null,
               child: _stepContent(state),
             ),
           ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
-            child: _errorMessage(state) == null
-                ? const SizedBox(height: 18)
-                : Padding(
-                    key: ValueKey(_errorMessage(state)),
-                    padding: const EdgeInsets.only(top: 14),
-                    child: AuthErrorBanner(
-                      message: _errorMessage(state)!,
-                      onRetry: state.isLastStep ? () => _submit(state) : null,
-                      onDismiss: () {
-                        controller.clearError();
-                        setState(() => _localError = null);
-                      },
-                    ),
-                  ),
-          ),
-          _actions(state),
-          const SizedBox(height: 12),
         ],
       ),
     );
@@ -422,20 +456,16 @@ class _StudentRegistrationFlowScreenState
     );
   }
 
-  Widget _companionStep() {
-    final l10n = context.l10n;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _StepHeading(
-          title: l10n.meetCompanionTitle,
-          subtitle: l10n.meetCompanionSubtitle,
-        ),
-        const SizedBox(height: 12),
-        const CompanionDiscovery(),
-      ],
-    );
-  }
+  // Les compagnons sont le titre de cette étape : le guide explique déjà quoi
+  // faire, la scène garde toute la place (QA appareil, 24/09/2026).
+  Widget _companionStep() => Semantics(
+    header: true,
+    label: context.l10n.meetCompanionTitle,
+    child: CompanionDiscovery(
+      showChooseBar: false,
+      onChoiceChanged: (choice) => setState(() => _companionChoice = choice),
+    ),
+  );
 
   Widget _securityStep(StudentRegistrationState state) {
     final controller = ref.read(studentRegistrationControllerProvider.notifier);
@@ -528,10 +558,47 @@ class _StudentRegistrationFlowScreenState
     );
   }
 
+  /// Étape compagnon : un seul bouton dit exactement ce qui va se passer —
+  /// « Découvre Léo avant de choisir », « Choisir Léo », puis « Continuer
+  /// avec Léo » (QA appareil, 24/09/2026).
+  ({String label, VoidCallback? onTap, IconData icon})? _companionAction(
+    StudentRegistrationState state,
+  ) {
+    if (state.currentStep != 2) return null;
+    final l10n = context.l10n;
+    final choice = _companionChoice;
+    if (choice == null) {
+      return (
+        label: l10n.continueLabel,
+        onTap: null,
+        icon: Icons.arrow_forward_rounded,
+      );
+    }
+    if (state.selectedTutorId == choice.id) {
+      return (
+        label: l10n.continueWithCompanion(choice.name),
+        onTap: state.isSubmitting ? null : () => _handlePrimaryAction(state),
+        icon: Icons.arrow_forward_rounded,
+      );
+    }
+    return (
+      label: choice.canChoose
+          ? l10n.chooseCompanionA11y(choice.name)
+          : l10n.discoverCompanionBeforeChoice(choice.name),
+      onTap: choice.canChoose
+          ? () {
+              HapticFeedback.mediumImpact();
+              ref
+                  .read(studentRegistrationControllerProvider.notifier)
+                  .setSelectedTutorId(choice.id);
+            }
+          : null,
+      icon: Icons.favorite_rounded,
+    );
+  }
+
   Widget _actions(StudentRegistrationState state) {
-    // CTA « Continuer » actif uniquement après un vrai choix de compagnon.
-    final blockCompanion =
-        state.currentStep == 2 && state.selectedTutorId == null;
+    final companion = _companionAction(state);
     return Row(
       children: [
         if (!state.isFirstStep) ...[
@@ -557,18 +624,26 @@ class _StudentRegistrationFlowScreenState
         ],
         Expanded(
           child: AuthPrimaryButton(
-            label: state.isLastStep
-                ? state.accountLinkage == LearnerAccountLinkage.parentManaged
-                      ? context.l10n.parentArea
-                      : context.l10n.createAccount
-                : context.l10n.continueLabel,
-            onTap: (state.isSubmitting || blockCompanion)
+            key: const ValueKey('registration-primary-action'),
+            label:
+                companion?.label ??
+                (state.isLastStep
+                    ? state.accountLinkage ==
+                              LearnerAccountLinkage.parentManaged
+                          ? context.l10n.parentArea
+                          : context.l10n.createAccount
+                    : context.l10n.continueLabel),
+            onTap: companion != null
+                ? companion.onTap
+                : state.isSubmitting
                 ? null
                 : () => _handlePrimaryAction(state),
             isLoading: state.isSubmitting,
-            icon: state.isLastStep
-                ? Icons.verified_rounded
-                : Icons.arrow_forward_rounded,
+            icon:
+                companion?.icon ??
+                (state.isLastStep
+                    ? Icons.verified_rounded
+                    : Icons.arrow_forward_rounded),
           ),
         ),
       ],
@@ -628,7 +703,7 @@ class _StepHeading extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title.toUpperCase(), style: passDisplay(size: 34)),
+        Text(title.toUpperCase(), style: passDisplay(size: 30)),
         const SizedBox(height: 6),
         Text(
           subtitle,

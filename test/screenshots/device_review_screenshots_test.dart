@@ -12,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intellia237/core/widgets/tab_presentation.dart';
-import 'package:intellia237/features/ai_companion/data/speech_services.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
 import 'package:intellia237/features/ai_companion/presentation/widgets/chat_bubble.dart';
 import 'package:intellia237/features/ai_companion/presentation/widgets/companion_composer.dart';
@@ -46,14 +45,19 @@ Future<void> _loadProjectFonts() async {
   // captures ne montreraient rien de lisible.
   GoogleFonts.config.allowRuntimeFetching = false;
   for (final family in const {
-    'Manrope': ['Manrope-400', 'Manrope-600', 'Manrope-700', 'Manrope-800'],
-    'Montserrat': [
-      'Montserrat-400',
-      'Montserrat-600',
-      'Montserrat-700',
-      'Montserrat-800',
+    'Manrope': [
+      'Manrope-Regular',
+      'Manrope-SemiBold',
+      'Manrope-Bold',
+      'Manrope-ExtraBold',
     ],
-    'Playfair Display': ['PlayfairDisplay-400', 'PlayfairDisplay-700'],
+    'Montserrat': [
+      'Montserrat-Regular',
+      'Montserrat-SemiBold',
+      'Montserrat-Bold',
+      'Montserrat-ExtraBold',
+    ],
+    'Playfair Display': ['PlayfairDisplay-Regular', 'PlayfairDisplay-Bold'],
   }.entries) {
     final loader = FontLoader(family.key);
     for (final file in family.value) {
@@ -172,9 +176,6 @@ void main() {
     await capture(
       tester,
       '04_companion_chat_rest.png',
-      overrides: [
-        speechRecognizerProvider.overrideWithValue(_IdleRecognizer()),
-      ],
       child: surface(
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -192,13 +193,10 @@ void main() {
     );
   });
 
-  testWidgets('05 « Parler » devient « Envoyer »', (tester) async {
+  testWidgets('05 « Envoyer » s’active dès la saisie', (tester) async {
     await capture(
       tester,
       '05_companion_chat_typing.png',
-      overrides: [
-        speechRecognizerProvider.overrideWithValue(_IdleRecognizer()),
-      ],
       child: surface(
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -304,26 +302,4 @@ void main() {
       ),
     );
   });
-}
-
-/// Reconnaissance vocale inerte : les captures ne demandent aucun micro.
-class _IdleRecognizer implements SpeechRecognizer {
-  @override
-  bool get isAvailable => true;
-
-  @override
-  Future<bool> initialize() async => true;
-
-  @override
-  Future<void> listen({
-    required String localeId,
-    required void Function(String transcript, bool isFinal) onResult,
-    required void Function(double level) onSoundLevel,
-  }) async {}
-
-  @override
-  Future<void> stop() async {}
-
-  @override
-  Future<void> cancel() async {}
 }

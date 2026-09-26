@@ -1,0 +1,262 @@
+{
+  "schema_version": "intellia.pedagogy.v3",
+  "content_id": "english_terminale_m1_u2_discussing_recreational_activities",
+  "difficulty_axis": {
+    "1": {
+      "label": "Easy",
+      "focus": "recognition and direct comprehension"
+    },
+    "2": {
+      "label": "Intermediate",
+      "focus": "apply vocabulary and grammar in context"
+    },
+    "3": {
+      "label": "Bac Challenge",
+      "focus": "analyse, infer and produce structured language"
+    }
+  },
+  "explanation_axis": {
+    "standard": {
+      "label": "Terminale",
+      "style": "clear English at final-year secondary level"
+    },
+    "simple": {
+      "label": "Simple English",
+      "style": "short sentences and direct examples"
+    },
+    "ultra_simple": {
+      "label": "Very simple",
+      "style": "very accessible English with occasional French support"
+    }
+  },
+  "concepts": [
+    {
+      "id": "hobbies_and_benefits",
+      "lesson": 1,
+      "title": "Hobbies and recreational activities",
+      "aliases": [
+        "hobby",
+        "recreation",
+        "recreational activity",
+        "benefit",
+        "leisure"
+      ],
+      "explanations": {
+        "standard": "The unit explores how hobbies and recreational activities can support well-being, relationships, self-expression, confidence, skills and sometimes income.",
+        "simple": "Hobbies can help people relax, learn skills, connect with others and feel better.",
+        "ultra_simple": "A hobby is something you enjoy in your free time. It can help your mind, your body or your relationships."
+      },
+      "common_mistakes": [
+        "thinking recreation has only one possible benefit",
+        "confusing a hobby with a compulsory task"
+      ]
+    },
+    {
+      "id": "listening_personal_testimony",
+      "lesson": 1,
+      "title": "Listening to a personal testimony",
+      "aliases": [
+        "listening",
+        "testimony",
+        "fashion designer",
+        "Kibonen Nfi",
+        "Kibs New York"
+      ],
+      "explanations": {
+        "standard": "The listening task asks for specific details from a personal testimony about a young Cameroonian fashion designer in New York.",
+        "simple": "Listen for names, places, actions and evidence of success.",
+        "ultra_simple": "Read the question first, then listen for that exact detail."
+      },
+      "common_mistakes": [
+        "answering from general knowledge instead of the audio",
+        "inventing details that are not heard"
+      ]
+    },
+    {
+      "id": "voiced_unvoiced_consonants",
+      "lesson": 1,
+      "title": "Voiced and unvoiced consonants",
+      "aliases": [
+        "voiced",
+        "unvoiced",
+        "consonant",
+        "vocal cords",
+        "pronunciation"
+      ],
+      "explanations": {
+        "standard": "Voiced consonants involve vocal-cord vibration; unvoiced consonants do not. The source lists examples of both groups.",
+        "simple": "Touch your throat: voiced sounds vibrate; unvoiced sounds do not.",
+        "ultra_simple": "Voiced = your throat vibrates. Unvoiced = no vibration."
+      },
+      "common_mistakes": [
+        "classifying by spelling instead of the sound",
+        "treating pronunciation practice as a writing exercise"
+      ]
+    },
+    {
+      "id": "skimming_main_idea",
+      "lesson": 2,
+      "title": "Skimming for the main idea",
+      "aliases": [
+        "skim",
+        "skimming",
+        "main idea",
+        "topic sentence",
+        "title",
+        "subheading"
+      ],
+      "explanations": {
+        "standard": "To skim, read titles/subheadings, inspect pictures/charts and read the first sentence of each paragraph before detailed reading.",
+        "simple": "Do not read every word first. Use the big clues and first sentences to catch the main idea.",
+        "ultra_simple": "Skim = read fast for the big idea, not every detail."
+      },
+      "common_mistakes": [
+        "reading every word before finding the topic",
+        "confusing skimming with guessing without evidence"
+      ]
+    },
+    {
+      "id": "reading_hobby_stories",
+      "lesson": 3,
+      "title": "Understanding personal stories about hobbies",
+      "aliases": [
+        "Elenwa",
+        "Lily",
+        "Teleu",
+        "Eyole",
+        "story",
+        "benefits of hobbies"
+      ],
+      "explanations": {
+        "standard": "The four stories show different benefits: stress management, creative balance, environmental beauty and income, confidence and participation.",
+        "simple": "Each person has a different hobby and a different benefit.",
+        "ultra_simple": "Ask two questions: What is the hobby? How did it help the person?"
+      },
+      "common_mistakes": [
+        "mixing details from different people",
+        "remembering the hobby but not its benefit"
+      ]
+    },
+    {
+      "id": "recreation_vocabulary",
+      "lesson": 4,
+      "title": "Vocabulary of recreation and well-being",
+      "aliases": [
+        "stress",
+        "hobby",
+        "balance",
+        "outfit",
+        "shy",
+        "self-confidence",
+        "nurture"
+      ],
+      "explanations": {
+        "standard": "The unit builds vocabulary for recreation, emotions, clothing, confidence and care.",
+        "simple": "Learn each word with a short meaning and use it in context.",
+        "ultra_simple": "Word + meaning + example: that is the fastest way to remember it."
+      },
+      "common_mistakes": [
+        "confusing shy with stressed",
+        "confusing self-confidence with balance"
+      ]
+    },
+    {
+      "id": "phrasal_verbs",
+      "lesson": 4,
+      "title": "Phrasal verbs",
+      "aliases": [
+        "phrasal verb",
+        "calm down",
+        "come across",
+        "eat out",
+        "turn down",
+        "call off",
+        "figure out"
+      ],
+      "explanations": {
+        "standard": "A phrasal verb combines a verb with an adverb or preposition to create an idiomatic meaning.",
+        "simple": "The small word changes the meaning of the verb: calm down, turn down, call off.",
+        "ultra_simple": "Verb + small word = new meaning."
+      },
+      "common_mistakes": [
+        "translating each word separately",
+        "choosing a particle only because it sounds familiar"
+      ]
+    },
+    {
+      "id": "prepositional_phrases",
+      "lesson": 4,
+      "title": "Prepositional phrases",
+      "aliases": [
+        "prepositional phrase",
+        "at the end of",
+        "in the world",
+        "on time",
+        "at a party",
+        "in my opinion"
+      ],
+      "explanations": {
+        "standard": "Prepositional phrases begin with prepositions and can function adjectivally or adverbially.",
+        "simple": "These phrases begin with words like at, in, on or under and add information about time, place, manner or description.",
+        "ultra_simple": "Look for the preposition first: at, in, on, under..."
+      },
+      "common_mistakes": [
+        "using 'of the world' where the source uses 'in the world'",
+        "using 'with time' instead of 'on time'"
+      ]
+    },
+    {
+      "id": "formal_letter_structure",
+      "lesson": 5,
+      "title": "Formal letter structure",
+      "aliases": [
+        "formal letter",
+        "mayor",
+        "address",
+        "date",
+        "subject line",
+        "salutation",
+        "paragraph"
+      ],
+      "explanations": {
+        "standard": "The source models a formal letter with sender and recipient details, date, salutation, subject, organised body paragraphs and a polite close.",
+        "simple": "A formal letter needs clear addresses, a subject, organised paragraphs and a polite ending.",
+        "ultra_simple": "Think: who writes, who receives, why you write, what you propose, polite ending."
+      },
+      "common_mistakes": [
+        "writing without a clear subject",
+        "putting all ideas in one paragraph",
+        "using an informal tone"
+      ]
+    },
+    {
+      "id": "community_recreation_letter",
+      "lesson": 5,
+      "title": "Arguing for recreational facilities",
+      "aliases": [
+        "recreational facilities",
+        "community",
+        "mayor",
+        "well-being",
+        "health",
+        "income"
+      ],
+      "explanations": {
+        "standard": "The writing task requires a clear case for recreational facilities, linking them to well-being, health, relationships, income and community participation.",
+        "simple": "Explain why recreation matters, what the community can do, and how you can help.",
+        "ultra_simple": "Problem → benefits → community action → your contribution."
+      },
+      "common_mistakes": [
+        "listing benefits without proposing action",
+        "forgetting the learner's own contribution",
+        "using an informal tone"
+      ]
+    }
+  ],
+  "adaptive_rules": [
+    "After two errors on the same concept, suggest Simple English.",
+    "After one additional error, suggest Very simple.",
+    "After three consecutive correct answers, suggest a higher difficulty.",
+    "Exercise difficulty and explanation level remain independent."
+  ]
+}

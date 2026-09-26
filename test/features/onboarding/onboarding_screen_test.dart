@@ -9,6 +9,7 @@ import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/app/theme/design_tokens.dart';
 import 'package:intellia237/core/animations/app_page_transitions.dart';
 import 'package:intellia237/core/animations/screen_shatter.dart';
+import 'package:intellia237/core/widgets/fit_viewport.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_act.dart';
 import 'package:intellia237/features/onboarding/domain/onboarding_micro_challenge.dart';
 import 'package:intellia237/features/onboarding/presentation/onboarding_screen.dart';
@@ -29,10 +30,10 @@ void main() {
         'BarlowCondensed-Black.ttf',
       ],
       'CampaignBody': [
-        'Manrope-400.ttf',
-        'Manrope-600.ttf',
-        'Manrope-700.ttf',
-        'Manrope-800.ttf',
+        'Manrope-Regular.ttf',
+        'Manrope-SemiBold.ttf',
+        'Manrope-Bold.ttf',
+        'Manrope-ExtraBold.ttf',
       ],
     }.entries) {
       final loader = FontLoader(family.key);
@@ -124,6 +125,94 @@ void main() {
     }
   });
 
+  // Taille réelle (QA appareil, 24/09/2026) : réduire toute la scène
+  // rendait le texte minuscule et flou. Sur un téléphone courant, chaque
+  // scène tient sans réduction ; seuls les grands titres cèdent leur place.
+  for (final size in const [Size(360, 640), Size(360, 740)]) {
+    testWidgets(
+      'scenes keep their real size at ${size.width.toInt()}×${size.height.toInt()}',
+      (tester) async {
+        double scale() =>
+            (tester.renderObject(
+                      find.byKey(const ValueKey('onboarding-scene-fixed')),
+                    )
+                    as RenderFitViewport)
+                .scale;
+        Future<void> tap(String key) async {
+          await tester.tap(find.byKey(ValueKey(key)));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 1400));
+        }
+
+        await _pumpOnboarding(tester, size: size);
+        final scales = <String, double>{'opening': scale()};
+        await tap('activation-enter');
+        scales['subjects'] = scale();
+        await tap('subject-french');
+        scales['challenge'] = scale();
+        await tap('challenge-answer-0');
+        scales['answered'] = scale();
+        await tap('challenge-continue');
+        scales['companions'] = scale();
+        await tap('companion-continue');
+        scales['finale'] = scale();
+
+        for (final entry in scales.entries) {
+          expect(entry.value, greaterThanOrEqualTo(0.985), reason: entry.key);
+        }
+        _expectNoLayoutException(tester, 'real-size scenes');
+      },
+    );
+  }
+
+  // Écrans fixes (QA appareil, 23/09/2026) : après une réponse, le bouton
+  // qui apparaît est vu d'un coup, sans défiler, quel que soit l'exercice.
+  for (final device in const [
+    (size: Size(360, 640), textScale: 1.0),
+    (size: Size(320, 568), textScale: 1.5),
+  ]) {
+    testWidgets(
+      'fixed scene ${device.size.width.toInt()}×${device.size.height.toInt()} '
+      'text ${device.textScale}: the continue button shows at once',
+      (tester) async {
+        const subjects = [
+          'subject-mathematics',
+          'subject-french',
+          'subject-english',
+          'subject-sciences',
+        ];
+        for (final subject in subjects) {
+          await _pumpOnboarding(
+            tester,
+            size: device.size,
+            textScale: device.textScale,
+          );
+          await _tapWithoutScrolling(tester, 'activation-enter');
+          await _tapWithoutScrolling(tester, subject);
+          await _tapWithoutScrolling(tester, 'challenge-answer-0');
+
+          expect(
+            find.descendant(
+              of: find.byType(OnboardingScreen),
+              matching: find.byType(SingleChildScrollView),
+            ),
+            findsNothing,
+          );
+          final button = tester.getRect(
+            find.byKey(const ValueKey('challenge-continue')),
+          );
+          expect(button.top, greaterThanOrEqualTo(0), reason: subject);
+          expect(
+            button.bottom,
+            lessThanOrEqualTo(device.size.height),
+            reason: subject,
+          );
+          _expectNoLayoutException(tester, '$subject fixed scene');
+        }
+      },
+    );
+  }
+
   for (final answer in const [
     (index: 2, description: 'correct'),
     (index: 0, description: 'incorrect'),
@@ -169,7 +258,7 @@ void main() {
         expect(find.text('Inscription prête'), findsOneWidget);
         expect(
           harness.router.routeInformationProvider.value.uri.path,
-          AppRoutes.register,
+          AppRoutes.authGateway,
         );
         final preferences = await SharedPreferences.getInstance();
         expect(preferences.getBool('has_seen_onboarding'), isTrue);
@@ -407,7 +496,7 @@ void main() {
   });
 
   testWidgets(
-    'holding signs the pass and breaks the screen onto registration',
+    'holding signs the pass and breaks the screen onto the neutral gateway',
     (tester) async {
       final harness = await _pumpOnboarding(tester, reduceMotion: false);
       await _reachAscension(tester);
@@ -512,8 +601,10 @@ Future<_Harness> _pumpOnboarding(
           child: const OnboardingScreen(),
         ),
       ),
+      // Refonte Auth V2 : l'onboarding mène à la porte neutre, jamais à un
+      // écran de rôles.
       GoRoute(
-        path: AppRoutes.register,
+        path: AppRoutes.authGateway,
         builder: (_, _) => const Scaffold(body: Text('Inscription prête')),
       ),
     ],
@@ -581,6 +672,17 @@ Future<void> _signPass(WidgetTester tester) async {
   await tester.pump(CampaignSignatureMotion.recognition);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 400));
+}
+
+/// Touche un élément déjà à l'écran : aucun défilement préalable.
+Future<void> _tapWithoutScrolling(WidgetTester tester, String key) async {
+  final finder = find.byKey(ValueKey(key));
+  final rect = tester.getRect(finder);
+  final screen = tester.getSize(find.byType(OnboardingScreen));
+  expect(rect.bottom, lessThanOrEqualTo(screen.height), reason: key);
+  await tester.tap(finder);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 1400));
 }
 
 Future<void> _tapVisible(WidgetTester tester, ValueKey<String> key) async {

@@ -8,10 +8,12 @@ import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../student_home/application/personal_goal_providers.dart';
 import '../../student_home/presentation/widgets/weekly_goal_card.dart';
+import '../../rewards/domain/haptic_pattern.dart';
 import '../application/user_preferences_controller.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../../auth/application/auth_controller.dart';
-import '../data/account_deletion_service.dart';
+import '../../auth/presentation/widgets/role_switch_action.dart';
+import 'widgets/account_deletion_tile.dart';
 import '../data/email_verification_service.dart';
 
 final emailVerificationServiceProvider = Provider<EmailVerificationService>((
@@ -67,6 +69,33 @@ class SettingsScreen extends ConsumerWidget {
                   subtitle: Text(l10n.reduceMotionDescription),
                   value: preferences.reduceMotion,
                   onChanged: controller.setReduceMotion,
+                ),
+                // Vibrations pédagogiques : trois choix lisibles en entier,
+                // même en grand texte (pas de segments qui se tronquent).
+                ListTile(
+                  leading: const Icon(Icons.vibration_rounded),
+                  title: Text(l10n.hapticsLabel),
+                  subtitle: Text(l10n.hapticsDescription),
+                ),
+                RadioGroup<HapticMode>(
+                  groupValue: preferences.haptics,
+                  onChanged: (mode) {
+                    if (mode != null) controller.setHaptics(mode);
+                  },
+                  child: Column(
+                    children: [
+                      for (final (mode, label) in [
+                        (HapticMode.on, l10n.hapticsOn),
+                        (HapticMode.reduced, l10n.hapticsReduced),
+                        (HapticMode.off, l10n.hapticsOff),
+                      ])
+                        RadioListTile<HapticMode>(
+                          key: ValueKey('haptics-${mode.name}'),
+                          value: mode,
+                          title: Text(label),
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -136,13 +165,7 @@ class SettingsScreen extends ConsumerWidget {
                   title: Text(l10n.personalDataTitle),
                   subtitle: Text(l10n.personalDataDescription),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.delete_outline_rounded),
-                  title: Text(l10n.deleteAccountTitle),
-                  subtitle: Text(l10n.deleteAccountDescription),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () => _requestAccountDeletion(context, ref),
-                ),
+                const AccountDeletionTile(),
                 const LegalLinks(showEducationalData: true),
               ],
             ),
@@ -161,6 +184,7 @@ class SettingsScreen extends ConsumerWidget {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push('${AppRoutes.phoneAuth}?mode=link'),
                 ),
+                const RoleSwitchAction(),
                 ListTile(
                   leading: const Icon(Icons.manage_accounts_outlined),
                   title: Text(l10n.editProfileTitle),
@@ -182,39 +206,6 @@ class SettingsScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _requestAccountDeletion(
-    BuildContext context,
-    WidgetRef ref,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(context.l10n.deleteRequestQuestion),
-        content: Text(context.l10n.deleteRequestBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(context.l10n.cancelLabel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(context.l10n.sendRequestLabel),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !context.mounted) return;
-    try {
-      await AccountDeletionService().requestDeletion();
-      await ref.read(authControllerProvider.notifier).signOut();
-    } catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.deleteRequestError)));
-    }
   }
 
   Future<void> _chooseReminderTime(

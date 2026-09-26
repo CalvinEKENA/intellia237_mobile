@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/academics/choice_order.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/quiz_question.dart';
 
@@ -14,12 +15,19 @@ class QcmQuestionCard extends StatelessWidget {
     required this.question,
     required this.selectedIndex,
     required this.onSelected,
+    required this.attemptKey,
     super.key,
   });
 
   final QuizQuestion question;
+
+  /// Index d'origine de la proposition choisie (jamais sa place à l'écran).
   final int? selectedIndex;
   final ValueChanged<int> onSelected;
+
+  /// Tentative en cours : l'ordre affiché en dépend et ne bouge pas avant
+  /// la fin de la tentative.
+  final String attemptKey;
 
   static const _letters = ['A', 'B', 'C', 'D', 'E'];
 
@@ -84,19 +92,26 @@ class QcmQuestionCard extends StatelessWidget {
 
         const SizedBox(height: IntelliaSpacing.lg),
 
-        // Answer options
-        for (int index = 0; index < question.options.length; index++) ...[
+        // Propositions mélangées : la lettre suit la place à l'écran, la
+        // réponse transmise reste l'index d'origine.
+        for (final (position, index) in choiceOrder(
+          question.options.length,
+          questionId: question.id,
+          attemptKey: attemptKey,
+        ).indexed) ...[
           _GlassPillOption(
-            letter: index < _letters.length ? _letters[index] : '${index + 1}',
+            letter: position < _letters.length
+                ? _letters[position]
+                : '${position + 1}',
             label: question.options[index],
             selected: selectedIndex == index,
             onTap: () {
               HapticFeedback.mediumImpact();
               onSelected(index);
             },
-            index: index,
+            index: position,
           ),
-          if (index < question.options.length - 1)
+          if (position < question.options.length - 1)
             const SizedBox(height: IntelliaSpacing.sm),
         ],
       ],

@@ -1,0 +1,51 @@
+{
+  "schema_version": "intellia.pack-manifest.v3",
+  "id": "maths_td_ch03_fonctions_numeriques",
+  "title": "Mathématiques Terminale D — Chapitre 3 : Fonctions numériques d'une variable réelle",
+  "class_keys": [
+    "terminale-d"
+  ],
+  "subject": "mathematiques",
+  "chapter_number": 3,
+  "version": 1,
+  "authoring_status": "validated",
+  "publication_status": "draft",
+  "minimum_engine_version": 2,
+  "source_images": 23,
+  "files": {
+    "source": "source.json",
+    "pedagogy": "pedagogy.json",
+    "runtime": "runtime.json",
+    "validation": "validation_report.json"
+  },
+  "stats": {
+    "lessons": 3,
+    "concepts": 10,
+    "questions": 45,
+    "questions_per_lesson": 15,
+    "game_blueprints": 6,
+    "learning_card_seeds": 15,
+    "difficulty_levels": 3,
+    "explanation_levels": 3
+  },
+  "capabilities": [
+    "deterministic_qcm_shuffle_v1",
+    "stable_option_ids_v1",
+    "deterministic_companion_v1",
+    "learning_cards_v1",
+    "remote_delivery_v1",
+    "offline_first_v1"
+  ],
+  "remote_delivery": {
+    "eligible": true,
+    "preferred_storage": "firebase_storage",
+    "catalog_status": "do_not_publish_until_engine_integration",
+    "cache_policy": "latest_valid_with_rollback"
+  },
+  "sha256": {
+    "source.json": "54b502e0dabe358fcca288877d8379a6a2669a161ccd24f7a615b7202f560bb1",
+    "pedagogy.json": "8e80e4fee53a314f2d3156393f91de5581573e9fcbf1562b718ef7d93cbaa738",
+    "runtime.json": "e00aec05128ef7c354248b3d79555dfa0db8f894c780de925047b59ab4469206",
+    "validation_report.json": "3aef1c9babe06aa2f29474776a3f418f8cc060c1c834473247188f05be4c2cc5"
+  }
+}

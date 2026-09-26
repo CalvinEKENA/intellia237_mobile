@@ -1,0 +1,150 @@
+{
+  "schema_version": "intellia.validation-report.v2",
+  "pack_id": "maths_td_ch02_nombres_complexes_algebrique",
+  "status": "PASS_WITH_SOURCE_QUALITY_FLAGS",
+  "automated_checks": [
+    {
+      "check": "source equation roots",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "product",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "quotient",
+      "passed": true,
+      "details": "(-1.0, 2.0)"
+    },
+    {
+      "check": "inverse",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "(1+i)^8",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "module 3-4i",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "module 1+2i",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "module product",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "module quotient",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "sqrt 3+4i",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "sqrt 8-6i",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "quadratic -1±2i",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "sum/product roots",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "sqrt 5+12i",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "hard quadratic",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "trinomial roots",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "integration equal modules",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "unique ids",
+      "passed": true,
+      "details": "38"
+    },
+    {
+      "check": "difficulty levels",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "games engines",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "no llm",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all retained runtime questions are deterministic",
+      "passed": true,
+      "details": "37 retained questions"
+    }
+  ],
+  "question_count": 37,
+  "auto_scored_question_count": 37,
+  "game_count": 6,
+  "learning_card_seed_count": 13,
+  "source_quality_flags": [
+    {
+      "id": "src_late_exercises_partial",
+      "severity": "important",
+      "source_pages": [
+        "page_034.jpg",
+        "page_035.jpg",
+        "page_036.jpg"
+      ],
+      "question_ids": [],
+      "issue": "Plusieurs expressions de la banque d'exercices sont insuffisamment lisibles.",
+      "runtime_action": "Ne pas reconstruire ni auto-corriger ces énoncés à partir d'une supposition."
+    },
+    {
+      "id": "src_integration_formula_partial",
+      "severity": "important",
+      "source_pages": [
+        "page_037.jpg"
+      ],
+      "question_ids": [],
+      "issue": "Certaines formules des activités d'intégration sont ambiguës sur l'image.",
+      "runtime_action": "Conserver la provenance et le thème ; ne pas promouvoir les formules ambiguës au scoring automatique."
+    }
+  ],
+  "validation_policy": {
+    "question_linking": "question_ids explicit when a flag targets runtime questions",
+    "invalid_or_uncertain": "never silently repair",
+    "activation": "a remotely downloaded pack is activated only after schema, checksum and validation checks pass"
+  }
+}

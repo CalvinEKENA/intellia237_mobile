@@ -1,0 +1,372 @@
+# INTELLIA237 — Content Engine (contenus pédagogiques locaux)
+
+Moteur générique qui transforme des packs JSON validés en expérience
+d'apprentissage complète **sans aucun appel à un modèle de langage** :
+cours à trois niveaux d'explication, visuels manipulables, exercices corrigés
+de façon déterministe, réponses ouvertes avec auto-évaluation, jeux,
+Compagnon hors ligne, adaptation et maîtrise
+par notion, fil « Mon Parcours ».
+
+Packs embarqués : Mathématiques Terminale D CH01–CH03, Anglais Terminale
+M1U1–M1U2 et Physique Terminales C-D M1S1 (dossiers détaillés ci-dessous).
+Les mécanismes du moteur sont indépendants de la matière.
+
+## Principes
+
+1. **Aucun LLM en usage normal.** Un pack qui déclare `llm_required: true`
+   n'est pas proposé. Des tests échouent si le Compagnon, la fabrique ou le
+   classement du fil importent un client réseau ou un modèle de langage
+   (`test/features/content_engine/companion_no_llm_test.dart`).
+2. **Deux axes indépendants.** Difficulté (1 Facile, 2 Intermédiaire,
+   3 Défi Bac) et explication (`standard`, `simple`, `ultra_simple`). Changer
+   d'explication ne change jamais la difficulté.
+3. **Données souveraines.** Le moteur ne corrige jamais une donnée : une
+   incohérence devient une `ContentIssue`. Si elle rend la correction
+   incertaine, la question est retirée des exercices notés.
+4. **Validation respectée.** Un pack sans rapport, ou dont le statut
+   contient `FAIL`, n'est pas proposé. Les anomalies de source
+   (`source_quality_flags`) voyagent avec les questions concernées.
+5. **Classe déclarée obligatoire.** Un contenu n'est montré qu'à la classe
+   (et série) qu'il déclare ; son emplacement n'est jamais une preuve.
+
+## Architecture (`lib/features/content_engine/`)
+
+| Couche | Fichiers | Rôle |
+|---|---|---|
+| `domain/` | `curriculum`, `pedagogy`, `question`, `game_blueprint` (+ `GameStatus`), `companion_action`, `mastery`, `validation`, `chapter` (Chapter, Subject, ChapterEntry, PackOrigin), `pack_catalog` (catalogue distant, bundle), `visual_kind`, `content_issue` | Modèles fortement typés |
+| `data/` | `content_pack_parser`, `content_pack_repository`, `content_delivery` (synchronisation), `content_pack_cache*` (fichiers ; web : préférences), `firebase_content_gateway`, `learner_content_store` | Lecture tolérante et versionnée, diffusion distante, cache, progression |
+| `engine/` | `answer_checker`, `adaptive_engine`, `companion_engine` (+ `ConceptRouter`), `companion_name_policy`, `mission_planner`, `number_theory` | Correction déterministe, adaptation, Compagnon, prénom, missions |
+| `feed/` | `learning_card`, `learning_card_factory`, `learning_card_history`, `learning_feed_ranker` | Cartes « Mon Parcours » tirées des packs |
+| `application/` | `content_providers`, `learning_feed_providers`, `practice_session` | Riverpod |
+| `presentation/` | écrans chapitre / leçon / intégration / jeu, visuels, jeux, Compagnon | Textes dans les ARB (préfixe `ce`) |
+
+Classe et série : `lib/core/academics/class_key.dart` (`ClassKey`), partagé
+avec Apprendre (`lib/features/learn/domain/learn_class_guard.dart`).
+
+## Filtrage par classe (classe + série + matière)
+
+* `ClassKey(level, series)` ; une cible sans série couvre toutes les séries
+  du niveau ; `terminale-c-d` couvre C et D.
+* Packs : `manifest.class_keys` (ou `curriculum.level`). Un pack sans classe
+  n'est proposé à personne. Le filtrage a lieu avant toute lecture du
+  chapitre, avant la fabrication des cartes et avant le cache.
+* Catalogue en ligne (Firestore) : `LearnClassGuard` exige une classe
+  déclarée sur le chapitre ou la matière ; le serveur applique la même règle
+  (`declaresClass`, clause d'audience liée à `fallbackClass`) —
+  **durcissement serveur codé, non déployé**.
+
+## Diffusion sans reconstruire l'application
+
+```
+catalogue distant → pack versionné (bundle JSON) → vérifications
+  → téléchargement → cache local → moteur
+```
+
+* Emplacement : Firebase Storage, `content/catalog.json` et
+  `content/packs/<id>/v<version>/bundle.json`. Lecture réservée aux
+  utilisateurs connectés, écriture interdite depuis l'app
+  (`storage.rules`, **non déployé**).
+* Priorité de lecture : version distante active validée → version
+  précédente → pack embarqué → indisponible.
+* Vérifications avant activation : statut `published`, classe servie,
+  `minimum_engine_version ≤ kContentEngineVersion`, sha256 exact, bundle
+  lisible, identité (id, version) conforme, pack jouable après analyse.
+  Un échec n'écrase jamais la version en place.
+* Cache : écriture atomique (fichier temporaire puis renommage), deux
+  emplacements (actif, précédent). Un pack actif devenu illisible bascule
+  automatiquement sur le précédent, puis sur l'embarqué. `withdrawn` retire
+  le pack de l'appareil.
+* Déclenchement : à l'ouverture d'Apprendre ou de Mon Parcours, en
+  arrière-plan, et par « tirer pour actualiser » dans Apprendre. Un pack
+  ajouté recompose le catalogue (`contentCatalogRevisionProvider`) sans
+  redémarrage ; Apprendre affiche « Nouveaux contenus disponibles pour ta
+  classe ». Hors ligne, rien ne change et tout reste utilisable.
+
+### Catalogue (`content/catalog.json`)
+
+```json
+{
+  "catalog_version": 3,
+  "packs": [
+    {
+      "id": "maths_td_ch01_arithmetique",
+      "version": 2,
+      "status": "published",
+      "class_keys": ["terminale-c-d"],
+      "path": "content/packs/maths_td_ch01_arithmetique/v2/bundle.json",
+      "sha256": "…64 caractères hexadécimaux…",
+      "size_bytes": 81234,
+      "minimum_engine_version": 1,
+      "subject": "Mathématiques",
+      "chapter_title": "Arithmétique"
+    }
+  ]
+}
+```
+
+### Publier un chapitre sans reconstruire l'APK
+
+1. Préparer le dossier du pack (5 fichiers JSON) et le valider :
+   `CONTENT_PACK_DIR=<dossier> flutter test test/content_packs/validate_packs_test.dart`.
+2. Construire le bundle et le catalogue :
+   `dart run tool/content/publish_pack.dart --pack <dossier> --id <id> --version <n> --class terminale-c --class terminale-d`
+   (`--catalog build/content_publish/catalog.json` pour repartir du
+   catalogue en ligne téléchargé ; `--status draft` pour préparer sans
+   publier). Sortie dans `build/content_publish/`.
+3. **Avec l'accord du propriétaire**, envoyer d'abord le bundle, puis le
+   catalogue (le script affiche les deux commandes `gcloud storage cp`,
+   catalogue en `no-cache`).
+4. Sur un appareil : ouvrir Apprendre, tirer pour actualiser. Le chapitre
+   apparaît ; il reste disponible hors ligne.
+
+Retirer : republier l'entrée avec `--status withdrawn`. Revenir en arrière :
+republier la version précédente avec un numéro supérieur (jamais réutiliser
+un numéro).
+
+## Jeux
+
+`status` explicite : `ready`, `draft`, `disabled` (sinon déduit : `ready`
+si un moteur existe). Seuls les jeux `ready` avec un moteur et des niveaux
+sont proposés (leçon et fil). Moteurs : `grouping`, `place_value`,
+`modular_clock`, `factor_forge`, `tiling`, `remainder_zone` (Zone du Reste :
+ajuster q, observer r jusqu'à 0 ≤ r < |b|, 3 niveaux dont diviseur
+négatif), `integration_mission` (Mission Awa : étapes tirées des questions
+d'intégration, avertissements de source affichés, esprit critique valorisé).
+
+## QCM : ordre des propositions
+
+* La bonne réponse est une **valeur** (`ChoiceAnswer`, `MultiChoiceAnswer`),
+  jamais une place : aucun pack ne doit supposer que « A » est juste.
+* Affichage mélangé par `choiceOrder` (`lib/core/academics/choice_order.dart`) :
+  permutation déterministe de `questionId` + clé de tentative. Même ordre
+  pendant toute la tentative (reconstruction, clavier, correction), autre
+  ordre à la tentative suivante. Les objets entiers sont déplacés.
+* Vrai/Faux et Oui/Non ne sont pas mélangés (convention fixe).
+* Anciens contenus 6e : 19 QCM de Mon Parcours sur 23 avaient la bonne
+  réponse en premier (le Studio présélectionne la première proposition) et
+  aucun écran ne mélangeait. Les données ne sont pas migrées ; le mélange
+  s'applique désormais à l'affichage (Mon Parcours, quiz, mini-quiz de
+  leçon), la correction serveur reçoit toujours l'index d'origine.
+
+## Compagnon (sans modèle de langage)
+
+Actions : « Explique-moi », « Plus simplement », « Comme si j'avais 12 ans »,
+« Montre-moi », « Donne-moi un exemple », « Donne-moi un indice »,
+« Pourquoi ma réponse est fausse ? », « Teste-moi » (difficulté suivant la
+maîtrise, sauf choix de l'élève). Questions libres : normalisation, lexique
+scolaire (PGCD, reste…), tolérance d'une faute de frappe, avantage à la
+notion en cours. Hors pack : « pas encore disponible » et notions proches,
+jamais d'invention. Prénom : première réponse importante, après plusieurs
+erreurs, réussite notable ; jamais deux fois de suite
+(`CompanionNamePolicy`, écart minimal 4 messages).
+
+## Mon Parcours alimenté par les packs
+
+* Cause de l'ancien « Aucune carte n'est encore publiée pour ta classe »
+  en Terminale D : le fil ne lisait que `flow_items`, toutes ciblées 6e.
+* `LearningCardFactory` fabrique, sans rien rédiger, 15 types de cartes
+  (explication, 12 ans, question éclair, QCM, vrai/faux, exercice, auto-évaluation, visuel,
+  jeu, piège fréquent, à retenir, défi, maîtrise, nouveau chapitre,
+  invitation au Compagnon). Identifiants stables
+  `contentId:conceptId:type:suffixe`.
+* `LearningFeedRanker` : leçon en cours d'abord, remédiation après erreurs
+  (simple → visuel → facile → intermédiaire), déjà-vu au repos (20 h),
+  question manquée après 2 h, révision espacée 1/3/7/14 jours, variété
+  (pas deux types de suite, pas plus de 3 cartes d'une notion, pas plus de
+  2 questions d'affilée).
+* Même pager que le fil publié (`FlowLearningCard` dans `FlowCard`) ;
+  publications et packs s'entrelacent. Les réponses passent par le moteur
+  de maîtrise de « S'entraîner » ; aucun point serveur n'est demandé.
+* « Approfondir » ouvre la leçon à l'étape utile (`?step=`), le retour
+  retrouve la même carte ; le Compagnon s'ouvre sur la carte.
+* Historique local par élève (vue, répondue, juste, fausse, passée,
+  dernière présentation).
+
+## Mathématiques Terminale D — chapitres 1 à 3 (embarqués)
+
+| Pack | Dossier | Questions notées | Jeux |
+|---|---|---|---|
+| CH01 Arithmétique | `ch01_arithmetique/` | 41/41 | 7 prêts |
+| CH02 Nombres complexes : approche algébrique | `ch02_nombres_complexes/` | 35/37 | 6 en préparation |
+| CH03 Fonctions numériques d'une variable réelle | `ch03_fonctions_numeriques/` | 36/45 | 6 en préparation |
+
+Les trois passent `validate_packs_test.dart` sans erreur ni avertissement.
+Ils constituent le secours embarqué de la matière ; les chapitres suivants
+arrivent par le catalogue distant.
+
+**Moteur v2** (`kContentEngineVersion = 2`), rétrocompatible v1 : plusieurs
+notions par leçon (`lessons` / `concept_ids`, sélecteur dans la leçon),
+`concept_id` par question, indices gradués `{level, content}`,
+`visual_model` objet (un moteur visuel inconnu n'est jamais deviné),
+`option_metadata` + `correct_option_ids` (vérifiés contre la réponse,
+retour affiché par proposition), jeux `concept_id` / `engine_blueprint`
+(moteur nommé mais inconnu → `draft`, jamais remplacé), anomalies
+`question_ids: []` (source non reprise), `auto_score: false` (réponse
+rédigée, non notée). Nouveaux types corrigés de façon déterministe :
+`complex_parts`, `complex_number`, `solution_set_complex` (accepte `1±2i`),
+`numeric_radical` (`5√2`, `√50`), `numeric_approx` (demi-unité du dernier
+chiffre), `interval`, `expression`, `multi_answer`, décimaux et fractions
+(`0,25`, `1/4`). Une réponse de raisonnement courte (intervalle, formule
+d'un seul bloc) est corrigée ; une phrase ne l'est jamais.
+
+Transformations des packs (aucune réponse, aucun énoncé modifié) :
+* CH01 : manifeste v2 (`id`, `class_keys: ["terminale-d"]`, version 1,
+  moteur 2) ; notion `chapter_integration` ; runtime v2 (`concept_ids`,
+  `concept_id` par question, indices sans la réponse, moteurs et statuts
+  de jeux explicites) ; `question_ids` sur les deux anomalies de la page 025.
+* CH02 : 6 jeux `ready` → `draft` (aucun moteur) ; `l2_h1`, `l3_h3`
+  → `auto_score: false` ; sha256 du manifeste recalculés.
+* CH03 : fichiers renommés (`ch03_*.json` → noms canoniques,
+  `manifest.files` mis à jour) ; 6 jeux → `draft` ; 9 réponses rédigées
+  → `auto_score: false` ; sha256 recalculés.
+
+## Anglais Terminale — Module 1, units 1 et 2 (embarqués)
+
+| Unit | Dossier | Notées / ouvertes | Jeux |
+|---|---|---|---|
+| M1U1 Applying for a passport | `assets/content/terminale/anglais/m1_u1_applying_for_a_passport/` | 34 / 6 | 5 en préparation |
+| M1U2 Discussing recreational activities | `assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/` | 34 / 6 | 5 en préparation |
+
+* Cible `class_keys: ["terminale"]` : toutes les séries de Terminale.
+* Hiérarchie Matière → Module → Unit → Leçon : `curriculum.module`,
+  `module_title`, `unit`, `unit_title` (une unit tient lieu de chapitre dans
+  son module ; tri par module puis unit). Apprendre affiche « Anglais ·
+  Module 1 — Family and social life », puis chaque unit.
+* Clé de matière : « English » et « Anglais » forment la même matière
+  (`anglais`).
+* Libellés dans la langue du contenu : niveaux d'explication
+  (`explanation_axis`), actions du Compagnon (`quick_actions`, reconnues en
+  anglais) et difficultés viennent du pack ; l'application garde les siens
+  à défaut.
+* Écoute absente : aucune réponse inventée ; seules les questions appuyées
+  sur un texte visible sont notées, les autres restent ouvertes et signalées.
+  Clôture « Yours faithfully / sincerely » contradictoire dans la source :
+  jamais notée (`l5_q08` ouverte, signalée).
+* Aucune transformation des packs.
+
+## Physique Terminales C-D — Module 1, séquence 1 (embarquée)
+
+| Séquence | Dossier | Notées / ouvertes | Jeux |
+|---|---|---|---|
+| M1S1 Erreurs et incertitudes | `assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/` | 35 / 5 | 5 en préparation |
+
+* Cible `class_keys: ["terminale-c-d"]` : Terminales C et D seulement
+  (jamais A, ni une autre classe) ; un seul pack, jamais dupliqué.
+* Hiérarchie Matière → Module → Séquence → Leçon : `curriculum.module`,
+  `module_title`, `sequence`, `sequence_title` (une séquence tient lieu de
+  chapitre dans son module, comme une unit). Apprendre affiche « Physique ·
+  Module 1 — Mesures et incertitudes », puis « Séquence 1 — Erreurs et
+  incertitudes » ; l'écran de la séquence n'emploie jamais « Chapitre ».
+* Réponses numériques : virgule ou point décimal (« 0,05 », « 0.05 ») ;
+  un entier attendu accepte aussi « 5,0 » (jamais un arrondi ni une
+  fraction).
+* Anomalies de source conservées (formules de type B et tableaux
+  partiellement lisibles) : aucune valeur reconstruite, aucune question
+  visée.
+* Réponses rédigées (`l1_q08` … `l5_q08`) : utilisables en auto-évaluation,
+  jamais notées automatiquement (7 questions notées par leçon).
+* Compagnon : une lettre isolée qualifie le mot qui la précède (« type A »
+  et « type B » restent deux notions distinctes).
+* `learning_card_seeds` restent des indications éditoriales : la fabrique
+  consomme les concepts et questions. `sequence_integration` reçoit une
+  synthèse ; `l5_q07` et `l5_q08` conservent leur unique carte de leçon 5.
+
+## Réponses ouvertes et auto-évaluation (moteur v2)
+
+`auto_score: false` interdit toute correction automatique, même si la valeur
+attendue est techniquement corrigeable. Les réponses en prose reconnues mais
+non corrigeables utilisent aussi cette expérience. Un modèle textuel est
+requis : `model_answer`, sinon `answer` (texte ou nombre). `expected_points`
+peut contenir une liste de points clés. `hints` et `explanation` restent les
+données du pack ; aucune phrase n'est générée. Une question invalide, de type
+inconnu ou sans modèle reste exclue.
+
+`OpenResponsePanel` est partagé par Apprendre → leçon → S'entraîner et par
+MON PARCOURS (`LearningCardType.selfEvaluation`, seul nouveau type).
+L'élève saisit une réponse courte ou développée, peut révéler les indices,
+puis valide « J'ai terminé · Voir la réponse modèle ». Le modèle,
+l'explication et les points clés sont absents de l'interface avant validation.
+La réponse saisie reste visible. L'élève choisit « Je dois revoir », « Presque »
+ou « J'ai compris ». La question suivante devient accessible après ce choix.
+Les avertissements de source restent visibles ; les questions signalées
+restent dans la leçon et sont exclues du fil, comme auparavant.
+
+Le signal est enregistré dans `MasteryState.selfEvaluations`, par question,
+avec `needs_review`, `partial_confidence` ou `self_mastered`. Une nouvelle
+auto-évaluation remplace le signal précédent : aucune accumulation de points.
+Le score, les tentatives corrigées, les réussites, les erreurs, les séries,
+la difficulté réussie et les questions objectivement réussies restent inchangés.
+Les deux premiers signaux favorisent la révision de la notion dans le classement
+existant ; le dernier lève ce besoin déclaré. Il ne certifie pas la maîtrise et
+ne débloque pas artificiellement la leçon suivante. L'historique du fil retient
+une carte parcourue, sans réponse juste/fausse et sans récompense.
+
+Le stockage local par élève et la sérialisation de `MasteryState` sont réutilisés
+(les anciens instantanés restent lisibles). La saisie reste dans l'écran et
+n'est pas envoyée ni persistée. Tout fonctionne hors ligne avec un pack embarqué
+ou déjà en cache. **Aucun appel réseau ni LLM pour répondre ou s'auto-évaluer.**
+
+## Concepts transversaux `lesson: 0`
+
+Une notion déclarée avec `lesson: 0` est une synthèse du chapitre, de l'unité
+ou de la séquence. Elle n'ajoute aucun élément à `Chapter.lessons`. Dans
+Apprendre, l'entrée « Synthèse » suit les vraies leçons et ouvre l'écran
+d'intégration existant, avec les niveaux d'explication du pack et le Compagnon.
+L'interface n'affiche jamais « Leçon 0 » ni une fausse leçon supplémentaire.
+
+La fabrique ajoute une seule carte `revision` par concept transversal,
+avec l'explication standard du pack. Dans MON PARCOURS, son libellé est
+« Synthèse » et « Approfondir » ouvre l'intégration. Elle est éligible après
+une première rencontre de chaque vraie leçon : lecture d'une carte, réponse
+ou auto-évaluation. Les cartes `lesson: 0` sont exclues du calcul de la première
+leçon à travailler. Le plafond habituel du fil reste applicable.
+
+Les questions conservent **leur propre** `lesson`, indépendante de celle du
+concept : en M1S1, `l5_q07` et `l5_q08` restent en leçon 5, sans duplication dans
+la synthèse. Les questions réellement hors leçon (`lesson: 0`) restent dans
+l'écran d'intégration ; les jeux continuent de sélectionner uniquement les
+questions automatiquement corrigeables. Aucun pack, aucun M1S2 n'est créé ou
+modifié pour cette évolution.
+
+## Leçon : barre d'actions et retour au niveau de référence
+
+* Le Compagnon et l'étape suivante vivent dans une barre sous le contenu
+  (`bottomNavigationBar`, `SafeArea`), jamais par-dessus : aucun bouton
+  flottant ne masque une question, une réponse ou un bouton. Côte à côte
+  quand les deux libellés tiennent en entier, l'un sous l'autre sinon.
+* Chaque étape s'ouvre par son début.
+* « Voir la version {niveau} » ramène au niveau de référence, sous le nom
+  que lui donne le pack (« Voir la version Terminale »), avec une icône
+  neutre ; Σ ne marque l'étape « formalisme » que pour les matières en
+  formules (mathématiques, physique, chimie).
+* Titres de notions sur plusieurs lignes dans leurs puces, jamais coupés.
+* Tests : 320 / 360 / 412 dp × texte 1,0 / 1,3 (anglais, mathématiques,
+  physique).
+
+## Règles d'adaptation (depuis `runtime.mastery`)
+
+* 2 erreurs sur une notion → proposer « Simple » ; 1 de plus → proposer
+  « Comme si j'avais 12 ans » ; rien n'est imposé, une préférence
+  verrouillée n'est jamais remise en question.
+* 3 réussites consécutives → proposer la difficulté supérieure.
+* Score de maîtrise 0–100 par notion ; la leçon suivante est conseillée à
+  partir de 70 (jamais interdite).
+
+## Vérification sur appareil Android
+
+1. Compte Terminale D : Apprendre ne montre ni SVT « Le monde vivant » ni
+   l'Anglais de 6e (garde client) ; « Chapitres interactifs » montre
+   Arithmétique.
+2. Compte Sixième : aucun contenu de Terminale, ni dans Apprendre ni dans
+   Mon Parcours ; le fil 6e publié est inchangé.
+3. Mon Parcours en Terminale D : des cartes dès l'ouverture ; balayer
+   10 cartes ; répondre juste puis faux ; « Approfondir » puis retour
+   (même carte) ; ouvrir le Compagnon depuis une carte ; ouvrir un jeu.
+4. Mode avion après une première ouverture : Apprendre, leçon, jeux,
+   Compagnon et Mon Parcours fonctionnent.
+5. Texte système au maximum et écran 320–360 dp : boutons, segments,
+   étapes et titres lisibles en entier (aucun « … »).
+6. Zone du Reste niveaux 1 à 3 ; Mission Awa jusqu'au score final.
+7. Après publication d'un pack de test (avec accord) : tirer pour
+   actualiser dans Apprendre → bandeau « Nouveaux contenus… », chapitre
+   visible, nouvelles cartes dans Mon Parcours sans redémarrer.

@@ -449,7 +449,7 @@ abstract final class FlowDemoContent {
       prompt:
           'Complète : l’auteur camerounais de « Mission terminée » est ___.',
       acceptedAnswers: ['Mongo Beti', 'Beti'],
-      hint: 'Son nom apparaît dans une autre carte du Flow.',
+      hint: 'Son nom apparaît dans une autre carte du parcours.',
       explanation:
           'Mongo Beti est l’un des grands romanciers camerounais du XXᵉ siècle.',
     ),

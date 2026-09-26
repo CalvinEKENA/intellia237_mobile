@@ -1,0 +1,54 @@
+{
+  "schema_version": "intellia.pack-manifest.v3",
+  "id": "english_terminale_m1_u2_discussing_recreational_activities",
+  "title": "English Terminale — Module 1 Unit 2: Discussing recreational activities",
+  "class_keys": [
+    "terminale"
+  ],
+  "subject": "anglais",
+  "module": 1,
+  "unit": 2,
+  "version": 1,
+  "authoring_status": "validated",
+  "publication_status": "draft",
+  "minimum_engine_version": 2,
+  "source_file": "cours.txt",
+  "files": {
+    "source": "source.json",
+    "pedagogy": "pedagogy.json",
+    "runtime": "runtime.json",
+    "validation": "validation_report.json"
+  },
+  "stats": {
+    "lessons": 5,
+    "concepts": 10,
+    "questions": 40,
+    "auto_scored_questions": 34,
+    "non_auto_scored_questions": 6,
+    "game_blueprints": 5,
+    "learning_card_seeds": 13,
+    "difficulty_levels": 3,
+    "explanation_levels": 3
+  },
+  "capabilities": [
+    "deterministic_qcm_shuffle_v1",
+    "stable_option_ids_v1",
+    "deterministic_companion_v1",
+    "learning_cards_v1",
+    "remote_delivery_v1",
+    "offline_first_v1",
+    "language_learning_v1"
+  ],
+  "remote_delivery": {
+    "eligible": true,
+    "preferred_storage": "firebase_storage",
+    "catalog_status": "do_not_publish_until_engine_validation",
+    "cache_policy": "latest_valid_with_rollback"
+  },
+  "sha256": {
+    "pedagogy.json": "d82e4415d9e33f67eac17ace5f42f913c17de2a38bd52852ebde5cd14c5566f4",
+    "source.json": "cfeb3bff8429d705c94e7adcb14dd19dd0b7171a3f532f6b15432d3255e3f752",
+    "validation_report.json": "bbaba07103e492babcaa852f128b1a3cd0a1b8211c767bfc5f2742c8f758d3a2",
+    "runtime.json": "70c00816b08757bc35fb7b8e6cb4da4b31eb7208d7c99f38cdb5d707fc2a4864"
+  }
+}

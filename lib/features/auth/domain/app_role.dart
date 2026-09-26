@@ -38,6 +38,40 @@ StoredAppRoleResolution parseStoredAppRole(String storedValue) {
   return const StoredAppRoleResolution(role: null, isLegacy: false);
 }
 
+/// Espaces d'un compte : le rôle principal `role` et les espaces additifs
+/// `roles`, lus exactement comme le serveur (functions/src/auth/userRoles.ts)
+/// et les règles Firestore :
+/// - un compte élève n'a pas d'autre espace ;
+/// - `roles` n'ajoute que parent, enseignant ou direction — jamais élève,
+///   jamais super-administration (qui ne se lit que dans `role`).
+/// Le rôle principal vient en premier.
+List<AppRole> parseStoredAppRoles(
+  dynamic storedRoles,
+  String storedPrimaryRole,
+) {
+  final result = <AppRole>{};
+  final primary = parseStoredAppRole(storedPrimaryRole).role;
+  if (primary != null) {
+    result.add(primary);
+  }
+  if (primary == AppRole.student) return result.toList(growable: false);
+
+  if (storedRoles is Iterable) {
+    for (final item in storedRoles) {
+      if (item is! String) continue;
+      final role = switch (item.trim()) {
+        'parent' => AppRole.parent,
+        'teacher' => AppRole.teacher,
+        'admin' => AppRole.admin,
+        _ => null,
+      };
+      if (role != null) result.add(role);
+    }
+  }
+
+  return result.toList(growable: false);
+}
+
 extension AppRoleX on AppRole {
   String get label {
     return switch (this) {

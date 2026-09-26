@@ -17,21 +17,42 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == uid;
     }
 
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
     function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      return getUserData().role;
     }
 
     function isActiveOrLegacyStaffAccount() {
-      return !('accountStatus' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data)
-        || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.accountStatus == 'active';
+      return !('accountStatus' in getUserData())
+        || getUserData().accountStatus == 'active';
     }
 
+    // Espaces d'un compte : le rôle principal historique `role`, et les
+    // espaces additifs `roles` (parent, enseignant, direction) qu'écrit seul
+    // le serveur (`manageUserRoles`). Même lecture que
+    // functions/src/auth/userRoles.ts : un compte élève n'a pas d'autre espace,
+    // personne ne devient élève par `roles`, et la super-administration ne se
+    // lit jamais dans `roles`.
     function isRole(role) {
-      return isAuthenticated() && getUserRole() == role;
+      return isAuthenticated() && (
+        getUserData().role == role ||
+        (role in ['parent', 'teacher', 'admin']
+          && getUserData().role != 'student'
+          && 'roles' in getUserData()
+          && getUserData().roles is list
+          && role in getUserData().roles)
+      );
+    }
+
+    function hasRole(role) {
+      return isRole(role);
     }
 
     function isSuperAdmin() {
-      return isRole('superAdmin') || isRole('super_admin');
+      return isAuthenticated() && getUserRole() in ['superAdmin', 'super_admin'];
     }
 
     function isAdmin() {
@@ -54,6 +75,14 @@ service cloud.firestore {
       return isRole('student');
     }
 
+    // L'etablissement n'est jamais declare par l'utilisateur : il est attache
+    // par un workflow serveur (approbation du personnel, changement d'ecole
+    // par la super-administration, acces familial). establishmentId et
+    // establishmentName sont donc absents des cles de creation.
+    function establishmentAuthorityKeys() {
+      return ['establishmentId', 'establishmentName', 'establishmentVerified'];
+    }
+
     function userCreateKeys() {
       return [
         'uid',
@@ -64,7 +93,6 @@ service cloud.firestore {
         'role',
         'avatarId',
         'photoUrl',
-        'establishmentId',
         'classLevel',
         'series',
         'tutorId',
@@ -94,8 +122,6 @@ service cloud.firestore {
         'firstName',
         'lastName',
         'email',
-        'establishmentId',
-        'establishmentName',
         'classLevel',
         'series',
         'points',
@@ -206,6 +232,33 @@ service cloud.firestore {
         );
     }
 
+    function isStudentInClass(classId) {
+      return classId is string
+        && classId.size() > 0
+        && exists(/databases/$(database)/documents/classes/$(classId))
+        && request.auth.uid in get(/databases/$(database)/documents/classes/$(classId)).data.get('studentIds', []);
+    }
+
+    // Annonces : ETABLISSEMENT (audience d'ecole) ou CLASSE (audience
+    // 'Classe' + classId). Il n'existe pas d'annonce globale : toute annonce
+    // porte un establishmentId.
+    function isTeacherAnnouncementReader(data) {
+      return data.get('createdBy', '') == request.auth.uid
+        || (isSameEstablishment(data.get('establishmentId', ''))
+            && (data.get('audience', '') in ['Tout l\'établissement', 'Enseignants']
+                || (data.get('audience', '') == 'Classe'
+                    && data.get('classId', '') is string
+                    && data.get('classId', '').size() > 0
+                    && isAssignedTeacherForClass(data.get('classId', '')))));
+    }
+
+    function isStudentAnnouncementReader(data) {
+      return isSameEstablishment(data.get('establishmentId', ''))
+        && (data.get('audience', '') in ['Tout l\'établissement', 'Élèves']
+            || (data.get('audience', '') == 'Classe'
+                && isStudentInClass(data.get('classId', ''))));
+    }
+
     // Vérifie qu'un parent est lié à un enfant
     function isLinkedParent(studentUid) {
       return isParent() &&
@@ -282,8 +335,13 @@ service cloud.firestore {
     // =============================================
     match /parent_profiles/{uid} {
       allow read: if isOwner(uid) || isSuperAdmin();
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid) || isSuperAdmin();
+      // Un parent suit l'ecole de ses enfants : il ne s'en declare aucune.
+      allow create: if isOwner(uid)
+                    && !request.resource.data.keys().hasAny(establishmentAuthorityKeys());
+      allow update: if (isOwner(uid)
+                        && !request.resource.data.diff(resource.data).affectedKeys()
+                             .hasAny(establishmentAuthorityKeys()))
+                    || isSuperAdmin();
       allow delete: if isSuperAdmin();
     }
 
@@ -324,8 +382,13 @@ service cloud.firestore {
                     || isSuperAdmin()
                     || (isAdmin() && isStaffForStudent(resource.data.studentId))
                   );
+      // Identifiant canonique {parentId}_{studentId} : c'est celui que
+      // isLinkedParent() interroge. Un lien a un autre identifiant pourrait
+      // etre approuve pour un autre parent que son createur.
       allow create: if isParent()
                     && request.auth.uid == request.resource.data.parentId
+                    && linkId == request.resource.data.parentId + '_' + request.resource.data.studentId
+                    && request.resource.data.studentId != request.auth.uid
                     && request.resource.data.keys().hasOnly([
                          'parentId',
                          'studentId',
@@ -436,25 +499,6 @@ service cloud.firestore {
         && (scopeId == 'global' || isSuperAdmin() || isSameEstablishment(scopeId));
     }
 
-    function editorialStatusOf(data) {
-      return data.get('status', data.get('editorialWorkflow', {}).get('status', 'draft'));
-    }
-
-    // Rendre un contenu visible aux eleves, le programmer ou l'archiver
-    // releve de l'administration, jamais d'un auteur.
-    function isPublicationTransition(nextStatus) {
-      return nextStatus in ['approved', 'scheduled', 'published', 'archived'];
-    }
-
-    function isAllowedEditorialTransition() {
-      let current = editorialStatusOf(resource.data);
-      let next = editorialStatusOf(request.resource.data);
-      // Un contenu en ligne ne redevient jamais un brouillon en place : il
-      // s'archive, ou une revision distincte nait a cote.
-      return !(current == 'published' && next == 'draft')
-        && (current == next || !isPublicationTransition(next) || isAdmin());
-    }
-
     // Publication and changes to published lessons must pass the server's
     // media validation. Direct authoring remains available for draft text.
     match /{path=**}/lessons/{lessonId} {
@@ -494,8 +538,14 @@ service cloud.firestore {
     // =============================================
     // COURSES FOR STRUCTURED AI GENERATION
     // =============================================
+    // Perimetres de contenu :
+    // - GLOBAL : programme national (scope absent ou 'global'), lisible par
+    //   tout le personnel ; les eleves le recoivent par les callables ;
+    // - ESTABLISHMENT : scope.establishmentId, personnel de cette ecole ;
+    // - CLASS : documents `classes` (studentIds), regles dediees plus haut.
+    // Aucun client eleve ne lit courses ni lesson_assets directement.
     match /courses/{courseId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
       allow create: if mayWriteLegacyCatalog(request.resource.data);
       allow update: if mayWriteLegacyCatalog(resource.data)
                     && mayWriteLegacyCatalog(request.resource.data);
@@ -504,7 +554,8 @@ service cloud.firestore {
     }
 
     match /courses/{courseId}/images/{imageId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(
+        get(/databases/$(database)/documents/courses/$(courseId)).data));
       allow create, update: if mayWriteLegacyCatalog(
         get(/databases/$(database)/documents/courses/$(courseId)).data);
       allow delete: if isSuperAdmin()
@@ -534,7 +585,7 @@ service cloud.firestore {
     // LESSON ASSETS
     // =============================================
     match /lesson_assets/{assetId} {
-      allow read: if isAuthenticated();
+      allow read: if isStaff() && mayReadContentScope(contentScopeIdOf(resource.data));
       allow create: if mayWriteLegacyCatalog(request.resource.data);
       allow update: if mayWriteLegacyCatalog(resource.data)
                     && mayWriteLegacyCatalog(request.resource.data);
@@ -617,12 +668,26 @@ service cloud.firestore {
     // ANNOUNCEMENTS
     // =============================================
     match /announcements/{announcementId} {
-      // Contrat en deux temps. Les versions deja installees lisent encore les
-      // annonces sans nommer l'ecole : resserrer maintenant casserait leurs
-      // tableaux de bord. Les nouvelles versions bornent leurs requetes a
-      // l'ecole ; une fois adoptees, la lecture deviendra
-      // isSuperAdmin() || isSameEstablishment(resource.data.establishmentId).
-      allow read: if isAuthenticated();
+      // Lecture selon l'audience reelle (docs/security/ANNOUNCEMENTS_ACCESS.md) :
+      // - super-administration : toutes ;
+      // - enseignant actif : les siennes ; dans son ecole, celles destinees a
+      //   tout l'etablissement ou aux enseignants, et celles d'une classe
+      //   qu'il encadre ;
+      // - eleve : dans son ecole, celles destinees a tout l'etablissement ou
+      //   aux eleves, et celles de sa classe ;
+      // - TRANSITION : administration d'ecole et parents lisent encore sans
+      //   condition, parce que la version installee interroge
+      //   orderBy(publishedAt).limit(5) sans nommer l'ecole ; une condition sur
+      //   le document ferait echouer cette requete entiere et son tableau de
+      //   bord. Phase 2, apres retrait de ces versions : ecole de
+      //   l'administrateur, ecoles des enfants approuves du parent ;
+      // - tout autre compte connecte (sans role, profil incomplet, personnel
+      //   inactif) : rien.
+      allow read: if isSuperAdmin()
+                  || isAdmin()
+                  || isParent()
+                  || (isTeacher() && isTeacherAnnouncementReader(resource.data))
+                  || (isStudent() && isStudentAnnouncementReader(resource.data));
       allow create: if (isAdmin() || isSuperAdmin())
                     && request.resource.data.createdBy == request.auth.uid
                     && request.resource.data.establishmentId is string
@@ -688,6 +753,12 @@ service cloud.firestore {
                     && resource.data.userId == request.auth.uid;
     }
 
+    // Registre d'idempotence du tuteur (15 min) : serveur uniquement. Il porte
+    // la derniere reponse du compagnon, jamais la question de l'eleve.
+    match /tutor_requests/{requestKey} {
+      allow read, write: if false;
+    }
+
     // =============================================
     // AI PERSONAS
     // =============================================
@@ -701,11 +772,11 @@ service cloud.firestore {
     // =============================================
     // AI CONVERSATIONS
     // =============================================
+    // Aucune version de l'application n'ecrit ici : l'historique du
+    // compagnon reste sur l'appareil. Ouvrir l'ecriture laissait stocker
+    // des documents arbitraires sans borne.
     match /ai_conversations/{conversationId} {
-      allow read: if isAuthenticated() && request.auth.uid == resource.data.userId;
-      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
-      allow update: if isAuthenticated() && request.auth.uid == resource.data.userId;
-      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow read, write: if false;
     }
 
     // =============================================
@@ -714,7 +785,9 @@ service cloud.firestore {
     match /recommendations/{recommendationId} {
       allow read: if isAuthenticated() && request.auth.uid == resource.data.studentId;
       allow create: if false; // Créées uniquement via Cloud Functions / AI
-      allow update: if isAuthenticated() && request.auth.uid == resource.data.studentId;
+      // Aucun client ne les modifie ; l'ancienne regle laissait reecrire tout
+      // le document, studentId compris.
+      allow update: if false;
       allow delete: if isSuperAdmin();
     }
 
@@ -785,16 +858,66 @@ service cloud.firestore {
     // =============================================
     // SETTINGS
     // =============================================
+    // Demande de suppression : le titulaire suit son echeance, la
+    // super-administration voit toutes les demandes. Ecriture serveur seule.
+    match /account_deletion_requests/{uid} {
+      allow read: if (request.auth != null && request.auth.uid == uid) || isSuperAdmin();
+      allow write: if false;
+    }
+
     match /account_management_audit/{eventId} {
       allow read: if isSuperAdmin();
       allow write: if false;
     }
 
+    // =============================================
+    // FAMILY ACCESS (server-only)
+    // =============================================
+    // Code d'acces eleve : empreintes HMAC, index inverse et compteur
+    // anti-bruteforce. Aucun client, pas meme l'eleve, son parent ou la
+    // super-administration, ne lit une empreinte : tout passe par les callables.
+    match /student_access_credentials/{studentId} {
+      allow read, write: if false;
+    }
+
+    match /student_access_codes/{lookupKey} {
+      allow read, write: if false;
+    }
+
+    match /student_access_attempts/{clientKey} {
+      allow read, write: if false;
+    }
+
+    // Enfant sans telephone dont le parent a ouvert l'acces : identite en
+    // attente de profil, creations et quotas. Serveur seulement.
+    match /pending_student_accounts/{studentId} {
+      allow read, write: if false;
+    }
+
+    match /child_access_requests/{requestId} {
+      allow read, write: if false;
+    }
+
+    match /child_access_quotas/{parentId} {
+      allow read, write: if false;
+    }
+
+    // Journaux sans secret : emissions, rotations, migrations du telephone
+    // familial. Lisibles par la seule super-administration, pour le support.
+    match /student_access_audit/{eventId} {
+      allow read: if isSuperAdmin();
+      allow write: if false;
+    }
+
+    match /auth_phone_migrations/{phoneKey} {
+      allow read: if isSuperAdmin();
+      allow write: if false;
+    }
+
+    // Aucune version de l'application n'utilise settings/{uid} : les
+    // preferences vivent sur l'appareil ou dans student_profiles.
     match /settings/{uid} {
-      allow read: if isOwner(uid);
-      allow create: if isOwner(uid);
-      allow update: if isOwner(uid);
-      allow delete: if isSuperAdmin();
+      allow read, write: if false;
     }
   }
 }

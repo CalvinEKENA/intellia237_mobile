@@ -17,8 +17,8 @@ void main() {
   test(
     'pagination continues past an empty filtered page without duplicate cards',
     () async {
-      final result = await fetchFlowCatalog(_PagedFeed(), '6eme');
-      expect(result.map((item) => item.id), ['published-later']);
+      final result = await fetchFlowWindow(_PagedFeed(), '6eme');
+      expect(result.items.map((item) => item.id), ['published-later']);
     },
   );
 

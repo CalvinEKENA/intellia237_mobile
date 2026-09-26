@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intellia237/core/widgets/fit_viewport.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import 'package:intellia237/features/student_registration/application/student_registration_controller.dart';
 import 'package:intellia237/features/student_registration/domain/academic_rules.dart';
 import 'package:intellia237/features/student_registration/presentation/student_registration_flow_screen.dart';
+import 'package:intellia237/l10n/generated/app_localizations.dart';
 
 void main() {
   for (final size in const [
@@ -60,57 +62,69 @@ void main() {
     );
   }
 
-  testWidgets('security step remains scrollable above a mobile keyboard', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(320, 640);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'security step keeps its action above a mobile keyboard, real size',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-    final controller = container.read(
-      studentRegistrationControllerProvider.notifier,
-    );
-    controller
-      ..setFirstName('Amina')
-      ..setLastName('Ndi')
-      ..setSchoolClass(SchoolClass.sixieme)
-      ..setSelectedTutorId('kira')
-      ..goToNextStep();
-    controller
-      ..goToNextStep()
-      ..goToNextStep();
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      final controller = container.read(
+        studentRegistrationControllerProvider.notifier,
+      );
+      controller
+        ..setFirstName('Amina')
+        ..setLastName('Ndi')
+        ..setSchoolClass(SchoolClass.sixieme)
+        ..setSelectedTutorId('kira')
+        ..goToNextStep();
+      controller
+        ..goToNextStep()
+        ..goToNextStep();
 
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const MaterialApp(
-          locale: Locale('fr'),
-          home: MediaQuery(
-            data: MediaQueryData(
-              disableAnimations: true,
-              viewInsets: EdgeInsets.only(bottom: 280),
-              textScaler: TextScaler.linear(1.3),
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            locale: Locale('fr'),
+            home: MediaQuery(
+              data: MediaQueryData(
+                disableAnimations: true,
+                viewInsets: EdgeInsets.only(bottom: 280),
+                textScaler: TextScaler.linear(1.3),
+              ),
+              child: StudentRegistrationFlowScreen(),
             ),
-            child: StudentRegistrationFlowScreen(),
           ),
         ),
-      ),
-    );
-    await tester.pump();
+      );
+      await tester.pump();
 
-    expect(find.text('Créer mon compte'), findsOneWidget);
-    expect(find.byKey(const ValueKey('phone-primary-target')), findsOneWidget);
-    expect(find.text('Identité cible : téléphone + code OTP'), findsOneWidget);
-    expect(find.text('E-mail technique (temporaire)'), findsNothing);
-    expect(find.text('Mot de passe'), findsNothing);
-    expect(find.text('Adresse e-mail'), findsNothing);
-    expect(tester.takeException(), isNull);
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump(const Duration(seconds: 1));
-  });
+      expect(find.text('Créer mon compte'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('phone-primary-target')),
+        findsOneWidget,
+      );
+      expect(find.text('Ton numéro de téléphone'), findsOneWidget);
+      expect(find.textContaining('OTP'), findsNothing);
+      // Action épinglée : visible au-dessus du clavier, sans défiler, et
+      // le texte garde sa taille réelle (aucune réduction d'ensemble).
+      expect(find.byType(FitViewport), findsNothing);
+      expect(
+        tester.getRect(find.text('Créer mon compte')).bottom,
+        lessThanOrEqualTo(640 - 280),
+      );
+      expect(find.text('E-mail technique (temporaire)'), findsNothing);
+      expect(find.text('Mot de passe'), findsNothing);
+      expect(find.text('Adresse e-mail'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 1));
+    },
+  );
 
   for (final brightness in Brightness.values) {
     testWidgets(
@@ -230,4 +244,67 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
     },
   );
+
+  testWidgets('companion step: one pinned button says choose, then continue', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 670);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.read(studentRegistrationControllerProvider.notifier)
+      ..setFirstName('Amina')
+      ..setLastName('Ndi')
+      ..setSchoolClass(SchoolClass.sixieme)
+      ..goToNextStep()
+      ..goToNextStep();
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: MediaQuery(
+            data: MediaQueryData(size: Size(360, 670), disableAnimations: true),
+            child: StudentRegistrationFlowScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    final action = find.byKey(const ValueKey('registration-primary-action'));
+    expect(
+      find.descendant(of: action, matching: find.text('Choisir Kira')),
+      findsOneWidget,
+    );
+    // Le choix se fait sans défiler : le bouton est épinglé en bas.
+    expect(tester.getRect(action).bottom, lessThanOrEqualTo(670));
+
+    await tester.tap(action);
+    await tester.pump();
+    expect(
+      container.read(studentRegistrationControllerProvider).selectedTutorId,
+      'kira',
+    );
+    expect(
+      find.descendant(of: action, matching: find.text('Continuer avec Kira')),
+      findsOneWidget,
+    );
+
+    await tester.tap(action);
+    await tester.pump();
+    expect(
+      container.read(studentRegistrationControllerProvider).currentStep,
+      3,
+    );
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1));
+  });
 }

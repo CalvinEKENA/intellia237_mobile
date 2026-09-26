@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/core/network/network_status.dart';
 import 'package:intellia237/features/ai_companion/application/ai_companion_controller.dart';
+import 'package:intellia237/features/ai_companion/domain/tutor_turn_options.dart';
 import 'package:intellia237/features/ai_companion/data/ai_repository.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_companion_reply.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
@@ -39,10 +40,7 @@ void main() {
       _expectCoreHome();
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-2')));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(
-        find.text('Impossible de charger les quiz pour le moment.'),
-        findsOneWidget,
-      );
+      expect(find.text('Tes quiz arrivent'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-0')));
       await tester.pump();
       _expectCoreHome();
@@ -92,7 +90,7 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Aide-moi');
       await tester.pump();
       // « Parler » devient « Envoyer » dès qu'un caractère utile est saisi.
-      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await tester.tap(find.byKey(const ValueKey('companion-send')));
       await tester.pump(const Duration(milliseconds: 100));
       expect(repository.calls, 1);
       expect(find.textContaining('cours et exercices'), findsOneWidget);
@@ -110,7 +108,7 @@ void main() {
 }
 
 void _expectCoreHome() {
-  expect(find.text('Flow'), findsOneWidget);
+  expect(find.text('Mon parcours'), findsOneWidget);
   expect(find.text('Tes cours arrivent'), findsOneWidget);
 }
 
@@ -189,6 +187,7 @@ class _FailingCompanionRepository implements AIRepository {
     required String classLevel,
     required List<AIMessage> history,
     required String userMessage,
+    TutorTurnOptions options = const TutorTurnOptions(),
   }) async {
     calls += 1;
     throw AICompanionException(

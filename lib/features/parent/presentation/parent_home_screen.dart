@@ -9,19 +9,20 @@ import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../auth/application/auth_controller.dart';
-import '../../auth/domain/app_role.dart';
+import '../../auth/presentation/widgets/role_switch_action.dart';
 import '../application/parent_preview.dart';
 import '../application/parent_providers.dart';
 import '../domain/parent_announcement.dart';
 import '../domain/parent_child_profile.dart';
 import '../domain/parent_dashboard.dart';
-import '../../tour_guide/domain/role_tour_steps.dart';
 import '../../tour_guide/domain/tour_guide_target_ids.dart';
-import '../../tour_guide/presentation/contextual_tour_guide.dart';
+import 'widgets/parent_guide.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../../mobile_money/presentation/mobile_money_parent_tab.dart';
 import '../../notifications/presentation/notification_app_bar_action.dart';
 import 'widgets/add_child_button.dart';
+import 'widgets/parent_child_card.dart';
+import 'widgets/child_link_report_notice.dart';
 import 'widgets/parent_premium_nav_bar.dart';
 import 'widgets/parent_learning_overview.dart';
 import '../../mastery/presentation/mastery_style.dart';
@@ -43,6 +44,15 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
   ];
   int _tabIndex = 0;
   String? _selectedChildId;
+
+  /// Enfant choisi depuis sa carte pour l'abonnement : l'onglet Paiements
+  /// s'ouvre sur l'offre de SON école.
+  String? _paymentChildId;
+
+  void _openSubscriptionFor(String studentId) => setState(() {
+    _paymentChildId = studentId;
+    _tabIndex = 3;
+  });
   bool _tourLaunchRequested = false;
   late final Map<String, GlobalKey> _tourTargets = {
     TourGuideTargetIds.roleHero: GlobalKey(
@@ -68,7 +78,15 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
       appBar: AppBar(
         toolbarHeight: MediaQuery.textScalerOf(context).scale(56),
         title: Text(_tabTitles(context)[_tabIndex], maxLines: 3),
-        actions: const [NotificationAppBarAction()],
+        actions: [
+          IconButton(
+            key: ParentGuide.openKey,
+            tooltip: context.l10n.parentGuideOpen,
+            icon: const Icon(Icons.explore_outlined),
+            onPressed: () => ParentGuide.show(context),
+          ),
+          const NotificationAppBarAction(),
+        ],
       ),
       body: TabSurface(
         palette: const TabPalette(TabPresentationMode.embeddedLight),
@@ -82,7 +100,10 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
                   ref.read(parentPreviewControllerProvider.notifier).exit();
                   context.go(AppRoutes.adminHome);
                 },
-              ),
+              )
+            else
+              // Compte rendu des codes enfants reliés pendant l'entrée.
+              const ChildLinkReportNotice(),
             Expanded(child: _buildBody(context, dashboardAsync, impersonating)),
           ],
         ),
@@ -120,11 +141,14 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
                   announcements: dashboard.announcements,
                   heroKey: _tourTargets[TourGuideTargetIds.roleHero],
                 ),
-                const _ChildrenTab(children: []),
+                _ChildrenTab(
+                  children: const [],
+                  onSubscription: _openSubscriptionFor,
+                ),
                 _AnnouncementsTab(announcements: dashboard.announcements),
                 impersonating
                     ? const _PreviewPaymentsBlocked()
-                    : const MobileMoneyParentTab(),
+                    : MobileMoneyParentTab(initialChildId: _paymentChildId),
                 _ProfileTab(
                   onSignOut: () =>
                       ref.read(authControllerProvider.notifier).signOut(),
@@ -157,11 +181,14 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
                 heroKey: _tourTargets[TourGuideTargetIds.roleHero],
                 switcherKey: _tourTargets[TourGuideTargetIds.roleSwitcher],
               ),
-              _ChildrenTab(children: dashboard.children),
+              _ChildrenTab(
+                children: dashboard.children,
+                onSubscription: _openSubscriptionFor,
+              ),
               _AnnouncementsTab(announcements: dashboard.announcements),
               impersonating
                   ? const _PreviewPaymentsBlocked()
-                  : const MobileMoneyParentTab(),
+                  : MobileMoneyParentTab(initialChildId: _paymentChildId),
               _ProfileTab(
                 onSignOut: () =>
                     ref.read(authControllerProvider.notifier).signOut(),
@@ -182,13 +209,11 @@ class _ParentHomeScreenState extends ConsumerState<ParentHomeScreen> {
     _tourLaunchRequested = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      maybeShowContextualTourGuide(
-        context: context,
-        ref: ref,
-        expectedRole: AppRole.parent,
-        targets: _tourTargets,
-        steps: roleTourSteps(AppRole.parent),
-      );
+      // Guide pas à pas du parent (24/09/2026), à la place des deux bulles
+      // génériques : codes, ajout d'un enfant, passage à son compte.
+      final uid = ref.read(authControllerProvider).userId;
+      if (uid == null || uid.isEmpty) return;
+      ParentGuide.maybeShowOnce(context, uid);
     });
   }
 }
@@ -250,7 +275,10 @@ class _ParentHomeTab extends StatelessWidget {
                 label: Text(context.l10n.viewDetailedProgress),
               ),
               const SizedBox(height: 24),
-              Text(context.l10n.schoolAnnouncements, style: MasteryStyle.title),
+              Text(
+                context.l10n.parentSchoolsAnnouncements,
+                style: MasteryStyle.title,
+              ),
               const SizedBox(height: 12),
               for (final announcement in dashboard.announcements.take(3)) ...[
                 _AnnouncementCard(announcement: announcement),
@@ -336,7 +364,7 @@ class _EmptyParentHomeTab extends StatelessWidget {
         ),
         const SizedBox(height: IntelliaSpacing.md),
         Text(
-          context.l10n.schoolAnnouncements,
+          context.l10n.parentSchoolsAnnouncements,
           style: Theme.of(
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
@@ -351,14 +379,31 @@ class _EmptyParentHomeTab extends StatelessWidget {
   }
 }
 
+/// « Mes enfants » : une carte par enfant, rangée sous l'école de CET enfant.
+///
+/// Un parent n'a pas « son » école : deux enfants peuvent être dans deux
+/// établissements, chacun avec son offre et sa Réserve d'étude.
 class _ChildrenTab extends StatelessWidget {
-  const _ChildrenTab({required this.children});
+  const _ChildrenTab({required this.children, required this.onSubscription});
 
   final List<ParentChildProfile> children;
+  final ValueChanged<String> onSubscription;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final groups = <String, List<ParentChildProfile>>{};
+    for (final child in children) {
+      final name = child.establishmentName?.trim() ?? '';
+      groups.putIfAbsent(name, () => []).add(child);
+    }
+    final schools = groups.keys.toList()
+      ..sort((a, b) {
+        if (a.isEmpty != b.isEmpty) return a.isEmpty ? 1 : -1;
+        return a.compareTo(b);
+      });
     return ListView(
+      key: const ValueKey('parent-children-list'),
       padding: const EdgeInsets.fromLTRB(
         IntelliaSpacing.lg,
         IntelliaSpacing.lg,
@@ -367,53 +412,46 @@ class _ChildrenTab extends StatelessWidget {
       ),
       children: [
         Text(
-          context.l10n.myChildren,
+          l10n.myChildren,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
         ),
+        if (children.isNotEmpty)
+          Text(
+            l10n.parentChildrenCount(children.length),
+            key: const ValueKey('parent-children-count'),
+          ),
         const SizedBox(height: IntelliaSpacing.sm),
         const AddChildButton(expanded: true),
         const SizedBox(height: IntelliaSpacing.md),
-        for (final child in children) ...[
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(IntelliaSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        for (final school in schools) ...[
+          if (schools.length > 1 || school.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: IntelliaSpacing.xs),
+              child: Row(
                 children: [
-                  Text(
-                    child.firstName,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
+                  const Icon(Icons.apartment_rounded, size: 18),
+                  const SizedBox(width: IntelliaSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      school.isEmpty ? l10n.childSchoolUnknown : school,
+                      key: ValueKey('parent-children-school-$school'),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: IntelliaSpacing.xxs),
-                  Text(child.classLabel),
-                  const SizedBox(height: IntelliaSpacing.sm),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () =>
-                              context.push(AppRoutes.childOverview(child.id)),
-                          child: Text(context.l10n.overviewLabel),
-                        ),
-                      ),
-                      const SizedBox(width: IntelliaSpacing.sm),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () =>
-                              context.push(AppRoutes.childProgress(child.id)),
-                          child: Text(context.l10n.progressLabel),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
             ),
-          ),
+          for (final child in groups[school]!) ...[
+            ParentChildCard(
+              child: child,
+              onSubscription: () => onSubscription(child.id),
+            ),
+            const SizedBox(height: IntelliaSpacing.sm),
+          ],
           const SizedBox(height: IntelliaSpacing.sm),
         ],
       ],
@@ -437,7 +475,7 @@ class _AnnouncementsTab extends StatelessWidget {
       ),
       children: [
         Text(
-          context.l10n.schoolAnnouncements,
+          context.l10n.parentSchoolsAnnouncements,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
@@ -483,6 +521,7 @@ class _ProfileTab extends StatelessWidget {
               children: [
                 Text(context.l10n.parentAccountActive),
                 const SizedBox(height: IntelliaSpacing.xs),
+                const RoleSwitchAction(),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.settings_outlined),
@@ -497,6 +536,13 @@ class _ProfileTab extends StatelessWidget {
           ),
         ),
         const SizedBox(height: IntelliaSpacing.md),
+        ListTile(
+          leading: const Icon(Icons.explore_outlined),
+          title: Text(context.l10n.parentGuideReplay),
+          trailing: const Icon(Icons.chevron_right_rounded),
+          onTap: () => ParentGuide.show(context),
+        ),
+        const SizedBox(height: IntelliaSpacing.sm),
         FilledButton.icon(
           key: signOutKey,
           onPressed: onSignOut,
@@ -605,11 +651,14 @@ class _AnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final school = announcement.establishmentName?.trim() ?? '';
     return Card(
       child: ListTile(
         leading: const Icon(Icons.campaign_rounded),
         title: Text(announcement.title),
-        subtitle: Text(announcement.body),
+        subtitle: Text(
+          school.isEmpty ? announcement.body : '$school\n${announcement.body}',
+        ),
       ),
     );
   }

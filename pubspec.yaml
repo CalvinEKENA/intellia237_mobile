@@ -1,7 +1,7 @@
 name: intellia237
 description: "Application e-learning Intellia 237."
 publish_to: "none"
-version: 3.2.1+27
+version: 3.2.1+32
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
@@ -17,6 +17,9 @@ dependencies:
   go_router: ^17.1.0
   google_fonts: ^6.2.1
   shared_preferences: ^2.5.4
+  # Content Engine : intégrité des packs distants et cache persistant.
+  crypto: ^3.0.7
+  path_provider: ^2.1.5
 
   # Firebase
   firebase_core: ^4.14.0
@@ -26,11 +29,6 @@ dependencies:
   firebase_storage: ^13.1.0
   firebase_app_check: ^0.4.7
   firebase_messaging: ^16.1.1
-
-  # Dictée et lecture à voix haute : tout se fait sur l'appareil. Aucun audio
-  # n'est téléversé, ni pour transcrire, ni pour lire une réponse.
-  speech_to_text: ^7.0.0
-  flutter_tts: ^4.2.0
 
   image_picker: ^1.1.2
   image_picker_android: ^0.8.13+14
@@ -53,6 +51,7 @@ dependencies:
   url_launcher: ^6.3.1
 
   intl: any
+  google_sign_in: ^7.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -72,19 +71,28 @@ flutter:
           weight: 900
     - family: CampaignBody
       fonts:
-        - asset: assets/fonts/Manrope-400.ttf
+        - asset: assets/fonts/Manrope-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Manrope-600.ttf
+        - asset: assets/fonts/Manrope-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Manrope-700.ttf
+        - asset: assets/fonts/Manrope-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Manrope-800.ttf
+        - asset: assets/fonts/Manrope-ExtraBold.ttf
           weight: 800
 
   assets:
     - assets/fonts/
     - assets/branding/
+    - assets/branding/google/
     - assets/companions/
+    # Packs pédagogiques locaux (Content Engine) : un dossier par chapitre.
+    # Un test vérifie que chaque pack présent ici est bien déclaré.
+    - assets/content/terminale_d/mathematiques/ch01_arithmetique/
+    - assets/content/terminale_d/mathematiques/ch02_nombres_complexes/
+    - assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/
+    - assets/content/terminale/anglais/m1_u1_applying_for_a_passport/
+    - assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/
+    - assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/
 
 # Icône de lancement uniquement. Les plateformes non mobiles restent hors de
 # ce mécanisme : leurs ressources déjà versionnées, dont le favicon web, ne

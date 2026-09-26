@@ -51,20 +51,21 @@ class FlowCardScaffold extends ConsumerWidget {
             ),
           ),
         ),
+        // Deux halos à la couleur de la matière se posent à l'arrivée de la
+        // carte (une fois) : le fond vit sans distraire la lecture.
         Positioned(
           top: -80,
           right: -60,
-          child: IgnorePointer(
-            child: Container(
-              width: 240,
-              height: 240,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [accent.withValues(alpha: 0.12), Colors.transparent],
-                ),
-              ),
-            ),
+          child: _AmbientHalo(accent: accent, size: 240, alpha: 0.14),
+        ),
+        Positioned(
+          bottom: -110,
+          left: -90,
+          child: _AmbientHalo(
+            accent: accent,
+            size: 280,
+            alpha: 0.08,
+            delay: const Duration(milliseconds: 160),
           ),
         ),
         SafeArea(
@@ -138,6 +139,49 @@ class FlowCardScaffold extends ConsumerWidget {
       color: IntelliaColors.textTertiary,
     ),
   );
+}
+
+class _AmbientHalo extends StatelessWidget {
+  const _AmbientHalo({
+    required this.accent,
+    required this.size,
+    required this.alpha,
+    this.delay = Duration.zero,
+  });
+
+  final Color accent;
+  final double size;
+  final double alpha;
+  final Duration delay;
+
+  @override
+  Widget build(BuildContext context) {
+    final halo = IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              accent.withValues(alpha: alpha),
+              Colors.transparent,
+            ],
+          ),
+        ),
+      ),
+    );
+    if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) return halo;
+    return halo
+        .animate(delay: delay)
+        .fadeIn(duration: 700.ms)
+        .scale(
+          begin: const Offset(0.7, 0.7),
+          end: const Offset(1, 1),
+          duration: 900.ms,
+          curve: Curves.easeOutCubic,
+        );
+  }
 }
 
 /// Dit à l'élève que ces cartes ne sont pas encore un contenu validé.

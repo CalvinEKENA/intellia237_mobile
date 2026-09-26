@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+import {
+  MAX_HISTORY_ITEMS_ACCEPTED,
+  MAX_HISTORY_ITEM_CHARS_ACCEPTED,
+  MAX_USER_MESSAGE_CHARS,
+} from "../llm/tutorBudget";
+import { resolveTutorId, type TutorId } from "../llm/tutorPersonas";
+import { activityOutcomeSchema } from "../llm/interactiveBlocks";
+
 export const difficultySchema = z.enum(["easy", "medium", "hard"]);
 export const summaryLevelSchema = z.enum(["basic", "standard", "advanced"]);
 
@@ -21,26 +29,6 @@ export type GenerateSummaryCallableInput = z.infer<
   typeof generateSummaryCallableInputSchema
 >;
 
-export const askTutorCallableInputSchema = z.object({
-  userMessage: z.string().trim().min(1).max(2000),
-  history: z
-    .array(
-      z.object({
-        role: z.enum(["user", "assistant"]),
-        text: z.string().max(4000),
-      }),
-    )
-    .max(20),
-  classLevel: z.string().min(1).max(50),
-  tutor: z.object({
-    name: z.string(),
-    specialty: z.string(),
-    personality: z.string(),
-    motto: z.string(),
-  }),
-});
-
-export type AskTutorCallableInput = z.infer<typeof askTutorCallableInputSchema>;
 
 export const clientIdSchema = z
   .string()
@@ -48,6 +36,88 @@ export const clientIdSchema = z
   .min(8)
   .max(80)
   .regex(/^[A-Za-z0-9_-]+$/);
+
+// Noms portés par d'anciennes versions installées, avant le regroupement sur
+// Kira et Léo. Ils identifient seulement le compagnon : aucun texte de persona
+// venu du téléphone n'entre jamais dans le prompt.
+const legacyTutorNameAliases: Readonly<Record<string, TutorId>> = {
+  ethan: "leo",
+  armel: "leo",
+  nathan: "leo",
+  grace: "kira",
+  cynthia: "kira",
+  marianne: "kira",
+};
+
+function tutorIdFromLegacyName(name: string): TutorId | null {
+  const resolved = resolveTutorId(name);
+  if (resolved) return resolved;
+  const key = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+  return legacyTutorNameAliases[key] ?? null;
+}
+
+const legacyTutorSchema = z
+  .object({
+    name: z.string().max(40),
+    specialty: z.string().max(200).optional(),
+    personality: z.string().max(200).optional(),
+    motto: z.string().max(200).optional(),
+  })
+  .strict();
+
+export const askTutorCallableInputSchema = z
+  .object({
+    userMessage: z.string().trim().min(1).max(MAX_USER_MESSAGE_CHARS),
+    history: z
+      .array(
+        z
+          .object({
+            role: z.enum(["user", "assistant"]),
+            text: z.string().max(MAX_HISTORY_ITEM_CHARS_ACCEPTED),
+          })
+          .strict(),
+      )
+      .max(MAX_HISTORY_ITEMS_ACCEPTED),
+    classLevel: z.string().min(1).max(50),
+    // Contrat actuel : un identifiant, rien d'autre.
+    tutorId: z.string().max(16).optional(),
+    // Contrat des versions déjà installées, accepté borné et jamais injecté.
+    tutor: legacyTutorSchema.optional(),
+    // Identifiant d'idempotence de la question logique, réutilisé à la relance.
+    requestId: clientIdSchema.optional(),
+    // Types d'activités que ce téléphone sait rendre ; le serveur en retient
+    // l'intersection avec ce qu'il sait valider.
+    activities: z.array(z.string().max(40)).max(40).optional(),
+    // Résultat de l'activité précédente, pour que le compagnon s'adapte.
+    activityOutcome: activityOutcomeSchema.optional(),
+  })
+  .strict()
+  .transform((input, context) => {
+    const tutorId = input.tutorId !== undefined
+      ? resolveTutorId(input.tutorId)
+      : input.tutor !== undefined
+        ? tutorIdFromLegacyName(input.tutor.name)
+        : null;
+    if (tutorId === null) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["tutorId"],
+        message: "Unknown tutor.",
+      });
+      return z.NEVER;
+    }
+    return {
+      userMessage: input.userMessage,
+      history: input.history,
+      classLevel: input.classLevel,
+      tutorId,
+      ...(input.requestId !== undefined ? { requestId: input.requestId } : {}),
+      ...(input.activities !== undefined ? { activities: input.activities } : {}),
+      ...(input.activityOutcome !== undefined ? { activityOutcome: input.activityOutcome } : {}),
+    };
+  });
+
+export type AskTutorCallableInput = z.infer<typeof askTutorCallableInputSchema>;
 
 export const answersByQuestionSchema = z
   .record(z.string().trim().min(1).max(128), z.string().max(1000))

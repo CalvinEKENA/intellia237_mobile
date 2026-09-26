@@ -1,0 +1,134 @@
+{
+  "schema_version": "intellia.validation-report.v3",
+  "pack_id": "english_terminale_m1_u1_applying_for_passport",
+  "status": "PASS_FOR_AUTHORING_READY_FOR_ENGINE_INTEGRATION",
+  "automated_checks": [
+    {
+      "check": "class target all Terminale series",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "five lessons",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "ten concepts",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "forty questions",
+      "passed": true,
+      "details": "40"
+    },
+    {
+      "check": "unique question ids",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "three difficulty levels",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all questions have hints",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "qcm stable ids",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "qcm never position-bound",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "no runtime llm",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all games draft",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "listening gap protected",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "open responses unscored",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "offline ready",
+      "passed": true,
+      "details": ""
+    }
+  ],
+  "question_count": 40,
+  "auto_scored_count": 34,
+  "non_auto_scored_count": 6,
+  "non_auto_scored_question_ids": [
+    "l1_q07",
+    "l1_q08",
+    "l2_q08",
+    "l3_q08",
+    "l4_q08",
+    "l5_q08"
+  ],
+  "questions_by_lesson": {
+    "1": 8,
+    "2": 8,
+    "3": 8,
+    "4": 8,
+    "5": 8
+  },
+  "qcm_randomization": {
+    "policy": "deterministic_per_attempt",
+    "correct_answer_bound_to": "stable option id / answer value, never visual index",
+    "stable_within_attempt": true,
+    "shuffle_between_attempts": true,
+    "true_false_fixed_order": true
+  },
+  "source_quality_flags": [
+    {
+      "id": "listening_passage_missing",
+      "severity": "important",
+      "question_ids": [
+        "l1_q07"
+      ],
+      "issue": "Listening questions exist in the source, but the listening passage itself is missing from the supplied extraction.",
+      "runtime_action": "No invented listening answer key; keep the strategy task non-auto-scored."
+    },
+    {
+      "id": "speech_without_validated_audio",
+      "severity": "moderate",
+      "question_ids": [
+        "l1_q08"
+      ],
+      "issue": "Speech work is text-only in the extraction.",
+      "runtime_action": "Pronunciation practice may be shown, but it is not auto-scored."
+    },
+    {
+      "id": "not_current_official_guidance",
+      "severity": "important",
+      "question_ids": [],
+      "issue": "The textbook unit should not be treated as current official passport-procedure guidance.",
+      "runtime_action": "Keep the pack framed as English-language learning."
+    }
+  ],
+  "validation_policy": {
+    "uncertain_source": "never silently repair",
+    "missing_listening_source": "never invent answer key",
+    "remote_activation": "schema + checksum + class audience + engine compatibility must pass before activation"
+  }
+}

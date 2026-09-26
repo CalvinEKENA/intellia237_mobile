@@ -1,0 +1,50 @@
+{
+  "schema_version": "intellia.pack-manifest.v2",
+  "id": "maths_td_ch02_nombres_complexes_algebrique",
+  "title": "Mathématiques Terminale D — Chapitre 2 : Nombres complexes, approche algébrique",
+  "class_keys": [
+    "terminale-d"
+  ],
+  "subject": "mathematiques",
+  "chapter_number": 2,
+  "version": 1,
+  "status": "published",
+  "minimum_engine_version": 2,
+  "runtime_schema": "intellia.runtime-learning-pack.v2",
+  "remote_delivery": {
+    "eligible": true,
+    "preferred_storage": "firebase_storage",
+    "catalog_entry_ready": true,
+    "cache_policy": "latest_valid_with_rollback"
+  },
+  "files": {
+    "source": "source.json",
+    "pedagogy": "pedagogy.json",
+    "runtime": "runtime.json",
+    "validation": "validation_report.json"
+  },
+  "stats": {
+    "source_images": 12,
+    "lessons": 3,
+    "concepts": 6,
+    "questions": 37,
+    "games": 6,
+    "learning_card_seeds": 13,
+    "difficulty_levels": 3,
+    "explanation_levels": 3
+  },
+  "capabilities": [
+    "complex_number_input_v1",
+    "complex_parts_input_v1",
+    "solution_set_complex_v1",
+    "numeric_radical_v1",
+    "learning_cards_v1",
+    "deterministic_companion_v1"
+  ],
+  "sha256": {
+    "source.json": "c8aa20605d463b30289a3c8625b49db163325d87df52f35dc339a02990eda967",
+    "pedagogy.json": "3d7edfd6d4fbd849fda70447206a6e0c83dd6692230c35a4b8e918fd37f2012c",
+    "runtime.json": "6efa8589a1d10b89448f5f76cb54c152db6942f126c105cf90f89f2403676b74",
+    "validation_report.json": "87e1a11af4a7a8651a87369b4582dd71dc644432edefa1060b608d619133a20c"
+  }
+}

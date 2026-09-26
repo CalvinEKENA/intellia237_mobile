@@ -10,6 +10,8 @@ import { getBytes, ref, uploadBytes } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 import { afterAll, afterEach, beforeAll, describe, it } from "vitest";
 
+import { resolveEmulatorAddress } from "./emulator-address";
+
 const projectId = "demo-intellia237";
 
 let testEnv: RulesTestEnvironment;
@@ -17,13 +19,13 @@ let testEnv: RulesTestEnvironment;
 beforeAll(async () => {
   testEnv = await initializeTestEnvironment({
     projectId,
+    // Hôtes exportés par `emulators:exec`, repli sur firebase.json.
     firestore: {
-      host: "127.0.0.1", port: 8085,
+      ...resolveEmulatorAddress("firestore", "FIRESTORE_EMULATOR_HOST"),
       rules: readFileSync(join(process.cwd(), "../firestore.rules"), "utf8"),
     },
     storage: {
-      host: "127.0.0.1",
-      port: 9200,
+      ...resolveEmulatorAddress("storage", "FIREBASE_STORAGE_EMULATOR_HOST"),
       rules: readFileSync(join(process.cwd(), "../storage.rules"), "utf8")
     }
   });

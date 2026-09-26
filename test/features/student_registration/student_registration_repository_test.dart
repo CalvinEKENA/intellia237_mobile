@@ -145,6 +145,50 @@ void main() {
     expect(store.lastUserCreate?['phoneNumber'], '+237699123456');
   });
 
+  test(
+    'a Google identity registers on its own UID, never a second account',
+    () async {
+      final auth = _FakeAuthGateway(
+        currentUser: _FakeAuthUser(
+          email: 'parent.google@example.cm',
+          signedInWithGoogle: true,
+        ),
+      );
+      final store = _FakeDocumentStore();
+      final repository = FirebaseStudentRegistrationRepository(
+        authGateway: auth,
+        documentStore: store,
+      );
+
+      final result = await repository.registerStudent(
+        _payload(email: '', password: ''),
+      );
+
+      expect(result.uid, 'student-uid');
+      expect(auth.createCalls, 0);
+      expect(auth.signInCalls, 0);
+    },
+  );
+
+  test(
+    'without phone, Google or server token, no silent account is created',
+    () async {
+      final auth = _FakeAuthGateway(
+        currentUser: _FakeAuthUser(email: 'someone@example.cm'),
+      );
+      final repository = FirebaseStudentRegistrationRepository(
+        authGateway: auth,
+        documentStore: _FakeDocumentStore(),
+      );
+
+      await expectLater(
+        repository.registerStudent(_payload(email: '', password: '')),
+        throwsA(anything),
+      );
+      expect(auth.createCalls, 0);
+    },
+  );
+
   test('Auth record without a current session signs in and resumes', () async {
     final auth = _FakeAuthGateway(emailAlreadyInUse: true);
     final store = _FakeDocumentStore();
@@ -343,7 +387,17 @@ class _FakeAuthGateway implements RegistrationAuthGateway {
 }
 
 class _FakeAuthUser implements RegistrationAuthUser {
-  _FakeAuthUser({this.email = 'amina.ndi@example.com', this.phoneNumber});
+  @override
+  bool get openedByServerToken => false;
+
+  _FakeAuthUser({
+    this.email = 'amina.ndi@example.com',
+    this.phoneNumber,
+    this.signedInWithGoogle = false,
+  });
+
+  @override
+  final bool signedInWithGoogle;
 
   @override
   final String? email;

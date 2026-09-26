@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intellia237/core/widgets/fit_viewport.dart';
+import 'package:intellia237/core/widgets/pinned_footer_layout.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_controls.dart';
 import 'package:intellia237/features/auth/presentation/widgets/living_pass.dart';
 import 'package:intellia237/features/parent_registration/application/parent_registration_controller.dart';
@@ -171,11 +173,20 @@ void main() {
         );
 
         expect(find.byType(LivingPass), findsOneWidget);
-        expect(find.byType(SingleChildScrollView), findsOneWidget);
+        // Action épinglée (QA appareil, 24/09/2026) : le texte garde sa
+        // taille réelle, l'action est déjà au-dessus du clavier, sans geste.
+        expect(find.byKey(const ValueKey('auth-screen-fixed')), findsOneWidget);
+        expect(find.byType(FitViewport), findsNothing);
         final action = find.byKey(
           const ValueKey('registration-primary-action'),
         );
-        await tester.ensureVisible(action);
+        expect(
+          find.descendant(
+            of: find.byKey(PinnedFooterLayout.footerKey),
+            matching: action,
+          ),
+          findsOneWidget,
+        );
         expect(tester.getRect(action).bottom, lessThanOrEqualTo(360));
         if (step == 2) expect(find.byType(AuthConsentTile), findsNWidgets(2));
         expect(tester.takeException(), isNull);

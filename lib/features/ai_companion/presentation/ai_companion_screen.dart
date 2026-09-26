@@ -13,8 +13,11 @@ import '../../../core/widgets/tab_presentation.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/ai_companion_controller.dart';
 import '../domain/ai_companion_reply.dart';
+import '../domain/ai_message.dart';
+import '../../interactive_learning/domain/interactive_block.dart';
+import '../../interactive_learning/presentation/interactive_block_view.dart';
+import '../../tutor/domain/tutor_persona.dart';
 import 'widgets/chat_bubble.dart';
-import '../application/listen_controller.dart';
 import 'widgets/companion_composer.dart';
 import 'widgets/companion_history_sheet.dart';
 
@@ -230,9 +233,6 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     final message = _controller.text.trim();
     if (message.isEmpty) return;
     _controller.clear();
-    // Un nouvel envoi interrompt proprement la lecture en cours ; elle ne
-    // reprend jamais d'elle-même.
-    unawaited(ref.read(listenControllerProvider.notifier).stop());
     ref.read(aiCompanionControllerProvider.notifier).send(message);
   }
 
@@ -372,6 +372,8 @@ class _CompanionHeader extends StatelessWidget {
         : switch (state.errorKind) {
             AICompanionFailureKind.quotaExhausted =>
               context.l10n.companionStatusQuota,
+            AICompanionFailureKind.studyReserveExhausted =>
+              context.l10n.studyReserveStatusDepleted,
             AICompanionFailureKind.authorizationProfile =>
               context.l10n.companionStatusProfile,
             AICompanionFailureKind.network =>
@@ -468,6 +470,8 @@ String _localizedCompanionError(BuildContext context, AICompanionState state) {
     AICompanionFailureKind.quotaExhausted => context.l10n.companionQuotaReached(
       name,
     ),
+    AICompanionFailureKind.studyReserveExhausted =>
+      context.l10n.companionStudyReserveDepleted(name),
     AICompanionFailureKind.authorizationProfile =>
       context.l10n.companionProfileSync(name),
     AICompanionFailureKind.invalidRequest =>
@@ -545,8 +549,14 @@ class _GlassChatContainer extends StatelessWidget {
               if (index >= state.messages.length) {
                 return TypingIndicatorBubble(tutor: state.tutor);
               }
-              return ChatBubble(
-                message: state.messages[index],
+              final message = state.messages[index];
+              final block = message.block;
+              if (block == null) {
+                return ChatBubble(message: message, tutor: state.tutor);
+              }
+              return _MessageWithActivity(
+                message: message,
+                block: block,
                 tutor: state.tutor,
               );
             },
@@ -582,6 +592,77 @@ class _GlassChatContainer extends StatelessWidget {
           child: inner,
         ),
       ),
+    );
+  }
+}
+
+/// Réponse du compagnon suivie de l'activité qu'il propose.
+///
+/// Gardée vivante au défilement : remonter dans la conversation ne remet pas
+/// l'exercice à zéro. Le bloc est rendu hors de la bulle pour ne pas hériter
+/// de sa hauteur intrinsèque.
+class _MessageWithActivity extends ConsumerStatefulWidget {
+  const _MessageWithActivity({
+    required this.message,
+    required this.block,
+    required this.tutor,
+  });
+
+  final AIMessage message;
+  final InteractiveLearningBlock block;
+  final TutorPersona tutor;
+
+  @override
+  ConsumerState<_MessageWithActivity> createState() =>
+      _MessageWithActivityState();
+}
+
+class _MessageWithActivityState extends ConsumerState<_MessageWithActivity>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    final author = TutorPersona.resolve(
+      widget.message.companionId,
+      fallback: widget.tutor,
+    );
+    final controller = ref.read(aiCompanionControllerProvider.notifier);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ChatBubble(message: widget.message, tutor: widget.tutor),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
+              child: InteractiveBlockView(
+                block: widget.block,
+                companion: ExerciseCompanion(
+                  id: author.id,
+                  name: author.name,
+                  avatarAsset: author.imagePath,
+                ),
+                onOutcome: controller.recordActivityOutcome,
+                onContinue: () {
+                  if (ref.read(aiCompanionControllerProvider).isSending) {
+                    return;
+                  }
+                  unawaited(
+                    controller.continueAfterActivity(
+                      context.l10n.ilbContinueMessage,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

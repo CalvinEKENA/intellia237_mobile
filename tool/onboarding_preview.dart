@@ -13,11 +13,11 @@ import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/application/auth_state.dart';
 import 'package:intellia237/features/auth/application/phone_auth_controller.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
+import 'package:intellia237/features/auth/presentation/account_welcome_screen.dart';
 import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
 import 'package:intellia237/features/auth/presentation/forgot_password_screen.dart';
 import 'package:intellia237/features/auth/presentation/login_screen.dart';
 import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
-import 'package:intellia237/features/auth/presentation/register_screen.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import 'package:intellia237/features/auth/presentation/widgets/pass_home_arrival.dart';
 import 'package:intellia237/features/legal/presentation/legal_document_screen.dart';
@@ -81,22 +81,28 @@ class _OnboardingPreviewAppState extends ConsumerState<OnboardingPreviewApp> {
             child: const OnboardingScreen(),
           ),
         ),
-        _authRoute(AppRoutes.register, (_) => const RegisterScreen()),
         _authRoute(AppRoutes.authGateway, (_) => const AuthGatewayScreen()),
         _authRoute(AppRoutes.login, (_) => const PhoneAuthScreen()),
-        _authRoute(AppRoutes.emailLogin, (_) => const LoginScreen()),
+        _authRoute(
+          AppRoutes.emailLogin,
+          (state) =>
+              LoginScreen(authIntent: AppRoutes.entryIntentFrom(state.uri)),
+        ),
         _authRoute(
           AppRoutes.forgotPassword,
           (_) => const ForgotPasswordScreen(),
         ),
-        _authRoute(AppRoutes.phoneAuth, (state) {
-          final name = state.uri.queryParameters['role'];
-          final roles = AppRole.values.where((role) => role.name == name);
-          return PhoneAuthScreen(
-            registrationRole: roles.isEmpty ? null : roles.first,
+        _authRoute(
+          AppRoutes.phoneAuth,
+          (state) => PhoneAuthScreen(
+            authIntent: AppRoutes.entryIntentFrom(state.uri),
             linkCurrentUser: state.uri.queryParameters['mode'] == 'link',
-          );
-        }),
+          ),
+        ),
+        _authRoute(
+          AppRoutes.accountWelcome,
+          (_) => const AccountWelcomeScreen(),
+        ),
         _authRoute(
           AppRoutes.studentRegistration,
           (_) => const StudentRegistrationFlowScreen(),
@@ -148,7 +154,7 @@ class _OnboardingPreviewAppState extends ConsumerState<OnboardingPreviewApp> {
               _PreviewBanner(
                 showOtpHint:
                     path == AppRoutes.login || path == AppRoutes.phoneAuth,
-                onRestart: () => _restart(AppRoutes.register),
+                onRestart: () => _restart(AppRoutes.authGateway),
                 onReview: () => _restart(AppRoutes.onboarding),
               ),
               Expanded(child: child(state)),

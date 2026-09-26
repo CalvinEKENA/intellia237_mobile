@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../interactive_learning/domain/interactive_block.dart';
 import '../domain/ai_message.dart';
 import '../domain/companion_conversation.dart';
 
@@ -150,6 +151,7 @@ class CompanionHistoryRepository {
     'text': message.text,
     'createdAt': message.createdAt.toIso8601String(),
     if (message.companionId != null) 'companionId': message.companionId,
+    if (message.block != null) 'block': message.block!.toJson(),
   };
 
   List<AIMessage> _decodeMessages(String? raw) {
@@ -170,6 +172,7 @@ class CompanionHistoryRepository {
                   DateTime.tryParse(map['createdAt'] as String? ?? '') ??
                   DateTime.now(),
               companionId: map['companionId'] as String?,
+              block: InteractiveLearningBlock.tryParse(map['block']),
             );
           })
           .toList(growable: false);

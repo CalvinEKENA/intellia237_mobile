@@ -10,6 +10,7 @@ import 'session/learner_session.dart';
 import 'theme/app_theme.dart';
 import '../features/profile/application/user_preferences_controller.dart';
 import '../core/widgets/network_status_banner.dart';
+import '../core/widgets/web_phone_frame.dart';
 import '../core/network/network_status.dart';
 import '../features/learn/application/learn_providers.dart';
 import '../features/auth/application/auth_controller.dart';
@@ -103,13 +104,15 @@ class Intellia237App extends ConsumerWidget {
           // navigator, over the route that replaced it.
           child: ScreenShatterLayer(child: app),
         );
-        if (!config.isStaging) return surfaced;
+        if (!config.isStaging) return WebPhoneFrame(child: surfaced);
 
-        return Banner(
-          message: 'STAGING',
-          location: BannerLocation.topEnd,
-          color: Colors.deepOrange,
-          child: surfaced,
+        return WebPhoneFrame(
+          child: Banner(
+            message: 'STAGING',
+            location: BannerLocation.topEnd,
+            color: Colors.deepOrange,
+            child: surfaced,
+          ),
         );
       },
     );

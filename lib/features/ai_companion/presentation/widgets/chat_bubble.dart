@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/design_tokens.dart';
-import '../../../../core/localization/localization_extensions.dart';
-import '../../application/listen_controller.dart';
 import '../../../../core/widgets/tab_presentation.dart';
 import '../../../tutor/domain/tutor_persona.dart';
 import '../../domain/ai_message.dart';
@@ -120,7 +117,7 @@ class _StudentTurn extends StatelessWidget {
   }
 }
 
-class _CompanionTurn extends ConsumerWidget {
+class _CompanionTurn extends StatelessWidget {
   const _CompanionTurn({
     required this.message,
     required this.author,
@@ -132,9 +129,8 @@ class _CompanionTurn extends ConsumerWidget {
   final bool showTimestamp;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final s = TabSurface.of(context);
-    final listen = ref.watch(listenControllerProvider);
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -163,32 +159,8 @@ class _CompanionTurn extends ConsumerWidget {
                     height: 1.62,
                   ),
                 ),
-                Row(
-                  children: [
-                    // « Écouter » est disponible pour tous les paliers : la
-                    // lecture à voix haute n'est pas une fonction premium.
-                    // À grande échelle de texte, l'action et l'heure doivent
-                    // pouvoir se comprimer plutôt que déborder de la bulle.
-                    Flexible(
-                      child: _ListenAction(
-                        speaking: listen.isSpeaking(message.id),
-                        accent: author.accentColor,
-                        onTap: () => ref
-                            .read(listenControllerProvider.notifier)
-                            .toggle(
-                              message.id,
-                              message.text,
-                              // La voix suit l'auteur du message, pas la
-                              // persona courante : un ancien message de Kira
-                              // reste lu par Kira.
-                              companionId: author.id,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(width: IntelliaSpacing.sm),
-                    if (showTimestamp) _Timestamp(moment: message.createdAt),
-                  ],
-                ),
+                // La voix est retirée de la V1 : une réponse se lit.
+                if (showTimestamp) _Timestamp(moment: message.createdAt),
               ],
             ),
           ),
@@ -198,61 +170,6 @@ class _CompanionTurn extends ConsumerWidget {
   }
 }
 
-/// Bouton « Écouter » / « Pause » d'une réponse.
-class _ListenAction extends StatelessWidget {
-  const _ListenAction({
-    required this.speaking,
-    required this.accent,
-    required this.onTap,
-  });
-
-  final bool speaking;
-  final Color accent;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = speaking
-        ? context.l10n.companionPauseListening
-        : context.l10n.companionListen;
-    return Semantics(
-      button: true,
-      label: label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(99),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                speaking ? Icons.pause_rounded : Icons.volume_up_rounded,
-                size: 15,
-                color: accent,
-              ),
-              const SizedBox(width: 5),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: accent,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Attente de réponse : trois points sur le fil d'encre, sans bulle.
 class TypingIndicatorBubble extends StatefulWidget {
   const TypingIndicatorBubble({required this.tutor, super.key});
 

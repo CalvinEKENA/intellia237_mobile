@@ -14,6 +14,7 @@ import {
   type AccountEstablishmentChangeInput,
   accountEstablishmentChangeInputSchema,
 } from "../utils/validation";
+import { isSuperAdminUser } from "../auth/userRoles";
 
 type ChangeableRole = "student" | "parent" | "teacher" | "admin";
 
@@ -199,8 +200,7 @@ export function authorizeAccountEstablishmentChange({
   fromEstablishmentId: string | null;
   idempotentReplay: boolean;
 } {
-  const changerRole = normalizedString(changerData?.role);
-  if (changerRole !== "superAdmin" && changerRole !== "super_admin") {
+  if (!isSuperAdminUser(changerData)) {
     throw new AppError(
       "permission-denied",
       "Only the general administration changes an account's school.",

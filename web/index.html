@@ -1,115 +1,127 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
   <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
+    Base de l'application. Remplacée par la valeur de `--base-href` au build.
+    Pour savoir.intellia237.com (racine du domaine), elle vaut "/".
   -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="INTELLIA 237 : tes cours, tes quiz, ton parcours et tes compagnons Kira et Léo, dans ton navigateur.">
+  <meta name="theme-color" content="#F4EFE5">
 
-  <!-- iOS meta tags & icons -->
+  <!-- Écran d'accueil (Android, iPhone) -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Intellia 237">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="INTELLIA 237">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png">
 
-  <title>Intellia 237</title>
+  <title>INTELLIA 237</title>
   <link rel="manifest" href="manifest.json">
 
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
 
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
-
-  
-  
-  
-  
-  <style id="splash-screen-style">
-    html {
-      height: 100%
+  <style>
+    /* Page d'attente : affichée pendant le premier chargement, retirée dès la
+       première image de l'application. Sans dépendance extérieure. */
+    @font-face {
+      font-family: "IntelliaWordmark";
+      src: url("assets/assets/fonts/BarlowCondensed-ExtraBold.ttf") format("truetype");
+      font-display: swap;
     }
-
-    body {
+    html, body {
+      height: 100%;
       margin: 0;
-      min-height: 100%;
-      background-color: #F4EFE5;
-          background-size: 100% 100%;
+      background: #F4EFE5;
     }
-
-    .center {
-      margin: 0;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      -ms-transform: translate(-50%, -50%);
-      transform: translate(-50%, -50%);
+    #intellia-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: #F4EFE5;
+      color: #25233E;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      transition: opacity 360ms ease;
     }
-
-    .contain {
-      display:block;
-      width:100%; height:100%;
-      object-fit: contain;
+    #intellia-loader.done {
+      opacity: 0;
+      pointer-events: none;
     }
-
-    .stretch {
-      display:block;
-      width:100%; height:100%;
+    .wordmark {
+      font-family: "IntelliaWordmark", "Arial Narrow", sans-serif;
+      font-weight: 800;
+      font-size: 44px;
+      letter-spacing: 1px;
+      line-height: 1;
     }
-
-    .cover {
-      display:block;
-      width:100%; height:100%;
-      object-fit: cover;
+    .wordmark .d2 { color: #007A5E; }
+    .wordmark .d3 { color: #CE1126; }
+    .wordmark .d7 { color: #E3A81C; }
+    .ink {
+      width: 120px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(37, 35, 62, 0.10);
+      overflow: hidden;
     }
-
-    .bottom {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      -ms-transform: translate(-50%, 0);
-      transform: translate(-50%, 0);
+    .ink::after {
+      content: "";
+      display: block;
+      width: 40%;
+      height: 100%;
+      border-radius: 2px;
+      background: #5444D8;
+      animation: ink 1.4s ease-in-out infinite;
     }
-
-    .bottomLeft {
-      position: absolute;
-      bottom: 0;
-      left: 0;
+    @keyframes ink {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(260%); }
     }
-
-    .bottomRight {
-      position: absolute;
-      bottom: 0;
-      right: 0;
+    .hint {
+      font-size: 13px;
+      color: #656173;
+      max-width: 260px;
+      text-align: center;
+      line-height: 1.45;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ink::after { animation: none; width: 100%; }
     }
   </style>
-  <script id="splash-screen-script">
-    function removeSplashFromWeb() {
-      document.getElementById("splash")?.remove();
-      document.getElementById("splash-branding")?.remove();
-      document.body.style.background = "transparent";
-    }
-  </script>
 </head>
 <body>
-  
-  
+  <div id="intellia-loader" role="status" aria-live="polite">
+    <div class="wordmark" aria-label="INTELLIA 237">
+      INTELLIA <span class="d2">2</span><span class="d3">3</span><span class="d7">7</span>
+    </div>
+    <div class="ink" aria-hidden="true"></div>
+    <div class="hint">Ton espace se prépare. La première ouverture peut prendre quelques secondes.</div>
+  </div>
+  <noscript>
+    <p style="font-family: sans-serif; text-align: center; padding: 24px;">
+      Pour ouvrir INTELLIA 237, active JavaScript dans ton navigateur.
+    </p>
+  </noscript>
 
-  <script src="flutter_bootstrap.js" async=""></script>
-
-
-
-
-</body></html>
+  <script>
+    // Compatibilité avec flutter_native_splash, qui appelle cette fonction.
+    function removeSplashFromWeb() {
+      var loader = document.getElementById("intellia-loader");
+      if (!loader) return;
+      loader.classList.add("done");
+      setTimeout(function () { loader.remove(); }, 400);
+    }
+    window.addEventListener("flutter-first-frame", removeSplashFromWeb);
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

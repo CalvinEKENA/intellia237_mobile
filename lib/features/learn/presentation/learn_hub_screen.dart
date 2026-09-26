@@ -1,8 +1,12 @@
+import 'dart:developer' as developer;
+
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../app/router/app_routes.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
@@ -12,8 +16,11 @@ import '../../../core/widgets/tab_section_header.dart';
 import '../application/learn_providers.dart';
 import '../domain/learn_subject.dart';
 import 'subject_detail_screen.dart';
+import 'widgets/learn_unavailable_state.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_state_view.dart';
+import '../../content_engine/application/content_providers.dart';
+import '../../content_engine/presentation/local_chapters_section.dart';
 
 class LearnHubScreen extends ConsumerStatefulWidget {
   const LearnHubScreen({super.key, this.embedded = false});
@@ -48,18 +55,34 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
 
     final content = hubAsync.when(
       loading: _LearnHubLoading.new,
-      error: (error, stackTrace) => IntelliaStateView(
-        kind: stateKindForError(error),
-        title: context.l10n.subjectsLoadError,
-        message: stateMessageForKind(context, stateKindForError(error)),
-        primaryLabel: context.l10n.retryLabel,
-        onPrimary: () => ref.invalidate(learnHubProvider),
-      ),
-      data: (snapshot) => _LearnHubBody(
-        classLabel: snapshot.context.label,
-        subjects: snapshot.subjects,
-        searchQuery: _searchQuery,
-        searchCtrl: _searchCtrl,
+      error: (error, stackTrace) {
+        // La cause reste dans les journaux ; l'élève voit un état humain.
+        developer.log(
+          'Learn hub unavailable.',
+          name: 'intellia.learn',
+          error: error.runtimeType.toString(),
+        );
+        return LearnUnavailableState(
+          // Les chapitres embarqués restent ouverts, même sans le catalogue.
+          leading: const LocalChaptersSection(),
+          offline: stateKindForError(error) == IntelliaStateKind.offline,
+          onRetry: () => ref.invalidate(learnHubProvider),
+          onContinuePath: () => context.push(AppRoutes.flow),
+        );
+      },
+      // Tirer pour actualiser : le catalogue et les packs de la classe.
+      data: (snapshot) => RefreshIndicator(
+        key: const ValueKey('learn-refresh'),
+        onRefresh: () async {
+          await ref.read(contentSyncControllerProvider.notifier).refresh();
+          ref.invalidate(learnHubProvider);
+        },
+        child: _LearnHubBody(
+          classLabel: snapshot.context.label,
+          subjects: snapshot.subjects,
+          searchQuery: _searchQuery,
+          searchCtrl: _searchCtrl,
+        ),
       ),
     );
 
@@ -158,6 +181,9 @@ class _LearnHubBody extends StatelessWidget {
         // (Chips de filtre sans effet retirées : fausse affordance. Le
         // contexte de classe est déjà affiché dans le banner.)
         const SliverToBoxAdapter(child: SizedBox(height: IntelliaSpacing.md)),
+
+        // ── Chapitres interactifs locaux (hors connexion) ──
+        const SliverToBoxAdapter(child: LocalChaptersSection()),
 
         // ── Subject grid ───────────────────────────────────
         if (subjects.isEmpty)
@@ -525,18 +551,40 @@ class _SubjectTileVisual extends StatelessWidget {
 // Loading & error states
 // ─────────────────────────────────────────────────────────────
 
+/// Chargement : le cadre de l'onglet s'affiche tout de suite (en-tête,
+/// bandeau, emplacements des matières) ; seules les matières arrivent ensuite.
 class _LearnHubLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(IntelliaSpacing.lg),
-      children: [
-        _SkeletonBox(height: 140),
-        const SizedBox(height: IntelliaSpacing.md),
-        for (int i = 0; i < 4; i++) ...[
-          _SkeletonBox(height: 160),
-          const SizedBox(height: IntelliaSpacing.md),
-        ],
+    final l10n = context.l10n;
+    return CustomScrollView(
+      key: const ValueKey('learn-hub-loading'),
+      slivers: [
+        StickyTabSectionHeader(
+          key: const ValueKey('learn-sticky-header'),
+          eyebrow: l10n.studentSpaceEyebrow,
+          title: l10n.learnTitle,
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            IntelliaSpacing.lg,
+            IntelliaSpacing.md,
+            IntelliaSpacing.lg,
+            132,
+          ),
+          sliver: SliverList.list(
+            children: [
+              const _SkeletonBox(height: 120),
+              const SizedBox(height: IntelliaSpacing.md),
+              const _SkeletonBox(height: 52),
+              const SizedBox(height: IntelliaSpacing.md),
+              for (int i = 0; i < 3; i++) ...[
+                const _SkeletonBox(height: 150),
+                const SizedBox(height: IntelliaSpacing.md),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -1,0 +1,182 @@
+// Reproduction des P0 de la revue de 7ea5cf0, écrite contre ce SHA avant
+// toute correction. Ce fichier est remplacé par les tests de régression
+// définitifs dans le même cycle (voir le rapport de refonte).
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intellia237/app/router/app_router.dart';
+import 'package:intellia237/app/router/app_routes.dart';
+import 'package:intellia237/features/auth/application/auth_controller.dart';
+import 'package:intellia237/features/auth/application/auth_state.dart';
+import 'package:intellia237/features/auth/data/auth_entry_preferences.dart';
+import 'package:intellia237/features/auth/data/services/google_auth_service.dart';
+import 'package:intellia237/features/auth/domain/app_role.dart';
+import 'package:intellia237/features/auth/domain/auth_linking_state.dart';
+import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
+import 'package:intellia237/features/onboarding/data/onboarding_preferences.dart';
+import 'package:intellia237/l10n/generated/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  setUp(() => SharedPreferences.setMockInitialValues(const {}));
+
+  testWidgets('P0-1: a Google success signs the person in', (tester) async {
+    final repository = _Repository();
+    final container = ProviderContainer(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(repository),
+        googleAuthGatewayProvider.overrideWithValue(
+          _SignsInExistingParent(repository),
+        ),
+        hasSeenOnboardingProvider.overrideWith((ref) => true),
+        hasAuthenticatedBeforeProvider.overrideWith((ref) => true),
+        appRouterInitialLocationProvider.overrideWithValue(
+          AppRoutes.authGateway,
+        ),
+        appRouteSlotsProvider.overrideWithValue({
+          for (final path in [
+            AppRoutes.bootstrap,
+            AppRoutes.parentHome,
+            AppRoutes.studentHome,
+            AppRoutes.teacherHome,
+            AppRoutes.adminHome,
+          ])
+            path: (context, state) => Text(state.fullPath ?? ''),
+        }),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(authControllerProvider.notifier).completeBootstrap();
+    final router = container.read(appRouterProvider);
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: const Locale('fr'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 600));
+
+    await tester.tap(find.byKey(const ValueKey('gateway-google-auth')));
+    for (var i = 0; i < 30; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+
+    expect(
+      container.read(authControllerProvider).status,
+      AuthStatus.authenticated,
+    );
+    expect(router.state.uri.path, AppRoutes.parentHome);
+  });
+
+  test(
+    'P0-2: no Firebase identity is created before the person decides',
+    () async {
+      final auth = _RecordingAuth();
+      await FirebaseGoogleAuthGateway(
+        auth: auth,
+        firestore: _NoFirestore(),
+      ).signIn();
+      expect(auth.calls, isNot(contains('signInWithProvider')));
+    },
+  );
+
+  test(
+    'P0-3: the linking screen never links a proof onto the Google session',
+    () {
+      final source = File(
+        'lib/features/auth/presentation/account_linking_screen.dart',
+      ).readAsStringSync();
+      expect(source, isNot(contains('EmailAuthProvider.credential(')));
+      expect(source, isNot(contains('currentUser.linkWithCredential(')));
+      expect(source, isNot(contains(r"'+237$")));
+      expect(source, isNot(contains(r'${e.message}')));
+    },
+  );
+}
+
+class _Repository implements AuthRepository, AuthSessionResolver {
+  String? signedInUid;
+
+  @override
+  Future<AuthSessionResolution> resolveCurrentSession() async {
+    if (signedInUid == null) {
+      return const AuthSessionResolution(
+        kind: AuthSessionResolutionKind.unauthenticated,
+      );
+    }
+    return AuthSessionResolution(
+      kind: AuthSessionResolutionKind.authenticated,
+      firebaseUid: signedInUid,
+      user: AuthUserData(
+        uid: signedInUid!,
+        email: '',
+        role: AppRole.parent,
+        firstName: 'Claire',
+        lastName: '',
+        profileCompleted: true,
+      ),
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _SignsInExistingParent implements GoogleAuthGateway {
+  _SignsInExistingParent(this.repository);
+  final _Repository repository;
+
+  @override
+  Future<GoogleAuthResult> signIn() async {
+    repository.signedInUid = 'parent-uid';
+    return const GoogleAuthSuccess(
+      uid: 'parent-uid',
+      roles: [AppRole.parent],
+      profileCompleted: true,
+    );
+  }
+
+  @override
+  Future<AccountLinkingState> linkGoogleCredential(
+    User currentUser,
+    AuthCredential credential,
+  ) => throw UnimplementedError();
+
+  @override
+  Future<void> signOut() async {}
+}
+
+class _RecordingAuth extends Fake implements FirebaseAuth {
+  final calls = <String>[];
+
+  @override
+  Future<UserCredential> signInWithProvider(AuthProvider provider) async {
+    calls.add('signInWithProvider');
+    throw FirebaseAuthException(code: 'test-stop');
+  }
+
+  @override
+  Future<UserCredential> signInWithPopup(AuthProvider provider) async {
+    calls.add('signInWithPopup');
+    throw FirebaseAuthException(code: 'test-stop');
+  }
+}
+
+class _NoFirestore extends Fake implements FirebaseFirestore {}

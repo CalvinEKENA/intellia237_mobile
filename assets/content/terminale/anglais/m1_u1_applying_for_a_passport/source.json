@@ -1,0 +1,129 @@
+{
+  "schema_version": "intellia.source.v2",
+  "content_id": "english_terminale_m1_u1_applying_for_passport",
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale",
+    "class_keys": [
+      "terminale"
+    ],
+    "subject": "English",
+    "module": 1,
+    "module_title": "Family and social life",
+    "unit": 1,
+    "unit_title": "Applying for a passport"
+  },
+  "source_location": {
+    "provider": "Google Drive",
+    "file": "cours.txt",
+    "folder": "/Google Drive/INTELLIA_CONTENT_SOURCE/ANGLAIS TERMINALES",
+    "line_ranges": [
+      "229-245",
+      "255-274",
+      "282-320",
+      "326-384",
+      "391-418",
+      "424-441"
+    ],
+    "basis": "User-supplied textbook extraction only."
+  },
+  "unit_objectives": [
+    "listen for specific personal information and answer yes/no questions",
+    "ask for, obtain and give personal information in a role play",
+    "revise sounds in English and practise with tongue twisters",
+    "use prediction before detailed reading",
+    "read a form asking for personal information",
+    "answer comprehension questions about a formal form",
+    "use vocabulary relating to personal information and official documents",
+    "revise conjunctions",
+    "revise the passive voice",
+    "fill out an application form accurately",
+    "write an informational text",
+    "develop sociability, cordiality and politeness"
+  ],
+  "source_sections": [
+    {
+      "lesson": 1,
+      "title": "Personal information, listening and key vocabulary",
+      "source_ranges": [
+        "229-245",
+        "255-297"
+      ],
+      "verified_content": [
+        "Unit objectives include listening for specific information, role play and personal-information language.",
+        "Vocabulary explicitly defines biometric, passport, processing time, minor, appointment, expired, in person and document.",
+        "The listening comprehension questions are present, but the listening passage itself is not included beside them in the supplied extraction."
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Prediction and reading a formal form",
+      "source_ranges": [
+        "298-384"
+      ],
+      "verified_content": [
+        "Prediction guidance uses title, subheadings, visually prominent words and quick skimming before detailed reading.",
+        "The sample administrative form contains sections for personal details, parents, celebrant, the other party, supporting documents and a declaration.",
+        "The form asks for items such as forename, surname, marital status, date and country of birth, and residential address."
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Formal-form vocabulary and integrity",
+      "source_ranges": [
+        "326-418"
+      ],
+      "verified_content": [
+        "The sample form includes document checks and a declaration about correctness and genuineness.",
+        "Vocabulary exercise uses proposed, bride, bridegroom, celebrant, notice and solemnise."
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Conjunctions",
+      "source_ranges": [
+        "419-423"
+      ],
+      "verified_content": [
+        "Coordinating conjunction examples include and, but, or, nor, yet, for and so.",
+        "Subordinating conjunction examples include because, although, if, unless, while, before and after.",
+        "The source includes sentence-combination exercises using conjunctions."
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Passive voice and application writing",
+      "source_ranges": [
+        "424-441"
+      ],
+      "verified_content": [
+        "The source includes passive-voice completion exercises.",
+        "The writing task asks the learner to complete a passport application carefully, truthfully and with a signature.",
+        "A project asks learners to research and write an informational text."
+      ]
+    }
+  ],
+  "source_quality": {
+    "overall": "usable_with_specific_gaps",
+    "limitations": [
+      {
+        "id": "listening_passage_missing",
+        "severity": "important",
+        "issue": "The listening questions are present but the teacher-read listening passage is not present in the supplied extracted body next to Unit 1.",
+        "runtime_action": "Do not invent an answer key. Listening-specific tasks remain non-auto-scored unless a validated transcript/audio source is later supplied."
+      },
+      {
+        "id": "speech_text_only",
+        "severity": "moderate",
+        "issue": "Speech-work material is present as text, but the source extraction does not provide validated audio.",
+        "runtime_action": "Do not auto-score pronunciation from the text extraction alone."
+      },
+      {
+        "id": "official_procedure_scope",
+        "severity": "important",
+        "issue": "The unit is textbook material, not a claim about current official passport procedures.",
+        "runtime_action": "Keep exercises focused on the textbook language and form-reading skills; do not present the pack as current administrative guidance."
+      }
+    ]
+  }
+}

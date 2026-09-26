@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intellia237/features/ai_companion/data/speech_services.dart';
 import 'package:intellia237/features/ai_companion/presentation/ai_companion_screen.dart';
 import 'package:intellia237/features/learn/application/learn_providers.dart';
 import 'package:intellia237/features/learn/domain/learn_academic_context.dart';
@@ -34,7 +33,6 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          speechRecognizerProvider.overrideWithValue(_IdleRecognizer()),
           studentAcademicContextProvider.overrideWith(
             (ref) async => const LearnAcademicContext(
               classLevel: '6eme',
@@ -132,25 +130,4 @@ void main() {
       });
     }
   });
-}
-
-class _IdleRecognizer implements SpeechRecognizer {
-  @override
-  bool get isAvailable => true;
-
-  @override
-  Future<bool> initialize() async => true;
-
-  @override
-  Future<void> listen({
-    required String localeId,
-    required void Function(String transcript, bool isFinal) onResult,
-    required void Function(double level) onSoundLevel,
-  }) async {}
-
-  @override
-  Future<void> stop() async {}
-
-  @override
-  Future<void> cancel() async {}
 }

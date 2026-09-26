@@ -1,0 +1,1290 @@
+{
+  "schema_version": "intellia.runtime-learning-pack.v2",
+  "pack_id": "maths_td_ch02_nombres_complexes_algebrique",
+  "engine_version_required": 2,
+  "llm_required": false,
+  "offline_ready": true,
+  "publication": {
+    "status": "published",
+    "version": 1
+  },
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale D",
+    "class_keys": [
+      "terminale-d"
+    ],
+    "subject": "Mathématiques",
+    "module": "Relations et opérations fondamentales dans l'ensemble des nombres complexes",
+    "chapter_number": 2,
+    "chapter_title": "Nombres complexes : approche algébrique"
+  },
+  "lesson_refs": [
+    {
+      "lesson": 1,
+      "title": "Écriture algébrique et nombres complexes conjugués",
+      "concept_ids": [
+        "complex_algebraic_form",
+        "complex_conjugate_operations"
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Module d'un nombre complexe",
+      "concept_ids": [
+        "complex_modulus"
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Équations du second degré dans C",
+      "concept_ids": [
+        "complex_square_roots",
+        "complex_quadratic"
+      ]
+    }
+  ],
+  "explanation_modes": [
+    "standard",
+    "simple",
+    "ultra_simple"
+  ],
+  "difficulty_levels": [
+    1,
+    2,
+    3
+  ],
+  "question_bank": [
+    {
+      "id": "l1_e1",
+      "lesson": 1,
+      "concept_id": "complex_algebraic_form",
+      "difficulty": 1,
+      "type": "complex_parts",
+      "prompt": "Pour z=3−4i, donne Re(z) et Im(z).",
+      "answer": {
+        "re": 3,
+        "im": -4
+      },
+      "explanation": "Dans z=x+iy, Re(z)=x et Im(z)=y.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Repère le nombre sans i."
+        },
+        {
+          "level": 2,
+          "content": "Le coefficient devant i est la partie imaginaire."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l1_e2",
+      "lesson": 1,
+      "concept_id": "complex_algebraic_form",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quelle est la partie imaginaire de z=7+2i ?",
+      "answer": 2,
+      "explanation": "Im(7+2i)=2, et non 2i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche le coefficient de i."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "choices": [
+        7,
+        2,
+        "2i",
+        -2
+      ]
+    },
+    {
+      "id": "l1_e3",
+      "lesson": 1,
+      "concept_id": "complex_conjugate_operations",
+      "difficulty": 1,
+      "type": "complex_number",
+      "prompt": "Donne le conjugué de z=2+5i.",
+      "answer": {
+        "re": 2,
+        "im": -5
+      },
+      "explanation": "Le conjugué conserve la partie réelle et change le signe de la partie imaginaire.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Garde 2."
+        },
+        {
+          "level": 2,
+          "content": "Change seulement +5i en −5i."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "accepted_answers": [
+        "2-5i",
+        "2 − 5i"
+      ]
+    },
+    {
+      "id": "l1_e4",
+      "lesson": 1,
+      "concept_id": "complex_conjugate_operations",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Si z est réel, alors z=z̄.",
+      "answer": true,
+      "explanation": "Pour un réel, la partie imaginaire vaut 0 ; le conjugué ne change rien.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Écris un réel sous la forme x+0i."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l1_m1",
+      "lesson": 1,
+      "concept_id": "complex_conjugate_operations",
+      "difficulty": 2,
+      "type": "complex_number",
+      "prompt": "Calcule (2+i)(3−2i).",
+      "answer": {
+        "re": 8,
+        "im": -1
+      },
+      "explanation": "(2+i)(3−2i)=6−4i+3i−2i²=8−i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Développe comme deux binômes."
+        },
+        {
+          "level": 2,
+          "content": "Remplace i² par −1."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "accepted_answers": [
+        "8-i",
+        "8 − i"
+      ]
+    },
+    {
+      "id": "l1_m2",
+      "lesson": 1,
+      "concept_id": "complex_conjugate_operations",
+      "difficulty": 2,
+      "type": "complex_number",
+      "prompt": "Calcule (3+4i)/(1−2i) sous forme algébrique.",
+      "answer": {
+        "re": -1,
+        "im": 2
+      },
+      "explanation": "On multiplie par 1+2i : le dénominateur devient 5 et le numérateur −5+10i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Multiplie en haut et en bas par le conjugué de 1−2i."
+        },
+        {
+          "level": 2,
+          "content": "(1−2i)(1+2i)=5."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "accepted_answers": [
+        "-1+2i",
+        "−1+2i"
+      ]
+    },
+    {
+      "id": "l1_m3",
+      "lesson": 1,
+      "concept_id": "complex_conjugate_operations",
+      "difficulty": 2,
+      "type": "complex_number",
+      "prompt": "Détermine 1/(2−i) sous forme algébrique.",
+      "answer": {
+        "re": "2/5",
+        "im": "1/5"
+      },
+      "explanation": "1/(2−i)=(2+i)/5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise le conjugué 2+i."
+        },
+        {
+          "level": 2,
+          "content": "Le dénominateur devient 5."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "accepted_answers": [
+        "2/5+i/5",
+        "(2+i)/5",
+        "0.4+0.2i"
+      ]
+    },
+    {
+      "id": "l1_m4",
+      "lesson": 1,
+      "concept_id": "complex_algebraic_form",
+      "difficulty": 2,
+      "type": "complex_number",
+      "prompt": "Si z+z̄=6 et z−z̄=8i, détermine z.",
+      "answer": {
+        "re": 3,
+        "im": 4
+      },
+      "explanation": "2Re(z)=6 et 2iIm(z)=8i, donc z=3+4i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise z+z̄=2Re(z)."
+        },
+        {
+          "level": 2,
+          "content": "Utilise z−z̄=2iIm(z)."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "accepted_answers": [
+        "3+4i",
+        "3 + 4i"
+      ]
+    },
+    {
+      "id": "l1_h1",
+      "lesson": 1,
+      "concept_id": "complex_quadratic",
+      "difficulty": 3,
+      "type": "solution_set_complex",
+      "prompt": "Résous dans C : z²−2z+5=0.",
+      "answer": [
+        {
+          "re": 1,
+          "im": 2
+        },
+        {
+          "re": 1,
+          "im": -2
+        }
+      ],
+      "explanation": "z²−2z+5=(z−1)²+4. Donc (z−1)²=−4 et z=1±2i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Mets le trinôme sous forme canonique."
+        },
+        {
+          "level": 2,
+          "content": "Cherche un nombre dont le carré vaut −4."
+        }
+      ],
+      "source_anchor": "page_027.jpg",
+      "tags": [
+        "source_situation"
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l1_h2",
+      "lesson": 1,
+      "concept_id": "complex_conjugate_operations",
+      "difficulty": 3,
+      "type": "complex_number",
+      "prompt": "Calcule (1+i)^8.",
+      "answer": {
+        "re": 16,
+        "im": 0
+      },
+      "explanation": "(1+i)²=2i, donc (1+i)^4=−4 et (1+i)^8=16.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Commence par calculer le carré."
+        },
+        {
+          "level": 2,
+          "content": "Élève ensuite progressivement au carré."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l1_h3",
+      "lesson": 1,
+      "concept_id": "complex_conjugate_operations",
+      "difficulty": 3,
+      "type": "complex_number",
+      "prompt": "Détermine z sachant que 2z+z̄=7+i.",
+      "answer": {
+        "re": 2.3333333333333335,
+        "im": 1
+      },
+      "explanation": "Avec z=x+iy, 2z+z̄=3x+iy. Donc x=7/3 et y=1.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pose z=x+iy."
+        },
+        {
+          "level": 2,
+          "content": "Regroupe séparément les parties réelle et imaginaire."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l1_h4",
+      "lesson": 1,
+      "concept_id": "complex_conjugate_operations",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Un nombre complexe non nul peut-il être égal à l'opposé de son conjugué tout en étant réel ?",
+      "answer": "non",
+      "explanation": "z=−z̄ impose Re(z)=0. S'il est aussi réel, Im(z)=0. Donc z=0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Traduis z=−z̄ en parties réelle et imaginaire."
+        },
+        {
+          "level": 2,
+          "content": "Ajoute la condition « z réel »."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_e1",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 1,
+      "type": "numeric_radical",
+      "prompt": "Calcule |3−4i|.",
+      "answer": {
+        "exact": "5",
+        "approx": 5.0
+      },
+      "explanation": "|3−4i|=√25=5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise √(x²+y²)."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_e2",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 1,
+      "type": "numeric_radical",
+      "prompt": "Calcule |1+2i|.",
+      "answer": {
+        "exact": "√5",
+        "approx": 2.23606797749979
+      },
+      "explanation": "|1+2i|=√5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "C'est l'hypoténuse d'un triangle de côtés 1 et 2."
+        }
+      ],
+      "source_anchor": "page_030.jpg",
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_e3",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "|z| peut être négatif.",
+      "answer": false,
+      "explanation": "Un module est une distance ; il est toujours positif ou nul.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense à une longueur."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_e4",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Si z=0, combien vaut |z| ?",
+      "answer": 0,
+      "explanation": "|0|=0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le point est à l'origine."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_m1",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 2,
+      "type": "numeric_radical",
+      "prompt": "Calcule |(2+i)(1−3i)|.",
+      "answer": {
+        "exact": "5√2",
+        "approx": 7.0710678118654755
+      },
+      "explanation": "|2+i|=√5 et |1−3i|=√10, donc √50=5√2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise |zz'|=|z||z'|."
+        },
+        {
+          "level": 2,
+          "content": "Simplifie √50."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_m2",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 2,
+      "type": "numeric_radical",
+      "prompt": "Calcule |(3+4i)/(1−2i)|.",
+      "answer": {
+        "exact": "√5",
+        "approx": 2.23606797749979
+      },
+      "explanation": "5/√5=√5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule les deux modules."
+        },
+        {
+          "level": 2,
+          "content": "Utilise la propriété du quotient."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_m3",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Si |z|=2, combien vaut |z^5| ?",
+      "answer": 32,
+      "explanation": "|z^5|=2^5=32.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise |zⁿ|=|z|ⁿ."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_m4",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "L'ensemble |z−(1−i)|=2 représente quoi dans le plan complexe ?",
+      "answer": "un cercle de centre (1,−1) et de rayon 2",
+      "explanation": "|z−z₀|=R décrit un cercle de centre z₀ et de rayon R.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Identifie z₀=1−i."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept",
+      "choices": [
+        "une droite",
+        "un cercle de centre (1,−1) et de rayon 2",
+        "un cercle de centre (−1,1) et de rayon 2",
+        "un point"
+      ]
+    },
+    {
+      "id": "l2_h1",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Détermine l'ensemble des z tels que |z|=|z−2|.",
+      "answer": "la droite Re(z)=1",
+      "explanation": "Si z=x+iy : x²+y²=(x−2)²+y², donc x=1.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pose z=x+iy."
+        },
+        {
+          "level": 2,
+          "content": "Élève les deux membres au carré."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_h2",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 3,
+      "type": "numeric",
+      "prompt": "Si |z|=3 et |w|=2, calcule |z²w³|.",
+      "answer": 72,
+      "explanation": "3²×2³=72.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Sépare le produit."
+        },
+        {
+          "level": 2,
+          "content": "Traite les puissances."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_h3",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 3,
+      "type": "true_false",
+      "prompt": "Pour tous z,w, on a toujours |z+w|=|z|+|w|.",
+      "answer": false,
+      "explanation": "On a seulement |z+w|≤|z|+|w| en général.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Teste z=1 et w=i."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l2_h4",
+      "lesson": 2,
+      "concept_id": "complex_modulus",
+      "difficulty": 3,
+      "type": "multi_step",
+      "prompt": "Un point z=x+iy vérifie |z|=5 et x=3. Quelles sont les valeurs possibles de y ?",
+      "answer": [
+        -4,
+        4
+      ],
+      "explanation": "25=9+y², donc y²=16 et y=±4.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Écris le module au carré."
+        },
+        {
+          "level": 2,
+          "content": "Résous y²=16."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_e1",
+      "lesson": 3,
+      "concept_id": "complex_square_roots",
+      "difficulty": 1,
+      "type": "solution_set_complex",
+      "prompt": "Donne les racines carrées de 3+4i.",
+      "answer": [
+        {
+          "re": 2,
+          "im": 1
+        },
+        {
+          "re": -2,
+          "im": -1
+        }
+      ],
+      "explanation": "(2+i)²=3+4i ; l'autre racine est son opposée.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Teste 2+i."
+        },
+        {
+          "level": 2,
+          "content": "Ajoute son opposée."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_e2",
+      "lesson": 3,
+      "concept_id": "complex_square_roots",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Si δ²=Δ, alors (−δ)²=Δ.",
+      "answer": true,
+      "explanation": "Le signe disparaît au carré.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule (−δ)²."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_e3",
+      "lesson": 3,
+      "concept_id": "complex_quadratic",
+      "difficulty": 1,
+      "type": "solution_set_complex",
+      "prompt": "Résous z²+1=0 dans C.",
+      "answer": [
+        {
+          "re": 0,
+          "im": 1
+        },
+        {
+          "re": 0,
+          "im": -1
+        }
+      ],
+      "explanation": "z²=−1, donc z=±i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "i²=−1."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_e4",
+      "lesson": 3,
+      "concept_id": "complex_quadratic",
+      "difficulty": 1,
+      "type": "solution_set_complex",
+      "prompt": "Résous z²−4=0 dans C.",
+      "answer": [
+        {
+          "re": 2,
+          "im": 0
+        },
+        {
+          "re": -2,
+          "im": 0
+        }
+      ],
+      "explanation": "(z−2)(z+2)=0.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Différence de deux carrés."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_m1",
+      "lesson": 3,
+      "concept_id": "complex_square_roots",
+      "difficulty": 2,
+      "type": "solution_set_complex",
+      "prompt": "Trouve les racines carrées de 8−6i.",
+      "answer": [
+        {
+          "re": 3,
+          "im": -1
+        },
+        {
+          "re": -3,
+          "im": 1
+        }
+      ],
+      "explanation": "(3−i)²=8−6i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pose δ=a+ib."
+        },
+        {
+          "level": 2,
+          "content": "Cherche a²−b²=8 et 2ab=−6."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_m2",
+      "lesson": 3,
+      "concept_id": "complex_quadratic",
+      "difficulty": 2,
+      "type": "solution_set_complex",
+      "prompt": "Résous z²+2z+5=0.",
+      "answer": [
+        {
+          "re": -1,
+          "im": 2
+        },
+        {
+          "re": -1,
+          "im": -2
+        }
+      ],
+      "explanation": "Δ=−16, donc z=−1±2i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Calcule Δ."
+        },
+        {
+          "level": 2,
+          "content": "Prends √Δ=±4i."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_m3",
+      "lesson": 3,
+      "concept_id": "complex_quadratic",
+      "difficulty": 2,
+      "type": "solution_set_complex",
+      "prompt": "Résous z²−(3−i)z+4=0.",
+      "answer": [
+        {
+          "re": 1,
+          "im": 1
+        },
+        {
+          "re": 2,
+          "im": -2
+        }
+      ],
+      "explanation": "Les racines 1+i et 2−2i ont pour somme 3−i et pour produit 4.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise somme et produit."
+        },
+        {
+          "level": 2,
+          "content": "Vérifie les deux candidats."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_m4",
+      "lesson": 3,
+      "concept_id": "complex_square_roots",
+      "difficulty": 2,
+      "type": "multi_step",
+      "prompt": "Si (a+ib)²=5+12i avec a,b réels et a>0, détermine a et b.",
+      "answer": {
+        "a": 3,
+        "b": 2
+      },
+      "explanation": "a²−b²=5, 2ab=12 et a²+b²=13 ; donc a=3,b=2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare parties réelle et imaginaire."
+        },
+        {
+          "level": 2,
+          "content": "Utilise aussi le module."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_h1",
+      "lesson": 3,
+      "concept_id": "complex_quadratic",
+      "difficulty": 3,
+      "type": "solution_set_complex",
+      "prompt": "Résous z²−2(1+i)z+4i=0.",
+      "answer": [
+        {
+          "re": 2,
+          "im": 0
+        },
+        {
+          "re": 0,
+          "im": 2
+        }
+      ],
+      "explanation": "Le trinôme se factorise (z−2)(z−2i). Les solutions sont donc z=2 et z=2i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche deux nombres dont la somme vaut 2+2i et le produit 4i."
+        },
+        {
+          "level": 2,
+          "content": "Essaie 2 et 2i."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_h2",
+      "lesson": 3,
+      "concept_id": "complex_quadratic",
+      "difficulty": 3,
+      "type": "multi_step",
+      "prompt": "Les racines d'un trinôme unitaire sont 2+i et −1+3i. Donne le trinôme développé.",
+      "answer": {
+        "a": 1,
+        "b": "-1-4i",
+        "c": "-5+5i"
+      },
+      "explanation": "Somme=1+4i et produit=−5+5i, donc z²−(1+4i)z−5+5i.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise z²−Sz+P."
+        },
+        {
+          "level": 2,
+          "content": "Calcule la somme puis le produit."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "l3_h3",
+      "lesson": 3,
+      "concept_id": "complex_quadratic",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Pourquoi un discriminant négatif ne bloque-t-il pas une équation du second degré dans C ?",
+      "answer": "parce que C contient des racines carrées des nombres négatifs et on cherche une racine carrée complexe du discriminant",
+      "explanation": "Dans C, −1 possède les racines ±i ; la méthode du discriminant continue.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare avec R."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "int_impedance",
+      "lesson": 0,
+      "concept_id": "chapter_integration",
+      "difficulty": 2,
+      "type": "multi_step",
+      "prompt": "Une impédance vaut z=3+4i Ω. Donne sa partie réelle, sa partie imaginaire, son conjugué et son module.",
+      "answer": {
+        "re": 3,
+        "im": 4,
+        "conjugate": {
+          "re": 3,
+          "im": -4
+        },
+        "modulus": 5
+      },
+      "explanation": "Re=3, Im=4, z̄=3−4i et |z|=5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Traite les quatre demandes séparément."
+        },
+        {
+          "level": 2,
+          "content": "Le module utilise Pythagore."
+        }
+      ],
+      "source_anchor": null,
+      "tags": [
+        "integration",
+        "physics_context"
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    },
+    {
+      "id": "int_mission",
+      "lesson": 0,
+      "concept_id": "chapter_integration",
+      "difficulty": 3,
+      "type": "multi_step",
+      "prompt": "Un système conduit à z²−2z+5=0. Détermine les deux valeurs possibles puis vérifie que leurs modules sont égaux.",
+      "answer": {
+        "solutions": [
+          {
+            "re": 1,
+            "im": 2
+          },
+          {
+            "re": 1,
+            "im": -2
+          }
+        ],
+        "module": "√5"
+      },
+      "explanation": "Les solutions sont 1±2i et ont toutes deux pour module √5.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Résous d'abord l'équation."
+        },
+        {
+          "level": 2,
+          "content": "Calcule ensuite les deux modules."
+        }
+      ],
+      "source_anchor": "page_027.jpg",
+      "tags": [
+        "integration"
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_concept"
+    }
+  ],
+  "games": [
+    {
+      "id": "complex_address_lab",
+      "title": "Adresse Complexe",
+      "status": "draft",
+      "concept": "complex_algebraic_form",
+      "engine": "complex_plane_sliders",
+      "mechanic": "Déplacer les curseurs Re et Im pour fabriquer le nombre demandé.",
+      "difficulty": {
+        "1": "coordonnées entières petites",
+        "2": "valeurs négatives",
+        "3": "contraintes combinées"
+      }
+    },
+    {
+      "id": "conjugate_mirror",
+      "title": "Miroir Conjugué",
+      "status": "draft",
+      "concept": "complex_conjugate_operations",
+      "engine": "conjugate_mirror",
+      "mechanic": "Placer le reflet conjugué puis résoudre une opération associée.",
+      "difficulty": {
+        "1": "conjugué direct",
+        "2": "sommes/produits",
+        "3": "inverse et quotient"
+      }
+    },
+    {
+      "id": "module_radar",
+      "title": "Radar du Module",
+      "status": "draft",
+      "concept": "complex_modulus",
+      "engine": "module_triangle",
+      "mechanic": "Ajuster un triangle/point jusqu'à atteindre un module cible.",
+      "difficulty": {
+        "1": "triplets simples",
+        "2": "radicaux",
+        "3": "produits, quotients et lieux"
+      }
+    },
+    {
+      "id": "square_root_forge",
+      "title": "Forge des Racines",
+      "status": "draft",
+      "concept": "complex_square_roots",
+      "engine": "complex_square_root_forge",
+      "mechanic": "Choisir a et b pour que (a+ib)² corresponde à la cible.",
+      "difficulty": {
+        "1": "racines évidentes",
+        "2": "système réel",
+        "3": "cibles non triviales"
+      }
+    },
+    {
+      "id": "delta_complex",
+      "title": "Défi Δ Complexe",
+      "status": "draft",
+      "concept": "complex_quadratic",
+      "engine": "complex_delta_solver",
+      "mechanic": "Coefficients → discriminant → racine carrée → solutions.",
+      "difficulty": {
+        "1": "Δ réel simple",
+        "2": "Δ négatif",
+        "3": "Δ complexe"
+      }
+    },
+    {
+      "id": "impedance_mission",
+      "title": "Mission Impédance",
+      "status": "draft",
+      "concept": "chapter_integration",
+      "engine": "complex_mission_board",
+      "mechanic": "Identifier Re/Im, calculer conjugué et module puis résoudre une équation.",
+      "difficulty": {
+        "2": "mission guidée",
+        "3": "mission multi-étapes"
+      }
+    }
+  ],
+  "learning_card_seeds": [
+    {
+      "id": "feed_l1_explain",
+      "type": "explanation",
+      "concept_id": "complex_algebraic_form",
+      "lesson": 1,
+      "priority": 80,
+      "source": "explanations.simple"
+    },
+    {
+      "id": "feed_l1_12",
+      "type": "ultraSimple",
+      "concept_id": "complex_algebraic_form",
+      "lesson": 1,
+      "priority": 70,
+      "source": "explanations.ultra_simple"
+    },
+    {
+      "id": "feed_l1_mistake",
+      "type": "commonMistake",
+      "concept_id": "complex_conjugate_operations",
+      "lesson": 1,
+      "priority": 60,
+      "source": "common_mistakes"
+    },
+    {
+      "id": "feed_l1_flash",
+      "type": "flashQuestion",
+      "question_id": "l1_e3",
+      "lesson": 1,
+      "priority": 75
+    },
+    {
+      "id": "feed_l1_challenge",
+      "type": "challenge",
+      "question_id": "l1_h1",
+      "lesson": 1,
+      "priority": 45
+    },
+    {
+      "id": "feed_l2_visual",
+      "type": "visual",
+      "concept_id": "complex_modulus",
+      "lesson": 2,
+      "priority": 70
+    },
+    {
+      "id": "feed_l2_flash",
+      "type": "flashQuestion",
+      "question_id": "l2_e2",
+      "lesson": 2,
+      "priority": 75
+    },
+    {
+      "id": "feed_l2_game",
+      "type": "game",
+      "game_id": "module_radar",
+      "lesson": 2,
+      "priority": 60
+    },
+    {
+      "id": "feed_l3_explain",
+      "type": "explanation",
+      "concept_id": "complex_quadratic",
+      "lesson": 3,
+      "priority": 80
+    },
+    {
+      "id": "feed_l3_flash",
+      "type": "flashQuestion",
+      "question_id": "l3_e3",
+      "lesson": 3,
+      "priority": 75
+    },
+    {
+      "id": "feed_l3_game",
+      "type": "game",
+      "game_id": "delta_complex",
+      "lesson": 3,
+      "priority": 60
+    },
+    {
+      "id": "feed_integration",
+      "type": "challenge",
+      "question_id": "int_mission",
+      "lesson": 0,
+      "priority": 50
+    },
+    {
+      "id": "feed_new_content",
+      "type": "newContent",
+      "chapter_id": "maths_td_ch02_nombres_complexes_algebrique",
+      "lesson": 0,
+      "priority": 100
+    }
+  ],
+  "companion": {
+    "runtime_llm_required": false,
+    "knowledge_scope": "current_pack_only",
+    "quick_actions": [
+      "Explique-moi",
+      "Plus simplement",
+      "Comme si j'avais 12 ans",
+      "Donne-moi un exemple",
+      "Donne-moi un indice",
+      "Pourquoi ma réponse est fausse ?",
+      "Teste-moi"
+    ],
+    "free_text_routing": {
+      "method": "normalized keywords + aliases + concept scoring + lesson context",
+      "fallback": "Dire que l'explication n'est pas encore disponible puis proposer jusqu'à trois notions proches du pack.",
+      "network_fallback": false
+    },
+    "address_style": {
+      "person": "second_person_singular",
+      "first_name_usage": "occasional",
+      "allowed_moments": [
+        "first_meaningful_interaction",
+        "after_repeated_errors",
+        "notable_success"
+      ],
+      "avoid_repetition": true
+    }
+  },
+  "mastery": {
+    "scope": "concept",
+    "same_state_for_feed_lessons_and_games": true,
+    "unlock_next_lesson_at": 70,
+    "suggest_harder_after_consecutive_correct": 3,
+    "suggest_simple_after_errors": 2,
+    "suggest_ultra_simple_after_additional_error": 1
+  },
+  "dynamic_delivery": {
+    "remote_eligible": true,
+    "cache_required": true,
+    "activation_policy": "validate_before_activate",
+    "fallback_to_embedded": true
+  }
+}

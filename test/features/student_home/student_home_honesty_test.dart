@@ -33,8 +33,8 @@ void main() {
 
       // État « contenu bientôt disponible » avec vraies portes de sortie.
       expect(find.text('Tes cours arrivent'), findsOneWidget);
-      expect(find.text('Découvrir le Flow'), findsOneWidget);
-      expect(find.text('Parler à mon compagnon'), findsOneWidget);
+      expect(find.text('Découvrir mon parcours'), findsOneWidget);
+      expect(find.text('Écrire à mon compagnon'), findsOneWidget);
 
       // Rien de factice : ni reprise, ni série, ni progression, ni défis.
       expect(find.text('Reprendre le dernier cours'), findsNothing);
@@ -45,7 +45,7 @@ void main() {
       expect(find.text('Données de démonstration'), findsNothing);
 
       // Les vraies fonctionnalités restent accessibles.
-      expect(find.text('Flow'), findsOneWidget);
+      expect(find.text('Mon parcours'), findsOneWidget);
       // L'objectif personnel (local) est proposé, jamais pré-rempli.
       expect(find.text('Fixe ton rythme de la semaine'), findsOneWidget);
       await _scrollTo(tester, find.text('Quiz rapide'));

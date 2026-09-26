@@ -1,6 +1,7 @@
 import '../../tutor/domain/tutor_persona.dart';
 import '../domain/ai_message.dart';
 import '../domain/ai_companion_reply.dart';
+import '../domain/tutor_turn_options.dart';
 
 abstract class AIRepository {
   Future<AICompanionReply> sendMessage({
@@ -8,5 +9,6 @@ abstract class AIRepository {
     required String classLevel,
     required List<AIMessage> history,
     required String userMessage,
+    TutorTurnOptions options = const TutorTurnOptions(),
   });
 }

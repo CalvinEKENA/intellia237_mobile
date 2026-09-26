@@ -8,8 +8,10 @@ import 'package:intellia237/features/auth/application/phone_auth_controller.dart
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/presentation/forgot_password_screen.dart';
 import 'package:intellia237/features/auth/presentation/login_screen.dart';
+import 'package:intellia237/features/auth/presentation/widgets/pass_auth_progress.dart';
 import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
-import 'package:intellia237/features/auth/presentation/register_screen.dart';
+import 'package:intellia237/features/auth/presentation/account_welcome_screen.dart';
+import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
 import 'package:intellia237/features/parent_registration/presentation/parent_registration_screen.dart';
 import 'package:intellia237/features/student_registration/presentation/student_registration_flow_screen.dart';
 import 'package:intellia237/features/teacher_registration/presentation/teacher_registration_screen.dart';
@@ -27,35 +29,36 @@ void main() {
   });
 
   testWidgets(
-    'preview opens the real identity choices and localizes the shell',
+    'preview opens the real neutral gateway and localizes the shell',
     (tester) async {
       await _pumpPreview(tester);
-      expect(find.byType(RegisterScreen), findsOneWidget);
-      expect(find.byKey(const ValueKey('pass-role-student')), findsOneWidget);
-      expect(find.byKey(const ValueKey('pass-role-parent')), findsOneWidget);
-      expect(find.byKey(const ValueKey('pass-role-teacher')), findsOneWidget);
-      expect(find.text('Inscription · Revoir l’onboarding'), findsNothing);
+      expect(find.byType(AuthGatewayScreen), findsOneWidget);
+      expect(find.byKey(const ValueKey('gateway-phone-auth')), findsOneWidget);
+      expect(find.byKey(const ValueKey('gateway-google-auth')), findsOneWidget);
+      for (final role in ['student', 'parent', 'teacher']) {
+        expect(find.byKey(ValueKey('pass-role-$role')), findsNothing);
+      }
       expect(find.text('APERÇU · aucune donnée envoyée'), findsOneWidget);
+
+      await _tap(tester, 'gateway-phone-auth');
       await tester.tap(
         find.descendant(
-          of: find.byKey(const ValueKey('pass-language-selector')),
+          of: find.byKey(const ValueKey('phone-auth-language-selector')),
           matching: find.text('EN'),
         ),
       );
       await _settle(tester);
-      expect(find.text('PREVIEW · no data is sent'), findsOneWidget);
+      expect(find.textContaining('PREVIEW · no data is sent'), findsOneWidget);
       expect(Firebase.apps, isEmpty);
       expect(tester.takeException(), isNull);
     },
   );
 
   for (final role in [AppRole.student, AppRole.parent]) {
-    testWidgets('demo OTP continues into real ${role.name} registration', (
-      tester,
-    ) async {
+    testWidgets('demo OTP leads to the entry decision, then the real '
+        '${role.name} registration', (tester) async {
       final memory = await _pumpPreview(tester);
-      await _tap(tester, 'pass-role-${role.name}');
-      await _tap(tester, 'pass-continue');
+      await _tap(tester, 'gateway-phone-auth');
       expect(find.byType(PhoneAuthScreen), findsOneWidget);
       expect(
         find.textContaining('Code démo : 123456 · aucun SMS'),
@@ -85,7 +88,14 @@ void main() {
         previewOtp,
       );
       await _tap(tester, 'verify-phone-code');
+      await tester.pump(PassSealTiming.completionHold);
       await _settle(tester);
+      expect(find.byType(AccountWelcomeScreen), findsOneWidget);
+
+      await _tap(
+        tester,
+        role == AppRole.student ? 'welcome-student' : 'welcome-parent',
+      );
       expect(
         role == AppRole.student
             ? find.byType(StudentRegistrationFlowScreen)
@@ -98,12 +108,12 @@ void main() {
     });
   }
 
-  testWidgets('teacher selection renders the actual teacher registration', (
+  testWidgets('staff entry renders the actual teacher registration', (
     tester,
   ) async {
     await _pumpPreview(tester);
-    await _tap(tester, 'pass-role-teacher');
-    await _tap(tester, 'pass-continue');
+    await _tap(tester, 'gateway-staff-login');
+    await _tap(tester, 'login-create-account');
     expect(find.byType(TeacherRegistrationScreen), findsOneWidget);
     expect(Firebase.apps, isEmpty);
     expect(tester.takeException(), isNull);
@@ -113,7 +123,7 @@ void main() {
     tester,
   ) async {
     await _pumpPreview(tester, initialLocation: AppRoutes.authGateway);
-    await _tap(tester, 'gateway-role-teacher');
+    await _tap(tester, 'gateway-staff-login');
     expect(find.byType(LoginScreen), findsOneWidget);
     final reset = find.text('Mot de passe oublié ?');
     await tester.ensureVisible(reset);
@@ -147,6 +157,8 @@ void main() {
       previewPassword,
     );
     await _tap(tester, 'login-submit');
+    // Device QA round 3 : l'espace s'ouvre après le sceau complet.
+    await tester.pump(PassSealTiming.completionHold);
     await _settle(tester);
     expect(
       find.byKey(const ValueKey('preview-complete-restart')),
@@ -161,7 +173,7 @@ void main() {
 
 Future<PreviewAuthMemory> _pumpPreview(
   WidgetTester tester, {
-  String initialLocation = AppRoutes.register,
+  String initialLocation = AppRoutes.authGateway,
 }) async {
   final memory = PreviewAuthMemory();
   await tester.binding.setSurfaceSize(const Size(390, 844));

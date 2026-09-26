@@ -45,16 +45,15 @@ abstract final class FirebaseErrorMapper {
         'Le service d’inscription est momentanément indisponible. '
             'Réessaie dans quelques instants.',
       'too-many-requests' =>
-        'Les demandes de code sont temporairement bloquées par Firebase. '
-            'Le délai de déblocage n’est pas communiqué et peut dépasser une heure. '
-            'Évite les demandes répétées.',
+        'Trop de demandes de code. Attends un moment avant de réessayer : '
+            'cela peut prendre plus d’une heure.',
       'app-not-authorized' ||
       'invalid-app-credential' ||
       'missing-app-credential' ||
       'invalid-cert-hash' ||
       'missing-client-identifier' =>
         'Cette version de l’application n’a pas pu être vérifiée. '
-            'Contacte l’assistance avec la référence affichée.',
+            'Mets l’application à jour, puis réessaie.',
       'captcha-check-failed' =>
         'La vérification de sécurité n’a pas abouti. Réessaie depuis l’application.',
       'quota-exceeded' =>
@@ -75,7 +74,8 @@ abstract final class FirebaseErrorMapper {
   static String serviceMessage({String? code, String? technicalMessage}) {
     return switch (normalizeCode(code, technicalMessage)) {
       'permission-denied' =>
-        'Le profil n’a pas pu être enregistré. Vérifie les autorisations.',
+        'Le profil n’a pas pu être enregistré. Réessaie, ou demande de l’aide '
+            'à ton établissement.',
       'unavailable' =>
         'Le service est temporairement indisponible. Réessaie dans un instant.',
       'deadline-exceeded' ||

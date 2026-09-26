@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import '../../../../core/system/intellia_system_bars.dart';
 import '../../../admin/data/educational_media_service.dart';
 import 'video_file_controller.dart';
 
@@ -329,6 +330,10 @@ class _EducationalVideoPlayerState extends ConsumerState<EducationalVideoPlayer>
       ),
     );
     if (mounted) setState(() => _fullscreen = false);
+    // Le plein écran vidéo utilise un Dialog (pas d'immersif natif) ; on
+    // ré-affirme malgré tout la politique globale pour garantir que la barre
+    // d'état reste visible en sortie, quels que soient d'éventuels plugins.
+    unawaited(IntelliaSystemBarPolicy.applyGlobalDefault());
     if (mounted && (!_visible || !widget.active)) _pause();
   }
 

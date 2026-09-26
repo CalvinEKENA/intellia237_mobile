@@ -1,0 +1,147 @@
+{
+  "schema_version": "intellia.validation-report.v3",
+  "pack_id": "maths_td_ch03_fonctions_numeriques",
+  "status": "PASS_FOR_AUTHORING_READY_FOR_ENGINE_INTEGRATION",
+  "automated_checks": [
+    {
+      "check": "root x3+x-1",
+      "passed": true,
+      "details": "0.6823278038280194"
+    },
+    {
+      "check": "bisection 0.5-1",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "bisection 0.5-0.75",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "inverse derivative x2+1 at 5",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "inverse derivative x3+x at y=2",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "critical points rational",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "45 questions",
+      "passed": true,
+      "details": "45"
+    },
+    {
+      "check": "15 questions per lesson",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "unique question ids",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all difficulties present",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all questions have hints",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "qcm keyed by option id",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "qcm stable within attempt",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "qcm shuffle between attempts",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "no runtime llm",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "3 lessons",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "6 game blueprints",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "15 feed seeds",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "10 concepts including integration",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "offline ready",
+      "passed": true,
+      "details": ""
+    }
+  ],
+  "question_count": 45,
+  "questions_by_lesson": {
+    "lesson_1": 15,
+    "lesson_2": 15,
+    "lesson_3": 15
+  },
+  "qcm_randomization": {
+    "policy": "deterministic_per_attempt",
+    "correct_answer_bound_to": "stable option id, never visual index",
+    "stable_within_attempt": true,
+    "shuffle_between_attempts": true,
+    "note": "Le renderer doit appliquer la politique ; aucune question QCM ne suppose que la bonne réponse est en première position."
+  },
+  "source_quality_flags": [
+    {
+      "id": "graphical_formulas_partial",
+      "severity": "important",
+      "source_pages": [
+        "page_049.jpg",
+        "page_050.jpg",
+        "page_051.jpg",
+        "page_052.jpg",
+        "page_053.jpg",
+        "page_054.jpg",
+        "page_055.jpg",
+        "page_056.jpg",
+        "page_057.jpg",
+        "page_058.jpg",
+        "page_059.jpg",
+        "page_060.jpg"
+      ],
+      "question_ids": [],
+      "issue": "Certaines expressions ou figures des dernières pages sont partiellement difficiles à lire.",
+      "runtime_action": "Ne pas transcrire une formule incertaine ; utiliser des exercices originaux vérifiés sur les notions clairement identifiées."
+    }
+  ],
+  "validation_policy": {
+    "uncertain_source": "never silently repair",
+    "remote_activation": "schema + checksum + class audience + engine compatibility must pass before activation"
+  }
+}

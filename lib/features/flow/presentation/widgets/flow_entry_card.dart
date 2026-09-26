@@ -54,7 +54,7 @@ class FlowEntryCard extends StatelessWidget {
                   ),
                   const SizedBox(height: IntelliaSpacing.sm),
                   Text(
-                    'Flow',
+                    'Mon parcours',
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,

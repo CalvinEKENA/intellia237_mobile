@@ -4,18 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intellia237/app/router/app_routes.dart';
+import 'package:intellia237/features/auth/application/auth_controller.dart';
+import 'package:intellia237/features/auth/application/auth_state.dart';
 import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import '../../support/intellia_fonts.dart';
 
-/// Se déconnecter renvoyait droit à l'authentification téléphone de l'élève.
-/// Sur un appareil partagé, un parent ou un enseignant se retrouvait donc
-/// devant l'espace de quelqu'un d'autre sans moyen d'ouvrir le sien.
+/// Porte d'entrée neutre : l'identité d'abord, aucune carte de rôle.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(loadIntelliaFonts);
 
-  Future<String?> tapRole(WidgetTester tester, String key) async {
+  Future<String?> tapGatewayAction(WidgetTester tester, String key) async {
     String? pushed;
     final router = GoRouter(
       initialLocation: AppRoutes.authGateway,
@@ -25,10 +25,11 @@ void main() {
           builder: (_, _) => const AuthGatewayScreen(),
         ),
         for (final path in [
-          AppRoutes.login,
           AppRoutes.emailLogin,
           AppRoutes.phoneAuth,
-          AppRoutes.register,
+          AppRoutes.studentAccessCode,
+          AppRoutes.legalTerms,
+          AppRoutes.legalPrivacy,
         ])
           GoRoute(
             path: path,
@@ -62,36 +63,41 @@ void main() {
     );
     await tester.pump();
 
+    await tester.ensureVisible(find.byKey(ValueKey(key)));
     await tester.tap(find.byKey(ValueKey(key)));
-    // IntelliaPressable applique un anti-rebond avant de propager le tap.
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     return pushed;
   }
 
-  testWidgets('l’élève rejoint son authentification téléphone', (tester) async {
-    expect(await tapRole(tester, 'gateway-role-student'), AppRoutes.login);
-  });
-
-  testWidgets('le parent rejoint l’authentification téléphone de son rôle', (
+  testWidgets('the phone action opens phone authentication without any role', (
     tester,
   ) async {
-    final pushed = await tapRole(tester, 'gateway-role-parent');
-    expect(pushed, startsWith(AppRoutes.phoneAuth));
-    expect(pushed, contains('role=parent'));
+    expect(
+      await tapGatewayAction(tester, 'gateway-phone-auth'),
+      AppRoutes.phoneAuth,
+    );
   });
 
-  testWidgets('l’enseignant rejoint l’authentification par e-mail', (
+  testWidgets('the student code action opens the access code screen', (
     tester,
   ) async {
-    expect(await tapRole(tester, 'gateway-role-teacher'), AppRoutes.emailLogin);
+    expect(
+      await tapGatewayAction(tester, 'gateway-student-access-code'),
+      AppRoutes.studentAccessCode,
+    );
   });
 
-  testWidgets('créer un compte reste accessible', (tester) async {
-    expect(await tapRole(tester, 'gateway-create-account'), AppRoutes.register);
+  testWidgets('school staff reach the e-mail sign-in', (tester) async {
+    expect(
+      await tapGatewayAction(tester, 'gateway-staff-login'),
+      AppRoutes.emailLogin,
+    );
   });
 
-  testWidgets('aucun rôle n’est présélectionné', (tester) async {
+  testWidgets('first launch: three identity methods, staff discreet, no role', (
+    tester,
+  ) async {
     final router = GoRouter(
       initialLocation: AppRoutes.authGateway,
       routes: [
@@ -102,7 +108,6 @@ void main() {
       ],
     );
     addTearDown(router.dispose);
-
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp.router(
@@ -122,18 +127,70 @@ void main() {
         ),
       ),
     );
-    await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.byKey(const ValueKey('gateway-role-student')), findsOneWidget);
-    expect(find.byKey(const ValueKey('gateway-role-parent')), findsOneWidget);
-    expect(find.byKey(const ValueKey('gateway-role-teacher')), findsOneWidget);
-    // La copie appartient aux fichiers de traduction : ce test garde qu'un
-    // titre et un sous-titre sont bien présentés, pas leur formulation.
-    final l10n = AppLocalizations.of(
-      tester.element(find.byType(AuthGatewayScreen)),
+    expect(find.text('Bienvenue sur INTELLIA237'), findsOneWidget);
+    expect(find.text('Continuer avec mon numéro'), findsOneWidget);
+    expect(find.text('Continuer avec Google'), findsOneWidget);
+    expect(find.text('J’ai un code élève'), findsOneWidget);
+    expect(
+      find.text('Personnel scolaire, enseignant ou direction ?'),
+      findsOneWidget,
     );
-    expect(find.text(l10n.passGoodToSeeYouAgain), findsOneWidget);
-    expect(find.text(l10n.authGatewaySubtitle), findsOneWidget);
+    for (final role in ['student', 'parent', 'teacher', 'admin']) {
+      expect(find.byKey(ValueKey('gateway-role-$role')), findsNothing);
+      expect(find.byKey(ValueKey('pass-role-$role')), findsNothing);
+    }
+    expect(find.byKey(const ValueKey('gateway-suspended')), findsNothing);
   });
+
+  testWidgets('a suspended account is told why, in plain words', (
+    tester,
+  ) async {
+    final router = GoRouter(
+      initialLocation: AppRoutes.authGateway,
+      routes: [
+        GoRoute(
+          path: AppRoutes.authGateway,
+          builder: (_, _) => const AuthGatewayScreen(),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          authControllerProvider.overrideWith(
+            () => _FixedAuth(const AuthState.unauthenticated(suspended: true)),
+          ),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('fr'),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: true),
+            child: child!,
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byKey(const ValueKey('gateway-suspended')), findsOneWidget);
+    expect(find.textContaining('Ce compte est suspendu'), findsOneWidget);
+  });
+}
+
+class _FixedAuth extends AuthController {
+  _FixedAuth(this.initial);
+  final AuthState initial;
+
+  @override
+  AuthState build() => initial;
 }

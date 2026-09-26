@@ -24,11 +24,17 @@ import 'package:intellia237/features/parent/domain/parent_dashboard.dart';
 import 'package:intellia237/features/student_home/data/student_home_repository.dart';
 import 'package:intellia237/features/student_home/domain/student_home_snapshot.dart';
 import 'package:intellia237/features/student_home/presentation/student_home_screen.dart';
+import 'package:intellia237/features/study_reserve/data/study_reserve_service.dart';
+import 'package:intellia237/features/study_reserve/domain/study_reserve.dart';
 import 'package:intellia237/features/tutor/application/tutor_preference_provider.dart';
 import 'package:intellia237/features/tutor/domain/tutor_persona.dart';
 import 'package:intellia237/features/tour_guide/data/firestore_tour_guide_repository.dart';
 import 'package:intellia237/features/tour_guide/data/tour_guide_repository.dart';
+import 'package:intellia237/features/tutor/data/tutor_preference_repository.dart';
+import 'package:intellia237/features/tutor/presentation/tutor_selection_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intellia237/app/router/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final masteryNow = DateTime.utc(2026, 9, 5, 12);
@@ -131,6 +137,9 @@ Future<ProviderContainer> pumpMasteryHarness(
   bool schoolFailure = false,
   MasteryRepository? repository,
   GlobalKey? captureKey,
+  // Profil réel derrière un routeur, avec l'écran de choix du compagnon et
+  // une écriture de profil simulée (sinon le compagnon est figé).
+  TutorPreferenceRepository? tutorRepository,
 }) async {
   GoogleFonts.config.allowRuntimeFetching = false;
   await tester.runAsync(loadMasteryReviewFonts);
@@ -166,10 +175,13 @@ Future<ProviderContainer> pumpMasteryHarness(
           subjects: subjects,
         );
       }),
-      selectedTutorProvider.overrideWith((ref) {
-        if (companionFailure) throw StateError('companion unavailable');
-        return TutorPersona.resolve(companion);
-      }),
+      if (tutorRepository == null)
+        selectedTutorProvider.overrideWith((ref) {
+          if (companionFailure) throw StateError('companion unavailable');
+          return TutorPersona.resolve(companion);
+        })
+      else
+        tutorPreferenceRepositoryProvider.overrideWithValue(tutorRepository),
       profileDeclaredEstablishmentProvider.overrideWith((ref) async {
         if (schoolFailure) throw StateError('school unavailable');
         return 'Collège de Yaoundé';
@@ -179,6 +191,15 @@ Future<ProviderContainer> pumpMasteryHarness(
             const ParentDashboard(children: [childFixture], announcements: []),
       ),
       parentMasterySubjectsProvider.overrideWith((ref, id) async => subjects),
+      // Le profil élève embarque la Réserve d'étude : réponse serveur réelle
+      // « unavailable » (aucun pourcentage), sans appel Firebase en test.
+      studyReserveProvider.overrideWith(
+        (ref, id) async => StudyReserve(
+          studentId: id ?? 'learner',
+          percentRemaining: 0,
+          status: StudyReserveStatus.unavailable,
+        ),
+      ),
       buildIdentityProvider.overrideWith(
         (ref) async => const BuildIdentity(
           version: '3.0.0',
@@ -198,29 +219,55 @@ Future<ProviderContainer> pumpMasteryHarness(
         email: 'fixture@example.test',
       );
 
+  Widget mediaBuilder(BuildContext context, Widget? child) => MediaQuery(
+    data: MediaQuery.of(context).copyWith(
+      textScaler: TextScaler.linear(textScale),
+      disableAnimations: reduced,
+    ),
+    child: child!,
+  );
+  final surface = Scaffold(
+    body: TabSurface(
+      palette: const TabPalette(TabPresentationMode.embeddedLight),
+      child: content,
+    ),
+  );
   final app = _OwnedTestContainer(
     key: ObjectKey(container),
     container: container,
-    child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      locale: Locale(language),
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          textScaler: TextScaler.linear(textScale),
-          disableAnimations: reduced,
-        ),
-        child: child!,
-      ),
-      home: Scaffold(
-        body: TabSurface(
-          palette: const TabPalette(TabPresentationMode.embeddedLight),
-          child: content,
-        ),
-      ),
-    ),
+    child: tutorRepository == null
+        ? MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            locale: Locale(language),
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            builder: mediaBuilder,
+            home: surface,
+          )
+        : MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            locale: Locale(language),
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            builder: mediaBuilder,
+            routerConfig: GoRouter(
+              routes: [
+                GoRoute(path: '/', builder: (_, _) => surface),
+                GoRoute(
+                  path: AppRoutes.tutorSelection,
+                  builder: (context, state) => TutorSelectionScreen(
+                    initialTutorId: state.uri.queryParameters['tutorId'],
+                    filterLevel: state.uri.queryParameters['filterLevel'],
+                    onConfirm: state.extra is TutorConfirm
+                        ? state.extra! as TutorConfirm
+                        : (_) {},
+                  ),
+                ),
+              ],
+            ),
+          ),
   );
   await tester.pumpWidget(
     captureKey == null ? app : RepaintBoundary(key: captureKey, child: app),
@@ -234,6 +281,16 @@ bool _reviewFontsLoaded = false;
 
 /// Widget tests default to Ahem. Use the repository's real font assets for
 /// responsive checks and captures, without network or platform font lookup.
+/// Noms officiels des fichiers, ceux que google_fonts sait trouver.
+const _weightName = {
+  400: 'Regular',
+  500: 'Medium',
+  600: 'SemiBold',
+  700: 'Bold',
+  800: 'ExtraBold',
+  900: 'Black',
+};
+
 Future<void> loadMasteryReviewFonts() async {
   if (_reviewFontsLoaded) return;
   final icons = FontLoader('MaterialIcons');
@@ -248,11 +305,13 @@ Future<void> loadMasteryReviewFonts() async {
       final loader = FontLoader(
         '${family}_${weight == 400 ? 'regular' : weight}',
       );
-      loader.addFont(rootBundle.load('assets/fonts/$family-$weight.ttf'));
+      loader.addFont(
+        rootBundle.load('assets/fonts/$family-${_weightName[weight]}.ttf'),
+      );
       await loader.load();
     }
     final fallback = FontLoader(family);
-    fallback.addFont(rootBundle.load('assets/fonts/$family-400.ttf'));
+    fallback.addFont(rootBundle.load('assets/fonts/$family-Regular.ttf'));
     await fallback.load();
   }
   _reviewFontsLoaded = true;

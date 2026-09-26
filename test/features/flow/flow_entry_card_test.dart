@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/features/flow/presentation/widgets/flow_entry_card.dart';
 
 void main() {
-  testWidgets('la carte d’entrée Flow s’affiche et déclenche le tap', (
+  testWidgets('la carte d’entrée Mon parcours s’affiche et déclenche le tap', (
     WidgetTester tester,
   ) async {
     var tapped = false;
@@ -28,10 +28,10 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Flow'), findsOneWidget);
+    expect(find.text('Mon parcours'), findsOneWidget);
     expect(find.text('NOUVEAU'), findsOneWidget);
 
-    await tester.tap(find.text('Flow'));
+    await tester.tap(find.text('Mon parcours'));
     // Laisse expirer le timer anti-rebond (350 ms) d'IntelliaPressable.
     await tester.pump(const Duration(milliseconds: 400));
 

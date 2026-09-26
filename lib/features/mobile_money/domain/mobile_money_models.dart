@@ -89,6 +89,8 @@ class MobileMoneyOffer {
 class ParentPaymentStatus {
   const ParentPaymentStatus({
     required this.requestId,
+    this.establishmentId,
+    this.beneficiaryStudentId,
     required this.offerTitle,
     required this.amountXaf,
     required this.operatorLabel,
@@ -100,6 +102,8 @@ class ParentPaymentStatus {
   });
 
   final String requestId;
+  final String? establishmentId;
+  final String? beneficiaryStudentId;
   final String offerTitle;
   final int amountXaf;
   final String operatorLabel;
@@ -112,6 +116,8 @@ class ParentPaymentStatus {
   factory ParentPaymentStatus.fromMap(Map<String, dynamic> map) {
     return ParentPaymentStatus(
       requestId: _string(map['requestId']),
+      establishmentId: _nullableString(map['establishmentId']),
+      beneficiaryStudentId: _nullableString(map['beneficiaryStudentId']),
       offerTitle: _string(map['offerTitle']),
       amountXaf: _integer(map['amountXaf']),
       operatorLabel: _string(map['operatorLabel']),
@@ -124,25 +130,74 @@ class ParentPaymentStatus {
   }
 }
 
+/// Un enfant lié et l'école qui détermine son offre.
+class MobileMoneyChild {
+  const MobileMoneyChild({
+    required this.studentId,
+    required this.firstName,
+    required this.establishmentId,
+  });
+
+  final String studentId;
+  final String firstName;
+  final String establishmentId;
+
+  factory MobileMoneyChild.fromMap(Map<String, dynamic> map) =>
+      MobileMoneyChild(
+        studentId: _string(map['studentId']),
+        firstName: _string(map['firstName']),
+        establishmentId: _string(map['establishmentId']),
+      );
+}
+
 class MobileMoneyOverview {
   const MobileMoneyOverview({
     required this.availability,
     required this.recentRequests,
     this.offer,
+    this.children = const [],
+    this.beneficiary,
+    this.coveredStudentIds = const [],
+    this.supportsBeneficiary = false,
   });
 
   final MobileMoneyAvailability availability;
   final MobileMoneyOffer? offer;
   final List<ParentPaymentStatus> recentRequests;
 
+  /// Enfants liés, chacun avec son école.
+  final List<MobileMoneyChild> children;
+
+  /// Enfant pour qui l'offre est présentée, s'il a été choisi.
+  final MobileMoneyChild? beneficiary;
+
+  /// Enfants de ce parent qu'un paiement pour cette école couvre.
+  final List<String> coveredStudentIds;
+
+  /// Le serveur accepte un bénéficiaire explicite. Une version antérieure
+  /// refuserait ce champ : il n'est alors jamais envoyé.
+  final bool supportsBeneficiary;
+
   factory MobileMoneyOverview.fromMap(Map<String, dynamic> map) {
     final offerMap = _nullableMap(map['offer']);
+    final beneficiaryMap = _nullableMap(map['beneficiary']);
     return MobileMoneyOverview(
       availability: MobileMoneyAvailability.fromWire(map['availability']),
       offer: offerMap == null ? null : MobileMoneyOffer.fromMap(offerMap),
       recentRequests: _mapList(
         map['recentRequests'],
       ).map(ParentPaymentStatus.fromMap).toList(growable: false),
+      children: _mapList(
+        map['children'],
+      ).map(MobileMoneyChild.fromMap).toList(growable: false),
+      beneficiary: beneficiaryMap == null
+          ? null
+          : MobileMoneyChild.fromMap(beneficiaryMap),
+      coveredStudentIds: [
+        for (final id in (map['coveredStudentIds'] as List?) ?? const [])
+          if (id is String && id.isNotEmpty) id,
+      ],
+      supportsBeneficiary: map.containsKey('children'),
     );
   }
 }

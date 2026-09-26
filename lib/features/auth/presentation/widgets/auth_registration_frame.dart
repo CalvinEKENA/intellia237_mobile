@@ -5,6 +5,7 @@ import '../../../../core/localization/localization_extensions.dart';
 import 'auth_choices.dart';
 import 'auth_controls.dart';
 import 'auth_experience_scaffold.dart';
+import 'auth_step_guide.dart';
 
 class AuthRegistrationFrame extends StatelessWidget {
   const AuthRegistrationFrame({
@@ -18,6 +19,7 @@ class AuthRegistrationFrame extends StatelessWidget {
     this.errorMessage,
     this.onRetry,
     this.onDismissError,
+    this.hints,
     super.key,
   });
 
@@ -31,6 +33,14 @@ class AuthRegistrationFrame extends StatelessWidget {
   final String? errorMessage;
   final VoidCallback? onRetry;
   final VoidCallback? onDismissError;
+
+  /// Un conseil par étape (même ordre que [labels]) : pourquoi cette étape
+  /// et ce qui vient ensuite.
+  final List<String>? hints;
+
+  Widget? _guide() => hints == null || hints!.length != labels.length
+      ? null
+      : AuthStepGuide(currentStep: currentStep, labels: labels, hints: hints!);
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +75,8 @@ class AuthRegistrationFrame extends StatelessWidget {
     );
 
     if (pass != null) {
-      // The PASS, form and actions share one scroll position. A keyboard or
-      // large type therefore never steals the form's remaining fixed height.
+      // Le PASS et le formulaire gardent leur taille réelle ; les actions
+      // sont épinglées en bas, toujours visibles (QA appareil, 24/09/2026).
       return Theme(
         data: lightTheme.copyWith(
           textTheme: Theme.of(context).textTheme.apply(
@@ -79,23 +89,34 @@ class AuthRegistrationFrame extends StatelessWidget {
           container: true,
           child: AuthExperienceScaffold(
             onBack: onBack,
+            // Après la première étape, le retour vit à côté du bouton
+            // principal : un seul geste, une seule place.
+            showBackButton: currentStep == 0,
             pass: pass,
-            child: Column(
+            // L'erreur se lit juste au-dessus du bouton, jamais hors écran.
+            footer: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AuthStepIndicator(currentStep: currentStep, labels: labels),
-                const SizedBox(height: 22),
-                content,
                 if (errorMessage != null) ...[
-                  const SizedBox(height: 16),
                   AuthErrorBanner(
                     message: errorMessage!,
                     onRetry: onRetry,
                     onDismiss: onDismissError,
                   ),
+                  const SizedBox(height: 10),
                 ],
-                const SizedBox(height: 20),
                 actions,
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Le guide porte déjà l'étape en cours : pas de second fil.
+                _guide() ??
+                    AuthStepIndicator(currentStep: currentStep, labels: labels),
+                const SizedBox(height: 18),
+                content,
               ],
             ),
           ),
@@ -145,6 +166,11 @@ class AuthRegistrationFrame extends StatelessWidget {
                       labels: labels,
                     ),
                   ),
+                  if (_guide() case final guide?)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      child: guide,
+                    ),
                   const SizedBox(height: 14),
                   Expanded(child: content),
                   if (errorMessage != null)

@@ -5,13 +5,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart'
-    show LicenseEntryWithLineBreaks, LicenseRegistry, kDebugMode, kIsWeb;
+    show LicenseEntryWithLineBreaks, LicenseRegistry, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show appFlavor, rootBundle;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/config/app_config.dart';
+import 'app/router/router_escape.dart';
+import 'l10n/generated/app_localizations.dart';
+import 'core/system/intellia_system_bars.dart';
 import 'features/auth/data/auth_entry_preferences.dart';
 import 'features/onboarding/data/onboarding_preferences.dart';
 import 'core/notifications/learning_reminder_service.dart';
@@ -34,6 +37,16 @@ Future<void> bootstrap({
     rethrow;
   }
 
+  // 1b. Politique globale des barres système : bord-à-bord, barres d'état et
+  // de navigation TOUJOURS visibles. L'app n'entre jamais en mode immersif ;
+  // seul un plein écran média peut la changer temporairement puis la restaurer.
+  try {
+    await IntelliaSystemBarPolicy.applyGlobalDefault();
+  } catch (error, stackTrace) {
+    debugPrint('System UI overlay policy failed: $error');
+    debugPrintStack(stackTrace: stackTrace);
+  }
+
   // 2. Tenter d'exécuter les étapes non critiques sous protection
   try {
     debugPrint(
@@ -51,6 +64,7 @@ Future<void> bootstrap({
         ('Montserrat', 'assets/fonts/OFL-Montserrat.txt'),
         ('Manrope', 'assets/fonts/OFL-Manrope.txt'),
         ('Playfair Display', 'assets/fonts/OFL-PlayfairDisplay.txt'),
+        ('Barlow Condensed', 'assets/fonts/OFL-BarlowCondensed.txt'),
       ]) {
         yield LicenseEntryWithLineBreaks(<String>[
           font.$1,
@@ -64,41 +78,28 @@ Future<void> bootstrap({
     debugPrintStack(stackTrace: stackTrace);
   }
 
-  // 3. Hydratation SharedPreferences
+  // 3. Hydratation SharedPreferences (locale, quelques millisecondes).
   try {
     await Future.wait([
       OnboardingPreferences.hydrate(),
       AuthEntryPreferences.hydrate(),
-    ]).timeout(const Duration(seconds: 4));
+    ]).timeout(const Duration(seconds: 2));
   } catch (error, stackTrace) {
     debugPrint('Preferences hydration failed: $error');
     debugPrintStack(stackTrace: stackTrace);
   }
 
-  // 4. Initialisation Firebase (avec options dynamiques par flavor)
+  // 4. Initialisation Firebase (avec options dynamiques par flavor). Seul
+  // ce qui précède la première lecture de données attend ici.
+  //
+  // Registre de décisions (QA appareil, 23/09/2026) : l'application restait
+  // environ dix secondes sur un écran blanc. Les réglages de diagnostic et
+  // les notifications étaient attendus en série avant la première image ;
+  // ils partent désormais après l'affichage (voir _afterFirstFrame).
   try {
     await initializeFirebase(config);
-    final prefs = await SharedPreferences.getInstance();
-    final diagnostics =
-        prefs.getBool('preferences_diagnostics_consent') ?? false;
-    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(diagnostics);
-    if (!kIsWeb) {
-      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
-        diagnostics,
-      );
-    }
   } catch (error, stackTrace) {
     debugPrint('Firebase initialization failed: $error');
-    debugPrintStack(stackTrace: stackTrace);
-  }
-
-  // 4b. Notifications locales : initialisation sans demande de permission.
-  // La permission n'est demandée qu'après un choix explicite dans Paramètres.
-  try {
-    await LearningReminderService.initialize();
-    await NotificationPushService.initialize();
-  } catch (error, stackTrace) {
-    debugPrint('Local notification initialization failed: $error');
     debugPrintStack(stackTrace: stackTrace);
   }
 
@@ -121,9 +122,8 @@ Future<void> bootstrap({
       }
       return true;
     };
-    // En staging/debug : message + code diagnostic + détail technique.
-    // En production : message + code uniquement (jamais de stack trace).
-    final showDiagnosticDetails = config.isStaging || kDebugMode;
+    // Aucun détail technique à l'écran, quel que soit l'environnement : il
+    // part dans les journaux.
     ErrorWidget.builder = (FlutterErrorDetails details) {
       debugPrint(
         '[INTELLIA237][ErrorWidget] UI-RENDER-500 '
@@ -131,6 +131,9 @@ Future<void> bootstrap({
       );
       return MaterialApp(
         debugShowCheckedModeBanner: false,
+        locale: PlatformDispatcher.instance.locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
         home: Scaffold(
           backgroundColor: const Color(0xFF080722),
           body: SafeArea(
@@ -157,21 +160,30 @@ Future<void> bootstrap({
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Code diagnostic : UI-RENDER-500',
+                      'Revenez en arrière, puis réessayez.',
                       style: TextStyle(color: Color(0xADFFFFFF)),
                       textAlign: TextAlign.center,
                     ),
-                    if (showDiagnosticDetails) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        details.exceptionAsString(),
-                        style: const TextStyle(
-                          color: Color(0x99FFFFFF),
-                          fontSize: 12,
+                    const SizedBox(height: 24),
+                    // Toujours une sortie : jamais bloqué sur cet écran.
+                    Builder(
+                      builder: (context) => FilledButton.icon(
+                        key: const ValueKey('render-error-back'),
+                        onPressed: RouterEscape.leave,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF080722),
+                          minimumSize: const Size(0, 48),
                         ),
-                        textAlign: TextAlign.center,
+                        icon: const Icon(Icons.arrow_back_rounded),
+                        label: Text(
+                          lookupAppLocalizations(
+                            Localizations.maybeLocaleOf(context) ??
+                                const Locale('fr'),
+                          ).backLabel,
+                        ),
                       ),
-                    ],
+                    ),
                   ],
                 ),
               ),
@@ -208,25 +220,20 @@ Future<void> bootstrap({
                   size: 64,
                 ),
                 const SizedBox(height: 16),
+                // Aucune précision technique à l'écran : elle est déjà dans
+                // les journaux ci-dessus.
                 const Text(
-                  'Une erreur est survenue au démarrage.',
+                  'INTELLIA237 n’a pas pu démarrer.',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Code diagnostic : APP-START-500',
+                  'Fermez l’application puis rouvrez-la. Si le problème '
+                  'continue, vérifiez votre connexion internet.',
                   style: TextStyle(color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
-                if (config.isStaging || kDebugMode) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    error.toString(),
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
               ],
             ),
           ),
@@ -239,6 +246,39 @@ Future<void> bootstrap({
     runApp(app);
   } catch (e, stackTrace) {
     debugPrint('Failed to execute runApp: $e');
+    debugPrintStack(stackTrace: stackTrace);
+  }
+  unawaited(_afterFirstFrame());
+}
+
+/// Tout ce qui n'est pas nécessaire à la première image : réglages de
+/// diagnostic et notifications (initialisées sans demande de permission ; la
+/// permission n'est demandée qu'après un choix explicite dans Paramètres).
+Future<void> _afterFirstFrame() async {
+  await WidgetsBinding.instance.endOfFrame;
+  try {
+    if (Firebase.apps.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      final diagnostics =
+          prefs.getBool('preferences_diagnostics_consent') ?? false;
+      await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
+        diagnostics,
+      );
+      if (!kIsWeb) {
+        await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+          diagnostics,
+        );
+      }
+    }
+  } catch (error, stackTrace) {
+    debugPrint('Diagnostics preference failed: $error');
+    debugPrintStack(stackTrace: stackTrace);
+  }
+  try {
+    await LearningReminderService.initialize();
+    await NotificationPushService.initialize();
+  } catch (error, stackTrace) {
+    debugPrint('Local notification initialization failed: $error');
     debugPrintStack(stackTrace: stackTrace);
   }
 }

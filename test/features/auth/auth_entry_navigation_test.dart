@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -6,35 +7,41 @@ import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
-import 'package:intellia237/features/auth/presentation/login_screen.dart';
-import 'package:intellia237/features/auth/presentation/register_screen.dart';
 import 'package:intellia237/features/auth/presentation/auth_gateway_screen.dart';
+import 'package:intellia237/features/auth/presentation/login_screen.dart';
+import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Porte neutre → accès du personnel → demande de compte enseignant : aucun
+/// écran de rôles sur le chemin (refonte Auth V2).
 void main() {
-  testWidgets('register and login links navigate in both directions', (
+  testWidgets('staff entry and account request navigate without role cards', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({});
     final router = GoRouter(
-      initialLocation: AppRoutes.register,
+      initialLocation: AppRoutes.authGateway,
       routes: [
-        GoRoute(
-          path: AppRoutes.register,
-          builder: (_, _) => const RegisterScreen(),
-        ),
-        GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
-        GoRoute(
-          path: AppRoutes.emailLogin,
-          builder: (_, _) => const LoginScreen(),
-        ),
         GoRoute(
           path: AppRoutes.authGateway,
           builder: (_, _) => const AuthGatewayScreen(),
         ),
         GoRoute(
+          path: AppRoutes.emailLogin,
+          builder: (_, state) =>
+              LoginScreen(authIntent: AppRoutes.entryIntentFrom(state.uri)),
+        ),
+        GoRoute(
+          path: AppRoutes.teacherRegistration,
+          builder: (_, _) => const Scaffold(body: Text('staff-request')),
+        ),
+        GoRoute(
+          path: AppRoutes.studentRegistration,
+          builder: (_, _) => const Scaffold(body: Text('student-registration')),
+        ),
+        GoRoute(
           path: AppRoutes.forgotPassword,
-          builder: (_, _) => const Scaffold(body: Text('Mot de passe oublié')),
+          builder: (_, _) => const Scaffold(body: Text('forgot')),
         ),
       ],
     );
@@ -47,6 +54,13 @@ void main() {
         ],
         child: MaterialApp.router(
           locale: const Locale('fr'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           routerConfig: router,
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context).copyWith(disableAnimations: true),
@@ -57,22 +71,21 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.text('J’ai déjà un compte'));
-    await tester.tap(find.text('J’ai déjà un compte'));
-    await tester.pumpAndSettle();
     await tester.ensureVisible(
-      find.byKey(const ValueKey('gateway-role-teacher')),
+      find.byKey(const ValueKey('gateway-staff-login')),
     );
-    await tester.tap(find.byKey(const ValueKey('gateway-role-teacher')));
+    await tester.tap(find.byKey(const ValueKey('gateway-staff-login')));
     await tester.pumpAndSettle();
-    expect(find.text('Se connecter'), findsOneWidget);
+    expect(router.state.uri.path, AppRoutes.emailLogin);
 
-    await tester.ensureVisible(find.text('Créer un compte'));
-    await tester.tap(find.text('Créer un compte'));
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('login-create-account')),
+    );
+    await tester.tap(find.byKey(const ValueKey('login-create-account')));
     await tester.pumpAndSettle();
-    expect(find.text('J’ai déjà un compte'), findsWidgets);
+    expect(find.text('staff-request'), findsOneWidget);
+    expect(find.byKey(const ValueKey('pass-role-teacher')), findsNothing);
     expect(tester.takeException(), isNull);
-    await tester.pump(const Duration(seconds: 1));
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 1));
   });

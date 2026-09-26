@@ -1,0 +1,1886 @@
+{
+  "schema_version": "intellia.runtime-learning-pack.v2",
+  "pack_id": "english_terminale_m1_u2_discussing_recreational_activities",
+  "engine_version_required": 2,
+  "llm_required": false,
+  "offline_ready": true,
+  "publication": {
+    "status": "draft",
+    "version": 1,
+    "reason": "Authoring validated against supplied source; application engine integration still required."
+  },
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale",
+    "class_keys": [
+      "terminale"
+    ],
+    "subject": "English",
+    "module": 1,
+    "module_title": "Family and social life",
+    "unit": 2,
+    "unit_title": "Discussing recreational activities"
+  },
+  "lessons": [
+    {
+      "lesson": 1,
+      "title": "Hobbies, listening and consonant sounds",
+      "concept_ids": [
+        "hobbies_and_benefits",
+        "listening_personal_testimony",
+        "voiced_unvoiced_consonants"
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Skimming and identifying main ideas",
+      "concept_ids": [
+        "skimming_main_idea",
+        "reading_hobby_stories"
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Reading stories about the benefits of hobbies",
+      "concept_ids": [
+        "reading_hobby_stories"
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Vocabulary, phrasal verbs and prepositional phrases",
+      "concept_ids": [
+        "recreation_vocabulary",
+        "phrasal_verbs",
+        "prepositional_phrases"
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Writing a formal letter about recreational facilities",
+      "concept_ids": [
+        "formal_letter_structure",
+        "community_recreation_letter"
+      ]
+    }
+  ],
+  "explanation_modes": [
+    "standard",
+    "simple",
+    "ultra_simple"
+  ],
+  "difficulty_levels": [
+    1,
+    2,
+    3
+  ],
+  "question_bank": [
+    {
+      "id": "l1_q01",
+      "lesson": 1,
+      "concept_id": "hobbies_and_benefits",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "The unit asks learners to discuss the benefits of hobbies and recreational activities.",
+      "answer": true,
+      "explanation": "This is one of the explicit aims of Unit 2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Focus on the unit objectives."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_q02",
+      "lesson": 1,
+      "concept_id": "voiced_unvoiced_consonants",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which sound is listed as voiced in the unit?",
+      "answer": "/b/",
+      "explanation": "/b/ is listed as voiced.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Voiced sounds involve vocal-cord vibration."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "/b/",
+        "/p/",
+        "/t/",
+        "/k/"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "/b/",
+          "feedback": "The source lists /b/ among voiced consonants."
+        },
+        {
+          "id": "b",
+          "label": "/p/",
+          "feedback": "The source lists /p/ among unvoiced consonants."
+        },
+        {
+          "id": "c",
+          "label": "/t/",
+          "feedback": "The source lists /t/ among unvoiced consonants."
+        },
+        {
+          "id": "d",
+          "label": "/k/",
+          "feedback": "The source lists /k/ among unvoiced consonants."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q03",
+      "lesson": 1,
+      "concept_id": "voiced_unvoiced_consonants",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which sound is listed as unvoiced in the unit?",
+      "answer": "/p/",
+      "explanation": "/p/ is listed as unvoiced.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for a sound produced without vocal-cord vibration."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "/v/",
+        "/z/",
+        "/p/",
+        "/m/"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "/v/",
+          "feedback": "The source lists /v/ among voiced consonants."
+        },
+        {
+          "id": "b",
+          "label": "/z/",
+          "feedback": "The source lists /z/ among voiced consonants."
+        },
+        {
+          "id": "c",
+          "label": "/p/",
+          "feedback": "The source lists /p/ among unvoiced consonants."
+        },
+        {
+          "id": "d",
+          "label": "/m/",
+          "feedback": "The source lists /m/ among voiced consonants."
+        }
+      ],
+      "correct_option_ids": [
+        "c"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q04",
+      "lesson": 1,
+      "concept_id": "voiced_unvoiced_consonants",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Voiced consonants are described as involving vibration of the vocal cords.",
+      "answer": true,
+      "explanation": "That distinction is stated explicitly in the speech-work note.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think of the physical difference between voiced and unvoiced sounds."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_q05",
+      "lesson": 1,
+      "concept_id": "listening_personal_testimony",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which profession is central to the listening context in this unit?",
+      "answer": "Fashion designer",
+      "explanation": "The listening context concerns fashion design.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the unit's vocabulary and contextual note."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Fashion designer",
+        "Bank manager",
+        "Engineer",
+        "Journalist"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Fashion designer",
+          "feedback": "The unit links the listening context to a young Cameroonian designer in New York."
+        },
+        {
+          "id": "b",
+          "label": "Bank manager",
+          "feedback": "That is not the listening context of this unit."
+        },
+        {
+          "id": "c",
+          "label": "Engineer",
+          "feedback": "That is not the profession highlighted here."
+        },
+        {
+          "id": "d",
+          "label": "Journalist",
+          "feedback": "That is not the profession highlighted here."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q06",
+      "lesson": 1,
+      "concept_id": "listening_personal_testimony",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "What is the name of the label mentioned in the contextual note?",
+      "answer": "Kibs New York",
+      "explanation": "The source names the label Kibs New York.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Recall the short note below the listening vocabulary."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Kibs New York",
+        "Katy Designs",
+        "Cameroon Fashion House",
+        "New York Fabrics"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Kibs New York",
+          "feedback": "This is the label named in the source."
+        },
+        {
+          "id": "b",
+          "label": "Katy Designs",
+          "feedback": "This name is not given in the source."
+        },
+        {
+          "id": "c",
+          "label": "Cameroon Fashion House",
+          "feedback": "This name is not given in the source."
+        },
+        {
+          "id": "d",
+          "label": "New York Fabrics",
+          "feedback": "This name is not given in the source."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q07",
+      "lesson": 1,
+      "concept_id": "listening_personal_testimony",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "How should you answer a detail question when the listening passage itself is not available to you?",
+      "answer": "Do not guess. Wait for the validated audio or transcript, then answer from what you hear.",
+      "explanation": "The supplied extraction does not contain the full testimony, so the pack must not invent its answer key.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Separate source evidence from general knowledge."
+        },
+        {
+          "level": 2,
+          "content": "If the source is missing, say so instead of guessing."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l1_q08",
+      "lesson": 1,
+      "concept_id": "hobbies_and_benefits",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "Give one possible benefit of a hobby and explain it in one or two sentences.",
+      "answer": "Any source-aligned benefit such as relaxation, stress management, confidence, relationships, skills, self-expression or income, with a brief explanation.",
+      "explanation": "Several valid answers are possible, so this task is for self-evaluation.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Choose one benefit shown in the unit."
+        },
+        {
+          "level": 2,
+          "content": "Explain the link between the hobby and that benefit."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l2_q01",
+      "lesson": 2,
+      "concept_id": "skimming_main_idea",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "What should you look at first when skimming a text?",
+      "answer": "The title and subheadings",
+      "explanation": "Titles and subheadings are explicit skimming clues in the source.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Skimming begins with the biggest visible clues."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "The title and subheadings",
+        "Every word in the final paragraph",
+        "Only punctuation",
+        "A dictionary entry for every word"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "The title and subheadings",
+          "feedback": "The source explicitly recommends these clues."
+        },
+        {
+          "id": "b",
+          "label": "Every word in the final paragraph",
+          "feedback": "Skimming is not detailed reading."
+        },
+        {
+          "id": "c",
+          "label": "Only punctuation",
+          "feedback": "That is not part of the skimming guidance."
+        },
+        {
+          "id": "d",
+          "label": "A dictionary entry for every word",
+          "feedback": "That would slow down skimming."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q02",
+      "lesson": 2,
+      "concept_id": "skimming_main_idea",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which additional clue does the source recommend when skimming?",
+      "answer": "Pictures or charts",
+      "explanation": "Pictures and charts can help reveal the topic quickly.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think of visual clues."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Pictures or charts",
+        "Footnotes only",
+        "Every verb tense",
+        "Only the last word of each paragraph"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Pictures or charts",
+          "feedback": "The source explicitly says to look at pictures or charts."
+        },
+        {
+          "id": "b",
+          "label": "Footnotes only",
+          "feedback": "This is not listed in the skimming note."
+        },
+        {
+          "id": "c",
+          "label": "Every verb tense",
+          "feedback": "That is detailed grammar analysis, not skimming."
+        },
+        {
+          "id": "d",
+          "label": "Only the last word of each paragraph",
+          "feedback": "That is not the stated strategy."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q03",
+      "lesson": 2,
+      "concept_id": "skimming_main_idea",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "The source recommends reading the first sentence of each paragraph when skimming.",
+      "answer": true,
+      "explanation": "It notes that the first sentence is often the topic sentence.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think of the quickest sentence-level clue to the paragraph's main idea."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_q04",
+      "lesson": 2,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "What hobby helps Elenwa manage stress?",
+      "answer": "Listening to music",
+      "explanation": "Elenwa explains that music helps with emotions and stress.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Match the hobby to the correct person."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Listening to music",
+        "Gardening",
+        "Drama",
+        "Dressmaking"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Listening to music",
+          "feedback": "Music becomes one of Elenwa's hobbies and helps with stress."
+        },
+        {
+          "id": "b",
+          "label": "Gardening",
+          "feedback": "Gardening belongs to Teleu's story."
+        },
+        {
+          "id": "c",
+          "label": "Drama",
+          "feedback": "Drama belongs to Eyole's story."
+        },
+        {
+          "id": "d",
+          "label": "Dressmaking",
+          "feedback": "Dressmaking belongs to Lily's story."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q05",
+      "lesson": 2,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Elenwa used to return from school feeling relaxed.",
+      "answer": false,
+      "explanation": "The story says he used to return home feeling stressed out.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Contrast the before-and-after situation."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_q06",
+      "lesson": 2,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "What profession did Lily specialise in?",
+      "answer": "Paediatrics",
+      "explanation": "Lily became a paediatrician.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Remember the contrast between her profession and her hobby."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Paediatrics",
+        "Architecture",
+        "Journalism",
+        "Banking"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Paediatrics",
+          "feedback": "The story says Lily became a paediatrician."
+        },
+        {
+          "id": "b",
+          "label": "Architecture",
+          "feedback": "This is not in Lily's story."
+        },
+        {
+          "id": "c",
+          "label": "Journalism",
+          "feedback": "This is not in Lily's story."
+        },
+        {
+          "id": "d",
+          "label": "Banking",
+          "feedback": "This is not in Lily's story."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q07",
+      "lesson": 2,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "Lily's dressmaking hobby helps her relax and express herself after work.",
+      "answer": true,
+      "explanation": "The story connects the hobby with relaxation, creativity and self-expression.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think about why she returns to the hobby after work."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l2_q08",
+      "lesson": 2,
+      "concept_id": "skimming_main_idea",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Write a one-sentence main idea for either Elenwa's or Lily's story.",
+      "answer": "Example: Elenwa's hobbies help him manage stress and connect with others; or Lily's creative hobby gives balance and self-expression alongside her medical career.",
+      "explanation": "Several concise main ideas are valid, so this is self-evaluated.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Name the person and the main benefit."
+        },
+        {
+          "level": 2,
+          "content": "Avoid retelling every detail."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l3_q01",
+      "lesson": 3,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "What is Teleu's hobby?",
+      "answer": "Gardening",
+      "explanation": "Teleu's hobby is gardening.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Match the hobby to the correct story."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Gardening",
+        "Drama",
+        "Music",
+        "Dressmaking"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Gardening",
+          "feedback": "Teleu describes enjoying planting flowers and caring for them."
+        },
+        {
+          "id": "b",
+          "label": "Drama",
+          "feedback": "Drama belongs to Eyole."
+        },
+        {
+          "id": "c",
+          "label": "Music",
+          "feedback": "Music belongs to Elenwa."
+        },
+        {
+          "id": "d",
+          "label": "Dressmaking",
+          "feedback": "Dressmaking belongs to Lily."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q02",
+      "lesson": 3,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Teleu says flowers beautify the environment.",
+      "answer": true,
+      "explanation": "That benefit is stated directly in Teleu's story.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for the environmental benefit."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q03",
+      "lesson": 3,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Teleu's hobby has brought additional income to the family.",
+      "answer": true,
+      "explanation": "The story explicitly mentions additional family income.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think beyond relaxation: one story also mentions money."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q04",
+      "lesson": 3,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which teacher encouraged Eyole to join the drama club?",
+      "answer": "The English teacher",
+      "explanation": "Eyole's English teacher suggested the drama club.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the detail from the story, not the distractor in the true/false exercise."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "The English teacher",
+        "The Mathematics teacher",
+        "The Biology teacher",
+        "The History teacher"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "The English teacher",
+          "feedback": "This is the teacher named in Eyole's story."
+        },
+        {
+          "id": "b",
+          "label": "The Mathematics teacher",
+          "feedback": "The source comprehension item uses this as a false statement."
+        },
+        {
+          "id": "c",
+          "label": "The Biology teacher",
+          "feedback": "This is not stated."
+        },
+        {
+          "id": "d",
+          "label": "The History teacher",
+          "feedback": "This is not stated."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q05",
+      "lesson": 3,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Eyole says drama improved self-confidence.",
+      "answer": true,
+      "explanation": "The story describes drama as a major factor in improving self-confidence and self-esteem.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Focus on the personal benefit of drama."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q06",
+      "lesson": 3,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "Eyole remained unable to participate in class after joining the drama club.",
+      "answer": false,
+      "explanation": "The story says participation became easier.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare his situation before and after joining the club."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q07",
+      "lesson": 3,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Which pairing is correct?",
+      "answer": "Teleu — floral arrangements and gardening",
+      "explanation": "Teleu's story links gardening with floral arrangements.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Keep each person's hobby and benefit together."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Teleu — floral arrangements and gardening",
+        "Eyole — paediatrics and dressmaking",
+        "Lily — drama club",
+        "Elenwa — flower arrangements"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Teleu — floral arrangements and gardening",
+          "feedback": "These details belong to Teleu."
+        },
+        {
+          "id": "b",
+          "label": "Eyole — paediatrics and dressmaking",
+          "feedback": "Those belong to Lily."
+        },
+        {
+          "id": "c",
+          "label": "Lily — drama club",
+          "feedback": "Drama belongs to Eyole."
+        },
+        {
+          "id": "d",
+          "label": "Elenwa — flower arrangements",
+          "feedback": "Flower arrangements belong to Teleu."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q08",
+      "lesson": 3,
+      "concept_id": "reading_hobby_stories",
+      "difficulty": 3,
+      "type": "mcq",
+      "prompt": "Which statement best summarises the four stories?",
+      "answer": "Different hobbies can support different personal, social and economic benefits",
+      "explanation": "The stories present varied benefits from varied hobbies.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for the broad idea common to all four stories."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Different hobbies can support different personal, social and economic benefits",
+        "Only creative hobbies are useful",
+        "Hobbies are mainly a way to avoid school work",
+        "Every hobby produces income"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Different hobbies can support different personal, social and economic benefits",
+          "feedback": "This captures the common thread across the four stories."
+        },
+        {
+          "id": "b",
+          "label": "Only creative hobbies are useful",
+          "feedback": "The stories include music, pet care, gardening and drama as well."
+        },
+        {
+          "id": "c",
+          "label": "Hobbies are mainly a way to avoid school work",
+          "feedback": "That idea is not supported by the stories."
+        },
+        {
+          "id": "d",
+          "label": "Every hobby produces income",
+          "feedback": "Income appears in Teleu's story, not all four."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q01",
+      "lesson": 4,
+      "concept_id": "recreation_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which word means 'pressure or worry caused by problems in one's life'?",
+      "answer": "stress",
+      "explanation": "The source matches 'stress' with pressure or worry.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the emotional meaning."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "stress",
+        "balance",
+        "outfit",
+        "nurture"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "stress",
+          "feedback": "This is the definition given in the vocabulary activity."
+        },
+        {
+          "id": "b",
+          "label": "balance",
+          "feedback": "Balance refers to correct proportions of work and leisure."
+        },
+        {
+          "id": "c",
+          "label": "outfit",
+          "feedback": "Outfit means clothes."
+        },
+        {
+          "id": "d",
+          "label": "nurture",
+          "feedback": "Nurture means look after."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q02",
+      "lesson": 4,
+      "concept_id": "recreation_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which word means 'trust in your own abilities'?",
+      "answer": "self-confidence",
+      "explanation": "Self-confidence means trust in your own abilities.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think of belief in yourself."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "self-confidence",
+        "stress",
+        "outfit",
+        "hobby"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "self-confidence",
+          "feedback": "This matches the source definition."
+        },
+        {
+          "id": "b",
+          "label": "stress",
+          "feedback": "Stress is pressure or worry."
+        },
+        {
+          "id": "c",
+          "label": "outfit",
+          "feedback": "Outfit means clothes."
+        },
+        {
+          "id": "d",
+          "label": "hobby",
+          "feedback": "A hobby is an activity done for pleasure."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q03",
+      "lesson": 4,
+      "concept_id": "recreation_vocabulary",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which word means 'look after'?",
+      "answer": "nurture",
+      "explanation": "'Nurture' is matched with 'look after'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think of caring for something so it grows or does well."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "nurture",
+        "balance",
+        "outfit",
+        "shy"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "nurture",
+          "feedback": "The source matches 'nurture' with 'look after'."
+        },
+        {
+          "id": "b",
+          "label": "balance",
+          "feedback": "Balance has a different meaning."
+        },
+        {
+          "id": "c",
+          "label": "outfit",
+          "feedback": "Outfit means clothes."
+        },
+        {
+          "id": "d",
+          "label": "shy",
+          "feedback": "Shy describes being nervous or timid with others."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q04",
+      "lesson": 4,
+      "concept_id": "phrasal_verbs",
+      "difficulty": 1,
+      "type": "expression",
+      "prompt": "Complete: 'You really need to learn to calm ___.'",
+      "answer": "down",
+      "explanation": "The source exercise forms the phrasal verb 'calm down'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the particle that makes the idiomatic expression for becoming calmer."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q05",
+      "lesson": 4,
+      "concept_id": "phrasal_verbs",
+      "difficulty": 1,
+      "type": "expression",
+      "prompt": "Complete: 'I came ___ this wonderful app.'",
+      "answer": "across",
+      "explanation": "The source exercise forms 'come across'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the particle that means 'find unexpectedly'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q06",
+      "lesson": 4,
+      "concept_id": "phrasal_verbs",
+      "difficulty": 2,
+      "type": "expression",
+      "prompt": "Complete: 'I need to figure ___ how to complete my work.'",
+      "answer": "out",
+      "explanation": "The source exercise forms 'figure out'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the particle that means 'solve or understand'."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q07",
+      "lesson": 4,
+      "concept_id": "prepositional_phrases",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Choose the source-backed phrase: 'Nkita returned home ___ a horrible day at work.'",
+      "answer": "at the end of",
+      "explanation": "The source uses 'at the end of'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the conventional phrase shown in the exercise."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "at the end of",
+        "in the end of",
+        "with the end of",
+        "on the end of"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "at the end of",
+          "feedback": "This is the correct option in the source exercise."
+        },
+        {
+          "id": "b",
+          "label": "in the end of",
+          "feedback": "This is the distractor in the source."
+        },
+        {
+          "id": "c",
+          "label": "with the end of",
+          "feedback": "This is not the source phrase."
+        },
+        {
+          "id": "d",
+          "label": "on the end of",
+          "feedback": "This is not the source phrase."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q08",
+      "lesson": 4,
+      "concept_id": "prepositional_phrases",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Choose the source-backed phrase: '___, being violent towards your family is unacceptable.'",
+      "answer": "In my opinion",
+      "explanation": "The source uses 'In my opinion'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the standard phrase presented in the exercise."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "In my opinion",
+        "With my opinion",
+        "On my opinion",
+        "At my opinion"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "In my opinion",
+          "feedback": "This is the correct phrase in the source exercise."
+        },
+        {
+          "id": "b",
+          "label": "With my opinion",
+          "feedback": "This is the distractor in the source."
+        },
+        {
+          "id": "c",
+          "label": "On my opinion",
+          "feedback": "This is not the source phrase."
+        },
+        {
+          "id": "d",
+          "label": "At my opinion",
+          "feedback": "This is not the source phrase."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q01",
+      "lesson": 5,
+      "concept_id": "formal_letter_structure",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Who is the intended recipient in the unit's writing task?",
+      "answer": "The mayor",
+      "explanation": "The writing task is addressed to the mayor.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Think about who can act on community facilities."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "The mayor",
+        "A classmate",
+        "A shopkeeper",
+        "A doctor"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "The mayor",
+          "feedback": "The task asks for a formal letter to the mayor."
+        },
+        {
+          "id": "b",
+          "label": "A classmate",
+          "feedback": "The task is not an informal letter to a peer."
+        },
+        {
+          "id": "c",
+          "label": "A shopkeeper",
+          "feedback": "That is not the stated recipient."
+        },
+        {
+          "id": "d",
+          "label": "A doctor",
+          "feedback": "That is not the stated recipient."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q02",
+      "lesson": 5,
+      "concept_id": "community_recreation_letter",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which topic must the letter discuss?",
+      "answer": "The importance of recreation to well-being",
+      "explanation": "The task explicitly connects recreation with well-being.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Focus on the core argument requested."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "The importance of recreation to well-being",
+        "Only the writer's favourite sport",
+        "A history of the town",
+        "A job interview"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "The importance of recreation to well-being",
+          "feedback": "This is explicitly required by the task."
+        },
+        {
+          "id": "b",
+          "label": "Only the writer's favourite sport",
+          "feedback": "The task is broader than one personal preference."
+        },
+        {
+          "id": "c",
+          "label": "A history of the town",
+          "feedback": "This is not required."
+        },
+        {
+          "id": "d",
+          "label": "A job interview",
+          "feedback": "That belongs to another unit."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q03",
+      "lesson": 5,
+      "concept_id": "community_recreation_letter",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Which contribution is the learner asked to include?",
+      "answer": "How the community can help and how the learner can help",
+      "explanation": "The task asks for community contribution and the learner's own contribution.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Look for the action-oriented parts of the prompt."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "How the community can help and how the learner can help",
+        "Only what the government should do",
+        "Only a list of complaints",
+        "A description of a celebrity"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "How the community can help and how the learner can help",
+          "feedback": "Both are explicitly requested."
+        },
+        {
+          "id": "b",
+          "label": "Only what the government should do",
+          "feedback": "The task also asks about community and personal contribution."
+        },
+        {
+          "id": "c",
+          "label": "Only a list of complaints",
+          "feedback": "The source asks for constructive contribution."
+        },
+        {
+          "id": "d",
+          "label": "A description of a celebrity",
+          "feedback": "This is unrelated to the writing task."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q04",
+      "lesson": 5,
+      "concept_id": "formal_letter_structure",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "About how long should the letter be?",
+      "answer": "About 200 words",
+      "explanation": "The source asks for about 200 words.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Recall the approximate length given in the task."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "About 200 words",
+        "About 20 words",
+        "About 800 words",
+        "Exactly 50 words"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "About 200 words",
+          "feedback": "The source requests about 200 words."
+        },
+        {
+          "id": "b",
+          "label": "About 20 words",
+          "feedback": "That is far too short."
+        },
+        {
+          "id": "c",
+          "label": "About 800 words",
+          "feedback": "That is not the source requirement."
+        },
+        {
+          "id": "d",
+          "label": "Exactly 50 words",
+          "feedback": "That is not the source requirement."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q05",
+      "lesson": 5,
+      "concept_id": "formal_letter_structure",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "How many paragraphs does the source suggest?",
+      "answer": "4-5 paragraphs",
+      "explanation": "The task requests 4-5 paragraphs.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use the structure required by the writing prompt."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "4-5 paragraphs",
+        "1 paragraph",
+        "10-12 paragraphs",
+        "No paragraphs"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "4-5 paragraphs",
+          "feedback": "This is the requested range."
+        },
+        {
+          "id": "b",
+          "label": "1 paragraph",
+          "feedback": "The source asks for a multi-paragraph letter."
+        },
+        {
+          "id": "c",
+          "label": "10-12 paragraphs",
+          "feedback": "This is not the source requirement."
+        },
+        {
+          "id": "d",
+          "label": "No paragraphs",
+          "feedback": "The source explicitly asks for paragraphs."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q06",
+      "lesson": 5,
+      "concept_id": "formal_letter_structure",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "Create a short outline for the letter before writing it.",
+      "answer": "A valid outline should cover the problem, benefits of recreation, community contribution, the learner's contribution and a polite close.",
+      "explanation": "Several sensible outlines are possible, so this task is self-evaluated.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use one main idea per paragraph."
+        },
+        {
+          "level": 2,
+          "content": "Make sure the requested benefits and contributions are included."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l5_q07",
+      "lesson": 5,
+      "concept_id": "community_recreation_letter",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Write the formal letter requested by the unit in about 200 words and 4-5 paragraphs.",
+      "answer": "The letter should clearly argue for recreational facilities, discuss benefits, explain community participation and the learner's own contribution, and close politely.",
+      "explanation": "This production task has many valid answers and remains non-auto-scored.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Use a formal tone and a clear subject."
+        },
+        {
+          "level": 2,
+          "content": "Give reasons, not only complaints."
+        },
+        {
+          "level": 3,
+          "content": "End politely."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l5_q08",
+      "lesson": 5,
+      "concept_id": "formal_letter_structure",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Review your letter for structure, tone and completeness. What should you check?",
+      "answer": "Check addresses/date/recipient details where appropriate, subject, salutation, paragraph organisation, required content, formal tone and a polite close.",
+      "explanation": "The source's sign-off annotation is internally inconsistent, so the pack does not auto-score 'Yours faithfully' versus 'Yours sincerely'.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Check whether every requested idea is present."
+        },
+        {
+          "level": 2,
+          "content": "Check tone and paragraph organisation."
+        },
+        {
+          "level": 3,
+          "content": "Do not use the disputed sign-off rule as a scoring criterion."
+        }
+      ],
+      "auto_score": false,
+      "disabled_reason": "open_response_requires_human_or_self_evaluation",
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    }
+  ],
+  "qcm_policy": {
+    "correctness_never_bound_to_position": true,
+    "correctness_key": "option_id_or_answer_value",
+    "single_and_multi_choice_shuffle": "deterministic_per_attempt",
+    "stable_within_attempt": true,
+    "shuffle_between_attempts": true,
+    "true_false_shuffle": false
+  },
+  "games": [
+    {
+      "id": "hobby_benefit_match",
+      "title": "Hobby Benefit Match",
+      "status": "draft",
+      "concept_id": "hobbies_and_benefits",
+      "description": "Match a hobby scenario to the benefit it illustrates.",
+      "reason_draft": "No generic language matching game engine is implemented yet."
+    },
+    {
+      "id": "skim_sprint",
+      "title": "Skim Sprint",
+      "status": "draft",
+      "concept_id": "skimming_main_idea",
+      "description": "Use titles, first sentences and visual clues to identify the main idea quickly.",
+      "reason_draft": "No skimming-specific timed engine is implemented yet."
+    },
+    {
+      "id": "story_detective",
+      "title": "Story Detective",
+      "status": "draft",
+      "concept_id": "reading_hobby_stories",
+      "description": "Match Elenwa, Lily, Teleu and Eyole to their hobbies and benefits.",
+      "reason_draft": "No reading-story matching engine is implemented yet."
+    },
+    {
+      "id": "phrasal_builder",
+      "title": "Phrasal Builder",
+      "status": "draft",
+      "concept_id": "phrasal_verbs",
+      "description": "Complete phrasal verbs with the correct particle.",
+      "reason_draft": "No language tile-completion game engine is implemented yet."
+    },
+    {
+      "id": "mayor_letter_lab",
+      "title": "Mayor Letter Lab",
+      "status": "draft",
+      "concept_id": "community_recreation_letter",
+      "description": "Build a formal letter by arranging purpose, arguments, community contribution and close.",
+      "reason_draft": "No formal-letter composition game engine is implemented yet."
+    }
+  ],
+  "learning_card_seeds": [
+    {
+      "id": "feed_hobbies_explain",
+      "type": "explanation",
+      "lesson": 1,
+      "concept_id": "hobbies_and_benefits",
+      "priority": 85
+    },
+    {
+      "id": "feed_voice_flash",
+      "type": "flashQuestion",
+      "lesson": 1,
+      "question_id": "l1_q02",
+      "priority": 75
+    },
+    {
+      "id": "feed_skim_explain",
+      "type": "explanation",
+      "lesson": 2,
+      "concept_id": "skimming_main_idea",
+      "priority": 85
+    },
+    {
+      "id": "feed_elenwa_flash",
+      "type": "flashQuestion",
+      "lesson": 2,
+      "question_id": "l2_q04",
+      "priority": 80
+    },
+    {
+      "id": "feed_story_mcq",
+      "type": "mcq",
+      "lesson": 3,
+      "question_id": "l3_q07",
+      "priority": 80
+    },
+    {
+      "id": "feed_story_summary",
+      "type": "explanation",
+      "lesson": 3,
+      "concept_id": "reading_hobby_stories",
+      "priority": 80
+    },
+    {
+      "id": "feed_vocab_flash",
+      "type": "flashQuestion",
+      "lesson": 4,
+      "question_id": "l4_q02",
+      "priority": 75
+    },
+    {
+      "id": "feed_phrasal_explain",
+      "type": "explanation",
+      "lesson": 4,
+      "concept_id": "phrasal_verbs",
+      "priority": 85
+    },
+    {
+      "id": "feed_phrasal_q",
+      "type": "flashQuestion",
+      "lesson": 4,
+      "question_id": "l4_q06",
+      "priority": 80
+    },
+    {
+      "id": "feed_prep_q",
+      "type": "mcq",
+      "lesson": 4,
+      "question_id": "l4_q08",
+      "priority": 75
+    },
+    {
+      "id": "feed_letter_explain",
+      "type": "explanation",
+      "lesson": 5,
+      "concept_id": "formal_letter_structure",
+      "priority": 85
+    },
+    {
+      "id": "feed_letter_mcq",
+      "type": "mcq",
+      "lesson": 5,
+      "question_id": "l5_q03",
+      "priority": 80
+    },
+    {
+      "id": "feed_new_content",
+      "type": "newContent",
+      "lesson": 0,
+      "chapter_id": "english_terminale_m1_u2_discussing_recreational_activities",
+      "priority": 100
+    }
+  ],
+  "companion": {
+    "runtime_llm_required": false,
+    "knowledge_scope": "current_pack_only",
+    "quick_actions": [
+      "Explain this",
+      "Simpler English",
+      "Very simple",
+      "Give me an example",
+      "Give me a hint",
+      "Why is my answer wrong?",
+      "Test me"
+    ],
+    "free_text_routing": {
+      "method": "normalisation + aliases + concept scoring + lesson context",
+      "network_fallback": false
+    },
+    "address_style": {
+      "person": "second_person",
+      "first_name_usage": "occasional",
+      "avoid_repetition": true
+    },
+    "source_boundaries": [
+      "Do not answer the missing listening testimony questions from general knowledge.",
+      "Do not auto-score pronunciation quality without validated audio.",
+      "Do not enforce the inconsistent formal-letter sign-off annotation."
+    ]
+  },
+  "mastery": {
+    "scope": "concept",
+    "same_state_for_feed_lessons_and_games": true,
+    "suggest_harder_after_consecutive_correct": 3,
+    "suggest_simple_after_errors": 2,
+    "suggest_ultra_simple_after_additional_error": 1
+  },
+  "dynamic_delivery": {
+    "remote_eligible": true,
+    "cache_required": true,
+    "activation_policy": "validate_before_activate",
+    "fallback_to_embedded": true
+  }
+}

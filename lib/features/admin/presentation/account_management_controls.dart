@@ -227,7 +227,10 @@ class _CreateStudentSheetState extends ConsumerState<_CreateStudentSheet> {
         'requestId': _requestId,
         'firstName': _first.text.trim(),
         'lastName': _last.text.trim(),
-        'phoneNumber': CameroonPhoneNumber.normalize(_phone.text),
+        // Le téléphone de l'élève est facultatif : sans lui, l'élève entre
+        // avec son code d'accès INTELLIA.
+        if (_phone.text.trim().isNotEmpty)
+          'phoneNumber': CameroonPhoneNumber.normalize(_phone.text),
         if (_email.text.trim().isNotEmpty) 'email': _email.text.trim(),
         'establishmentId': widget.schoolId,
       });
@@ -301,10 +304,11 @@ class _CreateStudentSheetState extends ConsumerState<_CreateStudentSheet> {
                 enabled: !_busy,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
-                  labelText: l10n.phoneNumberLabel,
+                  labelText: l10n.adminStudentPhoneOptional,
                   hintText: '+237 6…',
                 ),
                 validator: (value) {
+                  if ((value ?? '').trim().isEmpty) return null;
                   try {
                     CameroonPhoneNumber.normalize(value ?? '');
                     return null;

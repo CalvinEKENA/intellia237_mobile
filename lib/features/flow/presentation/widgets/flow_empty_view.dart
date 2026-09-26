@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../app/theme/design_tokens.dart';
+import '../../../../core/localization/localization_extensions.dart';
 import '../../application/flow_controller.dart';
 
 /// Ce que voit l'élève quand le fil n'a rien à lui proposer.
@@ -18,6 +19,7 @@ class FlowEmptyView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: IntelliaColors.backgroundPrimary,
@@ -35,7 +37,7 @@ class FlowEmptyView extends ConsumerWidget {
               ),
               const SizedBox(height: IntelliaSpacing.md),
               Text(
-                'Le Flow arrive',
+                l10n.parcoursEmptyTitle,
                 key: const ValueKey('flow-empty-title'),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineSmall?.copyWith(
@@ -44,8 +46,7 @@ class FlowEmptyView extends ConsumerWidget {
               ),
               const SizedBox(height: IntelliaSpacing.sm),
               Text(
-                'Aucune carte n’est encore publiée pour ta classe. '
-                'Reviens après une synchronisation.',
+                l10n.parcoursEmptyBody,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
@@ -58,7 +59,7 @@ class FlowEmptyView extends ConsumerWidget {
                 key: const ValueKey('flow-empty-refresh'),
                 onPressed: () => ref.invalidate(flowCatalogProvider),
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Actualiser'),
+                label: Text(l10n.parcoursEmptyRefresh),
               ),
               const SizedBox(height: IntelliaSpacing.sm),
               FilledButton(
@@ -70,7 +71,7 @@ class FlowEmptyView extends ConsumerWidget {
                     context.go(AppRoutes.studentHome);
                   }
                 },
-                child: const Text('Revenir à l’accueil'),
+                child: Text(l10n.parcoursEmptyHome),
               ),
             ],
           ),

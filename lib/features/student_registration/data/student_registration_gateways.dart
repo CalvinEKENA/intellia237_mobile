@@ -9,6 +9,13 @@ abstract interface class RegistrationAuthUser {
   String? get phoneNumber;
   bool get emailVerified;
 
+  /// Session ouverte par un jeton serveur (code d'accès élève) : ni
+  /// téléphone ni e-mail, mais une identité vérifiée par le serveur.
+  bool get openedByServerToken;
+
+  /// Identité ouverte avec Google : vérifiée par Google, sans mot de passe.
+  bool get signedInWithGoogle;
+
   Future<void> delete();
   Future<void> sendEmailVerification();
   Future<void> updateDisplayName(String displayName);
@@ -127,6 +134,16 @@ class FirebaseRegistrationAuthUser implements RegistrationAuthUser {
 
   @override
   bool get emailVerified => _user.emailVerified;
+
+  @override
+  bool get openedByServerToken =>
+      _user.providerData.isEmpty &&
+      (_user.email?.isEmpty ?? true) &&
+      (_user.phoneNumber?.isEmpty ?? true);
+
+  @override
+  bool get signedInWithGoogle =>
+      _user.providerData.any((info) => info.providerId == 'google.com');
 
   @override
   Future<void> delete() => _user.delete();

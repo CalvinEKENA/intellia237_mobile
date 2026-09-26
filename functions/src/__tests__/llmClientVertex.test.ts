@@ -35,7 +35,7 @@ vi.mock("../config/env", () => ({
     VERTEX_AI_LOCATION: process.env.VERTEX_AI_LOCATION ?? "global",
     GEMINI_MODEL: process.env.GEMINI_MODEL ?? "gemini-3.8-flash",
     GEMINI_TUTOR_THINKING_LEVEL:
-      process.env.GEMINI_TUTOR_THINKING_LEVEL ?? "LOW",
+      process.env.GEMINI_TUTOR_THINKING_LEVEL ?? "HIGH",
     GEMINI_STRUCTURED_THINKING_LEVEL:
       process.env.GEMINI_STRUCTURED_THINKING_LEVEL ?? "MEDIUM",
     LLM_SERVICE_TIMEOUT_MS: Number(
@@ -60,7 +60,7 @@ describe("Vertex AI Gemini LLM client", () => {
       VERTEX_AI_PROJECT_ID: "intellia-test-project",
       VERTEX_AI_LOCATION: "global",
       GEMINI_MODEL: "gemini-3.8-flash",
-      GEMINI_TUTOR_THINKING_LEVEL: "LOW",
+      GEMINI_TUTOR_THINKING_LEVEL: "HIGH",
       GEMINI_STRUCTURED_THINKING_LEVEL: "MEDIUM",
       LLM_SERVICE_TIMEOUT_MS: "1000"
     };
@@ -71,7 +71,7 @@ describe("Vertex AI Gemini LLM client", () => {
     vi.restoreAllMocks();
   });
 
-  it("uses the Vertex AI global endpoint and low thinking for tutor responses", async () => {
+  it("uses the Vertex AI global endpoint and HIGH thinking for tutor responses", async () => {
     axiosMock.post.mockResolvedValueOnce({
       status: 200,
       data: {
@@ -112,8 +112,10 @@ describe("Vertex AI Gemini LLM client", () => {
       ],
       generationConfig: {
         thinkingConfig: {
-          thinkingLevel: "LOW"
-        }
+          thinkingLevel: "HIGH"
+        },
+        // Plafond de sortie explicite : aucune réponse tuteur sans borne.
+        maxOutputTokens: 8192
       }
     });
     expect(config.headers.Authorization).toBe("Bearer access-token");
@@ -236,6 +238,7 @@ describe("Vertex AI Gemini LLM client", () => {
       thinkingConfig: {
         thinkingLevel: "MEDIUM"
       },
+      maxOutputTokens: 8192,
       responseMimeType: "application/json"
     });
     expect(loggerMock.info.mock.calls[0]?.[1]).toMatchObject({

@@ -5,13 +5,21 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/auth_controller.dart';
+import '../domain/app_role.dart';
+import '../domain/auth_entry_intent.dart';
 import '../domain/auth_input_validators.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
+import 'widgets/pass_auth_progress.dart';
+import 'widgets/role_conflict_copy.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({this.authIntent, super.key});
+
+  /// Espace choisi avant de passer à l'e-mail, s'il y en a un : un compte
+  /// d'un autre rôle n'est alors pas ouvert.
+  final AppRole? authIntent;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -21,7 +29,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late final _passInputs = Listenable.merge([
+    _emailController,
+    _passwordController,
+  ]);
   final _passwordFocus = FocusNode();
+  AuthEntryRoleConflict? _conflict;
+
+  /// Identifiants acceptés, espace compatible : « 7 » est allumé.
+  bool _accessOpened = false;
 
   @override
   void dispose() {
@@ -35,12 +51,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (ref.read(authControllerProvider).isLoading) return;
     FocusManager.instance.primaryFocus?.unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    await ref
+    setState(() => _conflict = null);
+    final adoption = await ref
         .read(authControllerProvider.notifier)
         .signInWithEmail(
           email: _emailController.text,
           password: _passwordController.text,
+          intent: widget.authIntent,
+          beforeOpening: _holdCompletedSeal,
         );
+    if (!mounted) return;
+    setState(() {
+      if (adoption is AuthEntryRoleConflict) _conflict = adoption;
+      // Un écran encore là après la connexion n'a rien ouvert.
+      if (!ref.read(authControllerProvider).isAuthenticated) {
+        _accessOpened = false;
+      }
+    });
+  }
+
+  /// Registre de décisions (QA appareil, round 3) : l'état authentifié
+  /// emportait aussitôt l'écran vers l'accueil ; la connexion par e-mail
+  /// n'a jamais montré « 7 » sur son propre Pass. Le sceau complet reste
+  /// désormais à l'écran avant l'ouverture de l'espace.
+  Future<void> _holdCompletedSeal() async {
+    if (!mounted) return;
+    setState(() => _accessOpened = true);
+    await Future<void>.delayed(PassSealTiming.completionHold);
   }
 
   @override
@@ -51,13 +88,56 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return AuthExperienceScaffold(
       showBackButton: false,
-      pass: ValueListenableBuilder<TextEditingValue>(
-        valueListenable: _emailController,
-        builder: (context, value, _) => LivingPass(
-          detail: value.text.trim().isEmpty ? null : value.text.trim(),
+      pass: ListenableBuilder(
+        listenable: _passInputs,
+        builder: (context, _) => LivingPass(
+          detail: _emailController.text.trim().isEmpty
+              ? null
+              : _emailController.text.trim(),
           phase: context.l10n.passSignIn,
-          progress: .65,
+          // Adresse valide : « 2 ». Mot de passe recevable : « 3 ».
+          // Identifiants acceptés : « 7 », tenu avant l'ouverture.
+          seal: PassAuthProgress.emailSignIn(
+            email: _emailController.text,
+            password: _passwordController.text,
+            accessOpened: _accessOpened,
+          ),
+          progress: PassAuthProgress.emailLine(
+            email: _emailController.text,
+            password: _passwordController.text,
+            accessOpened: _accessOpened,
+          ),
         ),
+      ),
+      // Le bouton reste visible au-dessus du clavier, sans cacher le PASS.
+      footer: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AnimatedSwitcher(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 220),
+            child: auth.error == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    key: ValueKey(auth.error),
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: AuthErrorBanner(
+                      message: auth.error!,
+                      onRetry: _submit,
+                      onDismiss: controller.clearError,
+                    ),
+                  ),
+          ),
+          AuthPrimaryButton(
+            key: const ValueKey('login-submit'),
+            label: l10n.signIn,
+            onTap: auth.isLoading ? null : _submit,
+            isLoading: auth.isLoading,
+            icon: Icons.login_rounded,
+          ),
+        ],
       ),
       child: AutofillGroup(
         child: Form(
@@ -119,29 +199,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: Text(l10n.forgotPassword),
                       ),
                     ),
-                    AnimatedSwitcher(
-                      duration: MediaQuery.disableAnimationsOf(context)
-                          ? Duration.zero
-                          : const Duration(milliseconds: 220),
-                      child: auth.error == null
-                          ? const SizedBox.shrink()
-                          : Padding(
-                              key: ValueKey(auth.error),
-                              padding: const EdgeInsets.only(bottom: 14),
-                              child: AuthErrorBanner(
-                                message: auth.error!,
-                                onRetry: _submit,
-                                onDismiss: controller.clearError,
-                              ),
-                            ),
-                    ),
-                    AuthPrimaryButton(
-                      key: const ValueKey('login-submit'),
-                      label: l10n.signIn,
-                      onTap: auth.isLoading ? null : _submit,
-                      isLoading: auth.isLoading,
-                      icon: Icons.login_rounded,
-                    ),
+                    if (_conflict case final conflict?)
+                      Padding(
+                        key: const ValueKey('login-role-conflict'),
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: AuthErrorBanner(
+                          message:
+                              '${roleConflictTitle(l10n, accountRole: conflict.accountRole, viaPhone: false)}\n'
+                              '${roleConflictGuidance(l10n, intent: conflict.intent)}',
+                          onDismiss: () => setState(() => _conflict = null),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -158,9 +226,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   TextButton(
+                    key: const ValueKey('login-create-account'),
+                    // L'accès par e-mail est celui du personnel ; un élève
+                    // arrivé ici avec son intention garde son inscription.
                     onPressed: auth.isLoading
                         ? null
-                        : () => context.push(AppRoutes.register),
+                        : () => context.push(
+                            widget.authIntent == AppRole.student
+                                ? AppRoutes.studentRegistration
+                                : AppRoutes.teacherRegistration,
+                          ),
                     style: TextButton.styleFrom(
                       foregroundColor: AuthExperienceColors.gold,
                     ),

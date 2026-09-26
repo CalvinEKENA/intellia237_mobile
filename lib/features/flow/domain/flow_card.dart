@@ -1,7 +1,26 @@
+import '../../content_engine/domain/chapter.dart';
+import '../../content_engine/feed/learning_card.dart';
 import 'flow_subject.dart';
 
 /// Type d'illustration animée pour une [FlowAnimationCard].
-enum FlowAnimationKind { pendulum, cellDivision, parabola }
+enum FlowAnimationKind {
+  pendulum,
+  cellDivision,
+  parabola,
+
+  /// SVT 6e : germination de 9 graines à 10 °C, 18 °C et 40 °C.
+  germinationTemperature,
+
+  /// SVT 6e : germination selon l'arrosage (peu, normal, beaucoup d'eau).
+  germinationWatering;
+
+  /// Composants natifs publiables depuis le Studio (type `interactiveNative`).
+  /// Clés versionnées : une évolution incompatible devient `_v2`.
+  static const Map<String, FlowAnimationKind> byComponentKey = {
+    'svt_germination_temperature_v1': germinationTemperature,
+    'svt_germination_watering_v1': germinationWatering,
+  };
+}
 
 /// Une carte du Flow — occupe tout l'écran, vécue en 15 à 45 secondes.
 ///
@@ -110,6 +129,7 @@ final class FlowAnecdoteCard extends FlowCard {
     required super.subject,
     required this.title,
     required this.story,
+    this.imagePath,
     super.kicker = 'Le savais-tu ?',
     super.estimatedSeconds = 20,
     super.pointsReward = 10,
@@ -117,6 +137,9 @@ final class FlowAnecdoteCard extends FlowCard {
 
   final String title;
   final String story;
+
+  /// Chemin canonique d'une image publiée (carte « image » du Studio).
+  final String? imagePath;
 }
 
 /// Un mini-quiz à une question, joué directement dans le Flow.
@@ -249,4 +272,27 @@ final class FlowRewardCard extends FlowCard {
 
   final String title;
   final String message;
+}
+
+/// Une carte tirée d'un pack de la Content Engine (toutes les classes).
+///
+/// Le fil publié et les packs partagent le même pager, le même HUD et la
+/// même progression locale : ce n'est pas un second fil, c'est une nouvelle
+/// source de cartes. Les réponses passent par le moteur de maîtrise des
+/// packs, jamais par le serveur de points du fil publié.
+final class FlowLearningCard extends FlowCard {
+  FlowLearningCard({required this.learning, required this.chapter})
+    : super(
+        id: 'pack:${learning.id}',
+        subject:
+            FlowSubjects.fromLabel(learning.subject) ??
+            FlowSubjects.fromLabel(chapter.curriculum.subject) ??
+            FlowSubjects.maths,
+        kicker: learning.type.name,
+        estimatedSeconds: learning.estimatedSeconds,
+        pointsReward: 0,
+      );
+
+  final LearningCard learning;
+  final Chapter chapter;
 }

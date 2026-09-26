@@ -19,6 +19,8 @@ import '../data/companion_history_repository.dart';
 import '../domain/ai_message.dart';
 import '../domain/ai_companion_reply.dart';
 import '../domain/companion_conversation.dart';
+import '../domain/tutor_turn_options.dart';
+import '../../interactive_learning/domain/interactive_block.dart';
 
 final aiRepositoryProvider = Provider<AIRepository>((ref) {
   return CloudAIRepository();
@@ -41,6 +43,7 @@ class AICompanionState {
     required this.isSending,
     this.errorMessage,
     this.lastFailedMessage,
+    this.lastFailedRequestId,
     this.lessonContext,
     this.dailyQuestionLimit,
     this.remainingQuestions,
@@ -77,6 +80,10 @@ class AICompanionState {
   final bool isSending;
   final String? errorMessage;
   final String? lastFailedMessage;
+
+  /// Identifiant de la question échouée : la relance le réutilise pour que le
+  /// serveur ne compte pas deux fois la même question.
+  final String? lastFailedRequestId;
   final String? lessonContext;
   final int? dailyQuestionLimit;
   final int? remainingQuestions;
@@ -94,6 +101,7 @@ class AICompanionState {
     bool? isSending,
     Object? errorMessage = _notProvided,
     Object? lastFailedMessage = _notProvided,
+    Object? lastFailedRequestId = _notProvided,
     String? lessonContext,
     int? dailyQuestionLimit,
     int? remainingQuestions,
@@ -113,6 +121,9 @@ class AICompanionState {
       lastFailedMessage: identical(lastFailedMessage, _notProvided)
           ? this.lastFailedMessage
           : lastFailedMessage as String?,
+      lastFailedRequestId: identical(lastFailedRequestId, _notProvided)
+          ? this.lastFailedRequestId
+          : lastFailedRequestId as String?,
       lessonContext: lessonContext ?? this.lessonContext,
       dailyQuestionLimit: dailyQuestionLimit ?? this.dailyQuestionLimit,
       remainingQuestions: remainingQuestions ?? this.remainingQuestions,
@@ -132,6 +143,11 @@ class AICompanionState {
 
 class AICompanionController extends Notifier<AICompanionState> {
   bool _historyChanged = false;
+
+  /// Résultat de la dernière activité, joint au prochain message de l'élève
+  /// pour que le compagnon observe et s'adapte.
+  ActivityOutcome? _pendingActivityOutcome;
+  ActivityOutcome? get pendingActivityOutcome => _pendingActivityOutcome;
   String? _activeUserId;
   CompanionConversation? _conversation;
   AIService get _service => ref.read(aiServiceProvider);
@@ -150,6 +166,7 @@ class AICompanionController extends Notifier<AICompanionState> {
       _activeUserId = userId;
       _historyChanged = false;
       _conversation = null;
+      _pendingActivityOutcome = null;
     }
 
     // Listen to academic context changes
@@ -344,9 +361,10 @@ class AICompanionController extends Notifier<AICompanionState> {
     }
   }
 
-  Future<void> send(String message) async {
+  Future<void> send(String message, {String? requestId}) async {
     final cleaned = message.trim();
     if (cleaned.isEmpty || state.isSending) return;
+    final turnRequestId = requestId ?? newTutorRequestId();
     if (!await _ensureAcademicContext()) return;
     if (state.remainingQuestions == 0) {
       state = state.copyWith(
@@ -380,6 +398,7 @@ class AICompanionController extends Notifier<AICompanionState> {
       isSending: true,
       errorMessage: null,
       lastFailedMessage: null,
+      lastFailedRequestId: null,
       errorKind: null,
       normalizedErrorCode: null,
       diagnosticId: null,
@@ -396,7 +415,13 @@ class AICompanionController extends Notifier<AICompanionState> {
         // history as well duplicates the prompt and wastes context tokens.
         history: requestHistory,
         userMessage: '$contextPrefix$cleaned',
+        options: TutorTurnOptions(
+          requestId: turnRequestId,
+          activityOutcome: _pendingActivityOutcome,
+        ),
       );
+      // Le compagnon a reçu le résultat : il ne sera pas renvoyé.
+      _pendingActivityOutcome = null;
 
       state = state.copyWith(
         messages: [
@@ -420,6 +445,7 @@ class AICompanionController extends Notifier<AICompanionState> {
         isSending: false,
         errorMessage: error.message,
         lastFailedMessage: error.retryable ? cleaned : null,
+        lastFailedRequestId: error.retryable ? turnRequestId : null,
         dailyQuestionLimit: error.quota?.limit,
         remainingQuestions: error.quota?.remaining,
         quotaResetsAt: error.quota?.resetsAt,
@@ -443,6 +469,7 @@ class AICompanionController extends Notifier<AICompanionState> {
             '${state.tutor.name} n’arrive pas à répondre pour le moment. '
             'Tu peux continuer à consulter tes cours et exercices.',
         lastFailedMessage: cleaned,
+        lastFailedRequestId: turnRequestId,
         errorKind: AICompanionFailureKind.unknown,
         normalizedErrorCode: 'unknown',
         diagnosticId: 'TUTOR-UNKNOWN-599',
@@ -525,6 +552,7 @@ class AICompanionController extends Notifier<AICompanionState> {
       isSending: state.isSending,
       errorMessage: state.errorMessage,
       lastFailedMessage: state.lastFailedMessage,
+      lastFailedRequestId: state.lastFailedRequestId,
       lessonContext: cleaned == null || cleaned.isEmpty ? null : cleaned,
       dailyQuestionLimit: state.dailyQuestionLimit,
       remainingQuestions: state.remainingQuestions,
@@ -535,9 +563,19 @@ class AICompanionController extends Notifier<AICompanionState> {
     );
   }
 
+  /// L'élève a terminé une activité : le résultat part avec son prochain
+  /// message. Jamais une note : un signal pédagogique pour le compagnon.
+  void recordActivityOutcome(ActivityOutcome outcome) {
+    _pendingActivityOutcome = outcome;
+  }
+
+  /// « Continuer avec Kira » : relance l'échange avec le résultat joint.
+  Future<void> continueAfterActivity(String message) => send(message);
+
   Future<void> retryLastMessage() async {
     final message = state.lastFailedMessage;
     if (message == null || state.isSending) return;
+    final requestId = state.lastFailedRequestId;
     final messages = [...state.messages];
     if (messages.isNotEmpty &&
         messages.last.role == AIMessageRole.user &&
@@ -548,10 +586,11 @@ class AICompanionController extends Notifier<AICompanionState> {
       messages: messages,
       errorMessage: null,
       lastFailedMessage: null,
+      lastFailedRequestId: null,
       errorKind: null,
       normalizedErrorCode: null,
       diagnosticId: null,
     );
-    await send(message);
+    await send(message, requestId: requestId);
   }
 }
