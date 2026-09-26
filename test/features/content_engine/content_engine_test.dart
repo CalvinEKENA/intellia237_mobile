@@ -160,6 +160,27 @@ void main() {
       expect(verdicts, {true});
     });
 
+    test('entier attendu : « 5,0 » et « 5.00 » acceptés, jamais un '
+        'arrondi ni une fraction', () {
+      const mean = Question(
+        id: 'moyenne',
+        lessonNumber: 1,
+        difficulty: 1,
+        type: QuestionType.numeric,
+        rawType: 'numeric',
+        prompt: 'Moyenne de 5,0 ; 5,2 ; 4,8 ; 5,0 ?',
+        answer: ScalarAnswer(AnswerAtom.integer(5)),
+      );
+      bool grade(String text) =>
+          checker.grade(mean, TextResponse(text)).correct;
+      for (final text in ['5', '5,0', '5.00', ' 5,0 ']) {
+        expect(grade(text), isTrue, reason: text);
+      }
+      for (final text in ['5,1', '4,99', '10/2', '5,']) {
+        expect(grade(text), isFalse, reason: text);
+      }
+    });
+
     test('une question non notable est refusée, jamais devinée', () {
       const unscorable = Question(
         id: 'x',

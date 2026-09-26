@@ -5501,6 +5501,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String ceSequenceNumber(int number) {
+    return 'Sequence $number';
+  }
+
+  @override
   String ceUnitNumber(int number) {
     return 'Unit $number';
   }
@@ -5624,7 +5629,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cePreviousIdea => 'Previous idea';
 
   @override
-  String get ceOfficialWording => 'See the official wording';
+  String ceSeeStandardVersion(String mode) {
+    return 'See the $mode version';
+  }
 
   @override
   String get ceExplanationUnavailable =>

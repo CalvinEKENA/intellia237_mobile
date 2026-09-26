@@ -92,10 +92,7 @@ class _ChapterBody extends StatelessWidget {
           [
             if (curriculum.moduleNumber != null)
               moduleLabel(context, curriculum),
-            if (curriculum.unitNumber case final unit?)
-              l10n.ceUnitNumber(unit)
-            else
-              l10n.ceChapterNumber(curriculum.chapterNumber),
+            positionLabel(context, curriculum),
           ].join(' · '),
           style: ContentText.label(color: ContentPalette.inkSoft),
         ),
@@ -114,7 +111,7 @@ class _ChapterBody extends StatelessWidget {
           style: ContentText.body(color: ContentPalette.inkSoft, size: 14),
         ),
         const SizedBox(height: IntelliaSpacing.lg),
-        const JourneyRibbon(),
+        JourneyRibbon(subjectKey: curriculum.subjectKey),
         const SizedBox(height: IntelliaSpacing.lg),
         for (final lesson in chapter.lessons)
           Padding(
@@ -181,10 +178,13 @@ class _ChapterBody extends StatelessWidget {
 
 /// Je comprends → Je vois → J'essaie → Je réussis → Je passe au formalisme.
 class JourneyRibbon extends StatelessWidget {
-  const JourneyRibbon({this.current, super.key});
+  const JourneyRibbon({this.current, this.subjectKey = '', super.key});
 
   /// Étape en cours (0–4), ou `null` pour la présentation du chapitre.
   final int? current;
+
+  /// Matière du chapitre : choisit l'icône de l'étape « formalisme ».
+  final String subjectKey;
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +194,7 @@ class JourneyRibbon extends StatelessWidget {
       (Icons.visibility_outlined, l10n.ceJourneySee),
       (Icons.edit_outlined, l10n.ceJourneyTry),
       (Icons.emoji_events_outlined, l10n.ceJourneySucceed),
-      (Icons.functions_rounded, l10n.ceJourneyFormal),
+      (formalStepIcon(subjectKey), l10n.ceJourneyFormal),
     ];
     return ContentCard(
       padding: const EdgeInsets.symmetric(

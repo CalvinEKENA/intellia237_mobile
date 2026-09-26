@@ -143,6 +143,16 @@ class _LessonView extends ConsumerStatefulWidget {
 class _LessonViewState extends ConsumerState<_LessonView> {
   static const _steps = 5;
   late int _step = widget.initialStep.clamp(0, _steps - 1);
+
+  /// Chaque étape s'ouvre par son début, quel que soit l'endroit où
+  /// l'élève avait défilé.
+  final _scroll = ScrollController();
+
+  void _goTo(int step) {
+    setState(() => _step = step);
+    if (_scroll.hasClients) _scroll.jumpTo(0);
+  }
+
   late final PracticeSession _session;
 
   @override
@@ -167,6 +177,7 @@ class _LessonViewState extends ConsumerState<_LessonView> {
 
   @override
   void dispose() {
+    _scroll.dispose();
     _session.dispose();
     super.dispose();
   }
@@ -233,34 +244,39 @@ class _LessonViewState extends ConsumerState<_LessonView> {
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(_StepBar.heightFor(context)),
           child: _StepBar(
+            subjectKey: widget.chapter.curriculum.subjectKey,
             current: _step,
-            onSelected: (step) => setState(() => _step = step),
+            onSelected: _goTo,
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        key: const ValueKey('open-companion'),
-        backgroundColor: ContentPalette.ink,
-        foregroundColor: Colors.white,
-        onPressed: () => CompanionSheet.show(
+      // Compagnon et étape suivante dans une barre sous le contenu, jamais
+      // par-dessus : aucun bouton flottant ne masque une question, une
+      // réponse ou un bouton, quelle que soit la taille de l'écran.
+      bottomNavigationBar: _LessonActionBar(
+        onCompanion: () => CompanionSheet.show(
           context,
           chapter: widget.chapter,
           companionContext: _companionContext,
           onHintShown: _session.hintShown,
           onTryQuestion: (question) {
-            setState(() => _step = 2);
+            _goTo(2);
             _session.focus(question);
           },
         ),
-        icon: const Icon(Icons.auto_awesome_rounded),
-        label: Text(l10n.ceCompanionButton),
+        nextLabel: _step < _steps - 1
+            ? l10n.ceNextStep(journey[_step + 1])
+            : null,
+        onNext: () => _goTo(_step + 1),
       ),
       body: ListView(
+        key: const ValueKey('lesson-scroll'),
+        controller: _scroll,
         padding: const EdgeInsets.fromLTRB(
           IntelliaSpacing.lg,
           IntelliaSpacing.md,
           IntelliaSpacing.lg,
-          120,
+          IntelliaSpacing.xl,
         ),
         children: [
           // Titre de la leçon en entier, quelle que soit sa longueur.
@@ -283,7 +299,7 @@ class _LessonViewState extends ConsumerState<_LessonView> {
                       constraints: BoxConstraints(
                         maxWidth: MediaQuery.sizeOf(context).width - 120,
                       ),
-                      child: Text(concept.title, softWrap: true),
+                      child: _WrappingLabel(concept.title),
                     ),
                     selected: concept.id == widget.concept.id,
                     onSelected: (_) => widget.onConcept?.call(concept),
@@ -318,7 +334,7 @@ class _LessonViewState extends ConsumerState<_LessonView> {
                   preference: snapshot.preference,
                   onAcceptExplanation: (mode) {
                     _chooseMode(mode);
-                    setState(() => _step = 0);
+                    _goTo(0);
                   },
                 ),
                 3 => _PlayStep(
@@ -333,26 +349,135 @@ class _LessonViewState extends ConsumerState<_LessonView> {
               },
             ),
           ),
-          if (_step < _steps - 1) ...[
-            const SizedBox(height: IntelliaSpacing.lg),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                key: const ValueKey('lesson-next-step'),
-                onPressed: () => setState(() => _step++),
-                icon: const Icon(Icons.arrow_forward_rounded),
-                label: Text(l10n.ceNextStep(journey[_step + 1])),
-              ),
-            ),
-          ],
         ],
       ),
     );
   }
 }
 
+/// Libellé de puce sur plusieurs lignes : une puce impose une seule ligne
+/// (le titre serait coupé en fondu), on lève cette limite.
+class _WrappingLabel extends StatelessWidget {
+  const _WrappingLabel(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final inherited = DefaultTextStyle.of(context);
+    return DefaultTextStyle(
+      style: inherited.style,
+      textAlign: inherited.textAlign,
+      child: Text(text),
+    );
+  }
+}
+
+/// Barre d'actions de la leçon : le Compagnon et l'étape suivante, côte à
+/// côte quand les deux libellés tiennent en entier, l'un sous l'autre sinon
+/// (petit écran, grand texte, traduction plus longue).
+class _LessonActionBar extends StatelessWidget {
+  const _LessonActionBar({
+    required this.onCompanion,
+    required this.onNext,
+    this.nextLabel,
+  });
+
+  final VoidCallback onCompanion;
+  final VoidCallback onNext;
+
+  /// `null` à la dernière étape : seul le Compagnon reste.
+  final String? nextLabel;
+
+  /// Largeur d'un bouton à icône, hors libellé : marges intérieures (16 et
+  /// 24), icône (18) et espace (8), plus une marge de sécurité.
+  static const _buttonChrome = 16 + 24 + 18 + 8 + 8.0;
+  static const _gap = IntelliaSpacing.sm;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final companion = OutlinedButton.icon(
+      key: const ValueKey('open-companion'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: ContentPalette.ink,
+        side: const BorderSide(color: ContentPalette.line),
+        minimumSize: const Size(0, 48),
+      ),
+      onPressed: onCompanion,
+      icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+      label: Text(l10n.ceCompanionButton, textAlign: TextAlign.center),
+    );
+    final label = nextLabel;
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        color: ContentPalette.paper,
+        border: Border(top: BorderSide(color: ContentPalette.line)),
+      ),
+      child: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.symmetric(
+          horizontal: IntelliaSpacing.lg,
+          vertical: IntelliaSpacing.sm,
+        ),
+        child: label == null
+            // heightFactor 1 : la barre garde la hauteur du bouton.
+            ? Align(
+                alignment: Alignment.centerLeft,
+                heightFactor: 1,
+                child: companion,
+              )
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  final next = FilledButton.icon(
+                    key: const ValueKey('lesson-next-step'),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                    ),
+                    onPressed: onNext,
+                    icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                    label: Text(label, textAlign: TextAlign.center),
+                  );
+                  final style =
+                      Theme.of(context).textTheme.labelLarge ??
+                      const TextStyle(fontSize: 14);
+                  final needed =
+                      lineWidth(context, l10n.ceCompanionButton, style) +
+                      lineWidth(context, label, style) +
+                      2 * _buttonChrome +
+                      _gap;
+                  if (needed <= constraints.maxWidth) {
+                    return Row(
+                      children: [
+                        companion,
+                        const SizedBox(width: _gap),
+                        Expanded(child: next),
+                      ],
+                    );
+                  }
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      next,
+                      const SizedBox(height: _gap),
+                      companion,
+                    ],
+                  );
+                },
+              ),
+      ),
+    );
+  }
+}
+
 class _StepBar extends StatelessWidget {
-  const _StepBar({required this.current, required this.onSelected});
+  const _StepBar({
+    required this.subjectKey,
+    required this.current,
+    required this.onSelected,
+  });
+
+  final String subjectKey;
 
   final int current;
   final ValueChanged<int> onSelected;
@@ -375,7 +500,7 @@ class _StepBar extends StatelessWidget {
       (Icons.visibility_outlined, l10n.ceStepSee),
       (Icons.edit_outlined, l10n.ceStepPractice),
       (Icons.sports_esports_outlined, l10n.ceStepPlay),
-      (Icons.functions_rounded, l10n.ceStepFormal),
+      (formalStepIcon(subjectKey), l10n.ceStepFormal),
     ];
     Widget step(int i) => InkWell(
       key: ValueKey('lesson-step-$i'),

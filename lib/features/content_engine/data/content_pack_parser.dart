@@ -275,9 +275,11 @@ class ContentPackParser {
         'Aucun curriculum : le chapitre ne peut pas être rangé.',
       );
     }
-    // Programmes en modules et units (anglais) : l'unit tient lieu de
-    // chapitre dans son module.
+    // Programmes en modules et units (anglais) ou en modules et séquences
+    // (physique) : l'unit ou la séquence tient lieu de chapitre dans son
+    // module.
     final unit = _int(map?['unit']);
+    final sequence = _int(map?['sequence']);
     return Curriculum(
       country: _string(map?['country']) ?? '',
       level: _string(map?['level']) ?? '',
@@ -286,9 +288,14 @@ class ContentPackParser {
       moduleNumber: _int(map?['module']),
       moduleTitle: _string(map?['module_title']),
       unitNumber: unit,
-      chapterNumber: (map?['chapter_number'] as num?)?.toInt() ?? unit ?? 0,
+      sequenceNumber: sequence,
+      chapterNumber:
+          (map?['chapter_number'] as num?)?.toInt() ?? unit ?? sequence ?? 0,
       chapterTitle:
-          _string(map?['chapter_title']) ?? _string(map?['unit_title']) ?? '',
+          _string(map?['chapter_title']) ??
+          _string(map?['unit_title']) ??
+          _string(map?['sequence_title']) ??
+          '',
     );
   }
 

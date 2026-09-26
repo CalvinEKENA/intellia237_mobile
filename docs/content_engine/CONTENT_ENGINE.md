@@ -242,6 +242,47 @@ Transformations des packs (aucune réponse, aucun énoncé modifié) :
   jamais notée (`l5_q08` ouverte, signalée).
 * Aucune transformation des packs.
 
+## Physique Terminales C-D — Module 1, séquence 1 (embarquée)
+
+| Séquence | Dossier | Notées / ouvertes | Jeux |
+|---|---|---|---|
+| M1S1 Erreurs et incertitudes | `assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/` | 35 / 5 | 5 en préparation |
+
+* Cible `class_keys: ["terminale-c-d"]` : Terminales C et D seulement
+  (jamais A, ni une autre classe) ; un seul pack, jamais dupliqué.
+* Hiérarchie Matière → Module → Séquence → Leçon : `curriculum.module`,
+  `module_title`, `sequence`, `sequence_title` (une séquence tient lieu de
+  chapitre dans son module, comme une unit). Apprendre affiche « Physique ·
+  Module 1 — Mesures et incertitudes », puis « Séquence 1 — Erreurs et
+  incertitudes » ; l'écran de la séquence n'emploie jamais « Chapitre ».
+* Réponses numériques : virgule ou point décimal (« 0,05 », « 0.05 ») ;
+  un entier attendu accepte aussi « 5,0 » (jamais un arrondi ni une
+  fraction).
+* Anomalies de source conservées (formules de type B et tableaux
+  partiellement lisibles) : aucune valeur reconstruite, aucune question
+  visée.
+* Réponses rédigées (`l1_q08` … `l5_q08`) : jamais notées, jamais une
+  erreur, jamais un blocage (7 questions notées par leçon).
+* Compagnon : une lettre isolée qualifie le mot qui la précède (« type A »
+  et « type B » restent deux notions distinctes).
+* `learning_card_seeds` : non lues par le moteur ; chaque cible qu'elles
+  désignent reçoit déjà sa carte (vérifié par test).
+
+## Leçon : barre d'actions et retour au niveau de référence
+
+* Le Compagnon et l'étape suivante vivent dans une barre sous le contenu
+  (`bottomNavigationBar`, `SafeArea`), jamais par-dessus : aucun bouton
+  flottant ne masque une question, une réponse ou un bouton. Côte à côte
+  quand les deux libellés tiennent en entier, l'un sous l'autre sinon.
+* Chaque étape s'ouvre par son début.
+* « Voir la version {niveau} » ramène au niveau de référence, sous le nom
+  que lui donne le pack (« Voir la version Terminale »), avec une icône
+  neutre ; Σ ne marque l'étape « formalisme » que pour les matières en
+  formules (mathématiques, physique, chimie).
+* Titres de notions sur plusieurs lignes dans leurs puces, jamais coupés.
+* Tests : 320 / 360 / 412 dp × texte 1,0 / 1,3 (anglais, mathématiques,
+  physique).
+
 ## Règles d'adaptation (depuis `runtime.mastery`)
 
 * 2 erreurs sur une notion → proposer « Simple » ; 1 de plus → proposer

@@ -9448,6 +9448,12 @@ abstract class AppLocalizations {
   /// **'Module {number} — {title}'**
   String ceModuleHeading(int number, String title);
 
+  /// No description provided for @ceSequenceNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séquence {number}'**
+  String ceSequenceNumber(int number);
+
   /// No description provided for @ceUnitNumber.
   ///
   /// In fr, this message translates to:
@@ -9646,11 +9652,11 @@ abstract class AppLocalizations {
   /// **'Idée précédente'**
   String get cePreviousIdea;
 
-  /// No description provided for @ceOfficialWording.
+  /// No description provided for @ceSeeStandardVersion.
   ///
   /// In fr, this message translates to:
-  /// **'Voir la formulation officielle'**
-  String get ceOfficialWording;
+  /// **'Voir la version {mode}'**
+  String ceSeeStandardVersion(String mode);
 
   /// No description provided for @ceExplanationUnavailable.
   ///

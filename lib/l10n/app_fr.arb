@@ -2796,6 +2796,14 @@
   "ceChapterNumber": "Chapitre {number}",
   "ceModuleHeading": "Module {number} — {title}",
   "@ceModuleHeading": {"placeholders": {"number": {"type": "int"}, "title": {"type": "String"}}},
+  "ceSequenceNumber": "Séquence {number}",
+  "@ceSequenceNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "ceUnitNumber": "Unit {number}",
   "@ceUnitNumber": {"placeholders": {"number": {"type": "int"}}},
   "ceSubjectEnglish": "Anglais",
@@ -2882,7 +2890,14 @@
   },
   "ceNextIdea": "Idée suivante",
   "cePreviousIdea": "Idée précédente",
-  "ceOfficialWording": "Voir la formulation officielle",
+  "ceSeeStandardVersion": "Voir la version {mode}",
+  "@ceSeeStandardVersion": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
   "ceExplanationUnavailable": "Cette explication n'est pas encore disponible dans ce cours.",
   "ceShownInsteadMode": "Voici la version « {mode} ».",
   "@ceShownInsteadMode": {

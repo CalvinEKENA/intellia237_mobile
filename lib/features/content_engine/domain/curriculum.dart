@@ -52,6 +52,7 @@ class Curriculum {
     this.moduleNumber,
     this.moduleTitle,
     this.unitNumber,
+    this.sequenceNumber,
   });
 
   final String country;
@@ -69,10 +70,16 @@ class Curriculum {
   /// Numéro d'unit ; `null` pour un chapitre. Une unit reprend aussi
   /// [chapterNumber] et [chapterTitle] (numéro et titre dans son module).
   final int? unitNumber;
+
+  /// Numéro de séquence ; `null` hors programmes en modules et séquences
+  /// (comme la physique). Comme une unit, une séquence reprend
+  /// [chapterNumber] et [chapterTitle] dans son module.
+  final int? sequenceNumber;
   final int chapterNumber;
   final String chapterTitle;
 
   bool get isUnit => unitNumber != null;
+  bool get isSequence => sequenceNumber != null;
 
   /// Clé de classe normalisée (ex. `terminale-d`), comparable au profil élève.
   String get levelKey => normalizeLevelKey(level);

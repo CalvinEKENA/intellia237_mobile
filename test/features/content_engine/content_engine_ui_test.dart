@@ -80,7 +80,27 @@ Future<void> _settle(WidgetTester tester, [int frames = 8]) async {
   }
 }
 
+/// La liste de la leçon.
+final _lessonList = find
+    .descendant(
+      of: find.byKey(const ValueKey('lesson-scroll')),
+      matching: find.byType(Scrollable),
+    )
+    .first;
+
 Future<void> _tap(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isEmpty && finder is MatchFinder) {
+    // Construite mais hors champ (barre d'étapes qui défile de côté) : on
+    // l'amène à l'écran ; pas encore construite (plus bas dans la leçon) :
+    // on fait défiler la leçon jusqu'à elle.
+    final built = tester.allElements.where(finder.matches).firstOrNull;
+    if (built != null) {
+      await Scrollable.ensureVisible(built);
+      await tester.pump();
+    } else {
+      await tester.scrollUntilVisible(finder, 150, scrollable: _lessonList);
+    }
+  }
   await tester.ensureVisible(finder);
   await tester.pump();
   await tester.tap(finder);
@@ -113,7 +133,11 @@ void main() {
   testWidgets('la section Apprendre montre le chapitre de la classe', (
     tester,
   ) async {
-    final container = await _pump(tester, const LocalChaptersSection());
+    // Comme dans Apprendre : la section vit dans une page qui défile.
+    final container = await _pump(
+      tester,
+      const SingleChildScrollView(child: LocalChaptersSection()),
+    );
     await tester.runAsync(
       () => container.read(localContentSubjectsProvider.future),
     );
@@ -163,7 +187,7 @@ void main() {
         ExplanationMode.ultraSimple,
       );
 
-      await _tap(tester, find.byKey(const ValueKey('official-wording')));
+      await _tap(tester, find.byKey(const ValueKey('standard-version')));
       expect(
         find.text(concept.explanation(ExplanationMode.standard)!),
         findsOneWidget,

@@ -133,6 +133,14 @@ class _ExplanationPanelState extends State<ExplanationPanel> {
     final mode = widget.preference.mode;
     final text = widget.concept.explanation(mode);
     final color = ContentPalette.mode(mode);
+    // Retour vers le niveau de référence, sous le nom que lui donne le pack.
+    final standardLabel = l10n.ceSeeStandardVersion(
+      explanationModeLabel(
+        context,
+        ExplanationMode.standard,
+        widget.modeLabels,
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -193,13 +201,15 @@ class _ExplanationPanelState extends State<ExplanationPanel> {
                     color: color,
                     concept: widget.concept,
                     onIndex: (i) => setState(() => _idea = i),
-                    onOfficial: () =>
+                    standardLabel: standardLabel,
+                    onStandard: () =>
                         widget.onModeSelected(ExplanationMode.standard),
                   )
                 : _Explanation(
                     text: text,
                     color: color,
-                    onOfficial: mode == ExplanationMode.standard
+                    standardLabel: standardLabel,
+                    onStandard: mode == ExplanationMode.standard
                         ? null
                         : () => widget.onModeSelected(ExplanationMode.standard),
                   ),
@@ -232,12 +242,14 @@ class _Explanation extends StatelessWidget {
   const _Explanation({
     required this.text,
     required this.color,
-    this.onOfficial,
+    required this.standardLabel,
+    this.onStandard,
   });
 
   final String text;
   final Color color;
-  final VoidCallback? onOfficial;
+  final String standardLabel;
+  final VoidCallback? onStandard;
 
   @override
   Widget build(BuildContext context) => ContentCard(
@@ -247,9 +259,9 @@ class _Explanation extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(text, style: ContentText.body(size: 17)),
-        if (onOfficial != null) ...[
+        if (onStandard != null) ...[
           const SizedBox(height: IntelliaSpacing.md),
-          _OfficialButton(onPressed: onOfficial!),
+          _StandardVersionButton(label: standardLabel, onPressed: onStandard!),
         ],
       ],
     ),
@@ -257,7 +269,7 @@ class _Explanation extends StatelessWidget {
 }
 
 /// « Comme si j'avais 12 ans » : une idée à la fois, le schéma à côté, et
-/// toujours la porte vers la formulation officielle.
+/// toujours la porte vers la version de référence (« Terminale »).
 class _IdeaByIdea extends StatelessWidget {
   const _IdeaByIdea({
     required this.ideas,
@@ -265,7 +277,8 @@ class _IdeaByIdea extends StatelessWidget {
     required this.color,
     required this.concept,
     required this.onIndex,
-    required this.onOfficial,
+    required this.standardLabel,
+    required this.onStandard,
   });
 
   final List<String> ideas;
@@ -273,7 +286,8 @@ class _IdeaByIdea extends StatelessWidget {
   final Color color;
   final Concept concept;
   final ValueChanged<int> onIndex;
-  final VoidCallback onOfficial;
+  final String standardLabel;
+  final VoidCallback onStandard;
 
   @override
   Widget build(BuildContext context) {
@@ -352,22 +366,25 @@ class _IdeaByIdea extends StatelessWidget {
           ContentCard(child: ConceptVisual(kind: concept.visualKind)),
         ],
         const SizedBox(height: IntelliaSpacing.md),
-        _OfficialButton(onPressed: onOfficial),
+        _StandardVersionButton(label: standardLabel, onPressed: onStandard),
       ],
     );
   }
 }
 
-class _OfficialButton extends StatelessWidget {
-  const _OfficialButton({required this.onPressed});
+/// « Voir la version Terminale » : même libellé et même icône neutre dans
+/// toutes les matières (le symbole Σ n'a rien à faire en anglais).
+class _StandardVersionButton extends StatelessWidget {
+  const _StandardVersionButton({required this.label, required this.onPressed});
+  final String label;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) => OutlinedButton.icon(
-    key: const ValueKey('official-wording'),
+    key: const ValueKey('standard-version'),
     onPressed: onPressed,
-    icon: const Icon(Icons.functions_rounded),
-    label: Text(context.l10n.ceOfficialWording),
+    icon: const Icon(Icons.school_outlined),
+    label: Text(label, textAlign: TextAlign.center),
   );
 }
 

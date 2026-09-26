@@ -1,0 +1,160 @@
+{
+  "schema_version": "intellia.validation-report.v3",
+  "pack_id": "physique_terminale_cd_m1_s1_erreurs_et_incertitudes",
+  "status": "PASS_FOR_AUTHORING_READY_FOR_ENGINE_INTEGRATION",
+  "automated_checks": [
+    {
+      "check": "audience terminale C-D",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "five lessons",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "ten concepts",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "forty questions",
+      "passed": true,
+      "details": "40"
+    },
+    {
+      "check": "eight questions per lesson",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "35 auto-scored",
+      "passed": true,
+      "details": "35"
+    },
+    {
+      "check": "5 self-evaluation",
+      "passed": true,
+      "details": "5"
+    },
+    {
+      "check": "unique ids",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all questions have hints",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "three difficulties",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "mcq stable ids",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "qcm not position-bound",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "no runtime llm",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "all games draft",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "combined 0.03 0.04",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "combined 0.06 0.08",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "expanded 0.05 k2",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "voltmeter 3 percent",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "offline ready",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "source boundary next sequence",
+      "passed": true,
+      "details": ""
+    }
+  ],
+  "question_count": 40,
+  "auto_scored_count": 35,
+  "non_auto_scored_count": 5,
+  "non_auto_scored_question_ids": [
+    "l1_q08",
+    "l2_q08",
+    "l3_q08",
+    "l4_q08",
+    "l5_q08"
+  ],
+  "questions_by_lesson": {
+    "1": 8,
+    "2": 8,
+    "3": 8,
+    "4": 8,
+    "5": 8
+  },
+  "qcm_randomization": {
+    "policy": "deterministic_per_attempt",
+    "correct_answer_bound_to": "stable option id / answer value, never visual index",
+    "stable_within_attempt": true,
+    "shuffle_between_attempts": true,
+    "true_false_fixed_order": true
+  },
+  "source_quality_flags": [
+    {
+      "id": "some_type_b_formulas_partially_legible",
+      "severity": "important",
+      "source_pages": [
+        "page_006.jpg",
+        "page_007.jpg"
+      ],
+      "question_ids": [],
+      "issue": "Certaines formules détaillées de type B sont partiellement difficiles à lire.",
+      "runtime_action": "Aucun coefficient illisible n'a été reconstruit ; les exercices auto-corrigés utilisent uniquement les relations clairement identifiées."
+    },
+    {
+      "id": "exercise_tables_partially_legible",
+      "severity": "moderate",
+      "source_pages": [
+        "page_008.jpg",
+        "page_009.jpg"
+      ],
+      "question_ids": [],
+      "issue": "Certains tableaux et nombres d'exercices sont partiellement difficiles à lire.",
+      "runtime_action": "Les séries numériques ambiguës ne sont pas recopiées dans les questions auto-corrigées."
+    }
+  ],
+  "validation_policy": {
+    "uncertain_source": "never silently repair",
+    "partially_legible_formula": "do not infer missing coefficient",
+    "remote_activation": "schema + checksum + class audience + engine compatibility must pass before activation"
+  }
+}

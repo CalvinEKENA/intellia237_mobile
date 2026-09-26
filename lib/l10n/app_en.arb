@@ -2649,6 +2649,14 @@
   "ceLocalChaptersSubtitle": "Available offline: explanations, exercises and games.",
   "ceChapterNumber": "Chapter {number}",
   "ceModuleHeading": "Module {number} — {title}",
+  "ceSequenceNumber": "Sequence {number}",
+  "@ceSequenceNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "ceUnitNumber": "Unit {number}",
   "ceSubjectEnglish": "English",
   "ceLessonCount": "{count, plural, =0{No lessons} =1{1 lesson} other{{count} lessons}}",
@@ -2682,7 +2690,14 @@
   "ceIdeaProgress": "Idea {current} of {total}",
   "ceNextIdea": "Next idea",
   "cePreviousIdea": "Previous idea",
-  "ceOfficialWording": "See the official wording",
+  "ceSeeStandardVersion": "See the {mode} version",
+  "@ceSeeStandardVersion": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
   "ceExplanationUnavailable": "This explanation isn't available in this course yet.",
   "ceShownInsteadMode": "Here is the “{mode}” version.",
   "ceMistakesTitle": "Traps to avoid",

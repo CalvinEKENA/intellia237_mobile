@@ -159,8 +159,9 @@ class _LocalChapterTile extends StatelessWidget {
                   [
                     subjectDisplayName(context, subject.key, subject.title),
                     subject.levelLabel,
-                    if (chapter.curriculum.unitNumber case final unit?)
-                      l10n.ceUnitNumber(unit),
+                    if (chapter.curriculum.isUnit ||
+                        chapter.curriculum.isSequence)
+                      positionLabel(context, chapter.curriculum),
                   ].join(' · '),
                   style: ContentText.eyebrow(color: ContentPalette.inkSoft),
                 ),

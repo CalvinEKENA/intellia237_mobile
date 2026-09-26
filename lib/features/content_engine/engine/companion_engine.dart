@@ -509,9 +509,17 @@ class ConceptRouter {
 
   static Set<String> _words(String text) {
     final key = normalizeKey(text);
+    final split = key.split('-');
     final words = {
-      for (final word in key.split('-'))
+      for (final word in split)
         if (word.length > 1 && !_stopWords.contains(word)) _stem(word),
+      // Une lettre ou un chiffre seul qualifie le mot qui le précède :
+      // « type A » et « type B », « série C » restent distincts.
+      for (var i = 1; i < split.length; i++)
+        if (split[i].length == 1 &&
+            split[i - 1].length > 1 &&
+            !_stopWords.contains(split[i - 1]))
+          '${_stem(split[i - 1])}$_qualified${split[i]}',
     };
     for (final entry in _synonyms.entries) {
       if (key.contains(entry.key)) {
@@ -520,6 +528,10 @@ class ConceptRouter {
     }
     return words;
   }
+
+  /// Séparateur des mots qualifiés (« type·b ») : jamais rapprochés par
+  /// la tolérance aux fautes de frappe.
+  static const _qualified = '·';
 
   /// Racine grossière : pluriels et terminaisons courantes retirés.
   static String _stem(String word) {
@@ -541,6 +553,7 @@ class ConceptRouter {
 
   /// Distance d'édition bornée : une faute de frappe sur un mot assez long.
   static bool _close(String a, String b) {
+    if (a.contains(_qualified) || b.contains(_qualified)) return false;
     if (a == b) return true;
     if (a.length < 5 || b.length < 5 || (a.length - b.length).abs() > 1) {
       return false;

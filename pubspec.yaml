@@ -92,6 +92,7 @@ flutter:
     - assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/
     - assets/content/terminale/anglais/m1_u1_applying_for_a_passport/
     - assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/
+    - assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/
 
 # Icône de lancement uniquement. Les plateformes non mobiles restent hors de
 # ce mécanisme : leurs ressources déjà versionnées, dont le favicon web, ne

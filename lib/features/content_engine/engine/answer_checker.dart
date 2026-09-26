@@ -182,9 +182,18 @@ class AnswerChecker {
     diagnosis: correct ? null : GradeDiagnosis.different,
   );
 
+  static final _zeroDecimals = RegExp(r'^([+-]?\d+)[.,]0+$');
+
   GradeResult _scalar(AnswerAtom expected, String text) {
     if (expected.integer case final value?) {
-      final given = parseInteger(text);
+      // « 5,0 » ou « 5.00 » écrivent le même entier (une moyenne, une
+      // mesure) ; une fraction ou un arrondi ne sont pas acceptés ici.
+      final given =
+          parseInteger(text) ??
+          switch (_zeroDecimals.firstMatch(text.trim())) {
+            final match? => parseInteger(match.group(1)!),
+            null => null,
+          };
       if (given == null) {
         return const GradeResult(
           correct: false,

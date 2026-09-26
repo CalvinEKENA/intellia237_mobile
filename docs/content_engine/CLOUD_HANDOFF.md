@@ -122,6 +122,11 @@ JSON des packs ne sont jamais corrigés en silence.
 * **Anglais Terminale M1U1 et M1U2 intégrés** (toutes séries, Matière →
   Module → Unit, bundles `draft`, rien téléversé). Jeux en préparation ;
   12 activités ouvertes non notées.
+* **Physique Terminales C-D M1S1 intégrée** (C et D seulement, Matière →
+  Module → Séquence, bundle `draft`, rien téléversé). 5 jeux en
+  préparation ; 5 réponses rédigées non notées. M1S2 pas commencée.
+* **Leçon** : Compagnon et étape suivante dans une barre sous le contenu
+  (plus de bouton flottant) ; « Voir la version Terminale » à icône neutre.
 * Fil des packs plafonné à 60 cartes par composition.
 * Aucune vérification sur appareil de cette branche.
 

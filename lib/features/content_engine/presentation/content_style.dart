@@ -133,6 +133,19 @@ String moduleLabel(BuildContext context, Curriculum curriculum) {
   return curriculum.moduleTitle == null ? heading.split(' — ').first : heading;
 }
 
+/// Place du chapitre dans son module : « Unit 2 », « Séquence 1 » ou
+/// « Chapitre 3 », selon l'organisation du programme de la matière.
+String positionLabel(BuildContext context, Curriculum curriculum) {
+  final l10n = context.l10n;
+  return switch (curriculum) {
+    Curriculum(unitNumber: final unit?) => l10n.ceUnitNumber(unit),
+    Curriculum(sequenceNumber: final sequence?) => l10n.ceSequenceNumber(
+      sequence,
+    ),
+    _ => l10n.ceChapterNumber(curriculum.chapterNumber),
+  };
+}
+
 /// Libellé d'une difficulté : celui du pack d'abord.
 String difficultyLabel(BuildContext context, Chapter chapter, int level) =>
     chapter.difficulty(level).label ?? context.l10n.ceDifficultyLevel(level);
@@ -213,6 +226,28 @@ class MasteryRing extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// Icône de l'étape « formalisme » : le symbole Σ ne se justifie que pour
+/// les matières qui s'écrivent en formules ; ailleurs, un livre ouvert.
+IconData formalStepIcon(String subjectKey) =>
+    _formulaSubjects.any(subjectKey.startsWith)
+    ? Icons.functions_rounded
+    : Icons.menu_book_rounded;
+
+const _formulaSubjects = ['mathematiques', 'physique', 'chimie'];
+
+/// Largeur, à l'échelle de texte de l'appareil, de [text] sur une ligne.
+double lineWidth(BuildContext context, String text, TextStyle style) {
+  final painter = TextPainter(
+    text: TextSpan(text: text, style: style),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 1,
+  )..layout();
+  final width = painter.width;
+  painter.dispose();
+  return width;
 }
 
 /// Largeur, à l'échelle de texte de l'appareil, du plus long mot de [text].

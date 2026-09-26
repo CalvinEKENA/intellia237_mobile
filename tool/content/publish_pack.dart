@@ -80,7 +80,9 @@ void main(List<String> args) {
       status: value('--status') ?? 'published',
       subject: curriculum?['subject'] as String?,
       chapterTitle:
-          (curriculum?['chapter_title'] ?? curriculum?['unit_title'])
+          (curriculum?['chapter_title'] ??
+                  curriculum?['unit_title'] ??
+                  curriculum?['sequence_title'])
               as String?,
       minimumEngineVersion: minimumEngine,
     ),
