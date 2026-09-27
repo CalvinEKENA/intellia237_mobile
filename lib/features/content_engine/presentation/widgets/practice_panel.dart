@@ -635,8 +635,10 @@ class _SuggestionBanner extends StatelessWidget {
               Expanded(child: Text(text, style: ContentText.body(size: 14.5))),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: IntelliaSpacing.xs,
+            runSpacing: IntelliaSpacing.xs,
             children: [
               TextButton(onPressed: onDismiss, child: Text(l10n.ceDismiss)),
               FilledButton(

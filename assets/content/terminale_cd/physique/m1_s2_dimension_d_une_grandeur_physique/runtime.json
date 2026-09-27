@@ -1,0 +1,2020 @@
+{
+  "schema_version": "intellia.runtime-learning-pack.v2",
+  "pack_id": "physique_terminale_cd_m1_s2_dimension_grandeur_physique",
+  "engine_version_required": 2,
+  "llm_required": false,
+  "offline_ready": true,
+  "publication": {
+    "status": "draft",
+    "version": 1,
+    "reason": "Pack pédagogique validé sur les pages source ; intégration applicative encore requise."
+  },
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale C-D",
+    "class_keys": [
+      "terminale-c-d"
+    ],
+    "subject": "Physique",
+    "module": 1,
+    "module_title": "Mesures et incertitudes",
+    "sequence": 2,
+    "sequence_title": "Dimension d'une grandeur physique"
+  },
+  "lessons": [
+    {
+      "lesson": 1,
+      "title": "Dimension d'une grandeur et grandeurs fondamentales",
+      "concept_ids": [
+        "dimension_vs_unit",
+        "base_dimensions"
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Grandeurs dérivées et équations aux dimensions",
+      "concept_ids": [
+        "derived_quantities",
+        "dimensional_equation"
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Unités dérivées et grandeurs sans dimension",
+      "concept_ids": [
+        "derived_units",
+        "dimensionless_quantities"
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Analyse dimensionnelle et homogénéité",
+      "concept_ids": [
+        "dimensional_analysis",
+        "dimensional_homogeneity"
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Applications de l'analyse dimensionnelle",
+      "concept_ids": [
+        "dimensional_problem_solving"
+      ]
+    }
+  ],
+  "explanation_modes": [
+    "standard",
+    "simple",
+    "ultra_simple"
+  ],
+  "difficulty_levels": [
+    1,
+    2,
+    3
+  ],
+  "question_bank": [
+    {
+      "id": "l1_q01",
+      "lesson": 1,
+      "concept_id": "dimension_vs_unit",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Que renseigne principalement la dimension d'une grandeur physique ?",
+      "answer": "Sa nature physique",
+      "explanation": "Le cours définit la dimension comme une caractéristique de la nature physique de la grandeur.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Distingue la nature de la grandeur de la façon dont on la mesure."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Sa nature physique",
+        "La valeur numérique mesurée",
+        "Le nom du laboratoire",
+        "Le nombre de décimales affichées"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Sa nature physique",
+          "feedback": "Le cours définit la dimension comme une caractéristique de la nature physique de la grandeur."
+        },
+        {
+          "id": "b",
+          "label": "La valeur numérique mesurée",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "Le nom du laboratoire",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "Le nombre de décimales affichées",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q02",
+      "lesson": 1,
+      "concept_id": "dimension_vs_unit",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Changer l'unité d'une longueur change sa dimension.",
+      "answer": false,
+      "explanation": "Une longueur conserve la dimension L même si elle est exprimée en mètre, mile ou autre unité.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense à une distance exprimée dans deux unités différentes."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_q03",
+      "lesson": 1,
+      "concept_id": "base_dimensions",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quelle est la dimension du temps ?",
+      "answer": "T",
+      "explanation": "T est le symbole de la dimension du temps ; s est le symbole de l'unité seconde.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le cours distingue explicitement dimension et unité."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "T",
+        "s",
+        "L",
+        "M"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "T",
+          "feedback": "T est le symbole de la dimension du temps ; s est le symbole de l'unité seconde."
+        },
+        {
+          "id": "b",
+          "label": "s",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "L",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "M",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q04",
+      "lesson": 1,
+      "concept_id": "base_dimensions",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quelle lettre représente la dimension de la masse ?",
+      "answer": "M",
+      "explanation": "La masse est l'une des sept grandeurs de base et sa dimension est M.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Ne choisis pas le symbole de l'unité kilogramme."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "M",
+        "kg",
+        "L",
+        "N"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "M",
+          "feedback": "La masse est l'une des sept grandeurs de base et sa dimension est M."
+        },
+        {
+          "id": "b",
+          "label": "kg",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "L",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "N",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q05",
+      "lesson": 1,
+      "concept_id": "base_dimensions",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Dans le tableau du cours, quelle dimension correspond au courant électrique ?",
+      "answer": "I",
+      "explanation": "La dimension du courant électrique est notée I.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le symbole de dimension n'est pas nécessairement le symbole de l'unité."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "I",
+        "A",
+        "J",
+        "N"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "I",
+          "feedback": "La dimension du courant électrique est notée I."
+        },
+        {
+          "id": "b",
+          "label": "A",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "J",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "N",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q06",
+      "lesson": 1,
+      "concept_id": "base_dimensions",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quelle association est conforme au tableau des dimensions fondamentales ?",
+      "answer": "Température thermodynamique → Θ",
+      "explanation": "Le tableau utilise Θ pour la dimension de la température thermodynamique ; K, mol et cd sont des unités.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche une lettre de dimension, pas une unité SI."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Température thermodynamique → Θ",
+        "Température thermodynamique → K",
+        "Quantité de matière → mol",
+        "Intensité lumineuse → cd"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Température thermodynamique → Θ",
+          "feedback": "Le tableau utilise Θ pour la dimension de la température thermodynamique ; K, mol et cd sont des unités."
+        },
+        {
+          "id": "b",
+          "label": "Température thermodynamique → K",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "Quantité de matière → mol",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "Intensité lumineuse → cd",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l1_q07",
+      "lesson": 1,
+      "concept_id": "base_dimensions",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "Dans une équation aux dimensions, les symboles de dimensions fondamentales sont écrits par des lettres majuscules.",
+      "answer": true,
+      "explanation": "Le cours représente les dimensions fondamentales par des lettres majuscules comme L, M, T ou I.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Observe la notation du tableau de la page 010."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l1_q08",
+      "lesson": 1,
+      "concept_id": "dimension_vs_unit",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Explique avec l'exemple d'une distance pourquoi dimension et unité ne sont pas la même chose.",
+      "answer": "Une distance a toujours la dimension L, mais elle peut être exprimée avec différentes unités de longueur, par exemple le mètre ou le mile.",
+      "explanation": "La dimension décrit la nature de la grandeur ; l'unité est une convention de mesure.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Commence par dire ce qui reste inchangé quand on passe du mètre au mile."
+        },
+        {
+          "level": 2,
+          "content": "Nomme ensuite ce qui change réellement."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l2_q01",
+      "lesson": 2,
+      "concept_id": "derived_quantities",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Une grandeur dérivée est une grandeur qui…",
+      "answer": "s'exprime à partir des grandeurs de base au moyen de relations physiques",
+      "explanation": "Le cours définit les grandeurs dérivées à partir des grandeurs fondamentales.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense aux grandeurs comme vitesse ou accélération."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "s'exprime à partir des grandeurs de base au moyen de relations physiques",
+        "possède obligatoirement sa propre dimension fondamentale",
+        "n'a jamais d'unité",
+        "est toujours sans dimension"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "s'exprime à partir des grandeurs de base au moyen de relations physiques",
+          "feedback": "Le cours définit les grandeurs dérivées à partir des grandeurs fondamentales."
+        },
+        {
+          "id": "b",
+          "label": "possède obligatoirement sa propre dimension fondamentale",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "n'a jamais d'unité",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "est toujours sans dimension",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q02",
+      "lesson": 2,
+      "concept_id": "dimensional_equation",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quelle écriture représente la forme générale d'une équation aux dimensions ?",
+      "answer": "L^a M^b T^c I^d Θ^e N^f J^g",
+      "explanation": "Une équation aux dimensions est un produit de puissances des dimensions de base.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche un produit de lettres de dimensions élevées à des puissances."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "L^a M^b T^c I^d Θ^e N^f J^g",
+        "m^a kg^b s^c A^d K^e mol^f cd^g",
+        "a+b+c+d+e+f+g",
+        "L+M+T+I+Θ+N+J"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "L^a M^b T^c I^d Θ^e N^f J^g",
+          "feedback": "Une équation aux dimensions est un produit de puissances des dimensions de base."
+        },
+        {
+          "id": "b",
+          "label": "m^a kg^b s^c A^d K^e mol^f cd^g",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "a+b+c+d+e+f+g",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "L+M+T+I+Θ+N+J",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q03",
+      "lesson": 2,
+      "concept_id": "dimensional_equation",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Comment appelle-t-on les nombres a, b, c… dans une équation aux dimensions ?",
+      "answer": "Exposants dimensionnels",
+      "explanation": "Le cours les nomme exposants dimensionnels.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Ils sont les puissances placées sur L, M, T, etc."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Exposants dimensionnels",
+        "Unités fondamentales",
+        "Facteurs d'élargissement",
+        "Coefficients de conversion"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Exposants dimensionnels",
+          "feedback": "Le cours les nomme exposants dimensionnels."
+        },
+        {
+          "id": "b",
+          "label": "Unités fondamentales",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "Facteurs d'élargissement",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "Coefficients de conversion",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q04",
+      "lesson": 2,
+      "concept_id": "derived_quantities",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Si v a pour dimension L T^-1 et R pour dimension L, quelle est la dimension de v²/R ?",
+      "answer": "L T^-2",
+      "explanation": "[v²/R] = (L²T^-2)/L = LT^-2, dimension d'une accélération.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Mets d'abord la dimension de v au carré, puis divise par L."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "choices": [
+        "L T^-2",
+        "L² T^-2",
+        "T^-1",
+        "M L T^-2"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "L T^-2",
+          "feedback": "[v²/R] = (L²T^-2)/L = LT^-2, dimension d'une accélération."
+        },
+        {
+          "id": "b",
+          "label": "L² T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "M L T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q05",
+      "lesson": 2,
+      "concept_id": "derived_quantities",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quelle unité fondamentale correspond à une accélération de dimension L T^-2 ?",
+      "answer": "m·s^-2",
+      "explanation": "Une accélération s'exprime en mètre par seconde carrée.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Traduis L par m et T par s."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "m·s^-2",
+        "m·s^-1",
+        "kg·m·s^-2",
+        "s^-2"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "m·s^-2",
+          "feedback": "Une accélération s'exprime en mètre par seconde carrée."
+        },
+        {
+          "id": "b",
+          "label": "m·s^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "kg·m·s^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "s^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q06",
+      "lesson": 2,
+      "concept_id": "dimensional_equation",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quelle est la dimension de la vitesse dans le tableau du cours ?",
+      "answer": "L T^-1",
+      "explanation": "Le tableau des unités dérivées donne la vitesse de dimension LT^-1.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Une vitesse est une longueur divisée par un temps."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "L T^-1",
+        "L T^-2",
+        "M L T^-1",
+        "L² T^-1"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "L T^-1",
+          "feedback": "Le tableau des unités dérivées donne la vitesse de dimension LT^-1."
+        },
+        {
+          "id": "b",
+          "label": "L T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "M L T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "L² T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l2_q07",
+      "lesson": 2,
+      "concept_id": "dimensional_equation",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Dans dim Q = L² M T^-3, quel est l'exposant dimensionnel du temps T ?",
+      "answer": -3,
+      "explanation": "L'exposant de T est directement -3.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Lis la puissance placée sur T."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "tolerance": 1e-09
+    },
+    {
+      "id": "l2_q08",
+      "lesson": 2,
+      "concept_id": "derived_quantities",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Pourquoi l'accélération est-elle une grandeur dérivée et son unité une unité dérivée ?",
+      "answer": "Parce que sa dimension LT^-2 se construit à partir des dimensions fondamentales longueur et temps ; son unité m·s^-2 se construit de même à partir des unités de base m et s.",
+      "explanation": "La relation a = v²/R du cours conduit à LT^-2, qui combine des dimensions de base.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pars de [v] = LT^-1 et [R] = L."
+        },
+        {
+          "level": 2,
+          "content": "Relie ensuite LT^-2 à m·s^-2."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l3_q01",
+      "lesson": 3,
+      "concept_id": "derived_units",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quelle est la dimension de la masse volumique dans le tableau du cours ?",
+      "answer": "M L^-3",
+      "explanation": "La masse volumique est une masse divisée par un volume : ML^-3.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le volume a la dimension L³."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "M L^-3",
+        "M L^3",
+        "L^-3",
+        "M T^-3"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "M L^-3",
+          "feedback": "La masse volumique est une masse divisée par un volume : ML^-3."
+        },
+        {
+          "id": "b",
+          "label": "M L^3",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "L^-3",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "M T^-3",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q02",
+      "lesson": 3,
+      "concept_id": "derived_units",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quelle est la dimension d'une fréquence ?",
+      "answer": "T^-1",
+      "explanation": "Le tableau associe la fréquence à T^-1 et à l'unité hertz.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Une fréquence compte des cycles par unité de temps."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "T^-1",
+        "T",
+        "L T^-1",
+        "T^-2"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "T^-1",
+          "feedback": "Le tableau associe la fréquence à T^-1 et à l'unité hertz."
+        },
+        {
+          "id": "b",
+          "label": "T",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "L T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q03",
+      "lesson": 3,
+      "concept_id": "derived_units",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quelle grandeur a pour dimension M L² T^-2 dans le tableau ?",
+      "answer": "Travail et énergie",
+      "explanation": "Le tableau donne travail et énergie avec la dimension ML²T^-2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pense à l'unité joule."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Travail et énergie",
+        "Puissance",
+        "Pression",
+        "Fréquence"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Travail et énergie",
+          "feedback": "Le tableau donne travail et énergie avec la dimension ML²T^-2."
+        },
+        {
+          "id": "b",
+          "label": "Puissance",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "Pression",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "Fréquence",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q04",
+      "lesson": 3,
+      "concept_id": "derived_units",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quelle est la dimension de la puissance ?",
+      "answer": "M L² T^-3",
+      "explanation": "La puissance est une énergie par unité de temps, donc ML²T^-3.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Pars de la dimension de l'énergie et divise par T."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "M L² T^-3",
+        "M L² T^-2",
+        "M L^-1 T^-2",
+        "L T^-1"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "M L² T^-3",
+          "feedback": "La puissance est une énergie par unité de temps, donc ML²T^-3."
+        },
+        {
+          "id": "b",
+          "label": "M L² T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "M L^-1 T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "L T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q05",
+      "lesson": 3,
+      "concept_id": "derived_units",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quelle est la dimension de la pression dans le tableau du cours ?",
+      "answer": "M L^-1 T^-2",
+      "explanation": "La pression est donnée avec la dimension ML^-1T^-2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Une pression peut se voir comme une force par surface."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "M L^-1 T^-2",
+        "M L T^-2",
+        "M L² T^-2",
+        "L^-1 T^-2"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "M L^-1 T^-2",
+          "feedback": "La pression est donnée avec la dimension ML^-1T^-2."
+        },
+        {
+          "id": "b",
+          "label": "M L T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "M L² T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "L^-1 T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l3_q06",
+      "lesson": 3,
+      "concept_id": "dimensionless_quantities",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Le rapport de deux grandeurs de même dimension est sans dimension.",
+      "answer": true,
+      "explanation": "Les dimensions se simplifient dans un tel rapport.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Imagine L/L."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q07",
+      "lesson": 3,
+      "concept_id": "dimensionless_quantities",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Un angle exprimé en radians possède la dimension L.",
+      "answer": false,
+      "explanation": "Le cours explique qu'un angle en radians est un rapport longueur d'arc / rayon ; il est donc sans dimension.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le numérateur et le dénominateur sont tous deux des longueurs."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l3_q08",
+      "lesson": 3,
+      "concept_id": "dimensionless_quantities",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Explique pourquoi un angle exprimé en radians est sans dimension.",
+      "answer": "Un angle en radians est le rapport de la longueur de l'arc intercepté au rayon du cercle. Les deux sont des longueurs, donc L/L = 1 : la dimension s'annule.",
+      "explanation": "Le cours définit le radian à partir d'un rapport de deux longueurs.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Écris la dimension de la longueur d'arc."
+        },
+        {
+          "level": 2,
+          "content": "Écris celle du rayon puis simplifie le rapport."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l4_q01",
+      "lesson": 4,
+      "concept_id": "dimensional_homogeneity",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Dans une somme ou une différence physiquement homogène, les termes doivent…",
+      "answer": "avoir la même dimension",
+      "explanation": "Le cours impose la même dimension à tous les termes d'une somme ou différence.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Peut-on additionner des mètres et des secondes ?"
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "avoir la même dimension",
+        "avoir la même valeur numérique",
+        "être tous sans dimension",
+        "avoir des unités écrites différemment"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "avoir la même dimension",
+          "feedback": "Le cours impose la même dimension à tous les termes d'une somme ou différence."
+        },
+        {
+          "id": "b",
+          "label": "avoir la même valeur numérique",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "être tous sans dimension",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "avoir des unités écrites différemment",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q02",
+      "lesson": 4,
+      "concept_id": "dimensional_homogeneity",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Une équation non homogène est nécessairement fausse.",
+      "answer": true,
+      "explanation": "Le cours présente l'absence d'homogénéité comme un critère certain d'erreur.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Si les deux côtés n'ont pas la même nature physique, l'égalité ne peut pas être correcte."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q03",
+      "lesson": 4,
+      "concept_id": "dimensional_homogeneity",
+      "difficulty": 1,
+      "type": "true_false",
+      "prompt": "Une équation homogène est nécessairement juste.",
+      "answer": false,
+      "explanation": "L'homogénéité est nécessaire mais ne suffit pas à prouver qu'une formule est correcte.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le cours insiste sur la limite de ce test."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q04",
+      "lesson": 4,
+      "concept_id": "dimensional_analysis",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Si F a pour dimension M L T^-2 et m pour dimension M, quelle est la dimension de F/m ?",
+      "answer": "L T^-2",
+      "explanation": "[F/m] = MLT^-2 / M = LT^-2, comme une accélération.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Simplifie d'abord M/M."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "choices": [
+        "L T^-2",
+        "M L T^-2",
+        "L T^-1",
+        "T^-2"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "L T^-2",
+          "feedback": "[F/m] = MLT^-2 / M = LT^-2, comme une accélération."
+        },
+        {
+          "id": "b",
+          "label": "M L T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "L T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "T^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q05",
+      "lesson": 4,
+      "concept_id": "dimensional_homogeneity",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "L'expression x(t) = 1/2·g·t² est homogène si [x]=L et [g]=LT^-2.",
+      "answer": true,
+      "explanation": "[g][t]² = LT^-2·T² = L, identique à [x].",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Le facteur 1/2 est sans dimension."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": []
+    },
+    {
+      "id": "l4_q06",
+      "lesson": 4,
+      "concept_id": "dimensional_analysis",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Pour le pendule T = K√(L/g), avec K sans dimension, quelle est la dimension de √(L/g) ?",
+      "answer": "T",
+      "explanation": "L/g a pour dimension L/(LT^-2)=T² ; sa racine a donc la dimension T.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Commence par simplifier L/(LT^-2)."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "choices": [
+        "T",
+        "L",
+        "T^-1",
+        "L T^-1"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "T",
+          "feedback": "L/g a pour dimension L/(LT^-2)=T² ; sa racine a donc la dimension T."
+        },
+        {
+          "id": "b",
+          "label": "L",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "L T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q07",
+      "lesson": 4,
+      "concept_id": "dimensional_analysis",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Quelle affirmation décrit correctement l'analyse dimensionnelle ?",
+      "answer": "Elle peut détecter une incohérence dimensionnelle sans prouver à elle seule qu'une formule est exacte",
+      "explanation": "Le cours souligne à la fois la puissance et la limite du contrôle d'homogénéité.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Rappelle la phrase : homogène ne signifie pas forcément juste."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [],
+      "choices": [
+        "Elle peut détecter une incohérence dimensionnelle sans prouver à elle seule qu'une formule est exacte",
+        "Elle remplace toute expérience",
+        "Elle prouve toute formule homogène",
+        "Elle ne sert jamais à retrouver une unité"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "Elle peut détecter une incohérence dimensionnelle sans prouver à elle seule qu'une formule est exacte",
+          "feedback": "Le cours souligne à la fois la puissance et la limite du contrôle d'homogénéité."
+        },
+        {
+          "id": "b",
+          "label": "Elle remplace toute expérience",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "Elle prouve toute formule homogène",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "Elle ne sert jamais à retrouver une unité",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l4_q08",
+      "lesson": 4,
+      "concept_id": "dimensional_homogeneity",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Explique pourquoi l'homogénéité est un puissant test d'erreur mais pas une preuve suffisante qu'une formule est juste.",
+      "answer": "Si une formule n'est pas homogène, elle est nécessairement incohérente. Mais plusieurs expressions différentes peuvent partager la même dimension ; une formule peut donc être homogène tout en ayant un coefficient, une dépendance ou une loi physique incorrecte.",
+      "explanation": "Le cours affirme explicitement qu'une équation non homogène est fausse, mais qu'une équation homogène n'est pas nécessairement juste.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Commence par le cas non homogène."
+        },
+        {
+          "level": 2,
+          "content": "Demande-toi ensuite si deux formules différentes peuvent avoir la même dimension."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "original_from_validated_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    },
+    {
+      "id": "l5_q01",
+      "lesson": 5,
+      "concept_id": "dimensional_problem_solving",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "À partir de F = m·a, quelle écriture en unités de base correspond au newton ?",
+      "answer": "kg·m·s^-2",
+      "explanation": "Une force a pour dimension MLT^-2 ; le newton vaut donc kg·m·s^-2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Remplace M, L et T par kg, m et s."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "choices": [
+        "kg·m·s^-2",
+        "kg·m·s^-1",
+        "kg·m²·s^-2",
+        "m·s^-2"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "kg·m·s^-2",
+          "feedback": "Une force a pour dimension MLT^-2 ; le newton vaut donc kg·m·s^-2."
+        },
+        {
+          "id": "b",
+          "label": "kg·m·s^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "kg·m²·s^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "m·s^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q02",
+      "lesson": 5,
+      "concept_id": "dimensional_problem_solving",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Avec F = G m1 m2 / d², quelle unité SI de G est cohérente ?",
+      "answer": "N·m²·kg^-2",
+      "explanation": "On isole G = Fd²/(m1m2), donc son unité est N·m²·kg^-2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Isole G dans la relation de gravitation donnée dans l'exercice."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "choices": [
+        "N·m²·kg^-2",
+        "N·m·kg^-1",
+        "N·kg²·m^-2",
+        "m·s^-2"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "N·m²·kg^-2",
+          "feedback": "On isole G = Fd²/(m1m2), donc son unité est N·m²·kg^-2."
+        },
+        {
+          "id": "b",
+          "label": "N·m·kg^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "N·kg²·m^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "m·s^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q03",
+      "lesson": 5,
+      "concept_id": "dimensional_problem_solving",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "En utilisant P = m·g, quelle est l'unité SI de g ?",
+      "answer": "m·s^-2",
+      "explanation": "g a la dimension d'une accélération, donc l'unité m·s^-2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Isole g = P/m et remplace N par kg·m·s^-2."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "choices": [
+        "m·s^-2",
+        "N",
+        "kg·m·s^-2",
+        "m·s^-1"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "m·s^-2",
+          "feedback": "g a la dimension d'une accélération, donc l'unité m·s^-2."
+        },
+        {
+          "id": "b",
+          "label": "N",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "kg·m·s^-2",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "m·s^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q04",
+      "lesson": 5,
+      "concept_id": "dimensional_problem_solving",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "Dans un mouvement circulaire uniforme, v²/r est homogène à une accélération.",
+      "answer": true,
+      "explanation": "[v²/r]=(L²T^-2)/L=LT^-2.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise [v]=LT^-1 et [r]=L."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": []
+    },
+    {
+      "id": "l5_q05",
+      "lesson": 5,
+      "concept_id": "dimensional_problem_solving",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Si ω = v/r, quelle est la dimension de la vitesse angulaire ω ?",
+      "answer": "T^-1",
+      "explanation": "[ω]=[v]/[r]=(LT^-1)/L=T^-1.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "La longueur L se simplifie."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "choices": [
+        "T^-1",
+        "L T^-1",
+        "L^-1 T^-1",
+        "T"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "T^-1",
+          "feedback": "[ω]=[v]/[r]=(LT^-1)/L=T^-1."
+        },
+        {
+          "id": "b",
+          "label": "L T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "L^-1 T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "T",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q06",
+      "lesson": 5,
+      "concept_id": "dimensional_problem_solving",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "À partir de E = h·ν, avec [E]=M L² T^-2 et [ν]=T^-1, quelle est la dimension de h ?",
+      "answer": "M L² T^-1",
+      "explanation": "[h]=[E]/[ν]=ML²T^-2 / T^-1 = ML²T^-1.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Diviser par T^-1 revient à ajouter une puissance de T."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "choices": [
+        "M L² T^-1",
+        "M L² T^-3",
+        "M L T^-1",
+        "L² T^-1"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "M L² T^-1",
+          "feedback": "[h]=[E]/[ν]=ML²T^-2 / T^-1 = ML²T^-1."
+        },
+        {
+          "id": "b",
+          "label": "M L² T^-3",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "M L T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "L² T^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q07",
+      "lesson": 5,
+      "concept_id": "dimensional_problem_solving",
+      "difficulty": 3,
+      "type": "mcq",
+      "prompt": "À partir de Ec = 3/2·k·T, quelle dimension convient à la constante de Boltzmann k ?",
+      "answer": "M L² T^-2 Θ^-1",
+      "explanation": "Le facteur 3/2 est sans dimension et [k]=[Ec]/[Ttemp]=ML²T^-2Θ^-1.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Ici T dans la formule désigne la température, de dimension Θ."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_verified_source_relation",
+      "tags": [],
+      "choices": [
+        "M L² T^-2 Θ^-1",
+        "M L² T^-1 Θ^-1",
+        "M L T^-2 Θ",
+        "M L² T^-2 Θ"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "M L² T^-2 Θ^-1",
+          "feedback": "Le facteur 3/2 est sans dimension et [k]=[Ec]/[Ttemp]=ML²T^-2Θ^-1."
+        },
+        {
+          "id": "b",
+          "label": "M L² T^-1 Θ^-1",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "c",
+          "label": "M L T^-2 Θ",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        },
+        {
+          "id": "d",
+          "label": "M L² T^-2 Θ",
+          "feedback": "Cette proposition ne correspond pas à la relation ou définition demandée."
+        }
+      ],
+      "correct_option_ids": [
+        "a"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      }
+    },
+    {
+      "id": "l5_q08",
+      "lesson": 5,
+      "concept_id": "sequence_integration",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Décris une méthode générale pour vérifier dimensionnellement une relation physique avant de faire l'application numérique.",
+      "answer": "Identifier les dimensions des grandeurs, remplacer chaque grandeur par son équation aux dimensions, combiner les puissances, vérifier que les termes d'une somme ont la même dimension et que les deux membres de l'égalité coïncident. Ensuite seulement, utiliser les unités et les valeurs numériques.",
+      "explanation": "Cette démarche synthétise les règles de la séquence sans prétendre qu'une formule homogène est forcément correcte.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Commence par les dimensions de chaque grandeur."
+        },
+        {
+          "level": 2,
+          "content": "Termine par le contrôle des deux membres et rappelle la limite du test."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_verified_source_concept",
+      "tags": [
+        "self_evaluation"
+      ]
+    }
+  ],
+  "qcm_policy": {
+    "correctness_never_bound_to_position": true,
+    "correctness_key": "option_id_or_answer_value",
+    "single_and_multi_choice_shuffle": "deterministic_per_attempt",
+    "stable_within_attempt": true,
+    "shuffle_between_attempts": true,
+    "true_false_shuffle": false
+  },
+  "games": [
+    {
+      "id": "dimension_sorter",
+      "title": "Tri des dimensions",
+      "status": "draft",
+      "concept_id": "base_dimensions",
+      "description": "Associer grandeurs fondamentales et symboles de dimension sans confondre dimensions et unités.",
+      "reason_draft": "Aucun moteur générique de tri dimensionnel n'est encore implémenté."
+    },
+    {
+      "id": "dimension_builder",
+      "title": "Constructeur d'équations aux dimensions",
+      "status": "draft",
+      "concept_id": "dimensional_equation",
+      "description": "Assembler les puissances de L, M, T, I, Θ, N et J pour construire une dimension dérivée.",
+      "reason_draft": "Aucun moteur d'assemblage d'exposants dimensionnels n'est encore implémenté."
+    },
+    {
+      "id": "unit_lab",
+      "title": "Laboratoire des unités dérivées",
+      "status": "draft",
+      "concept_id": "derived_units",
+      "description": "Relier dimensions, unités de base et noms spéciaux comme newton, joule ou pascal.",
+      "reason_draft": "Aucun moteur générique de laboratoire d'unités n'est encore implémenté."
+    },
+    {
+      "id": "homogeneity_detector",
+      "title": "Détecteur d'homogénéité",
+      "status": "draft",
+      "concept_id": "dimensional_homogeneity",
+      "description": "Repérer rapidement les expressions homogènes et les incohérences dimensionnelles.",
+      "reason_draft": "Aucun moteur de détection interactive d'homogénéité n'est encore implémenté."
+    },
+    {
+      "id": "dimension_mission",
+      "title": "Mission analyse dimensionnelle",
+      "status": "draft",
+      "concept_id": "sequence_integration",
+      "description": "Enchaîner dimension, unité et homogénéité pour résoudre un mini-problème scientifique.",
+      "reason_draft": "Aucun moteur de mission dimensionnelle dédié n'est encore implémenté."
+    }
+  ],
+  "learning_card_seeds": [
+    {
+      "id": "feed_dimension_explain",
+      "type": "explanation",
+      "lesson": 1,
+      "concept_id": "dimension_vs_unit",
+      "priority": 90
+    },
+    {
+      "id": "feed_base_dimensions",
+      "type": "flashQuestion",
+      "lesson": 1,
+      "question_id": "l1_q03",
+      "priority": 85
+    },
+    {
+      "id": "feed_derived_explain",
+      "type": "explanation",
+      "lesson": 2,
+      "concept_id": "derived_quantities",
+      "priority": 85
+    },
+    {
+      "id": "feed_acceleration_dimension",
+      "type": "mcq",
+      "lesson": 2,
+      "question_id": "l2_q04",
+      "priority": 85
+    },
+    {
+      "id": "feed_equation_dimension",
+      "type": "explanation",
+      "lesson": 2,
+      "concept_id": "dimensional_equation",
+      "priority": 80
+    },
+    {
+      "id": "feed_derived_units",
+      "type": "explanation",
+      "lesson": 3,
+      "concept_id": "derived_units",
+      "priority": 80
+    },
+    {
+      "id": "feed_dimensionless",
+      "type": "trueFalse",
+      "lesson": 3,
+      "question_id": "l3_q07",
+      "priority": 85
+    },
+    {
+      "id": "feed_homogeneity_explain",
+      "type": "explanation",
+      "lesson": 4,
+      "concept_id": "dimensional_homogeneity",
+      "priority": 90
+    },
+    {
+      "id": "feed_homogeneous_formula",
+      "type": "trueFalse",
+      "lesson": 4,
+      "question_id": "l4_q05",
+      "priority": 85
+    },
+    {
+      "id": "feed_pendulum",
+      "type": "mcq",
+      "lesson": 4,
+      "question_id": "l4_q06",
+      "priority": 80
+    },
+    {
+      "id": "feed_newton",
+      "type": "mcq",
+      "lesson": 5,
+      "question_id": "l5_q01",
+      "priority": 80
+    },
+    {
+      "id": "feed_open_response",
+      "type": "selfEvaluation",
+      "lesson": 5,
+      "question_id": "l5_q08",
+      "priority": 70
+    },
+    {
+      "id": "feed_integration",
+      "type": "challenge",
+      "lesson": 0,
+      "question_id": "l5_q08",
+      "priority": 65
+    },
+    {
+      "id": "feed_new_content",
+      "type": "newContent",
+      "lesson": 0,
+      "chapter_id": "physique_terminale_cd_m1_s2_dimension_grandeur_physique",
+      "priority": 100
+    }
+  ],
+  "companion": {
+    "runtime_llm_required": false,
+    "knowledge_scope": "current_pack_only",
+    "quick_actions": [
+      "Explique-moi",
+      "Plus simplement",
+      "Comme si j'avais 12 ans",
+      "Montre-moi un exemple",
+      "Donne-moi un indice",
+      "Pourquoi ma réponse est fausse ?",
+      "Teste-moi"
+    ],
+    "free_text_routing": {
+      "method": "normalisation + aliases + scoring de concepts + contexte de leçon",
+      "network_fallback": false
+    },
+    "address_style": {
+      "person": "second_person_singular",
+      "first_name_usage": "occasional",
+      "avoid_repetition": true
+    },
+    "source_boundaries": [
+      "Ne pas inventer les exposants ou constantes numériques partiellement illisibles des exercices avancés de la page 013.",
+      "Ne pas corriger silencieusement le symbole ambigu associé à l'ohm dans le tableau source de la page 011.",
+      "Une formule homogène n'est pas automatiquement vraie : conserver cette limite dans les explications."
+    ]
+  },
+  "mastery": {
+    "scope": "concept",
+    "same_state_for_feed_lessons_and_games": true,
+    "suggest_harder_after_consecutive_correct": 3,
+    "suggest_simple_after_errors": 2,
+    "suggest_ultra_simple_after_additional_error": 1
+  },
+  "dynamic_delivery": {
+    "remote_eligible": true,
+    "cache_required": true,
+    "activation_policy": "validate_before_activate",
+    "fallback_to_embedded": true
+  }
+}

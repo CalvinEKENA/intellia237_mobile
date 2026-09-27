@@ -57,7 +57,10 @@ void main() {
         final physics = (await repository.subjectsFor(
           classKey,
         )).singleWhere((s) => s.key == 'physique');
-        expect(physics.chapters.map((c) => c.contentId), [_id]);
+        expect(physics.chapters.map((c) => c.contentId), [
+          _id,
+          'physique_terminale_cd_m1_s2_dimension_grandeur_physique',
+        ]);
         final all = await repository.chaptersFor(classKey);
         expect(all.where((c) => c.contentId == _id), hasLength(1));
       });

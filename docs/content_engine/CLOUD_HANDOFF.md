@@ -1,4 +1,4 @@
-# Handoff Cloud — Content Engine v2, auto-évaluation et synthèse (26/09/2026)
+# Handoff Cloud — Content Engine v2 et Physique M1S2 (27/09/2026)
 
 Branche : **`feat/content-engine`** (partie de `fix/auth-v2-final-rework`,
 jamais fusionnée dans `main`). Ne pas merger sans accord du propriétaire.
@@ -73,7 +73,8 @@ Apprendre la propose après les vraies leçons ; le fil attend une première
 rencontre de chacune d'elles. « Approfondir » ouvre l'intégration existante.
 `sequence_integration` n'est pas une sixième leçon : `l5_q07` et `l5_q08` restent
 en leçon 5, une seule fois. `learning_card_seeds` n'est pas un second générateur.
-M1S2 reste hors périmètre et n'est pas commencé.
+M1S2 utilise ces mécanismes génériques avec ses cinq réponses rédigées et sa
+synthèse, sans version spéciale Physique de l'interface.
 
 ### Compagnon 100 % sans LLM
 Réponses tirées du pack uniquement ; hors pack : « pas encore disponible »
@@ -104,14 +105,15 @@ flutter test --no-pub
 cd functions && npm test && npm run build
 ```
 
-Derniers résultats (26/09/2026), après auto-évaluation et synthèse :
-**2 018 / 2 018 tests Flutter** sur **3.44.2** et sur **3.47.5**, soit
-28 tests supplémentaires depuis la base validée de 1 990. Analyse sans anomalie
+Derniers résultats (27/09/2026), après intégration de Physique M1S2 :
+**2 088 / 2 088 tests Flutter** sur **3.44.2** et sur **3.47.5**, soit
+70 tests supplémentaires depuis la base validée de 2 018. Analyse sans anomalie
 et formatage conforme avec les deux SDK. Functions **430 / 430 tests**, build
-OK, sans modification du backend ; jargon 0 ; marque OK. `pubspec.lock`
+OK, sans modification du backend ; jargon 0 ; marque OK sur l'export des
+fichiers préparés pour le commit, hors anciens worktrees locaux. `pubspec.lock`
 restauré : aucune nouvelle dépendance fonctionnelle.
 
-Les tests couvrent les vraies réponses ouvertes de Physique M1S1, la maîtrise
+Les tests couvrent les vraies réponses ouvertes de Physique M1S1/M1S2, la maîtrise
 partagée, les parcours leçon/fil, les synthèses et les non-régressions Maths,
 Anglais, Physique. Matrice de widgets : 320 / 360 / 412 dp × textScale 1.0 / 1.3,
 avec clavier simulé, SafeArea, CTA et Compagnon. Cela ne remplace pas une
@@ -150,9 +152,14 @@ JSON des packs ne sont jamais corrigés en silence.
 * **Anglais Terminale M1U1 et M1U2 intégrés** (toutes séries, Matière →
   Module → Unit, bundles `draft`, rien téléversé). Jeux en préparation ;
   12 activités ouvertes non notées.
-* **Physique Terminales C-D M1S1 intégrée** (C et D seulement, Matière →
-  Module → Séquence, bundle `draft`, rien téléversé). 5 jeux en
-  préparation ; 5 réponses rédigées non notées. M1S2 pas commencée.
+* **Physique Terminales C-D M1S1 et M1S2 intégrées** (C et D seulement,
+  Matière → Module → Séquence, bundles `draft`, rien téléversé). Chaque
+  séquence : 5 leçons, 10 concepts, 40 questions dont 5 réponses rédigées
+  utilisables en auto-évaluation, 5 jeux en préparation. M1S2 conserve les
+  cinq fichiers canoniques des pages 010–013 et leurs deux réserves de source ;
+  aucun contenu du Module 2 n'est ajouté. Le Compagnon distingue « sans
+  dimension », retrouve « pression » et « fréquence » via les énoncés et
+  traite « Montre-moi un exemple » comme une demande d'exemple.
 * **Leçon** : Compagnon et étape suivante dans une barre sous le contenu
   (plus de bouton flottant) ; « Voir la version Terminale » à icône neutre.
 * Fil des packs plafonné à 60 cartes par composition.

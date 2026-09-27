@@ -244,11 +244,12 @@ Transformations des packs (aucune réponse, aucun énoncé modifié) :
   jamais notée (`l5_q08` ouverte, signalée).
 * Aucune transformation des packs.
 
-## Physique Terminales C-D — Module 1, séquence 1 (embarquée)
+## Physique Terminales C-D — Module 1, séquences 1 et 2 (embarquées)
 
 | Séquence | Dossier | Notées / ouvertes | Jeux |
 |---|---|---|---|
 | M1S1 Erreurs et incertitudes | `assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/` | 35 / 5 | 5 en préparation |
+| M1S2 Dimension d'une grandeur physique | `assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/` | 35 / 5 | 5 en préparation |
 
 * Cible `class_keys: ["terminale-c-d"]` : Terminales C et D seulement
   (jamais A, ni une autre classe) ; un seul pack, jamais dupliqué.
@@ -256,7 +257,8 @@ Transformations des packs (aucune réponse, aucun énoncé modifié) :
   `module_title`, `sequence`, `sequence_title` (une séquence tient lieu de
   chapitre dans son module, comme une unit). Apprendre affiche « Physique ·
   Module 1 — Mesures et incertitudes », puis « Séquence 1 — Erreurs et
-  incertitudes » ; l'écran de la séquence n'emploie jamais « Chapitre ».
+  incertitudes » et « Séquence 2 — Dimension d'une grandeur physique » ;
+  l'écran de la séquence n'emploie jamais « Chapitre ».
 * Réponses numériques : virgule ou point décimal (« 0,05 », « 0.05 ») ;
   un entier attendu accepte aussi « 5,0 » (jamais un arrondi ni une
   fraction).
@@ -266,10 +268,33 @@ Transformations des packs (aucune réponse, aucun énoncé modifié) :
 * Réponses rédigées (`l1_q08` … `l5_q08`) : utilisables en auto-évaluation,
   jamais notées automatiquement (7 questions notées par leçon).
 * Compagnon : une lettre isolée qualifie le mot qui la précède (« type A »
-  et « type B » restent deux notions distinctes).
+  et « type B » restent deux notions distinctes). Les alias composés complets
+  gardent leur sens (« sans dimension »). Si aucun titre/alias ne correspond,
+  les énoncés utilisables peuvent orienter vers leur notion (« pression »,
+  « fréquence »), sans lire leurs réponses. « Montre-moi un exemple » ouvre
+  l'exemple du pack ; « Montre-moi » conserve l'action visuelle.
 * `learning_card_seeds` restent des indications éditoriales : la fabrique
   consomme les concepts et questions. `sequence_integration` reçoit une
   synthèse ; `l5_q07` et `l5_q08` conservent leur unique carte de leçon 5.
+
+M1S2 reprend les **cinq fichiers canoniques sans modification** : 5 leçons,
+10 concepts, 40 questions (26 QCM, 8 vrai/faux, 1 numérique, 5 ouvertes),
+14 graines, 3 difficultés et 3 niveaux d'explication. Le manifeste conserve
+ses empreintes SHA-256 ; les fins de ligne LF de ces JSON sont préservées par
+Git. Les pages source sont `page_010.jpg` à `page_013.jpg` ; `page_014.jpg`
+commence le module suivant, hors périmètre. Les deux réserves (exercices avancés
+partiellement lisibles et symbole de l'ohm ambigu) restent intactes. Aucune
+question notée ne dépend du symbole ambigu et aucune formule n'est reconstruite.
+
+Les réponses `l1_q08` à `l5_q08` utilisent `OpenResponsePanel` et la maîtrise
+subjective existante, dans la leçon et MON PARCOURS. `sequence_integration`
+reste une synthèse `lesson:0`, jamais une sixième leçon. Les cinq jeux restent
+`draft`, sans moteur. Le fallback est déclaré dans `pubspec.yaml` ; le bundle
+et le catalogue locaux sont préparés dans `build/content_publish/`, avec
+`status: draft` et `minimum_engine_version: 2`, **sans aucun upload**.
+La matrice mobile couvre aussi les formules de gravitation, Planck, newton et
+d'homogénéité. Les actions des suggestions de difficulté peuvent passer à la
+ligne pour rester accessibles après plusieurs réussites sur petit écran.
 
 ## Réponses ouvertes et auto-évaluation (moteur v2)
 
@@ -325,8 +350,8 @@ Les questions conservent **leur propre** `lesson`, indépendante de celle du
 concept : en M1S1, `l5_q07` et `l5_q08` restent en leçon 5, sans duplication dans
 la synthèse. Les questions réellement hors leçon (`lesson: 0`) restent dans
 l'écran d'intégration ; les jeux continuent de sélectionner uniquement les
-questions automatiquement corrigeables. Aucun pack, aucun M1S2 n'est créé ou
-modifié pour cette évolution.
+questions automatiquement corrigeables. M1S2 utilise cette même convention
+sans adaptation du pack ni second système de progression.
 
 ## Leçon : barre d'actions et retour au niveau de référence
 

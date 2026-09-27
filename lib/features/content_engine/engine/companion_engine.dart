@@ -583,6 +583,7 @@ class ConceptRouter {
   List<Concept> match(String text, {int limit = 3}) {
     final query = _words(text);
     if (query.isEmpty) return const [];
+    final queryPhrase = '-${normalizeKey(text)}-';
     final scored = <(Concept, int)>[];
     for (final concept in chapter.concepts.values) {
       final strong = {
@@ -607,8 +608,34 @@ class ConceptRouter {
           score += 1;
         }
       }
+      // Un alias complet garde les mots de liaison porteurs de sens :
+      // « sans dimension » ne se réduit pas à « dimension ».
+      if (concept.aliases.any((alias) {
+        final phrase = normalizeKey(alias);
+        return phrase.contains('-') && queryPhrase.contains('-$phrase-');
+      })) {
+        score += 4;
+      }
       if (score >= 2 && concept.id == contextConceptId) score += 1;
       if (score >= 3) scored.add((concept, score));
+    }
+    // Une notion peut être nommée seulement dans ses questions. Ce repli
+    // reste limité aux énoncés utilisables du pack, sans lire leurs réponses
+    // et sans supplanter un titre ou un alias déjà reconnu.
+    if (scored.isEmpty) {
+      for (final concept in chapter.concepts.values) {
+        final vocabulary = {
+          for (final question in chapter.questions)
+            if (question.isPracticeReady &&
+                chapter.conceptForQuestion(question)?.id == concept.id)
+              ..._words(question.prompt),
+        };
+        var score = query.where(vocabulary.contains).length * 3;
+        if (score >= 3) {
+          if (concept.id == contextConceptId) score++;
+          scored.add((concept, score));
+        }
+      }
     }
     scored.sort((a, b) {
       final byScore = b.$2.compareTo(a.$2);

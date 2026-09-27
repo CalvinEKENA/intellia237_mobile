@@ -30,8 +30,8 @@ enum CompanionAction {
     if (key.contains('explique') || key.contains('explain')) {
       return explainStandard;
     }
-    if (key.contains('montre') || key.contains('show-me')) return showMe;
     if (key.contains('exemple') || key.contains('example')) return example;
+    if (key.contains('montre') || key.contains('show-me')) return showMe;
     if (key.contains('indice') || key.contains('hint')) return hint;
     if (key.contains('teste') || key.contains('test-me')) return testMe;
     if (key.contains('pourquoi') ||
