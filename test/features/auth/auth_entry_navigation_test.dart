@@ -64,17 +64,20 @@ void main() {
           routerConfig: router,
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context).copyWith(disableAnimations: true),
-            child: TickerMode(enabled: false, child: child!),
+            child: child!,
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const ValueKey('school-head-shield')));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(
-      find.byKey(const ValueKey('gateway-staff-login')),
+      find.byKey(const ValueKey('school-staff-teacher')),
     );
-    await tester.tap(find.byKey(const ValueKey('gateway-staff-login')));
+    await tester.tap(find.byKey(const ValueKey('school-staff-teacher')));
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(router.state.uri.path, AppRoutes.emailLogin);
 

@@ -25,7 +25,7 @@ class _TestAuthController extends AuthController {
   AuthState build() => const AuthState.authenticated(
     role: AppRole.admin,
     userId: 'super-admin-uid',
-    email: 'calvinekena4@gmail.com',
+    email: 'admin@example.com',
     isSuperAdmin: true,
   );
 }

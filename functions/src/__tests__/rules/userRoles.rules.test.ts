@@ -94,6 +94,22 @@ const googleToken = {
 };
 
 describe("roles[] writes", () => {
+  it("Auth V3: a child session cannot read parent settings, billing or a sibling, even with a forged parent intent", async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, "parent_profiles/parent-a"), { firstName: "Parent", notificationSettings: {} });
+      await setDoc(doc(db, "entitlements/parent-a_school-a"), { userId: "parent-a", establishmentId: "school-a" });
+      await setDoc(doc(db, "children_links/parent-a_student-a"), { parentId: "parent-a", studentId: "student-a", status: "approved" });
+      await setDoc(doc(db, "children_links/parent-a_student-b"), { parentId: "parent-a", studentId: "student-b", status: "approved" });
+    });
+    const child = testEnv.authenticatedContext("student-a", { role: "parent", firebase: { sign_in_provider: "custom" } }).firestore();
+    await assertSucceeds(getDoc(doc(child, "student_profiles/student-a")));
+    for (const path of ["users/parent-a", "parent_profiles/parent-a", "entitlements/parent-a_school-a", "student_profiles/student-b"]) {
+      await assertFails(getDoc(doc(child, path)));
+    }
+    await assertFails(updateDoc(doc(child, "users/student-a"), { role: "parent" }));
+  });
+
   it("denies a new Google identity creating its profile with roles ['admin']", async () => {
     const db = testEnv.authenticatedContext("google-new", googleToken).firestore();
     await assertFails(

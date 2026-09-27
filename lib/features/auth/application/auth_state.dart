@@ -58,6 +58,7 @@ class AuthState {
     this.spaceChoicePending = false,
     this.accountStatus,
     this.suspended = false,
+    this.familyEntryPending = false,
   });
 
   const AuthState.bootstrapping() : this._(status: AuthStatus.bootstrapping);
@@ -92,6 +93,7 @@ class AuthState {
     bool isSuperAdmin = false,
     String? establishmentId,
     bool spaceChoicePending = false,
+    bool familyEntryPending = false,
     String? accountStatus,
   }) : this._(
          status: AuthStatus.authenticated,
@@ -104,6 +106,7 @@ class AuthState {
          isSuperAdmin: isSuperAdmin,
          establishmentId: establishmentId,
          spaceChoicePending: spaceChoicePending,
+         familyEntryPending: familyEntryPending,
          accountStatus: accountStatus,
        );
 
@@ -187,6 +190,9 @@ class AuthState {
   /// sélecteur s'affiche une fois, avant tout accueil.
   final bool spaceChoicePending;
 
+  /// Identité familiale prouvée, avant le remplacement par la session enfant.
+  final bool familyEntryPending;
+
   /// Statut serveur du compte, quand il est connu.
   final String? accountStatus;
 
@@ -253,6 +259,7 @@ class AuthState {
     bool? isSuperAdmin,
     String? establishmentId,
     bool? spaceChoicePending,
+    bool? familyEntryPending,
   }) {
     return AuthState._(
       status: status ?? this.status,
@@ -267,6 +274,7 @@ class AuthState {
       isSuperAdmin: isSuperAdmin ?? this.isSuperAdmin,
       establishmentId: establishmentId ?? this.establishmentId,
       spaceChoicePending: spaceChoicePending ?? this.spaceChoicePending,
+      familyEntryPending: familyEntryPending ?? this.familyEntryPending,
       accountStatus: accountStatus,
       suspended: suspended,
     );

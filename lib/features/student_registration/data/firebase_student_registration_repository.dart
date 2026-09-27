@@ -87,6 +87,15 @@ class FirebaseStudentRegistrationRepository
       final uid = user.uid;
       final userCreateData = payload.toUserDocument(uid: uid, now: now);
       final userUpdateData = payload.toUserUpdateDocument(now: now);
+      final profileCreateData = payload.toStudentProfileDocument(
+        uid: uid,
+        now: now,
+      );
+      final identityEmail = user.email?.trim() ?? '';
+      if (identityEmail.isNotEmpty) {
+        userCreateData['email'] = identityEmail;
+        profileCreateData['email'] = identityEmail;
+      }
       final verifiedPhone = user.phoneNumber?.trim();
       if (verifiedPhone != null && verifiedPhone.isNotEmpty) {
         userCreateData['phoneNumber'] = verifiedPhone;
@@ -100,7 +109,7 @@ class FirebaseStudentRegistrationRepository
       );
       operation = await _documentStore.upsertProfile(
         uid: uid,
-        createData: payload.toStudentProfileDocument(uid: uid, now: now),
+        createData: profileCreateData,
         updateData: payload.toStudentProfileUpdateDocument(now: now),
       );
 
@@ -158,6 +167,8 @@ class FirebaseStudentRegistrationRepository
       final verifiedPhone = currentUser.phoneNumber?.trim() ?? '';
       final currentEmail = currentUser.email?.trim().toLowerCase() ?? '';
       if (verifiedPhone.isNotEmpty ||
+          // Identité e-mail déjà prouvée avant le choix de l'espace.
+          (normalizedEmail.isEmpty && currentEmail.isNotEmpty) ||
           (normalizedEmail.isNotEmpty && currentEmail == normalizedEmail) ||
           // Élève sans téléphone entré avec son code d'accès : il complète le
           // profil de SA propre identité, sans créer de compte e-mail.

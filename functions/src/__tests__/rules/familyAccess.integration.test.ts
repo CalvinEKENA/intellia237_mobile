@@ -27,6 +27,7 @@ import {
   studentAccessRateLimit,
 } from "../../services/studentAccessCode";
 import { resolveEmulatorAddress } from "./emulator-address";
+import { createOpenLinkedChildSessionHandler } from "../../services/linkedChildSession";
 
 /**
  * Migration du téléphone familial et code d'accès élève contre les VRAIS
@@ -146,6 +147,20 @@ async function everyDocumentText(): Promise<string> {
 }
 
 beforeEach(clearEmulators);
+it("Auth V3 exchanges a fresh family identity for the same isolated student UID", async () => {
+  await seedOwnerFamily();
+  await auth.createUser({ uid: "family-parent" });
+  await firestore.doc("users/family-parent").set({ role: "parent", accountStatus: "active" });
+  await firestore.doc("children_links/family-parent_student-old").set({ parentId: "family-parent", studentId: "student-old", status: "approved" });
+  const handler = createOpenLinkedChildSessionHandler(accessStore, auth);
+  const result = await handler({ auth: phoneSession("family-parent"), data: { studentId: "student-old" } } as never);
+  expect(tokenUid(result.token)).toBe("student-old");
+  expect((await auth.getUser("student-old")).phoneNumber).toBe(phone);
+  expect((await firestore.doc("student_profiles/student-old").get()).get("classLevel")).toBe("Terminale");
+  await expect(handler({ auth: phoneSession("student-old"), data: { studentId: "family-parent" } } as never)).rejects.toMatchObject({ code: "permission-denied" });
+  await firestore.doc("children_links/family-parent_student-old").update({ status: "revoked" });
+  await expect(handler({ auth: phoneSession("family-parent"), data: { studentId: "student-old" } } as never)).rejects.toMatchObject({ code: "permission-denied" });
+});
 afterAll(async () => {
   await firestore.terminate();
   await deleteApp(app);

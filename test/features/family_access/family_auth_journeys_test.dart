@@ -47,10 +47,11 @@ void main() {
 
     // NEW — même numéro, vérifié d'abord ; la personne dit ensuite être le
     // parent de l'élève. Aucun code enfant n'est demandé avant l'identité.
-    await journey.tap('gateway-phone-auth');
+    journey.router.go(AppRoutes.parentAccess);
+    await journey.wait(const Duration(milliseconds: 400));
+    await journey.tap('parent-proof-phone');
     await journey.wait(const Duration(milliseconds: 400));
     await _verifyPhone(journey, DeviceBackend.studentPhone);
-    await journey.tapWhenShown('phone-student-is-parent');
     await journey.waitUntil(() => _shown('family-phone-offer'));
     expect(
       find.text(
@@ -108,14 +109,14 @@ void main() {
     expect(journey.auth.role, AppRole.student);
     expect(journey.auth.userId, 'student-uid');
 
-    // Et le numéro de la famille ouvre désormais l'espace parent.
+    // Le numéro familial ouvre maintenant directement son unique enfant.
     await _signOut(journey);
     backend.requestGate.advance(const Duration(seconds: 61));
     await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
     await _verifyPhone(journey, DeviceBackend.studentPhone);
-    await journey.waitUntil(() => journey.location == AppRoutes.parentHome);
-    expect(journey.auth.userId, 'parent-of-student-uid');
+    await journey.waitUntil(() => journey.location == AppRoutes.studentHome);
+    expect(journey.auth.userId, 'student-uid');
     await _dispose(journey);
   });
 
@@ -131,10 +132,11 @@ void main() {
       realParentHome: true,
       traceSeal: false,
     );
-    await journey.tap('gateway-phone-auth');
+    journey.router.go(AppRoutes.parentAccess);
+    await journey.wait(const Duration(milliseconds: 400));
+    await journey.tap('parent-proof-phone');
     await journey.wait(const Duration(milliseconds: 400));
     await _verifyPhone(journey, DeviceBackend.studentPhone);
-    await journey.tapWhenShown('phone-student-is-parent');
     await journey.waitUntil(() => _shown('family-phone-offer'));
     await journey.tap('family-phone-offer-confirm');
     await journey.waitUntil(() => _shown('family-phone-verify-to-finish'));
@@ -294,14 +296,19 @@ void main() {
     await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
     await _verifyPhone(journey, DeviceBackend.parentPhone);
-    await journey.waitUntil(() => journey.location == AppRoutes.parentHome);
-    await journey.wait(const Duration(milliseconds: 1200));
-    await journey.tapText('Enfants');
-    await journey.wait(const Duration(milliseconds: 600));
+    await journey.waitUntil(
+      () => journey.location == AppRoutes.familySelection,
+    );
     for (final uid in ['student-uid', 'noah-uid']) {
-      await _scrollToInChildren(journey, 'parent-child-card-$uid');
-      expect(find.byKey(ValueKey('parent-child-card-$uid')), findsOneWidget);
+      final card = find.byKey(ValueKey('family-child-$uid'));
+      await journey.reveal(card);
+      expect(card, findsOneWidget);
     }
+    expect(find.text('Qui utilise INTELLIA ?'), findsOneWidget);
+    await journey.tap('family-child-noah-uid');
+    await journey.waitUntil(() => journey.location == AppRoutes.studentHome);
+    expect(journey.auth.userId, 'noah-uid');
+    expect(journey.auth.role, AppRole.student);
     await _dispose(journey);
   });
 
@@ -469,9 +476,10 @@ void main() {
     await _signInWithCode(journey, second);
     expect(journey.auth.userId, 'noah-uid');
 
-    // Déconnexion de l'enfant : le parent retrouve son espace et le lien.
-    await _signOut(journey);
-    await journey.tap('gateway-phone-auth');
+    // Le parent demande son espace et fournit une nouvelle preuve.
+    journey.router.go(AppRoutes.parentAccess);
+    await journey.wait(const Duration(milliseconds: 600));
+    await journey.tap('parent-proof-phone');
     await journey.wait(const Duration(milliseconds: 400));
     await _verifyPhone(journey, DeviceBackend.parentPhone);
     await journey.waitUntil(() => journey.location == AppRoutes.parentHome);

@@ -84,32 +84,32 @@ void main() {
     await openSheet(tester);
 
     expect(find.byKey(const ValueKey('school-head-sheet')), findsOneWidget);
-    expect(find.textContaining('toute votre école'), findsOneWidget);
-    expect(
-      find.textContaining('ni en ajouter ni en supprimer'),
-      findsOneWidget,
-    );
+    expect(find.text('Enseignant'), findsOneWidget);
+    expect(find.text('Direction / Proviseur'), findsOneWidget);
+    expect(find.text('Administration INTELLIA'), findsOneWidget);
   });
 
   testWidgets('la direction se connecte par e-mail', (tester) async {
     await openSheet(tester);
-    await choose(tester, 'school-head-email');
+    await choose(tester, 'school-staff-direction');
 
-    expect(pushed, AppRoutes.emailLogin);
+    expect(pushed, '${AppRoutes.emailLogin}?role=admin');
     expect(find.byKey(const ValueKey('school-head-sheet')), findsNothing);
   });
 
-  testWidgets('la direction se connecte par téléphone (OTP)', (tester) async {
+  testWidgets('l’enseignant entre avec son intention', (tester) async {
     await openSheet(tester);
-    await choose(tester, 'school-head-phone');
+    await choose(tester, 'school-staff-teacher');
 
-    expect(pushed, AppRoutes.login);
+    expect(pushed, '${AppRoutes.emailLogin}?role=teacher');
   });
 
-  testWidgets('une école sans accès en fait la demande', (tester) async {
+  testWidgets('l’administration demande une autorisation serveur globale', (
+    tester,
+  ) async {
     await openSheet(tester);
-    await choose(tester, 'school-head-request');
+    await choose(tester, 'school-staff-administration');
 
-    expect(pushed, AppRoutes.adminRegistration);
+    expect(pushed, '${AppRoutes.emailLogin}?role=admin&scope=global');
   });
 }

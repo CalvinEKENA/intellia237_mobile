@@ -184,13 +184,18 @@ void main() {
       );
       await harness.verifyPhone(tester);
 
-      expect(harness.location, role.homePath);
-      expect(harness.repository.signOutCalls, 0);
+      expect(
+        harness.location,
+        role == AppRole.parent
+            ? AppRoutes.familySelection
+            : AppRoutes.authGateway,
+      );
+      expect(harness.repository.signOutCalls, role == AppRole.teacher ? 1 : 0);
       await tester.pumpWidget(const SizedBox.shrink());
     });
   }
 
-  testWidgets('neutral phone access, student account asks who signs in, then '
+  testWidgets('neutral phone access, student account directly '
       'opens the student space', (tester) async {
     final harness = await _pump(
       tester,
@@ -200,33 +205,24 @@ void main() {
     );
     await harness.verifyPhone(tester);
 
-    // Rien n'est ouvert avant la réponse : l'écran téléphone reste affiché.
-    expect(harness.location, isNot(AppRoutes.studentHome));
     expect(
       find.byKey(const ValueKey('phone-student-confirmation')),
-      findsOneWidget,
+      findsNothing,
     );
-    await tester.tap(find.byKey(const ValueKey('phone-student-confirm')));
-    await tester.pump(const Duration(milliseconds: 400));
-    await tester.pumpAndSettle();
-    await tester.pump(PassSealTiming.completionHold);
-    await tester.pumpAndSettle();
-
     expect(harness.location, AppRoutes.studentHome);
     expect(harness.repository.signOutCalls, 0);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('neutral phone access, student number claimed by a parent opens '
+  testWidgets('explicit parent proof, student number opens '
       'the family phone offer, never the student space', (tester) async {
     final harness = await _pump(
       tester,
-      intent: null,
+      intent: AppRole.parent,
       accountRole: AppRole.student,
       completed: true,
     );
     await harness.verifyPhone(tester);
-    await tester.tap(find.byKey(const ValueKey('phone-student-is-parent')));
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
 
@@ -291,6 +287,7 @@ Future<_Harness> _pump(
         AppRoutes.register,
         AppRoutes.studentHome,
         AppRoutes.parentHome,
+        AppRoutes.familySelection,
         AppRoutes.teacherHome,
         AppRoutes.adminHome,
         AppRoutes.studentRegistration,

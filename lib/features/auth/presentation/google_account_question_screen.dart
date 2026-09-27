@@ -21,7 +21,7 @@ import 'widgets/living_pass.dart';
 /// - « Oui, retrouver mon compte » : connexion réelle au compte existant, puis
 ///   rattachement de Google à cet UID ;
 /// - « Non, continuer » : une nouvelle identité est créée, par ce choix
-///   explicite, et entre dans la découverte.
+///   explicite, puis choisit son objectif.
 class GoogleAccountQuestionScreen extends ConsumerStatefulWidget {
   const GoogleAccountQuestionScreen({super.key});
 
@@ -48,9 +48,12 @@ class _GoogleAccountQuestionScreenState
     if (!mounted) return;
     switch (outcome) {
       case GoogleAccessSignedIn(:final isNewIdentity):
-        // Le routeur ouvre la découverte, ou l'espace si Firebase a rattaché
+        // Le routeur ouvre le choix d’objectif, ou l'espace si Firebase a rattaché
         // ce compte Google à un compte existant.
         await auth.openGoogleSession(isNewIdentity: isNewIdentity);
+        if (mounted && !ref.read(authControllerProvider).hasFirebaseSession) {
+          context.go(AppRoutes.authGateway);
+        }
         return;
       case GoogleAccessRecoveryRequired():
         context.pushReplacement(AppRoutes.accountRecovery(emailInUse: true));

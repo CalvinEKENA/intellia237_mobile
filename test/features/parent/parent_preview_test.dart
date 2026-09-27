@@ -20,7 +20,7 @@ class _TestAuthController extends AuthController {
 
 AuthState _superAdmin({
   String uid = 'super-admin-uid',
-  String email = 'calvinekena4@gmail.com',
+  String email = 'admin@example.com',
 }) => AuthState.authenticated(
   role: AppRole.admin,
   userId: uid,
@@ -38,20 +38,18 @@ ProviderContainer _containerFor(_TestAuthController controller) {
 
 void main() {
   group('canActivateParentPreview (habilitation)', () {
-    test('vrai super-admin autorisé (drapeau + e-mail normalisé)', () {
+    test('habilitation serveur requise, adresse sans effet', () {
       expect(canActivateParentPreview(_superAdmin()), isTrue);
       expect(
-        canActivateParentPreview(
-          _superAdmin(email: '  CalvinEkena4@Gmail.com '),
-        ),
+        canActivateParentPreview(_superAdmin(email: '  Admin@Example.com ')),
         isTrue,
       );
     });
 
-    test('refusé pour un e-mail différent, même avec isSuperAdmin', () {
+    test('un autre e-mail conserve la même habilitation serveur', () {
       expect(
         canActivateParentPreview(_superAdmin(email: 'someone@else.com')),
-        isFalse,
+        isTrue,
       );
     });
 
@@ -61,7 +59,7 @@ void main() {
           const AuthState.authenticated(
             role: AppRole.admin,
             userId: 'admin-uid',
-            email: 'calvinekena4@gmail.com',
+            email: 'admin@example.com',
           ),
         ),
         isFalse,
@@ -74,12 +72,13 @@ void main() {
           const AuthState.authenticated(
             role: AppRole.parent,
             userId: 'p',
-            email: 'calvinekena4@gmail.com',
+            email: 'admin@example.com',
             isSuperAdmin: true,
           ),
         ),
         isTrue,
-        reason: 'isSuperAdmin+email suffisent — le rôle admin le porte déjà',
+        reason:
+            'L’habilitation serveur fait autorité, indépendamment de l’adresse',
       );
       expect(
         canActivateParentPreview(const AuthState.unauthenticated()),
@@ -97,15 +96,26 @@ void main() {
       expect(container.read(parentPreviewControllerProvider).active, isTrue);
     });
 
-    test('enter échoue et ne change rien pour un e-mail non autorisé', () {
-      final container = _containerFor(
-        _TestAuthController(_superAdmin(email: 'nope@x.com')),
-      );
-      final notifier = container.read(parentPreviewControllerProvider.notifier);
+    test(
+      'enter échoue sans habilitation serveur, même avec le même e-mail',
+      () {
+        final container = _containerFor(
+          _TestAuthController(
+            const AuthState.authenticated(
+              role: AppRole.admin,
+              userId: 'ordinary-admin',
+              email: 'admin@example.com',
+            ),
+          ),
+        );
+        final notifier = container.read(
+          parentPreviewControllerProvider.notifier,
+        );
 
-      expect(notifier.enter(targetParentUid: 'other'), isFalse);
-      expect(container.read(parentPreviewControllerProvider).active, isFalse);
-    });
+        expect(notifier.enter(targetParentUid: 'other'), isFalse);
+        expect(container.read(parentPreviewControllerProvider).active, isFalse);
+      },
+    );
 
     test('exit désactive et revient au compte propre', () {
       final container = _containerFor(_TestAuthController(_superAdmin()));

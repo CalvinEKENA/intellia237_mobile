@@ -85,8 +85,14 @@ class _OnboardingPreviewAppState extends ConsumerState<OnboardingPreviewApp> {
         _authRoute(AppRoutes.login, (_) => const PhoneAuthScreen()),
         _authRoute(
           AppRoutes.emailLogin,
-          (state) =>
-              LoginScreen(authIntent: AppRoutes.entryIntentFrom(state.uri)),
+          (state) => LoginScreen(
+            authIntent: AppRoutes.entryIntentFrom(state.uri),
+            requireSuperAdmin: state.uri.queryParameters['scope'] == 'global',
+          ),
+        ),
+        _authRoute(
+          AppRoutes.emailRegistration,
+          (_) => const LoginScreen(createIdentity: true),
         ),
         _authRoute(
           AppRoutes.forgotPassword,

@@ -324,7 +324,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emailOptional => 'E-mail (optionnel)';
 
   @override
-  String get phoneIdentityTarget => 'Ton numéro de téléphone';
+  String get phoneIdentityTarget => 'Ton accès vérifié';
 
   @override
   String get temporaryEmailLabel => 'E-mail technique (temporaire)';
@@ -669,7 +669,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneVerifiedNoExtraCredential =>
-      'Votre numéro a été vérifié. Aucun e-mail ni mot de passe supplémentaire n’est nécessaire.';
+      'Votre identité a été vérifiée. Aucun identifiant supplémentaire n’est nécessaire.';
 
   @override
   String get classToConfirm => 'Classe à confirmer';
@@ -4000,17 +4000,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'Application conçue par Calvin EKENA · +237 699 98 90 99';
 
   @override
-  String get schoolHeadShieldTooltip => 'Espace direction d’établissement';
+  String get schoolHeadShieldTooltip => 'Accès établissement';
 
   @override
-  String get schoolHeadSheetEyebrow => 'ESPACE DIRECTION';
+  String get schoolHeadSheetEyebrow => 'ESPACE ÉTABLISSEMENT';
 
   @override
-  String get schoolHeadSheetTitle => 'Votre école,\nen entier.';
+  String get schoolHeadSheetTitle => 'Votre accès professionnel';
 
   @override
   String get schoolHeadSheetBody =>
-      'Connectez-vous pour administrer toute votre école : personnel, classes, contenus et suivi. Les comptes des élèves restent les leurs : vous ne pouvez ni en ajouter ni en supprimer.';
+      'Choisissez votre espace. Seuls les accès accordés à votre compte peuvent être ouverts.';
 
   @override
   String get schoolHeadContinueEmail => 'Continuer par e-mail';
@@ -5064,7 +5064,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get authGoogleQuestionNoHint =>
-      'Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous découvrez l’application, puis créez votre espace quand vous le souhaitez.';
+      'Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous choisissez ensuite ce que vous souhaitez faire.';
 
   @override
   String get authGoogleQuestionOtherAccount =>
@@ -5179,25 +5179,25 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authWelcomeEyebrow => 'Nouveau sur INTELLIA237';
 
   @override
-  String get authWelcomeTitle => 'Comment voulez-vous commencer ?';
+  String get authWelcomeTitle => 'Que souhaitez-vous faire ?';
 
   @override
   String get authWelcomeBody =>
-      'Votre identité est vérifiée. Aucun espace n’existe encore pour elle.';
+      'Votre identité est vérifiée. Choisissez comment commencer.';
 
   @override
-  String get authWelcomeParent => 'Je suis parent';
+  String get authWelcomeParent => 'Suivre mon enfant';
 
   @override
   String get authWelcomeParentHint =>
       'Créer mon espace famille, puis rattacher mon enfant avec son code.';
 
   @override
-  String get authWelcomeStudent => 'Rejoindre mon école';
+  String get authWelcomeStudent => 'Créer mon espace élève';
 
   @override
   String get authWelcomeStudentHint =>
-      'Élève : choisir mon établissement et ma classe.';
+      'Choisir ma classe et commencer à apprendre.';
 
   @override
   String get authWelcomeDiscover => 'Découvrir INTELLIA237';
@@ -6486,4 +6486,54 @@ class AppLocalizationsFr extends AppLocalizations {
   String rewardWithName(String name, String message) {
     return '$name, $message';
   }
+
+  @override
+  String get authGatewayEmail => 'Se connecter avec un e-mail';
+
+  @override
+  String get authStaffTeacher => 'Enseignant';
+
+  @override
+  String get authStaffDirection => 'Direction / Proviseur';
+
+  @override
+  String get authStaffAdministration => 'Administration INTELLIA';
+
+  @override
+  String get authEmailCreateTitle => 'Créer mon accès par e-mail';
+
+  @override
+  String get authEmailCreateBody =>
+      'Votre adresse vous permet de vous connecter. Vous choisirez votre espace ensuite.';
+
+  @override
+  String get authFamilyWho => 'Qui utilise INTELLIA ?';
+
+  @override
+  String get authFamilyChooseBody =>
+      'Choisissez le profil de l’enfant. Son espace reste personnel.';
+
+  @override
+  String get authFamilyUnavailable =>
+      'Impossible d’ouvrir cet espace pour le moment. Réessayez ou reconnectez-vous.';
+
+  @override
+  String get authFamilyNoChildren => 'Aucun profil enfant lié pour le moment.';
+
+  @override
+  String get authParentSpace => 'Espace parent';
+
+  @override
+  String get authParentProofBody =>
+      'Pour protéger les informations de la famille, le parent doit se connecter à nouveau. L’espace élève sera fermé.';
+
+  @override
+  String get authParentProofContinue => 'Se connecter comme parent';
+
+  @override
+  String get authFamilyRetry => 'Réessayer';
+
+  @override
+  String get authStaffUseShield =>
+      'Pour votre espace professionnel, utilisez le bouclier Accès établissement.';
 }

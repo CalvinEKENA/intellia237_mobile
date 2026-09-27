@@ -8,6 +8,9 @@ abstract final class AppRoutes {
   static const authGateway = '/auth';
   static const login = '/login';
   static const emailLogin = '/login/email';
+  static const emailRegistration = '/auth/email/create';
+  static const familySelection = '/auth/family';
+  static const parentAccess = '/auth/parent-proof';
   static const phoneAuth = '/auth/phone';
 
   /// Ancienne entrée « Parent » (code enfant avant l'identité). Retirée :
@@ -93,6 +96,9 @@ abstract final class AppRoutes {
     authGateway,
     login,
     emailLogin,
+    emailRegistration,
+    familySelection,
+    parentAccess,
     phoneAuth,
     parentEntry,
     studentAccessCode,

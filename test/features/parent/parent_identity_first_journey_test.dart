@@ -18,8 +18,8 @@ void main() {
   setUpAll(loadIntelliaFonts);
   setUp(() => SharedPreferences.setMockInitialValues(const {}));
 
-  testWidgets('owner reproduction · the student\'s number, typed by the '
-      'parent, never opens the student space silently', (tester) async {
+  testWidgets('owner reproduction · the student opens directly; the parent '
+      'proves identity again before the migration offer', (tester) async {
     final backend = DeviceBackend();
     final journey = await SealJourney.start(tester, backend, traceSeal: false);
 
@@ -37,18 +37,28 @@ void main() {
     await journey.wait(const Duration(milliseconds: 800));
     await journey.typeKey('phone-otp-field', '123456');
 
-    // Le numéro est prouvé ; rien n'est ouvert avant la réponse.
-    await journey.waitUntil(
-      () => find
-          .byKey(const ValueKey('phone-student-confirmation'))
-          .evaluate()
-          .isNotEmpty,
+    // Auth V3 : le numéro élève ouvre directement son espace.
+    await journey.waitUntil(() => journey.location == AppRoutes.studentHome);
+    expect(journey.auth.userId, 'student-uid');
+    expect(
+      find.byKey(const ValueKey('phone-student-confirmation')),
+      findsNothing,
     );
-    expect(find.text('Ce numéro ouvre l’espace élève de Awa.'), findsOneWidget);
-    expect(journey.location, AppRoutes.phoneAuth);
+    // Le parent repart d'une preuve distincte ; aucun accès parental local.
+    // Le délai de renvoi du SMS reste respecté.
+    backend.requestGate.advance(const Duration(seconds: 61));
+    journey.router.go(AppRoutes.parentAccess);
+    await journey.wait(const Duration(milliseconds: 400));
+    await journey.tap('parent-proof-phone');
+    await journey.wait(const Duration(milliseconds: 400));
     expect(journey.auth.isAuthenticated, isFalse);
-
-    await journey.tap('phone-student-is-parent');
+    await journey.typeKey('phone-number-field', DeviceBackend.studentPhone);
+    await journey.tap('send-phone-code');
+    await journey.waitUntil(
+      () => find.byKey(const ValueKey('phone-otp-field')).evaluate().isNotEmpty,
+    );
+    await journey.wait(const Duration(milliseconds: 800));
+    await journey.typeKey('phone-otp-field', '123456');
     await journey.waitUntil(
       () => find
           .byKey(const ValueKey('family-phone-offer'))
@@ -61,27 +71,38 @@ void main() {
     await _dispose(journey);
   });
 
-  testWidgets('a verified-number session awaiting "who are you?" is closed '
-      'when the person leaves', (tester) async {
-    final backend = DeviceBackend();
-    final journey = await SealJourney.start(tester, backend, traceSeal: false);
-    await journey.tap('gateway-phone-auth');
-    await journey.wait(const Duration(milliseconds: 400));
-    await journey.typeKey('phone-number-field', DeviceBackend.studentPhone);
-    await journey.tap('send-phone-code');
-    await journey.waitUntil(
-      () => find.byKey(const ValueKey('phone-otp-field')).evaluate().isNotEmpty,
-    );
-    await journey.wait(const Duration(milliseconds: 800));
-    await journey.typeKey('phone-otp-field', '123456');
-    await journey.tapWhenShown('phone-student-other-number');
-    await journey.wait(const Duration(milliseconds: 400));
-
-    expect(backend.currentUid, isNull, reason: 'session closed');
-    expect(journey.auth.isAuthenticated, isFalse);
-    expect(find.byKey(const ValueKey('phone-entry-stage')), findsOneWidget);
-    await _dispose(journey);
-  });
+  testWidgets(
+    'a verified family identity awaiting a child choice is closed when the person leaves',
+    (tester) async {
+      final backend = DeviceBackend()
+        ..parentLinks['parent-uid'] = {'student-uid', 'noah-uid'};
+      final journey = await SealJourney.start(
+        tester,
+        backend,
+        traceSeal: false,
+      );
+      await journey.tap('gateway-phone-auth');
+      await journey.wait(const Duration(milliseconds: 400));
+      await journey.typeKey('phone-number-field', DeviceBackend.parentPhone);
+      await journey.tap('send-phone-code');
+      await journey.waitUntil(
+        () =>
+            find.byKey(const ValueKey('phone-otp-field')).evaluate().isNotEmpty,
+      );
+      await journey.wait(const Duration(milliseconds: 800));
+      await journey.typeKey('phone-otp-field', '123456');
+      await journey.waitUntil(
+        () => journey.location == AppRoutes.familySelection,
+      );
+      expect(journey.auth.familyEntryPending, isTrue);
+      await journey.tapText('Utiliser un autre compte');
+      await journey.waitUntil(() => journey.location == AppRoutes.authGateway);
+      expect(backend.currentUid, isNull, reason: 'session closed');
+      expect(journey.auth.isAuthenticated, isFalse);
+      expect(journey.auth.familyEntryPending, isFalse);
+      await _dispose(journey);
+    },
+  );
 
   for (final legacy in const [AppRoutes.parentEntry, AppRoutes.register]) {
     testWidgets('legacy $legacy link leads to the neutral gateway', (

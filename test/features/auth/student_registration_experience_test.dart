@@ -108,7 +108,7 @@ void main() {
         find.byKey(const ValueKey('phone-primary-target')),
         findsOneWidget,
       );
-      expect(find.text('Ton numéro de téléphone'), findsOneWidget);
+      expect(find.text('Ton accès vérifié'), findsOneWidget);
       expect(find.textContaining('OTP'), findsNothing);
       // Action épinglée : visible au-dessus du clavier, sans défiler, et
       // le texte garde sa taille réelle (aucune réduction d'ensemble).

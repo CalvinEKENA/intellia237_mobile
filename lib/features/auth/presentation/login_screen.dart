@@ -1,3 +1,4 @@
+import 'auth_error_copy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,11 +16,18 @@ import 'widgets/pass_auth_progress.dart';
 import 'widgets/role_conflict_copy.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({this.authIntent, super.key});
+  const LoginScreen({
+    this.authIntent,
+    this.createIdentity = false,
+    this.requireSuperAdmin = false,
+    super.key,
+  });
 
   /// Espace choisi avant de passer à l'e-mail, s'il y en a un : un compte
   /// d'un autre rôle n'est alors pas ouvert.
   final AppRole? authIntent;
+  final bool createIdentity;
+  final bool requireSuperAdmin;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -52,12 +60,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _conflict = null);
+    if (widget.createIdentity) {
+      await ref
+          .read(authControllerProvider.notifier)
+          .createEmailIdentity(
+            email: _emailController.text,
+            password: _passwordController.text,
+          );
+      return;
+    }
     final adoption = await ref
         .read(authControllerProvider.notifier)
         .signInWithEmail(
           email: _emailController.text,
           password: _passwordController.text,
           intent: widget.authIntent,
+          requireSuperAdmin: widget.requireSuperAdmin,
           beforeOpening: _holdCompletedSeal,
         );
     if (!mounted) return;
@@ -124,7 +142,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     key: ValueKey(auth.error),
                     padding: const EdgeInsets.only(bottom: 14),
                     child: AuthErrorBanner(
-                      message: auth.error!,
+                      message: auth.error == 'staff-access-required'
+                          ? authErrorMessage(l10n, auth.error!)
+                          : auth.error!,
                       onRetry: _submit,
                       onDismiss: controller.clearError,
                     ),
@@ -132,7 +152,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           AuthPrimaryButton(
             key: const ValueKey('login-submit'),
-            label: l10n.signIn,
+            label: widget.createIdentity ? l10n.createAccountLink : l10n.signIn,
             onTap: auth.isLoading ? null : _submit,
             isLoading: auth.isLoading,
             icon: Icons.login_rounded,
@@ -148,8 +168,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               AuthHeader(
                 showBrand: false,
                 eyebrow: context.l10n.passEmailAccess,
-                title: context.l10n.passYourNextChapterAwaits,
-                subtitle: context.l10n.passReturnToYourSpaceWithYour,
+                title: widget.createIdentity
+                    ? l10n.authEmailCreateTitle
+                    : l10n.passYourNextChapterAwaits,
+                subtitle: widget.createIdentity
+                    ? l10n.authEmailCreateBody
+                    : l10n.passReturnToYourSpaceWithYour,
               ),
               const SizedBox(height: 24),
               AuthGlassPanel(
@@ -214,38 +238,49 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    l10n.noAccount,
-                    style: const TextStyle(
-                      color: AuthExperienceColors.textSecondary,
-                      fontSize: 13,
+              if (!widget.createIdentity && !widget.requireSuperAdmin)
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      l10n.noAccount,
+                      style: const TextStyle(
+                        color: AuthExperienceColors.textSecondary,
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                  TextButton(
-                    key: const ValueKey('login-create-account'),
-                    // L'accès par e-mail est celui du personnel ; un élève
-                    // arrivé ici avec son intention garde son inscription.
-                    onPressed: auth.isLoading
-                        ? null
-                        : () => context.push(
-                            widget.authIntent == AppRole.student
-                                ? AppRoutes.studentRegistration
-                                : AppRoutes.teacherRegistration,
-                          ),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AuthExperienceColors.gold,
+                    TextButton(
+                      key: const ValueKey('login-create-account'),
+                      // Une identité publique se crée sans rôle présupposé.
+                      onPressed: auth.isLoading
+                          ? null
+                          : () => context.push(switch (widget.authIntent) {
+                              AppRole.teacher => AppRoutes.teacherRegistration,
+                              AppRole.admin => AppRoutes.adminRegistration,
+                              _ => AppRoutes.emailRegistration,
+                            }),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AuthExperienceColors.gold,
+                      ),
+                      child: Text(
+                        l10n.createAccountLink,
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
                     ),
-                    child: Text(
-                      l10n.createAccountLink,
-                      style: const TextStyle(fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              if (widget.authIntent != null && !widget.requireSuperAdmin)
+                TextButton.icon(
+                  key: const ValueKey('login-use-phone'),
+                  onPressed: auth.isLoading
+                      ? null
+                      : () => context.push(
+                          AppRoutes.phoneRegistration(widget.authIntent!),
+                        ),
+                  icon: const Icon(Icons.phone_android_rounded),
+                  label: Text(l10n.schoolHeadContinuePhone),
+                ),
               TextButton.icon(
                 key: const ValueKey('login-change-profile'),
                 onPressed: auth.isLoading

@@ -29,6 +29,7 @@ final authControllerProvider = NotifierProvider<AuthController, AuthState>(
 );
 
 class AuthController extends Notifier<AuthState> {
+  static const _familyEntryKey = 'auth_family_entry_uid_v3';
   static const _lastValidSessionKey = 'auth_last_valid_profile_v1';
   static const _lastSelectedSpacePrefix = 'auth_last_selected_space_v1_';
 
@@ -168,6 +169,98 @@ class AuthController extends Notifier<AuthState> {
     await _applyResolution(resolution);
   }
 
+  Future<void> createEmailIdentity({
+    required String email,
+    required String password,
+  }) => holdSessionAdoption(() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final repository = _repo;
+      if (repository is! EmailIdentityCreator) {
+        throw const AuthError(
+          message: 'Service indisponible.',
+          code: 'unavailable',
+        );
+      }
+      await (repository as EmailIdentityCreator).createEmailIdentity(
+        email: email,
+        password: password,
+      );
+      await _resolveAfterEstablishedCredential();
+    } on AuthError catch (error) {
+      state = AuthState.unauthenticated(error: error.message);
+    } catch (_) {
+      await _applyRetryableFailure(errorCode: 'identity-create-failed');
+    }
+  });
+
+  Future<void> _clearFamilyEntry() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove(_familyEntryKey);
+  }
+
+  Future<AuthState> _entryState(AuthUserData user, AppRole? intent) async {
+    final resolved = await _resolveAuthenticatedState(user);
+    if (intent != null && user.resolvedRoles.contains(intent)) {
+      return resolved.copyWith(role: intent, spaceChoicePending: false);
+    }
+    final publicRoles = user.resolvedRoles
+        .where((role) => role == AppRole.student || role == AppRole.parent)
+        .toList();
+    if (publicRoles.isNotEmpty) {
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString(
+        '$_lastSelectedSpacePrefix${user.uid}',
+        publicRoles.first.name,
+      );
+      return resolved.copyWith(
+        role: resolved.familyEntryPending ? AppRole.parent : publicRoles.first,
+        availableRoles: publicRoles,
+        spaceChoicePending: false,
+      );
+    }
+    await signOut();
+    return const AuthState.unauthenticated(error: 'staff-access-required');
+  }
+
+  /// Remplace réellement l'identité parent par l'UID enfant autorisé par le serveur.
+  Future<bool> openFamilyChild(String studentId) =>
+      holdSessionAdoption(() async {
+        if (!state.familyEntryPending) return false;
+        state = state.copyWith(isLoading: true, error: null);
+        try {
+          final repository = _familyAccess;
+          if (repository is! FamilyChildSessionRepository) {
+            throw const FamilyAccessException('unavailable');
+          }
+          await (repository as FamilyChildSessionRepository)
+              .signInAsLinkedChild(studentId);
+          final resolution = await _resolveCurrentSession();
+          if (resolution.firebaseUid != studentId ||
+              (resolution.user != null &&
+                  resolution.user!.role != AppRole.student)) {
+            await signOut();
+            return false;
+          }
+          await _clearLocalSession();
+          await _clearFamilyEntry();
+          await _applyResolution(resolution);
+          return true;
+        } catch (_) {
+          // Si l'identité a déjà changé, ne jamais conserver un état parent.
+          final uid = ref.read(firebaseIdentityPortProvider).currentUid;
+          if (uid != state.userId) {
+            await signOut();
+          } else {
+            state = state.copyWith(
+              isLoading: false,
+              error: 'family-access-unavailable',
+            );
+          }
+          return false;
+        }
+      });
+
   /// Connexion email/mot de passe.
   ///
   /// Sous une intention d'entrée ([intent]), un compte d'un autre rôle n'est
@@ -181,12 +274,14 @@ class AuthController extends Notifier<AuthState> {
     required String email,
     required String password,
     AppRole? intent,
+    bool requireSuperAdmin = false,
     Future<void> Function()? beforeOpening,
   }) => holdSessionAdoption(
     () => _signInWithEmail(
       email: email,
       password: password,
       intent: intent,
+      requireSuperAdmin: requireSuperAdmin,
       beforeOpening: beforeOpening,
     ),
   );
@@ -195,6 +290,7 @@ class AuthController extends Notifier<AuthState> {
     required String email,
     required String password,
     AppRole? intent,
+    bool requireSuperAdmin = false,
     Future<void> Function()? beforeOpening,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -205,12 +301,21 @@ class AuthController extends Notifier<AuthState> {
         password: password,
       );
 
-      if (matchAuthEntry(intent: intent, accountRole: user.role) ==
-          AuthEntryMatch.conflict) {
+      if ((intent != null && !user.resolvedRoles.contains(intent)) ||
+          (requireSuperAdmin && !user.isSuperAdmin)) {
         await signOut();
-        return AuthEntryRoleConflict(intent: intent!, accountRole: user.role);
+        return AuthEntryRoleConflict(
+          intent: intent ?? AppRole.admin,
+          accountRole: user.role,
+        );
       }
 
+      await _clearFamilyEntry();
+      final opening = await _entryState(user, intent);
+      if (!opening.hasFirebaseSession) {
+        state = opening;
+        return const AuthEntryAdopted();
+      }
       if (beforeOpening != null) {
         try {
           await beforeOpening();
@@ -220,17 +325,21 @@ class AuthController extends Notifier<AuthState> {
       }
       await _markOnboardingSeen();
       await _markAuthenticatedBefore();
-      state = await _resolveAuthenticatedState(user);
-      await _cacheValidUser(user);
+      state = opening;
+      if (state.hasFirebaseSession) await _cacheValidUser(user);
     } on AuthError catch (e) {
       if (_isProfileResolutionError(e.code)) {
-        await _resolveAfterEstablishedCredential();
+        return await _adoptSessionForIntent(
+          intent,
+          requireSuperAdmin: requireSuperAdmin,
+        );
       } else {
         state = AuthState.unauthenticated(error: e.message);
       }
     } catch (error) {
-      await _resolveAfterEstablishedCredential(
-        fallbackErrorCode: _safeErrorCode(error),
+      return await _adoptSessionForIntent(
+        intent,
+        requireSuperAdmin: requireSuperAdmin,
       );
     }
     return const AuthEntryAdopted();
@@ -255,10 +364,9 @@ class AuthController extends Notifier<AuthState> {
   /// téléphone poussé par-dessus ; toute mise en scène placée après
   /// l'adoption était coupée. Son échec n'empêche jamais l'adoption.
   ///
-  /// [confirmSharedStudentPhone] : sous l'accès neutre par téléphone, un
-  /// numéro qui ouvre l'espace d'un élève n'est pas adopté tout de suite ; la
-  /// personne confirme d'abord qui elle est (voir
-  /// [AuthEntryStudentPhoneConfirmation]).
+  /// [confirmSharedStudentPhone] conserve son nom historique : en Auth V3,
+  /// l'élève ouvre directement son espace ; une identité parent ouvre le
+  /// choix des enfants liés, puis une session enfant distincte.
   Future<AuthEntryAdoption> adoptSessionForIntent(
     AppRole? intent, {
     Future<void> Function(AuthState opening)? beforeOpening,
@@ -273,6 +381,7 @@ class AuthController extends Notifier<AuthState> {
 
   Future<AuthEntryAdoption> _adoptSessionForIntent(
     AppRole? intent, {
+    bool requireSuperAdmin = false,
     Future<void> Function(AuthState opening)? beforeOpening,
     bool confirmSharedStudentPhone = false,
   }) async {
@@ -313,8 +422,10 @@ class AuthController extends Notifier<AuthState> {
       accountRole = resolution.user?.role;
     }
 
-    if (matchAuthEntry(intent: intent, accountRole: accountRole) ==
-        AuthEntryMatch.conflict) {
+    if ((accountRole != null &&
+            !(resolution.user?.resolvedRoles.contains(intent) ??
+                (accountRole == intent))) ||
+        (requireSuperAdmin && resolution.user?.isSuperAdmin != true)) {
       // Le téléphone de la famille ouvre l'accès de l'élève : le parent peut
       // le reprendre. Seul un profil lu à l'instant le permet, jamais un rôle
       // tiré du cache.
@@ -330,10 +441,18 @@ class AuthController extends Notifier<AuthState> {
         );
       }
       await signOut();
-      return AuthEntryRoleConflict(intent: intent, accountRole: accountRole!);
+      return AuthEntryRoleConflict(
+        intent: intent,
+        accountRole: accountRole ?? AppRole.admin,
+      );
     }
 
-    final opening = await _stateFor(resolution);
+    await _clearFamilyEntry();
+    final opening =
+        resolution.user != null &&
+            resolution.kind == AuthSessionResolutionKind.authenticated
+        ? await _entryState(resolution.user!, intent)
+        : await _stateFor(resolution);
     await _beforeOpening(beforeOpening, opening);
     await _applyResolution(resolution, resolved: opening);
     return const AuthEntryAdopted();
@@ -353,19 +472,19 @@ class AuthController extends Notifier<AuthState> {
       return AuthEntryUnresolved(_safeErrorCode(error));
     }
     final user = resolution.user;
+    final preferences = await SharedPreferences.getInstance();
     if (resolution.kind == AuthSessionResolutionKind.authenticated &&
         user != null &&
-        user.role == AppRole.student &&
-        user.resolvedRoles.length == 1) {
-      state = state.copyWith(isLoading: false, error: null);
-      // Un redémarrage avant la réponse referme la session, sans ouvrir
-      // l'espace de l'élève.
-      await _rememberFamilyPhoneOffer(resolution.firebaseUid ?? user.uid);
-      return AuthEntryStudentPhoneConfirmation(
-        studentFirstName: user.firstName,
-      );
+        user.resolvedRoles.contains(AppRole.parent)) {
+      await preferences.setString(_familyEntryKey, user.uid);
+    } else {
+      await _clearFamilyEntry();
     }
-    final opening = await _stateFor(resolution);
+    final opening =
+        user != null &&
+            resolution.kind == AuthSessionResolutionKind.authenticated
+        ? await _entryState(user, null)
+        : await _stateFor(resolution);
     await _beforeOpening(beforeOpening, opening);
     await _applyResolution(resolution, resolved: opening);
     return const AuthEntryAdopted();
@@ -507,15 +626,12 @@ class AuthController extends Notifier<AuthState> {
   /// Ouvre la session Google que le coordinateur vient d'établir.
   ///
   /// [isNewIdentity] : la personne a répondu « Non, continuer » ; sans profil,
-  /// elle entre dans la découverte, et y revient après un redémarrage.
+  /// elle choisit son objectif après la preuve de son identité.
   Future<bool> openGoogleSession({
     required bool isNewIdentity,
     Future<void> Function(AuthState opening)? beforeOpening,
   }) => holdSessionAdoption(() async {
-    if (isNewIdentity) {
-      final uid = ref.read(firebaseIdentityPortProvider).currentUid;
-      if (uid != null) await _setDiscoveryChosen(uid, true);
-    }
+    // Toute nouvelle identité choisit son objectif après l'authentification.
     return _adoptCurrentFirebaseSession(beforeOpening: beforeOpening);
   });
 
@@ -527,7 +643,11 @@ class AuthController extends Notifier<AuthState> {
       final resolution = await _resolveCurrentSession().timeout(
         const Duration(seconds: 8),
       );
-      final opening = await _stateFor(resolution);
+      final opening =
+          resolution.kind == AuthSessionResolutionKind.authenticated &&
+              resolution.user != null
+          ? await _entryState(resolution.user!, null)
+          : await _stateFor(resolution);
       await _beforeOpening(beforeOpening, opening);
       await _applyResolution(resolution, resolved: opening);
       return state.isAuthenticated;
@@ -559,7 +679,7 @@ class AuthController extends Notifier<AuthState> {
       await _markOnboardingSeen();
       await _markAuthenticatedBefore();
       state = await _resolveAuthenticatedState(user);
-      await _cacheValidUser(user);
+      if (state.hasFirebaseSession) await _cacheValidUser(user);
     } on AuthError catch (e) {
       if (_isProfileResolutionError(e.code)) {
         await _resolveAfterEstablishedCredential();
@@ -608,6 +728,7 @@ class AuthController extends Notifier<AuthState> {
       await ref.read(googleAccessCoordinatorProvider).abandon();
     } catch (_) {}
     await _clearLocalSession();
+    await _clearFamilyEntry();
     final preferences = await SharedPreferences.getInstance();
     await preferences.remove(_pendingFamilyPhoneOfferKey);
     // La purge de l'état élève n'est volontairement pas déclenchée ici : un
@@ -800,7 +921,7 @@ class AuthController extends Notifier<AuthState> {
         user != null && user.profileCompleted,
       _ => false,
     };
-    if (cacheable) await _cacheValidUser(user!);
+    if (cacheable && next.hasFirebaseSession) await _cacheValidUser(user!);
   }
 
   Future<AuthSessionResolution> _resolveCurrentSession() async {
@@ -839,6 +960,9 @@ class AuthController extends Notifier<AuthState> {
     String? errorCode,
   }) async {
     final cached = await _readCachedUser(expectedUid: userId);
+    final pendingUid = (await SharedPreferences.getInstance()).getString(
+      _familyEntryKey,
+    );
     return AuthState.retryableProfileFailure(
       userId: userId ?? cached?.uid,
       email: email ?? cached?.email,
@@ -848,6 +972,9 @@ class AuthController extends Notifier<AuthState> {
       isSuperAdmin: cached?.isSuperAdmin ?? false,
       establishmentId: cached?.establishmentId,
       error: 'Le profil ne peut pas être synchronisé pour le moment.',
+    ).copyWith(
+      familyEntryPending:
+          pendingUid != null && pendingUid == (userId ?? cached?.uid),
     );
   }
 
@@ -874,8 +1001,13 @@ class AuthController extends Notifier<AuthState> {
       }
     } catch (_) {}
 
+    final familyPending =
+        (await SharedPreferences.getInstance()).getString(_familyEntryKey) ==
+            user.uid &&
+        roles.contains(AppRole.parent);
     return AuthState.authenticated(
-      role: activeRole,
+      familyEntryPending: familyPending,
+      role: familyPending ? AppRole.parent : activeRole,
       availableRoles: roles,
       userId: user.uid,
       email: user.email,
@@ -932,11 +1064,7 @@ class AuthController extends Notifier<AuthState> {
   Future<bool> _isDiscoveryIdentity(AuthSessionResolution resolution) async {
     final uid = resolution.firebaseUid;
     if (uid == null || uid.isEmpty) return false;
-    if (await _discoveryChosen(uid)) return true;
-    // Identité Google seule, sans profil : la découverte, sur tout appareil.
-    final providers = resolution.signInProviders;
-    return providers.isNotEmpty &&
-        providers.every((provider) => provider == 'google.com');
+    return _discoveryChosen(uid);
   }
 
   Future<bool> _discoveryChosen(String uid) async {

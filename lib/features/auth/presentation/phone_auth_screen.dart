@@ -477,7 +477,10 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
             destination = _destinationFor(opening);
             // Un profil illisible n'ouvre aucun espace : le sceau reste au
             // « 3 ».
-            if (destination == AppRoutes.authProfileRecovery) return;
+            if (destination == AppRoutes.authProfileRecovery ||
+                destination == AppRoutes.authGateway) {
+              return;
+            }
             await secretHold;
             if (mounted) await _openWithCompletedSeal();
           },
@@ -563,6 +566,8 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
 
   /// Écran qu'ouvre l'état d'authentification [auth] sous l'espace choisi.
   String? _destinationFor(AuthState auth) {
+    if (auth.error == 'staff-access-required') return AppRoutes.authGateway;
+    if (auth.familyEntryPending) return AppRoutes.familySelection;
     final accountRole = auth.role;
     if (auth.isAuthenticated && accountRole != null && auth.profileCompleted) {
       return accountRole.homePath;
@@ -650,7 +655,10 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
           result,
           beforeOpening: (opening) async {
             destination = _destinationFor(opening);
-            if (destination == AppRoutes.authProfileRecovery) return;
+            if (destination == AppRoutes.authProfileRecovery ||
+                destination == AppRoutes.authGateway) {
+              return;
+            }
             if (mounted) await _openWithCompletedSeal();
           },
         );

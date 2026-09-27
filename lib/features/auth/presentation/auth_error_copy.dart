@@ -19,6 +19,7 @@ bool isAuthCancellation(String code) => const {
 /// affichait `${e.message}` de Firebase. Aucun message technique n'atteint
 /// plus l'écran : tout code inconnu reçoit le message générique.
 String authErrorMessage(AppLocalizations l10n, String code) => switch (code) {
+  'staff-access-required' => l10n.authStaffUseShield,
   'network-request-failed' ||
   'unavailable' ||
   'timeout' ||

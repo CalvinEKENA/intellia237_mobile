@@ -200,6 +200,9 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen> {
       case GoogleLinked():
         // Même UID, Google en plus : l'espace existant s'ouvre.
         await auth.adoptCurrentFirebaseSession();
+        if (mounted && !ref.read(authControllerProvider).hasFirebaseSession) {
+          context.go(AppRoutes.authGateway);
+        }
         return;
       case GoogleLinkedElsewhere():
         _stopWith(uid, _LinkStop.linkedElsewhere);
@@ -231,7 +234,12 @@ class _AccountLinkingScreenState extends ConsumerState<AccountLinkingScreen> {
     await ref
         .read(authControllerProvider.notifier)
         .adoptCurrentFirebaseSession();
-    if (mounted) setState(() => _busy = false);
+    if (!mounted) return;
+    if (!ref.read(authControllerProvider).hasFirebaseSession) {
+      context.go(AppRoutes.authGateway);
+    } else {
+      setState(() => _busy = false);
+    }
   }
 
   Future<void> _cancel() async {

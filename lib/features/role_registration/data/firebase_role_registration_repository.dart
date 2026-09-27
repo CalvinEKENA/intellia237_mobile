@@ -97,10 +97,12 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
           ) ??
           false;
       final User? user;
-      if ((hasVerifiedPhone || hasGoogle) &&
+      if ((hasVerifiedPhone ||
+              hasGoogle ||
+              (currentUser?.email?.isNotEmpty ?? false)) &&
           email.trim().isEmpty &&
           password.isEmpty) {
-        // Identity-first registration (verified phone or Google) reuses the
+        // Identity-first registration (phone, Google or e-mail) reuses the
         // already proven Firebase user: no second account is ever created,
         // and rollback must never delete this identity.
         user = currentUser;
@@ -130,7 +132,7 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
         profileData['phoneNumber'] = verifiedPhone;
       }
       final accountEmail = user.email?.trim() ?? '';
-      if (hasGoogle && accountEmail.isNotEmpty) {
+      if (accountEmail.isNotEmpty) {
         userData['email'] = accountEmail;
       }
 

@@ -239,12 +239,18 @@ void main() {
       );
     });
 
-    test('11. student registration is not interrupted', () {
-      expect(_registrationRedirect(AppRoutes.studentRegistration), isNull);
+    test('11. student registration requires identity first', () {
+      expect(
+        _registrationRedirect(AppRoutes.studentRegistration),
+        AppRoutes.authGateway,
+      );
     });
 
-    test('12. parent registration is not interrupted', () {
-      expect(_registrationRedirect(AppRoutes.parentRegistration), isNull);
+    test('12. parent registration requires identity first', () {
+      expect(
+        _registrationRedirect(AppRoutes.parentRegistration),
+        AppRoutes.authGateway,
+      );
     });
 
     test('13. restart location during staff registration remains stable', () {
@@ -263,7 +269,10 @@ void main() {
             location == AppRoutes.parentEntry ||
             location == AppRoutes.accountWelcome ||
             location == AppRoutes.googleDiscovery ||
-            location == AppRoutes.roleChooser) {
+            location == AppRoutes.roleChooser ||
+            location == AppRoutes.studentRegistration ||
+            location == AppRoutes.parentRegistration ||
+            location == AppRoutes.familySelection) {
           continue;
         }
         expect(
@@ -283,7 +292,7 @@ void main() {
     const superAdmin = AuthState.authenticated(
       role: AppRole.admin,
       userId: 'super-admin-uid',
-      email: 'calvinekena4@gmail.com',
+      email: 'admin@example.com',
       isSuperAdmin: true,
     );
 
