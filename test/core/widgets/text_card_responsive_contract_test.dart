@@ -68,10 +68,13 @@ const _coveredPublicCardTypes = {
   'ContentCard',
   'GameCard',
   'CompanionReplyCard',
+  // Dedicated test at 320/360/412 px × textScale 1.0/1.3/1.5, light and
+  // dark, grid and rail (Hall d'Apprendre) :
+  // test/features/learn/subject_hall_test.dart.
+  'SubjectHallCard',
   // Dedicated test at 320/360/412 px × textScale 1.0/1.3, light and dark,
   // plus 360 px / textScale 1.5 (Learning UI) :
   // test/features/content_engine/learning_ui_test.dart.
-  'SubjectCard',
   'SequenceCard',
   'LessonCard',
   'SynthesisCard',

@@ -14,10 +14,10 @@ import 'package:intellia237/features/content_engine/domain/chapter.dart';
 import 'package:intellia237/features/content_engine/domain/mastery.dart';
 import 'package:intellia237/features/content_engine/presentation/content_chapter_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
-import 'package:intellia237/features/content_engine/presentation/local_chapters_section.dart';
 import 'package:intellia237/features/content_engine/presentation/pack_practice_section.dart';
 import 'package:intellia237/features/content_engine/presentation/subject_identity.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
+import 'package:intellia237/features/learn/presentation/subject_hall_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pack_fixture.dart';
@@ -84,6 +84,7 @@ Future<ProviderContainer> _pump(
       contentClassKeyProvider.overrideWith((ref) async => classKey),
       contentPackCacheProvider.overrideWithValue(InMemoryContentPackCache()),
       remoteContentGatewayProvider.overrideWithValue(const OfflineGateway()),
+      emptyLearnCatalogue(),
     ],
   );
   addTearDown(container.dispose);
@@ -363,9 +364,7 @@ void main() {
     ) async {
       await _pump(
         tester,
-        const Scaffold(
-          body: SingleChildScrollView(child: LocalChaptersSection()),
-        ),
+        const Scaffold(body: SingleChildScrollView(child: SubjectHall())),
       );
       final cards = find.byWidgetPredicate(
         (w) =>
@@ -376,28 +375,35 @@ void main() {
       for (final key in ['mathematiques', 'anglais', 'physique']) {
         expect(_key('subject-card-$key'), findsOneWidget, reason: key);
       }
+      for (final (key, name) in [
+        ('mathematiques', 'Mathématiques'),
+        ('anglais', 'Anglais'),
+        ('physique', 'Physique'),
+      ]) {
+        expect(
+          find.descendant(
+            of: _key('subject-card-$key'),
+            matching: find.text(name),
+          ),
+          findsOneWidget,
+          reason: key,
+        );
+      }
+      // Le Hall ne montre que des matières : aucune séquence ni chapitre.
       expect(
-        find.descendant(
-          of: _key('subject-card-physique'),
-          matching: find.textContaining('2 séquences'),
+        find.byWidgetPredicate(
+          (w) =>
+              w.key is ValueKey<String> &&
+              (w.key! as ValueKey<String>).value.startsWith('local-chapter-'),
         ),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: _key('subject-card-mathematiques'),
-          matching: find.textContaining('3 chapitres'),
-        ),
-        findsOneWidget,
+        findsNothing,
       );
     });
 
     testWidgets('Terminale A : seulement l\'anglais', (tester) async {
       await _pump(
         tester,
-        const Scaffold(
-          body: SingleChildScrollView(child: LocalChaptersSection()),
-        ),
+        const Scaffold(body: SingleChildScrollView(child: SubjectHall())),
         classKey: const ClassKey('terminale', series: 'a'),
       );
       expect(_key('subject-card-anglais'), findsOneWidget);
@@ -410,25 +416,22 @@ void main() {
     ) async {
       await _pump(
         tester,
-        const Scaffold(
-          body: SingleChildScrollView(child: LocalChaptersSection()),
-        ),
+        const Scaffold(body: SingleChildScrollView(child: SubjectHall())),
         snapshot: _snapshot([
           _state('measurement_range', score: 85, answered: {'l1_q01'}),
         ]),
       );
       final card = _key('subject-card-physique');
+      await _tap(tester, card);
+      expect(_key('subject-hero'), findsOneWidget);
       expect(
         find.descendant(
-          of: card,
+          of: _key('subject-hero'),
           matching: find.textContaining('1 notion maîtrisée'),
         ),
         findsOneWidget,
       );
       expect(_key('subject-resume-physique'), findsNothing);
-
-      await _tap(tester, card);
-      expect(_key('subject-hero'), findsOneWidget);
       expect(_key('local-module-physique-1'), findsOneWidget);
       final first = _key('local-chapter-$_m1s1');
       final second = _key('local-chapter-$_m1s2');
@@ -450,8 +453,10 @@ void main() {
         findsOneWidget,
       );
 
-      // Ouvrir une séquence la retient comme dernière visitée.
-      await _tap(tester, second);
+      // Ouvrir une séquence (sa vue d'ensemble) la retient comme dernière
+      // visitée ; la page de la matière propose alors de la reprendre.
+      await _tap(tester, _key('sequence-toggle-$_m1s2'));
+      await _tap(tester, _key('sequence-overview-$_m1s2'));
       expect(find.text('chapitre $_m1s2'), findsOneWidget);
       GoRouter.of(tester.element(find.text('chapitre $_m1s2'))).pop();
       await _settle(tester);
@@ -459,13 +464,16 @@ void main() {
         find.descendant(of: second, matching: _key('sequence-last-visited')),
         findsOneWidget,
       );
-      GoRouter.of(tester.element(_key('subject-hero'))).pop();
+      // La page a gardé sa position : on remonte jusqu'à l'en-tête.
+      await tester.drag(_key('subject-journey-list'), const Offset(0, 3000));
       await _settle(tester);
       expect(_key('subject-resume-physique'), findsOneWidget);
       expect(
         find.textContaining("Reprendre · Dimension d'une grandeur physique"),
         findsOneWidget,
       );
+      await _tap(tester, _key('subject-resume-physique'));
+      expect(find.text('chapitre $_m1s2'), findsOneWidget);
     });
 
     testWidgets('leçons en cartes, synthèse jamais appelée « Leçon 0 »', (
@@ -568,10 +576,8 @@ void main() {
     ]);
     for (final (name, screen) in [
       (
-        'SubjectCard',
-        const Scaffold(
-          body: SingleChildScrollView(child: LocalChaptersSection()),
-        ),
+        'SubjectHallCard',
+        const Scaffold(body: SingleChildScrollView(child: SubjectHall())),
       ),
       ('SequenceCard', const ContentSubjectScreen(subjectKey: 'physique')),
       (
@@ -584,6 +590,17 @@ void main() {
       await _pump(tester, screen, size: size, scale: 1.5, snapshot: snapshot);
       _expectReadable(tester, name);
     }
+    // L'accordéon déplié : titres de leçons, synthèse et vue d'ensemble.
+    await _pump(
+      tester,
+      const ContentSubjectScreen(subjectKey: 'physique'),
+      size: size,
+      scale: 1.5,
+      snapshot: snapshot,
+    );
+    await _tap(tester, _key('sequence-toggle-$_m1s1'));
+    await _reveal(tester, _key('sequence-overview-$_m1s1'));
+    _expectReadable(tester, 'SequenceCard dépliée');
     final chapter = await _pump(
       tester,
       const ContentChapterScreen(contentId: _m1s1),
@@ -611,9 +628,7 @@ void main() {
             ]);
             await _pump(
               tester,
-              const Scaffold(
-                body: SingleChildScrollView(child: LocalChaptersSection()),
-              ),
+              const Scaffold(body: SingleChildScrollView(child: SubjectHall())),
               size: size,
               scale: scale,
               brightness: brightness,

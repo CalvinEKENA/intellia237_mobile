@@ -11,9 +11,9 @@ import 'package:intellia237/features/content_engine/domain/pedagogy.dart';
 import 'package:intellia237/features/content_engine/presentation/content_chapter_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/content_lesson_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/games/game_screen.dart';
-import 'package:intellia237/features/content_engine/presentation/local_chapters_section.dart';
 import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
+import 'package:intellia237/features/learn/presentation/subject_hall_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pack_fixture.dart';
@@ -42,6 +42,7 @@ Future<ProviderContainer> _pump(
       ),
       contentPackCacheProvider.overrideWithValue(InMemoryContentPackCache()),
       remoteContentGatewayProvider.overrideWithValue(const OfflineGateway()),
+      emptyLearnCatalogue(),
     ],
   );
   addTearDown(container.dispose);
@@ -137,14 +138,14 @@ void main() {
     // Comme dans Apprendre : la section vit dans une page qui défile.
     final container = await _pump(
       tester,
-      const SingleChildScrollView(child: LocalChaptersSection()),
+      const SingleChildScrollView(child: SubjectHall()),
     );
     await tester.runAsync(
       () => container.read(localContentSubjectsProvider.future),
     );
     await settleSubjectJourneys(tester, container);
     await _settle(tester);
-    expect(find.byKey(LocalChaptersSection.sectionKey), findsOneWidget);
+    expect(find.byKey(SubjectHall.hallKey), findsOneWidget);
     expect(
       find.byKey(const ValueKey('subject-card-mathematiques')),
       findsOneWidget,

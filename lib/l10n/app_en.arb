@@ -3035,5 +3035,15 @@
   "demoPickerAnglophone": "Anglophone subsystem",
   "demoClassChanged": "Here we go: you are now exploring {classLabel}.",
   "@demoClassChanged": {"placeholders": {"classLabel": {"type": "String"}}},
-  "demoClassChangeFailed": "Unable to switch classes right now. Try again in a moment."
+  "demoClassChangeFailed": "Unable to switch classes right now. Try again in a moment.",
+"learnHallTitle": "Your subjects",
+"learnHallSubtitle": "Pick a subject to see its modules and lessons.",
+"learnHallFoundIn": "In: {title}",
+"@learnHallFoundIn": {"placeholders": {"title": {"type": "String"}}},
+"learnHallResults": "{count, plural, =0{No subject found} =1{1 subject found} other{{count} subjects found}}",
+"@learnHallResults": {"placeholders": {"count": {"type": "int"}}},
+"ceShowLessons": "Show lessons",
+"ceHideLessons": "Hide lessons",
+"ceSequenceOverview": "Overview and path",
+"ceLessonDone": "completed"
 }

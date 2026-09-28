@@ -7,9 +7,9 @@ import 'package:intellia237/features/content_engine/data/content_delivery.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_repository.dart';
 import 'package:intellia237/features/content_engine/data/learner_content_store.dart';
 import 'package:intellia237/features/content_engine/presentation/content_lesson_screen.dart';
-import 'package:intellia237/features/content_engine/presentation/local_chapters_section.dart';
 import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
+import 'package:intellia237/features/learn/presentation/subject_hall_view.dart';
 
 import 'pack_fixture.dart';
 
@@ -42,6 +42,7 @@ Future<ProviderContainer> _pump(
       ),
       contentPackCacheProvider.overrideWithValue(InMemoryContentPackCache()),
       remoteContentGatewayProvider.overrideWithValue(const OfflineGateway()),
+      emptyLearnCatalogue(),
     ],
   );
   addTearDown(container.dispose);
@@ -89,7 +90,7 @@ void main() {
   testWidgets('Apprendre : carte Anglais, puis Module 1, Unit 1 et Unit 2', (
     tester,
   ) async {
-    final container = await _pump(tester, const LocalChaptersSection());
+    final container = await _pump(tester, const SubjectHall());
     await settleSubjectJourneys(tester, container);
     for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(milliseconds: 100));
@@ -98,10 +99,6 @@ void main() {
     expect(card, findsOneWidget);
     expect(
       find.descendant(of: card, matching: find.text('Anglais')),
-      findsOneWidget,
-    );
-    expect(
-      find.descendant(of: card, matching: find.textContaining('2 units')),
       findsOneWidget,
     );
 
@@ -113,6 +110,13 @@ void main() {
     for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('subject-hero')),
+        matching: find.textContaining('2 units'),
+      ),
+      findsOneWidget,
+    );
     expect(
       find.byKey(const ValueKey('local-module-anglais-1')),
       findsOneWidget,

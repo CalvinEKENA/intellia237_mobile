@@ -5946,8 +5946,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ceNoQuestions => 'No exercise at this level for this lesson yet.';
 
   @override
-  String get ceLessonDone =>
-      'You\'ve done every question at this level. Try another level or play!';
+  String get ceLessonDone => 'completed';
 
   @override
   String ceSuggestSimpler(String mode) {
@@ -6826,4 +6825,37 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get demoClassChangeFailed =>
       'Unable to switch classes right now. Try again in a moment.';
+
+  @override
+  String get learnHallTitle => 'Your subjects';
+
+  @override
+  String get learnHallSubtitle =>
+      'Pick a subject to see its modules and lessons.';
+
+  @override
+  String learnHallFoundIn(String title) {
+    return 'In: $title';
+  }
+
+  @override
+  String learnHallResults(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count subjects found',
+      one: '1 subject found',
+      zero: 'No subject found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ceShowLessons => 'Show lessons';
+
+  @override
+  String get ceHideLessons => 'Hide lessons';
+
+  @override
+  String get ceSequenceOverview => 'Overview and path';
 }

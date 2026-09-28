@@ -3627,5 +3627,15 @@
   "demoPickerAnglophone": "Sous-système anglophone",
   "demoClassChanged": "C'est parti : tu explores maintenant la classe {classLabel}.",
   "@demoClassChanged": {"placeholders": {"classLabel": {"type": "String"}}},
-  "demoClassChangeFailed": "Impossible de changer de classe pour le moment. Réessaie dans un instant."
+  "demoClassChangeFailed": "Impossible de changer de classe pour le moment. Réessaie dans un instant.",
+"learnHallTitle": "Tes matières",
+"learnHallSubtitle": "Choisis une matière pour voir ses modules et ses leçons.",
+"learnHallFoundIn": "Dans : {title}",
+"@learnHallFoundIn": {"placeholders": {"title": {"type": "String"}}},
+"learnHallResults": "{count, plural, =0{Aucune matière trouvée} =1{1 matière trouvée} other{{count} matières trouvées}}",
+"@learnHallResults": {"placeholders": {"count": {"type": "int"}}},
+"ceShowLessons": "Voir les leçons",
+"ceHideLessons": "Masquer les leçons",
+"ceSequenceOverview": "Vue d'ensemble et parcours",
+"ceLessonDone": "terminée"
 }

@@ -21,7 +21,6 @@ import 'package:intellia237/features/content_engine/feed/learning_card_history.d
 import 'package:intellia237/features/content_engine/presentation/content_chapter_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/content_integration_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/content_lesson_screen.dart';
-import 'package:intellia237/features/content_engine/presentation/local_chapters_section.dart';
 import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/widgets/open_response_panel.dart';
 import 'package:intellia237/features/content_engine/presentation/widgets/practice_panel.dart';
@@ -29,6 +28,7 @@ import 'package:intellia237/features/flow/application/flow_controller.dart';
 import 'package:intellia237/features/flow/domain/flow_card.dart';
 import 'package:intellia237/features/flow/presentation/widgets/flow_learning_card_view.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
+import 'package:intellia237/features/learn/presentation/subject_hall_view.dart';
 
 import 'pack_fixture.dart';
 
@@ -90,6 +90,7 @@ Future<ProviderContainer> _pump(
             InMemoryContentPackCache(),
           ),
           remoteContentGatewayProvider.overrideWithValue(gateway),
+          emptyLearnCatalogue(),
           learnerContentStoreProvider.overrideWithValue(
             InMemoryLearnerContentStore(),
           ),
@@ -609,9 +610,7 @@ void main() {
       // modules et séquences s'ouvrent dans l'écran de la matière.
       await _pump(
         tester,
-        const Scaffold(
-          body: SingleChildScrollView(child: LocalChaptersSection()),
-        ),
+        const Scaffold(body: SingleChildScrollView(child: SubjectHall())),
         classKey: ClassKey('terminale', series: series),
         catalog: true,
       );

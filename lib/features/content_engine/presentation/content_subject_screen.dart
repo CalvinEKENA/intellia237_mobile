@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
+import '../../../core/widgets/intellia_pressable.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../application/subject_journey.dart';
 import 'content_style.dart';
@@ -18,7 +19,8 @@ Color learningBackground(Brightness brightness) => brightness == Brightness.dark
     : const Color(0xFFF4F4F6);
 
 /// Une matière : ses modules, puis ses séquences (ou units, ou chapitres)
-/// en cartes, chacune avec son état et sa progression.
+/// en accordéons repliés, chacun avec son état, sa progression et, déplié,
+/// les titres de ses leçons.
 class ContentSubjectScreen extends ConsumerWidget {
   const ContentSubjectScreen({required this.subjectKey, super.key});
 
@@ -38,7 +40,10 @@ class ContentSubjectScreen extends ConsumerWidget {
         foregroundColor: palette.textPrimary,
         elevation: 0,
       ),
+      // Rouvrir une leçon met à jour la « dernière visite » : la page garde
+      // alors son contenu (accordéons ouverts, défilement) pendant le calcul.
       body: journey.when(
+        skipLoadingOnReload: true,
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) => _Unavailable(message: context.l10n.ceLoadError),
         data: (journey) => journey == null
@@ -70,11 +75,34 @@ class _SubjectBody extends ConsumerWidget {
   final SubjectJourney journey;
   final SubjectPalette palette;
 
+  /// Toute ouverture (séquence, leçon, synthèse) retient la séquence comme
+  /// dernière visitée.
+  void _visit(WidgetRef ref, ChapterJourney chapter) => ref
+      .read(learningRecentsProvider.notifier)
+      .visited(journey.key, chapter.contentId);
+
   void _open(BuildContext context, WidgetRef ref, ChapterJourney chapter) {
-    ref
-        .read(learningRecentsProvider.notifier)
-        .visited(journey.key, chapter.contentId);
+    _visit(ref, chapter);
     context.push(AppRoutes.contentChapter(chapter.contentId));
+  }
+
+  void _openLesson(
+    BuildContext context,
+    WidgetRef ref,
+    ChapterJourney chapter,
+    int lesson,
+  ) {
+    _visit(ref, chapter);
+    context.push(AppRoutes.contentLesson(chapter.contentId, lesson));
+  }
+
+  void _openSynthesis(
+    BuildContext context,
+    WidgetRef ref,
+    ChapterJourney chapter,
+  ) {
+    _visit(ref, chapter);
+    context.push(AppRoutes.contentIntegration(chapter.contentId));
   }
 
   @override
@@ -89,7 +117,12 @@ class _SubjectBody extends ConsumerWidget {
         IntelliaSpacing.xxl,
       ),
       children: [
-        _SubjectHero(journey: journey),
+        _SubjectHero(
+          journey: journey,
+          onResume: journey.lastVisited == null
+              ? null
+              : () => _open(context, ref, journey.lastVisited!),
+        ),
         const SizedBox(height: IntelliaSpacing.xl),
         for (final (index, chapter) in chapters.indexed) ...[
           // Matière → Module → Séquence : le titre du module avant sa
@@ -123,7 +156,14 @@ class _SubjectBody extends ConsumerWidget {
             child: SequenceCard(
               journey: chapter,
               lastVisited: journey.lastVisited?.contentId == chapter.contentId,
-              onTap: () => _open(context, ref, chapter),
+              onOpenLesson: (lesson) =>
+                  _openLesson(context, ref, chapter, lesson),
+              onOpenOverview: () => _open(context, ref, chapter),
+              onOpenSynthesis:
+                  chapter.chapter.integrationConcepts.isNotEmpty ||
+                      chapter.chapter.integrationPracticeQuestions.isNotEmpty
+                  ? () => _openSynthesis(context, ref, chapter)
+                  : null,
             ),
           ),
         ],
@@ -134,9 +174,12 @@ class _SubjectBody extends ConsumerWidget {
 
 /// En-tête de la matière : son identité, sa progression, ses notions.
 class _SubjectHero extends StatelessWidget {
-  const _SubjectHero({required this.journey});
+  const _SubjectHero({required this.journey, this.onResume});
 
   final SubjectJourney journey;
+
+  /// Rouvre la dernière séquence visitée, s'il y en a une.
+  final VoidCallback? onResume;
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +241,41 @@ class _SubjectHero extends StatelessWidget {
               weight: FontWeight.w600,
             ),
           ),
+          if (journey.lastVisited case final last? when onResume != null) ...[
+            const SizedBox(height: IntelliaSpacing.md),
+            Divider(height: 1, color: palette.border),
+            const SizedBox(height: IntelliaSpacing.xs),
+            Semantics(
+              button: true,
+              child: IntelliaPressable(
+                key: ValueKey('subject-resume-${journey.key}'),
+                onTap: onResume,
+                scaleFactor: 0.98,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.play_circle_fill_rounded,
+                        color: palette.accent,
+                        size: 22,
+                      ),
+                      const SizedBox(width: IntelliaSpacing.xs),
+                      Expanded(
+                        child: Text(
+                          l10n.ljResume(last.entry.curriculum.chapterTitle),
+                          style: ContentText.label(
+                            color: palette.accent,
+                            size: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

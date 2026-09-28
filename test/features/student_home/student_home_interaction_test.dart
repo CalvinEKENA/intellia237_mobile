@@ -199,7 +199,9 @@ void main() {
       of: learnRoot,
       matching: find.byType(CustomScrollView),
     );
-    await tester.drag(learnScrollView, const Offset(0, -320));
+    // Défilement modéré : le champ de recherche (sous un bandeau compact)
+    // reste à l'écran, donc trouvable après le changement d'onglet.
+    await tester.drag(learnScrollView, const Offset(0, -160));
     await tester.pump();
     final learnScrollable = find
         .descendant(of: learnRoot, matching: find.byType(Scrollable))

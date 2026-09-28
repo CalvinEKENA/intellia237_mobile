@@ -8,9 +8,9 @@ import 'package:intellia237/features/content_engine/data/content_pack_repository
 import 'package:intellia237/features/content_engine/data/learner_content_store.dart';
 import 'package:intellia237/features/content_engine/presentation/content_chapter_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/content_lesson_screen.dart';
-import 'package:intellia237/features/content_engine/presentation/local_chapters_section.dart';
 import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
+import 'package:intellia237/features/learn/presentation/subject_hall_view.dart';
 
 import 'pack_fixture.dart';
 
@@ -38,6 +38,7 @@ Future<ProviderContainer> _pump(
       contentClassKeyProvider.overrideWith((ref) async => classKey),
       contentPackCacheProvider.overrideWithValue(InMemoryContentPackCache()),
       remoteContentGatewayProvider.overrideWithValue(const OfflineGateway()),
+      emptyLearnCatalogue(),
     ],
   );
   addTearDown(container.dispose);
@@ -80,10 +81,7 @@ void main() {
   testWidgets('Apprendre : une carte Physique, puis Module 1 et Séquence 1', (
     tester,
   ) async {
-    await _pump(
-      tester,
-      const SingleChildScrollView(child: LocalChaptersSection()),
-    );
+    await _pump(tester, const SingleChildScrollView(child: SubjectHall()));
     final card = find.byKey(const ValueKey('subject-card-physique'));
     expect(card, findsOneWidget);
     expect(
@@ -117,7 +115,7 @@ void main() {
   ) async {
     await _pump(
       tester,
-      const SingleChildScrollView(child: LocalChaptersSection()),
+      const SingleChildScrollView(child: SubjectHall()),
       classKey: const ClassKey('terminale', series: 'a'),
     );
     expect(find.byKey(const ValueKey('subject-card-physique')), findsNothing);

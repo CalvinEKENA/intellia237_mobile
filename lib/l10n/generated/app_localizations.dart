@@ -10189,7 +10189,7 @@ abstract class AppLocalizations {
   /// No description provided for @ceLessonDone.
   ///
   /// In fr, this message translates to:
-  /// **'Tu as fait toutes les questions de ce niveau. Essaie un autre niveau ou joue !'**
+  /// **'terminée'**
   String get ceLessonDone;
 
   /// No description provided for @ceSuggestSimpler.
@@ -11595,6 +11595,48 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Impossible de changer de classe pour le moment. Réessaie dans un instant.'**
   String get demoClassChangeFailed;
+
+  /// No description provided for @learnHallTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes matières'**
+  String get learnHallTitle;
+
+  /// No description provided for @learnHallSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis une matière pour voir ses modules et ses leçons.'**
+  String get learnHallSubtitle;
+
+  /// No description provided for @learnHallFoundIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans : {title}'**
+  String learnHallFoundIn(String title);
+
+  /// No description provided for @learnHallResults.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucune matière trouvée} =1{1 matière trouvée} other{{count} matières trouvées}}'**
+  String learnHallResults(int count);
+
+  /// No description provided for @ceShowLessons.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les leçons'**
+  String get ceShowLessons;
+
+  /// No description provided for @ceHideLessons.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer les leçons'**
+  String get ceHideLessons;
+
+  /// No description provided for @ceSequenceOverview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vue d\'ensemble et parcours'**
+  String get ceSequenceOverview;
 }
 
 class _AppLocalizationsDelegate

@@ -5982,8 +5982,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Pas encore d\'exercice à ce niveau pour cette leçon.';
 
   @override
-  String get ceLessonDone =>
-      'Tu as fait toutes les questions de ce niveau. Essaie un autre niveau ou joue !';
+  String get ceLessonDone => 'terminée';
 
   @override
   String ceSuggestSimpler(String mode) {
@@ -6864,4 +6863,37 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get demoClassChangeFailed =>
       'Impossible de changer de classe pour le moment. Réessaie dans un instant.';
+
+  @override
+  String get learnHallTitle => 'Tes matières';
+
+  @override
+  String get learnHallSubtitle =>
+      'Choisis une matière pour voir ses modules et ses leçons.';
+
+  @override
+  String learnHallFoundIn(String title) {
+    return 'Dans : $title';
+  }
+
+  @override
+  String learnHallResults(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matières trouvées',
+      one: '1 matière trouvée',
+      zero: 'Aucune matière trouvée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ceShowLessons => 'Voir les leçons';
+
+  @override
+  String get ceHideLessons => 'Masquer les leçons';
+
+  @override
+  String get ceSequenceOverview => 'Vue d\'ensemble et parcours';
 }

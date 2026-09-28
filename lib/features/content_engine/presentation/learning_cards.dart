@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
@@ -232,224 +233,375 @@ String subjectPartsLabel(BuildContext context, Subject subject) {
   return l10n.ljChapterCount(count);
 }
 
-/// Une matière de la classe, dans Apprendre.
-class SubjectCard extends StatelessWidget {
-  const SubjectCard({required this.journey, required this.onTap, super.key});
-
-  final SubjectJourney journey;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final identity = SubjectVisualIdentity.of(journey.key);
-    final palette = identity.palette(learningBrightness(context));
-    final subject = journey.subject;
-    final name = subjectDisplayName(context, subject.key, subject.title);
-    final progress = journey.progress;
-    final last = journey.lastVisited;
-    return LearningSurface(
-      key: ValueKey('subject-card-${journey.key}'),
-      palette: palette,
-      identity: identity,
-      showMotif: true,
-      semanticLabel: l10n.ljOpenSubject(name),
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SubjectBadge(identity: identity, palette: palette),
-              const Spacer(),
-              Text(
-                l10n.ljProgressPercent(progress.percent),
-                style: ContentText.math(color: palette.accent, size: 22),
-              ),
-            ],
-          ),
-          const SizedBox(height: IntelliaSpacing.md),
-          Text(
-            name,
-            style: ContentText.title(color: palette.textPrimary, size: 28),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            [
-              subject.levelLabel,
-              subjectPartsLabel(context, subject),
-              l10n.ceLessonCount(journey.lessonCount),
-            ].where((part) => part.isNotEmpty).join(' · '),
-            style: ContentText.body(color: palette.textSecondary, size: 13.5),
-          ),
-          const SizedBox(height: IntelliaSpacing.md),
-          JourneyProgressBar(value: progress.progress, palette: palette),
-          const SizedBox(height: IntelliaSpacing.sm),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.ljConceptsMastered(progress.mastered, progress.total),
-                  style: ContentText.body(
-                    color: palette.textSecondary,
-                    size: 13,
-                    weight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              // L'appel est implicite : toute la carte ouvre la matière.
-              Icon(
-                Icons.arrow_forward_rounded,
-                color: palette.accent,
-                size: 20,
-              ),
-            ],
-          ),
-          if (last != null) ...[
-            const SizedBox(height: IntelliaSpacing.md),
-            Divider(height: 1, color: palette.border),
-            const SizedBox(height: IntelliaSpacing.sm),
-            Row(
-              key: ValueKey('subject-resume-${journey.key}'),
-              children: [
-                Icon(
-                  Icons.play_circle_fill_rounded,
-                  color: palette.accent,
-                  size: 20,
-                ),
-                const SizedBox(width: IntelliaSpacing.xs),
-                Expanded(
-                  child: Text(
-                    l10n.ljResume(last.entry.curriculum.chapterTitle),
-                    style: ContentText.label(color: palette.accent, size: 13.5),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Une séquence (ou unit, ou chapitre) dans l'écran de la matière.
-class SequenceCard extends StatelessWidget {
+/// Une séquence (ou unit, ou chapitre) dans l'écran de la matière : un
+/// accordéon, replié par défaut.
+///
+/// Replié : numéro, position, titre, état et progression. Déplié : les
+/// titres des leçons (« 01 · … ») qui s'ouvrent directement, la synthèse
+/// (jamais « Leçon 0 ») et la vue d'ensemble de la séquence.
+class SequenceCard extends StatefulWidget {
   const SequenceCard({
     required this.journey,
-    required this.onTap,
+    required this.onOpenLesson,
+    required this.onOpenOverview,
+    this.onOpenSynthesis,
     this.lastVisited = false,
+    this.initiallyExpanded = false,
     super.key,
   });
 
   final ChapterJourney journey;
-  final VoidCallback onTap;
+  final ValueChanged<int> onOpenLesson;
+  final VoidCallback onOpenOverview;
+
+  /// Absente quand la séquence n'a pas de synthèse.
+  final VoidCallback? onOpenSynthesis;
   final bool lastVisited;
+  final bool initiallyExpanded;
+
+  @override
+  State<SequenceCard> createState() => _SequenceCardState();
+}
+
+class _SequenceCardState extends State<SequenceCard>
+    with AutomaticKeepAliveClientMixin {
+  late bool _expanded = widget.initiallyExpanded;
+
+  // Dépliée, la séquence reste ouverte même si la liste la fait défiler
+  // hors de l'écran.
+  @override
+  bool get wantKeepAlive => _expanded;
+
+  void _toggle() {
+    HapticFeedback.selectionClick();
+    setState(() => _expanded = !_expanded);
+    updateKeepAlive();
+  }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final l10n = context.l10n;
+    final journey = widget.journey;
     final curriculum = journey.entry.curriculum;
     final identity = SubjectVisualIdentity.of(curriculum.subjectKey);
     final palette = identity.palette(learningBrightness(context));
     final progress = journey.progress;
-    return LearningSurface(
-      key: ValueKey('local-chapter-${journey.contentId}'),
-      palette: palette,
-      identity: identity,
-      semanticLabel: curriculum.chapterTitle,
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: palette.accent.withValues(
-                    alpha: palette.isDark ? 0.2 : 0.1,
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final motion = reduceMotion
+        ? Duration.zero
+        : const Duration(milliseconds: 220);
+    final id = journey.contentId;
+
+    final header = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: palette.accent.withValues(
+                  alpha: palette.isDark ? 0.2 : 0.1,
+                ),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                '${curriculum.chapterNumber}',
+                style: ContentText.math(color: palette.accent, size: 18),
+              ),
+            ),
+            const SizedBox(width: IntelliaSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    positionLabel(context, curriculum).toUpperCase(),
+                    style: ContentText.eyebrow(color: palette.accent),
                   ),
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  '${curriculum.chapterNumber}',
-                  style: ContentText.math(color: palette.accent, size: 18),
-                ),
-              ),
-              const SizedBox(width: IntelliaSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      positionLabel(context, curriculum).toUpperCase(),
-                      style: ContentText.eyebrow(color: palette.accent),
+                  const SizedBox(height: 4),
+                  Text(
+                    curriculum.chapterTitle,
+                    style: ContentText.title(
+                      color: palette.textPrimary,
+                      size: 20,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      curriculum.chapterTitle,
-                      style: ContentText.title(
-                        color: palette.textPrimary,
-                        size: 20,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: IntelliaSpacing.md),
-          Wrap(
-            spacing: IntelliaSpacing.xs,
-            runSpacing: IntelliaSpacing.xs,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              JourneyStatusChip(status: progress.status, palette: palette),
+            ),
+            const SizedBox(width: IntelliaSpacing.xs),
+            AnimatedRotation(
+              turns: _expanded ? 0.5 : 0,
+              duration: motion,
+              curve: Curves.easeOutCubic,
+              child: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: palette.textSecondary,
+                size: 26,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: IntelliaSpacing.md),
+        Wrap(
+          spacing: IntelliaSpacing.xs,
+          runSpacing: IntelliaSpacing.xs,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            JourneyStatusChip(status: progress.status, palette: palette),
+            Text(
+              l10n.ceLessonCount(journey.entry.lessonCount),
+              style: ContentText.body(
+                color: palette.textSecondary,
+                size: 13,
+                weight: FontWeight.w600,
+              ),
+            ),
+            if (widget.lastVisited)
               Text(
-                l10n.ceLessonCount(journey.entry.lessonCount),
+                '· ${l10n.ljLastVisited}',
+                key: const ValueKey('sequence-last-visited'),
                 style: ContentText.body(
                   color: palette.textSecondary,
                   size: 13,
                   weight: FontWeight.w600,
                 ),
               ),
-              if (lastVisited)
-                Text(
-                  '· ${l10n.ljLastVisited}',
-                  key: const ValueKey('sequence-last-visited'),
-                  style: ContentText.body(
-                    color: palette.textSecondary,
-                    size: 13,
-                    weight: FontWeight.w600,
-                  ),
-                ),
-            ],
+          ],
+        ),
+        const SizedBox(height: IntelliaSpacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: JourneyProgressBar(
+                value: progress.progress,
+                palette: palette,
+              ),
+            ),
+            const SizedBox(width: IntelliaSpacing.sm),
+            Text(
+              l10n.ljProgressPercent(progress.percent),
+              style: ContentText.label(color: palette.accent, size: 13),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    return LearningSurface(
+      key: ValueKey('local-chapter-$id'),
+      palette: palette,
+      identity: identity,
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Semantics(
+            button: true,
+            expanded: _expanded,
+            label: curriculum.chapterTitle,
+            hint: _expanded ? l10n.ceHideLessons : l10n.ceShowLessons,
+            child: GestureDetector(
+              key: ValueKey('sequence-toggle-$id'),
+              behavior: HitTestBehavior.opaque,
+              onTap: _toggle,
+              child: Padding(
+                padding: const EdgeInsets.all(IntelliaSpacing.lg),
+                child: header,
+              ),
+            ),
           ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          Row(
-            children: [
-              Expanded(
-                child: JourneyProgressBar(
-                  value: progress.progress,
-                  palette: palette,
-                ),
-              ),
-              const SizedBox(width: IntelliaSpacing.sm),
-              Text(
-                l10n.ljProgressPercent(progress.percent),
-                style: ContentText.label(color: palette.accent, size: 13),
-              ),
-            ],
+          _Expand(
+            duration: motion,
+            child: _expanded
+                ? Padding(
+                    key: ValueKey('sequence-lessons-$id'),
+                    padding: const EdgeInsets.fromLTRB(
+                      IntelliaSpacing.sm,
+                      0,
+                      IntelliaSpacing.sm,
+                      IntelliaSpacing.sm,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Divider(
+                          height: 1,
+                          indent: IntelliaSpacing.sm,
+                          endIndent: IntelliaSpacing.sm,
+                          color: palette.border,
+                        ),
+                        const SizedBox(height: IntelliaSpacing.xs),
+                        for (final lesson in journey.lessons)
+                          _SequenceRow(
+                            key: ValueKey(
+                              'sequence-lesson-$id-${lesson.lesson.number}',
+                            ),
+                            palette: palette,
+                            leading: Text(
+                              lesson.lesson.number.toString().padLeft(2, '0'),
+                              style: ContentText.math(
+                                color: palette.accent,
+                                size: 14,
+                              ),
+                            ),
+                            title: lesson.lesson.title,
+                            done:
+                                lesson.progress.status ==
+                                JourneyStatus.completed,
+                            semanticLabel: [
+                              l10n.ceLessonLabel(lesson.lesson.number),
+                              lesson.lesson.title,
+                              if (lesson.progress.status ==
+                                  JourneyStatus.completed)
+                                l10n.ceLessonDone,
+                            ].join(', '),
+                            onTap: () =>
+                                widget.onOpenLesson(lesson.lesson.number),
+                          ),
+                        if (widget.onOpenSynthesis case final open?)
+                          _SequenceRow(
+                            key: ValueKey('sequence-synthesis-$id'),
+                            palette: palette,
+                            leading: Icon(
+                              Icons.auto_awesome_mosaic_rounded,
+                              size: 18,
+                              color: palette.accent,
+                            ),
+                            title:
+                                journey.chapter.integrationConcepts.isNotEmpty
+                                ? l10n.ceSynthesis
+                                : l10n.ceIntegrationTitle,
+                            onTap: open,
+                          ),
+                        _SequenceRow(
+                          key: ValueKey('sequence-overview-$id'),
+                          palette: palette,
+                          leading: Icon(
+                            Icons.route_rounded,
+                            size: 18,
+                            color: palette.textSecondary,
+                          ),
+                          title: l10n.ceSequenceOverview,
+                          muted: true,
+                          onTap: widget.onOpenOverview,
+                        ),
+                      ],
+                    ),
+                  )
+                : const SizedBox(width: double.infinity),
           ),
         ],
       ),
     );
   }
+}
+
+/// Ouverture de l'accordéon : animée, ou immédiate quand les animations
+/// sont réduites (`AnimatedSize` ne supporte pas une durée nulle).
+class _Expand extends StatelessWidget {
+  const _Expand({required this.duration, required this.child});
+
+  final Duration duration;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => duration == Duration.zero
+      ? child
+      : AnimatedSize(
+          duration: duration,
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: child,
+        );
+}
+
+/// Une ligne de l'accordéon : cible de 48 dp au moins, texte jamais coupé.
+class _SequenceRow extends StatelessWidget {
+  const _SequenceRow({
+    required this.palette,
+    required this.leading,
+    required this.title,
+    required this.onTap,
+    this.done = false,
+    this.muted = false,
+    this.semanticLabel,
+    super.key,
+  });
+
+  final SubjectPalette palette;
+  final Widget leading;
+  final String title;
+  final VoidCallback onTap;
+  final bool done;
+  final bool muted;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: semanticLabel ?? title,
+    excludeSemantics: true,
+    onTap: onTap,
+    child: IntelliaPressable(
+      onTap: onTap,
+      scaleFactor: 0.98,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 48),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: IntelliaSpacing.sm,
+            vertical: IntelliaSpacing.xs + 2,
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 28,
+                child: Align(alignment: Alignment.centerLeft, child: leading),
+              ),
+              const SizedBox(width: IntelliaSpacing.xs),
+              Expanded(
+                child: Text(
+                  title,
+                  style: muted
+                      ? ContentText.label(
+                          color: palette.textSecondary,
+                          size: 14,
+                        )
+                      : ContentText.body(
+                          color: palette.textPrimary,
+                          size: 15,
+                          weight: FontWeight.w600,
+                        ),
+                ),
+              ),
+              const SizedBox(width: IntelliaSpacing.xs),
+              if (done)
+                Icon(
+                  Icons.check_circle_rounded,
+                  key: const ValueKey('sequence-lesson-done'),
+                  size: 20,
+                  color: palette.isDark
+                      ? const Color(0xFF7FD6A4)
+                      : const Color(0xFF1E7A4F),
+                )
+              else
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: palette.textSecondary,
+                ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 /// Une leçon d'une séquence : numéro, notions, maîtrise et état.

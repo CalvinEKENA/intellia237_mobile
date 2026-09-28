@@ -11,6 +11,9 @@ import 'package:intellia237/features/content_engine/data/content_delivery.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_parser.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_repository.dart';
 import 'package:intellia237/features/content_engine/domain/chapter.dart';
+import 'package:intellia237/features/learn/application/learn_providers.dart';
+import 'package:intellia237/features/learn/domain/learn_academic_context.dart';
+import 'package:intellia237/features/learn/domain/learn_hub_snapshot.dart';
 
 /// Le pack pilote, lu tel qu'il est versionné (jamais modifié par les tests).
 const pilotDirectory =
@@ -90,3 +93,12 @@ Future<void> settleSubjectJourneys(
   expect(container.read(subjectJourneysProvider).hasValue, isTrue);
   await tester.pump();
 }
+
+/// Catalogue en ligne vide : le Hall d'Apprendre ne montre que les
+/// matières des packs, sans jamais toucher au réseau.
+Override emptyLearnCatalogue() => learnHubProvider.overrideWith(
+  (ref) async => const LearnHubSnapshot(
+    context: LearnAcademicContext(classLevel: 'Terminale', series: 'D'),
+    subjects: [],
+  ),
+);
