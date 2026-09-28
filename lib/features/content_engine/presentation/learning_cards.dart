@@ -459,7 +459,7 @@ class _SequenceCardState extends State<SequenceCard>
                               lesson.lesson.title,
                               if (lesson.progress.status ==
                                   JourneyStatus.completed)
-                                l10n.ceLessonDone,
+                                l10n.ceLessonCompletedA11y,
                             ].join(', '),
                             onTap: () =>
                                 widget.onOpenLesson(lesson.lesson.number),

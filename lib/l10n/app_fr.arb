@@ -3637,5 +3637,5 @@
 "ceShowLessons": "Voir les leçons",
 "ceHideLessons": "Masquer les leçons",
 "ceSequenceOverview": "Vue d'ensemble et parcours",
-"ceLessonDone": "terminée"
+"ceLessonCompletedA11y": "terminée"
 }

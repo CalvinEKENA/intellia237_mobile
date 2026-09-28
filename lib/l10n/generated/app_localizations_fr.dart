@@ -5982,7 +5982,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'Pas encore d\'exercice à ce niveau pour cette leçon.';
 
   @override
-  String get ceLessonDone => 'terminée';
+  String get ceLessonDone =>
+      'Tu as fait toutes les questions de ce niveau. Essaie un autre niveau ou joue !';
 
   @override
   String ceSuggestSimpler(String mode) {
@@ -6896,4 +6897,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ceSequenceOverview => 'Vue d\'ensemble et parcours';
+
+  @override
+  String get ceLessonCompletedA11y => 'terminée';
 }

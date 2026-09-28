@@ -10189,7 +10189,7 @@ abstract class AppLocalizations {
   /// No description provided for @ceLessonDone.
   ///
   /// In fr, this message translates to:
-  /// **'terminée'**
+  /// **'Tu as fait toutes les questions de ce niveau. Essaie un autre niveau ou joue !'**
   String get ceLessonDone;
 
   /// No description provided for @ceSuggestSimpler.
@@ -11637,6 +11637,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Vue d\'ensemble et parcours'**
   String get ceSequenceOverview;
+
+  /// No description provided for @ceLessonCompletedA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'terminée'**
+  String get ceLessonCompletedA11y;
 }
 
 class _AppLocalizationsDelegate

@@ -3045,5 +3045,5 @@
 "ceShowLessons": "Show lessons",
 "ceHideLessons": "Hide lessons",
 "ceSequenceOverview": "Overview and path",
-"ceLessonDone": "completed"
+"ceLessonCompletedA11y": "completed"
 }

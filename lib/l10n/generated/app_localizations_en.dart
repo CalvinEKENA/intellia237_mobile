@@ -5946,7 +5946,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ceNoQuestions => 'No exercise at this level for this lesson yet.';
 
   @override
-  String get ceLessonDone => 'completed';
+  String get ceLessonDone =>
+      'You\'ve done every question at this level. Try another level or play!';
 
   @override
   String ceSuggestSimpler(String mode) {
@@ -6858,4 +6859,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ceSequenceOverview => 'Overview and path';
+
+  @override
+  String get ceLessonCompletedA11y => 'completed';
 }
