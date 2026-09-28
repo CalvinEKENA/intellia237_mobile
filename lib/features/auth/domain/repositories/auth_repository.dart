@@ -108,3 +108,11 @@ abstract class AuthRepository {
 abstract interface class AuthSessionResolver {
   Future<AuthSessionResolution> resolveCurrentSession();
 }
+
+/// Création d'une identité e-mail seule ; aucun rôle métier n'est écrit.
+abstract interface class EmailIdentityCreator {
+  Future<void> createEmailIdentity({
+    required String email,
+    required String password,
+  });
+}

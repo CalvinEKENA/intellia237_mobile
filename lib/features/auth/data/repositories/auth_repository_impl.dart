@@ -8,13 +8,30 @@ import '../../domain/app_role.dart';
 import '../../domain/firebase_error_mapper.dart';
 import '../../domain/repositories/auth_repository.dart';
 
-class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
+class AuthRepositoryImpl
+    implements AuthRepository, AuthSessionResolver, EmailIdentityCreator {
   AuthRepositoryImpl({FirebaseAuth? auth, FirebaseFirestore? firestore})
     : _auth = auth ?? FirebaseAuth.instance,
       _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+
+  @override
+  Future<void> createEmailIdentity({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      await _sendVerificationBestEffort(credential.user);
+    } on FirebaseAuthException catch (error) {
+      throw _mapFirebaseAuthError(error);
+    }
+  }
 
   static const _usersCollection = 'users';
 

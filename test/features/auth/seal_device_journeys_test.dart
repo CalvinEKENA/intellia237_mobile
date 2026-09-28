@@ -1,3 +1,4 @@
+import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/app/router/app_routes.dart';
@@ -68,9 +69,7 @@ void main() {
         await journey.typeKey('phone-otp-field', '123456', from: 3);
         expect(journey.seal!.stage, secret, reason: 'complete OTP');
 
-        // Accès neutre, numéro d'un élève : la personne confirme qui elle
-        // est ; « 7 » ne s'allume qu'à l'ouverture.
-        await journey.confirmStudentPhone();
+        // Le numéro élève ouvre directement son espace après le sceau complet.
         await journey.waitUntil(() => journey.seal?.stage == verified);
         expect(journey.location, AppRoutes.phoneAuth);
         expect(
@@ -102,7 +101,9 @@ void main() {
           locale: locale,
           reduceMotion: reduced,
         );
-        await journey.tap('gateway-staff-login');
+        await journey.tap('school-head-shield');
+        await journey.wait(const Duration(milliseconds: 400));
+        await journey.tap('school-staff-teacher');
         await journey.wait(const Duration(milliseconds: 400));
         expect(journey.location, AppRoutes.emailLogin);
         expect(journey.seal!.stage, neutral, reason: 'empty e-mail');
@@ -211,7 +212,7 @@ void main() {
     });
 
     testWidgets('PARENT · existing number · $label: identity first, no role '
-        'asked, the full progression to the parent space', (tester) async {
+        'asked, the full progression to the family gate', (tester) async {
       final journey = await SealJourney.start(
         tester,
         DeviceBackend(),
@@ -223,14 +224,16 @@ void main() {
       expect(journey.seal!.stage, neutral, reason: 'no identity yet');
 
       await _verifyPhone(journey, DeviceBackend.parentPhone);
-      await journey.waitUntil(() => journey.location == AppRoutes.parentHome);
+      await journey.waitUntil(
+        () => journey.location == AppRoutes.familySelection,
+      );
       await journey.wait(const Duration(milliseconds: 1200));
 
       _expectContract(journey, fullContract);
       _expectEachStageReadable(journey, fullContract);
       _expectCompletionHeld(journey, AppRoutes.phoneAuth, reduced: reduced);
       _expectNoFallBack(journey);
-      _expectArrivedComplete(journey, AppRoutes.parentHome);
+      _expectArrivedComplete(journey, AppRoutes.familySelection);
       await _dispose(journey);
     });
 
@@ -314,7 +317,9 @@ void main() {
         DeviceBackend(),
         reduceMotion: reduced,
       );
-      await journey.tap('gateway-staff-login');
+      await journey.tap('school-head-shield');
+      await journey.wait(const Duration(milliseconds: 400));
+      await journey.tap('school-staff-teacher');
       await journey.wait(const Duration(milliseconds: 400));
       await journey.tap('login-create-account');
       await journey.wait(const Duration(milliseconds: 500));
@@ -374,14 +379,16 @@ void main() {
     await journey.tap('gateway-phone-auth');
     await journey.wait(const Duration(milliseconds: 400));
     await _verifyPhone(journey, DeviceBackend.parentPhone);
-    await journey.waitUntil(() => journey.location == AppRoutes.parentHome);
+    await journey.waitUntil(
+      () => journey.location == AppRoutes.familySelection,
+    );
     await journey.wait(const Duration(milliseconds: 1200));
 
     _expectContract(journey, fullContract);
     _expectEachStageReadable(journey, fullContract);
     _expectCompletionHeld(journey, AppRoutes.phoneAuth, reduced: false);
     _expectNoFallBack(journey);
-    _expectArrivedComplete(journey, AppRoutes.parentHome);
+    _expectArrivedComplete(journey, AppRoutes.familySelection);
     await _dispose(journey);
   });
 
@@ -392,7 +399,9 @@ void main() {
       DeviceBackend(),
       device: SealDevice.smallLargeText,
     );
-    await journey.tap('gateway-staff-login');
+    await journey.tap('school-head-shield');
+    await journey.wait(const Duration(milliseconds: 400));
+    await journey.tap('school-staff-teacher');
     await journey.wait(const Duration(milliseconds: 400));
     await journey.type(
       _inside('login-email-field'),
@@ -444,12 +453,13 @@ void main() {
   testWidgets('FAMILY PHONE · student number, "I am the parent": 7 never '
       'lights during the offer and nothing falls back; another number '
       'restarts explicitly', (tester) async {
-    final journey = await SealJourney.start(tester, DeviceBackend());
-    await journey.tap('gateway-phone-auth');
+    final journey = await SealJourney.start(
+      tester,
+      DeviceBackend(),
+      initialLocation: AppRoutes.phoneRegistration(AppRole.parent),
+    );
     await journey.wait(const Duration(milliseconds: 400));
     await _verifyPhone(journey, DeviceBackend.studentPhone);
-    // Le numéro est celui de l'élève : la personne dit être son parent.
-    await journey.tapWhenShown('phone-student-is-parent');
     await journey.waitUntil(
       () => find
           .byKey(const ValueKey('family-phone-offer'))

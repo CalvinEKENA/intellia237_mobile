@@ -88,14 +88,14 @@ void main() {
     );
   });
 
-  testWidgets('school staff reach the e-mail sign-in', (tester) async {
+  testWidgets('public email opens neutral sign-in', (tester) async {
     expect(
-      await tapGatewayAction(tester, 'gateway-staff-login'),
+      await tapGatewayAction(tester, 'gateway-email-login'),
       AppRoutes.emailLogin,
     );
   });
 
-  testWidgets('first launch: three identity methods, staff discreet, no role', (
+  testWidgets('first launch: four identity methods, staff only under shield', (
     tester,
   ) async {
     final router = GoRouter(
@@ -135,7 +135,7 @@ void main() {
     expect(find.text('J’ai un code élève'), findsOneWidget);
     expect(
       find.text('Personnel scolaire, enseignant ou direction ?'),
-      findsOneWidget,
+      findsNothing,
     );
     for (final role in ['student', 'parent', 'teacher', 'admin']) {
       expect(find.byKey(ValueKey('gateway-role-$role')), findsNothing);

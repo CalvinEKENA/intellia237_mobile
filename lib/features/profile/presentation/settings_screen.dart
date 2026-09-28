@@ -1,3 +1,4 @@
+import '../../auth/domain/app_role.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -184,6 +185,15 @@ class SettingsScreen extends ConsumerWidget {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push('${AppRoutes.phoneAuth}?mode=link'),
                 ),
+                if (auth.role == AppRole.student)
+                  ListTile(
+                    key: const ValueKey('settings-parent-space'),
+                    leading: const Icon(Icons.family_restroom_rounded),
+                    title: Text(l10n.authParentSpace),
+                    subtitle: Text(l10n.authParentProofContinue),
+                    trailing: const Icon(Icons.lock_outline_rounded),
+                    onTap: () => context.push(AppRoutes.parentAccess),
+                  ),
                 const RoleSwitchAction(),
                 ListTile(
                   leading: const Icon(Icons.manage_accounts_outlined),
@@ -335,12 +345,13 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = TabSurface.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: palette.surface,
+    return Material(
+      color: palette.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(IntelliaRadii.large),
-        border: Border.all(color: palette.border),
+        side: BorderSide(color: palette.border),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

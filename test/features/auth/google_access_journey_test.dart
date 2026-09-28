@@ -104,6 +104,10 @@ void main() {
 
       await journey.tap('google-question-no');
       await journey.waitUntil(
+        () => journey.location == AppRoutes.accountWelcome,
+      );
+      await journey.tap('welcome-discover');
+      await journey.waitUntil(
         () => journey.location == AppRoutes.googleDiscovery,
       );
       expect(backend.identity.createdByGoogle, hasLength(1));
@@ -148,6 +152,10 @@ void main() {
       await tapGoogle(journey);
       await journey.tapWhenShown('google-question-no');
       await journey.waitUntil(
+        () => journey.location == AppRoutes.accountWelcome,
+      );
+      await journey.tap('welcome-discover');
+      await journey.waitUntil(
         () => journey.location == AppRoutes.googleDiscovery,
       );
 
@@ -179,6 +187,16 @@ void main() {
         DeviceBackend.teacherPassword,
       );
       await journey.tap('recovery-email-submit');
+      await journey.waitUntil(() => journey.location == AppRoutes.authGateway);
+      expect(journey.auth.isAuthenticated, isFalse);
+      await journey.tap('school-head-shield');
+      await journey.tap('school-staff-teacher');
+      await journey.typeKey('login-email-field', DeviceBackend.teacherEmail);
+      await journey.typeKey(
+        'login-password-field',
+        DeviceBackend.teacherPassword,
+      );
+      await journey.tap('login-submit');
       await journey.waitUntil(() => journey.location == AppRoutes.teacherHome);
       expect(journey.auth.userId, 'teacher-uid');
       expect(backend.identity.googleOwners['sub-serge'], 'teacher-uid');
@@ -221,6 +239,16 @@ void main() {
         DeviceBackend.teacherPassword,
       );
       await journey.tap('recovery-email-submit');
+      await journey.waitUntil(() => journey.location == AppRoutes.authGateway);
+      expect(journey.auth.isAuthenticated, isFalse);
+      await journey.tap('school-head-shield');
+      await journey.tap('school-staff-teacher');
+      await journey.typeKey('login-email-field', DeviceBackend.teacherEmail);
+      await journey.typeKey(
+        'login-password-field',
+        DeviceBackend.teacherPassword,
+      );
+      await journey.tap('login-submit');
       await journey.waitUntil(() => journey.location == AppRoutes.teacherHome);
 
       expect(journey.auth.userId, 'teacher-uid');

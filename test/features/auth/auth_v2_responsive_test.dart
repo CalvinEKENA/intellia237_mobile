@@ -123,7 +123,7 @@ void main() {
           'gateway-phone-auth',
           'gateway-google-auth',
           'gateway-student-access-code',
-          'gateway-staff-login',
+          'gateway-email-login',
         ], label);
       });
 
@@ -299,7 +299,7 @@ void main() {
     }
   }
 
-  testWidgets('family phone confirmation · 320×568, text 200 %: both answers '
+  testWidgets('own phone · 320×568, text 200 %: direct student entry '
       'stay reachable', (tester) async {
     final journey = await SealJourney.start(
       tester,
@@ -321,24 +321,6 @@ void main() {
     );
     await journey.wait(const Duration(milliseconds: 800));
     await journey.typeKey('phone-otp-field', '123456');
-    await journey.waitUntil(
-      () => find
-          .byKey(const ValueKey('phone-student-confirm'))
-          .evaluate()
-          .isNotEmpty,
-    );
-    FocusManager.instance.primaryFocus?.unfocus();
-    await journey.wait(const Duration(milliseconds: 400));
-    expect(tester.takeException(), isNull);
-    for (final key in const [
-      'phone-student-confirm',
-      'phone-student-is-parent',
-      'phone-student-other-number',
-    ]) {
-      await journey.reveal(find.byKey(ValueKey(key)));
-      expect(find.byKey(ValueKey(key)).hitTestable(), findsOneWidget);
-    }
-    await journey.tap('phone-student-confirm');
     await journey.waitUntil(() => journey.location == AppRoutes.studentHome);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());

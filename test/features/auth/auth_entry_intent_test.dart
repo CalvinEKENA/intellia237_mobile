@@ -216,7 +216,7 @@ void main() {
       },
     );
 
-    test('no intent keeps the historical neutral behaviour', () async {
+    test('public staff identity must return through the shield', () async {
       final repository = _SessionRepository(
         _user(AppRole.teacher, completed: true),
       );
@@ -229,8 +229,9 @@ void main() {
 
       expect(adoption, isA<AuthEntryAdopted>());
       final auth = container.read(authControllerProvider);
-      expect(auth.role, AppRole.teacher);
-      expect(_redirect(auth, AppRoutes.login), AppRoutes.teacherHome);
+      expect(auth.isAuthenticated, isFalse);
+      expect(auth.error, 'staff-access-required');
+      expect(repository.signOutCalls, 1);
     });
   });
 

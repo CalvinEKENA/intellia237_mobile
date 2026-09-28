@@ -127,6 +127,26 @@ void main() {
     },
   );
 
+  test(
+    'verified email identity registers without a second password or account',
+    () async {
+      final auth = _FakeAuthGateway(
+        currentUser: _FakeAuthUser(email: 'learner@yahoo.fr'),
+      );
+      final store = _FakeDocumentStore();
+      final repository = FirebaseStudentRegistrationRepository(
+        authGateway: auth,
+        documentStore: store,
+      );
+      final result = await repository.registerStudent(
+        _payload(email: '', password: ''),
+      );
+      expect(result.email, 'learner@yahoo.fr');
+      expect(auth.createCalls, 0);
+      expect(store.lastUserCreate?['email'], 'learner@yahoo.fr');
+    },
+  );
+
   test('verified phone user registers without email or password', () async {
     final auth = _FakeAuthGateway(
       currentUser: _FakeAuthUser(email: null, phoneNumber: '+237699123456'),
@@ -171,11 +191,9 @@ void main() {
   );
 
   test(
-    'without phone, Google or server token, no silent account is created',
+    'without any authenticated identity, no silent account is created',
     () async {
-      final auth = _FakeAuthGateway(
-        currentUser: _FakeAuthUser(email: 'someone@example.cm'),
-      );
+      final auth = _FakeAuthGateway(currentUser: null);
       final repository = FirebaseStudentRegistrationRepository(
         authGateway: auth,
         documentStore: _FakeDocumentStore(),

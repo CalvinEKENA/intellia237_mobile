@@ -22,7 +22,7 @@ import 'widgets/school_head_access.dart';
 /// 1. « Continuer avec mon numéro » (+237) ;
 /// 2. « Continuer avec Google » ;
 /// 3. « J'ai un code élève » (élève sans téléphone) ;
-/// 4. accès discret du personnel scolaire.
+/// 4. e-mail public ; le personnel entre uniquement par le bouclier.
 ///
 /// Registre de décisions (refonte Auth V2, P1-1 de la revue de 7ea5cf0) : la
 /// redirection menait un nouvel appareil vers l'ancien écran à cartes de
@@ -78,7 +78,11 @@ class _AuthGatewayScreenState extends ConsumerState<AuthGatewayScreen> {
     final suspended = ref.watch(
       authControllerProvider.select((auth) => auth.suspended),
     );
-    final errorCode = _errorCode;
+    final errorCode =
+        _errorCode ??
+        (ref.watch(authControllerProvider).error == 'staff-access-required'
+            ? 'staff-access-required'
+            : null);
 
     return AuthExperienceScaffold(
       showBackButton: false,
@@ -242,7 +246,7 @@ class _AuthGatewayScreenState extends ConsumerState<AuthGatewayScreen> {
           const SizedBox(height: 24),
           Center(
             child: TextButton.icon(
-              key: const ValueKey('gateway-staff-login'),
+              key: const ValueKey('gateway-email-login'),
               onPressed: _googleBusy ? null : () => _open(AppRoutes.emailLogin),
               icon: const Icon(
                 Icons.mail_outline_rounded,
@@ -250,7 +254,7 @@ class _AuthGatewayScreenState extends ConsumerState<AuthGatewayScreen> {
                 color: AuthExperienceColors.textSecondary,
               ),
               label: Text(
-                l10n.authGatewayStaff,
+                l10n.authGatewayEmail,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontFamily: 'CampaignBody',

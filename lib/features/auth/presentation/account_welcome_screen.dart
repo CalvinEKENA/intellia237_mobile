@@ -42,6 +42,16 @@ class AccountWelcomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 22),
           _Choice(
+            key: const ValueKey('welcome-student'),
+            primary: true,
+            icon: Icons.school_rounded,
+            title: l10n.authWelcomeStudent,
+            hint: l10n.authWelcomeStudentHint,
+            onTap: () => context.go(AppRoutes.studentRegistration),
+          ),
+
+          const SizedBox(height: 12),
+          _Choice(
             key: const ValueKey('welcome-parent'),
             icon: Icons.family_restroom_rounded,
             title: l10n.authWelcomeParent,
@@ -50,29 +60,11 @@ class AccountWelcomeScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           _Choice(
-            key: const ValueKey('welcome-student'),
-            icon: Icons.school_rounded,
-            title: l10n.authWelcomeStudent,
-            hint: l10n.authWelcomeStudentHint,
-            onTap: () => context.go(AppRoutes.studentRegistration),
-          ),
-          const SizedBox(height: 12),
-          _Choice(
             key: const ValueKey('welcome-discover'),
             icon: Icons.travel_explore_rounded,
             title: l10n.authWelcomeDiscover,
             hint: l10n.authWelcomeDiscoverHint,
             onTap: auth.enterDiscoveryMode,
-          ),
-          const SizedBox(height: 18),
-          Text(
-            l10n.authWelcomeStaffNote,
-            style: const TextStyle(
-              fontFamily: 'CampaignBody',
-              fontSize: 12,
-              height: 1.45,
-              color: AuthExperienceColors.textSecondary,
-            ),
           ),
           const SizedBox(height: 10),
           Center(
@@ -94,6 +86,7 @@ class AccountWelcomeScreen extends ConsumerWidget {
 
 class _Choice extends StatelessWidget {
   const _Choice({
+    this.primary = false,
     required this.icon,
     required this.title,
     required this.hint,
@@ -101,6 +94,7 @@ class _Choice extends StatelessWidget {
     super.key,
   });
 
+  final bool primary;
   final IconData icon;
   final String title;
   final String hint;
@@ -110,10 +104,17 @@ class _Choice extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     child: Material(
-      color: AuthExperienceColors.surface,
+      color: primary
+          ? AuthExperienceColors.indigo.withValues(alpha: 0.08)
+          : AuthExperienceColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AuthExperienceColors.border),
+        side: BorderSide(
+          color: primary
+              ? AuthExperienceColors.indigo
+              : AuthExperienceColors.border,
+          width: primary ? 2 : 1,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),

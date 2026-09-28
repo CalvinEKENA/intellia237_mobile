@@ -1,3 +1,4 @@
+import '../../features/family_access/presentation/family_entry_screen.dart';
 import '../../features/learn/presentation/widgets/educational_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -130,9 +131,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           child: slot(
             context,
             state,
-            LoginScreen(authIntent: AppRoutes.entryIntentFrom(state.uri)),
+            LoginScreen(
+              authIntent: AppRoutes.entryIntentFrom(state.uri),
+              requireSuperAdmin: state.uri.queryParameters['scope'] == 'global',
+            ),
           ),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.familySelection,
+        builder: (context, state) => const FamilyEntryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.parentAccess,
+        builder: (context, state) => const ParentAccessScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.emailRegistration,
+        builder: (context, state) => const LoginScreen(createIdentity: true),
       ),
       GoRoute(
         path: AppRoutes.phoneAuth,
@@ -788,6 +804,12 @@ String? resolveAppRedirect({
   required String location,
   bool parentPreviewActive = false,
 }) {
+  if (auth.hasFirebaseSession && auth.familyEntryPending) {
+    return location == AppRoutes.familySelection ||
+            location == AppRoutes.parentAccess
+        ? null
+        : AppRoutes.familySelection;
+  }
   switch (auth.status) {
     case AuthStatus.bootstrapping:
       return location == AppRoutes.bootstrap ? null : AppRoutes.bootstrap;
@@ -809,7 +831,10 @@ String? resolveAppRedirect({
           location == AppRoutes.parentEntry ||
           location == AppRoutes.accountWelcome ||
           location == AppRoutes.googleDiscovery ||
-          location == AppRoutes.roleChooser) {
+          location == AppRoutes.roleChooser ||
+          location == AppRoutes.familySelection ||
+          location == AppRoutes.studentRegistration ||
+          location == AppRoutes.parentRegistration) {
         return AppRoutes.authGateway;
       }
       if (AppRoutes.preAuthRoutes.contains(location)) {
@@ -886,6 +911,7 @@ String? _resolveAuthenticatedRoleRedirect(
   String location, {
   bool parentPreviewActive = false,
 }) {
+  if (location == AppRoutes.parentAccess) return null;
   final role = auth.role;
   if (role == null) return AppRoutes.authProfileRecovery;
 
@@ -910,8 +936,8 @@ String? _resolveAuthenticatedRoleRedirect(
   // Prévisualisation Parent : le super-administrateur (rôle réel admin,
   // inchangé) est explicitement autorisé sur les routes Parent tant que le mode
   // est actif. Le drapeau ne peut être vrai que si le contrôleur a validé
-  // l'habilitation (isSuperAdmin + e-mail attendu) ; on redouble ici le garde
-  // en exigeant le rôle admin.
+  // l'habilitation serveur (isSuperAdmin, jamais une adresse e-mail) ; on
+  // redouble ici le garde en exigeant le rôle admin.
   if (parentPreviewActive &&
       role == AppRole.admin &&
       AppRoutes.isParentPath(location)) {

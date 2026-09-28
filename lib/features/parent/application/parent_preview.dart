@@ -4,25 +4,11 @@ import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_state.dart';
 import '../../auth/application/auth_user_id.dart';
 
-/// Adresse e-mail normalisée du **vrai** compte super-administrateur autorisé à
-/// prévisualiser l'espace Parent.
-///
-/// La prévisualisation N'EST PAS une élévation de privilèges : le rôle réel du
-/// compte (superAdmin) et ses autorisations Firestore restent inchangés. Seule
-/// la *présentation* bascule vers l'espace Parent, sous un mode explicite et
-/// séparé de l'autorisation.
-const String kParentPreviewSuperAdminEmail = 'calvinekena4@gmail.com';
-
-String _normalizeEmail(String? email) => (email ?? '').trim().toLowerCase();
-
-/// Autorise l'activation de la prévisualisation Parent **uniquement** pour le
-/// vrai super-administrateur : le drapeau [AuthState.isSuperAdmin] ET l'e-mail
-/// normalisé attendu doivent être présents. Aucun autre rôle (admin d'école,
-/// enseignant, élève, parent ordinaire) ne peut l'obtenir.
+/// La prévisualisation dépend uniquement de l'habilitation serveur.
+/// Aucun domaine ni adresse e-mail ne donne ou ne retire de droits.
+/// Le rôle réel et les autorisations Firestore restent inchangés.
 bool canActivateParentPreview(AuthState auth) =>
-    auth.isAuthenticated &&
-    auth.isSuperAdmin &&
-    _normalizeEmail(auth.email) == kParentPreviewSuperAdminEmail;
+    auth.isAuthenticated && auth.isSuperAdmin;
 
 /// Mode d'expérience explicite, distinct de l'autorisation.
 ///

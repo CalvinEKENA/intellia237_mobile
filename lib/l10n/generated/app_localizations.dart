@@ -683,7 +683,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneIdentityTarget.
   ///
   /// In fr, this message translates to:
-  /// **'Ton numéro de téléphone'**
+  /// **'Ton accès vérifié'**
   String get phoneIdentityTarget;
 
   /// No description provided for @temporaryEmailLabel.
@@ -1283,7 +1283,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneVerifiedNoExtraCredential.
   ///
   /// In fr, this message translates to:
-  /// **'Votre numéro a été vérifié. Aucun e-mail ni mot de passe supplémentaire n’est nécessaire.'**
+  /// **'Votre identité a été vérifiée. Aucun identifiant supplémentaire n’est nécessaire.'**
   String get phoneVerifiedNoExtraCredential;
 
   /// No description provided for @classToConfirm.
@@ -6919,25 +6919,25 @@ abstract class AppLocalizations {
   /// No description provided for @schoolHeadShieldTooltip.
   ///
   /// In fr, this message translates to:
-  /// **'Espace direction d’établissement'**
+  /// **'Accès établissement'**
   String get schoolHeadShieldTooltip;
 
   /// No description provided for @schoolHeadSheetEyebrow.
   ///
   /// In fr, this message translates to:
-  /// **'ESPACE DIRECTION'**
+  /// **'ESPACE ÉTABLISSEMENT'**
   String get schoolHeadSheetEyebrow;
 
   /// No description provided for @schoolHeadSheetTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Votre école,\nen entier.'**
+  /// **'Votre accès professionnel'**
   String get schoolHeadSheetTitle;
 
   /// No description provided for @schoolHeadSheetBody.
   ///
   /// In fr, this message translates to:
-  /// **'Connectez-vous pour administrer toute votre école : personnel, classes, contenus et suivi. Les comptes des élèves restent les leurs : vous ne pouvez ni en ajouter ni en supprimer.'**
+  /// **'Choisissez votre espace. Seuls les accès accordés à votre compte peuvent être ouverts.'**
   String get schoolHeadSheetBody;
 
   /// No description provided for @schoolHeadContinueEmail.
@@ -8665,7 +8665,7 @@ abstract class AppLocalizations {
   /// No description provided for @authGoogleQuestionNoHint.
   ///
   /// In fr, this message translates to:
-  /// **'Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous découvrez l’application, puis créez votre espace quand vous le souhaitez.'**
+  /// **'Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous choisissez ensuite ce que vous souhaitez faire.'**
   String get authGoogleQuestionNoHint;
 
   /// No description provided for @authGoogleQuestionOtherAccount.
@@ -8863,19 +8863,19 @@ abstract class AppLocalizations {
   /// No description provided for @authWelcomeTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Comment voulez-vous commencer ?'**
+  /// **'Que souhaitez-vous faire ?'**
   String get authWelcomeTitle;
 
   /// No description provided for @authWelcomeBody.
   ///
   /// In fr, this message translates to:
-  /// **'Votre identité est vérifiée. Aucun espace n’existe encore pour elle.'**
+  /// **'Votre identité est vérifiée. Choisissez comment commencer.'**
   String get authWelcomeBody;
 
   /// No description provided for @authWelcomeParent.
   ///
   /// In fr, this message translates to:
-  /// **'Je suis parent'**
+  /// **'Suivre mon enfant'**
   String get authWelcomeParent;
 
   /// No description provided for @authWelcomeParentHint.
@@ -8887,13 +8887,13 @@ abstract class AppLocalizations {
   /// No description provided for @authWelcomeStudent.
   ///
   /// In fr, this message translates to:
-  /// **'Rejoindre mon école'**
+  /// **'Créer mon espace élève'**
   String get authWelcomeStudent;
 
   /// No description provided for @authWelcomeStudentHint.
   ///
   /// In fr, this message translates to:
-  /// **'Élève : choisir mon établissement et ma classe.'**
+  /// **'Choisir ma classe et commencer à apprendre.'**
   String get authWelcomeStudentHint;
 
   /// No description provided for @authWelcomeDiscover.
@@ -11013,6 +11013,96 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{name}, {message}'**
   String rewardWithName(String name, String message);
+
+  /// No description provided for @authGatewayEmail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter avec un e-mail'**
+  String get authGatewayEmail;
+
+  /// No description provided for @authStaffTeacher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enseignant'**
+  String get authStaffTeacher;
+
+  /// No description provided for @authStaffDirection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Direction / Proviseur'**
+  String get authStaffDirection;
+
+  /// No description provided for @authStaffAdministration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Administration INTELLIA'**
+  String get authStaffAdministration;
+
+  /// No description provided for @authEmailCreateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon accès par e-mail'**
+  String get authEmailCreateTitle;
+
+  /// No description provided for @authEmailCreateBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre adresse vous permet de vous connecter. Vous choisirez votre espace ensuite.'**
+  String get authEmailCreateBody;
+
+  /// No description provided for @authFamilyWho.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qui utilise INTELLIA ?'**
+  String get authFamilyWho;
+
+  /// No description provided for @authFamilyChooseBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez le profil de l’enfant. Son espace reste personnel.'**
+  String get authFamilyChooseBody;
+
+  /// No description provided for @authFamilyUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’ouvrir cet espace pour le moment. Réessayez ou reconnectez-vous.'**
+  String get authFamilyUnavailable;
+
+  /// No description provided for @authFamilyNoChildren.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun profil enfant lié pour le moment.'**
+  String get authFamilyNoChildren;
+
+  /// No description provided for @authParentSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace parent'**
+  String get authParentSpace;
+
+  /// No description provided for @authParentProofBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour protéger les informations de la famille, le parent doit se connecter à nouveau. L’espace élève sera fermé.'**
+  String get authParentProofBody;
+
+  /// No description provided for @authParentProofContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter comme parent'**
+  String get authParentProofContinue;
+
+  /// No description provided for @authFamilyRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get authFamilyRetry;
+
+  /// No description provided for @authStaffUseShield.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour votre espace professionnel, utilisez le bouclier Accès établissement.'**
+  String get authStaffUseShield;
 }
 
 class _AppLocalizationsDelegate

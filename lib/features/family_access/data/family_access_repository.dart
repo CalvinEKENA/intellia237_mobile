@@ -30,7 +30,8 @@ abstract class FamilyAccessRepository {
   Future<CreatedChildAccess> createChildStudentAccess(String firstName);
 }
 
-class FirebaseFamilyAccessRepository implements FamilyAccessRepository {
+class FirebaseFamilyAccessRepository
+    implements FamilyAccessRepository, FamilyChildSessionRepository {
   FirebaseFamilyAccessRepository({
     FirebaseFunctions? functions,
     FirebaseAuth? auth,
@@ -40,6 +41,18 @@ class FirebaseFamilyAccessRepository implements FamilyAccessRepository {
 
   final FirebaseFunctions _functions;
   final FirebaseAuth _auth;
+
+  @override
+  Future<void> signInAsLinkedChild(String studentId) async {
+    final data = await _call('openLinkedChildSession', {
+      'studentId': studentId,
+    });
+    final token = data['token'];
+    if (token is! String || token.isEmpty) {
+      throw const FamilyAccessException('internal');
+    }
+    await signInWithCustomToken(token);
+  }
 
   @override
   Future<void> signInWithStudentAccessCode(String code) async {
@@ -152,4 +165,9 @@ String _uuidV4() {
   final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
   return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
       '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
+}
+
+/// Capacité d'ouverture d'une session enfant, sans conserver de jeton parent.
+abstract interface class FamilyChildSessionRepository {
+  Future<void> signInAsLinkedChild(String studentId);
 }

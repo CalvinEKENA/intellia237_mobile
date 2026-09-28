@@ -302,7 +302,13 @@ class SealJourney {
   }
 
   /// Téléphone de famille : la personne confirme être l'élève du numéro.
-  Future<void> confirmStudentPhone() => tapWhenShown('phone-student-confirm');
+  Future<void> confirmStudentPhone() async {
+    await waitUntil(() => location == AppRoutes.studentHome);
+    expect(
+      find.byKey(const ValueKey('phone-student-confirmation')),
+      findsNothing,
+    );
+  }
 
   Future<void> tapText(String text) => tapFinder(find.text(text));
 
@@ -735,9 +741,19 @@ class DevicePhoneRequestGate extends PhoneRequestGate {
 
 /// Accès famille simulé comme le serveur : migration du téléphone familial,
 /// codes d'accès élève, jetons personnalisés.
-class DeviceFamilyAccess implements FamilyAccessRepository {
+class DeviceFamilyAccess
+    implements FamilyAccessRepository, FamilyChildSessionRepository {
   DeviceFamilyAccess(this.backend);
   final DeviceBackend backend;
+
+  @override
+  Future<void> signInAsLinkedChild(String studentId) async {
+    if (!(backend.parentLinks[backend.currentUid]?.contains(studentId) ??
+        false)) {
+      throw const FamilyAccessException('permission-denied');
+    }
+    backend.currentUid = studentId;
+  }
 
   @override
   Future<FamilyPhoneMigrationResult> migrateStudentPhoneToParent() async {
@@ -817,7 +833,23 @@ class DeviceFamilyAccess implements FamilyAccessRepository {
   @override
   Future<List<ParentChildSummary>> listParentChildren({
     String? parentUid,
-  }) async => const [];
+  }) async => [
+    for (final id
+        in backend.parentLinks[parentUid ?? backend.currentUid] ?? <String>{})
+      ParentChildSummary(
+        studentId: id,
+        firstName:
+            backend.accounts[id]?.name ?? backend.pendingChildren[id] ?? '',
+        lastName: '',
+        classLevel: 'Terminale',
+        series: 'D',
+        establishmentId: '',
+        establishmentName: '',
+        access: ChildAccessMethods.unknown,
+        subscription: ChildSubscription.inactive,
+        offerAvailable: false,
+      ),
+  ];
 
   @override
   Future<CreatedChildAccess> createChildStudentAccess(String firstName) async {

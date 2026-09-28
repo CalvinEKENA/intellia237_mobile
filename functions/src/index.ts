@@ -1,3 +1,4 @@
+import { createOpenLinkedChildSessionHandler } from "./services/linkedChildSession";
 import { createSaveFlowPublicationHandler } from "./services/saveFlowPublicationCallable";
 import { createLearningCatalogHandler } from "./services/learningCatalogCallable";
 import { createEducationalMediaHandler } from "./services/educationalMedia";
@@ -453,4 +454,10 @@ export const getStudyReserve = onCall(
     memory: "256MiB",
   },
   getStudyReserveHandler,
+);
+
+// Auth V3 : prêt dans le dépôt, nécessite un déploiement explicite.
+export const openLinkedChildSession = onCall(
+  { region: env.FUNCTIONS_REGION, timeoutSeconds: 20, memory: "256MiB" },
+  createOpenLinkedChildSessionHandler(),
 );
