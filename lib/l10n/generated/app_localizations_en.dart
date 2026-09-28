@@ -6759,4 +6759,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get spSearchAllCities => 'Search all cities';
+
+  @override
+  String get demoWelcomeEyebrow => 'EXCLUSIVE ACCESS';
+
+  @override
+  String get demoWelcomeTitle => 'Welcome to INTELLIA237!';
+
+  @override
+  String get demoWelcomeBody =>
+      'Calvin EKENA is giving you exclusive access to the app. Every class is open to you, from 6e to Terminale, and the anglophone subsystem too.';
+
+  @override
+  String get demoWelcomeTip =>
+      'Our tip: start with Terminale D. It has the most lessons for now, and it is the best way to discover everything INTELLIA237 can do.';
+
+  @override
+  String get demoWelcomeChangeLater =>
+      'You can switch classes at any time from your home screen. Enjoy exploring!';
+
+  @override
+  String get demoWelcomeStart => 'Start with Terminale D';
+
+  @override
+  String get demoWelcomeOther => 'Choose another class';
+
+  @override
+  String get demoCardEyebrow => 'EXCLUSIVE ACCESS';
+
+  @override
+  String demoCardTitle(String classLabel) {
+    return 'You are exploring: $classLabel';
+  }
+
+  @override
+  String get demoCardSubtitle =>
+      'Access offered by Calvin EKENA. Every class is open.';
+
+  @override
+  String get demoCardAction => 'Switch class';
+
+  @override
+  String get demoPickerTitle => 'Which class do you want to explore?';
+
+  @override
+  String get demoPickerSubtitle =>
+      'Your lessons, quizzes and home screen will follow the class you choose.';
+
+  @override
+  String get demoPickerRecommended => 'Most lessons';
+
+  @override
+  String get demoPickerCurrent => 'Current';
+
+  @override
+  String get demoPickerFrancophone => 'Francophone subsystem';
+
+  @override
+  String get demoPickerAnglophone => 'Anglophone subsystem';
+
+  @override
+  String demoClassChanged(String classLabel) {
+    return 'Here we go: you are now exploring $classLabel.';
+  }
+
+  @override
+  String get demoClassChangeFailed =>
+      'Unable to switch classes right now. Try again in a moment.';
 }

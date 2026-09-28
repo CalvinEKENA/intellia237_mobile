@@ -6797,4 +6797,71 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get spSearchAllCities => 'Chercher dans toutes les villes';
+
+  @override
+  String get demoWelcomeEyebrow => 'ACCÈS EXCLUSIF';
+
+  @override
+  String get demoWelcomeTitle => 'Bienvenue dans INTELLIA237 !';
+
+  @override
+  String get demoWelcomeBody =>
+      'Calvin EKENA t\'offre un accès exclusif à l\'application. Toutes les classes sont ouvertes pour toi, de la 6e à la Terminale, sans oublier le sous-système anglophone.';
+
+  @override
+  String get demoWelcomeTip =>
+      'Notre conseil : commence par la Terminale D. C\'est la classe la plus riche en cours pour le moment, et la meilleure façon de découvrir tout ce qu\'INTELLIA237 sait faire.';
+
+  @override
+  String get demoWelcomeChangeLater =>
+      'Tu pourras changer de classe à tout moment, depuis ton accueil. Bonne exploration !';
+
+  @override
+  String get demoWelcomeStart => 'Commencer par la Terminale D';
+
+  @override
+  String get demoWelcomeOther => 'Choisir une autre classe';
+
+  @override
+  String get demoCardEyebrow => 'ACCÈS EXCLUSIF';
+
+  @override
+  String demoCardTitle(String classLabel) {
+    return 'Tu explores la classe : $classLabel';
+  }
+
+  @override
+  String get demoCardSubtitle =>
+      'Accès offert par Calvin EKENA. Toutes les classes sont ouvertes.';
+
+  @override
+  String get demoCardAction => 'Changer de classe';
+
+  @override
+  String get demoPickerTitle => 'Quelle classe veux-tu explorer ?';
+
+  @override
+  String get demoPickerSubtitle =>
+      'Tes cours, tes quiz et ton accueil suivront la classe choisie.';
+
+  @override
+  String get demoPickerRecommended => 'Le plus de cours';
+
+  @override
+  String get demoPickerCurrent => 'En cours';
+
+  @override
+  String get demoPickerFrancophone => 'Sous-système francophone';
+
+  @override
+  String get demoPickerAnglophone => 'Sous-système anglophone';
+
+  @override
+  String demoClassChanged(String classLabel) {
+    return 'C\'est parti : tu explores maintenant la classe $classLabel.';
+  }
+
+  @override
+  String get demoClassChangeFailed =>
+      'Impossible de changer de classe pour le moment. Réessaie dans un instant.';
 }

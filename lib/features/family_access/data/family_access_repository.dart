@@ -56,7 +56,7 @@ class FirebaseFamilyAccessRepository
 
   @override
   Future<void> signInWithStudentAccessCode(String code) async {
-    final data = await _call('signInWithStudentAccessCode', {
+    final data = await _call(StudentAccessCodeFormat.callableFor(code), {
       'code': StudentAccessCodeFormat.normalize(code),
     });
     final token = data['token'];

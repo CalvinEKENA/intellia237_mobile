@@ -34,13 +34,16 @@ void main() {
       }
     });
 
-    test('the input formatter keeps only code symbols, grouped by four', () {
+    test('the input formatter keeps letters and digits, grouped by four', () {
+      // Toutes les lettres et chiffres passent (un code d'invitation peut
+      // contenir un O ou un 0) ; le serveur tranche. Espaces, tirets et
+      // symboles tombent, 12 caractères au plus.
       const formatter = StudentAccessCodeInputFormatter();
       final value = formatter.formatEditUpdate(
         TextEditingValue.empty,
         const TextEditingValue(text: 'ab0cd efg-hjkmn9999'),
       );
-      expect(value.text, 'ABCD-EFGH-JKMN');
+      expect(value.text, 'AB0C-DEFG-HJKM');
       expect(value.selection.baseOffset, value.text.length);
     });
 

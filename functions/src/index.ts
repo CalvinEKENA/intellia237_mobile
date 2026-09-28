@@ -45,6 +45,10 @@ import {
   createIssueStudentAccessCodeHandler,
   createSignInWithStudentAccessCodeHandler,
 } from "./services/studentAccessCode";
+import {
+  createSetDemoAccessClassHandler,
+  createSignInWithDemoAccessHandler,
+} from "./services/demoAccess";
 import { createDefaultMigrateStudentPhoneToParentHandler } from "./services/familyPhoneMigration";
 import { createListParentChildrenHandler } from "./services/parentChildrenCallable";
 import { createDefaultCreateChildStudentAccessHandler } from "./services/childStudentAccessCallable";
@@ -416,6 +420,34 @@ export const signInWithStudentAccessCode = onCall(
     secrets: [studentAccessCodePepper],
   },
   createSignInWithStudentAccessCodeHandler(configuredStudentAccessPepper),
+);
+
+// Accès démo : code d'invitation gardé uniquement dans Secret Manager
+// (DEMO_ACCESS_CODE), jamais dans le dépôt. Callable séparée : la connexion
+// par code des élèves n'en dépend pas.
+const demoAccessCode = defineSecret("DEMO_ACCESS_CODE");
+
+export const signInWithDemoAccessCode = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+    secrets: [studentAccessCodePepper, demoAccessCode],
+  },
+  createSignInWithDemoAccessHandler(
+    configuredStudentAccessPepper,
+    () => demoAccessCode.value(),
+  ),
+);
+
+// Compte démo seulement : changer de classe pour tester chaque programme.
+export const setDemoAccessClass = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  createSetDemoAccessClassHandler(),
 );
 
 export const migrateStudentPhoneToParent = onCall(

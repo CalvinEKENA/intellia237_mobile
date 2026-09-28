@@ -11481,6 +11481,120 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Chercher dans toutes les villes'**
   String get spSearchAllCities;
+
+  /// No description provided for @demoWelcomeEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACCÈS EXCLUSIF'**
+  String get demoWelcomeEyebrow;
+
+  /// No description provided for @demoWelcomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue dans INTELLIA237 !'**
+  String get demoWelcomeTitle;
+
+  /// No description provided for @demoWelcomeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calvin EKENA t\'offre un accès exclusif à l\'application. Toutes les classes sont ouvertes pour toi, de la 6e à la Terminale, sans oublier le sous-système anglophone.'**
+  String get demoWelcomeBody;
+
+  /// No description provided for @demoWelcomeTip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre conseil : commence par la Terminale D. C\'est la classe la plus riche en cours pour le moment, et la meilleure façon de découvrir tout ce qu\'INTELLIA237 sait faire.'**
+  String get demoWelcomeTip;
+
+  /// No description provided for @demoWelcomeChangeLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu pourras changer de classe à tout moment, depuis ton accueil. Bonne exploration !'**
+  String get demoWelcomeChangeLater;
+
+  /// No description provided for @demoWelcomeStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer par la Terminale D'**
+  String get demoWelcomeStart;
+
+  /// No description provided for @demoWelcomeOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une autre classe'**
+  String get demoWelcomeOther;
+
+  /// No description provided for @demoCardEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'ACCÈS EXCLUSIF'**
+  String get demoCardEyebrow;
+
+  /// No description provided for @demoCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu explores la classe : {classLabel}'**
+  String demoCardTitle(String classLabel);
+
+  /// No description provided for @demoCardSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès offert par Calvin EKENA. Toutes les classes sont ouvertes.'**
+  String get demoCardSubtitle;
+
+  /// No description provided for @demoCardAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer de classe'**
+  String get demoCardAction;
+
+  /// No description provided for @demoPickerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle classe veux-tu explorer ?'**
+  String get demoPickerTitle;
+
+  /// No description provided for @demoPickerSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes cours, tes quiz et ton accueil suivront la classe choisie.'**
+  String get demoPickerSubtitle;
+
+  /// No description provided for @demoPickerRecommended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le plus de cours'**
+  String get demoPickerRecommended;
+
+  /// No description provided for @demoPickerCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get demoPickerCurrent;
+
+  /// No description provided for @demoPickerFrancophone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-système francophone'**
+  String get demoPickerFrancophone;
+
+  /// No description provided for @demoPickerAnglophone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-système anglophone'**
+  String get demoPickerAnglophone;
+
+  /// No description provided for @demoClassChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est parti : tu explores maintenant la classe {classLabel}.'**
+  String demoClassChanged(String classLabel);
+
+  /// No description provided for @demoClassChangeFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de changer de classe pour le moment. Réessaie dans un instant.'**
+  String get demoClassChangeFailed;
 }
 
 class _AppLocalizationsDelegate

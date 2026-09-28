@@ -406,7 +406,7 @@ export function createIssueStudentAccessCodeHandler(
   };
 }
 
-function clientIdentity(request: CallableRequest<unknown>): { ip: string; appId: string } {
+export function clientIdentity(request: CallableRequest<unknown>): { ip: string; appId: string } {
   // L'infrastructure Google AJOUTE l'adresse du client en fin d'en-tête : les
   // valeurs précédentes viennent du client et ne prouvent rien. Prendre la
   // première laisserait un attaquant changer d'identité à chaque essai.

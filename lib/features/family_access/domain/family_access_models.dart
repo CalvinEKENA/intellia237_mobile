@@ -55,6 +55,26 @@ abstract final class StudentAccessCodeFormat {
     return true;
   }
 
+  /// Code d'invitation (accès démo remis par INTELLIA237) : plus court,
+  /// lettres et chiffres. Le serveur seul décide s'il ouvre un accès ; le
+  /// code lui-même n'est jamais écrit dans l'application.
+  static bool isInvitation(String input) {
+    final code = normalize(input);
+    return code.length >= 6 &&
+        code.length < length &&
+        RegExp(r'^[A-Z0-9]+$').hasMatch(code);
+  }
+
+  /// Un code que le serveur peut examiner.
+  static bool isAcceptable(String input) =>
+      isWellFormed(input) || isInvitation(input);
+
+  /// Callable qui examine [input] : codes élève et codes d'invitation ne
+  /// passent pas par le même service.
+  static String callableFor(String input) => isWellFormed(input)
+      ? 'signInWithStudentAccessCode'
+      : 'signInWithDemoAccessCode';
+
   /// `ABCDEFGHJKMN` → `ABCD-EFGH-JKMN`.
   static String format(String input) {
     final code = normalize(input);

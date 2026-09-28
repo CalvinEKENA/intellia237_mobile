@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../demo_access/presentation/demo_access_card.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../app/config/build_identity.dart';
 import '../../../app/config/feature_flags.dart';
@@ -621,6 +622,8 @@ class _StudentHomeTab extends ConsumerWidget {
                   sliver: SliverToBoxAdapter(
                     child: Column(
                       children: [
+                        // Accès démo seulement (invisible sinon).
+                        const DemoAccessCard(),
                         for (final section in sections) ...[
                           FadeSlideEntrance(
                             delay: entranceDelays.next(),

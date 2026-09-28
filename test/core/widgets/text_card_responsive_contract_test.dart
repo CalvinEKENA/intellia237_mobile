@@ -80,6 +80,9 @@ const _coveredPublicCardTypes = {
   // dark, keyboard open (choix d'établissement) :
   // test/features/student_registration/school_picker_test.dart.
   'SchoolResultCard',
+  // Dedicated test at 320/412 px × textScale 1.0/1.3 and 360 px × 1.5
+  // (accès démo) : test/features/demo_access/demo_access_test.dart.
+  'DemoAccessCard',
 };
 
 const _longQuestion = QuizQuestion(

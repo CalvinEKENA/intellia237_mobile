@@ -53,7 +53,7 @@ class _StudentAccessCodeScreenState
 
   Future<void> _submit() async {
     if (_submitting) return;
-    if (!StudentAccessCodeFormat.isWellFormed(_codeController.text)) {
+    if (!StudentAccessCodeFormat.isAcceptable(_codeController.text)) {
       setState(
         () => _failure = const StudentAccessCodeRejected(
           StudentAccessCodeRejection.invalid,
@@ -255,7 +255,9 @@ class _StudentAccessCodeScreenState
   };
 }
 
-/// Majuscules, symboles du code seulement, groupés par quatre.
+/// Majuscules, lettres et chiffres seulement, groupés par quatre. Toutes les
+/// lettres passent : un code d'invitation peut contenir un O ou un I, que
+/// les codes élève n'utilisent pas (le serveur tranche).
 class StudentAccessCodeInputFormatter extends TextInputFormatter {
   const StudentAccessCodeInputFormatter();
 
@@ -266,8 +268,8 @@ class StudentAccessCodeInputFormatter extends TextInputFormatter {
   ) {
     final symbols = newValue.text
         .toUpperCase()
+        .replaceAll(RegExp('[^A-Z0-9]'), '')
         .split('')
-        .where(StudentAccessCodeFormat.alphabet.contains)
         .take(StudentAccessCodeFormat.length)
         .join();
     final formatted = StudentAccessCodeFormat.format(symbols);
