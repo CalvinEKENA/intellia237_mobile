@@ -358,6 +358,35 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    testWidgets('sans quiz publiés : aucun examen blanc promis sans contenu', (
+      tester,
+    ) async {
+      await _pump(tester);
+      await _settle(tester);
+      expect(find.byKey(PackQuizHubSection.sectionKey), findsOneWidget);
+      // La liste est paresseuse : descendre jusqu'au bout pour tout construire.
+      final position = tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position;
+      var previous = -1.0;
+      while (position.maxScrollExtent != previous) {
+        previous = position.maxScrollExtent;
+        position.jumpTo(position.maxScrollExtent);
+        await tester.pump();
+      }
+      for (final text in [
+        'Évaluation / examen blanc',
+        'Choisis ton mode de révision',
+        'Mes résultats',
+      ]) {
+        expect(
+          find.text(text, skipOffstage: false),
+          findsNothing,
+          reason: text,
+        );
+      }
+    });
+
     testWidgets('ni pack ni quiz publié : alors seulement, l\'état vide', (
       tester,
     ) async {

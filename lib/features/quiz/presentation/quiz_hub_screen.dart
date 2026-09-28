@@ -210,6 +210,11 @@ class _QuizHubBodyState extends State<_QuizHubBody> {
         .where((quiz) => quiz.mode == QuizMode.exam)
         .toList(growable: false);
 
+    final showPublished =
+        widget.quizzes.isNotEmpty ||
+        widget.publishedPending ||
+        !widget.packQuizzes;
+
     final sections = <Widget>[
       Text(
         context.l10n.quizHubIntro,
@@ -228,61 +233,66 @@ class _QuizHubBodyState extends State<_QuizHubBody> {
         ),
         const SizedBox(height: IntelliaSpacing.sm),
       ],
-      _QuizResultsPanel(quizzes: widget.quizzes),
-      const SizedBox(height: IntelliaSpacing.md),
-      // Focal : carte d'appel (fond sombre → texte blanc à contraste garanti).
-      Container(
-        padding: const EdgeInsets.all(IntelliaSpacing.lg),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(IntelliaRadii.large),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0369A1), Color(0xFF1D4ED8)],
+      // La partie « quiz publiés » (résultats, modes, filtres) n'existe que
+      // s'il y a des quiz publiés, ou s'il n'y a aucun quiz de cours : sans
+      // eux, elle promettrait un mode (examen blanc) qui n'a aucun contenu.
+      if (showPublished) ...[
+        _QuizResultsPanel(quizzes: widget.quizzes),
+        const SizedBox(height: IntelliaSpacing.md),
+        // Focal : carte d'appel (fond sombre → texte blanc à contraste garanti).
+        Container(
+          padding: const EdgeInsets.all(IntelliaSpacing.lg),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(IntelliaRadii.large),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF0369A1), Color(0xFF1D4ED8)],
+            ),
+            boxShadow: IntelliaShadows.glow(
+              const Color(0xFF1D4ED8),
+              intensity: 0.22,
+            ),
           ),
-          boxShadow: IntelliaShadows.glow(
-            const Color(0xFF1D4ED8),
-            intensity: 0.22,
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                context.l10n.chooseRevisionMode,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  height: 1.2,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.l10n.chooseRevisionMode,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    height: 1.2,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: IntelliaSpacing.sm),
-            Icon(
-              Icons.bolt_rounded,
-              color: Colors.white.withValues(alpha: 0.9),
-              size: 30,
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: IntelliaSpacing.md),
-      if (widget.offline) ...[
-        IntelliaStateView(
-          kind: IntelliaStateKind.offline,
-          compact: true,
-          title: context.l10n.quizPausedOfflineTitle,
-          message: context.l10n.quizPausedOfflineBody,
-          primaryLabel: context.l10n.openOfflineFlow,
-          onPrimary: () => context.push(AppRoutes.flow),
-          secondaryLabel: context.l10n.viewDownloadedLessons,
-          onSecondary: () => context.push(AppRoutes.learnHub),
+              const SizedBox(width: IntelliaSpacing.sm),
+              Icon(
+                Icons.bolt_rounded,
+                color: Colors.white.withValues(alpha: 0.9),
+                size: 30,
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: IntelliaSpacing.md),
+        if (widget.offline) ...[
+          IntelliaStateView(
+            kind: IntelliaStateKind.offline,
+            compact: true,
+            title: context.l10n.quizPausedOfflineTitle,
+            message: context.l10n.quizPausedOfflineBody,
+            primaryLabel: context.l10n.openOfflineFlow,
+            onPrimary: () => context.push(AppRoutes.flow),
+            secondaryLabel: context.l10n.viewDownloadedLessons,
+            onSecondary: () => context.push(AppRoutes.learnHub),
+          ),
+          const SizedBox(height: IntelliaSpacing.md),
+        ],
+        const _QuizModeGuide(),
+        const SizedBox(height: IntelliaSpacing.md),
       ],
-      const _QuizModeGuide(),
-      const SizedBox(height: IntelliaSpacing.md),
       if (widget.quizzes.isNotEmpty) ...[
         Text(
           context.l10n.displayLabel,
