@@ -78,7 +78,9 @@ const _coveredPublicCardTypes = {
   'SequenceCard',
   'LessonCard',
   'SynthesisCard',
-  'PracticeSequenceCard',
+  // Dedicated test at 320/360/412 px × textScale 1.0/1.3/1.5, light and
+  // dark (quiz des cours) : test/features/quiz/pack_quiz_ui_test.dart.
+  'PackQuizSubjectCard',
   // Dedicated test at 320/360/412 px × textScale 1.0/1.3/1.5, light and
   // dark, keyboard open (choix d'établissement) :
   // test/features/student_registration/school_picker_test.dart.

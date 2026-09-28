@@ -52,6 +52,8 @@ import '../../features/quiz/domain/quiz_result_payload.dart';
 import '../../features/quiz/presentation/quiz_hub_screen.dart';
 import '../../features/quiz/presentation/quiz_play_screen.dart';
 import '../../features/quiz/presentation/quiz_result_screen.dart';
+import '../../features/quiz/domain/pack_quiz.dart';
+import '../../features/quiz/presentation/pack_quiz_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/student_home/presentation/student_home_screen.dart';
@@ -499,6 +501,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return buildAppTransitionPage(
             state: state,
             child: slot(context, state, QuizPlayScreen(quizId: quizId)),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.packQuizRoute,
+        pageBuilder: (context, state) {
+          final setId = state.pathParameters['setId'];
+          if (setId == null || setId.isEmpty) {
+            return buildAppTransitionPage(
+              state: state,
+              child: slot(context, state, const QuizHubScreen()),
+            );
+          }
+          return buildAppTransitionPage(
+            state: state,
+            child: slot(
+              context,
+              state,
+              PackQuizScreen(
+                setId: setId,
+                mode: PackQuizMode.fromName(state.uri.queryParameters['mode']),
+              ),
+            ),
           );
         },
       ),

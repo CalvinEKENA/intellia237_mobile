@@ -11,8 +11,8 @@ import '../../../core/localization/localization_extensions.dart';
 import '../../../core/network/network_status.dart';
 import '../../../core/telemetry/startup_trace.dart';
 import '../../../core/widgets/tab_section_header.dart';
-import '../../content_engine/application/subject_journey.dart';
-import '../../content_engine/presentation/pack_practice_section.dart';
+import '../application/pack_quiz_providers.dart';
+import 'pack_quiz_hub_section.dart';
 import '../application/quiz_providers.dart';
 import '../data/quiz_diagnostic.dart';
 import '../domain/quiz_attempt_summary.dart';
@@ -32,17 +32,11 @@ class QuizHubScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final quizAsync = ref.watch(quizHubProvider);
     final offline = ref.watch(isOfflineProvider);
-    // Les exercices des packs de la classe vivent sur l'appareil : ils
-    // restent jouables quand les quiz publiés tardent ou manquent.
+    // Les quiz des packs de la classe vivent sur l'appareil : ils restent
+    // jouables quand les quiz publiés tardent ou manquent.
     final packPractice = ref.watch(
-      subjectJourneysProvider.select(
-        (journeys) =>
-            journeys.valueOrNull?.any(
-              (journey) => journey.chapters.any(
-                (chapter) => chapter.scoredQuestions > 0,
-              ),
-            ) ??
-            false,
+      packQuizCatalogProvider.select(
+        (catalog) => !(catalog.valueOrNull?.isEmpty ?? true),
       ),
     );
     if (packPractice || quizAsync.hasValue) {
@@ -58,9 +52,10 @@ class QuizHubScreen extends ConsumerWidget {
               quizzes: const [],
               offline: offline,
               publishedPending: !offline,
+              packQuizzes: packPractice,
             ),
       error: (error, stackTrace) => packPractice
-          ? _QuizHubBody(quizzes: const [], offline: offline)
+          ? _QuizHubBody(quizzes: const [], offline: offline, packQuizzes: true)
           : offline
           ? const _OfflineQuizHubState()
           : _QuizFailureState(
@@ -78,7 +73,11 @@ class QuizHubScreen extends ConsumerWidget {
             // L'état d'erreur du hub prend le relais.
           }
         },
-        child: _QuizHubBody(quizzes: quizzes, offline: offline),
+        child: _QuizHubBody(
+          quizzes: quizzes,
+          offline: offline,
+          packQuizzes: packPractice,
+        ),
       ),
     );
 
@@ -183,7 +182,11 @@ class _QuizHubBody extends StatefulWidget {
     required this.quizzes,
     required this.offline,
     this.publishedPending = false,
+    this.packQuizzes = false,
   });
+
+  /// Des quiz tirés des cours existent pour la classe.
+  final bool packQuizzes;
 
   final List<QuizModel> quizzes;
   final bool offline;
@@ -213,8 +216,18 @@ class _QuizHubBodyState extends State<_QuizHubBody> {
         style: Theme.of(context).textTheme.bodyMedium,
       ),
       const SizedBox(height: IntelliaSpacing.md),
-      // Les exercices des packs de la classe, par séquence, hors ligne.
-      const PackPracticeSection(),
+      // Les quiz tirés des cours de la classe, hors ligne.
+      const PackQuizHubSection(),
+      if (widget.packQuizzes &&
+          (widget.quizzes.isNotEmpty || widget.publishedPending)) ...[
+        Text(
+          context.l10n.quizPackPublishedTitle,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        const SizedBox(height: IntelliaSpacing.sm),
+      ],
       _QuizResultsPanel(quizzes: widget.quizzes),
       const SizedBox(height: IntelliaSpacing.md),
       // Focal : carte d'appel (fond sombre → texte blanc à contraste garanti).
@@ -298,7 +311,9 @@ class _QuizHubBodyState extends State<_QuizHubBody> {
       ],
       if (widget.publishedPending)
         const _PublishedQuizzesArriving()
-      else if (widget.quizzes.isEmpty)
+      // « Les quiz arrivent » seulement quand il n'y a vraiment rien : ni
+      // quiz tirés des cours, ni quiz publiés.
+      else if (widget.quizzes.isEmpty && !widget.packQuizzes)
         IntelliaStateView(
           kind: IntelliaStateKind.comingSoon,
           compact: true,

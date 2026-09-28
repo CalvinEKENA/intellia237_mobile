@@ -14,10 +14,10 @@ import 'package:intellia237/features/content_engine/domain/chapter.dart';
 import 'package:intellia237/features/content_engine/domain/mastery.dart';
 import 'package:intellia237/features/content_engine/presentation/content_chapter_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
-import 'package:intellia237/features/content_engine/presentation/pack_practice_section.dart';
 import 'package:intellia237/features/content_engine/presentation/subject_identity.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:intellia237/features/learn/presentation/subject_hall_view.dart';
+import 'package:intellia237/features/quiz/presentation/pack_quiz_hub_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pack_fixture.dart';
@@ -501,72 +501,6 @@ void main() {
     });
   });
 
-  group('S\'entraîner', () {
-    testWidgets('par matière puis séquence, notion à découvrir, étape '
-        '« s\'entraîner » de la bonne leçon', (tester) async {
-      await _pump(
-        tester,
-        const Scaffold(
-          body: SingleChildScrollView(child: PackPracticeSection()),
-        ),
-      );
-      for (final key in ['anglais', 'mathematiques', 'physique']) {
-        expect(_key('practice-subject-$key'), findsOneWidget, reason: key);
-      }
-      final card = _key('practice-$_m1s1');
-      await tester.ensureVisible(card);
-      expect(
-        find.descendant(
-          of: card,
-          matching: find.textContaining('35 exercices corrigés'),
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: card,
-          matching: find.text('Pour commencer : Étendue de mesurage'),
-        ),
-        findsOneWidget,
-      );
-      await _tap(tester, card);
-      expect(find.text('leçon $_m1s1 1 étape 2'), findsOneWidget);
-    });
-
-    testWidgets('une notion travaillée mais fragile passe en premier', (
-      tester,
-    ) async {
-      await _pump(
-        tester,
-        const Scaffold(
-          body: SingleChildScrollView(child: PackPracticeSection()),
-        ),
-        snapshot: _snapshot([
-          _state('measurement_range', score: 90, answered: {'l1_q01'}),
-          _state('type_a_uncertainty', score: 20, answered: {'l2_q02'}),
-        ]),
-      );
-      final card = _key('practice-$_m1s1');
-      await tester.ensureVisible(card);
-      expect(
-        find.descendant(
-          of: card,
-          matching: find.text('À consolider : Incertitude de type A'),
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: card,
-          matching: find.textContaining('2 sur 35 déjà faits'),
-        ),
-        findsOneWidget,
-      );
-      await _tap(tester, card);
-      expect(find.text('leçon $_m1s1 2 étape 2'), findsOneWidget);
-    });
-  });
-
   testWidgets('contrat des cartes : 360 dp × texte 1,5, toutes les cartes', (
     tester,
   ) async {
@@ -581,9 +515,9 @@ void main() {
       ),
       ('SequenceCard', const ContentSubjectScreen(subjectKey: 'physique')),
       (
-        'PracticeSequenceCard',
+        'PackQuizSubjectCard',
         const Scaffold(
-          body: SingleChildScrollView(child: PackPracticeSection()),
+          body: SingleChildScrollView(child: PackQuizHubSection()),
         ),
       ),
     ]) {
@@ -675,7 +609,7 @@ void main() {
             await _pump(
               tester,
               const Scaffold(
-                body: SingleChildScrollView(child: PackPracticeSection()),
+                body: SingleChildScrollView(child: PackQuizHubSection()),
               ),
               size: size,
               scale: scale,

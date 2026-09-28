@@ -109,9 +109,7 @@ final _useful = <String, bool Function()>{
       .evaluate()
       .isNotEmpty,
   'Apprendre': () => _anyKeyStartingWith('subject-card-'),
-  'Quiz': () =>
-      _anyKeyStartingWith('practice-subject-') ||
-      _anyKeyStartingWith('pack-quiz-'),
+  'Quiz': () => _anyKeyStartingWith('pack-quiz-subject-'),
   'Compagnon': () => find.byType(TextField).evaluate().isNotEmpty,
 };
 

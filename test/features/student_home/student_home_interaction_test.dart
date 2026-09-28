@@ -309,8 +309,8 @@ void main() {
     await _tapNav(tester, 'Quiz');
     expect(
       find.text(
-        'Entraîne-toi avec des corrections guidées ou évalue-toi '
-        'dans les conditions d’un examen blanc.',
+        'Entraîne-toi avec des corrections guidées, ou évalue-toi : '
+        'ton score et ton bilan à la fin.',
       ),
       findsOneWidget,
     );
@@ -381,8 +381,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       find.text(
-        'Entraîne-toi avec des corrections guidées ou évalue-toi '
-        'dans les conditions d’un examen blanc.',
+        'Entraîne-toi avec des corrections guidées, ou évalue-toi : '
+        'ton score et ton bilan à la fin.',
       ),
       findsOneWidget,
     );
@@ -409,8 +409,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       find.text(
-        'Entraîne-toi avec des corrections guidées ou évalue-toi '
-        'dans les conditions d’un examen blanc.',
+        'Entraîne-toi avec des corrections guidées, ou évalue-toi : '
+        'ton score et ton bilan à la fin.',
       ),
       findsOneWidget,
     );
@@ -648,8 +648,8 @@ const _tabCases = [
   _TabCase(
     'Quiz',
     'student-tab-quiz',
-    'Entraîne-toi avec des corrections guidées ou évalue-toi '
-        'dans les conditions d’un examen blanc.',
+    'Entraîne-toi avec des corrections guidées, ou évalue-toi : '
+        'ton score et ton bilan à la fin.',
   ),
   _TabCase('Compagnon', 'student-tab-companion', 'Explique ce concept'),
   _TabCase('Profil', 'student-tab-profile', 'Mon profil'),

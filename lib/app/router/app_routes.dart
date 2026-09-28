@@ -62,6 +62,9 @@ abstract final class AppRoutes {
   static const quizHub = '/quiz';
   static const quizPlayRoute = '/quiz/play/:quizId';
   static const quizResult = '/quiz/result';
+
+  /// Quiz d'un pack (séquence ou révision mixte), hors ligne.
+  static const packQuizRoute = '/quiz/pack/:setId';
   static const aiCompanion = '/ai';
   static const settings = '/settings';
   static const editProfile = '/profile/edit';
@@ -139,6 +142,8 @@ abstract final class AppRoutes {
   ) => '/learn/subject/$subjectId/chapter/$chapterId/lesson/$lessonId';
 
   static String quizPlay(String quizId) => '/quiz/play/$quizId';
+  static String packQuiz(String setId, String mode) =>
+      '/quiz/pack/${Uri.encodeComponent(setId)}?mode=$mode';
 
   /// Récupération du compte existant ; [emailInUse] : Firebase a signalé
   /// qu'un compte utilise déjà l'adresse du compte Google.

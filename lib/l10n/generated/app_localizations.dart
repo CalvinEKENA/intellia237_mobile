@@ -2633,7 +2633,7 @@ abstract class AppLocalizations {
   /// No description provided for @quizHubIntro.
   ///
   /// In fr, this message translates to:
-  /// **'Entraîne-toi avec des corrections guidées ou évalue-toi dans les conditions d’un examen blanc.'**
+  /// **'Entraîne-toi avec des corrections guidées, ou évalue-toi : ton score et ton bilan à la fin.'**
   String get quizHubIntro;
 
   /// No description provided for @chooseRevisionMode.
@@ -11643,6 +11643,630 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'terminée'**
   String get ceLessonCompletedA11y;
+
+  /// No description provided for @quizLineKiraSessionStarted0.
+  ///
+  /// In fr, this message translates to:
+  /// **'On travaille {subject} ? Je t\'ai préparé {count} questions sur « {title} ».'**
+  String quizLineKiraSessionStarted0(String subject, int count, String title);
+
+  /// No description provided for @quizLineKiraSessionStarted1.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} questions sur « {title} ». On avance pas à pas, je suis là.'**
+  String quizLineKiraSessionStarted1(String subject, int count, String title);
+
+  /// No description provided for @quizLineKiraSessionStarted2.
+  ///
+  /// In fr, this message translates to:
+  /// **'On commence {subject} ? {count} questions sur « {title} », à ton rythme.'**
+  String quizLineKiraSessionStarted2(String subject, int count, String title);
+
+  /// No description provided for @quizLineKiraQuestionPresented0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question {current} sur {total}. Lis bien l\'énoncé.'**
+  String quizLineKiraQuestionPresented0(int current, int total);
+
+  /// No description provided for @quizLineKiraQuestionPresented1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question {current}. Repère d\'abord ce qu\'on te demande.'**
+  String quizLineKiraQuestionPresented1(int current, int total);
+
+  /// No description provided for @quizLineKiraQuestionPresented2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici la question {current} sur {total}.'**
+  String quizLineKiraQuestionPresented2(int current, int total);
+
+  /// No description provided for @quizLineKiraCorrect0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exact. Tu maîtrises cette idée.'**
+  String get quizLineKiraCorrect0;
+
+  /// No description provided for @quizLineKiraCorrect1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien vu, c\'est juste.'**
+  String get quizLineKiraCorrect1;
+
+  /// No description provided for @quizLineKiraCorrect2.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est ça. On continue.'**
+  String get quizLineKiraCorrect2;
+
+  /// No description provided for @quizLineKiraIncorrect0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore. Regarde ce point avec moi.'**
+  String get quizLineKiraIncorrect0;
+
+  /// No description provided for @quizLineKiraIncorrect1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Presque. Lis l\'explication, elle t\'aidera.'**
+  String get quizLineKiraIncorrect1;
+
+  /// No description provided for @quizLineKiraIncorrect2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas cette fois. Regardons pourquoi.'**
+  String get quizLineKiraIncorrect2;
+
+  /// No description provided for @quizLineKiraStreak0.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} bonnes réponses d\'affilée. Beau travail.'**
+  String quizLineKiraStreak0(int count);
+
+  /// No description provided for @quizLineKiraStreak1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà {count} de suite. Ta méthode paie.'**
+  String quizLineKiraStreak1(int count);
+
+  /// No description provided for @quizLineKiraStreak2.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} d\'affilée : continue comme ça.'**
+  String quizLineKiraStreak2(int count);
+
+  /// No description provided for @quizLineKiraHintRequested0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je te donne un indice.'**
+  String get quizLineKiraHintRequested0;
+
+  /// No description provided for @quizLineKiraHintRequested1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici un indice pour t\'aider.'**
+  String get quizLineKiraHintRequested1;
+
+  /// No description provided for @quizLineKiraHintRequested2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un indice, sans te donner la réponse.'**
+  String get quizLineKiraHintRequested2;
+
+  /// No description provided for @quizLineKiraHalfway0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es à mi-parcours. Continue ainsi.'**
+  String get quizLineKiraHalfway0;
+
+  /// No description provided for @quizLineKiraHalfway1.
+  ///
+  /// In fr, this message translates to:
+  /// **'La moitié est faite. Garde ta concentration.'**
+  String get quizLineKiraHalfway1;
+
+  /// No description provided for @quizLineKiraHalfway2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mi-parcours : on garde le même soin.'**
+  String get quizLineKiraHalfway2;
+
+  /// No description provided for @quizLineKiraLastQuestion0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière question. Prends ton temps.'**
+  String get quizLineKiraLastQuestion0;
+
+  /// No description provided for @quizLineKiraLastQuestion1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus qu\'une question.'**
+  String get quizLineKiraLastQuestion1;
+
+  /// No description provided for @quizLineKiraLastQuestion2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici la dernière. Relis bien avant de valider.'**
+  String get quizLineKiraLastQuestion2;
+
+  /// No description provided for @quizLineKiraSessionCompleted0.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est terminé : {score} sur {total}. Regardons ce que tu as réussi.'**
+  String quizLineKiraSessionCompleted0(int score, int total);
+
+  /// No description provided for @quizLineKiraSessionCompleted1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin de la séance : {score} sur {total}. Voici ton bilan.'**
+  String quizLineKiraSessionCompleted1(int score, int total);
+
+  /// No description provided for @quizLineKiraSessionCompleted2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as terminé avec {score} sur {total}. Voyons la suite.'**
+  String quizLineKiraSessionCompleted2(int score, int total);
+
+  /// No description provided for @quizLineKiraMasteryImproved0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu progresses sur « {concept} ».'**
+  String quizLineKiraMasteryImproved0(String concept);
+
+  /// No description provided for @quizLineKiraMasteryImproved1.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {concept} » est mieux maîtrisé qu\'au début.'**
+  String quizLineKiraMasteryImproved1(String concept);
+
+  /// No description provided for @quizLineKiraMasteryImproved2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Belle avancée sur « {concept} ».'**
+  String quizLineKiraMasteryImproved2(String concept);
+
+  /// No description provided for @quizLineKiraNeedsReview0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revois « {concept} », puis réessaie.'**
+  String quizLineKiraNeedsReview0(String concept);
+
+  /// No description provided for @quizLineKiraNeedsReview1.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {concept} » mérite encore un peu de travail.'**
+  String quizLineKiraNeedsReview1(String concept);
+
+  /// No description provided for @quizLineKiraNeedsReview2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je te conseille de revoir « {concept} ».'**
+  String quizLineKiraNeedsReview2(String concept);
+
+  /// No description provided for @quizLineLeoSessionStarted0.
+  ///
+  /// In fr, this message translates to:
+  /// **'{subject}, c\'est parti : {count} questions sur « {title} ».'**
+  String quizLineLeoSessionStarted0(String subject, int count, String title);
+
+  /// No description provided for @quizLineLeoSessionStarted1.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} questions, un objectif : « {title} ». On y va ?'**
+  String quizLineLeoSessionStarted1(String subject, int count, String title);
+
+  /// No description provided for @quizLineLeoSessionStarted2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allez, {count} questions de {subject}. Concentre-toi, je te suis.'**
+  String quizLineLeoSessionStarted2(String subject, int count, String title);
+
+  /// No description provided for @quizLineLeoQuestionPresented0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question {current} sur {total}.'**
+  String quizLineLeoQuestionPresented0(int current, int total);
+
+  /// No description provided for @quizLineLeoQuestionPresented1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivante : {current} sur {total}.'**
+  String quizLineLeoQuestionPresented1(int current, int total);
+
+  /// No description provided for @quizLineLeoQuestionPresented2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question {current}. À toi.'**
+  String quizLineLeoQuestionPresented2(int current, int total);
+
+  /// No description provided for @quizLineLeoCorrect0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien vu !'**
+  String get quizLineLeoCorrect0;
+
+  /// No description provided for @quizLineLeoCorrect1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exact.'**
+  String get quizLineLeoCorrect1;
+
+  /// No description provided for @quizLineLeoCorrect2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Juste. On enchaîne.'**
+  String get quizLineLeoCorrect2;
+
+  /// No description provided for @quizLineLeoIncorrect0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore. Regarde ce point.'**
+  String get quizLineLeoIncorrect0;
+
+  /// No description provided for @quizLineLeoIncorrect1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Raté cette fois, voici l\'explication.'**
+  String get quizLineLeoIncorrect1;
+
+  /// No description provided for @quizLineLeoIncorrect2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas tout à fait. Lis ça, puis on repart.'**
+  String get quizLineLeoIncorrect2;
+
+  /// No description provided for @quizLineLeoStreak0.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} d\'affilée !'**
+  String quizLineLeoStreak0(int count);
+
+  /// No description provided for @quizLineLeoStreak1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Série de {count}. Garde le rythme.'**
+  String quizLineLeoStreak1(int count);
+
+  /// No description provided for @quizLineLeoStreak2.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} de suite, impressionnant.'**
+  String quizLineLeoStreak2(int count);
+
+  /// No description provided for @quizLineLeoHintRequested0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un indice, tiens.'**
+  String get quizLineLeoHintRequested0;
+
+  /// No description provided for @quizLineLeoHintRequested1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voilà un coup de pouce.'**
+  String get quizLineLeoHintRequested1;
+
+  /// No description provided for @quizLineLeoHintRequested2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voilà un indice.'**
+  String get quizLineLeoHintRequested2;
+
+  /// No description provided for @quizLineLeoHalfway0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moitié faite !'**
+  String get quizLineLeoHalfway0;
+
+  /// No description provided for @quizLineLeoHalfway1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mi-parcours. Garde le cap.'**
+  String get quizLineLeoHalfway1;
+
+  /// No description provided for @quizLineLeoHalfway2.
+  ///
+  /// In fr, this message translates to:
+  /// **'La moitié, déjà.'**
+  String get quizLineLeoHalfway2;
+
+  /// No description provided for @quizLineLeoLastQuestion0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière question !'**
+  String get quizLineLeoLastQuestion0;
+
+  /// No description provided for @quizLineLeoLastQuestion1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus qu\'une.'**
+  String get quizLineLeoLastQuestion1;
+
+  /// No description provided for @quizLineLeoLastQuestion2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière ligne droite.'**
+  String get quizLineLeoLastQuestion2;
+
+  /// No description provided for @quizLineLeoSessionCompleted0.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé : {score} sur {total} !'**
+  String quizLineLeoSessionCompleted0(int score, int total);
+
+  /// No description provided for @quizLineLeoSessionCompleted1.
+  ///
+  /// In fr, this message translates to:
+  /// **'{score} sur {total}. Voici ton bilan.'**
+  String quizLineLeoSessionCompleted1(int score, int total);
+
+  /// No description provided for @quizLineLeoSessionCompleted2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séance bouclée : {score} sur {total}.'**
+  String quizLineLeoSessionCompleted2(int score, int total);
+
+  /// No description provided for @quizLineLeoMasteryImproved0.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {concept} » : en progrès !'**
+  String quizLineLeoMasteryImproved0(String concept);
+
+  /// No description provided for @quizLineLeoMasteryImproved1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu montes sur « {concept} ».'**
+  String quizLineLeoMasteryImproved1(String concept);
+
+  /// No description provided for @quizLineLeoMasteryImproved2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progrès net sur « {concept} ».'**
+  String quizLineLeoMasteryImproved2(String concept);
+
+  /// No description provided for @quizLineLeoNeedsReview0.
+  ///
+  /// In fr, this message translates to:
+  /// **'À revoir : « {concept} ».'**
+  String quizLineLeoNeedsReview0(String concept);
+
+  /// No description provided for @quizLineLeoNeedsReview1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repasse sur « {concept} ».'**
+  String quizLineLeoNeedsReview1(String concept);
+
+  /// No description provided for @quizLineLeoNeedsReview2.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {concept} » : encore un effort.'**
+  String quizLineLeoNeedsReview2(String concept);
+
+  /// No description provided for @quizPackSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz de tes cours'**
+  String get quizPackSectionTitle;
+
+  /// No description provided for @quizPackSectionSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des questions de tes séquences, corrigées sur ton téléphone, même sans connexion.'**
+  String get quizPackSectionSubtitle;
+
+  /// No description provided for @quizPackQuestionCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 question disponible} other{{count} questions disponibles}}'**
+  String quizPackQuestionCount(int count);
+
+  /// No description provided for @quizPackCompanionWith.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} t\'accompagne'**
+  String quizPackCompanionWith(String name);
+
+  /// No description provided for @quizPackTraining.
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'entraîner'**
+  String get quizPackTraining;
+
+  /// No description provided for @quizPackEvaluation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Évaluation'**
+  String get quizPackEvaluation;
+
+  /// No description provided for @quizPackMixed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révision mixte'**
+  String get quizPackMixed;
+
+  /// No description provided for @quizPackMixedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des questions de toutes tes séquences de cette matière.'**
+  String get quizPackMixedBody;
+
+  /// No description provided for @quizPackSequencesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par séquence'**
+  String get quizPackSequencesTitle;
+
+  /// No description provided for @quizPackStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get quizPackStart;
+
+  /// No description provided for @quizPackModeTrainingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Correction et explication après chaque réponse. Indices si tu en as besoin.'**
+  String get quizPackModeTrainingBody;
+
+  /// No description provided for @quizPackModeEvaluationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de correction avant la fin. Ton score et ton bilan à la fin.'**
+  String get quizPackModeEvaluationBody;
+
+  /// No description provided for @quizPackDistribution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Niveaux : {easy} × 1 · {medium} × 2 · {hard} × 3'**
+  String quizPackDistribution(int easy, int medium, int hard);
+
+  /// No description provided for @quizPackSessionLength.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 question} other{{count} questions}}'**
+  String quizPackSessionLength(int count);
+
+  /// No description provided for @quizPackQuestionProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question {current} sur {total}'**
+  String quizPackQuestionProgress(int current, int total);
+
+  /// No description provided for @quizPackValidate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valider'**
+  String get quizPackValidate;
+
+  /// No description provided for @quizPackNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question suivante'**
+  String get quizPackNext;
+
+  /// No description provided for @quizPackSeeResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon bilan'**
+  String get quizPackSeeResult;
+
+  /// No description provided for @quizPackHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un indice'**
+  String get quizPackHint;
+
+  /// No description provided for @quizPackHintLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indice {number}'**
+  String quizPackHintLabel(int number);
+
+  /// No description provided for @quizPackCorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne réponse'**
+  String get quizPackCorrect;
+
+  /// No description provided for @quizPackIncorrect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore'**
+  String get quizPackIncorrect;
+
+  /// No description provided for @quizPackAnswerSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse enregistrée. La correction viendra à la fin.'**
+  String get quizPackAnswerSaved;
+
+  /// No description provided for @quizPackResultTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton bilan'**
+  String get quizPackResultTitle;
+
+  /// No description provided for @quizPackScore.
+  ///
+  /// In fr, this message translates to:
+  /// **'{score} sur {total}'**
+  String quizPackScore(int score, int total);
+
+  /// No description provided for @quizPackMastered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réussies'**
+  String get quizPackMastered;
+
+  /// No description provided for @quizPackToReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'À revoir'**
+  String get quizPackToReview;
+
+  /// No description provided for @quizPackConceptScore.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title} · {correct}/{total}'**
+  String quizPackConceptScore(String title, int correct, int total);
+
+  /// No description provided for @quizPackReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir mes réponses'**
+  String get quizPackReview;
+
+  /// No description provided for @quizPackRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommencer'**
+  String get quizPackRetry;
+
+  /// No description provided for @quizPackContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer mon parcours'**
+  String get quizPackContinue;
+
+  /// No description provided for @quizPackReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes réponses'**
+  String get quizPackReviewTitle;
+
+  /// No description provided for @quizPackUnscoredNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les questions à réponse rédigée restent dans tes leçons : elles ne comptent pas dans ce score.'**
+  String get quizPackUnscoredNote;
+
+  /// No description provided for @quizPackRecentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes dernières séances'**
+  String get quizPackRecentTitle;
+
+  /// No description provided for @quizPackRecentRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title} · {mode} · {score}/{total}'**
+  String quizPackRecentRow(String title, String mode, int score, int total);
+
+  /// No description provided for @quizPackNoLesson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune question disponible pour ce quiz pour l\'instant.'**
+  String get quizPackNoLesson;
+
+  /// No description provided for @quizPackPublishedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz publiés par tes professeurs'**
+  String get quizPackPublishedTitle;
+
+  /// No description provided for @quizPackCompanionA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} dit : {line}'**
+  String quizPackCompanionA11y(String name, String line);
 }
 
 class _AppLocalizationsDelegate

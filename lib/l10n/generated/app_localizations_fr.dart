@@ -1472,7 +1472,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizHubIntro =>
-      'Entraîne-toi avec des corrections guidées ou évalue-toi dans les conditions d’un examen blanc.';
+      'Entraîne-toi avec des corrections guidées, ou évalue-toi : ton score et ton bilan à la fin.';
 
   @override
   String get chooseRevisionMode => 'Choisis ton mode de révision';
@@ -6900,4 +6900,433 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ceLessonCompletedA11y => 'terminée';
+
+  @override
+  String quizLineKiraSessionStarted0(String subject, int count, String title) {
+    return 'On travaille $subject ? Je t\'ai préparé $count questions sur « $title ».';
+  }
+
+  @override
+  String quizLineKiraSessionStarted1(String subject, int count, String title) {
+    return '$count questions sur « $title ». On avance pas à pas, je suis là.';
+  }
+
+  @override
+  String quizLineKiraSessionStarted2(String subject, int count, String title) {
+    return 'On commence $subject ? $count questions sur « $title », à ton rythme.';
+  }
+
+  @override
+  String quizLineKiraQuestionPresented0(int current, int total) {
+    return 'Question $current sur $total. Lis bien l\'énoncé.';
+  }
+
+  @override
+  String quizLineKiraQuestionPresented1(int current, int total) {
+    return 'Question $current. Repère d\'abord ce qu\'on te demande.';
+  }
+
+  @override
+  String quizLineKiraQuestionPresented2(int current, int total) {
+    return 'Voici la question $current sur $total.';
+  }
+
+  @override
+  String get quizLineKiraCorrect0 => 'Exact. Tu maîtrises cette idée.';
+
+  @override
+  String get quizLineKiraCorrect1 => 'Bien vu, c\'est juste.';
+
+  @override
+  String get quizLineKiraCorrect2 => 'C\'est ça. On continue.';
+
+  @override
+  String get quizLineKiraIncorrect0 => 'Pas encore. Regarde ce point avec moi.';
+
+  @override
+  String get quizLineKiraIncorrect1 =>
+      'Presque. Lis l\'explication, elle t\'aidera.';
+
+  @override
+  String get quizLineKiraIncorrect2 => 'Pas cette fois. Regardons pourquoi.';
+
+  @override
+  String quizLineKiraStreak0(int count) {
+    return '$count bonnes réponses d\'affilée. Beau travail.';
+  }
+
+  @override
+  String quizLineKiraStreak1(int count) {
+    return 'Déjà $count de suite. Ta méthode paie.';
+  }
+
+  @override
+  String quizLineKiraStreak2(int count) {
+    return '$count d\'affilée : continue comme ça.';
+  }
+
+  @override
+  String get quizLineKiraHintRequested0 => 'Je te donne un indice.';
+
+  @override
+  String get quizLineKiraHintRequested1 => 'Voici un indice pour t\'aider.';
+
+  @override
+  String get quizLineKiraHintRequested2 =>
+      'Un indice, sans te donner la réponse.';
+
+  @override
+  String get quizLineKiraHalfway0 => 'Tu es à mi-parcours. Continue ainsi.';
+
+  @override
+  String get quizLineKiraHalfway1 =>
+      'La moitié est faite. Garde ta concentration.';
+
+  @override
+  String get quizLineKiraHalfway2 => 'Mi-parcours : on garde le même soin.';
+
+  @override
+  String get quizLineKiraLastQuestion0 =>
+      'Dernière question. Prends ton temps.';
+
+  @override
+  String get quizLineKiraLastQuestion1 => 'Plus qu\'une question.';
+
+  @override
+  String get quizLineKiraLastQuestion2 =>
+      'Voici la dernière. Relis bien avant de valider.';
+
+  @override
+  String quizLineKiraSessionCompleted0(int score, int total) {
+    return 'C\'est terminé : $score sur $total. Regardons ce que tu as réussi.';
+  }
+
+  @override
+  String quizLineKiraSessionCompleted1(int score, int total) {
+    return 'Fin de la séance : $score sur $total. Voici ton bilan.';
+  }
+
+  @override
+  String quizLineKiraSessionCompleted2(int score, int total) {
+    return 'Tu as terminé avec $score sur $total. Voyons la suite.';
+  }
+
+  @override
+  String quizLineKiraMasteryImproved0(String concept) {
+    return 'Tu progresses sur « $concept ».';
+  }
+
+  @override
+  String quizLineKiraMasteryImproved1(String concept) {
+    return '« $concept » est mieux maîtrisé qu\'au début.';
+  }
+
+  @override
+  String quizLineKiraMasteryImproved2(String concept) {
+    return 'Belle avancée sur « $concept ».';
+  }
+
+  @override
+  String quizLineKiraNeedsReview0(String concept) {
+    return 'Revois « $concept », puis réessaie.';
+  }
+
+  @override
+  String quizLineKiraNeedsReview1(String concept) {
+    return '« $concept » mérite encore un peu de travail.';
+  }
+
+  @override
+  String quizLineKiraNeedsReview2(String concept) {
+    return 'Je te conseille de revoir « $concept ».';
+  }
+
+  @override
+  String quizLineLeoSessionStarted0(String subject, int count, String title) {
+    return '$subject, c\'est parti : $count questions sur « $title ».';
+  }
+
+  @override
+  String quizLineLeoSessionStarted1(String subject, int count, String title) {
+    return '$count questions, un objectif : « $title ». On y va ?';
+  }
+
+  @override
+  String quizLineLeoSessionStarted2(String subject, int count, String title) {
+    return 'Allez, $count questions de $subject. Concentre-toi, je te suis.';
+  }
+
+  @override
+  String quizLineLeoQuestionPresented0(int current, int total) {
+    return 'Question $current sur $total.';
+  }
+
+  @override
+  String quizLineLeoQuestionPresented1(int current, int total) {
+    return 'Suivante : $current sur $total.';
+  }
+
+  @override
+  String quizLineLeoQuestionPresented2(int current, int total) {
+    return 'Question $current. À toi.';
+  }
+
+  @override
+  String get quizLineLeoCorrect0 => 'Bien vu !';
+
+  @override
+  String get quizLineLeoCorrect1 => 'Exact.';
+
+  @override
+  String get quizLineLeoCorrect2 => 'Juste. On enchaîne.';
+
+  @override
+  String get quizLineLeoIncorrect0 => 'Pas encore. Regarde ce point.';
+
+  @override
+  String get quizLineLeoIncorrect1 => 'Raté cette fois, voici l\'explication.';
+
+  @override
+  String get quizLineLeoIncorrect2 =>
+      'Pas tout à fait. Lis ça, puis on repart.';
+
+  @override
+  String quizLineLeoStreak0(int count) {
+    return '$count d\'affilée !';
+  }
+
+  @override
+  String quizLineLeoStreak1(int count) {
+    return 'Série de $count. Garde le rythme.';
+  }
+
+  @override
+  String quizLineLeoStreak2(int count) {
+    return '$count de suite, impressionnant.';
+  }
+
+  @override
+  String get quizLineLeoHintRequested0 => 'Un indice, tiens.';
+
+  @override
+  String get quizLineLeoHintRequested1 => 'Voilà un coup de pouce.';
+
+  @override
+  String get quizLineLeoHintRequested2 => 'Voilà un indice.';
+
+  @override
+  String get quizLineLeoHalfway0 => 'Moitié faite !';
+
+  @override
+  String get quizLineLeoHalfway1 => 'Mi-parcours. Garde le cap.';
+
+  @override
+  String get quizLineLeoHalfway2 => 'La moitié, déjà.';
+
+  @override
+  String get quizLineLeoLastQuestion0 => 'Dernière question !';
+
+  @override
+  String get quizLineLeoLastQuestion1 => 'Plus qu\'une.';
+
+  @override
+  String get quizLineLeoLastQuestion2 => 'Dernière ligne droite.';
+
+  @override
+  String quizLineLeoSessionCompleted0(int score, int total) {
+    return 'Terminé : $score sur $total !';
+  }
+
+  @override
+  String quizLineLeoSessionCompleted1(int score, int total) {
+    return '$score sur $total. Voici ton bilan.';
+  }
+
+  @override
+  String quizLineLeoSessionCompleted2(int score, int total) {
+    return 'Séance bouclée : $score sur $total.';
+  }
+
+  @override
+  String quizLineLeoMasteryImproved0(String concept) {
+    return '« $concept » : en progrès !';
+  }
+
+  @override
+  String quizLineLeoMasteryImproved1(String concept) {
+    return 'Tu montes sur « $concept ».';
+  }
+
+  @override
+  String quizLineLeoMasteryImproved2(String concept) {
+    return 'Progrès net sur « $concept ».';
+  }
+
+  @override
+  String quizLineLeoNeedsReview0(String concept) {
+    return 'À revoir : « $concept ».';
+  }
+
+  @override
+  String quizLineLeoNeedsReview1(String concept) {
+    return 'Repasse sur « $concept ».';
+  }
+
+  @override
+  String quizLineLeoNeedsReview2(String concept) {
+    return '« $concept » : encore un effort.';
+  }
+
+  @override
+  String get quizPackSectionTitle => 'Quiz de tes cours';
+
+  @override
+  String get quizPackSectionSubtitle =>
+      'Des questions de tes séquences, corrigées sur ton téléphone, même sans connexion.';
+
+  @override
+  String quizPackQuestionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions disponibles',
+      one: '1 question disponible',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quizPackCompanionWith(String name) {
+    return '$name t\'accompagne';
+  }
+
+  @override
+  String get quizPackTraining => 'S\'entraîner';
+
+  @override
+  String get quizPackEvaluation => 'Évaluation';
+
+  @override
+  String get quizPackMixed => 'Révision mixte';
+
+  @override
+  String get quizPackMixedBody =>
+      'Des questions de toutes tes séquences de cette matière.';
+
+  @override
+  String get quizPackSequencesTitle => 'Par séquence';
+
+  @override
+  String get quizPackStart => 'Commencer';
+
+  @override
+  String get quizPackModeTrainingBody =>
+      'Correction et explication après chaque réponse. Indices si tu en as besoin.';
+
+  @override
+  String get quizPackModeEvaluationBody =>
+      'Pas de correction avant la fin. Ton score et ton bilan à la fin.';
+
+  @override
+  String quizPackDistribution(int easy, int medium, int hard) {
+    return 'Niveaux : $easy × 1 · $medium × 2 · $hard × 3';
+  }
+
+  @override
+  String quizPackSessionLength(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '1 question',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quizPackQuestionProgress(int current, int total) {
+    return 'Question $current sur $total';
+  }
+
+  @override
+  String get quizPackValidate => 'Valider';
+
+  @override
+  String get quizPackNext => 'Question suivante';
+
+  @override
+  String get quizPackSeeResult => 'Voir mon bilan';
+
+  @override
+  String get quizPackHint => 'Un indice';
+
+  @override
+  String quizPackHintLabel(int number) {
+    return 'Indice $number';
+  }
+
+  @override
+  String get quizPackCorrect => 'Bonne réponse';
+
+  @override
+  String get quizPackIncorrect => 'Pas encore';
+
+  @override
+  String get quizPackAnswerSaved =>
+      'Réponse enregistrée. La correction viendra à la fin.';
+
+  @override
+  String get quizPackResultTitle => 'Ton bilan';
+
+  @override
+  String quizPackScore(int score, int total) {
+    return '$score sur $total';
+  }
+
+  @override
+  String get quizPackMastered => 'Réussies';
+
+  @override
+  String get quizPackToReview => 'À revoir';
+
+  @override
+  String quizPackConceptScore(String title, int correct, int total) {
+    return '$title · $correct/$total';
+  }
+
+  @override
+  String get quizPackReview => 'Revoir mes réponses';
+
+  @override
+  String get quizPackRetry => 'Recommencer';
+
+  @override
+  String get quizPackContinue => 'Continuer mon parcours';
+
+  @override
+  String get quizPackReviewTitle => 'Tes réponses';
+
+  @override
+  String get quizPackUnscoredNote =>
+      'Les questions à réponse rédigée restent dans tes leçons : elles ne comptent pas dans ce score.';
+
+  @override
+  String get quizPackRecentTitle => 'Tes dernières séances';
+
+  @override
+  String quizPackRecentRow(String title, String mode, int score, int total) {
+    return '$title · $mode · $score/$total';
+  }
+
+  @override
+  String get quizPackNoLesson =>
+      'Aucune question disponible pour ce quiz pour l\'instant.';
+
+  @override
+  String get quizPackPublishedTitle => 'Quiz publiés par tes professeurs';
+
+  @override
+  String quizPackCompanionA11y(String name, String line) {
+    return '$name dit : $line';
+  }
 }
