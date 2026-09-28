@@ -307,9 +307,16 @@ void main() {
     );
   });
 
-  // Lancement : la séquence de marque à 0, 25, 50, 75 et 100 %.
-  for (final percent in const [0, 25, 50, 75, 100]) {
-    testWidgets('09 lancement à $percent %', (tester) async {
+  // Lancement : la séquence cinématique à ses moments clés.
+  for (final (name, ms) in const [
+    ('0000_atmosphere', 0),
+    ('0300_fragments', 300),
+    ('0650_fragments', 650),
+    ('1320_lock', 1320),
+    ('1600_sweep', 1600),
+    ('2350_exit', 2350),
+  ]) {
+    testWidgets('09 lancement $name', (tester) async {
       // Le logo est décodé avant la capture, comme au vrai lancement.
       await tester.runAsync(() async {
         final done = Completer<void>();
@@ -326,10 +333,10 @@ void main() {
       });
       await capture(
         tester,
-        '09_launch_${percent.toString().padLeft(3, '0')}.png',
+        '09_launch_$name.png',
         child: LaunchScene(
           frame: LaunchMotion.frameAt(
-            LaunchMotion.entrance * (percent / 100),
+            Duration(milliseconds: ms),
             LaunchPace.full,
           ),
         ),

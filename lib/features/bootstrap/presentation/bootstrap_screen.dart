@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/assets/intellia_assets.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../onboarding/data/onboarding_preferences.dart';
 import 'widgets/brand_launch_palette.dart';
 import 'widgets/launch_motion.dart';
 import 'widgets/launch_scene.dart';
@@ -16,18 +17,19 @@ import 'widgets/launch_scene.dart';
 /// couleur entre le lancement du système et la séquence de marque.
 const Color kSplashBackground = BrandLaunchPalette.surface;
 
-/// Le lancement : le logo officiel se révèle sur une surface claire pendant
-/// que l'application s'initialise.
+/// Le lancement : INTELLIA237 prend forme pendant que l'application
+/// s'initialise.
 ///
-/// La séquence ne ralentit personne :
-/// - premier lancement : la séquence complète (≈ 1,2 s), puis la sortie du
-///   logo pendant que l'écran suivant apparaît ;
-/// - session restaurable : l'espace s'ouvre aussitôt, le logo se pose
-///   brièvement s'il en a le temps ;
-/// - animations réduites : le logo est immobile et l'attente minimale.
+/// - Première expérience (onboarding jamais vu, aucune session) : la
+///   séquence cinématique complète, ≈ 2,55 s.
+/// - Retour (onboarding vu ou session restaurable) : apparition, lock,
+///   sortie, ≈ 0,9 s.
+/// - Animations réduites : le logo est là, une légère transition
+///   d'opacité, 0,45 s.
 ///
-/// `completeBootstrap` résout la session et déclenche la navigation : c'est
-/// l'écran qui choisit le moment de l'appeler.
+/// `completeBootstrap` résout la session et déclenche la navigation : il est
+/// appelé une seule fois, au début de la sortie, pour que l'écran suivant
+/// apparaisse pendant que le logo s'en va.
 class BootstrapScreen extends ConsumerStatefulWidget {
   const BootstrapScreen({super.key});
 
@@ -36,38 +38,47 @@ class BootstrapScreen extends ConsumerStatefulWidget {
 }
 
 class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
-    with TickerProviderStateMixin {
-  late final AnimationController _entrance;
-  late final AnimationController _exit;
-  final _entered = Completer<void>();
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _timeline;
   LaunchPace _pace = LaunchPace.full;
   bool _started = false;
-  bool _signed = false;
+  bool _locked = false;
+  bool _navigating = false;
   bool _failed = false;
+
+  /// La sortie est finie mais l'écran suivant tarde (session lente à
+  /// résoudre) : le logo revient, rien ne reste vide.
+  bool _waiting = false;
+  Timer? _waitTimer;
+
+  Duration get _elapsed => LaunchMotion.durationOf(_pace) * _timeline.value;
 
   @override
   void initState() {
     super.initState();
-    _entrance = AnimationController(vsync: this)
-      ..addListener(_signIfDue)
+    _timeline = AnimationController(vsync: this)
+      ..addListener(_onTick)
       ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) _markEntered();
+        if (status != AnimationStatus.completed) return;
+        _waitTimer?.cancel();
+        _waitTimer = Timer(const Duration(milliseconds: 250), () {
+          if (mounted && !_failed) setState(() => _waiting = true);
+        });
       });
-    _exit = AnimationController(vsync: this, duration: LaunchMotion.exit);
   }
 
-  void _markEntered() {
-    if (!_entered.isCompleted) _entered.complete();
-  }
-
-  /// Une seule vibration, légère, quand le logo est entièrement révélé — au
-  /// premier lancement seulement.
-  void _signIfDue() {
-    if (_signed || _pace != LaunchPace.full) return;
-    final elapsed = LaunchMotion.entrance * _entrance.value;
-    if (elapsed < LaunchMotion.signature) return;
-    _signed = true;
-    HapticFeedback.selectionClick();
+  void _onTick() {
+    final elapsed = _elapsed;
+    // LOCK : une seule vibration, la plus subtile, à la première
+    // expérience seulement.
+    if (!_locked && elapsed >= LaunchMotion.lockAt(_pace)) {
+      _locked = true;
+      if (_pace == LaunchPace.full) HapticFeedback.selectionClick();
+    }
+    if (!_navigating && elapsed >= LaunchMotion.navigateAt(_pace)) {
+      _navigating = true;
+      unawaited(_completeBootstrap());
+    }
   }
 
   @override
@@ -75,44 +86,19 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
     super.didChangeDependencies();
     if (_started) return;
     _started = true;
-    final restorable = ref
-        .read(authControllerProvider.notifier)
-        .hasRestorableSession;
+    final returning =
+        ref.read(authControllerProvider.notifier).hasRestorableSession ||
+        ref.read(hasSeenOnboardingProvider);
     _pace = MediaQuery.disableAnimationsOf(context)
         ? LaunchPace.still
-        : restorable
+        : returning
         ? LaunchPace.brief
         : LaunchPace.full;
-    _entrance.duration = LaunchMotion.durationOf(_pace);
-    unawaited(_startSequence());
-    unawaited(_runBootstrap(restorable: restorable));
+    _timeline.duration = LaunchMotion.durationOf(_pace);
+    unawaited(_start());
   }
 
-  Future<void> _startSequence() async {
-    if (_pace == LaunchPace.still) {
-      _entrance.value = 1;
-      _markEntered();
-      return;
-    }
-    // Le logo est décodé avant d'apparaître, sans jamais retarder la
-    // séquence de plus d'un instant.
-    await Future.any<void>([
-      precacheImage(
-        const AssetImage(IntelliaBrandAssets.logo),
-        context,
-      ).catchError((Object error) {
-        debugPrint('Non-critical logo precaching failed: $error');
-      }),
-      Future<void>.delayed(const Duration(milliseconds: 150)),
-    ]);
-    if (mounted) unawaited(_entrance.forward());
-  }
-
-  Future<void> _runBootstrap({required bool restorable}) async {
-    // Hors de la construction en cours : l'initialisation change l'état
-    // d'authentification, ce qu'un build ne doit jamais faire.
-    await Future<void>.value();
-    if (!mounted) return;
+  Future<void> _start() async {
     // Précache des compagnons — n'empêche jamais le démarrage.
     unawaited(
       Future.wait([
@@ -129,67 +115,72 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
         return <void>[];
       }),
     );
-    // Registre de décisions (QA appareil, 23/09/2026) : une personne déjà
-    // connectée retrouve son espace sans attendre la séquence ; celle-ci
-    // n'est complète qu'au premier lancement.
-    if (!restorable) {
-      if (_pace == LaunchPace.still) {
-        await Future<void>.delayed(LaunchMotion.stillHold);
-      } else {
-        await _entered.future;
-      }
-      if (!mounted) return;
-      // Le logo sort pendant que l'écran suivant apparaît : la navigation
-      // part en même temps que la sortie, pas après.
-      if (_pace == LaunchPace.full) unawaited(_exit.forward(from: 0));
-    }
-    if (!mounted) return;
+    // Le logo est décodé avant d'apparaître, sans jamais retarder la
+    // séquence de plus d'un instant.
+    await Future.any<void>([
+      precacheImage(
+        const AssetImage(IntelliaBrandAssets.logo),
+        context,
+      ).catchError((Object error) {
+        debugPrint('Non-critical logo precaching failed: $error');
+      }),
+      Future<void>.delayed(const Duration(milliseconds: 150)),
+    ]);
+    if (mounted) unawaited(_timeline.forward());
+  }
+
+  Future<void> _completeBootstrap() async {
     final controller = ref.read(authControllerProvider.notifier);
     try {
       await controller.completeBootstrap();
     } catch (error, stackTrace) {
       debugPrint('Bootstrap initialisation failed: $error');
       debugPrintStack(stackTrace: stackTrace);
-      if (mounted) {
-        _exit.value = 0;
-        setState(() => _failed = true);
-      }
+      if (mounted) setState(() => _failed = true);
     }
   }
 
   void _retry() {
-    setState(() => _failed = false);
-    unawaited(_runBootstrap(restorable: false));
+    setState(() {
+      _failed = false;
+      _waiting = false;
+    });
+    unawaited(_completeBootstrap());
   }
 
   @override
   void dispose() {
-    _entrance.dispose();
-    _exit.dispose();
+    _waitTimer?.cancel();
+    _timeline.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final Widget scene;
+    if (_failed || _waiting) {
+      scene = TweenAnimationBuilder<double>(
+        key: const ValueKey('launch-return'),
+        tween: Tween(begin: _failed ? 1 : 0, end: 1),
+        duration: const Duration(milliseconds: 300),
+        builder: (context, opacity, _) => LaunchScene(
+          key: const ValueKey('launch-scene'),
+          frame: LaunchFrame.lockedAt(opacity),
+          below: _failed ? _BootstrapError(onRetry: _retry) : null,
+        ),
+      );
+    } else {
+      scene = AnimatedBuilder(
+        animation: _timeline,
+        builder: (context, _) => LaunchScene(
+          key: const ValueKey('launch-scene'),
+          frame: LaunchMotion.frameAt(_elapsed, _pace),
+        ),
+      );
+    }
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: BrandLaunchPalette.systemBars,
-      child: Scaffold(
-        backgroundColor: kSplashBackground,
-        body: AnimatedBuilder(
-          animation: Listenable.merge([_entrance, _exit]),
-          builder: (context, _) => LaunchScene(
-            key: const ValueKey('launch-scene'),
-            frame: _failed
-                ? LaunchFrame.settled
-                : LaunchMotion.frameAt(
-                    LaunchMotion.durationOf(_pace) * _entrance.value,
-                    _pace,
-                  ),
-            exit: _failed ? 0 : _exit.value,
-            below: _failed ? _BootstrapError(onRetry: _retry) : null,
-          ),
-        ),
-      ),
+      child: Scaffold(backgroundColor: kSplashBackground, body: scene),
     );
   }
 }
