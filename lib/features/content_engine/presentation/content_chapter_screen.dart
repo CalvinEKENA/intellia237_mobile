@@ -10,7 +10,9 @@ import '../application/content_providers.dart';
 import '../domain/chapter.dart';
 import '../domain/mastery.dart';
 import '../engine/adaptive_engine.dart';
+import '../application/subject_journey.dart';
 import 'content_style.dart';
+import 'learning_cards.dart';
 
 /// Un chapitre local : ses leçons, dans l'ordre conseillé, avec la maîtrise
 /// de chaque notion.
@@ -115,63 +117,38 @@ class _ChapterBody extends StatelessWidget {
         const SizedBox(height: IntelliaSpacing.lg),
         for (final lesson in chapter.lessons)
           Padding(
-            padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
-            child: _LessonTile(
+            padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm + 2),
+            child: LessonCard(
               chapter: chapter,
-              lessonNumber: lesson.number,
-              title: lesson.title,
-              score: lesson.conceptId == null
-                  ? 0
-                  : snapshot.conceptState(lesson.conceptId!).score,
+              journey: LessonJourney(
+                lesson: lesson,
+                progress: ConceptsProgress.measure(
+                  lesson.conceptIds,
+                  snapshot,
+                  masteredAt: chapter.mastery.unlockNextLessonAt,
+                ),
+              ),
               unlocked: engine.isLessonUnlocked(
                 chapter,
                 lesson.number,
                 snapshot.concepts,
+              ),
+              // Conseillée, jamais interdite : l'élève garde la main.
+              onTap: () => context.push(
+                AppRoutes.contentLesson(chapter.contentId, lesson.number),
               ),
             ),
           ),
         if (chapter.integrationConcepts.isNotEmpty ||
             chapter.integrationPracticeQuestions.isNotEmpty) ...[
           const SizedBox(height: IntelliaSpacing.md),
-          ContentCard(
-            key: const ValueKey('content-integration-entry'),
-            color: ContentPalette.ink,
-            borderColor: ContentPalette.ink,
+          SynthesisCard(
+            chapter: chapter,
+            title: chapter.integrationConcepts.isNotEmpty
+                ? l10n.ceSynthesis
+                : l10n.ceIntegrationTitle,
             onTap: () =>
                 context.push(AppRoutes.contentIntegration(chapter.contentId)),
-            padding: const EdgeInsets.all(IntelliaSpacing.lg),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.emoji_events_rounded,
-                  color: IntelliaFlag.yellowOnInk,
-                  size: 32,
-                ),
-                const SizedBox(width: IntelliaSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        chapter.integrationConcepts.isNotEmpty
-                            ? l10n.ceSynthesis
-                            : l10n.ceIntegrationTitle,
-                        style: ContentText.title(color: Colors.white, size: 20),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.ceIntegrationBody,
-                        style: ContentText.body(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          size: 13.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.arrow_forward_rounded, color: Colors.white),
-              ],
-            ),
           ),
         ],
       ],
@@ -276,90 +253,6 @@ class _JourneyStep extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _LessonTile extends StatelessWidget {
-  const _LessonTile({
-    required this.chapter,
-    required this.lessonNumber,
-    required this.title,
-    required this.score,
-    required this.unlocked,
-  });
-
-  final Chapter chapter;
-  final int lessonNumber;
-  final String title;
-  final int score;
-  final bool unlocked;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final concept = chapter.conceptForLesson(lessonNumber);
-    return ContentCard(
-      key: ValueKey('content-lesson-$lessonNumber'),
-      // Conseillée, jamais interdite : l'élève garde la main.
-      onTap: () => context.push(
-        AppRoutes.contentLesson(chapter.contentId, lessonNumber),
-      ),
-      child: Row(
-        children: [
-          MasteryRing(
-            score: score,
-            color: unlocked ? ContentPalette.accent : ContentPalette.inkSoft,
-            child: unlocked
-                ? Text('$lessonNumber', style: ContentText.math(size: 16))
-                : const Icon(
-                    Icons.lock_outline_rounded,
-                    size: 16,
-                    color: ContentPalette.inkSoft,
-                  ),
-          ),
-          const SizedBox(width: IntelliaSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.ceLessonLabel(lessonNumber).toUpperCase(),
-                  style: ContentText.eyebrow(color: ContentPalette.inkSoft),
-                ),
-                const SizedBox(height: 2),
-                Text(title, style: ContentText.label(size: 15.5)),
-                if (concept != null && concept.title != title) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    concept.title,
-                    style: ContentText.body(
-                      color: ContentPalette.inkSoft,
-                      size: 13,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 4),
-                Text(
-                  unlocked
-                      ? l10n.ceMasteryPercent(score)
-                      : l10n.ceLessonRecommendedAfter(
-                          chapter.mastery.unlockNextLessonAt,
-                        ),
-                  style: ContentText.body(
-                    color: unlocked
-                        ? ContentPalette.accent
-                        : ContentPalette.inkSoft,
-                    size: 12.5,
-                    weight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.chevron_right_rounded, color: ContentPalette.ink),
-        ],
-      ),
     );
   }
 }

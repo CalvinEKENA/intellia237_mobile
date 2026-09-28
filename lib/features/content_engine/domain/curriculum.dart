@@ -87,17 +87,24 @@ class Curriculum {
   /// Clé de matière normalisée (ex. `mathematiques`, `anglais`) : un pack
   /// qui nomme sa matière dans sa langue (« English ») rejoint la même
   /// matière.
-  String get subjectKey {
-    final key = normalizeKey(subject);
-    return _subjectAliases[key] ?? key;
-  }
-
-  static const _subjectAliases = {
-    'english': 'anglais',
-    'mathematics': 'mathematiques',
-    'maths': 'mathematiques',
-  };
+  String get subjectKey => canonicalSubjectKey(subject);
 }
+
+/// Clé canonique d'une matière, depuis son libellé ou une clé : « English »,
+/// « Anglais » et `anglais` donnent `anglais` ; « Maths » donne
+/// `mathematiques`.
+String canonicalSubjectKey(String subject) {
+  final key = normalizeKey(subject);
+  return _subjectAliases[key] ?? key;
+}
+
+const _subjectAliases = {
+  'english': 'anglais',
+  'mathematics': 'mathematiques',
+  'maths': 'mathematiques',
+  'math': 'mathematiques',
+  'physics': 'physique',
+};
 
 /// Clé de classe : « Terminale D », « Tle D », « terminale » + série « D »
 /// donnent toutes `terminale-d`.

@@ -6499,4 +6499,134 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get authStaffUseShield =>
       'For your professional space, use the School access shield.';
+
+  @override
+  String get ljSubjectsTitle => 'Your subjects';
+
+  @override
+  String get ljSubjectsSubtitle =>
+      'Each subject, its sequences and your progress, even offline.';
+
+  @override
+  String ljSequenceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sequences',
+      one: '1 sequence',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljUnitCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count units',
+      one: '1 unit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljChapterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapters',
+      one: '1 chapter',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljConceptsMastered(int mastered, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      mastered,
+      locale: localeName,
+      other: '$mastered ideas mastered out of $total',
+      one: '1 idea mastered out of $total',
+      zero: 'No idea mastered out of $total',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljProgressPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String ljResume(String title) {
+    return 'Resume · $title';
+  }
+
+  @override
+  String ljOpenSubject(String subject) {
+    return 'Open $subject';
+  }
+
+  @override
+  String get ljStatusNotStarted => 'To start';
+
+  @override
+  String get ljStatusInProgress => 'In progress';
+
+  @override
+  String get ljStatusCompleted => 'Completed';
+
+  @override
+  String get ljStatusToReview => 'To review';
+
+  @override
+  String get ljLastVisited => 'Last visited';
+
+  @override
+  String get ljPracticeTitle => 'Practise';
+
+  @override
+  String get ljPracticeSubtitle =>
+      'Exercises marked straight away, sequence by sequence.';
+
+  @override
+  String ljPracticeExercises(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count marked exercises',
+      one: '1 marked exercise',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljPracticeDone(int done, int total) {
+    return '$done of $total done';
+  }
+
+  @override
+  String ljPracticeFocus(String concept) {
+    return 'To strengthen: $concept';
+  }
+
+  @override
+  String ljPracticeFirst(String concept) {
+    return 'To begin: $concept';
+  }
+
+  @override
+  String get ljPracticeAllMastered => 'All mastered: keep it fresh.';
+
+  @override
+  String get ljPracticeGo => 'Practise';
+
+  @override
+  String get ljFlowForYou => 'For you';
+
+  @override
+  String get ljFlowBySubject => 'By subject';
+
+  @override
+  String get ljFlowNoCards => 'No cards in this subject yet.';
 }

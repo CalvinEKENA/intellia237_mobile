@@ -6536,4 +6536,134 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get authStaffUseShield =>
       'Pour votre espace professionnel, utilisez le bouclier Accès établissement.';
+
+  @override
+  String get ljSubjectsTitle => 'Tes matières';
+
+  @override
+  String get ljSubjectsSubtitle =>
+      'Chaque matière, ses séquences et ta progression, même sans connexion.';
+
+  @override
+  String ljSequenceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count séquences',
+      one: '1 séquence',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljUnitCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count units',
+      one: '1 unit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljChapterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapitres',
+      one: '1 chapitre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljConceptsMastered(int mastered, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      mastered,
+      locale: localeName,
+      other: '$mastered notions maîtrisées sur $total',
+      one: '1 notion maîtrisée sur $total',
+      zero: 'Aucune notion maîtrisée sur $total',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljProgressPercent(int percent) {
+    return '$percent %';
+  }
+
+  @override
+  String ljResume(String title) {
+    return 'Reprendre · $title';
+  }
+
+  @override
+  String ljOpenSubject(String subject) {
+    return 'Ouvrir $subject';
+  }
+
+  @override
+  String get ljStatusNotStarted => 'À commencer';
+
+  @override
+  String get ljStatusInProgress => 'En cours';
+
+  @override
+  String get ljStatusCompleted => 'Terminé';
+
+  @override
+  String get ljStatusToReview => 'À revoir';
+
+  @override
+  String get ljLastVisited => 'Dernière visite';
+
+  @override
+  String get ljPracticeTitle => 'S\'entraîner';
+
+  @override
+  String get ljPracticeSubtitle =>
+      'Des exercices corrigés tout de suite, séquence par séquence.';
+
+  @override
+  String ljPracticeExercises(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercices corrigés',
+      one: '1 exercice corrigé',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljPracticeDone(int done, int total) {
+    return '$done sur $total déjà faits';
+  }
+
+  @override
+  String ljPracticeFocus(String concept) {
+    return 'À consolider : $concept';
+  }
+
+  @override
+  String ljPracticeFirst(String concept) {
+    return 'Pour commencer : $concept';
+  }
+
+  @override
+  String get ljPracticeAllMastered => 'Tout est maîtrisé : garde la main.';
+
+  @override
+  String get ljPracticeGo => 'M\'entraîner';
+
+  @override
+  String get ljFlowForYou => 'Pour toi';
+
+  @override
+  String get ljFlowBySubject => 'Par matière';
+
+  @override
+  String get ljFlowNoCards => 'Pas encore de carte dans cette matière.';
 }

@@ -32,6 +32,7 @@ import '../../features/bootstrap/presentation/bootstrap_screen.dart';
 import '../../features/flow/presentation/flow_screen.dart';
 import '../../features/learn/presentation/chapter_detail_screen.dart';
 import '../../features/content_engine/presentation/content_chapter_screen.dart';
+import '../../features/content_engine/presentation/content_subject_screen.dart';
 import '../../features/content_engine/presentation/content_integration_screen.dart';
 import '../../features/content_engine/presentation/content_lesson_screen.dart';
 import '../../features/content_engine/presentation/games/game_screen.dart';
@@ -351,6 +352,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ),
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.contentSubjectRoute,
+        pageBuilder: (context, state) => buildAppTransitionPage(
+          state: state,
+          child: slot(
+            context,
+            state,
+            ContentSubjectScreen(
+              subjectKey: state.pathParameters['subjectKey'] ?? '',
+            ),
+          ),
+        ),
       ),
       GoRoute(
         path: AppRoutes.contentChapterRoute,

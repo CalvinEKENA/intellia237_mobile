@@ -368,6 +368,48 @@ sans adaptation du pack ni second système de progression.
 * Tests : 320 / 360 / 412 dp × texte 1,0 / 1,3 (anglais, mathématiques,
   physique).
 
+## Learning UI : matières, séquences, leçons, entraînement
+
+* `SubjectVisualIdentity` (`presentation/subject_identity.dart`) : pictogramme,
+  accent clair / sombre et motif abstrait par matière (quadrillage et courbe
+  pour les mathématiques, orbites pour la physique, colonnes éditoriales pour
+  les langues, hexagones, cellules, frise, courbes de niveau, cercles…).
+  Générique : toute matière inconnue reçoit une identité sobre et stable
+  dérivée de sa clé. Contraste AA vérifié par test, en clair et en sombre.
+* Progression (`application/subject_journey.dart`) calculée uniquement depuis
+  `MasteryState` : moyenne des scores, notions au seuil du pack, états
+  « À commencer / En cours / Terminé / À revoir » (« À revoir » = une
+  auto-évaluation « Je dois revoir » ou « Presque »). Aucune seconde
+  progression ; aucune donnée inventée.
+* Apprendre : une carte par matière (progression, notions maîtrisées,
+  « Reprendre · séquence » si l'élève en a ouvert une) ; l'écran de la matière
+  (`/learn/pack-subject/:clé`) présente modules puis séquences (units,
+  chapitres) en cartes ; les leçons d'une séquence sont des cartes (toutes
+  leurs notions comptent) et la synthèse `lesson: 0` a sa propre carte,
+  jamais « Leçon 0 ».
+* S'entraîner (onglet Quiz) : par matière puis séquence, exercices corrigés
+  (jamais les réponses rédigées), exercices déjà faits, notion à consolider ;
+  la carte ouvre l'étape « S'entraîner » de la bonne leçon.
+* Mon Parcours : « Pour toi | Par matière » (contrôle segmenté). Par matière
+  est un filtre d'affichage sur les mêmes cartes : la maîtrise reste unique.
+  Mode et matière sont mémorisés sur l'appareil par élève. La hauteur réelle
+  des commandes fixe la marge haute des cartes : rien ne les recouvre.
+* Dernière séquence ouverte et choix du Parcours : `SharedPreferences`,
+  clés `learning_recents_v1_<élève>` et `flow_view_v1_<élève>`.
+* Mode sombre : les cartes suivent la luminosité de l'onglet ou du thème et
+  sont testées en sombre. L'application impose encore le thème clair
+  (`themeMode: ThemeMode.light`) : l'activation globale reste une décision.
+* Tests : 320 / 360 / 412 dp × texte 1,0 / 1,3, en clair et en sombre.
+
+## Onboarding : signature et dislocation (inchangées, validées)
+
+Contact → `selectionClick` ; reconnaissance → `mediumImpact` ; 320 ms plus
+tard, dans la même frame, capture, premier `heavyImpact`, début de la
+dislocation depuis le centre de l'empreinte et navigation vers la porte
+d'entrée ; second `heavyImpact` 90 ms après. Reduce Motion : ni impact fort,
+ni dislocation. Une seule navigation, même avec un second pouce. Testé ;
+la sensation réelle reste **à vérifier sur Android physique**.
+
 ## Règles d'adaptation (depuis `runtime.mastery`)
 
 * 2 erreurs sur une notion → proposer « Simple » ; 1 de plus → proposer

@@ -10,6 +10,7 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/network/network_status.dart';
 import '../../../core/widgets/tab_section_header.dart';
+import '../../content_engine/presentation/pack_practice_section.dart';
 import '../application/quiz_providers.dart';
 import '../data/quiz_diagnostic.dart';
 import '../domain/quiz_attempt_summary.dart';
@@ -212,6 +213,8 @@ class _QuizHubBodyState extends State<_QuizHubBody> {
         style: Theme.of(context).textTheme.bodyMedium,
       ),
       const SizedBox(height: IntelliaSpacing.md),
+      // Les exercices des packs de la classe, par séquence, hors ligne.
+      const PackPracticeSection(),
       _QuizResultsPanel(quizzes: widget.quizzes),
       const SizedBox(height: IntelliaSpacing.md),
       // Focal : carte d'appel (fond sombre → texte blanc à contraste garanti).

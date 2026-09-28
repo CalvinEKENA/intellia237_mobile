@@ -9,6 +9,7 @@ import 'package:intellia237/features/content_engine/data/learner_content_store.d
 import 'package:intellia237/features/content_engine/presentation/content_chapter_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/content_lesson_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/local_chapters_section.dart';
+import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 
 import 'pack_fixture.dart';
@@ -68,6 +69,7 @@ Future<ProviderContainer> _pump(
   await tester.runAsync(
     () => container.read(localContentSubjectsProvider.future),
   );
+  await settleSubjectJourneys(tester, container);
   for (var i = 0; i < 6; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -75,21 +77,25 @@ Future<ProviderContainer> _pump(
 }
 
 void main() {
-  testWidgets('Apprendre : Physique · Module 1, puis Séquence 1', (
+  testWidgets('Apprendre : une carte Physique, puis Module 1 et Séquence 1', (
     tester,
   ) async {
     await _pump(
       tester,
       const SingleChildScrollView(child: LocalChaptersSection()),
     );
+    final card = find.byKey(const ValueKey('subject-card-physique'));
+    expect(card, findsOneWidget);
+    expect(
+      find.descendant(of: card, matching: find.text('Physique')),
+      findsOneWidget,
+    );
+    await _pump(tester, const ContentSubjectScreen(subjectKey: 'physique'));
     expect(
       find.byKey(const ValueKey('local-module-physique-1')),
       findsOneWidget,
     );
-    expect(
-      find.text('Physique · Module 1 — Mesures et incertitudes'),
-      findsOneWidget,
-    );
+    expect(find.text('Module 1 — Mesures et incertitudes'), findsOneWidget);
     final tile = find.byKey(const ValueKey('local-chapter-$_id'));
     expect(tile, findsOneWidget);
     expect(
@@ -97,11 +103,11 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.descendant(of: tile, matching: find.textContaining('Séquence 1')),
+      find.descendant(of: tile, matching: find.textContaining('SÉQUENCE 1')),
       findsOneWidget,
     );
     expect(
-      find.descendant(of: tile, matching: find.textContaining('Chapitre')),
+      find.descendant(of: tile, matching: find.textContaining('CHAPITRE')),
       findsNothing,
     );
   });
@@ -114,7 +120,7 @@ void main() {
       const SingleChildScrollView(child: LocalChaptersSection()),
       classKey: const ClassKey('terminale', series: 'a'),
     );
-    expect(find.byKey(const ValueKey('local-chapter-$_id')), findsNothing);
+    expect(find.byKey(const ValueKey('subject-card-physique')), findsNothing);
     expect(find.textContaining('Physique'), findsNothing);
   });
 

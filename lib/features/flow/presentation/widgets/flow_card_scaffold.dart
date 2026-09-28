@@ -7,6 +7,7 @@ import '../../domain/flow_subject.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import '../../application/flow_controller.dart';
+import 'flow_view_switcher.dart';
 
 /// Châssis plein écran commun à toutes les cartes du Flow.
 ///
@@ -70,10 +71,11 @@ class FlowCardScaffold extends ConsumerWidget {
         ),
         SafeArea(
           child: Padding(
-            // Marge haute : laisse respirer le HUD superposé par l'écran.
-            padding: const EdgeInsets.fromLTRB(
+            // Marge haute : sous les commandes superposées par l'écran
+            // (HUD, « Pour toi | Par matière »), mesurées par le fil.
+            padding: EdgeInsets.fromLTRB(
               IntelliaSpacing.lg,
-              72,
+              FlowChromeInset.maybeOf(context) ?? 72,
               IntelliaSpacing.lg,
               IntelliaSpacing.lg,
             ),

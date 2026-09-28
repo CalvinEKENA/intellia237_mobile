@@ -68,6 +68,14 @@ const _coveredPublicCardTypes = {
   'ContentCard',
   'GameCard',
   'CompanionReplyCard',
+  // Dedicated test at 320/360/412 px × textScale 1.0/1.3, light and dark,
+  // plus 360 px / textScale 1.5 (Learning UI) :
+  // test/features/content_engine/learning_ui_test.dart.
+  'SubjectCard',
+  'SequenceCard',
+  'LessonCard',
+  'SynthesisCard',
+  'PracticeSequenceCard',
 };
 
 const _longQuestion = QuizQuestion(

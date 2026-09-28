@@ -12,6 +12,7 @@ import 'package:intellia237/features/content_engine/presentation/content_chapter
 import 'package:intellia237/features/content_engine/presentation/content_lesson_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/games/game_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/local_chapters_section.dart';
+import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -141,8 +142,21 @@ void main() {
     await tester.runAsync(
       () => container.read(localContentSubjectsProvider.future),
     );
+    await settleSubjectJourneys(tester, container);
     await _settle(tester);
     expect(find.byKey(LocalChaptersSection.sectionKey), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('subject-card-mathematiques')),
+      findsOneWidget,
+    );
+
+    // La matière ouvre ses chapitres en cartes.
+    final subject = await _pump(
+      tester,
+      const ContentSubjectScreen(subjectKey: 'mathematiques'),
+    );
+    await settleSubjectJourneys(tester, subject);
+    await _settle(tester);
     expect(
       find.byKey(const ValueKey('local-chapter-$_contentId')),
       findsOneWidget,

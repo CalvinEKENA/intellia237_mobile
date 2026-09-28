@@ -11103,6 +11103,156 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Pour votre espace professionnel, utilisez le bouclier Accès établissement.'**
   String get authStaffUseShield;
+
+  /// No description provided for @ljSubjectsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes matières'**
+  String get ljSubjectsTitle;
+
+  /// No description provided for @ljSubjectsSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque matière, ses séquences et ta progression, même sans connexion.'**
+  String get ljSubjectsSubtitle;
+
+  /// No description provided for @ljSequenceCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 séquence} other{{count} séquences}}'**
+  String ljSequenceCount(int count);
+
+  /// No description provided for @ljUnitCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 unit} other{{count} units}}'**
+  String ljUnitCount(int count);
+
+  /// No description provided for @ljChapterCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 chapitre} other{{count} chapitres}}'**
+  String ljChapterCount(int count);
+
+  /// No description provided for @ljConceptsMastered.
+  ///
+  /// In fr, this message translates to:
+  /// **'{mastered, plural, =0{Aucune notion maîtrisée sur {total}} =1{1 notion maîtrisée sur {total}} other{{mastered} notions maîtrisées sur {total}}}'**
+  String ljConceptsMastered(int mastered, int total);
+
+  /// No description provided for @ljProgressPercent.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} %'**
+  String ljProgressPercent(int percent);
+
+  /// No description provided for @ljResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre · {title}'**
+  String ljResume(String title);
+
+  /// No description provided for @ljOpenSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir {subject}'**
+  String ljOpenSubject(String subject);
+
+  /// No description provided for @ljStatusNotStarted.
+  ///
+  /// In fr, this message translates to:
+  /// **'À commencer'**
+  String get ljStatusNotStarted;
+
+  /// No description provided for @ljStatusInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get ljStatusInProgress;
+
+  /// No description provided for @ljStatusCompleted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get ljStatusCompleted;
+
+  /// No description provided for @ljStatusToReview.
+  ///
+  /// In fr, this message translates to:
+  /// **'À revoir'**
+  String get ljStatusToReview;
+
+  /// No description provided for @ljLastVisited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernière visite'**
+  String get ljLastVisited;
+
+  /// No description provided for @ljPracticeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'S\'entraîner'**
+  String get ljPracticeTitle;
+
+  /// No description provided for @ljPracticeSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des exercices corrigés tout de suite, séquence par séquence.'**
+  String get ljPracticeSubtitle;
+
+  /// No description provided for @ljPracticeExercises.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 exercice corrigé} other{{count} exercices corrigés}}'**
+  String ljPracticeExercises(int count);
+
+  /// No description provided for @ljPracticeDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} sur {total} déjà faits'**
+  String ljPracticeDone(int done, int total);
+
+  /// No description provided for @ljPracticeFocus.
+  ///
+  /// In fr, this message translates to:
+  /// **'À consolider : {concept}'**
+  String ljPracticeFocus(String concept);
+
+  /// No description provided for @ljPracticeFirst.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour commencer : {concept}'**
+  String ljPracticeFirst(String concept);
+
+  /// No description provided for @ljPracticeAllMastered.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout est maîtrisé : garde la main.'**
+  String get ljPracticeAllMastered;
+
+  /// No description provided for @ljPracticeGo.
+  ///
+  /// In fr, this message translates to:
+  /// **'M\'entraîner'**
+  String get ljPracticeGo;
+
+  /// No description provided for @ljFlowForYou.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour toi'**
+  String get ljFlowForYou;
+
+  /// No description provided for @ljFlowBySubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par matière'**
+  String get ljFlowBySubject;
+
+  /// No description provided for @ljFlowNoCards.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore de carte dans cette matière.'**
+  String get ljFlowNoCards;
 }
 
 class _AppLocalizationsDelegate

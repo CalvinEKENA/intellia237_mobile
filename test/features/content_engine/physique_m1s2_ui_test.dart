@@ -22,6 +22,7 @@ import 'package:intellia237/features/content_engine/presentation/content_chapter
 import 'package:intellia237/features/content_engine/presentation/content_integration_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/content_lesson_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/local_chapters_section.dart';
+import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/widgets/open_response_panel.dart';
 import 'package:intellia237/features/content_engine/presentation/widgets/practice_panel.dart';
 import 'package:intellia237/features/flow/application/flow_controller.dart';
@@ -153,6 +154,7 @@ Future<ProviderContainer> _pump(
     await tester.runAsync(
       () => container.read(localContentSubjectsProvider.future),
     );
+    await settleSubjectJourneys(tester, container);
   }
   await _settle(tester);
   return container;
@@ -603,11 +605,23 @@ void main() {
     testWidgets('Apprendre M1S2 : hiérarchie et classe Terminale $series', (
       tester,
     ) async {
+      // Apprendre : une carte Physique en C et D, aucune en A ; ses
+      // modules et séquences s'ouvrent dans l'écran de la matière.
       await _pump(
         tester,
         const Scaffold(
           body: SingleChildScrollView(child: LocalChaptersSection()),
         ),
+        classKey: ClassKey('terminale', series: series),
+        catalog: true,
+      );
+      expect(
+        _key('subject-card-physique'),
+        series == 'a' ? findsNothing : findsOneWidget,
+      );
+      await _pump(
+        tester,
+        const ContentSubjectScreen(subjectKey: 'physique'),
         classKey: ClassKey('terminale', series: series),
         catalog: true,
       );
@@ -620,10 +634,7 @@ void main() {
         expect(second, findsNothing);
       } else {
         expect(module, findsOneWidget);
-        expect(
-          find.text('Physique · Module 1 — Mesures et incertitudes'),
-          findsOneWidget,
-        );
+        expect(find.text('Module 1 — Mesures et incertitudes'), findsOneWidget);
         expect(first, findsOneWidget);
         expect(second, findsOneWidget);
         expect(
@@ -637,14 +648,14 @@ void main() {
         expect(
           find.descendant(
             of: second,
-            matching: find.textContaining('Séquence 2'),
+            matching: find.textContaining('SÉQUENCE 2'),
           ),
           findsOneWidget,
         );
         expect(
           find.descendant(
             of: second,
-            matching: find.textContaining('Chapitre'),
+            matching: find.textContaining('CHAPITRE'),
           ),
           findsNothing,
         );

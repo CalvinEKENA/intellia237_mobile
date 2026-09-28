@@ -58,6 +58,7 @@ abstract final class AppRoutes {
   static const contentLessonRoute = '/learn/local/:contentId/lesson/:lesson';
   static const contentGameRoute = '/learn/local/:contentId/game/:gameId';
   static const contentIntegrationRoute = '/learn/local/:contentId/integration';
+  static const contentSubjectRoute = '/learn/pack-subject/:subjectKey';
   static const quizHub = '/quiz';
   static const quizPlayRoute = '/quiz/play/:quizId';
   static const quizResult = '/quiz/result';
@@ -125,6 +126,8 @@ abstract final class AppRoutes {
       '/learn/local/$contentId/lesson/$lesson${step == null ? '' : '?step=$step'}';
   static String contentGame(String contentId, String gameId) =>
       '/learn/local/$contentId/game/$gameId';
+  static String contentSubject(String subjectKey) =>
+      '/learn/pack-subject/$subjectKey';
   static String contentIntegration(String contentId) =>
       '/learn/local/$contentId/integration';
   static String chapterDetail(String subjectId, String chapterId) =>

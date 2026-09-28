@@ -3,6 +3,10 @@ import 'dart:io';
 
 import 'dart:typed_data';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:intellia237/features/content_engine/application/subject_journey.dart';
+
 import 'package:intellia237/features/content_engine/data/content_delivery.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_parser.dart';
 import 'package:intellia237/features/content_engine/data/content_pack_repository.dart';
@@ -65,4 +69,24 @@ class OfflineGateway implements RemoteContentGateway {
   @override
   Future<Uint8List> fetchBundle(String path) =>
       Future.error(StateError('hors ligne'));
+}
+
+/// Attend que les parcours par matière soient calculés.
+///
+/// Le conteneur vit dans le temps simulé du test : sa réponse n'arrive qu'au
+/// prochain `pump`. On alterne donc une vraie attente (lecture des packs sur
+/// disque) et un `pump`, sans jamais attendre `.future` dans `runAsync`.
+Future<void> settleSubjectJourneys(
+  WidgetTester tester,
+  ProviderContainer container,
+) async {
+  for (var i = 0; i < 100; i++) {
+    if (container.read(subjectJourneysProvider).hasValue) break;
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
+    await tester.pump();
+  }
+  expect(container.read(subjectJourneysProvider).hasValue, isTrue);
+  await tester.pump();
 }

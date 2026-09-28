@@ -517,6 +517,124 @@ void main() {
     },
   );
 
+  testWidgets(
+    'haptics: light touch, recognition, then two heavy impacts exactly as the '
+    'screen starts to break from the print, onto the gateway, once',
+    (tester) async {
+      final harness = await _pumpOnboarding(tester, reduceMotion: false);
+      await _reachAscension(tester);
+      final haptics = _recordHaptics(tester);
+      final shatter = harness.providers.read(screenShatterProvider);
+      var navigations = 0;
+      harness.router.routerDelegate.addListener(() => navigations++);
+
+      final finder = find.byKey(const ValueKey('onboarding-enter'));
+      await tester.ensureVisible(finder);
+      await tester.pump();
+      final print = tester.getCenter(finder);
+      final thumb = await tester.startGesture(print);
+      await tester.pump();
+      // Contact : une vibration légère, rien d'autre.
+      expect(haptics, ['HapticFeedbackType.selectionClick']);
+
+      await tester.pump(CampaignSignatureMotion.read);
+      await tester.pump(const Duration(milliseconds: 40));
+      await thumb.up();
+      // Reconnaissance : l'impact moyen, l'écran encore intact.
+      expect(haptics.last, 'HapticFeedbackType.mediumImpact');
+      expect(haptics.where((h) => h.contains('heavy')), isEmpty);
+      expect(shatter.request, isNull);
+
+      // Juste avant la fin du temps de reconnaissance : toujours rien.
+      await tester.pump(
+        CampaignSignatureMotion.recognition - const Duration(milliseconds: 20),
+      );
+      expect(haptics.where((h) => h.contains('heavy')), isEmpty);
+      expect(shatter.request, isNull);
+
+      // L'écran commence à se disloquer dans la même frame que le premier
+      // impact fort, depuis le centre de l'empreinte.
+      await tester.pump(const Duration(milliseconds: 20));
+      expect(shatter.request, isNotNull);
+      expect(
+        haptics.where((h) => h == 'HapticFeedbackType.heavyImpact'),
+        hasLength(1),
+      );
+      // Centre de l'empreinte (le bloc comprend aussi son message).
+      final origin = shatter.request!.origin;
+      expect(origin.dx, closeTo(print.dx, 1));
+      expect(tester.getRect(finder).contains(origin), isTrue);
+      expect(origin.dy, closeTo(print.dy, 12));
+
+      // Le second impact, 90 ms plus tard : une surface qui cède.
+      await tester.pump(const Duration(milliseconds: 89));
+      expect(
+        haptics.where((h) => h == 'HapticFeedbackType.heavyImpact'),
+        hasLength(1),
+      );
+      await tester.pump(const Duration(milliseconds: 2));
+      expect(
+        haptics.where((h) => h == 'HapticFeedbackType.heavyImpact'),
+        hasLength(2),
+      );
+
+      // La porte d'entrée est déjà là, sous les éclats.
+      await tester.pump();
+      expect(find.text('Inscription prête'), findsOneWidget);
+      expect(shatter.request, isNotNull);
+      await tester.pump(ScreenShatterMotion.duration);
+      await tester.pump(const Duration(seconds: 2));
+      expect(shatter.request, isNull);
+      expect(
+        harness.router.routerDelegate.currentConfiguration.uri.path,
+        AppRoutes.authGateway,
+      );
+      // Une seule navigation, aucune vibration de plus.
+      expect(navigations, 1);
+      expect(haptics.where((h) => h.contains('heavy')), hasLength(2));
+      _expectNoLayoutException(tester, 'haptic hand-over');
+    },
+  );
+
+  testWidgets(
+    'reduced motion: touch and recognition only, no heavy impact, no break',
+    (tester) async {
+      final harness = await _pumpOnboarding(tester);
+      await _reachAscension(tester);
+      final haptics = _recordHaptics(tester);
+      await _signPass(tester);
+      expect(haptics, [
+        'HapticFeedbackType.selectionClick',
+        'HapticFeedbackType.mediumImpact',
+      ]);
+      expect(harness.providers.read(screenShatterProvider).request, isNull);
+      expect(find.text('Inscription prête'), findsOneWidget);
+    },
+  );
+
+  testWidgets('a second signature never navigates twice', (tester) async {
+    final harness = await _pumpOnboarding(tester, reduceMotion: false);
+    await _reachAscension(tester);
+    var navigations = 0;
+    harness.router.routerDelegate.addListener(() => navigations++);
+    final finder = find.byKey(const ValueKey('onboarding-enter'));
+    await tester.ensureVisible(finder);
+    await tester.pump();
+    final thumb = await tester.startGesture(tester.getCenter(finder));
+    await tester.pump();
+    await tester.pump(CampaignSignatureMotion.read);
+    await tester.pump(const Duration(milliseconds: 40));
+    // Un second pouce pendant la reconnaissance ne relance rien.
+    final second = await tester.startGesture(tester.getCenter(finder));
+    await tester.pump(CampaignSignatureMotion.recognition);
+    await second.up();
+    await thumb.up();
+    await tester.pump(ScreenShatterMotion.duration);
+    await tester.pump(const Duration(seconds: 2));
+    expect(navigations, 1);
+    expect(find.text('Inscription prête'), findsOneWidget);
+  });
+
   testWidgets('reduced motion signs the pass without breaking the screen', (
     tester,
   ) async {
@@ -740,4 +858,25 @@ String? _assetName(ImageProvider<Object> provider) {
   if (provider is AssetImage) return provider.assetName;
   if (provider is ResizeImage) return _assetName(provider.imageProvider);
   return null;
+}
+
+/// Enregistre les retours haptiques demandés à la plateforme, dans l'ordre.
+List<String> _recordHaptics(WidgetTester tester) {
+  final calls = <String>[];
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+    SystemChannels.platform,
+    (call) async {
+      if (call.method == 'HapticFeedback.vibrate') {
+        calls.add(call.arguments as String);
+      }
+      return null;
+    },
+  );
+  addTearDown(
+    () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      null,
+    ),
+  );
+  return calls;
 }

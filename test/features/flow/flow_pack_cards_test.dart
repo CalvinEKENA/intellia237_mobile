@@ -16,6 +16,7 @@ import 'package:intellia237/features/content_engine/feed/learning_card_factory.d
 import 'package:intellia237/features/content_engine/feed/learning_card_history.dart';
 import 'package:intellia237/features/content_engine/feed/learning_feed_ranker.dart';
 import 'package:intellia237/features/flow/application/flow_controller.dart';
+import 'package:intellia237/features/flow/application/flow_view_prefs.dart';
 import 'package:intellia237/features/flow/data/flow_feed_repository.dart';
 import 'package:intellia237/features/flow/domain/flow_item.dart';
 import 'package:intellia237/features/flow/data/flow_points_gateway.dart';
@@ -307,6 +308,123 @@ void main() {
       }
     });
   }
+
+  group('Pour toi | Par matière', () {
+    final physics = physicsChapter();
+    final physicsCards = const LearningCardFactory()
+        .build(physics)
+        .where((c) => c.question == null)
+        .take(2)
+        .toList();
+    final mixed = [ranked[0], physicsCards[0], ranked[1], physicsCards[1]];
+    LearningFeed mixedFeed() => LearningFeed(
+      cards: mixed,
+      chapters: {chapter.contentId: chapter, physics.contentId: physics},
+    );
+    String subjectOf(_Harness h) =>
+        h.currentView().card.chapter.curriculum.subjectKey;
+
+    testWidgets('par défaut « Pour toi » : le mélange, inchangé', (
+      tester,
+    ) async {
+      final h = await _pump(tester, feed: mixedFeed());
+      expect(find.byKey(const ValueKey('flow-view-mode')), findsOneWidget);
+      expect(find.byKey(const ValueKey('flow-subjects')), findsNothing);
+      expect(h.currentCardId(), 'pack:${mixed[0].id}');
+      await h.swipeUp();
+      expect(h.currentCardId(), 'pack:${mixed[1].id}');
+    });
+
+    testWidgets('« Par matière » filtre l\'affichage, jamais la maîtrise', (
+      tester,
+    ) async {
+      final h = await _pump(tester, feed: mixedFeed());
+      final before = h.container
+          .read(learnerContentControllerProvider)
+          .requireValue;
+      await tester.tap(find.text('Par matière'));
+      await h.watch(const Duration(milliseconds: 600));
+      expect(
+        find.byKey(const ValueKey('flow-subject-mathematiques')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('flow-subject-physique')),
+        findsOneWidget,
+      );
+      // Première matière du fil par défaut.
+      expect(subjectOf(h), 'mathematiques');
+
+      await tester.tap(find.byKey(const ValueKey('flow-subject-physique')));
+      await h.watch(const Duration(milliseconds: 600));
+      expect(h.currentCardId(), 'pack:${physicsCards[0].id}');
+      await h.swipeUp();
+      expect(h.currentCardId(), 'pack:${physicsCards[1].id}');
+      expect(subjectOf(h), 'physique');
+
+      // Même état de maîtrise : un filtre, pas une seconde progression.
+      expect(
+        h.container.read(learnerContentControllerProvider).requireValue,
+        same(before),
+      );
+      final raw = (await SharedPreferences.getInstance()).getString(
+        FlowViewPrefsController.keyFor(_uid),
+      )!;
+      expect(raw, contains('bySubject'));
+      expect(raw, contains('physique'));
+
+      // Retour au mélange : toutes les cartes, depuis le début.
+      await tester.tap(find.text('Pour toi'));
+      await h.watch(const Duration(milliseconds: 600));
+      expect(find.byKey(const ValueKey('flow-subjects')), findsNothing);
+      expect(h.currentCardId(), 'pack:${mixed[0].id}');
+    });
+
+    testWidgets('le dernier choix est retrouvé à la séance suivante', (
+      tester,
+    ) async {
+      final h = await _pump(
+        tester,
+        feed: mixedFeed(),
+        prefs: {
+          FlowViewPrefsController.keyFor(_uid):
+              '{"mode":"bySubject","subject":"physique"}',
+        },
+      );
+      await h.watch(const Duration(milliseconds: 600));
+      expect(find.byKey(const ValueKey('flow-subjects')), findsOneWidget);
+      expect(h.currentCardId(), 'pack:${physicsCards[0].id}');
+    });
+
+    for (final width in [320.0, 360.0, 412.0]) {
+      for (final scale in [1.0, 1.3]) {
+        testWidgets(
+          'aucune commande sur la carte — ${width.toInt()} dp × $scale',
+          (tester) async {
+            final h = await _pump(
+              tester,
+              feed: mixedFeed(),
+              size: Size(width, 780),
+              textScale: scale,
+              prefs: {
+                FlowViewPrefsController.keyFor(_uid):
+                    '{"mode":"bySubject","subject":"physique"}',
+              },
+            );
+            await h.watch(const Duration(milliseconds: 600));
+            final chrome = tester.getRect(
+              find.byKey(const ValueKey('flow-subjects')),
+            );
+            final content = tester.getRect(
+              h.inCurrent(find.byKey(const ValueKey('flow-content-scroll'))),
+            );
+            expect(content.top, greaterThanOrEqualTo(chrome.bottom));
+            expect(tester.takeException(), isNull);
+          },
+        );
+      }
+    }
+  });
 }
 
 const _uid = 'eleve-td';
@@ -415,8 +533,9 @@ Future<_Harness> _pump(
   Size size = const Size(390, 844),
   double textScale = 1,
   HapticMode hapticMode = HapticMode.on,
+  Map<String, Object> prefs = const {},
 }) async {
-  SharedPreferences.setMockInitialValues(const {});
+  SharedPreferences.setMockInitialValues(prefs);
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);

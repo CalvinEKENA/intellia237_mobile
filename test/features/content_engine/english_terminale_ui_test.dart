@@ -8,6 +8,7 @@ import 'package:intellia237/features/content_engine/data/content_pack_repository
 import 'package:intellia237/features/content_engine/data/learner_content_store.dart';
 import 'package:intellia237/features/content_engine/presentation/content_lesson_screen.dart';
 import 'package:intellia237/features/content_engine/presentation/local_chapters_section.dart';
+import 'package:intellia237/features/content_engine/presentation/content_subject_screen.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 
 import 'pack_fixture.dart';
@@ -85,13 +86,30 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  testWidgets('Apprendre : Anglais · Module 1, puis Unit 1 et Unit 2', (
+  testWidgets('Apprendre : carte Anglais, puis Module 1, Unit 1 et Unit 2', (
     tester,
   ) async {
     final container = await _pump(tester, const LocalChaptersSection());
-    await tester.runAsync(
-      () => container.read(localContentSubjectsProvider.future),
+    await settleSubjectJourneys(tester, container);
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    final card = find.byKey(const ValueKey('subject-card-anglais'));
+    expect(card, findsOneWidget);
+    expect(
+      find.descendant(of: card, matching: find.text('Anglais')),
+      findsOneWidget,
     );
+    expect(
+      find.descendant(of: card, matching: find.textContaining('2 units')),
+      findsOneWidget,
+    );
+
+    final subject = await _pump(
+      tester,
+      const ContentSubjectScreen(subjectKey: 'anglais'),
+    );
+    await settleSubjectJourneys(tester, subject);
     for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
@@ -99,15 +117,12 @@ void main() {
       find.byKey(const ValueKey('local-module-anglais-1')),
       findsOneWidget,
     );
-    expect(
-      find.text('Anglais · Module 1 — Family and social life'),
-      findsOneWidget,
-    );
+    expect(find.text('Module 1 — Family and social life'), findsOneWidget);
     expect(find.byKey(const ValueKey('local-chapter-$_u1')), findsOneWidget);
     expect(find.byKey(const ValueKey('local-chapter-$_u2')), findsOneWidget);
     expect(find.text('Applying for a passport'), findsOneWidget);
     expect(find.text('Discussing recreational activities'), findsOneWidget);
-    expect(find.textContaining('Unit 2'), findsOneWidget);
+    expect(find.textContaining('UNIT 2'), findsOneWidget);
   });
 
   testWidgets('leçon à trois notions, niveaux et Compagnon en anglais', (
