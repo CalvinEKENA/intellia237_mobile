@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/assets/intellia_assets.dart';
 import '../../../core/localization/localization_extensions.dart';
+import '../../../core/telemetry/startup_trace.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../onboarding/data/onboarding_preferences.dart';
 import 'widgets/brand_launch_palette.dart';
@@ -132,7 +133,8 @@ class _BootstrapScreenState extends ConsumerState<BootstrapScreen>
   Future<void> _completeBootstrap() async {
     final controller = ref.read(authControllerProvider.notifier);
     try {
-      await controller.completeBootstrap();
+      await StartupTrace.measure('auth-restore', controller.completeBootstrap);
+      StartupTrace.mark(StartupMilestone.bootstrapResolved);
     } catch (error, stackTrace) {
       debugPrint('Bootstrap initialisation failed: $error');
       debugPrintStack(stackTrace: stackTrace);

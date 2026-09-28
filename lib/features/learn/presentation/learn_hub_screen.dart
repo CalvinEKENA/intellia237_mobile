@@ -9,7 +9,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
+import '../../../core/telemetry/startup_trace.dart';
 import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_skeleton.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../../core/widgets/tab_section_header.dart';
@@ -60,6 +62,9 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
     // Une seule source : les parcours de la classe et le catalogue, réunis
     // en une matière par carte.
     final hallAsync = ref.watch(subjectHallProvider);
+    if (hallAsync.valueOrNull?.isNotEmpty ?? false) {
+      StartupTrace.mark(StartupMilestone.learnUsable);
+    }
 
     final content = hallAsync.when(
       loading: _LearnHubLoading.new,
@@ -380,63 +385,71 @@ class _LearnHubLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return CustomScrollView(
-      key: const ValueKey('learn-hub-loading'),
-      slivers: [
-        StickyTabSectionHeader(
-          key: const ValueKey('learn-sticky-header'),
-          eyebrow: l10n.studentSpaceEyebrow,
-          title: l10n.learnTitle,
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            IntelliaSpacing.lg,
-            IntelliaSpacing.md,
-            IntelliaSpacing.lg,
-            132,
-          ),
-          sliver: SliverList.list(
-            children: [
-              const _SkeletonBox(height: 120),
-              const SizedBox(height: IntelliaSpacing.md),
-              const _SkeletonBox(height: 52),
-              const SizedBox(height: IntelliaSpacing.md),
-              for (int i = 0; i < 3; i++) ...[
-                const _SkeletonBox(height: 150),
-                const SizedBox(height: IntelliaSpacing.md),
-              ],
-            ],
-          ),
+    return Stack(
+      children: [
+        const Positioned.fill(child: SubjectHallAuras()),
+        CustomScrollView(
+          key: const ValueKey('learn-hub-loading'),
+          slivers: [
+            StickyTabSectionHeader(
+              key: const ValueKey('learn-sticky-header'),
+              eyebrow: l10n.studentSpaceEyebrow,
+              title: l10n.learnTitle,
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                SubjectHallLayout.gutter,
+                IntelliaSpacing.sm,
+                SubjectHallLayout.gutter,
+                _LearnHubBody.bottomClearance,
+              ),
+              sliver: SliverList.list(
+                children: [
+                  // Bandeau de classe et recherche, à leur taille réelle.
+                  const IntelliaSkeletonBlock(height: 84, radius: 24),
+                  const SizedBox(height: IntelliaSpacing.sm),
+                  const IntelliaSkeletonBlock(height: 48, radius: 16),
+                  const SizedBox(height: IntelliaSpacing.lg),
+                  const IntelliaSkeletonBlock(
+                    width: 150,
+                    height: 22,
+                    radius: 8,
+                  ),
+                  const SizedBox(height: IntelliaSpacing.sm),
+                  // Les cartes du Hall : grille ou rail, comme le vrai Hall.
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final layout = SubjectHallLayout.resolve(
+                        constraints.maxWidth + 2 * SubjectHallLayout.gutter,
+                        MediaQuery.textScalerOf(context).scale(1),
+                      );
+                      final card = IntelliaSkeletonBlock(
+                        width: layout.cardWidth,
+                        height: layout.minCardHeight,
+                        radius: SubjectHallCard.radius,
+                      );
+                      final columns = layout.isRail ? 1 : layout.columns;
+                      return Wrap(
+                        key: const ValueKey('learn-hall-skeleton'),
+                        spacing: SubjectHallLayout.gap,
+                        runSpacing: SubjectHallLayout.gap,
+                        children: [
+                          for (
+                            var i = 0;
+                            i < (layout.isRail ? 1 : columns * 2);
+                            i++
+                          )
+                            card,
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
-    );
-  }
-}
-
-class _SkeletonBox extends StatelessWidget {
-  const _SkeletonBox({required this.height});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.55, end: 1.0),
-      duration: const Duration(milliseconds: 900),
-      curve: Curves.easeInOut,
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Container(
-            height: height,
-            decoration: BoxDecoration(
-              color: s.surfaceMuted,
-              borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-            ),
-          ),
-        );
-      },
     );
   }
 }

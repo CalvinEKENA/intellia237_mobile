@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +11,13 @@ import '../domain/student_home_snapshot.dart';
 
 abstract class StudentHomeRepository {
   Future<StudentHomeSnapshot> fetchHomeSnapshot({required String firstName});
+}
+
+/// Accueil en deux temps : [fetchHomeSnapshot] rend aussitôt ce que
+/// l'appareil connaît ; [hydrate] complète ensuite, à mesure que les sources
+/// en ligne répondent (chaque étape émet l'accueil enrichi).
+abstract interface class ProgressiveStudentHomeRepository {
+  Stream<StudentHomeSnapshot> hydrate(StudentHomeSnapshot initial);
 }
 
 /// Mode démo explicite : jamais actif par défaut. Quand il est vrai, l'accueil
@@ -40,13 +49,26 @@ final studentFirstNameProvider = Provider<String>((ref) {
 ///   (`points`, `progress.level`, `streakDays`), sinon absents — l'UI ne
 ///   montre alors tout simplement pas ces cartes.
 /// - Recommandations/défis : vides tant qu'aucune source réelle n'existe.
-class FirestoreStudentHomeRepository implements StudentHomeRepository {
+class FirestoreStudentHomeRepository
+    implements StudentHomeRepository, ProgressiveStudentHomeRepository {
   FirestoreStudentHomeRepository(this._ref, {FirebaseFirestore? firestore})
     : _db = firestore ?? FirebaseFirestore.instance;
 
   final Ref _ref;
   final FirebaseFirestore _db;
 
+  /// Au plus ce délai pour les matières déjà en route : au-delà, l'accueil
+  /// s'affiche et les matières le rejoignent.
+  static const _subjectsBudget = Duration(milliseconds: 250);
+
+  /// Au-delà, le catalogue en ligne est considéré indisponible.
+  static const _subjectsDeadline = Duration(seconds: 20);
+
+  /// Registre de décisions (QA appareil, 28/09/2026) : l'accueil attendait le
+  /// catalogue en ligne (jusqu'à 10 s) avant de s'afficher. Il s'affiche
+  /// désormais avec ce que l'appareil connaît (signet de reprise, dernières
+  /// statistiques en cache) ; matières et statistiques confirmées arrivent
+  /// par [hydrate].
   @override
   Future<StudentHomeSnapshot> fetchHomeSnapshot({
     required String firstName,
@@ -55,15 +77,46 @@ class FirestoreStudentHomeRepository implements StudentHomeRepository {
       _ref.read(authControllerProvider),
     );
 
-    // Subjects are an important entry point, but profile/catalog/network
-    // failures remain isolated from the core home shell. Identity, Flow and
-    // navigation must render immediately after authentication.
-    var subjects = const <SubjectOverview>[];
+    final results = await Future.wait<Object?>([
+      _subjectsWithin(_subjectsBudget),
+      _resume(userId),
+      _fetchGamification(userId, source: Source.cache),
+    ]);
+    final subjects = results[0] as List<SubjectOverview>?;
+    return StudentHomeSnapshot(
+      firstName: firstName,
+      resume: results[1] as ResumeTarget?,
+      subjects: subjects ?? const [],
+      globalProgress: StudentHomeSnapshot.averageProgress(subjects ?? const []),
+      gamification: results[2] as StudentGamification?,
+      subjectsPending: subjects == null,
+    );
+  }
+
+  @override
+  Stream<StudentHomeSnapshot> hydrate(StudentHomeSnapshot initial) async* {
+    var current = initial;
+    if (current.subjectsPending) {
+      final subjects = await _subjectsWithin(_subjectsDeadline);
+      current = current.withSubjects(subjects ?? const []);
+      yield current;
+    }
+    final userId = _ref.read(authControllerProvider).userId;
+    if (userId == null) return;
+    final confirmed = await _fetchGamification(userId);
+    if (confirmed != null && confirmed != current.gamification) {
+      current = current.withGamification(confirmed);
+      yield current;
+    }
+  }
+
+  /// Matières du catalogue en ligne (mêmes identifiants et complétions que
+  /// l'onglet Apprendre), ou null si elles n'arrivent pas dans [budget].
+  /// Une erreur du catalogue donne une liste vide : l'accueil ne tombe pas.
+  Future<List<SubjectOverview>?> _subjectsWithin(Duration budget) async {
     try {
-      final hub = await _ref
-          .read(learnHubProvider.future)
-          .timeout(const Duration(seconds: 10));
-      subjects = [
+      final hub = await _ref.read(learnHubProvider.future).timeout(budget);
+      return [
         for (final subject in hub.subjects)
           SubjectOverview(
             id: subject.id,
@@ -73,35 +126,36 @@ class FirestoreStudentHomeRepository implements StudentHomeRepository {
             iconKey: subject.iconKey,
           ),
       ];
+    } on TimeoutException {
+      return null;
     } catch (_) {
-      subjects = const <SubjectOverview>[];
+      return const [];
     }
-
-    final globalProgress = subjects.isEmpty
-        ? null
-        : subjects.fold<double>(0, (total, s) => total + s.progress) /
-              subjects.length;
-
-    ResumeTarget? resume;
-    try {
-      final store = await _ref.read(lessonResumeStoreProvider.future);
-      resume = store.read(userId);
-    } catch (_) {
-      resume = null; // Le signet local ne doit jamais bloquer l'accueil.
-    }
-
-    return StudentHomeSnapshot(
-      firstName: firstName,
-      resume: resume,
-      subjects: subjects,
-      globalProgress: globalProgress,
-      gamification: await _fetchGamification(userId),
-    );
   }
 
-  Future<StudentGamification?> _fetchGamification(String userId) async {
+  Future<ResumeTarget?> _resume(String userId) async {
     try {
-      final doc = await _db.collection('student_profiles').doc(userId).get();
+      final store = await _ref.read(lessonResumeStoreProvider.future);
+      return store.read(userId);
+    } catch (_) {
+      return null; // Le signet local ne doit jamais bloquer l'accueil.
+    }
+  }
+
+  Future<StudentGamification?> _fetchGamification(
+    String userId, {
+    Source source = Source.serverAndCache,
+  }) async {
+    try {
+      final doc = await _db
+          .collection('student_profiles')
+          .doc(userId)
+          .get(GetOptions(source: source))
+          .timeout(
+            source == Source.cache
+                ? const Duration(seconds: 1)
+                : const Duration(seconds: 20),
+          );
       final data = doc.data();
       if (data == null) return null;
 

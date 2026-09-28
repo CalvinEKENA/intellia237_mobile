@@ -89,6 +89,18 @@ class StudentGamification {
   final int level;
   final int? streakDays;
   final String? motivationText;
+
+  @override
+  bool operator ==(Object other) =>
+      other is StudentGamification &&
+      other.currentPoints == currentPoints &&
+      other.level == level &&
+      other.streakDays == streakDays &&
+      other.motivationText == motivationText;
+
+  @override
+  int get hashCode =>
+      Object.hash(currentPoints, level, streakDays, motivationText);
 }
 
 class StudentHomeSnapshot {
@@ -101,6 +113,7 @@ class StudentHomeSnapshot {
     this.recommendations = const [],
     this.challenges = const [],
     this.isDemoData = false,
+    this.subjectsPending = false,
   });
 
   final String firstName;
@@ -123,4 +136,43 @@ class StudentHomeSnapshot {
 
   /// Vrai uniquement pour le repository de démonstration (staging/outillage).
   final bool isDemoData;
+
+  /// Les matières ne sont pas encore arrivées (catalogue en ligne en cours) :
+  /// l'accueil montre leur emplacement, jamais un faux « rien pour
+  /// l'instant ».
+  final bool subjectsPending;
+
+  /// Même accueil, matières arrivées (la progression globale suit).
+  StudentHomeSnapshot withSubjects(List<SubjectOverview> subjects) =>
+      StudentHomeSnapshot(
+        firstName: firstName,
+        resume: resume,
+        subjects: subjects,
+        globalProgress: averageProgress(subjects),
+        gamification: gamification,
+        recommendations: recommendations,
+        challenges: challenges,
+        isDemoData: isDemoData,
+      );
+
+  /// Même accueil, statistiques confirmées.
+  StudentHomeSnapshot withGamification(StudentGamification? value) =>
+      StudentHomeSnapshot(
+        firstName: firstName,
+        resume: resume,
+        subjects: subjects,
+        globalProgress: globalProgress,
+        gamification: value,
+        recommendations: recommendations,
+        challenges: challenges,
+        isDemoData: isDemoData,
+        subjectsPending: subjectsPending,
+      );
+
+  /// Moyenne réelle des complétions (null sans matière).
+  static double? averageProgress(List<SubjectOverview> subjects) =>
+      subjects.isEmpty
+      ? null
+      : subjects.fold<double>(0, (total, s) => total + s.progress) /
+            subjects.length;
 }

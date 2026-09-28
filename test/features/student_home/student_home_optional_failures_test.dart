@@ -39,6 +39,9 @@ void main() {
 
       _expectCoreHome();
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-2')));
+      // L'onglet se construit à sa première visite : sa réponse arrive à
+      // l'image suivante.
+      await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.text('Tes quiz arrivent'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-0')));

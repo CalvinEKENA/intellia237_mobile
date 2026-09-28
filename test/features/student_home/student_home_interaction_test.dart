@@ -142,6 +142,9 @@ void main() {
         expect(find.byKey(ValueKey(tab.rootKey)), findsNothing);
       }
       expect(tester.takeException(), isNull);
+      // Les onglets ouverts pendant la rafale viennent d'être construits :
+      // leurs animations d'entrée (délais courts) s'achèvent.
+      await tester.pump(const Duration(seconds: 1));
     });
   }
 

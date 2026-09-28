@@ -13,10 +13,14 @@ import '../../../app/config/build_identity.dart';
 import '../../../app/config/feature_flags.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../../core/telemetry/startup_trace.dart';
+import '../../content_engine/application/content_providers.dart';
+import '../../content_engine/application/subject_journey.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../../../core/widgets/intellia_state_view.dart';
+import '../../../core/widgets/intellia_skeleton.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../ai_companion/presentation/ai_companion_screen.dart';
 import '../../auth/application/auth_controller.dart';
@@ -75,9 +79,21 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   late final AppLifecycleListener _lifecycle;
   DateTime? _hiddenAt;
 
+  /// Onglets déjà ouverts : leur contenu est construit à la première visite
+  /// puis conservé (état, défilement, saisie). L'Accueil l'est d'emblée.
+  final Set<int> _visited = {0};
+
+  /// Préchargements différés, annulés si l'espace se ferme avant.
+  final List<Timer> _warmUps = [];
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      StartupTrace.mark(StartupMilestone.studentShell);
+      _scheduleWarmUps();
+    });
     // Ce que le Studio publie doit atteindre l'élève sans qu'il ferme
     // l'application : au retour après quelques minutes, le fil et les quiz se
     // relisent.
@@ -96,11 +112,47 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
     );
   }
 
+  /// Registre de décisions (QA appareil, 28/09/2026) : les cinq onglets
+  /// étaient construits dès l'ouverture et lançaient ensemble leurs lectures
+  /// en ligne (catalogue, quiz, compagnon, profil), en concurrence avec
+  /// l'Accueil. L'Accueil passe d'abord ; ensuite, en arrière-plan et sans
+  /// rien afficher, les contenus locaux d'Apprendre, puis la mise à jour des
+  /// packs et les quiz publiés, pour que chaque onglet soit prêt à sa
+  /// première visite.
+  void _scheduleWarmUps() {
+    void after(Duration delay, void Function() warmUp) {
+      _warmUps.add(
+        Timer(delay, () {
+          if (mounted) warmUp();
+        }),
+      );
+    }
+
+    after(const Duration(milliseconds: 600), () {
+      ref.read(subjectJourneysProvider);
+    });
+    after(const Duration(seconds: 2), () {
+      ref.read(contentSyncControllerProvider);
+      ref.read(quizHubProvider);
+    });
+  }
+
   @override
   void dispose() {
+    for (final timer in _warmUps) {
+      timer.cancel();
+    }
     _lifecycle.dispose();
     super.dispose();
   }
+
+  /// La racine de chaque onglet existe toujours ; son contenu attend la
+  /// première visite (jamais visible avant : seul l'onglet actif est peint).
+  Widget _lazyTab(int index, String rootKey, Widget Function() content) =>
+      KeyedSubtree(
+        key: ValueKey(rootKey),
+        child: _visited.contains(index) ? content() : const SizedBox.shrink(),
+      );
 
   List<IntelliaBottomNavItem> _navItems(BuildContext context) => [
     IntelliaBottomNavItem(
@@ -173,6 +225,9 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final snapshotAsync = ref.watch(studentHomeControllerProvider);
+    if (snapshotAsync.hasValue) {
+      StartupTrace.mark(StartupMilestone.homeUseful);
+    }
     final showTapDiagnostics = debugShowNavTapCounter;
     final unreadNotifications = ref.watch(unreadNotificationCountProvider);
     _scheduleTourGuideIfNeeded(snapshotAsync);
@@ -229,25 +284,31 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
                         },
                       ),
                     ),
-                    const KeyedSubtree(
-                      key: ValueKey('student-tab-learn'),
-                      child: _EmbeddedTab(
+                    _lazyTab(
+                      1,
+                      'student-tab-learn',
+                      () => const _EmbeddedTab(
                         child: LearnHubScreen(embedded: true),
                       ),
                     ),
-                    const KeyedSubtree(
-                      key: ValueKey('student-tab-quiz'),
-                      child: _EmbeddedTab(child: QuizHubScreen(embedded: true)),
+                    _lazyTab(
+                      2,
+                      'student-tab-quiz',
+                      () => const _EmbeddedTab(
+                        child: QuizHubScreen(embedded: true),
+                      ),
                     ),
-                    const KeyedSubtree(
-                      key: ValueKey('student-tab-companion'),
-                      child: _EmbeddedTab(
+                    _lazyTab(
+                      3,
+                      'student-tab-companion',
+                      () => const _EmbeddedTab(
                         child: AICompanionScreen(embedded: true),
                       ),
                     ),
-                    const KeyedSubtree(
-                      key: ValueKey('student-tab-profile'),
-                      child: StudentProfileTab(),
+                    _lazyTab(
+                      4,
+                      'student-tab-profile',
+                      () => const StudentProfileTab(),
                     ),
                   ],
                 ),
@@ -298,7 +359,10 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   void _selectTab(int index) {
     if (!mounted || index == _currentIndex) return;
     FocusManager.instance.primaryFocus?.unfocus();
-    setState(() => _currentIndex = index);
+    setState(() {
+      _currentIndex = index;
+      _visited.add(index);
+    });
   }
 
   void _handleNavTap(int index) {
@@ -315,6 +379,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
     if (index != previous) FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _currentIndex = index;
+      _visited.add(index);
       if (diagnosticsEnabled) _debugTapCount += 1;
     });
     if (diagnosticsEnabled) {
@@ -519,7 +584,9 @@ class _StudentHomeTab extends ConsumerWidget {
           ),
           KeyedSubtree(
             key: tourTargets[TourGuideTargetIds.studentSubjects],
-            child: snapshot.subjects.isEmpty
+            child: snapshot.subjectsPending
+                ? const _SubjectsArriving()
+                : snapshot.subjects.isEmpty
                 ? IntelliaStateView(
                     kind: IntelliaStateKind.comingSoon,
                     compact: true,
@@ -640,6 +707,28 @@ class _StudentHomeTab extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Les matières arrivent (catalogue en ligne) : leur emplacement, à la
+/// taille du carrousel, plutôt qu'un faux « rien pour l'instant ».
+class _SubjectsArriving extends StatelessWidget {
+  const _SubjectsArriving();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      key: const ValueKey('home-subjects-arriving'),
+      height: 120,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 3,
+        separatorBuilder: (_, _) => const SizedBox(width: IntelliaSpacing.sm),
+        itemBuilder: (_, _) =>
+            const IntelliaSkeletonBlock(width: 160, height: 120),
+      ),
     );
   }
 }

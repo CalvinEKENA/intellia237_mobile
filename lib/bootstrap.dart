@@ -20,12 +20,14 @@ import 'features/onboarding/data/onboarding_preferences.dart';
 import 'core/notifications/learning_reminder_service.dart';
 import 'core/notifications/notification_push_service.dart';
 import 'core/security/app_check_service.dart';
+import 'core/telemetry/startup_trace.dart';
 import 'firebase_options.dart';
 
 Future<void> bootstrap({
   required AppConfig config,
   required FutureOr<Widget> Function() builder,
 }) async {
+  StartupTrace.start();
   // 1. Assurer l'initialisation des widgets Flutter en premier.
   try {
     WidgetsFlutterBinding.ensureInitialized();
@@ -80,10 +82,13 @@ Future<void> bootstrap({
 
   // 3. Hydratation SharedPreferences (locale, quelques millisecondes).
   try {
-    await Future.wait([
-      OnboardingPreferences.hydrate(),
-      AuthEntryPreferences.hydrate(),
-    ]).timeout(const Duration(seconds: 2));
+    await StartupTrace.measure(
+      'preferences',
+      () => Future.wait([
+        OnboardingPreferences.hydrate(),
+        AuthEntryPreferences.hydrate(),
+      ]).timeout(const Duration(seconds: 2)),
+    );
   } catch (error, stackTrace) {
     debugPrint('Preferences hydration failed: $error');
     debugPrintStack(stackTrace: stackTrace);
@@ -97,7 +102,10 @@ Future<void> bootstrap({
   // les notifications étaient attendus en série avant la première image ;
   // ils partent désormais après l'affichage (voir _afterFirstFrame).
   try {
-    await initializeFirebase(config);
+    await StartupTrace.measure(
+      'firebase-init',
+      () => initializeFirebase(config),
+    );
   } catch (error, stackTrace) {
     debugPrint('Firebase initialization failed: $error');
     debugPrintStack(stackTrace: stackTrace);
@@ -244,6 +252,9 @@ Future<void> bootstrap({
 
   try {
     runApp(app);
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => StartupTrace.mark(StartupMilestone.firstFrame),
+    );
   } catch (e, stackTrace) {
     debugPrint('Failed to execute runApp: $e');
     debugPrintStack(stackTrace: stackTrace);
@@ -275,8 +286,10 @@ Future<void> _afterFirstFrame() async {
     debugPrintStack(stackTrace: stackTrace);
   }
   try {
-    await LearningReminderService.initialize();
-    await NotificationPushService.initialize();
+    await StartupTrace.measure('notifications', () async {
+      await LearningReminderService.initialize();
+      await NotificationPushService.initialize();
+    });
   } catch (error, stackTrace) {
     debugPrint('Local notification initialization failed: $error');
     debugPrintStack(stackTrace: stackTrace);

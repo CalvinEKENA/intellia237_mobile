@@ -11,6 +11,7 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/widgets/liquid_background.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../../core/localization/localization_extensions.dart';
+import '../../../core/telemetry/startup_trace.dart';
 import '../application/ai_companion_controller.dart';
 import '../domain/ai_companion_reply.dart';
 import '../domain/ai_message.dart';
@@ -40,6 +41,7 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      StartupTrace.mark(StartupMilestone.companionUsable);
       if (mounted) {
         ref
             .read(aiCompanionControllerProvider.notifier)
@@ -710,12 +712,16 @@ class _QuickPromptChips extends StatelessWidget {
                         color: IntelliaColors.brandIndigo,
                       ),
                       const SizedBox(width: 5),
-                      Text(
-                        prompts[i],
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: IntelliaColors.brandIndigo,
+                      // Une suggestion longue revient à la ligne dans sa
+                      // pastille, jamais hors de l'écran.
+                      Flexible(
+                        child: Text(
+                          prompts[i],
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: IntelliaColors.brandIndigo,
+                          ),
                         ),
                       ),
                     ],

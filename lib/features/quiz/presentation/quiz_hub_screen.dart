@@ -9,7 +9,9 @@ import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/network/network_status.dart';
+import '../../../core/telemetry/startup_trace.dart';
 import '../../../core/widgets/tab_section_header.dart';
+import '../../content_engine/application/subject_journey.dart';
 import '../../content_engine/presentation/pack_practice_section.dart';
 import '../application/quiz_providers.dart';
 import '../data/quiz_diagnostic.dart';
@@ -18,6 +20,7 @@ import '../domain/quiz_mode.dart';
 import '../domain/quiz_model.dart';
 import 'widgets/quiz_unavailable_state.dart';
 import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_skeleton.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 
 class QuizHubScreen extends ConsumerWidget {
@@ -29,11 +32,36 @@ class QuizHubScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final quizAsync = ref.watch(quizHubProvider);
     final offline = ref.watch(isOfflineProvider);
+    // Les exercices des packs de la classe vivent sur l'appareil : ils
+    // restent jouables quand les quiz publiés tardent ou manquent.
+    final packPractice = ref.watch(
+      subjectJourneysProvider.select(
+        (journeys) =>
+            journeys.valueOrNull?.any(
+              (journey) => journey.chapters.any(
+                (chapter) => chapter.scoredQuestions > 0,
+              ),
+            ) ??
+            false,
+      ),
+    );
+    if (packPractice || quizAsync.hasValue) {
+      StartupTrace.mark(StartupMilestone.quizUsable);
+    }
 
     final content = quizAsync.when(
-      loading: () =>
-          offline ? const _OfflineQuizHubState() : const _QuizHubLoading(),
-      error: (error, stackTrace) => offline
+      // Les quiz publiés tardent : l'onglet montre déjà sa structure et les
+      // exercices des packs (locaux), les quiz publiés les rejoignent.
+      loading: () => offline && !packPractice
+          ? const _OfflineQuizHubState()
+          : _QuizHubBody(
+              quizzes: const [],
+              offline: offline,
+              publishedPending: !offline,
+            ),
+      error: (error, stackTrace) => packPractice
+          ? _QuizHubBody(quizzes: const [], offline: offline)
+          : offline
           ? const _OfflineQuizHubState()
           : _QuizFailureState(
               error: error,
@@ -106,53 +134,18 @@ class _QuizFailureState extends StatelessWidget {
   }
 }
 
-/// Chargement : le cadre de l'onglet (titre, présentation, les deux modes)
-/// s'affiche tout de suite ; seuls les quiz arrivent ensuite.
-class _QuizHubLoading extends StatelessWidget {
-  const _QuizHubLoading();
+/// Les quiz publiés arrivent : deux emplacements à la forme des cartes.
+class _PublishedQuizzesArriving extends StatelessWidget {
+  const _PublishedQuizzesArriving();
 
   @override
   Widget build(BuildContext context) {
-    final muted = Theme.of(context).colorScheme.surfaceContainerHighest;
-    return CustomScrollView(
-      key: const ValueKey('quiz-hub-loading'),
-      slivers: [
-        StickyTabSectionHeader(
-          key: const ValueKey('quiz-sticky-header'),
-          eyebrow: context.l10n.studentSpace,
-          title: context.l10n.quizTitle,
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            IntelliaSpacing.lg,
-            IntelliaSpacing.md,
-            IntelliaSpacing.lg,
-            132,
-          ),
-          sliver: SliverList.list(
-            children: [
-              Text(
-                context.l10n.quizHubIntro,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: IntelliaSpacing.md),
-              const _QuizModeGuide(),
-              const SizedBox(height: IntelliaSpacing.lg),
-              for (var i = 0; i < 3; i++) ...[
-                ExcludeSemantics(
-                  child: Container(
-                    height: 88,
-                    decoration: BoxDecoration(
-                      color: muted,
-                      borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: IntelliaSpacing.sm),
-              ],
-            ],
-          ),
-        ),
+    return const Column(
+      key: ValueKey('quiz-hub-loading'),
+      children: [
+        IntelliaSkeletonBlock(height: 88, radius: IntelliaRadii.medium),
+        SizedBox(height: IntelliaSpacing.sm),
+        IntelliaSkeletonBlock(height: 88, radius: IntelliaRadii.medium),
       ],
     );
   }
@@ -186,10 +179,17 @@ extension on _QuizHubFilter {
 }
 
 class _QuizHubBody extends StatefulWidget {
-  const _QuizHubBody({required this.quizzes, required this.offline});
+  const _QuizHubBody({
+    required this.quizzes,
+    required this.offline,
+    this.publishedPending = false,
+  });
 
   final List<QuizModel> quizzes;
   final bool offline;
+
+  /// Les quiz publiés sont en route : leur emplacement, pas « rien ».
+  final bool publishedPending;
 
   @override
   State<_QuizHubBody> createState() => _QuizHubBodyState();
@@ -296,7 +296,9 @@ class _QuizHubBodyState extends State<_QuizHubBody> {
         ),
         const SizedBox(height: IntelliaSpacing.lg),
       ],
-      if (widget.quizzes.isEmpty)
+      if (widget.publishedPending)
+        const _PublishedQuizzesArriving()
+      else if (widget.quizzes.isEmpty)
         IntelliaStateView(
           kind: IntelliaStateKind.comingSoon,
           compact: true,
