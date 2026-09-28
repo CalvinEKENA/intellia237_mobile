@@ -68,8 +68,20 @@ void main() {
           if (source[end] == ')') depth--;
           end++;
         }
-        final found = weight.firstMatch(source.substring(match.end, end));
-        final value = switch (found?.group(1)) {
+        final arguments = source.substring(match.end, end);
+        var found = weight.firstMatch(arguments)?.group(1);
+        // Graisse passée par un paramètre : sa valeur par défaut compte
+        // aussi (« FontWeight weight = FontWeight.w500 »), c'est elle
+        // que reçoit chaque appel qui ne la précise pas.
+        final parameter = RegExp(
+          r'fontWeight:\s*(\w+)\s*[,)]',
+        ).firstMatch(arguments)?.group(1);
+        if (found == null && parameter != null) {
+          found = RegExp(
+            'FontWeight\\??\\s+$parameter\\s*=\\s*FontWeight\\.(w\\d00|bold|normal)',
+          ).allMatches(source.substring(0, match.start)).lastOrNull?.group(1);
+        }
+        final value = switch (found) {
           null || 'normal' => 400,
           'bold' => 700,
           final w => int.parse(w.substring(1)),

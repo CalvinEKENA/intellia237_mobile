@@ -53,10 +53,13 @@ abstract final class ContentText {
         color: color,
       );
 
+  // Graisse par défaut embarquée (Manrope-Regular) : Manrope-Medium ne l'est
+  // pas, et sans téléchargement à l'exécution le texte tomberait sur la
+  // police de repli.
   static TextStyle body({
     Color color = ContentPalette.ink,
     double size = 15.5,
-    FontWeight weight = FontWeight.w500,
+    FontWeight weight = FontWeight.w400,
   }) => GoogleFonts.manrope(
     fontSize: size,
     height: 1.5,
