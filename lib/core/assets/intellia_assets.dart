@@ -1,5 +1,7 @@
 /// Sources visuelles officielles de la marque INTELLIA237.
 abstract final class IntelliaBrandAssets {
+  /// Le wordmark officiel (fond transparent) : héros du lancement.
+  static const logo = 'assets/branding/logo.png';
   static const identityMaster = 'assets/branding/identity_master.png';
   static const appIcon = 'assets/branding/icone.png';
   static const ascensionPoster = 'assets/branding/affiche.jpg';

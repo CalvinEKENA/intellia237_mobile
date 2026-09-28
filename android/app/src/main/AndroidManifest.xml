@@ -13,9 +13,16 @@
         android:allowBackup="false"
         android:fullBackupContent="@xml/backup_rules"
         android:dataExtractionRules="@xml/data_extraction_rules">
+        <!-- Petite icône de notification : Android ne garde que son canal
+             alpha. L'icône de lancement, opaque, y devenait un carré blanc ;
+             ic_stat_intellia est la silhouette blanche du wordmark officiel
+             (tool/branding/derive_launcher_assets.py). -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_launcher" />
+            android:resource="@drawable/ic_stat_intellia" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_accent" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="intellia_updates" />

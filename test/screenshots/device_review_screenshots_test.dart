@@ -1,6 +1,7 @@
 @Tags(['screenshots'])
 library;
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -15,7 +16,10 @@ import 'package:intellia237/core/widgets/tab_presentation.dart';
 import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
 import 'package:intellia237/features/ai_companion/presentation/widgets/chat_bubble.dart';
 import 'package:intellia237/features/ai_companion/presentation/widgets/companion_composer.dart';
+import 'package:intellia237/core/assets/intellia_assets.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
+import 'package:intellia237/features/bootstrap/presentation/widgets/launch_motion.dart';
+import 'package:intellia237/features/bootstrap/presentation/widgets/launch_scene.dart';
 import 'package:intellia237/features/learn/domain/curriculum_catalog.dart';
 import 'package:intellia237/features/learn/domain/learn_subject.dart';
 import 'package:intellia237/features/mastery/domain/mastery_estimate.dart';
@@ -302,4 +306,34 @@ void main() {
       ),
     );
   });
+
+  // Lancement : la séquence de marque à 0, 25, 50, 75 et 100 %.
+  for (final percent in const [0, 25, 50, 75, 100]) {
+    testWidgets('09 lancement à $percent %', (tester) async {
+      // Le logo est décodé avant la capture, comme au vrai lancement.
+      await tester.runAsync(() async {
+        final done = Completer<void>();
+        const AssetImage(IntelliaBrandAssets.logo)
+            .resolve(ImageConfiguration.empty)
+            .addListener(
+              ImageStreamListener(
+                (_, _) => done.isCompleted ? null : done.complete(),
+                onError: (error, _) =>
+                    done.isCompleted ? null : done.completeError(error),
+              ),
+            );
+        await done.future;
+      });
+      await capture(
+        tester,
+        '09_launch_${percent.toString().padLeft(3, '0')}.png',
+        child: LaunchScene(
+          frame: LaunchMotion.frameAt(
+            LaunchMotion.entrance * (percent / 100),
+            LaunchPace.full,
+          ),
+        ),
+      );
+    });
+  }
 }

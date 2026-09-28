@@ -11,6 +11,7 @@ void main() {
 
   test('all supplied official identity and companion assets are present', () {
     const paths = [
+      'assets/branding/logo.png',
       'assets/branding/icone.png',
       'assets/branding/identity_master.png',
       'assets/companions/kira_onboarding_full_body.png',
@@ -34,8 +35,8 @@ void main() {
     );
     expect(pubspec, contains('android: true'));
     expect(pubspec, contains('ios: true'));
-    // Le premier plan adaptatif est une variante technique dérivée de l'icône
-    // officielle, jamais un autre visuel.
+    // Icône adaptative : deux dérivées techniques des sources officielles
+    // (tool/branding/derive_launcher_assets.py), jamais un autre visuel.
     expect(
       pubspec,
       contains(
@@ -44,35 +45,64 @@ void main() {
       ),
     );
     expect(
-      File('assets/branding/icone_adaptive_foreground.png').lengthSync(),
-      greaterThan(0),
+      pubspec,
+      contains(
+        'adaptive_icon_background: '
+        'assets/branding/icone_adaptive_background.png',
+      ),
     );
     expect(pubspec, contains('adaptive_icon_foreground_inset: 0'));
     expect(pubspec, contains('remove_alpha_ios: true'));
+    // L'ancien fond quasi blanc de l'icône précédente a disparu.
+    expect(pubspec, isNot(contains('#FEFEFE')));
     expect(pubspec, isNot(contains('assets/icons/icone_final.png')));
   });
 
-  test('the native splash shows nothing but the paper', () {
-    // Le nom s'écrit côté Flutter, lettre après lettre. Toute image ici la
-    // précéderait d'un logo — précisément ce que le premier écran refuse.
-    final splash = pubspec.substring(pubspec.indexOf('flutter_native_splash:'));
-    expect(splash, contains('color: "#F4EFE5"'));
+  test('the native splash is the launch surface, nothing else', () {
+    // Une couleur unie : celle de la première image Flutter, où le logo se
+    // révèle ensuite. Aucune image dans le splash natif.
+    final splash = pubspec.substring(
+      pubspec.indexOf('\nflutter_native_splash:'),
+    );
+    expect(splash, contains('color: "#F2F9FC"'));
+    expect(splash, contains('color_dark: "#F2F9FC"'));
     expect(splash, isNot(contains('image:')));
+    expect(splash, isNot(contains('#F4EFE5')));
     expect(pubspec, isNot(contains('assets/icons/logo_splash.png')));
     expect(pubspec, isNot(contains('assets/icons/logo_android12.png')));
 
-    final launch = File(
-      'android/app/src/main/res/drawable/launch_background.xml',
-    ).readAsStringSync();
-    expect(launch, contains('@drawable/background'));
-    expect(launch, isNot(contains('@drawable/splash')));
+    for (final variant in ['drawable', 'drawable-night']) {
+      final launch = File(
+        'android/app/src/main/res/$variant/launch_background.xml',
+      ).readAsStringSync();
+      expect(launch, contains('@drawable/background'), reason: variant);
+      expect(launch, isNot(contains('@drawable/splash')), reason: variant);
+    }
 
-    // Android 12 impose une icône : on lui en donne une vide.
-    final android12 = File(
-      'android/app/src/main/res/values-v31/styles.xml',
-    ).readAsStringSync();
-    expect(android12, contains('#F4EFE5'));
-    expect(android12, contains('@drawable/splash_none'));
+    // Android 12+ : la surface, et l'icône de l'application que le système
+    // pose au centre (icône → surface claire → wordmark). Plus d'icône vide.
+    for (final variant in ['values-v31', 'values-night-v31']) {
+      final styles = File(
+        'android/app/src/main/res/$variant/styles.xml',
+      ).readAsStringSync();
+      expect(
+        styles,
+        contains(
+          '<item name="android:windowSplashScreenBackground">#F2F9FC</item>',
+        ),
+        reason: variant,
+      );
+      expect(styles, isNot(contains('splash_none')), reason: variant);
+      expect(
+        styles,
+        isNot(contains('windowSplashScreenAnimatedIcon')),
+        reason: variant,
+      );
+    }
+    expect(
+      File('android/app/src/main/res/drawable/splash_none.xml').existsSync(),
+      isFalse,
+    );
   });
 
   test('INTELLIA PASS cannot reintroduce the legacy header asset', () {
@@ -114,13 +144,20 @@ void main() {
       'android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml',
     ).readAsStringSync();
     expect(adaptiveXml, contains('@drawable/ic_launcher_foreground'));
+    expect(adaptiveXml, contains('@drawable/ic_launcher_background'));
     expect(adaptiveXml, contains('android:inset="0%"'));
-    // Le fond adaptatif reprend la teinte de la carte du visuel validé : un
-    // fond sombre ferait apparaître une bordure autour du logo.
-    expect(
-      File('android/app/src/main/res/values/colors.xml').readAsStringSync(),
-      contains('#FEFEFE'),
-    );
+    for (final density in ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']) {
+      for (final name in [
+        'ic_launcher_foreground',
+        'ic_launcher_background',
+        'ic_stat_intellia',
+      ]) {
+        final path = 'android/app/src/main/res/drawable-$density/$name.png';
+        expect(File(path).lengthSync(), greaterThan(0), reason: path);
+      }
+      final legacy = 'android/app/src/main/res/mipmap-$density/ic_launcher.png';
+      expect(File(legacy).lengthSync(), greaterThan(0), reason: legacy);
+    }
 
     final iosIcon = File(
       'ios/Runner/Assets.xcassets/AppIcon.appiconset/'

@@ -112,27 +112,34 @@ flutter_launcher_icons:
     generate: false
   image_path: assets/branding/icone.png
   min_sdk_android: 21
-  # Le visuel validé est posé sur une carte quasi blanche : le fond adaptatif
-  # reprend exactement sa teinte dominante pour ne créer aucune bordure.
-  adaptive_icon_background: "#FEFEFE"
-  # Variante technique dérivée, jamais un redessin : le logo est détouré de sa
-  # carte puis remis à l'échelle pour tenir entièrement dans la zone qu'Android
-  # garantit visible sous tous les masques. Sans elle, « INTELLIA 237 » est
-  # rogné par le masque circulaire.
+  # Icône adaptative : deux dérivées techniques, jamais un redessin
+  # (tool/branding/derive_launcher_assets.py). icone.png est exactement
+  # logo.png posé sur un dégradé mint → pervenche :
+  # - le fond reprend ce dégradé, posé sur les 72 dp visibles ;
+  # - le premier plan est le wordmark de logo.png, réduit pour tenir dans le
+  #   cercle de 66 dp qu'Android garantit sous tous les masques. Sans lui,
+  #   « INTELLIA237 », qui occupe 90 % de la largeur, serait rogné.
+  adaptive_icon_background: assets/branding/icone_adaptive_background.png
   adaptive_icon_foreground: assets/branding/icone_adaptive_foreground.png
   adaptive_icon_foreground_inset: 0
   remove_alpha_ios: true
-  # iOS interdit l'alpha : tout aplatissement se fait sur le fond du visuel.
-  background_color_ios: "#FEFEFE"
+  # icone.png est opaque (RVB) : aucun aplatissement n'a lieu ; la couleur
+  # de secours reprend le médian du dégradé.
+  background_color_ios: "#B0DCEB"
 
-# Splash natif — couche A. Couleur de fond identique au premier frame du
-# Le splash natif ne montre plus rien : il tient seulement le papier de
-# l'onboarding pendant que le moteur démarre. Le nom s'écrit ensuite côté
-# Flutter, lettre après lettre. Toute image ici réintroduirait le logo.
+# Splash natif : une couleur unie, rien d'autre. C'est exactement la
+# surface de la première image Flutter (BrandLaunchPalette.surface), où le
+# logo se révèle ensuite. Sur Android 12+, le système montre l'icône de
+# l'application au centre : icône → surface claire → wordmark.
+# L'application reste en thème clair : même couleur en mode sombre.
 flutter_native_splash:
-  color: "#F4EFE5"
+  color: "#F2F9FC"
+  color_dark: "#F2F9FC"
   android: true
   ios: true
-  web: true
+  # Le web a sa propre page de chargement (web/index.html) : le générateur
+  # n'y injecte pas un second écran.
+  web: false
   android_12:
-    color: "#F4EFE5"
+    color: "#F2F9FC"
+    color_dark: "#F2F9FC"
