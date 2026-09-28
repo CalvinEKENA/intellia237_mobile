@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/establishment.dart';
 import 'establishment_catalog.dart';
 
+/// Établissements partenaires, connectés à INTELLIA : la seule source qui
+/// puisse dire qu'un établissement est partenaire.
 final registrationEstablishmentsProvider =
     FutureProvider.autoDispose<List<Establishment>>((ref) async {
       final response =
@@ -23,9 +25,11 @@ final registrationEstablishmentsProvider =
               region: row['region'] as String? ?? '',
               city: row['city'] as String? ?? '',
               type: EstablishmentType.lycee,
-              subsystem: EstablishmentSubsystem.bilingual,
+              // Le serveur ne transmet pas la langue d'enseignement.
+              subsystem: null,
               educationTypes: EstablishmentEducationType.values,
               status: EstablishmentCatalogStatus.active,
+              isPartner: true,
             );
           })
           .toList(growable: false);

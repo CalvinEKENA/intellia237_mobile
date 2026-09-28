@@ -75,6 +75,8 @@ class StudentRegistrationPayload {
             'name': establishment!.name,
             'city': establishment!.city,
             'region': establishment!.region,
+            'district': establishment!.district,
+            'source': establishment!.source?.name,
             'status': establishment!.status.name,
           },
   };

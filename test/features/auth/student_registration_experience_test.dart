@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/core/widgets/fit_viewport.dart';
-import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import 'package:intellia237/features/student_registration/application/student_registration_controller.dart';
 import 'package:intellia237/features/student_registration/domain/academic_rules.dart';
 import 'package:intellia237/features/student_registration/presentation/student_registration_flow_screen.dart';
@@ -154,23 +153,24 @@ void main() {
         );
         await tester.pump();
 
-        final field = tester.widget<TextField>(
-          find.descendant(
-            of: find.byKey(const ValueKey('passport-establishment')),
-            matching: find.byType(TextField),
-          ),
-        );
-        expect(field.decoration?.hintText, isNotEmpty);
-        expect(
-          field.decoration?.hintStyle?.color,
-          AuthExperienceColors.textTertiary,
-        );
-        final foreground = field.decoration!.hintStyle!.color!;
-        final background = field.decoration!.fillColor!;
-        final contrast =
-            (background.computeLuminance() + 0.05) /
-            (foreground.computeLuminance() + 0.05);
-        expect(contrast, greaterThanOrEqualTo(4.5));
+        // La carte « Ton établissement » : chaque ligne, invitation comprise,
+        // reste lisible sur son fond, quel que soit le thème de l'appareil.
+        final card = find.byKey(const ValueKey('passport-establishment'));
+        final background = tester.widget<Material>(card).color!;
+        final lines = tester
+            .widgetList<Text>(
+              find.descendant(of: card, matching: find.byType(Text)),
+            )
+            .toList();
+        expect(lines, hasLength(3));
+        for (final line in lines) {
+          expect(line.data, isNotEmpty);
+          final foreground = line.style!.color!;
+          final contrast =
+              (background.computeLuminance() + 0.05) /
+              (foreground.computeLuminance() + 0.05);
+          expect(contrast, greaterThanOrEqualTo(4.5), reason: line.data);
+        }
         expect(find.text('Francophone'), findsOneWidget);
         expect(find.text('Anglophone'), findsOneWidget);
         expect(tester.takeException(), isNull);

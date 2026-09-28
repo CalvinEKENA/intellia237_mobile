@@ -9,8 +9,9 @@ import '../domain/registration_diagnostic.dart';
 import '../domain/student_registration_payload.dart';
 import '../domain/student_registration_result.dart';
 import 'student_registration_gateways.dart';
-import 'student_registration_repository.dart';
+import 'reference_establishment_catalog.dart';
 import 'registration_establishments_provider.dart';
+import 'student_registration_repository.dart';
 
 final studentRegistrationRepositoryProvider =
     Provider<StudentRegistrationRepository>((ref) {
@@ -27,9 +28,22 @@ final studentRegistrationRepositoryProvider =
       return FirebaseStudentRegistrationRepository(
         projectId: projectId,
         appId: appId,
-        isRegisteredEstablishment: (id) async => (await ref.read(
-          registrationEstablishmentsProvider.future,
-        )).any((school) => school.id == id),
+        isRegisteredEstablishment: (id) async {
+          // Catalogue de référence ou partenaire serveur. Choisir un
+          // établissement ne donne aucun droit : seul le serveur écrit
+          // establishmentId.
+          final reference = await ref.read(
+            referenceEstablishmentsProvider.future,
+          );
+          if (reference.any((school) => school.id == id)) return true;
+          try {
+            return (await ref.read(
+              registrationEstablishmentsProvider.future,
+            )).any((school) => school.id == id);
+          } on Object {
+            return false;
+          }
+        },
       );
     });
 
@@ -76,8 +90,9 @@ class FirebaseStudentRegistrationRepository
       final school = payload.establishment;
       if (school != null &&
           isRegisteredEstablishment != null &&
-          (school.candidateId == null ||
-              !await isRegisteredEstablishment!(school.candidateId!))) {
+          !(school.isSuggestion ||
+              (school.candidateId != null &&
+                  await isRegisteredEstablishment!(school.candidateId!)))) {
         throw const StudentRegistrationException(
           message: 'Sélectionnez un établissement dans la liste actualisée.',
           code: 'invalid-establishment',

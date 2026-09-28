@@ -6666,4 +6666,135 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ljFlowNoCards => 'Pas encore de carte dans cette matière.';
+
+  @override
+  String get spEyebrow => 'TON ÉTABLISSEMENT';
+
+  @override
+  String get spTitle => 'Retrouve ton lycée ou ton collège';
+
+  @override
+  String get spTriggerHint =>
+      'Touche ici pour le chercher : nom, ville ou quartier.';
+
+  @override
+  String get spSearchHint => 'Nom, ville ou quartier';
+
+  @override
+  String get spSearchLabel => 'Chercher ton établissement';
+
+  @override
+  String get spClearSearch => 'Effacer la recherche';
+
+  @override
+  String get spClose => 'Fermer';
+
+  @override
+  String get spAllCities => 'Toutes';
+
+  @override
+  String get spStartTyping =>
+      'Écris le nom de ton établissement, sa ville ou son quartier.';
+
+  @override
+  String spCityList(int count, String city) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count établissements à $city',
+      one: '1 établissement à $city',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get spBestMatch => 'Meilleur résultat';
+
+  @override
+  String get spPartner => 'Partenaire INTELLIA';
+
+  @override
+  String get spBilingual => 'Bilingue';
+
+  @override
+  String get spAnglophone => 'Anglophone';
+
+  @override
+  String get spFrancophone => 'Francophone';
+
+  @override
+  String get spTrilingual => 'Trilingue';
+
+  @override
+  String get spTechnical => 'Technique';
+
+  @override
+  String get spGeneralAndTechnical => 'Général et technique';
+
+  @override
+  String get spCityUnknown => 'Ville à préciser';
+
+  @override
+  String get spSelectedTitle => 'Ton établissement';
+
+  @override
+  String get spChange => 'Changer';
+
+  @override
+  String get spChangeSemantics => 'Changer d\'établissement';
+
+  @override
+  String get spSelectedNote =>
+      'C\'est noté. Ton établissement confirmera ton inscription.';
+
+  @override
+  String get spPartnerNote =>
+      'Ton établissement utilise INTELLIA : il confirmera ton inscription.';
+
+  @override
+  String get spSuggestionNote =>
+      'Proposition envoyée. Nous vérifions cet établissement.';
+
+  @override
+  String get spNotFoundTitle => 'Ton établissement n\'apparaît pas ?';
+
+  @override
+  String get spNotFoundBody =>
+      'Vérifie l\'orthographe, ou propose-le : nous l\'ajouterons après vérification.';
+
+  @override
+  String get spSuggestAction => 'Proposer mon établissement';
+
+  @override
+  String get spSuggestTitle => 'Proposer mon établissement';
+
+  @override
+  String get spSuggestBody =>
+      'Nous vérifions chaque proposition avant de l\'ajouter.';
+
+  @override
+  String get spSuggestName => 'Nom de l\'établissement';
+
+  @override
+  String get spSuggestCity => 'Ville';
+
+  @override
+  String get spSuggestDistrict => 'Quartier ou arrondissement (facultatif)';
+
+  @override
+  String get spSuggestSubmit => 'Envoyer ma proposition';
+
+  @override
+  String get spSuggestNameRequired => 'Écris le nom de ton établissement.';
+
+  @override
+  String get spSuggestCityRequired => 'Écris la ville de ton établissement.';
+
+  @override
+  String spResultSemantics(String name, String place) {
+    return '$name, $place';
+  }
+
+  @override
+  String get spSearchAllCities => 'Chercher dans toutes les villes';
 }

@@ -11253,6 +11253,234 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Pas encore de carte dans cette matière.'**
   String get ljFlowNoCards;
+
+  /// No description provided for @spEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'TON ÉTABLISSEMENT'**
+  String get spEyebrow;
+
+  /// No description provided for @spTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouve ton lycée ou ton collège'**
+  String get spTitle;
+
+  /// No description provided for @spTriggerHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touche ici pour le chercher : nom, ville ou quartier.'**
+  String get spTriggerHint;
+
+  /// No description provided for @spSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom, ville ou quartier'**
+  String get spSearchHint;
+
+  /// No description provided for @spSearchLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher ton établissement'**
+  String get spSearchLabel;
+
+  /// No description provided for @spClearSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer la recherche'**
+  String get spClearSearch;
+
+  /// No description provided for @spClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get spClose;
+
+  /// No description provided for @spAllCities.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes'**
+  String get spAllCities;
+
+  /// No description provided for @spStartTyping.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris le nom de ton établissement, sa ville ou son quartier.'**
+  String get spStartTyping;
+
+  /// No description provided for @spCityList.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 établissement à {city}} other{{count} établissements à {city}}}'**
+  String spCityList(int count, String city);
+
+  /// No description provided for @spBestMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleur résultat'**
+  String get spBestMatch;
+
+  /// No description provided for @spPartner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partenaire INTELLIA'**
+  String get spPartner;
+
+  /// No description provided for @spBilingual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bilingue'**
+  String get spBilingual;
+
+  /// No description provided for @spAnglophone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anglophone'**
+  String get spAnglophone;
+
+  /// No description provided for @spFrancophone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Francophone'**
+  String get spFrancophone;
+
+  /// No description provided for @spTrilingual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trilingue'**
+  String get spTrilingual;
+
+  /// No description provided for @spTechnical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Technique'**
+  String get spTechnical;
+
+  /// No description provided for @spGeneralAndTechnical.
+  ///
+  /// In fr, this message translates to:
+  /// **'Général et technique'**
+  String get spGeneralAndTechnical;
+
+  /// No description provided for @spCityUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ville à préciser'**
+  String get spCityUnknown;
+
+  /// No description provided for @spSelectedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton établissement'**
+  String get spSelectedTitle;
+
+  /// No description provided for @spChange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer'**
+  String get spChange;
+
+  /// No description provided for @spChangeSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer d\'établissement'**
+  String get spChangeSemantics;
+
+  /// No description provided for @spSelectedNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est noté. Ton établissement confirmera ton inscription.'**
+  String get spSelectedNote;
+
+  /// No description provided for @spPartnerNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton établissement utilise INTELLIA : il confirmera ton inscription.'**
+  String get spPartnerNote;
+
+  /// No description provided for @spSuggestionNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposition envoyée. Nous vérifions cet établissement.'**
+  String get spSuggestionNote;
+
+  /// No description provided for @spNotFoundTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton établissement n\'apparaît pas ?'**
+  String get spNotFoundTitle;
+
+  /// No description provided for @spNotFoundBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie l\'orthographe, ou propose-le : nous l\'ajouterons après vérification.'**
+  String get spNotFoundBody;
+
+  /// No description provided for @spSuggestAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposer mon établissement'**
+  String get spSuggestAction;
+
+  /// No description provided for @spSuggestTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Proposer mon établissement'**
+  String get spSuggestTitle;
+
+  /// No description provided for @spSuggestBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nous vérifions chaque proposition avant de l\'ajouter.'**
+  String get spSuggestBody;
+
+  /// No description provided for @spSuggestName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom de l\'établissement'**
+  String get spSuggestName;
+
+  /// No description provided for @spSuggestCity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ville'**
+  String get spSuggestCity;
+
+  /// No description provided for @spSuggestDistrict.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quartier ou arrondissement (facultatif)'**
+  String get spSuggestDistrict;
+
+  /// No description provided for @spSuggestSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer ma proposition'**
+  String get spSuggestSubmit;
+
+  /// No description provided for @spSuggestNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris le nom de ton établissement.'**
+  String get spSuggestNameRequired;
+
+  /// No description provided for @spSuggestCityRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris la ville de ton établissement.'**
+  String get spSuggestCityRequired;
+
+  /// No description provided for @spResultSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name}, {place}'**
+  String spResultSemantics(String name, String place);
+
+  /// No description provided for @spSearchAllCities.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher dans toutes les villes'**
+  String get spSearchAllCities;
 }
 
 class _AppLocalizationsDelegate

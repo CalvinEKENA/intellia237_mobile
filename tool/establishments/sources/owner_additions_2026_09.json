@@ -1,0 +1,48 @@
+{
+  "comment": "Compléments du propriétaire au classeur « Base maîtresse » (28/09/2026). Aucune métadonnée non vérifiée : un champ inconnu reste null.",
+  "cityRegions": {
+    "Yaoundé": "Centre",
+    "Douala": "Littoral"
+  },
+  "aliases": [
+    {
+      "name": "Collège Privé Laïc Marie Albert II (COMAL II)",
+      "city": "Yaoundé",
+      "aliases": [
+        "Collège Marie Albert",
+        "Collège Marie-Albert",
+        "Collège MARIE-ALBERT",
+        "Marie Albert II",
+        "Marie-Albert II",
+        "COMAL II",
+        "COMAL"
+      ],
+      "reason": "Nom demandé par le propriétaire : alias de l'établissement déjà présent dans la Base maîtresse, jamais un second établissement."
+    }
+  ],
+  "additions": [
+    {
+      "id": "ce-yaounde-mbohmelites-bilingual-college",
+      "name": "MBOHMELITES BILINGUAL COLLEGE",
+      "city": "Yaoundé",
+      "district": "Yaoundé VII",
+      "language": "bilingual",
+      "aliases": ["MBOHMELITES", "Mbohmelites", "Mbohm Elites"],
+      "provenance": {
+        "source": "Propriétaire — arrondissement confirmé par le MINESEC",
+        "confidence": "declared"
+      }
+    },
+    {
+      "id": "college-le-savoir",
+      "name": "Collège LE SAVOIR",
+      "city": null,
+      "district": null,
+      "aliases": ["Le Savoir", "Collège Le Savoir", "College Le Savoir"],
+      "provenance": {
+        "source": "Propriétaire — établissement LE SAVOIR",
+        "confidence": "declared"
+      }
+    }
+  ]
+}

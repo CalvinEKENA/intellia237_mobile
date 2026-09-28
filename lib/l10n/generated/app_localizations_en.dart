@@ -6629,4 +6629,134 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ljFlowNoCards => 'No cards in this subject yet.';
+
+  @override
+  String get spEyebrow => 'YOUR SCHOOL';
+
+  @override
+  String get spTitle => 'Find your secondary school';
+
+  @override
+  String get spTriggerHint =>
+      'Tap here to search: name, city or neighbourhood.';
+
+  @override
+  String get spSearchHint => 'Name, city or neighbourhood';
+
+  @override
+  String get spSearchLabel => 'Search for your school';
+
+  @override
+  String get spClearSearch => 'Clear search';
+
+  @override
+  String get spClose => 'Close';
+
+  @override
+  String get spAllCities => 'All';
+
+  @override
+  String get spStartTyping =>
+      'Type your school\'s name, city or neighbourhood.';
+
+  @override
+  String spCityList(int count, String city) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count schools in $city',
+      one: '1 school in $city',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get spBestMatch => 'Best match';
+
+  @override
+  String get spPartner => 'INTELLIA partner';
+
+  @override
+  String get spBilingual => 'Bilingual';
+
+  @override
+  String get spAnglophone => 'Anglophone';
+
+  @override
+  String get spFrancophone => 'Francophone';
+
+  @override
+  String get spTrilingual => 'Trilingual';
+
+  @override
+  String get spTechnical => 'Technical';
+
+  @override
+  String get spGeneralAndTechnical => 'General and technical';
+
+  @override
+  String get spCityUnknown => 'City to be confirmed';
+
+  @override
+  String get spSelectedTitle => 'Your school';
+
+  @override
+  String get spChange => 'Change';
+
+  @override
+  String get spChangeSemantics => 'Change school';
+
+  @override
+  String get spSelectedNote =>
+      'Noted. Your school will confirm your registration.';
+
+  @override
+  String get spPartnerNote =>
+      'Your school uses INTELLIA: it will confirm your registration.';
+
+  @override
+  String get spSuggestionNote =>
+      'Suggestion sent. We are checking this school.';
+
+  @override
+  String get spNotFoundTitle => 'Can\'t find your school?';
+
+  @override
+  String get spNotFoundBody =>
+      'Check the spelling, or suggest it: we will add it once checked.';
+
+  @override
+  String get spSuggestAction => 'Suggest my school';
+
+  @override
+  String get spSuggestTitle => 'Suggest my school';
+
+  @override
+  String get spSuggestBody => 'We check every suggestion before adding it.';
+
+  @override
+  String get spSuggestName => 'School name';
+
+  @override
+  String get spSuggestCity => 'City';
+
+  @override
+  String get spSuggestDistrict => 'Neighbourhood or district (optional)';
+
+  @override
+  String get spSuggestSubmit => 'Send my suggestion';
+
+  @override
+  String get spSuggestNameRequired => 'Type your school\'s name.';
+
+  @override
+  String get spSuggestCityRequired => 'Type your school\'s city.';
+
+  @override
+  String spResultSemantics(String name, String place) {
+    return '$name, $place';
+  }
+
+  @override
+  String get spSearchAllCities => 'Search all cities';
 }
