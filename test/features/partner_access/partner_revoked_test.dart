@@ -94,19 +94,23 @@ void main() {
     });
   });
 
-  test('aucun fichier du dépôt ne contient une valeur révoquée', () {
-    final result = scanRepoForEmails(
-      (token) => PartnerDigest.isRevoked(PartnerAccess.normalize(token)),
-    );
-    expect(
-      result.scanned,
-      greaterThan(500),
-      reason: 'le contrôle a bien parcouru le dépôt',
-    );
-    expect(
-      result.found,
-      isEmpty,
-      reason: 'une valeur révoquée figure dans : ${result.found}',
-    );
-  }, timeout: const Timeout(Duration(minutes: 3)));
+  test(
+    'aucun fichier du dépôt ne contient une valeur révoquée',
+    () {
+      final result = scanRepoForEmails(
+        (token) => PartnerDigest.isRevoked(PartnerAccess.normalize(token)),
+      );
+      expect(
+        result.scanned,
+        greaterThan(500),
+        reason: 'le contrôle a bien parcouru le dépôt',
+      );
+      expect(
+        result.found,
+        isEmpty,
+        reason: 'une valeur révoquée figure dans : ${result.found}',
+      );
+    },
+    timeout: const Timeout(Duration(minutes: 3)),
+  );
 }
