@@ -1,7 +1,2 @@
 # Preserve the canonical M1S2 bytes used by its manifest SHA-256 checksums.
 assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/*.json text eol=lf
-
-# Le clip du lancement est dérivé à l'octet près (tool/branding/derive_awaken_clip.sh) ;
-# le script doit rester exécutable par bash sur une extraction Windows.
-assets/branding/cinematic/*.mp4 binary
-tool/branding/*.sh text eol=lf
