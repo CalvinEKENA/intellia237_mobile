@@ -43,5 +43,12 @@ Studio : `cd apps/intellia_studio && flutter analyze && flutter test`.
   propriétaire). Prochain `versionCode` Play : **33 ou plus**.
 - Web : `flutter build web --release -t lib/main_production.dart --base-href /`
   (voir `docs/web/DEPLOIEMENT_HOSTINGER.md`).
+- Toute construction destinée au partenaire (essai, staging, production) ajoute
+  `--dart-define-from-file=config/partner_access.local.json` (condensat local,
+  ignoré par git ; sans lui l'accès partenaire n'est pas reconnu). Bundle de
+  production : `pwsh tool/build_partner_release.ps1`, qui échoue clairement
+  sans condensat. La valeur secrète du partenaire n'est jamais écrite dans le
+  dépôt public (une première a fuité et est révoquée) : voir
+  `docs/ACCES_PARTENAIRE.md`.
 
 Commits : terminer par la ligne `Co-Authored-By` demandée par l'outil.

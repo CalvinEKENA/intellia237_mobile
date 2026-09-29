@@ -454,16 +454,20 @@ export const setDemoAccessClass = onCall(
 );
 
 // Accès partenaire : l'adresse exacte du compte de test « démo pour Francis »
-// ouvre son compte canonique (jeton personnalisé émis ici). Aucun secret :
-// décision assumée du propriétaire, voir services/partnerAccess.ts. Fermeture :
+// ouvre son compte canonique (jeton personnalisé émis ici). Décision assumée du
+// propriétaire, voir services/partnerAccess.ts. L'adresse n'est jamais dans le
+// dépôt : elle vit dans Secret Manager (PARTNER_ACCESS_EMAIL). Fermeture :
 // PARTNER_ACCESS_DISABLED=true puis redéploiement.
+const partnerAccessEmail = defineSecret("PARTNER_ACCESS_EMAIL");
+
 export const signInWithPartnerAccess = onCall(
   {
     region: env.FUNCTIONS_REGION,
     timeoutSeconds: 20,
     memory: "256MiB",
+    secrets: [partnerAccessEmail],
   },
-  createSignInWithPartnerAccessHandler(),
+  createSignInWithPartnerAccessHandler(() => partnerAccessEmail.value()),
 );
 
 export const migrateStudentPhoneToParent = onCall(

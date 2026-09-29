@@ -24,6 +24,7 @@ import 'package:intellia237/features/demo_access/application/demo_access_provide
 import 'package:intellia237/features/demo_access/domain/demo_access.dart';
 import 'package:intellia237/features/partner_access/data/partner_access_repository.dart';
 import 'package:intellia237/features/partner_access/domain/partner_access.dart';
+import 'package:intellia237/features/partner_access/domain/partner_digest.dart';
 import 'package:intellia237/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,7 +37,7 @@ import '../content_engine/pack_fixture.dart';
 /// cette adresse, que l'application n'accorde aucun privilège localement, et
 /// que la session ouvre bien un élève de Terminale D.
 
-const _partnerEmail = 'fran6farmer@yahoo.fr';
+const _partnerEmail = 'partenaire.essai@exemple.test';
 
 const _partnerUser = AuthUserData(
   uid: PartnerAccess.uid,
@@ -58,47 +59,67 @@ const _otherUser = AuthUserData(
 
 void main() {
   setUpAll(loadIntelliaFonts);
-  setUp(() => SharedPreferences.setMockInitialValues(const {}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues(const {});
+    // Le dépôt ne connaît pas la vraie adresse : le test pose le condensat
+    // d'une adresse fictive, comme le fait la construction pour la vraie.
+    PartnerAccess.debugUseDigest(
+      PartnerDigest.create(_partnerEmail, iterations: 64).encode(),
+    );
+  });
+  tearDown(PartnerAccess.debugReset);
 
   group('reconnaissance de l’adresse', () {
     test('l’adresse exacte est reconnue', () {
-      expect(PartnerAccess.recognizes('fran6farmer@yahoo.fr'), isTrue);
-      expect(PartnerAccess.canonicalEmail, 'fran6farmer@yahoo.fr');
+      expect(PartnerAccess.recognizes('partenaire.essai@exemple.test'), isTrue);
+      expect(PartnerAccess.isConfigured, isTrue);
     });
 
     test('la casse est ignorée', () {
-      expect(PartnerAccess.recognizes('FRAN6FARMER@YAHOO.FR'), isTrue);
-      expect(PartnerAccess.recognizes('Fran6Farmer@Yahoo.fr'), isTrue);
+      expect(PartnerAccess.recognizes('PARTENAIRE.ESSAI@EXEMPLE.TEST'), isTrue);
+      expect(PartnerAccess.recognizes('Partenaire.Essai@Exemple.test'), isTrue);
     });
 
     test('les espaces autour sont ignorés', () {
-      expect(PartnerAccess.recognizes(' fran6farmer@yahoo.fr '), isTrue);
-      expect(PartnerAccess.recognizes('\tfran6farmer@yahoo.fr\n'), isTrue);
       expect(
-        PartnerAccess.normalize('  FRAN6FARMER@YAHOO.FR  '),
-        'fran6farmer@yahoo.fr',
+        PartnerAccess.recognizes(' partenaire.essai@exemple.test '),
+        isTrue,
+      );
+      expect(
+        PartnerAccess.recognizes('\tpartenaire.essai@exemple.test\n'),
+        isTrue,
+      );
+      expect(
+        PartnerAccess.normalize('  PARTENAIRE.ESSAI@EXEMPLE.TEST  '),
+        'partenaire.essai@exemple.test',
       );
     });
 
     test('un autre domaine n’est pas reconnu', () {
-      expect(PartnerAccess.recognizes('fran6farmer@yahoo.com'), isFalse);
-      expect(PartnerAccess.recognizes('fran6farmer@gmail.com'), isFalse);
+      expect(PartnerAccess.recognizes('partenaire.essai@exemple.com'), isFalse);
+      expect(PartnerAccess.recognizes('partenaire.essai@gmail.com'), isFalse);
     });
 
     test('un autre identifiant n’est pas reconnu', () {
-      expect(PartnerAccess.recognizes('fran6farmer2@yahoo.fr'), isFalse);
-      expect(PartnerAccess.recognizes('xfran6farmer@yahoo.fr'), isFalse);
-      expect(PartnerAccess.recognizes('fran6farme@yahoo.fr'), isFalse);
+      expect(
+        PartnerAccess.recognizes('partenaire.essai2@exemple.test'),
+        isFalse,
+      );
+      expect(
+        PartnerAccess.recognizes('xpartenaire.essai@exemple.test'),
+        isFalse,
+      );
+      expect(PartnerAccess.recognizes('partenaire.essa@exemple.test'), isFalse);
     });
 
     test('ni préfixe, ni suffixe, ni espace intérieur, ni vide', () {
       for (final raw in [
-        'fran6farmer@yahoo.fr.evil.example',
-        'fran6farmer@@yahoo.fr',
-        'fran6 farmer@yahoo.fr',
-        'fran6farmer@yahoo.fr,other@x.fr',
-        'fran6farmer',
-        '@yahoo.fr',
+        'partenaire.essai@exemple.test.evil.example',
+        'partenaire.essai@@exemple.test',
+        'partenaire essai@exemple.test',
+        'partenaire.essai@exemple.test,other@x.fr',
+        'partenaire.essai',
+        '@exemple.test',
         '',
         '   ',
       ]) {
@@ -133,7 +154,7 @@ void main() {
       final harness = _Harness();
       addTearDown(harness.dispose);
       final adoption = await harness.controller.signInWithPartnerAccess(
-        '  FRAN6FARMER@YAHOO.FR ',
+        '  PARTENAIRE.ESSAI@EXEMPLE.TEST ',
       );
       expect(adoption, isA<AuthEntryAdopted>());
       final auth = harness.container.read(authControllerProvider);
@@ -149,7 +170,9 @@ void main() {
       addTearDown(harness.dispose);
       await harness.controller.signInWithPartnerAccess(_partnerEmail);
       await harness.controller.signOut();
-      await harness.controller.signInWithPartnerAccess('FRAN6FARMER@yahoo.fr');
+      await harness.controller.signInWithPartnerAccess(
+        'PARTENAIRE.ESSAI@exemple.test',
+      );
       expect(
         harness.container.read(authControllerProvider).userId,
         PartnerAccess.uid,
@@ -162,8 +185,8 @@ void main() {
       final harness = _Harness();
       addTearDown(harness.dispose);
       for (final other in [
-        'fran6farmer@yahoo.com',
-        'fran6farmer2@yahoo.fr',
+        'partenaire.essai@exemple.com',
+        'partenaire.essai2@exemple.test',
         'student@example.com',
         '',
       ]) {
@@ -462,7 +485,10 @@ void main() {
 
     testWidgets('majuscules et espaces : le même comportement', (tester) async {
       await _pumpLogin(tester, _Harness());
-      for (final raw in ['FRAN6FARMER@YAHOO.FR', ' fran6farmer@yahoo.fr ']) {
+      for (final raw in [
+        'PARTENAIRE.ESSAI@EXEMPLE.TEST',
+        ' partenaire.essai@exemple.test ',
+      ]) {
         await type(tester, raw);
         expect(passwordEnabled(tester), isFalse, reason: raw);
         expect(cta('Accéder à INTELLIA'), findsOneWidget, reason: raw);
@@ -474,10 +500,10 @@ void main() {
     ) async {
       await _pumpLogin(tester, _Harness());
       for (final raw in [
-        'fran6farmer@yahoo.com',
-        'fran6farmer2@yahoo.fr',
+        'partenaire.essai@exemple.com',
+        'partenaire.essai2@exemple.test',
         'student@example.com',
-        'fran6farmer@yahoo',
+        'partenaire.essai@exemple',
       ]) {
         await type(tester, raw);
         expect(passwordEnabled(tester), isTrue, reason: raw);
@@ -495,7 +521,7 @@ void main() {
       await _pumpLogin(tester, _Harness());
       await type(tester, _partnerEmail);
       expect(passwordEnabled(tester), isFalse);
-      await type(tester, 'fran6farmer2@yahoo.fr');
+      await type(tester, 'partenaire.essai2@exemple.test');
       expect(passwordEnabled(tester), isTrue);
       expect(cta('Se connecter'), findsOneWidget);
     });
@@ -505,7 +531,7 @@ void main() {
     ) async {
       final harness = _Harness();
       await _pumpLogin(tester, harness);
-      await type(tester, ' FRAN6FARMER@YAHOO.FR ');
+      await type(tester, ' PARTENAIRE.ESSAI@EXEMPLE.TEST ');
       // Le mot de passe est vide : aucune validation ne le réclame.
       await tester.tap(find.byKey(const ValueKey('login-submit')));
       await tester.pump();
