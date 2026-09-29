@@ -108,7 +108,8 @@ class _AnswerInputState extends State<AnswerInput> {
       RadicalAnswer() ||
       IntervalAnswer() ||
       ExpressionAnswer() ||
-      ExpressionSetAnswer() =>
+      ExpressionSetAnswer() ||
+      ShortTextAnswer() =>
         text('value').isEmpty ? null : TextResponse(text('value')),
       FieldsAnswer(:final fields) =>
         fields.keys.any((key) => text(key).isEmpty)
@@ -163,6 +164,14 @@ class _AnswerInputState extends State<AnswerInput> {
       IntervalAnswer() => _symbolField(
         hint: context.l10n.ceIntervalHint,
         symbols: const ['[', ']', ';', '∞'],
+      ),
+      // Une réponse de langue : clavier système, police de texte, aucune
+      // touche ni indication mathématique.
+      ShortTextAnswer() => _field(
+        'value',
+        label: context.l10n.ceYourAnswer,
+        hint: context.l10n.ceShortTextHint,
+        prose: true,
       ),
       ExpressionAnswer() => _symbolField(
         hint: context.l10n.ceExpressionHint,
@@ -222,6 +231,7 @@ class _AnswerInputState extends State<AnswerInput> {
     bool numeric = false,
     String? hint,
     bool? status,
+    bool prose = false,
   }) {
     final color = status == null
         ? ContentPalette.accent
@@ -235,8 +245,15 @@ class _AnswerInputState extends State<AnswerInput> {
       keyboardType: numeric
           ? const TextInputType.numberWithOptions(signed: true)
           : TextInputType.text,
+      textCapitalization: TextCapitalization.none,
+      // Une réponse de langue est évaluée telle qu'écrite : le clavier ne la
+      // corrige ni ne la suggère à la place de l'élève.
+      autocorrect: !prose,
+      enableSuggestions: !prose,
       inputFormatters: [LengthLimitingTextInputFormatter(60)],
-      style: ContentText.math(size: 20),
+      style: prose
+          ? ContentText.body(size: 18, color: ContentPalette.ink)
+          : ContentText.math(size: 20),
       decoration: InputDecoration(
         hintText: hint,
         hintMaxLines: 3,

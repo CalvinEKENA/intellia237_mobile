@@ -209,6 +209,17 @@ chiffre), `interval`, `expression`, `multi_answer`, décimaux et fractions
 (`0,25`, `1/4`). Une réponse de raisonnement courte (intervalle, formule
 d'un seul bloc) est corrigée ; une phrase ne l'est jamais.
 
+`expression` est réservé aux expressions **mathématiques** (`y=x+1`,
+`x²−4`) : saisie avec touches de symboles. Une réponse de langue (un mot, une
+particule, un groupe verbal : `down`, `be signed`) prend le type
+`short_text` : saisie texte normale, sans symbole ni police mathématique,
+comparée exactement après normalisation prudente (espaces, casse,
+apostrophes typographiques, ponctuation autour). Les variantes valides
+viennent du pack seul, via `accepted_answers` ; aucune ressemblance n'est
+acceptée (`down` ≠ `out`). Un pack qui déclare encore une réponse en mots
+sous `expression` est lu comme `short_text` et reçoit l'erreur de
+validation `question_expression_is_text`.
+
 Transformations des packs (aucune réponse, aucun énoncé modifié) :
 * CH01 : manifeste v2 (`id`, `class_keys: ["terminale-d"]`, version 1,
   moteur 2) ; notion `chapter_integration` ; runtime v2 (`concept_ids`,

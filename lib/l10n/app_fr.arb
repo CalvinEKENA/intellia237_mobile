@@ -3015,6 +3015,7 @@
   "ceRadicalHint": "Valeur exacte, par exemple 5√2",
   "ceDecimalHint": "Nombre décimal ou fraction, par exemple 0,25 ou 1/4",
   "ceIntervalHint": "Par exemple [0;4] ou ]1;+∞[",
+  "ceShortTextHint": "Écris ta réponse",
   "ceExpressionHint": "Par exemple y=x+1",
   "ceExpressionSetHint": "Sépare tes réponses par ;",
   "ceListHint": "Sépare les nombres par des virgules",

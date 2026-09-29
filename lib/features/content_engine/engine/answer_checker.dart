@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../data/content_pack_parser.dart' show isPrime;
 import '../domain/math_text.dart';
 import '../domain/question.dart';
+import '../domain/short_text.dart';
 
 /// Ce que l'élève a répondu, sous une forme que le correcteur comprend.
 sealed class StudentResponse {
@@ -170,6 +171,10 @@ class AnswerChecker {
         _bool(sameExpression(expected, text)),
       (ExpressionSetAnswer(:final texts), TextResponse(:final text)) =>
         _expressionSet(texts, text),
+      (ShortTextAnswer(:final accepted), TextResponse(:final text)) =>
+        normalizeShortText(text).isEmpty
+            ? _unreadable
+            : _bool(matchesShortText(accepted, text)),
       _ => const GradeResult(
         correct: false,
         diagnosis: GradeDiagnosis.unreadable,

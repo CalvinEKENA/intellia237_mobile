@@ -5848,6 +5848,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ceIntervalHint => 'For example [0;4] or ]1;+∞[';
 
   @override
+  String get ceShortTextHint => 'Type your answer';
+
+  @override
   String get ceExpressionHint => 'For example y=x+1';
 
   @override

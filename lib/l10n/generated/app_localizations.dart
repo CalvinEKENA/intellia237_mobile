@@ -10036,6 +10036,12 @@ abstract class AppLocalizations {
   /// **'Par exemple [0;4] ou ]1;+∞['**
   String get ceIntervalHint;
 
+  /// No description provided for @ceShortTextHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris ta réponse'**
+  String get ceShortTextHint;
+
   /// No description provided for @ceExpressionHint.
   ///
   /// In fr, this message translates to:

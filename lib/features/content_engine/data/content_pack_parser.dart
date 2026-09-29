@@ -9,6 +9,7 @@ import '../domain/math_text.dart';
 import '../domain/pack_catalog.dart';
 import '../domain/pedagogy.dart';
 import '../domain/question.dart';
+import '../domain/short_text.dart';
 import '../domain/validation.dart';
 import '../domain/visual_kind.dart';
 
@@ -586,6 +587,23 @@ class ContentPackParser {
         choices,
         accepted: _stringList(map['accepted_answers']),
       );
+      // Un mot ou un groupe de mots déclaré « expression » (ex. « down ») :
+      // c'est une réponse de langue. Elle est lue comme du texte — jamais
+      // avec le clavier mathématique — et le pack doit passer en short_text.
+      if (answer case ExpressionAnswer(:final text) when looksLikeWords(text)) {
+        issue(
+          ContentIssueSeverity.error,
+          'question_expression_is_text',
+          'Réponse « $text » en mots sous le type expression, réservé aux '
+              'expressions mathématiques : utiliser short_text.',
+          path,
+        );
+        answer = ShortTextAnswer([
+          text,
+          for (final other in _stringList(map['accepted_answers']))
+            if (other.trim().isNotEmpty && other != text) other,
+        ]);
+      }
       // Les identifiants de propositions, quand le pack en donne, doivent
       // désigner exactement la réponse : sinon la correction est douteuse.
       if (options.correctLabels case final labels?
@@ -846,6 +864,16 @@ class ContentPackParser {
         return text == null
             ? const UnscorableAnswer('Expression illisible.')
             : ExpressionAnswer(text);
+      case QuestionType.shortText:
+        final text = _string(raw);
+        if (text == null) {
+          return const UnscorableAnswer('Réponse courte illisible.');
+        }
+        return ShortTextAnswer([
+          text,
+          for (final other in accepted)
+            if (other.trim().isNotEmpty && other != text) other,
+        ]);
       case QuestionType.multiAnswer:
         final texts = _stringList(raw);
         return texts.isEmpty || texts.length != ((raw as List?)?.length ?? 0)

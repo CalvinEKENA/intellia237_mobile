@@ -170,8 +170,9 @@ final class IntervalAnswer extends Answer {
   final String display;
 }
 
-/// Une expression ou une équation courte (ex. « y=x+1 »), comparée après
-/// normalisation typographique.
+/// Une expression ou une équation **mathématique** courte (ex. « y=x+1 »,
+/// « x²−4 »), comparée après normalisation typographique. Jamais un mot ni
+/// une réponse de langue : voir [ShortTextAnswer].
 final class ExpressionAnswer extends Answer {
   const ExpressionAnswer(this.text);
   final String text;
@@ -181,6 +182,19 @@ final class ExpressionAnswer extends Answer {
 final class ExpressionSetAnswer extends Answer {
   const ExpressionSetAnswer(this.texts);
   final List<String> texts;
+}
+
+/// Une réponse textuelle courte (un mot, une particule, un groupe verbal :
+/// « down », « be signed »). Saisie comme du texte, comparée exactement
+/// après une normalisation prudente (espaces, casse, apostrophes) à l'une
+/// des formes acceptées **par le pack** — jamais par ressemblance.
+final class ShortTextAnswer extends Answer {
+  const ShortTextAnswer(this.accepted);
+
+  /// La réponse du pack d'abord, puis ses `accepted_answers`.
+  final List<String> accepted;
+
+  String get display => accepted.first;
 }
 
 /// Réponse que le moteur ne sait pas corriger seul : elle n'est jamais
@@ -208,6 +222,7 @@ enum QuestionType {
   numericApprox('numeric_approx'),
   interval('interval'),
   expression('expression'),
+  shortText('short_text'),
   multiAnswer('multi_answer'),
   unknown('unknown');
 

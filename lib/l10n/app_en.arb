@@ -2761,6 +2761,7 @@
   "ceRadicalHint": "Exact value, for example 5√2",
   "ceDecimalHint": "Decimal or fraction, for example 0.25 or 1/4",
   "ceIntervalHint": "For example [0;4] or ]1;+∞[",
+  "ceShortTextHint": "Type your answer",
   "ceExpressionHint": "For example y=x+1",
   "ceExpressionSetHint": "Separate your answers with ;",
   "ceListHint": "Separate the numbers with commas",
