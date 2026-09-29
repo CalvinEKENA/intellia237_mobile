@@ -82,6 +82,23 @@ class LaunchFrame {
   /// Sortie vers l'écran suivant (0 → 1).
   final double exit;
 
+  /// La même image avec une autre présence de l'atmosphère (retour du fond
+  /// actuel quand la matière vidéo n'arrive pas : voir `LaunchMotion`).
+  LaunchFrame withBackdrop(double value) => LaunchFrame(
+    backdrop: value,
+    drift: drift,
+    opacity: opacity,
+    scale: scale,
+    tilt: tilt,
+    fragments: fragments,
+    converge: converge,
+    word: word,
+    digits: digits,
+    ripple: ripple,
+    sheen: sheen,
+    exit: exit,
+  );
+
   /// Le logo est entier, net, immobile : c'est le PNG seul.
   bool get assembled =>
       word >= 1 &&
@@ -163,8 +180,59 @@ abstract final class LaunchMotion {
   static const rippleSpan = Duration(milliseconds: 620);
   static const sheenStart = Duration(milliseconds: 1420);
   static const sheenSpan = Duration(milliseconds: 360);
-  static const exitStart = Duration(milliseconds: 2150);
+  // La sortie commence à 2,1 s : la première expérience dure 2,5 s en tout
+  // (plafond du brief INTELLIA AWAKENS), la matière vidéo est éteinte à ce
+  // même instant.
+  static const exitStart = Duration(milliseconds: 2100);
   static const exitSpan = Duration(milliseconds: 400);
+
+  // ── Matière vidéo (première expérience, Android) ───────────────────────
+  // Registre de décisions (INTELLIA AWAKENS) : Higgsfield ne fournit que la
+  // matière (verre, profondeur, lumière) ; l'horloge, le logo, les fragments,
+  // le 2-3-7, le LOCK, le sweep et la vibration restent du Flutter. Les
+  // valeurs sont celles de la variante « E », validée sur appareil.
+  static const matterFadeIn = Duration(milliseconds: 650);
+  static const matterFadeOutStart = Duration(milliseconds: 1650);
+  static const matterFadeOutEnd = Duration(milliseconds: 2100);
+
+  /// Un clip qui démarre après ce seuil entre par un fondu de plus, jamais
+  /// par un saut.
+  static const matterLateThreshold = Duration(milliseconds: 200);
+  static const matterLateFade = Duration(milliseconds: 250);
+
+  /// Coût d'un recalage du clip (`seekTo`) : ≈ 130 ms sur TECNO CL6k, Android 15
+  /// (mesuré : sans cette avance, un clip recalé en cours de séquence a
+  /// −141 ms de retard sur Flutter ; avec elle, −11 ms). Un clip prêt à
+  /// l'heure n'est PAS recalé : il démarre à 0 et reste à ≈ +10 ms de Flutter.
+  /// Avancer aussi le départ normal l'aurait mis à +67 ms.
+  static const videoSeekCost = Duration(milliseconds: 130);
+
+  /// Au-delà, un clip pas encore lancé n'est plus rejoint : le fond actuel
+  /// prend la place (la matière n'a plus le temps de se voir).
+  static const videoStartLimit = Duration(milliseconds: 900);
+
+  /// Retour en fondu de l'atmosphère actuelle quand la matière est écartée.
+  static const atmosphereLateFade = Duration(milliseconds: 300);
+
+  /// Présence de la matière (0 = surface unie, 1 = pleine) : fondu d'entrée
+  /// 0 → 650 ms, fondu de sortie 1650 → 2100 ms. À 0, la dernière image est
+  /// redevenue 100 % Flutter. [lateFrom] : instant où le clip a démarré, s'il
+  /// a démarré en retard.
+  static double matterPresence(Duration t, {Duration? lateFrom}) {
+    final fadeIn = Curves.easeOutCubic.transform(
+      _progress(t, Duration.zero, matterFadeIn),
+    );
+    final fadeOut =
+        1 -
+        Curves.easeInOut.transform(
+          _progress(t, matterFadeOutStart, matterFadeOutEnd),
+        );
+    var presence = fadeIn * fadeOut;
+    if (lateFrom != null && lateFrom > matterLateThreshold) {
+      presence *= _progress(t, lateFrom, lateFrom + matterLateFade);
+    }
+    return presence.clamp(0.0, 1.0);
+  }
 
   // ── Retour ─────────────────────────────────────────────────────────────
   static const briefLock = Duration(milliseconds: 380);

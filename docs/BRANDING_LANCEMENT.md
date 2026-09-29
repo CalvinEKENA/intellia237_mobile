@@ -21,10 +21,10 @@ splash natif (couleur unie #F2F9FC ; Android 12+ : icône de l'application au ce
   brume pervenche `#E7F0FF`, dégradé diagonal dont le centre est la surface.
   Barres système transparentes / surface, icônes sombres.
 - Rythme : `LaunchMotion`, fonctions pures du temps (aperçus et tests).
-  Séquence cinématique (première expérience, ≈ 2,55 s) :
+  Séquence cinématique (première expérience, **2,5 s**) :
   1. **Atmosphère** 0–420 ms : la lumière vient sur la surface unie, puis
-     dérive très lentement (dégradé et lumière diffuse en légère parallaxe,
-     cycles de 5 à 8 s).
+     dérive très lentement. Sur Android, la **matière Higgsfield** la remplace
+     (voir plus bas).
   2. **Fragments** 280–840 ms : six zones de `logo.png` (I et son accent,
      diagonale du N, pointe du A, courbe du 2, haut du 3, angle du 7)
      découpées par `ClipRect`, arrivent d'une petite distance, logo incliné
@@ -35,25 +35,104 @@ splash natif (couleur unie #F2F9FC ; Android 12+ : icône de l'application au ce
      se stabilise, la mise au point devient nette.
   4. **LOCK** à 1320 ms : le PNG seul, entier, échelle exactement 1 ;
      vibration `selectionClick` (la plus subtile) ; une onde presque
-     invisible traverse le fond (620 ms).
+     invisible traverse le fond (620 ms), au-dessus de la matière.
   5. **Sweep** 1420–1780 ms : une lumière très fine (blanc à 30 %) parcourt
      les seules lettres, par-dessus le PNG intact.
-  6. **Respiration** 1780–2150 ms : la marque, immobile.
-  7. **Sortie** 2150–2550 ms : le logo avance vers la caméra (×1,035),
-     remonte de 6 px et s'efface ; la navigation part au début de la
+  6. **Respiration** 1780–2100 ms : la marque, immobile.
+  7. **Sortie** 2100–2500 ms : le logo avance vers la caméra (×1,035),
+     remonte de 6 px et s'efface ; la navigation est libérée au début de la
      sortie, l'écran suivant apparaît derrière.
 - Allures :
   - première expérience (onboarding jamais vu, aucune session) : séquence
-    complète, navigation à 2,15 s (+ 150 ms au plus de décodage du logo) ;
+    complète, 2,5 s (+ 150 ms au plus de décodage du logo) ;
   - retour (onboarding vu ou session restaurable) : apparition 380 ms
     (échelle 0,965 → 1, légère inclinaison), lock, sortie à 620 ms, fin à
-    900 ms ; ni fragments, ni vibration ;
+    900 ms ; ni fragments, ni vibration, **ni clip** (Flutter seul) ;
   - animations réduites : logo présent (opacité 0,6 → 1 en 240 ms),
-    aucun mouvement, navigation à 450 ms.
+    aucun mouvement, **ni clip**, navigation à 450 ms.
 - Si l'écran suivant tarde (session lente à résoudre), le logo revient au
-  lieu d'un écran vide. `completeBootstrap` n'est appelé qu'une fois.
+  lieu d'un écran vide.
 - Le logo est affiché tel quel (`Image.asset`, `BoxFit.contain`), dimensionné
   sur sa zone utile : 78 % de la largeur sur téléphone, 520 px au plus.
+
+### Démarrage en parallèle (barrière de navigation)
+
+`completeBootstrap` (restauration de session, profil, cache) ne partait
+qu'au début de la sortie du logo : le démarrage attendait la marque. Il part
+désormais **à la première image**, en parallèle de la séquence.
+
+- `LaunchGate` (`lib/features/bootstrap/application/launch_gate.dart`) retient
+  seulement la *navigation* qui quitte la route de lancement ; le routeur
+  (`AppRouterNotifier.redirect`) la réévalue à la libération.
+- Session prête avant la sortie : rien n'est ajouté, la navigation part à
+  l'instant de la sortie (2,1 s la première fois, 0,62 s au retour).
+- Session pas prête : le logo revient (`_waiting`), jamais un écran vide.
+- Erreur de démarrage : elle attend la libération, la marque n'est jamais
+  coupée par un message ; « Réessayer » relance le démarrage.
+- Filet de sécurité : la barrière est fermée par l'écran de lancement lui-même
+  et libérée au plus tard 2 s après la durée de la séquence, ou à sa
+  disparition.
+
+### INTELLIA AWAKENS — la matière Higgsfield (première expérience, Android)
+
+Higgsfield ne fournit que la **matière** : verre, réfraction, lumière diffuse.
+Le logo (`assets/branding/logo.png`), les fragments, le 2-3-7, le LOCK, le
+sweep, la vibration et tout texte restent du Flutter. Le clip ne contient ni
+logo, ni texte, ni interface.
+
+| | |
+|---|---|
+| Fichier | `assets/branding/cinematic/splash_awaken_e.mp4` (dossier déclaré dans `pubspec.yaml`) |
+| Poids | 357 404 octets (plafond testé : 400 Ko) |
+| Format | H.264 High, 540×960, 30 fps, 2,5 s, sans audio, yuv420p, bt709 (plage tv), une image clé toutes les 15 images |
+| Provenance | génération Higgsfield V1 (Wan 3.0, 9:16, 3 s), traitée par `tool/branding/derive_awaken_clip.sh` (reproduit le fichier à l'octet près) ; voir `docs/branding/HIGGSFIELD_AWAKENS.md` |
+| Plateformes | Android seulement (seul terrain validé sur appareil). Web, Windows, macOS, iOS : le splash actuel, sans clip |
+
+Traitement « E », validé sur TECNO CL6k :
+
+- **cuit dans le clip** (comme en production, rien au runtime) : passe-haut
+  (structure fine seulement) sur le dégradé de marque, flou léger ≈ 1,4 px ;
+- **en Flutter** (`LaunchMatter`) : voile 45 % (le dégradé de marque), centre
+  calme radial 50 %, échelle 1,10, et fondu par un voile de la surface unie
+  (aucune couche d'opacité sur la texture vidéo) : entrée 0 → 650 ms, sortie
+  1650 → 2100 ms (`LaunchMotion.matterPresence`). À présence 0, la première et
+  la dernière image sont celles de Flutter, `#F2F9FC`.
+
+Une décoration, jamais un passage obligé (`LaunchVideo`) :
+
+- **préparé au démarrage** : `bootstrap()` lance `LaunchVideoWarmup.start()` dès
+  que l'onboarding n'a pas été vu, pendant l'initialisation de Firebase.
+  L'initialisation du lecteur prend 0,5 à 0,9 s à froid : elle ne doit pas
+  commencer à l'ouverture de l'écran de lancement ;
+- **Flutter est l'horloge maître** : la séquence démarre après ≤ 150 ms de
+  décodage du logo, sans jamais attendre le clip ;
+- **synchronisation** : clip prêt à l'heure → il démarre à 0, sans recalage ni
+  avance ; clip prêt en retard (≤ 900 ms) → recalé à *maintenant + 130 ms*
+  (`LaunchMotion.videoSeekCost`, le coût d'un `seekTo`) et il entre par un
+  fondu de plus ;
+- **repli** : clip absent, en erreur, initialisation > 6 s, ou pas lancé à
+  900 ms → le splash actuel, à l'identique (l'atmosphère revient en fondu de
+  300 ms si la matière était attendue) ;
+- **libération** : le lecteur est libéré à la fin de la séquence, au démontage
+  et en cas d'échec ; jamais de double initialisation.
+
+Mesures sur appareil (TECNO CL6k, MediaTek Helio G99, Android 15 / API 35, build
+profile du flavor staging, vrai `BootstrapScreen` sans Firebase, 11 lancements
+à froid dont 4 témoins sans clip) :
+
+| | Avant correction | Après |
+|---|---|---|
+| Dérive clip − Flutter à 1300 ms, clip prêt à l'heure | +7 / +12 ms (mais +67 ms avec une avance de 130 ms) | **+5 à +13 ms** (6 mesures) |
+| Dérive, clip prêt en retard et recalé | −141 ms (−129 ms au rejeu du preview) | **−19 / +14 / +16 ms** |
+
+- initialisation du clip à froid, sans aucune avance Firebase (pire cas) :
+  540 à 858 ms (médiane 654) ; clip lancé à 517–818 ms de la séquence, donc
+  dans la fenêtre de 900 ms 7 fois sur 7 ; clip déjà prêt : 136–261 ms ;
+- passages avec clip déjà prêt : aucune image > 33 ms, pire image 12 à 20 ms ;
+- passage à froid : 1 à 3 images > 33 ms, dont des rendus de première image
+  dans les 150 premières ms (63 à 105 ms) qu'on retrouve **aussi sans clip** ;
+  aucun pic à l'arrivée du clip ; mémoire du processus : 275–290 → 343–371 Mo
+  avec ou sans clip, stable sur trois passages (aucune fuite constatée).
 
 ## Icônes
 

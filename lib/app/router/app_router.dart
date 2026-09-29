@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/animations/app_page_transitions.dart';
 import '../../features/auth/application/auth_controller.dart';
+import '../../features/bootstrap/application/launch_gate.dart';
 import '../../features/auth/application/auth_state.dart';
 import '../../features/auth/domain/app_role.dart';
 import '../../features/auth/data/auth_entry_preferences.dart';
@@ -739,6 +740,8 @@ final appRouterNotifierProvider = Provider<AppRouterNotifier>((ref) {
 
 class AppRouterNotifier extends ChangeNotifier {
   AppRouterNotifier(this.ref) {
+    _gate = ref.read(launchGateProvider);
+    _gate.addListener(notifyListeners);
     _authSub = ref.listen<AuthState>(
       authControllerProvider,
       (previous, next) => notifyListeners(),
@@ -765,6 +768,7 @@ class AppRouterNotifier extends ChangeNotifier {
 
   final Ref ref;
   GoRouter? _router;
+  late final LaunchGate _gate;
   late final ProviderSubscription<AuthState> _authSub;
   late final ProviderSubscription<bool> _onboardingSub;
   late final ProviderSubscription<bool> _authEntrySub;
@@ -776,6 +780,11 @@ class AppRouterNotifier extends ChangeNotifier {
 
   String? redirect(BuildContext context, GoRouterState state) {
     final location = activeLocation(state);
+    // Registre de décisions (INTELLIA AWAKENS) : le démarrage part à la
+    // première image, en parallèle de la marque ; seule la navigation attend
+    // que la marque sorte. Session prête ou non, elle est réévaluée à la
+    // libération (voir LaunchGate).
+    if (location == AppRoutes.bootstrap && _gate.holding) return null;
     final destination = resolveAppRedirect(
       auth: ref.read(authControllerProvider),
       hasSeenOnboarding: ref.read(hasSeenOnboardingProvider),
@@ -828,6 +837,7 @@ class AppRouterNotifier extends ChangeNotifier {
 
   @override
   void dispose() {
+    _gate.removeListener(notifyListeners);
     _authSub.close();
     _onboardingSub.close();
     _authEntrySub.close();

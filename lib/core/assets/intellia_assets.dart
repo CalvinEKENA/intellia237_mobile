@@ -5,6 +5,11 @@ abstract final class IntelliaBrandAssets {
   static const identityMaster = 'assets/branding/identity_master.png';
   static const appIcon = 'assets/branding/icone.png';
   static const ascensionPoster = 'assets/branding/affiche.jpg';
+
+  /// Matière du lancement (première expérience, Android) : un clip dérivé d'une
+  /// génération Higgsfield, réduit à sa structure fine. Ni logo, ni texte, ni
+  /// interface : le logo, le Pass et tout texte restent du Flutter.
+  static const launchMatter = 'assets/branding/cinematic/splash_awaken_e.mp4';
 }
 
 /// Décline explicitement les portraits produit et les silhouettes de

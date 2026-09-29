@@ -91,6 +91,14 @@ abstract final class StartupTrace {
     }
   }
 
+  /// Une observation ponctuelle (départ tardif ou dérive du clip du lancement…) :
+  /// chronologie DevTools et journaux de debug/profile, jamais de sortie en
+  /// release.
+  static void note(String label, [Map<String, Object?> arguments = const {}]) {
+    developer.Timeline.instantSync('startup $label', arguments: arguments);
+    _log(arguments.isEmpty ? label : '$label $arguments');
+  }
+
   static Map<StartupMilestone, int> get milestones =>
       Map.unmodifiable(_milestones);
 

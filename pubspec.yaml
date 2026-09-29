@@ -84,6 +84,9 @@ flutter:
     - assets/fonts/
     - assets/branding/
     - assets/branding/google/
+    # Matière du lancement INTELLIA AWAKENS (clip dérivé, 357 Ko) : voir
+    # docs/BRANDING_LANCEMENT.md et tool/branding/derive_awaken_clip.sh.
+    - assets/branding/cinematic/
     - assets/companions/
     - assets/companions/dialogue/
     # Packs pédagogiques locaux (Content Engine) : un dossier par chapitre.

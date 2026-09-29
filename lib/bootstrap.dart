@@ -16,6 +16,7 @@ import 'app/router/router_escape.dart';
 import 'l10n/generated/app_localizations.dart';
 import 'core/system/intellia_system_bars.dart';
 import 'features/auth/data/auth_entry_preferences.dart';
+import 'features/bootstrap/application/launch_video.dart';
 import 'features/onboarding/data/onboarding_preferences.dart';
 import 'core/notifications/learning_reminder_service.dart';
 import 'core/notifications/notification_push_service.dart';
@@ -92,6 +93,18 @@ Future<void> bootstrap({
   } catch (error, stackTrace) {
     debugPrint('Preferences hydration failed: $error');
     debugPrintStack(stackTrace: stackTrace);
+  }
+
+  // 3b. Premier lancement : la matière du splash se prépare pendant
+  // l'initialisation de Firebase, pour être prête quand la séquence démarre
+  // (l'initialisation du lecteur prend plusieurs centaines de millisecondes).
+  // Rien ne l'attend : sans elle, le splash de toujours joue.
+  try {
+    if (!await OnboardingPreferences().hasSeenOnboarding()) {
+      LaunchVideoWarmup.start();
+    }
+  } catch (error) {
+    debugPrint('Launch video warm-up skipped: $error');
   }
 
   // 4. Initialisation Firebase (avec options dynamiques par flavor). Seul

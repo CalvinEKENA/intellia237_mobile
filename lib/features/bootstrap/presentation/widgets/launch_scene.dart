@@ -69,12 +69,23 @@ class LaunchLogo extends StatelessWidget {
 /// interne : l'écran de démarrage fournit [frame], les aperçus et les tests
 /// aussi.
 class LaunchScene extends StatelessWidget {
-  const LaunchScene({required this.frame, this.below, super.key});
+  const LaunchScene({
+    required this.frame,
+    this.below,
+    this.backdrop,
+    super.key,
+  });
 
   final LaunchFrame frame;
 
   /// Contenu posé sous le logo (reprise après une erreur).
   final Widget? below;
+
+  /// Fond qui remplace l'atmosphère : la matière vidéo de la première
+  /// expérience (`LaunchMatter`), ou une surface unie tant qu'elle n'est pas
+  /// là. `null` : l'atmosphère de toujours. L'onde du LOCK reste dessinée
+  /// par-dessus dans les deux cas.
+  final Widget? backdrop;
 
   @override
   Widget build(BuildContext context) {
@@ -90,11 +101,14 @@ class LaunchScene extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (frame.backdrop > 0)
+          if (backdrop != null)
+            backdrop!
+          else if (frame.backdrop > 0)
             Opacity(
               opacity: frame.backdrop,
-              child: _Atmosphere(drift: frame.drift, ripple: frame.ripple),
+              child: _Atmosphere(drift: frame.drift),
             ),
+          if (frame.ripple != null) _Ripple(wave: frame.ripple!),
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -150,19 +164,16 @@ class LaunchScene extends StatelessWidget {
   }
 }
 
-/// Un espace vivant : lumière diffuse qui dérive très lentement, et une
-/// onde presque invisible au moment du lock.
+/// Un espace vivant : lumière diffuse qui dérive très lentement.
 class _Atmosphere extends StatelessWidget {
-  const _Atmosphere({required this.drift, required this.ripple});
+  const _Atmosphere({required this.drift});
 
   final double drift;
-  final double? ripple;
 
   @override
   Widget build(BuildContext context) {
     final sway = LaunchMotion.sway(drift);
     final slow = LaunchMotion.sway(drift, period: 8.4);
-    final wave = ripple;
     return Stack(
       key: const ValueKey('launch-backdrop'),
       fit: StackFit.expand,
@@ -187,22 +198,34 @@ class _Atmosphere extends StatelessWidget {
             ),
           ),
         ),
-        if (wave != null)
-          DecoratedBox(
-            key: const ValueKey('launch-ripple'),
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                radius: 0.15 + 0.9 * Curves.easeOutCubic.transform(wave),
-                colors: [
-                  const Color(0x00FFFFFF),
-                  Color.fromRGBO(255, 255, 255, 0.34 * (1 - wave)),
-                  const Color(0x00FFFFFF),
-                ],
-                stops: const [0.72, 0.9, 1],
-              ),
-            ),
-          ),
       ],
+    );
+  }
+}
+
+/// L'onde presque invisible du LOCK, au-dessus du fond quel qu'il soit.
+class _Ripple extends StatelessWidget {
+  const _Ripple({required this.wave});
+
+  final double wave;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: DecoratedBox(
+        key: const ValueKey('launch-ripple'),
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            radius: 0.15 + 0.9 * Curves.easeOutCubic.transform(wave),
+            colors: [
+              const Color(0x00FFFFFF),
+              Color.fromRGBO(255, 255, 255, 0.34 * (1 - wave)),
+              const Color(0x00FFFFFF),
+            ],
+            stops: const [0.72, 0.9, 1],
+          ),
+        ),
+      ),
     );
   }
 }
