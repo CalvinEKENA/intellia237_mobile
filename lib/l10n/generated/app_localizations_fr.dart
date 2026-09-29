@@ -396,7 +396,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get companionStatusReady => 'Prêt à t’aider';
+  String get companionStatusReady => 'Là pour t’aider';
 
   @override
   String get companionStatusThinking => 'réfléchit…';
@@ -7339,4 +7339,84 @@ class AppLocalizationsFr extends AppLocalizations {
   String quizPackCompanionA11y(String name, String line) {
     return '$name dit : $line';
   }
+
+  @override
+  String companionTopBarSubtitle(Object level) {
+    return 'Compagnon d’étude • $level';
+  }
+
+  @override
+  String companionHeaderStatus(Object status) {
+    return 'Compagnon • $status';
+  }
+
+  @override
+  String companionStatusWriting(Object name) {
+    return '$name écrit…';
+  }
+
+  @override
+  String companionLocalUnavailable(Object name) {
+    return '$name n’a pas pu se préparer. Relance l’application.';
+  }
+
+  @override
+  String get companionActionKeepLearning => 'Continuer à apprendre';
+
+  @override
+  String get companionActionTakeQuiz => 'Faire un quiz';
+
+  @override
+  String get companionActionSeeSubjects => 'Voir mes matières';
+
+  @override
+  String get companionActionSeeAllQuizzes => 'Voir tous les quiz';
+
+  @override
+  String companionActionSubjectQuiz(Object subject) {
+    return 'Quiz $subject';
+  }
+
+  @override
+  String companionActionLearnSubject(Object subject) {
+    return 'Apprendre : $subject';
+  }
+
+  @override
+  String get companionActionOpenCourse => 'Ouvrir le cours';
+
+  @override
+  String get companionActionTopicQuiz => 'Faire le quiz';
+
+  @override
+  String companionActionReviewSubject(Object subject) {
+    return 'Réviser : $subject';
+  }
+
+  @override
+  String get companionActionDiagnostic => 'Quiz diagnostic';
+
+  @override
+  String get companionActionProgress => 'Voir ma progression';
+
+  @override
+  String get companionActionGo => 'C’est parti';
+
+  @override
+  String get companionActionRetryQuiz => 'Refaire ce quiz';
+
+  @override
+  String get companionActionTrainTopic => 'M’entraîner sur ce thème';
+
+  @override
+  String get companionActionContinueCourse => 'Continuer le cours';
+
+  @override
+  String get companionActionResume => 'Reprendre';
+
+  @override
+  String get companionActionResumeLesson => 'Reprendre la leçon';
+
+  @override
+  String get companionActionPractice => 'M’entraîner';
 }

@@ -8,11 +8,6 @@ import 'package:intellia237/app/theme/design_tokens.dart';
 import 'package:intellia237/core/academics/class_key.dart';
 import 'package:intellia237/core/network/network_status.dart';
 import 'package:intellia237/core/widgets/tab_presentation.dart';
-import 'package:intellia237/features/ai_companion/application/ai_companion_controller.dart';
-import 'package:intellia237/features/ai_companion/data/ai_repository.dart';
-import 'package:intellia237/features/ai_companion/domain/ai_companion_reply.dart';
-import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
-import 'package:intellia237/features/ai_companion/domain/tutor_turn_options.dart';
 import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/content_engine/application/content_providers.dart';
@@ -45,23 +40,6 @@ const _physics2 = 'physique_terminale_cd_m1_s2_dimension_grandeur_physique';
 
 Finder _key(String key) => find.byKey(ValueKey(key));
 
-/// Compagnon en ligne : chaque appel est compté, et échoue.
-class _SpyCompanion implements AIRepository {
-  int calls = 0;
-
-  @override
-  Future<AICompanionReply> sendMessage({
-    required TutorPersona tutor,
-    required String classLevel,
-    required List<AIMessage> history,
-    required String userMessage,
-    TutorTurnOptions options = const TutorTurnOptions(),
-  }) async {
-    calls++;
-    throw StateError('Aucun appel attendu pendant un quiz.');
-  }
-}
-
 Future<ProviderContainer> _pump(
   WidgetTester tester, {
   String initial = '/',
@@ -71,7 +49,6 @@ Future<ProviderContainer> _pump(
   Size size = const Size(390, 844),
   double scale = 1,
   bool dark = false,
-  _SpyCompanion? spy,
 }) async {
   SharedPreferences.setMockInitialValues(const {});
   tester.view.physicalSize = size;
@@ -94,7 +71,6 @@ Future<ProviderContainer> _pump(
       selectedTutorProvider.overrideWith(
         (ref) => TutorPersona.resolve(companion),
       ),
-      aiRepositoryProvider.overrideWithValue(spy ?? _SpyCompanion()),
     ],
   );
   addTearDown(container.dispose);
@@ -414,8 +390,7 @@ void main() {
   group('séance avec Kira (entraînement)', () {
     testWidgets('accueil, question, bonne réponse, indice du pack, bilan, '
         'maîtrise et historique', (tester) async {
-      final spy = _SpyCompanion();
-      final container = await _pump(tester, spy: spy);
+      final container = await _pump(tester);
       final plan = _plan(container, _physics2, PackQuizMode.training);
       await _open(tester, _physics2, PackQuizMode.training);
 
@@ -516,7 +491,6 @@ void main() {
       // Recommencer : nouvelle tentative, reproductible.
       await _tap(tester, _key('pack-quiz-retry'));
       expect(_key('pack-quiz-intro'), findsOneWidget);
-      expect(spy.calls, 0);
       expect(tester.takeException(), isNull);
     });
   });
@@ -526,13 +500,7 @@ void main() {
         'bilan et correction, zéro appel au compagnon en ligne', (
       tester,
     ) async {
-      final spy = _SpyCompanion();
-      final container = await _pump(
-        tester,
-        companion: 'leo',
-        offline: true,
-        spy: spy,
-      );
+      final container = await _pump(tester, companion: 'leo', offline: true);
       final plan = _plan(container, _english2, PackQuizMode.evaluation);
       await _open(tester, _english2, PackQuizMode.evaluation);
       expect(_key('pack-quiz-distribution'), findsOneWidget);
@@ -563,7 +531,6 @@ void main() {
         await _reveal(tester, _key('pack-quiz-review-$i'));
         expect(_key('pack-quiz-review-$i'), findsOneWidget);
       }
-      expect(spy.calls, 0);
       expect(tester.takeException(), isNull);
     });
   });

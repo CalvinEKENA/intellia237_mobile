@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/core/network/network_status.dart';
-import 'package:intellia237/features/ai_companion/application/ai_companion_controller.dart';
-import 'package:intellia237/features/ai_companion/domain/tutor_turn_options.dart';
-import 'package:intellia237/features/ai_companion/data/ai_repository.dart';
-import 'package:intellia237/features/ai_companion/domain/ai_companion_reply.dart';
-import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
 import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/learn/application/learn_providers.dart';
@@ -19,7 +14,6 @@ import 'package:intellia237/features/student_home/domain/student_home_snapshot.d
 import 'package:intellia237/features/student_home/presentation/student_home_screen.dart';
 import 'package:intellia237/features/tour_guide/data/firestore_tour_guide_repository.dart';
 import 'package:intellia237/features/tour_guide/data/tour_guide_repository.dart';
-import 'package:intellia237/features/tutor/domain/tutor_persona.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -79,13 +73,9 @@ void main() {
   );
 
   testWidgets(
-    'companion live-service failure remains isolated from the core home',
+    'the companion answers on the device, and the core home stays intact',
     (tester) async {
-      final repository = _FailingCompanionRepository();
-      final container = await _pumpHome(
-        tester,
-        companionRepository: repository,
-      );
+      final container = await _pumpHome(tester);
 
       _expectCoreHome();
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-3')));
@@ -94,9 +84,16 @@ void main() {
       await tester.pump();
       // « Parler » devient « Envoyer » dès qu'un caractère utile est saisi.
       await tester.tap(find.byKey(const ValueKey('companion-send')));
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(repository.calls, 1);
-      expect(find.textContaining('cours et exercices'), findsOneWidget);
+      // La banque de dialogues est un asset local : aucun réseau.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        find.byKey(const ValueKey('companion-reply-actions')),
+        findsOneWidget,
+      );
+      expect(find.textContaining('cours et exercices'), findsNothing);
 
       await tester.tap(find.byKey(const ValueKey('bottom-nav-item-0')));
       await tester.pump();
@@ -119,7 +116,6 @@ Future<ProviderContainer> _pumpHome(
   WidgetTester tester, {
   Object? quizFailure,
   Object? academicFailure,
-  AIRepository? companionRepository,
 }) async {
   SharedPreferences.setMockInitialValues(const <String, Object>{});
   tester.view.physicalSize = const Size(390, 844);
@@ -143,8 +139,6 @@ Future<ProviderContainer> _pumpHome(
         if (quizFailure != null) throw quizFailure;
         return const [];
       }),
-      if (companionRepository != null)
-        aiRepositoryProvider.overrideWithValue(companionRepository),
       isOfflineProvider.overrideWithValue(false),
       tourGuideRepositoryProvider.overrideWithValue(_SeenTourRepository()),
     ],
@@ -178,29 +172,6 @@ class _CoreHomeRepository implements StudentHomeRepository {
   @override
   Future<StudentHomeSnapshot> fetchHomeSnapshot({required String firstName}) {
     return Future.value(StudentHomeSnapshot(firstName: firstName));
-  }
-}
-
-class _FailingCompanionRepository implements AIRepository {
-  int calls = 0;
-
-  @override
-  Future<AICompanionReply> sendMessage({
-    required TutorPersona tutor,
-    required String classLevel,
-    required List<AIMessage> history,
-    required String userMessage,
-    TutorTurnOptions options = const TutorTurnOptions(),
-  }) async {
-    calls += 1;
-    throw AICompanionException(
-      message:
-          '${tutor.name} n’arrive pas à répondre pour le moment. '
-          'Tu peux continuer à consulter tes cours et exercices.',
-      kind: AICompanionFailureKind.serviceUnavailable,
-      normalizedErrorCode: 'not-found',
-      diagnosticId: 'TUTOR-SERVICE-505',
-    );
   }
 }
 

@@ -85,6 +85,7 @@ flutter:
     - assets/branding/
     - assets/branding/google/
     - assets/companions/
+    - assets/companions/dialogue/
     # Packs pédagogiques locaux (Content Engine) : un dossier par chapitre.
     # Un test vérifie que chaque pack présent ici est bien déclaré.
     - assets/content/terminale_d/mathematiques/ch01_arithmetique/

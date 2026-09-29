@@ -318,7 +318,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Reprendre le dernier cours'), findsOneWidget);
     await _tapNav(tester, 'Compagnon');
-    expect(find.text('Explique ce concept'), findsOneWidget);
+    expect(find.text('Compagnon • Là pour t’aider'), findsOneWidget);
     await _tapNav(tester, 'Profil');
     expect(find.text('Mon profil'), findsOneWidget);
     await _tapNav(tester, 'Accueil');
@@ -395,7 +395,7 @@ void main() {
     );
     await tester.tap(quickCompanion);
     await tester.pumpAndSettle();
-    expect(find.text('Explique ce concept'), findsOneWidget);
+    expect(find.text('Compagnon • Là pour t’aider'), findsOneWidget);
     await _tapNav(tester, 'Accueil');
 
     await _scrollHomeTo(tester, find.text('Équations du premier degré'));
@@ -651,6 +651,6 @@ const _tabCases = [
     'Entraîne-toi avec des corrections guidées, ou évalue-toi : '
         'ton score et ton bilan à la fin.',
   ),
-  _TabCase('Compagnon', 'student-tab-companion', 'Explique ce concept'),
+  _TabCase('Compagnon', 'student-tab-companion', 'Compagnon • Là pour t’aider'),
   _TabCase('Profil', 'student-tab-profile', 'Mon profil'),
 ];

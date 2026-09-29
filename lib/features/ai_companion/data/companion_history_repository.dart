@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../interactive_learning/domain/interactive_block.dart';
+import '../deterministic/companion_reply_action.dart';
 import '../domain/ai_message.dart';
 import '../domain/companion_conversation.dart';
 
@@ -152,6 +153,8 @@ class CompanionHistoryRepository {
     'createdAt': message.createdAt.toIso8601String(),
     if (message.companionId != null) 'companionId': message.companionId,
     if (message.block != null) 'block': message.block!.toJson(),
+    if (message.actions.isNotEmpty)
+      'actions': [for (final action in message.actions) action.toJson()],
   };
 
   List<AIMessage> _decodeMessages(String? raw) {
@@ -173,6 +176,10 @@ class CompanionHistoryRepository {
                   DateTime.now(),
               companionId: map['companionId'] as String?,
               block: InteractiveLearningBlock.tryParse(map['block']),
+              actions: [
+                for (final raw in (map['actions'] as List?) ?? const [])
+                  ?CompanionReplyAction.fromJson(raw),
+              ],
             );
           })
           .toList(growable: false);

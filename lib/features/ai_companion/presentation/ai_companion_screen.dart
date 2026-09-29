@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -12,13 +11,11 @@ import '../../../core/widgets/liquid_background.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/telemetry/startup_trace.dart';
+import '../../../core/localization/app_locale_controller.dart';
 import '../application/ai_companion_controller.dart';
-import '../domain/ai_companion_reply.dart';
-import '../domain/ai_message.dart';
-import '../../interactive_learning/domain/interactive_block.dart';
-import '../../interactive_learning/presentation/interactive_block_view.dart';
-import '../../tutor/domain/tutor_persona.dart';
+import '../application/companion_engine_providers.dart';
 import 'widgets/chat_bubble.dart';
+import 'widgets/companion_reply_actions.dart';
 import 'widgets/companion_composer.dart';
 import 'widgets/companion_history_sheet.dart';
 
@@ -61,12 +58,18 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(aiCompanionControllerProvider);
     final l10n = context.l10n;
-    final quickPrompts = [
-      l10n.companionPromptExplain,
-      l10n.companionPromptSummarize,
-      l10n.companionPromptExample,
-      l10n.companionPromptQuestions,
-    ];
+    // Suggestions selon ce que l'élève peut réellement faire (quiz, matière
+    // en cours, priorité de révision), tirées de la banque de dialogues.
+    final language = ref.watch(appLocaleProvider).languageCode;
+    final bank = ref.watch(companionDialogueBankProvider(language)).valueOrNull;
+    final quickPrompts = bank == null
+        ? const <String>[]
+        : ref
+              .watch(deterministicCompanionEngineProvider)
+              .suggestions(
+                context: ref.watch(companionStudyContextProvider),
+                bank: bank,
+              );
     ref.listen<AICompanionState>(aiCompanionControllerProvider, (
       previous,
       next,
@@ -91,37 +94,15 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
             state: state,
             quickPromptsVisible: _quickPromptsVisible && !compact,
             quickPrompts: quickPrompts,
-            onQuickPrompt: (prompt) {
-              ref.read(aiCompanionControllerProvider.notifier).send(prompt);
-            },
+            onQuickPrompt: _send,
           ),
         ),
 
-        // ── Error ─────────────────────────────────────────────
-        if (state.errorMessage != null) ...[
+        if (state.unavailable) ...[
           const SizedBox(height: IntelliaSpacing.xs),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _localizedCompanionError(context, state),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFFFF6B6B),
-                  ),
-                ),
-              ),
-              if (state.lastFailedMessage != null)
-                TextButton.icon(
-                  onPressed: state.isSending
-                      ? null
-                      : () => ref
-                            .read(aiCompanionControllerProvider.notifier)
-                            .retryLastMessage(),
-                  icon: const Icon(Icons.refresh_rounded, size: 16),
-                  label: Text(l10n.retryLabel),
-                ),
-            ],
+          Text(
+            l10n.companionLocalUnavailable(state.tutor.name),
+            style: const TextStyle(fontSize: 12, color: Color(0xFFB42318)),
           ),
         ],
         if (state.lessonContext != null) ...[
@@ -235,16 +216,41 @@ class _AICompanionScreenState extends ConsumerState<AICompanionScreen> {
     final message = _controller.text.trim();
     if (message.isEmpty) return;
     _controller.clear();
-    ref.read(aiCompanionControllerProvider.notifier).send(message);
+    _send(message);
   }
 
+  /// Le rythme « Kira écrit… » disparaît quand les animations sont réduites.
+  void _send(String message) {
+    ref
+        .read(aiCompanionControllerProvider.notifier)
+        .send(message, instant: MediaQuery.disableAnimationsOf(context));
+  }
+
+  /// Descend jusqu'à la dernière réponse et ses actions. La liste ne
+  /// connaît sa vraie hauteur qu'après avoir construit la dernière bulle :
+  /// on vérifie donc la fin une fois le mouvement terminé.
   void _scrollToBottom() {
     if (!_scrollController.hasClients) return;
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent + 120,
-      duration: IntelliaMotion.medium,
-      curve: Curves.easeOut,
-    );
+    void settle() {
+      if (!mounted || !_scrollController.hasClients) return;
+      final position = _scrollController.position;
+      if (position.pixels < position.maxScrollExtent - 1) {
+        _scrollController.jumpTo(position.maxScrollExtent);
+      }
+    }
+
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      WidgetsBinding.instance.addPostFrameCallback((_) => settle());
+      return;
+    }
+    _scrollController
+        .animateTo(
+          _scrollController.position.maxScrollExtent + 120,
+          duration: IntelliaMotion.medium,
+          curve: Curves.easeOut,
+        )
+        .then((_) => settle());
   }
 }
 
@@ -327,7 +333,9 @@ class _GlassTopBar extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Tuteur Personnel • ${state.tutor.levelLabel}',
+                      context.l10n.companionTopBarSubtitle(
+                        state.tutor.levelLabel,
+                      ),
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.white.withValues(alpha: 0.55),
@@ -338,15 +346,11 @@ class _GlassTopBar extends StatelessWidget {
                 ),
               ),
 
-              // État honnête : aucune fausse pastille « en ligne ».
+              // Tout est local : aucune pastille « en ligne » ou « hors ligne ».
               Icon(
-                state.errorMessage == null
-                    ? Icons.chat_bubble_outline_rounded
-                    : Icons.cloud_off_rounded,
+                Icons.chat_bubble_outline_rounded,
                 size: 18,
-                color: state.errorMessage == null
-                    ? Colors.white.withValues(alpha: 0.65)
-                    : const Color(0xFFFFB4AB),
+                color: Colors.white.withValues(alpha: 0.65),
               ),
             ],
           ),
@@ -369,20 +373,11 @@ class _CompanionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = TabSurface.of(context);
     final tutor = state.tutor;
+    // Aucun état réseau ni quota : le compagnon répond toujours, sur
+    // l'appareil.
     final statusLabel = state.isSending
-        ? context.l10n.companionStatusThinking
-        : switch (state.errorKind) {
-            AICompanionFailureKind.quotaExhausted =>
-              context.l10n.companionStatusQuota,
-            AICompanionFailureKind.studyReserveExhausted =>
-              context.l10n.studyReserveStatusDepleted,
-            AICompanionFailureKind.authorizationProfile =>
-              context.l10n.companionStatusProfile,
-            AICompanionFailureKind.network =>
-              context.l10n.companionStatusNetwork,
-            null => context.l10n.companionStatusReady,
-            _ => context.l10n.companionStatusUnavailable,
-          };
+        ? context.l10n.companionStatusWriting(tutor.name)
+        : context.l10n.companionStatusReady;
 
     return Container(
       padding: const EdgeInsets.all(IntelliaSpacing.sm),
@@ -431,17 +426,15 @@ class _CompanionHeader extends StatelessWidget {
                     Container(
                       width: 7,
                       height: 7,
-                      decoration: BoxDecoration(
-                        color: state.errorMessage == null
-                            ? IntelliaColors.success
-                            : IntelliaColors.warning,
+                      decoration: const BoxDecoration(
+                        color: IntelliaColors.success,
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Flexible(
                       child: Text(
-                        'Tuteur • $statusLabel',
+                        context.l10n.companionHeaderStatus(statusLabel),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontSize: 12, color: s.textTertiary),
@@ -464,32 +457,6 @@ class _CompanionHeader extends StatelessWidget {
       ),
     );
   }
-}
-
-String _localizedCompanionError(BuildContext context, AICompanionState state) {
-  final name = state.tutor.name;
-  return switch (state.errorKind) {
-    AICompanionFailureKind.quotaExhausted => context.l10n.companionQuotaReached(
-      name,
-    ),
-    AICompanionFailureKind.studyReserveExhausted =>
-      context.l10n.companionStudyReserveDepleted(name),
-    AICompanionFailureKind.authorizationProfile =>
-      context.l10n.companionProfileSync(name),
-    AICompanionFailureKind.invalidRequest =>
-      context.l10n.companionInvalidRequest(name),
-    AICompanionFailureKind.network => context.l10n.companionNetworkUnavailable(
-      name,
-    ),
-    AICompanionFailureKind.invalidResponse =>
-      context.l10n.companionInvalidResponse(name),
-    AICompanionFailureKind.serviceUnavailable ||
-    AICompanionFailureKind.appCheck ||
-    AICompanionFailureKind.unknown => context.l10n.companionServiceUnavailable(
-      name,
-    ),
-    null => state.errorMessage ?? '',
-  };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -549,17 +516,32 @@ class _GlassChatContainer extends StatelessWidget {
             itemCount: state.messages.length + (state.isSending ? 1 : 0),
             itemBuilder: (context, index) {
               if (index >= state.messages.length) {
-                return TypingIndicatorBubble(tutor: state.tutor);
+                return Semantics(
+                  liveRegion: true,
+                  label: context.l10n.companionStatusWriting(state.tutor.name),
+                  child: ExcludeSemantics(
+                    child: TypingIndicatorBubble(tutor: state.tutor),
+                  ),
+                );
               }
               final message = state.messages[index];
-              final block = message.block;
-              if (block == null) {
-                return ChatBubble(message: message, tutor: state.tutor);
+              final bubble = ChatBubble(message: message, tutor: state.tutor);
+              // Les actions ne valent que pour la dernière réponse : plus
+              // haut dans le fil, elles pourraient ne plus être à jour.
+              final isLast = index == state.messages.length - 1;
+              if (!isLast || state.isSending || message.actions.isEmpty) {
+                return bubble;
               }
-              return _MessageWithActivity(
-                message: message,
-                block: block,
-                tutor: state.tutor,
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  bubble,
+                  CompanionReplyActions(
+                    actions: message.actions,
+                    accentColor: state.tutor.accentColor,
+                    onReply: onQuickPrompt,
+                  ),
+                ],
               );
             },
           ),
@@ -594,77 +576,6 @@ class _GlassChatContainer extends StatelessWidget {
           child: inner,
         ),
       ),
-    );
-  }
-}
-
-/// Réponse du compagnon suivie de l'activité qu'il propose.
-///
-/// Gardée vivante au défilement : remonter dans la conversation ne remet pas
-/// l'exercice à zéro. Le bloc est rendu hors de la bulle pour ne pas hériter
-/// de sa hauteur intrinsèque.
-class _MessageWithActivity extends ConsumerStatefulWidget {
-  const _MessageWithActivity({
-    required this.message,
-    required this.block,
-    required this.tutor,
-  });
-
-  final AIMessage message;
-  final InteractiveLearningBlock block;
-  final TutorPersona tutor;
-
-  @override
-  ConsumerState<_MessageWithActivity> createState() =>
-      _MessageWithActivityState();
-}
-
-class _MessageWithActivityState extends ConsumerState<_MessageWithActivity>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    final author = TutorPersona.resolve(
-      widget.message.companionId,
-      fallback: widget.tutor,
-    );
-    final controller = ref.read(aiCompanionControllerProvider.notifier);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ChatBubble(message: widget.message, tutor: widget.tutor),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
-              child: InteractiveBlockView(
-                block: widget.block,
-                companion: ExerciseCompanion(
-                  id: author.id,
-                  name: author.name,
-                  avatarAsset: author.imagePath,
-                ),
-                onOutcome: controller.recordActivityOutcome,
-                onContinue: () {
-                  if (ref.read(aiCompanionControllerProvider).isSending) {
-                    return;
-                  }
-                  unawaited(
-                    controller.continueAfterActivity(
-                      context.l10n.ilbContinueMessage,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

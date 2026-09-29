@@ -797,7 +797,7 @@ abstract class AppLocalizations {
   /// No description provided for @companionStatusReady.
   ///
   /// In fr, this message translates to:
-  /// **'Prêt à t’aider'**
+  /// **'Là pour t’aider'**
   String get companionStatusReady;
 
   /// No description provided for @companionStatusThinking.
@@ -12285,6 +12285,138 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'{name} dit : {line}'**
   String quizPackCompanionA11y(String name, String line);
+
+  /// No description provided for @companionTopBarSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compagnon d’étude • {level}'**
+  String companionTopBarSubtitle(Object level);
+
+  /// No description provided for @companionHeaderStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compagnon • {status}'**
+  String companionHeaderStatus(Object status);
+
+  /// No description provided for @companionStatusWriting.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} écrit…'**
+  String companionStatusWriting(Object name);
+
+  /// No description provided for @companionLocalUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} n’a pas pu se préparer. Relance l’application.'**
+  String companionLocalUnavailable(Object name);
+
+  /// No description provided for @companionActionKeepLearning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer à apprendre'**
+  String get companionActionKeepLearning;
+
+  /// No description provided for @companionActionTakeQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faire un quiz'**
+  String get companionActionTakeQuiz;
+
+  /// No description provided for @companionActionSeeSubjects.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mes matières'**
+  String get companionActionSeeSubjects;
+
+  /// No description provided for @companionActionSeeAllQuizzes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir tous les quiz'**
+  String get companionActionSeeAllQuizzes;
+
+  /// No description provided for @companionActionSubjectQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz {subject}'**
+  String companionActionSubjectQuiz(Object subject);
+
+  /// No description provided for @companionActionLearnSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apprendre : {subject}'**
+  String companionActionLearnSubject(Object subject);
+
+  /// No description provided for @companionActionOpenCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le cours'**
+  String get companionActionOpenCourse;
+
+  /// No description provided for @companionActionTopicQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faire le quiz'**
+  String get companionActionTopicQuiz;
+
+  /// No description provided for @companionActionReviewSubject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réviser : {subject}'**
+  String companionActionReviewSubject(Object subject);
+
+  /// No description provided for @companionActionDiagnostic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quiz diagnostic'**
+  String get companionActionDiagnostic;
+
+  /// No description provided for @companionActionProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir ma progression'**
+  String get companionActionProgress;
+
+  /// No description provided for @companionActionGo.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est parti'**
+  String get companionActionGo;
+
+  /// No description provided for @companionActionRetryQuiz.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refaire ce quiz'**
+  String get companionActionRetryQuiz;
+
+  /// No description provided for @companionActionTrainTopic.
+  ///
+  /// In fr, this message translates to:
+  /// **'M’entraîner sur ce thème'**
+  String get companionActionTrainTopic;
+
+  /// No description provided for @companionActionContinueCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer le cours'**
+  String get companionActionContinueCourse;
+
+  /// No description provided for @companionActionResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre'**
+  String get companionActionResume;
+
+  /// No description provided for @companionActionResumeLesson.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre la leçon'**
+  String get companionActionResumeLesson;
+
+  /// No description provided for @companionActionPractice.
+  ///
+  /// In fr, this message translates to:
+  /// **'M’entraîner'**
+  String get companionActionPractice;
 }
 
 class _AppLocalizationsDelegate

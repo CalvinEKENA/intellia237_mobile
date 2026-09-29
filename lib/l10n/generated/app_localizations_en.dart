@@ -7298,4 +7298,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String quizPackCompanionA11y(String name, String line) {
     return '$name says: $line';
   }
+
+  @override
+  String companionTopBarSubtitle(Object level) {
+    return 'Study companion • $level';
+  }
+
+  @override
+  String companionHeaderStatus(Object status) {
+    return 'Companion • $status';
+  }
+
+  @override
+  String companionStatusWriting(Object name) {
+    return '$name is writing…';
+  }
+
+  @override
+  String companionLocalUnavailable(Object name) {
+    return '$name couldn’t get ready. Please restart the app.';
+  }
+
+  @override
+  String get companionActionKeepLearning => 'Keep learning';
+
+  @override
+  String get companionActionTakeQuiz => 'Take a quiz';
+
+  @override
+  String get companionActionSeeSubjects => 'See my subjects';
+
+  @override
+  String get companionActionSeeAllQuizzes => 'See all quizzes';
+
+  @override
+  String companionActionSubjectQuiz(Object subject) {
+    return '$subject quiz';
+  }
+
+  @override
+  String companionActionLearnSubject(Object subject) {
+    return 'Learn: $subject';
+  }
+
+  @override
+  String get companionActionOpenCourse => 'Open the lesson';
+
+  @override
+  String get companionActionTopicQuiz => 'Take the quiz';
+
+  @override
+  String companionActionReviewSubject(Object subject) {
+    return 'Review: $subject';
+  }
+
+  @override
+  String get companionActionDiagnostic => 'Check-up quiz';
+
+  @override
+  String get companionActionProgress => 'See my progress';
+
+  @override
+  String get companionActionGo => 'Let’s go';
+
+  @override
+  String get companionActionRetryQuiz => 'Retake this quiz';
+
+  @override
+  String get companionActionTrainTopic => 'Practise this topic';
+
+  @override
+  String get companionActionContinueCourse => 'Continue the lesson';
+
+  @override
+  String get companionActionResume => 'Resume';
+
+  @override
+  String get companionActionResumeLesson => 'Back to the lesson';
+
+  @override
+  String get companionActionPractice => 'Practise';
 }

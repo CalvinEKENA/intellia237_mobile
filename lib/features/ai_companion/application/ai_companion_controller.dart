@@ -1,280 +1,165 @@
 import 'dart:async';
-import 'dart:developer' as developer;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../auth/application/auth_controller.dart';
-import '../../learn/application/learn_providers.dart';
-import '../../learn/data/student_academic_profile_source.dart';
-import '../../learn/domain/learn_academic_context.dart';
-import '../../greetings/domain/local_greeting_engine.dart';
-import '../../../core/telemetry/intellia_telemetry.dart';
 import '../../../core/localization/app_locale_controller.dart';
+import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../greetings/domain/local_greeting_engine.dart';
+import '../../learn/application/learn_providers.dart';
 import '../../tutor/application/tutor_preference_provider.dart';
 import '../../tutor/domain/tutor_persona.dart';
-import '../data/ai_repository.dart';
-import '../data/ai_service.dart';
-import '../data/cloud_ai_repository.dart';
 import '../data/companion_history_repository.dart';
+import '../deterministic/companion_conversation_state.dart';
+import '../deterministic/companion_dialogue_bank.dart';
+import '../deterministic/companion_study_context.dart';
+import '../deterministic/deterministic_companion_engine.dart';
 import '../domain/ai_message.dart';
-import '../domain/ai_companion_reply.dart';
 import '../domain/companion_conversation.dart';
-import '../domain/tutor_turn_options.dart';
-import '../../interactive_learning/domain/interactive_block.dart';
-
-final aiRepositoryProvider = Provider<AIRepository>((ref) {
-  return CloudAIRepository();
-});
-
-final aiServiceProvider = Provider<AIService>((ref) {
-  return AIService(ref.watch(aiRepositoryProvider));
-});
+import 'companion_engine_providers.dart';
 
 final aiCompanionControllerProvider =
     NotifierProvider<AICompanionController, AICompanionState>(
       AICompanionController.new,
     );
 
+/// Durée du « Kira écrit… » : un simple rythme visuel, jamais une attente
+/// réseau. La réponse est déjà calculée.
+Duration companionTypingDelay(String reply) =>
+    Duration(milliseconds: (250 + reply.length * 3).clamp(250, 700));
+
+/// Un quiz terminé depuis plus longtemps n'est plus commenté à l'arrivée.
+const companionQuizReturnWindow = Duration(hours: 12);
+
 class AICompanionState {
   const AICompanionState({
     required this.tutor,
-    required this.classLevel,
     required this.messages,
-    required this.isSending,
-    this.errorMessage,
-    this.lastFailedMessage,
-    this.lastFailedRequestId,
+    this.isSending = false,
     this.lessonContext,
-    this.dailyQuestionLimit,
-    this.remainingQuestions,
-    this.quotaResetsAt,
-    this.errorKind,
-    this.normalizedErrorCode,
-    this.diagnosticId,
+    this.unavailable = false,
   });
 
   factory AICompanionState.initial(
     TutorPersona tutor, {
-    String classLevel = '',
     required String welcomeText,
-  }) {
-    return AICompanionState(
-      tutor: tutor,
-      classLevel: classLevel,
-      messages: [
-        AIMessage(
-          id: 'welcome',
-          role: AIMessageRole.assistant,
-          text: welcomeText,
-          createdAt: DateTime.now(),
-          companionId: tutor.id,
-        ),
-      ],
-      isSending: false,
-    );
-  }
+  }) => AICompanionState(
+    tutor: tutor,
+    messages: [
+      AIMessage(
+        id: 'welcome',
+        role: AIMessageRole.assistant,
+        text: welcomeText,
+        createdAt: DateTime.now(),
+        companionId: tutor.id,
+      ),
+    ],
+  );
 
   final TutorPersona tutor;
-  final String classLevel;
   final List<AIMessage> messages;
+
+  /// « Kira écrit… » : la réponse locale est en train d'apparaître.
   final bool isSending;
-  final String? errorMessage;
-  final String? lastFailedMessage;
-
-  /// Identifiant de la question échouée : la relance le réutilise pour que le
-  /// serveur ne compte pas deux fois la même question.
-  final String? lastFailedRequestId;
   final String? lessonContext;
-  final int? dailyQuestionLimit;
-  final int? remainingQuestions;
-  final DateTime? quotaResetsAt;
-  final AICompanionFailureKind? errorKind;
-  final String? normalizedErrorCode;
-  final String? diagnosticId;
 
-  static const _notProvided = Object();
+  /// La banque de dialogues embarquée n'a pas pu être lue (ne devrait
+  /// jamais arriver : elle est validée à chaque livraison).
+  final bool unavailable;
 
   AICompanionState copyWith({
     TutorPersona? tutor,
-    String? classLevel,
     List<AIMessage>? messages,
     bool? isSending,
-    Object? errorMessage = _notProvided,
-    Object? lastFailedMessage = _notProvided,
-    Object? lastFailedRequestId = _notProvided,
     String? lessonContext,
-    int? dailyQuestionLimit,
-    int? remainingQuestions,
-    DateTime? quotaResetsAt,
-    Object? errorKind = _notProvided,
-    Object? normalizedErrorCode = _notProvided,
-    Object? diagnosticId = _notProvided,
-  }) {
-    return AICompanionState(
-      tutor: tutor ?? this.tutor,
-      classLevel: classLevel ?? this.classLevel,
-      messages: messages ?? this.messages,
-      isSending: isSending ?? this.isSending,
-      errorMessage: identical(errorMessage, _notProvided)
-          ? this.errorMessage
-          : errorMessage as String?,
-      lastFailedMessage: identical(lastFailedMessage, _notProvided)
-          ? this.lastFailedMessage
-          : lastFailedMessage as String?,
-      lastFailedRequestId: identical(lastFailedRequestId, _notProvided)
-          ? this.lastFailedRequestId
-          : lastFailedRequestId as String?,
-      lessonContext: lessonContext ?? this.lessonContext,
-      dailyQuestionLimit: dailyQuestionLimit ?? this.dailyQuestionLimit,
-      remainingQuestions: remainingQuestions ?? this.remainingQuestions,
-      quotaResetsAt: quotaResetsAt ?? this.quotaResetsAt,
-      errorKind: identical(errorKind, _notProvided)
-          ? this.errorKind
-          : errorKind as AICompanionFailureKind?,
-      normalizedErrorCode: identical(normalizedErrorCode, _notProvided)
-          ? this.normalizedErrorCode
-          : normalizedErrorCode as String?,
-      diagnosticId: identical(diagnosticId, _notProvided)
-          ? this.diagnosticId
-          : diagnosticId as String?,
-    );
-  }
+    bool clearLessonContext = false,
+    bool? unavailable,
+  }) => AICompanionState(
+    tutor: tutor ?? this.tutor,
+    messages: messages ?? this.messages,
+    isSending: isSending ?? this.isSending,
+    lessonContext: clearLessonContext
+        ? null
+        : lessonContext ?? this.lessonContext,
+    unavailable: unavailable ?? this.unavailable,
+  );
 }
 
+/// Conversation avec Kira ou Léo, entièrement locale.
+///
+/// Registre de décisions (Compagnon déterministe V1) : la conversation
+/// libre passait par un service distant de génération de texte (quota,
+/// réserve d'étude, erreurs réseau). Elle est désormais calculée sur
+/// l'appareil par [DeterministicCompanionEngine] à partir de la banque de
+/// dialogues et des données réelles de l'élève : aucun réseau, aucun
+/// modèle de langage, aucune réponse inventée.
 class AICompanionController extends Notifier<AICompanionState> {
   bool _historyChanged = false;
 
-  /// Résultat de la dernière activité, joint au prochain message de l'élève
-  /// pour que le compagnon observe et s'adapte.
-  ActivityOutcome? _pendingActivityOutcome;
-  ActivityOutcome? get pendingActivityOutcome => _pendingActivityOutcome;
+  /// « Nouvelle conversation » : le fil précédent n'est pas rouvert.
+  bool _freshThread = false;
   String? _activeUserId;
   CompanionConversation? _conversation;
-  AIService get _service => ref.read(aiServiceProvider);
+  CompanionConversationState _dialogue = CompanionConversationState.initial;
+
+  /// Incrémenté à chaque changement de fil : une réponse en route pour un
+  /// fil abandonné n'y est jamais ajoutée.
+  int _generation = 0;
 
   @override
   AICompanionState build() {
-    // Watch tutor selection
     final tutor = ref.watch(selectedTutorProvider) ?? TutorPersona.all.first;
-    final currentAcademic = ref.read(studentAcademicContextProvider);
-    final currentContext = currentAcademic.valueOrNull;
     final userId = ref.watch(authControllerProvider).userId;
     final firstName = ref.watch(authControllerProvider).firstName;
     final languageCode = ref.watch(appLocaleProvider).languageCode;
+    final academic = ref.read(studentAcademicContextProvider).valueOrNull;
     if (_activeUserId != userId) {
       // Changement d'élève : le fil courant ne doit jamais suivre.
       _activeUserId = userId;
       _historyChanged = false;
+      _freshThread = false;
       _conversation = null;
-      _pendingActivityOutcome = null;
     }
+    _dialogue = CompanionConversationState.initial;
+    _generation++;
 
-    // Listen to academic context changes
-    ref.listen<
-      AsyncValue<LearnAcademicContext>
-    >(studentAcademicContextProvider, (previous, next) {
-      final context = next.valueOrNull;
-      if (context != null) {
-        final profileTutorId = context.tutorId?.trim();
-        // Un changement local non encore synchronisé ne doit pas être écrasé
-        // par la valeur que le profil porte toujours.
-        if (profileTutorId != null &&
-            profileTutorId.isNotEmpty &&
-            !ref.read(tutorSelectionPendingProvider) &&
-            ref.read(selectedTutorIdProvider) != profileTutorId) {
-          unawaited(
-            ref.read(tutorPreferenceProvider.notifier).select(profileTutorId),
-          );
-        }
-        if (state.classLevel != context.classLevel ||
-            state.errorKind == AICompanionFailureKind.authorizationProfile) {
-          state = state.copyWith(
-            classLevel: context.classLevel,
-            errorMessage: null,
-            errorKind: null,
-            normalizedErrorCode: null,
-            diagnosticId: null,
-          );
-        }
-        unawaited(
-          _refreshWelcome(
-            userId: userId,
-            firstName: firstName,
-            languageCode: languageCode,
-            tutor: state.tutor,
-            classLevel: context.displayClassLevel ?? context.classLevel,
-          ),
-        );
-        return;
-      }
-
-      final error = next.error;
-      if (error is AcademicProfileException) {
-        state = state.copyWith(
-          errorMessage:
-              '${state.tutor.name} a besoin de resynchroniser ton profil '
-              'avant de répondre. Tes cours et exercices restent disponibles.',
-          lastFailedMessage: null,
-          errorKind: AICompanionFailureKind.authorizationProfile,
-          normalizedErrorCode: error.normalizedErrorCode,
-          diagnosticId: 'TUTOR-PROFILE-502',
-        );
+    // Garde vivantes les sources locales du compagnon, et commente un quiz
+    // tout juste terminé dès qu'il apparaît dans son contexte.
+    ref.listen<CompanionStudyContext>(companionStudyContextProvider, (
+      previous,
+      next,
+    ) {
+      final quiz = next.lastQuiz;
+      if (quiz != null && quiz.completedAt != previous?.lastQuiz?.completedAt) {
+        unawaited(_commentLatestQuiz());
       }
     });
 
-    final currentTutorId = currentContext?.tutorId?.trim();
-    if (currentTutorId != null &&
-        currentTutorId.isNotEmpty &&
-        !ref.read(tutorSelectionPendingProvider) &&
-        ref.read(selectedTutorIdProvider) != currentTutorId) {
-      Future<void>.microtask(
-        () => ref.read(tutorPreferenceProvider.notifier).select(currentTutorId),
-      );
-    }
-
-    Future<void>.microtask(() => _restoreHistory(userId));
+    Future<void>.microtask(() async {
+      await _restoreHistory(userId);
+      await _commentLatestQuiz();
+    });
     final greetingContext = GreetingContext(
       learnerId: userId ?? 'anonymous',
       companionId: tutor.id,
       languageCode: languageCode,
       firstName: firstName,
-      classLevel:
-          currentContext?.displayClassLevel ?? currentContext?.classLevel,
+      classLevel: academic?.displayClassLevel ?? academic?.classLevel,
     );
-    Future<void>.microtask(
-      () => _refreshWelcome(
-        userId: userId,
-        firstName: firstName,
-        languageCode: languageCode,
-        tutor: tutor,
-        classLevel:
-            currentContext?.displayClassLevel ?? currentContext?.classLevel,
-      ),
-    );
+    Future<void>.microtask(() => _refreshWelcome(greetingContext, tutor));
     return AICompanionState.initial(
       tutor,
-      classLevel: currentContext?.classLevel ?? '',
       welcomeText: LocalGreetingEngine.fallback(greetingContext),
     );
   }
 
-  Future<void> _refreshWelcome({
-    required String? userId,
-    required String? firstName,
-    required String languageCode,
-    required TutorPersona tutor,
-    required String? classLevel,
-  }) async {
-    final greeting = await LocalGreetingEngine.select(
-      GreetingContext(
-        learnerId: userId ?? 'anonymous',
-        companionId: tutor.id,
-        languageCode: languageCode,
-        firstName: firstName,
-        classLevel: classLevel,
-      ),
-    );
-    if (ref.read(authControllerProvider).userId != userId) return;
+  Future<void> _refreshWelcome(
+    GreetingContext context,
+    TutorPersona tutor,
+  ) async {
+    final greeting = await LocalGreetingEngine.select(context);
+    if (ref.read(authControllerProvider).userId != _activeUserId) return;
     if (state.messages.length != 1 || state.messages.single.id != 'welcome') {
       return;
     }
@@ -291,20 +176,21 @@ class AICompanionController extends Notifier<AICompanionState> {
     );
   }
 
-  /// Reprend le fil courant de l'élève, en récupérant au passage l'ancien
-  /// historique unique s'il en reste un.
+  /// Reprend le dernier fil du compagnon déterministe. Les fils plus
+  /// anciens, écrits par l'ancien service, ne sont jamais rejoués comme les
+  /// siens.
   Future<void> _restoreHistory(String? userId) async {
     if (userId == null || userId.trim().isEmpty) return;
     final repository = await ref.read(
       companionHistoryRepositoryProvider.future,
     );
-    await repository.migrateLegacyThread(userId);
     if (ref.read(authControllerProvider).userId != userId) return;
-    if (_historyChanged) return;
-
-    final conversations = repository.listConversations(userId);
-    if (conversations.isEmpty) return;
-    final latest = conversations.first;
+    if (_historyChanged || _freshThread) return;
+    final latest = repository
+        .listConversations(userId)
+        .where((c) => c.isDeterministic)
+        .firstOrNull;
+    if (latest == null) return;
     final messages = repository.readMessages(userId, latest.id);
     if (messages.isEmpty) return;
     _conversation = latest;
@@ -321,20 +207,16 @@ class AICompanionController extends Notifier<AICompanionState> {
     if (messages.isEmpty) return;
     _historyChanged = true;
     _conversation = conversation;
-    state = state.copyWith(
-      messages: messages,
-      errorMessage: null,
-      lastFailedMessage: null,
-      errorKind: null,
-      normalizedErrorCode: null,
-      diagnosticId: null,
-    );
+    _dialogue = CompanionConversationState.initial;
+    _generation++;
+    state = state.copyWith(messages: messages, isSending: false);
   }
 
   /// Démarre un fil neuf sans effacer les précédents.
   void startNewConversation() {
     _conversation = null;
     _historyChanged = false;
+    _freshThread = true;
     ref.invalidateSelf();
   }
 
@@ -350,6 +232,7 @@ class AICompanionController extends Notifier<AICompanionState> {
         learnerId: userId,
         createdAt: DateTime.now(),
         lastActivityAt: DateTime.now(),
+        engine: CompanionConversation.deterministicEngine,
       );
       await repository.saveConversation(
         learnerId: userId,
@@ -357,240 +240,140 @@ class AICompanionController extends Notifier<AICompanionState> {
         messages: state.messages,
       );
     } catch (_) {
-      // Un échec d'écriture locale ne doit jamais masquer une réponse reçue.
+      // Un échec d'écriture locale ne doit jamais masquer une réponse.
     }
   }
 
-  Future<void> send(String message, {String? requestId}) async {
+  Future<CompanionDialogueBank?> _bank() async {
+    final language = ref.read(appLocaleProvider).languageCode;
+    try {
+      return await ref.read(companionDialogueBankProvider(language).future);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Répond à [message], localement. [instant] supprime le court rythme
+  /// visuel (animations réduites).
+  Future<void> send(String message, {bool instant = false}) async {
     final cleaned = message.trim();
     if (cleaned.isEmpty || state.isSending) return;
-    final turnRequestId = requestId ?? newTutorRequestId();
-    if (!await _ensureAcademicContext()) return;
-    if (state.remainingQuestions == 0) {
-      state = state.copyWith(
-        errorMessage:
-            'Tu as atteint la limite de questions du jour. De nouvelles questions seront disponibles à 00 h, heure du Cameroun.',
-        lastFailedMessage: null,
-        errorKind: AICompanionFailureKind.quotaExhausted,
-        normalizedErrorCode: 'resource-exhausted',
-        diagnosticId: 'TUTOR-QUOTA-501',
-      );
-      return;
-    }
+    final generation = _generation;
     _historyChanged = true;
-    final historyBeforeSend = state.messages;
-    final requestHistory = historyBeforeSend
-        .where((item) => item.id != 'welcome')
-        .toList(growable: false);
-
-    final nextMessages = [
-      ...historyBeforeSend,
+    final withQuestion = [
+      ...state.messages,
       AIMessage(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        id: 'u${DateTime.now().microsecondsSinceEpoch}',
         role: AIMessageRole.user,
         text: cleaned,
         createdAt: DateTime.now(),
       ),
     ];
+    state = state.copyWith(messages: withQuestion, isSending: true);
 
-    state = state.copyWith(
-      messages: nextMessages,
-      isSending: true,
-      errorMessage: null,
-      lastFailedMessage: null,
-      lastFailedRequestId: null,
-      errorKind: null,
-      normalizedErrorCode: null,
-      diagnosticId: null,
-    );
-
-    try {
-      final contextPrefix = state.lessonContext == null
-          ? ''
-          : 'Contexte de la leçon en cours : ${state.lessonContext}.\n';
-      final reply = await _service.ask(
-        tutor: state.tutor,
-        classLevel: state.classLevel,
-        // The current question has its own payload field. Sending it in the
-        // history as well duplicates the prompt and wastes context tokens.
-        history: requestHistory,
-        userMessage: '$contextPrefix$cleaned',
-        options: TutorTurnOptions(
-          requestId: turnRequestId,
-          activityOutcome: _pendingActivityOutcome,
-        ),
-      );
-      // Le compagnon a reçu le résultat : il ne sera pas renvoyé.
-      _pendingActivityOutcome = null;
-
-      state = state.copyWith(
-        messages: [
-          ...nextMessages,
-          reply.message.copyWith(companionId: state.tutor.id),
-        ],
-        isSending: false,
-        dailyQuestionLimit: reply.quota.limit,
-        remainingQuestions: reply.quota.remaining,
-        quotaResetsAt: reply.quota.resetsAt,
-        errorMessage: null,
-        lastFailedMessage: null,
-        errorKind: null,
-        normalizedErrorCode: null,
-        diagnosticId: null,
-      );
-      unawaited(IntelliaTelemetry.companionMessageSent());
-      await _persistHistory();
-    } on AICompanionException catch (error) {
-      state = state.copyWith(
-        isSending: false,
-        errorMessage: error.message,
-        lastFailedMessage: error.retryable ? cleaned : null,
-        lastFailedRequestId: error.retryable ? turnRequestId : null,
-        dailyQuestionLimit: error.quota?.limit,
-        remainingQuestions: error.quota?.remaining,
-        quotaResetsAt: error.quota?.resetsAt,
-        errorKind: error.kind,
-        normalizedErrorCode: error.normalizedErrorCode,
-        diagnosticId: error.diagnosticId,
-      );
-      developer.log(
-        'Tutor request failed.',
-        name: 'intellia.companion',
-        error: <String, String>{
-          'normalizedErrorCode': error.normalizedErrorCode,
-          'diagnosticId': error.diagnosticId,
-        },
-      );
-      await _persistHistory();
-    } catch (_) {
-      state = state.copyWith(
-        isSending: false,
-        errorMessage:
-            '${state.tutor.name} n’arrive pas à répondre pour le moment. '
-            'Tu peux continuer à consulter tes cours et exercices.',
-        lastFailedMessage: cleaned,
-        lastFailedRequestId: turnRequestId,
-        errorKind: AICompanionFailureKind.unknown,
-        normalizedErrorCode: 'unknown',
-        diagnosticId: 'TUTOR-UNKNOWN-599',
-      );
-      await _persistHistory();
+    final bank = await _bank();
+    if (generation != _generation) return;
+    if (bank == null) {
+      state = state.copyWith(isSending: false, unavailable: true);
+      return;
     }
+    final reply = ref
+        .read(deterministicCompanionEngineProvider)
+        .respond(
+          message: cleaned,
+          context: ref.read(companionStudyContextProvider),
+          bank: bank,
+          personaId: state.tutor.id,
+          state: _dialogue,
+          lessonContext: state.lessonContext,
+        );
+    _dialogue = reply.state;
+    if (!instant) {
+      await Future<void>.delayed(companionTypingDelay(reply.text));
+      if (generation != _generation) return;
+    }
+    state = state.copyWith(
+      isSending: false,
+      unavailable: false,
+      messages: [
+        ...state.messages,
+        AIMessage(
+          id: 'a${DateTime.now().microsecondsSinceEpoch}',
+          role: AIMessageRole.assistant,
+          text: reply.text,
+          createdAt: DateTime.now(),
+          companionId: state.tutor.id,
+          actions: reply.actions,
+        ),
+      ],
+    );
+    unawaited(IntelliaTelemetry.companionMessageSent());
+    await _persistHistory();
   }
 
-  Future<bool> _ensureAcademicContext() async {
-    if (state.classLevel.trim().isNotEmpty) return true;
+  static String _seenKey(String userId) => 'companion_quiz_seen_v1_$userId';
 
-    // The companion tab can be opened before the asynchronous Firestore
-    // profile provider resolves. Waiting here avoids rejecting a valid first
-    // message locally — which previously meant askTutor was never invoked.
-    state = state.copyWith(
-      isSending: true,
-      errorMessage: null,
-      lastFailedMessage: null,
-      errorKind: null,
-      normalizedErrorCode: null,
-      diagnosticId: null,
-    );
+  bool _commenting = false;
+
+  /// Commente le dernier quiz de pack terminé, une seule fois, s'il est
+  /// récent. Rien sans résultat réel.
+  Future<void> _commentLatestQuiz() async {
+    if (_commenting) return;
+    final userId = ref.read(authControllerProvider).userId;
+    if (userId == null || userId.trim().isEmpty) return;
+    final result = ref.read(companionStudyContextProvider).lastQuiz;
+    if (result == null) return;
+    if (DateTime.now().difference(result.completedAt) >
+        companionQuizReturnWindow) {
+      return;
+    }
+    _commenting = true;
     try {
-      final academic = await ref.read(studentAcademicContextProvider.future);
-      if (academic.classLevel.trim().isEmpty) {
-        state = state.copyWith(
-          isSending: false,
-          errorMessage:
-              '${state.tutor.name} a besoin de resynchroniser ton profil avant '
-              'de répondre. Tes cours et exercices restent disponibles.',
-          lastFailedMessage: null,
-          errorKind: AICompanionFailureKind.authorizationProfile,
-          normalizedErrorCode: 'profile-not-ready',
-          diagnosticId: 'TUTOR-PROFILE-502',
-        );
-        return false;
+      final prefs = await SharedPreferences.getInstance();
+      final seen = DateTime.tryParse(prefs.getString(_seenKey(userId)) ?? '');
+      if (seen != null && !result.completedAt.isAfter(seen)) return;
+      final bank = await _bank();
+      if (bank == null || ref.read(authControllerProvider).userId != userId) {
+        return;
       }
-      state = state.copyWith(
-        classLevel: academic.classLevel,
-        isSending: false,
-        errorMessage: null,
-        errorKind: null,
-        normalizedErrorCode: null,
-        diagnosticId: null,
+      await prefs.setString(
+        _seenKey(userId),
+        result.completedAt.toUtc().toIso8601String(),
       );
-      return true;
-    } on AcademicProfileException catch (error) {
+      final reply = ref
+          .read(deterministicCompanionEngineProvider)
+          .quizReturn(
+            result: result,
+            context: ref.read(companionStudyContextProvider),
+            bank: bank,
+            personaId: state.tutor.id,
+            state: _dialogue,
+          );
+      _dialogue = reply.state;
+      _historyChanged = true;
       state = state.copyWith(
-        isSending: false,
-        errorMessage:
-            '${state.tutor.name} a besoin de resynchroniser ton profil avant '
-            'de répondre. Tes cours et exercices restent disponibles.',
-        lastFailedMessage: null,
-        errorKind: AICompanionFailureKind.authorizationProfile,
-        normalizedErrorCode: error.normalizedErrorCode,
-        diagnosticId: 'TUTOR-PROFILE-502',
+        messages: [
+          ...state.messages,
+          AIMessage(
+            id: 'q${DateTime.now().microsecondsSinceEpoch}',
+            role: AIMessageRole.assistant,
+            text: reply.text,
+            createdAt: DateTime.now(),
+            companionId: state.tutor.id,
+            actions: reply.actions,
+          ),
+        ],
       );
-      return false;
-    } catch (_) {
-      state = state.copyWith(
-        isSending: false,
-        errorMessage:
-            '${state.tutor.name} n’arrive pas à charger ton profil pour le '
-            'moment. Tu peux réessayer dans un instant.',
-        lastFailedMessage: null,
-        errorKind: AICompanionFailureKind.network,
-        normalizedErrorCode: 'profile-load-failed',
-        diagnosticId: 'TUTOR-PROFILE-502',
-      );
-      return false;
+      await _persistHistory();
+    } finally {
+      _commenting = false;
     }
   }
 
   void setLessonContext(String? context) {
     final cleaned = context?.trim();
-    state = AICompanionState(
-      tutor: state.tutor,
-      classLevel: state.classLevel,
-      messages: state.messages,
-      isSending: state.isSending,
-      errorMessage: state.errorMessage,
-      lastFailedMessage: state.lastFailedMessage,
-      lastFailedRequestId: state.lastFailedRequestId,
-      lessonContext: cleaned == null || cleaned.isEmpty ? null : cleaned,
-      dailyQuestionLimit: state.dailyQuestionLimit,
-      remainingQuestions: state.remainingQuestions,
-      quotaResetsAt: state.quotaResetsAt,
-      errorKind: state.errorKind,
-      normalizedErrorCode: state.normalizedErrorCode,
-      diagnosticId: state.diagnosticId,
-    );
-  }
-
-  /// L'élève a terminé une activité : le résultat part avec son prochain
-  /// message. Jamais une note : un signal pédagogique pour le compagnon.
-  void recordActivityOutcome(ActivityOutcome outcome) {
-    _pendingActivityOutcome = outcome;
-  }
-
-  /// « Continuer avec Kira » : relance l'échange avec le résultat joint.
-  Future<void> continueAfterActivity(String message) => send(message);
-
-  Future<void> retryLastMessage() async {
-    final message = state.lastFailedMessage;
-    if (message == null || state.isSending) return;
-    final requestId = state.lastFailedRequestId;
-    final messages = [...state.messages];
-    if (messages.isNotEmpty &&
-        messages.last.role == AIMessageRole.user &&
-        messages.last.text == message) {
-      messages.removeLast();
-    }
-    state = state.copyWith(
-      messages: messages,
-      errorMessage: null,
-      lastFailedMessage: null,
-      lastFailedRequestId: null,
-      errorKind: null,
-      normalizedErrorCode: null,
-      diagnosticId: null,
-    );
-    await send(message, requestId: requestId);
+    state = cleaned == null || cleaned.isEmpty
+        ? state.copyWith(clearLessonContext: true)
+        : state.copyWith(lessonContext: cleaned);
   }
 }
