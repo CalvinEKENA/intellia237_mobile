@@ -354,28 +354,84 @@ class _AnswerInputState extends State<AnswerInput> {
     );
   }
 
-  Widget _chipWrap({required bool multi}) => Wrap(
+  void _select(AnswerAtom choice, bool selected, {required bool multi}) {
+    setState(() {
+      if (multi) {
+        selected ? _choices.add(choice) : _choices.remove(choice);
+      } else {
+        _choice = choice;
+      }
+    });
+    _emit();
+  }
+
+  /// Pastilles quand chaque proposition tient sur une ligne ; sinon une
+  /// option par ligne, en pleine largeur, dont le texte passe à la ligne.
+  /// Une pastille Material ne revient jamais à la ligne : une proposition
+  /// longue y était coupée (« The person who solemnises the »).
+  Widget _chipWrap({required bool multi}) => LayoutBuilder(
+    builder: (context, box) {
+      final choices = _orderedChoices();
+      final style = ContentText.math(size: 17);
+      final scaler = MediaQuery.textScalerOf(context);
+      // Marges d'une pastille autour de son libellé, coche comprise.
+      final chrome = multi ? 72.0 : 44.0;
+      final fits = choices.every((choice) {
+        final painter = TextPainter(
+          text: TextSpan(text: choice.display, style: style),
+          textDirection: Directionality.of(context),
+          textScaler: scaler,
+          maxLines: 1,
+        )..layout();
+        final width = painter.width;
+        painter.dispose();
+        return width + chrome <= box.maxWidth;
+      });
+      if (!fits) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (index, choice) in choices.indexed) ...[
+              if (index > 0) const SizedBox(height: IntelliaSpacing.xs),
+              _ChoiceOption(
+                key: ValueKey('answer-choice-${choice.display}'),
+                label: choice.display,
+                style: style,
+                multi: multi,
+                selected: multi ? _choices.contains(choice) : _choice == choice,
+                onTap: widget.enabled
+                    ? () => _select(
+                        choice,
+                        multi ? !_choices.contains(choice) : true,
+                        multi: multi,
+                      )
+                    : null,
+              ),
+            ],
+          ],
+        );
+      }
+      return _chips(choices, style, multi: multi);
+    },
+  );
+
+  Widget _chips(
+    List<AnswerAtom> choices,
+    TextStyle style, {
+    required bool multi,
+  }) => Wrap(
     spacing: IntelliaSpacing.xs,
     runSpacing: IntelliaSpacing.xs,
     children: [
-      for (final choice in _orderedChoices())
+      for (final choice in choices)
         ChoiceChip(
           key: ValueKey('answer-choice-${choice.display}'),
-          label: Text(choice.display, style: ContentText.math(size: 17)),
+          label: Text(choice.display, style: style),
           selected: multi ? _choices.contains(choice) : _choice == choice,
           showCheckmark: multi,
           selectedColor: ContentPalette.accent.withValues(alpha: 0.18),
           onSelected: widget.enabled
-              ? (selected) {
-                  setState(() {
-                    if (multi) {
-                      selected ? _choices.add(choice) : _choices.remove(choice);
-                    } else {
-                      _choice = choice;
-                    }
-                  });
-                  _emit();
-                }
+              ? (selected) => _select(choice, selected, multi: multi)
               : null,
         ),
     ],
@@ -499,6 +555,81 @@ class _AnswerInputState extends State<AnswerInput> {
       ),
     ],
   );
+}
+
+/// Une proposition longue : toute la largeur, texte entier sur plusieurs
+/// lignes, même sélection que la pastille.
+class _ChoiceOption extends StatelessWidget {
+  const _ChoiceOption({
+    required this.label,
+    required this.style,
+    required this.multi,
+    required this.selected,
+    this.onTap,
+    super.key,
+  });
+
+  final String label;
+  final TextStyle style;
+  final bool multi;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(IntelliaRadii.medium);
+    final icon = multi
+        ? (selected
+              ? Icons.check_box_rounded
+              : Icons.check_box_outline_blank_rounded)
+        : (selected
+              ? Icons.radio_button_checked_rounded
+              : Icons.radio_button_unchecked_rounded);
+    return Semantics(
+      button: true,
+      selected: selected,
+      inMutuallyExclusiveGroup: !multi,
+      enabled: onTap != null,
+      child: Material(
+        color: selected
+            ? ContentPalette.accent.withValues(alpha: 0.18)
+            : ContentPalette.accent.withValues(alpha: 0.04),
+        borderRadius: radius,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
+            padding: const EdgeInsets.symmetric(
+              horizontal: IntelliaSpacing.sm,
+              vertical: IntelliaSpacing.xs + 2,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              border: Border.all(
+                color: selected ? ContentPalette.accent : ContentPalette.line,
+              ),
+            ),
+            child: Row(
+              children: [
+                ExcludeSemantics(
+                  child: Icon(
+                    icon,
+                    size: 20,
+                    color: selected
+                        ? ContentPalette.accent
+                        : ContentPalette.inkSoft,
+                  ),
+                ),
+                const SizedBox(width: IntelliaSpacing.xs),
+                Expanded(child: Text(label, style: style)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _BigToggle extends StatelessWidget {
