@@ -15,6 +15,8 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/phone_auth_screen.dart';
 import '../../features/auth/presentation/auth_gateway_screen.dart';
 import '../../features/auth/presentation/widgets/auth_experience_scaffold.dart';
+import '../../features/auth/application/auth_home_video.dart';
+import '../../features/auth/presentation/widgets/auth_home_cinematic.dart';
 import '../../features/auth/presentation/widgets/pass_home_arrival.dart';
 import '../../features/auth/presentation/profile_recovery_screen.dart';
 import '../../features/auth/presentation/student_access_code_screen.dart';
@@ -312,6 +314,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           state: state,
           role: AppRole.student,
           duration: notifier.homeArrivalDuration,
+          cinematic: notifier.homeArrivalCinematic,
           child: slot(context, state, const StudentHomeScreen()),
         ),
       ),
@@ -575,6 +578,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           state: state,
           role: AppRole.parent,
           duration: notifier.homeArrivalDuration,
+          cinematic: notifier.homeArrivalCinematic,
           child: slot(context, state, const ParentHomeScreen()),
         ),
       ),
@@ -655,6 +659,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           state: state,
           role: AppRole.teacher,
           duration: notifier.homeArrivalDuration,
+          cinematic: notifier.homeArrivalCinematic,
           child: slot(context, state, const TeacherHomeScreen()),
         ),
       ),
@@ -773,7 +778,18 @@ class AppRouterNotifier extends ChangeNotifier {
   late final ProviderSubscription<bool> _onboardingSub;
   late final ProviderSubscription<bool> _authEntrySub;
   late final ProviderSubscription<ParentPreviewState> _parentPreviewSub;
-  Duration homeArrivalDuration = const Duration(milliseconds: 360);
+  Duration _nativeArrivalDuration = const Duration(milliseconds: 360);
+
+  /// La traversée Authentification → Home joue le clip préparé pendant les
+  /// écrans d'accès, s'il est prêt à cet instant : jamais d'attente, sinon la
+  /// transition native (voir HomeArrivalTransition). Le clip n'est préparé que
+  /// par un écran d'accès : une session restaurée au démarrage n'en a aucun et
+  /// garde son arrivée immédiate. La navigation vers le Home peut venir de la
+  /// redirection ou d'un écran d'accès lui-même : seul l'état du clip décide.
+  bool get homeArrivalCinematic => AuthHomeVideoWarmup.isReady;
+
+  Duration get homeArrivalDuration =>
+      homeArrivalCinematic ? AuthHomeMotion.total : _nativeArrivalDuration;
 
   /// Le routeur dont cette redirection lit la pile en place.
   void attach(GoRouter router) => _router = router;
@@ -795,7 +811,7 @@ class AppRouterNotifier extends ChangeNotifier {
     if (destination != null && AppRoutes.roleHomes.contains(destination)) {
       // This only selects presentation timing; authentication and access
       // decisions still come exclusively from resolveAppRedirect above.
-      homeArrivalDuration = location == AppRoutes.bootstrap
+      _nativeArrivalDuration = location == AppRoutes.bootstrap
           ? Duration.zero
           : const {
               AppRoutes.studentRegistration,

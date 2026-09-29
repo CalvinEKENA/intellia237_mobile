@@ -10,6 +10,11 @@ abstract final class IntelliaBrandAssets {
   /// génération Higgsfield, réduit à sa structure fine. Ni logo, ni texte, ni
   /// interface : le logo, le Pass et tout texte restent du Flutter.
   static const launchMatter = 'assets/branding/cinematic/splash_awaken_e.mp4';
+
+  /// Matière de la traversée Authentification → Home (0,8 s) : même univers,
+  /// sur le crème de l'accès. Ni logo, ni texte, ni interface.
+  static const authHomeMatter =
+      'assets/branding/cinematic/auth_home_matter.mp4';
 }
 
 /// Décline explicitement les portraits produit et les silhouettes de

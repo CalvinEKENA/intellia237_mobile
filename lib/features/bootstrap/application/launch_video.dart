@@ -51,10 +51,12 @@ class LaunchVideo {
     LaunchVideoControllerFactory? controllerFactory,
     Duration prepareTimeout = const Duration(seconds: 6),
     Duration seekCost = LaunchMotion.videoSeekCost,
+    Duration startLimit = LaunchMotion.videoStartLimit,
   }) : _asset = asset,
        _factory = controllerFactory ?? _defaultController,
        _prepareTimeout = prepareTimeout,
-       _seekCost = seekCost;
+       _seekCost = seekCost,
+       _startLimit = startLimit;
 
   /// Le clip n'est joué que là où il a été validé sur appareil.
   static bool get supported =>
@@ -66,6 +68,10 @@ class LaunchVideo {
 
   /// Coût d'un recalage (voir `LaunchMotion.videoSeekCost`).
   final Duration _seekCost;
+
+  /// Au-delà, un clip pas encore lancé est écarté : le lancement (900 ms) et
+  /// la transition Authentification → Home (140 ms) n'ont pas la même fenêtre.
+  final Duration _startLimit;
 
   VideoPlayerController? _controller;
   Future<void>? _preparing;
@@ -126,7 +132,7 @@ class LaunchVideo {
     final controller = _controller;
     if (_state != LaunchVideoState.ready || controller == null) return false;
     var now = elapsed();
-    if (now > LaunchMotion.videoStartLimit) {
+    if (now > _startLimit) {
       _state = LaunchVideoState.unavailable;
       return false;
     }
@@ -138,7 +144,7 @@ class LaunchVideo {
         await controller.seekTo(now + _seekCost);
         if (_state == LaunchVideoState.disposed) return false;
         now = elapsed();
-        if (now > LaunchMotion.videoStartLimit) {
+        if (now > _startLimit) {
           _state = LaunchVideoState.unavailable;
           return false;
         }

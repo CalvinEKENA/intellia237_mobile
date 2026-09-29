@@ -7,6 +7,7 @@ import '../../../tutor/domain/tutor_persona.dart';
 import '../../application/auth_controller.dart';
 import '../../domain/app_role.dart';
 import 'auth_experience_scaffold.dart';
+import 'auth_home_cinematic.dart';
 import 'living_pass.dart';
 import 'pass_auth_progress.dart';
 
@@ -67,30 +68,19 @@ CustomTransitionPage<void> buildPassHomePage({
   required AppRole role,
   required Widget child,
   Duration duration = const Duration(milliseconds: 760),
+  bool cinematic = false,
 }) => CustomTransitionPage<void>(
   key: state.pageKey,
   transitionDuration: duration,
   reverseTransitionDuration: const Duration(milliseconds: 240),
   child: PassHomeArrival(role: role, child: child),
-  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-    if (MediaQuery.disableAnimationsOf(context)) return child;
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        const AuthAmbientBackground(),
-        FadeTransition(
-          opacity: animation.drive(CurveTween(curve: Curves.easeOutCubic)),
-          child: SlideTransition(
-            position: animation.drive(
-              Tween(
-                begin: const Offset(0, .035),
-                end: Offset.zero,
-              ).chain(CurveTween(curve: Curves.easeOutCubic)),
-            ),
-            child: child,
-          ),
-        ),
-      ],
-    );
-  },
+  // Un seul point d'insertion pour la traversée Authentification → Home :
+  // [cinematic] (clip prêt à cet instant, voir AppRouterNotifier) est décidé
+  // avec la durée, jamais pendant la transition.
+  transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+      HomeArrivalTransition(
+        animation: animation,
+        cinematic: cinematic,
+        child: child,
+      ),
 );

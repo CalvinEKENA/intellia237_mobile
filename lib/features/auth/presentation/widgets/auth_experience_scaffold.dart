@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/localization_extensions.dart';
+import 'auth_home_warmup.dart';
 import 'living_pass.dart';
 import '../../../../core/widgets/pinned_footer_layout.dart';
 import '../../../../core/widgets/intellia_text_wordmark.dart';
@@ -89,6 +90,9 @@ class AuthExperienceScaffold extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               const AuthAmbientBackground(),
+              // Prépare la traversée vers le Home pendant que la personne
+              // remplit l'écran ; ne dessine rien.
+              const Positioned(width: 0, height: 0, child: AuthHomeWarmup()),
               SafeArea(
                 child: LayoutBuilder(
                   builder: (context, constraints) {

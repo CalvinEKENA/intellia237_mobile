@@ -134,6 +134,57 @@ profile du flavor staging, vrai `BootstrapScreen` sans Firebase, 11 lancements
   aucun pic à l'arrivée du clip ; mémoire du processus : 275–290 → 343–371 Mo
   avec ou sans clip, stable sur trois passages (aucune fuite constatée).
 
+### INTELLIA AWAKENS — la traversée Authentification → Home (Android)
+
+Même univers que le lancement : Higgsfield ne fournit que la **matière** (une
+traversée d'un espace de savoir abstrait : courbes, orbites, cellule, points de
+données, glyphes illisibles, qui s'éclaircit). Le PASS, le prénom, la classe et
+le Home sont le vrai Flutter, au-dessus ; le clip ne contient ni logo, ni
+texte, ni bouton, ni interface.
+
+| | |
+|---|---|
+| Fichier | `assets/branding/cinematic/auth_home_matter.mp4` |
+| Poids | 239 410 octets (plafond testé : 300 Ko) |
+| Format | H.264 High, 480×854, 30 fps, 0,8 s (24 images), sans audio, bt709 (plage tv), dernière image = crème `#FBF8F1` du Home |
+| Provenance | génération Higgsfield (Wan 3.0, 480p, 9:16, 2 s, 2,0 crédit), traitée par `tool/branding/derive_auth_home_clip.sh` |
+| Plateformes | Android seulement ; ailleurs, la transition native |
+
+Tempo (`AuthHomeMotion`, durée de la route 820 ms, Flutter est l'horloge
+maître) :
+
+- 0 → 110 ms : la matière naît sur l'écran d'accès ;
+- 300 → 760 ms : le vrai PASS et le vrai Home émergent de la clarté (même
+  courbe `easeOutCubic` que la transition native) ; retour haptique léger
+  (`selectionClick`) une seule fois quand ils se stabilisent ;
+- la dernière image du clip est la surface du Home : elle disparaît dessous ;
+  le clip est alors libéré.
+
+Une décoration, jamais un passage obligé :
+
+- **préparé pendant l'accès** : chaque écran d'accès (`AuthExperienceScaffold`)
+  lance `AuthHomeVideoWarmup.start()`, le lecteur est initialisé bien avant la
+  validation (1,7 s à froid sur TECNO CL6k) ;
+- **décidé une fois** : `AppRouterNotifier.homeArrivalCinematic` n'est vrai que
+  si le clip est prêt à l'instant où la page d'arrivée est bâtie ; une session
+  restaurée au démarrage (aucun écran d'accès) garde son arrivée immédiate ;
+- **jamais attendu** : clip en préparation, en erreur, absent, ou pas lancé à
+  140 ms → la transition native, courte (360 ms) ; la navigation ne dépend
+  jamais du clip ;
+- **entrées absorbées** pendant la traversée (appuis et retour système) : pas
+  de double navigation, pas de tap sur un Home encore invisible ;
+- **mouvement réduit** : aucun clip préparé ni joué, le Home est posé tel quel ;
+- un seul lecteur, adopté une fois (`AuthHomeVideoWarmup.take()`), libéré à la
+  fin, au démontage ou en cas d'échec.
+
+Tests : `test/features/auth/auth_home_cinematic_test.dart` (tempo, préparation,
+clip prêt / absent / en erreur / lent / tardif, entrées, haptique, mouvement
+réduit) et `test/features/auth/auth_home_journey_test.dart` (vrais écrans, vrai
+routeur, vraies pages).
+
+**À vérifier sur téléphone** : la fluidité de la lecture pendant l'émergence du
+Home (accueil réel, pas un accueil simulé) et le raccord de la dernière image.
+
 ## Icônes
 
 - Android (hérité, API < 26) et iOS : `icone.png`, générées par

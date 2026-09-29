@@ -38,13 +38,31 @@ void main() {
     expect(text, isNot(contains('hvc1')));
   });
 
-  test('le dossier ne contient que le clip validé', () {
+  test('le clip de la traversée Authentification → Home : léger, sans son, '
+      'de 0,8 s', () {
+    const asset = IntelliaBrandAssets.authHomeMatter;
+    expect(asset, startsWith(directory));
+    final file = File(asset);
+    expect(file.existsSync(), isTrue);
+    final data = file.readAsBytesSync();
+    // 239 410 octets ; au-delà de 300 Ko, c'est un autre fichier.
+    expect(data.length, lessThanOrEqualTo(300 * 1024));
+    expect(String.fromCharCodes(data.sublist(4, 8)), 'ftyp');
+    final text = String.fromCharCodes(data);
+    expect(text, contains('avc1'), reason: 'H.264');
+    expect(text, isNot(contains('mp4a')), reason: 'aucun son');
+    expect(text, isNot(contains('hvc1')));
+    expect(asset, isNot(equals(IntelliaBrandAssets.launchMatter)));
+  });
+
+  test('le dossier ne contient que les clips validés', () {
     final files = Directory(directory)
         .listSync()
         .whereType<File>()
         .map((file) => file.uri.pathSegments.last)
         .toList();
-    expect(files, ['splash_awaken_e.mp4']);
+    files.sort();
+    expect(files, ['auth_home_matter.mp4', 'splash_awaken_e.mp4']);
   });
 
   test('il est déclaré dans pubspec.yaml', () {
