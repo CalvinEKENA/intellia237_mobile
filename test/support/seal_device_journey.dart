@@ -24,6 +24,7 @@ import 'package:intellia237/features/auth/domain/repositories/auth_repository.da
 import 'package:intellia237/features/auth/domain/repositories/phone_auth_repository.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import 'package:intellia237/features/auth/presentation/widgets/intellia_237_membrane.dart';
+import 'package:intellia237/features/auth/presentation/widgets/living_pass.dart';
 import 'package:intellia237/features/family_access/application/family_access_providers.dart';
 import 'package:intellia237/features/family_access/data/family_access_repository.dart';
 import 'package:intellia237/features/family_access/domain/family_access_models.dart';
@@ -472,9 +473,10 @@ class SealTrace {
     _clock += frame;
     final seals = <SealReading>[];
     final area = _unobscured();
-    for (final element in find.byKey(Intellia237Membrane.paintKey).evaluate()) {
-      final paint = element.widget as CustomPaint;
-      final painter = paint.painter! as Intellia237SealPainter;
+    // L'emblème du Pass (le logo INTELLIA237) porte l'étape livrée par
+    // l'écran ; les couleurs de l'étape en découlent, sans fondu.
+    for (final element in find.byKey(LivingPass.emblemKey).evaluate()) {
+      final stage = (element.widget as PassEmblem).stage;
       final box = element.renderObject as RenderBox?;
       final attached = box != null && box.attached && box.hasSize;
       var visible = 0.0;
@@ -488,8 +490,8 @@ class SealTrace {
       }
       seals.add(
         SealReading(
-          stage: painter.stage,
-          digitColors: painter.digitColors,
+          stage: stage,
+          digitColors: Intellia237Palette.digitColors(stage),
           size: attached ? box.size : Size.zero,
           visible: visible,
         ),

@@ -329,14 +329,18 @@ void main() {
       }
     });
 
-    test('only LivingPass builds the seal, and nothing reads a legacy '
+    test('only LivingPass builds the seal emblem — the INTELLIA237 logo, '
+        'the 237 rosette is no longer shown — and nothing reads a legacy '
         'progress', () {
-      final builders = calls(
-        'Intellia237Membrane',
-      ).map((call) => call.path).toSet();
+      expect(calls('Intellia237Membrane'), isEmpty);
+      final builders = calls('PassEmblem').map((call) => call.path).toSet();
       expect(builders, {
         'lib/features/auth/presentation/widgets/living_pass.dart',
       });
+      expect(
+        sources['lib/features/auth/presentation/widgets/living_pass.dart'],
+        contains("'assets/branding/logo.png'"),
+      );
       for (final entry in sources.entries) {
         expect(entry.value, isNot(contains('sealProgress')), reason: entry.key);
         expect(

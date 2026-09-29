@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
@@ -68,6 +69,9 @@ class LivingPass extends StatefulWidget {
   });
 
   static const heroTag = 'intellia-living-pass';
+
+  /// Emblème du Pass : le logo INTELLIA237.
+  static const emblemKey = ValueKey<String>('living-pass-emblem');
   final AppRole? role;
   final String? name;
   final String? detail;
@@ -308,112 +312,145 @@ class _PassSurface extends StatelessWidget {
             horizontal: lerpDouble(16, 22, e)!,
             vertical: lerpDouble(12, 20, e)!,
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'INTELLIA PASS',
-                        key: const ValueKey('living-pass-brand'),
-                        style: passDisplay(
-                          size: lerpDouble(18, 47, e)!,
-                          color: e < 0.5 ? AuthExperienceColors.indigo : ink,
+          child: LayoutBuilder(
+            builder: (context, box) => Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'INTELLIA PASS',
+                          key: const ValueKey('living-pass-brand'),
+                          style: passDisplay(
+                            size: lerpDouble(18, 47, e)!,
+                            color: e < 0.5 ? AuthExperienceColors.indigo : ink,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: lerpDouble(4, 21, e)!),
-                    Text(
-                      name ?? emptyName,
-                      key: const ValueKey('living-pass-name'),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: passDisplay(size: lerpDouble(27, 31, e)!),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      [
-                        if (roleChosen) role,
-                        if (detail?.trim().isNotEmpty == true) detail!.trim(),
-                        if (!roleChosen && detail?.trim().isNotEmpty != true)
-                          'INTELLIA 237',
-                      ].join('  ·  '),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontFamily: 'CampaignBody',
-                        fontSize: 11,
-                        height: 1.35,
-                        fontWeight: FontWeight.w600,
-                        color: AuthExperienceColors.textSecondary,
+                      SizedBox(height: lerpDouble(4, 21, e)!),
+                      Text(
+                        name ?? emptyName,
+                        key: const ValueKey('living-pass-name'),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: passDisplay(size: lerpDouble(27, 31, e)!),
                       ),
-                    ),
-                    if (e > 0)
-                      ClipRect(
-                        child: Align(
-                          heightFactor: e,
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: Opacity(
-                              opacity: e,
-                              child: Text(
-                                phase.toUpperCase(),
-                                // À l'ouverture, la phase passe à l'encre,
-                                // pas au vert : à cet instant le vert
-                                // appartient au « 2 » du sceau.
-                                style: TextStyle(
-                                  fontFamily: 'CampaignBody',
-                                  fontSize: 9,
-                                  letterSpacing: 1.5,
-                                  fontWeight: FontWeight.w800,
-                                  color: seal.isComplete
-                                      ? AuthExperienceColors.textPrimary
-                                      : AuthExperienceColors.textSecondary,
+                      const SizedBox(height: 5),
+                      Text(
+                        [
+                          if (roleChosen) role,
+                          if (detail?.trim().isNotEmpty == true) detail!.trim(),
+                          if (!roleChosen && detail?.trim().isNotEmpty != true)
+                            'INTELLIA 237',
+                        ].join('  ·  '),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'CampaignBody',
+                          fontSize: 11,
+                          height: 1.35,
+                          fontWeight: FontWeight.w600,
+                          color: AuthExperienceColors.textSecondary,
+                        ),
+                      ),
+                      if (e > 0)
+                        ClipRect(
+                          child: Align(
+                            heightFactor: e,
+                            alignment: Alignment.topLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: Opacity(
+                                opacity: e,
+                                child: Text(
+                                  phase.toUpperCase(),
+                                  // À l'ouverture, la phase passe à l'encre,
+                                  // pas au vert : à cet instant le vert
+                                  // appartient au « 2 » du sceau.
+                                  style: TextStyle(
+                                    fontFamily: 'CampaignBody',
+                                    fontSize: 9,
+                                    letterSpacing: 1.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: seal.isComplete
+                                        ? AuthExperienceColors.textPrimary
+                                        : AuthExperienceColors.textSecondary,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(width: lerpDouble(10, 16, e)!),
-              SizedBox(
-                width: lerpDouble(42, 74, e)!,
-                height: lerpDouble(52, 102, e)!,
-                child: asset == null
-                    ? ExcludeSemantics(
-                        child: Intellia237Membrane(
-                          stage: seal,
-                          breathing: breathing,
+                SizedBox(width: lerpDouble(10, 16, e)!),
+                SizedBox(
+                  // Le logo est en largeur : il cède la place au nom sur les
+                  // petits écrans, jamais l'inverse.
+                  width: math.min(lerpDouble(60, 124, e)!, box.maxWidth * 0.36),
+                  height: lerpDouble(52, 102, e)!,
+                  child: asset == null
+                      ? PassEmblem(stage: seal)
+                      : Image.asset(
+                          asset!,
+                          fit: BoxFit.contain,
+                          excludeFromSemantics: true,
+                          errorBuilder: (_, _, _) => PassEmblem(stage: seal),
                         ),
-                      )
-                    : Image.asset(
-                        asset!,
-                        fit: BoxFit.contain,
-                        excludeFromSemantics: true,
-                        errorBuilder: (_, _, _) => ExcludeSemantics(
-                          child: Intellia237Membrane(
-                            stage: seal,
-                            breathing: breathing,
-                          ),
-                        ),
-                      ),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+/// Le logo INTELLIA237 (`assets/branding/logo.png`), à la place de la
+/// rosace du « 237 ».
+///
+/// Le fichier est un carré de 512 px dont le dessin n'occupe qu'une bande
+/// horizontale (x 25 → 491, y 202 → 300) : seule cette bande est montrée,
+/// à la largeur de l'emplacement. L'étape du sceau reste portée par le Pass
+/// (ligne de progression, libellé d'étape) et par ce widget, pour les
+/// relevés ; le logo lui-même ne change pas.
+class PassEmblem extends StatelessWidget {
+  const PassEmblem({required this.stage}) : super(key: LivingPass.emblemKey);
+
+  static const asset = 'assets/branding/logo.png';
+
+  final PassSealStage stage;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final width = box.maxWidth;
+      // Bande de 110 px sur 512, centrée sur le dessin (y ≈ 251).
+      return Center(
+        child: ClipRect(
+          child: SizedBox(
+            width: width,
+            height: width * 110 / 512,
+            child: Image.asset(
+              asset,
+              fit: BoxFit.fitWidth,
+              alignment: const Alignment(0, -0.025),
+              excludeFromSemantics: true,
+              filterQuality: FilterQuality.medium,
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class _PassEngraving extends CustomPainter {
