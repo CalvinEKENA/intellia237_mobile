@@ -94,23 +94,28 @@ void main() {
     });
   });
 
+  // Corps nommé, sans fonction littérale dans l'appel : les versions de
+  // `dart format` (poste local et CI) présentent autrement `test('…', () {…},
+  // timeout: …)` ; cette forme est identique partout.
+  void noRevokedValueInRepo() {
+    final result = scanRepoForEmails(
+      (token) => PartnerDigest.isRevoked(PartnerAccess.normalize(token)),
+    );
+    expect(
+      result.scanned,
+      greaterThan(500),
+      reason: 'le contrôle a bien parcouru le dépôt',
+    );
+    expect(
+      result.found,
+      isEmpty,
+      reason: 'une valeur révoquée figure dans : ${result.found}',
+    );
+  }
+
   test(
     'aucun fichier du dépôt ne contient une valeur révoquée',
-    () {
-      final result = scanRepoForEmails(
-        (token) => PartnerDigest.isRevoked(PartnerAccess.normalize(token)),
-      );
-      expect(
-        result.scanned,
-        greaterThan(500),
-        reason: 'le contrôle a bien parcouru le dépôt',
-      );
-      expect(
-        result.found,
-        isEmpty,
-        reason: 'une valeur révoquée figure dans : ${result.found}',
-      );
-    },
+    noRevokedValueInRepo,
     timeout: const Timeout(Duration(minutes: 3)),
   );
 }
