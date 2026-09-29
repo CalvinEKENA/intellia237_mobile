@@ -4,14 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../auth/application/auth_controller.dart';
 import '../../learn/application/learn_providers.dart';
+import '../../partner_access/domain/partner_access.dart';
 import '../domain/demo_access.dart';
 
-/// Le compte connecté est le compte démo.
-final isDemoAccessProvider = Provider<bool>(
-  (ref) =>
-      ref.watch(authControllerProvider.select((auth) => auth.userId)) ==
-      DemoAccess.uid,
-);
+/// Le compte connecté est un compte de test : le compte démo, ou le compte
+/// partenaire « démo pour Francis ». Même accueil, même changement de classe.
+final isDemoAccessProvider = Provider<bool>((ref) {
+  final uid = ref.watch(authControllerProvider.select((auth) => auth.userId));
+  return uid == DemoAccess.uid || uid == PartnerAccess.uid;
+});
 
 /// Change la classe du compte démo, côté serveur (le profil ne se modifie
 /// jamais depuis l'appareil).

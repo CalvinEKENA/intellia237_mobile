@@ -9,6 +9,7 @@ import '../application/auth_controller.dart';
 import '../domain/app_role.dart';
 import '../domain/auth_entry_intent.dart';
 import '../domain/auth_input_validators.dart';
+import '../../partner_access/domain/partner_access.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
@@ -47,6 +48,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   /// Identifiants acceptés, espace compatible : « 7 » est allumé.
   bool _accessOpened = false;
 
+  /// L'adresse saisie est exactement celle du compte de test « démo pour
+  /// Francis » : le mot de passe est grisé, aucun n'est demandé.
+  bool _partnerRecognized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_onEmailChanged);
+  }
+
+  void _onEmailChanged() {
+    final recognized =
+        !widget.requireSuperAdmin &&
+        PartnerAccess.recognizes(_emailController.text);
+    if (recognized != _partnerRecognized) {
+      setState(() => _partnerRecognized = recognized);
+    }
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -58,6 +78,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _submit() async {
     if (ref.read(authControllerProvider).isLoading) return;
     FocusManager.instance.primaryFocus?.unfocus();
+    if (_partnerRecognized) {
+      await _submitPartner();
+      return;
+    }
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _conflict = null);
     if (widget.createIdentity) {
@@ -82,6 +106,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() {
       if (adoption is AuthEntryRoleConflict) _conflict = adoption;
       // Un écran encore là après la connexion n'a rien ouvert.
+      if (!ref.read(authControllerProvider).isAuthenticated) {
+        _accessOpened = false;
+      }
+    });
+  }
+
+  /// Accès partenaire : aucun mot de passe, aucune validation de mot de
+  /// passe. Le serveur ouvre la session du compte canonique ; le reste du
+  /// parcours (sceau, transition, accueil) est celui de toute connexion.
+  Future<void> _submitPartner() async {
+    setState(() => _conflict = null);
+    final adoption = await ref
+        .read(authControllerProvider.notifier)
+        .signInWithPartnerAccess(
+          _emailController.text,
+          beforeOpening: (_) => _holdCompletedSeal(),
+        );
+    if (!mounted) return;
+    setState(() {
+      if (adoption is AuthEntryRoleConflict) _conflict = adoption;
       if (!ref.read(authControllerProvider).isAuthenticated) {
         _accessOpened = false;
       }
@@ -119,11 +163,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             email: _emailController.text,
             password: _passwordController.text,
             accessOpened: _accessOpened,
+            passwordWaived: _partnerRecognized,
           ),
           progress: PassAuthProgress.emailLine(
             email: _emailController.text,
             password: _passwordController.text,
             accessOpened: _accessOpened,
+            passwordWaived: _partnerRecognized,
           ),
         ),
       ),
@@ -142,7 +188,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     key: ValueKey(auth.error),
                     padding: const EdgeInsets.only(bottom: 14),
                     child: AuthErrorBanner(
-                      message: auth.error == 'staff-access-required'
+                      message:
+                          auth.error == 'staff-access-required' ||
+                              auth.error ==
+                                  AuthController.partnerAccessUnavailable
                           ? authErrorMessage(l10n, auth.error!)
                           : auth.error!,
                       onRetry: _submit,
@@ -152,10 +201,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           AuthPrimaryButton(
             key: const ValueKey('login-submit'),
-            label: widget.createIdentity ? l10n.createAccountLink : l10n.signIn,
+            label: _partnerRecognized
+                ? l10n.partnerAccessCta
+                : widget.createIdentity
+                ? l10n.createAccountLink
+                : l10n.signIn,
             onTap: auth.isLoading ? null : _submit,
             isLoading: auth.isLoading,
-            icon: Icons.login_rounded,
+            icon: _partnerRecognized
+                ? Icons.north_east_rounded
+                : Icons.login_rounded,
           ),
         ],
       ),
@@ -180,49 +235,105 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    AuthAnimatedField(
-                      key: const ValueKey('login-email-field'),
-                      controller: _emailController,
-                      label: l10n.emailLabel,
-                      hint: l10n.emailHint,
-                      icon: Icons.alternate_email_rounded,
-                      enabled: !auth.isLoading,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      autofillHints: const [AutofillHints.email],
-                      validator: (value) =>
-                          AuthInputValidators.email(value ?? ''),
-                      onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
-                    ),
-                    const SizedBox(height: 14),
-                    AuthAnimatedField(
-                      key: const ValueKey('login-password-field'),
-                      controller: _passwordController,
-                      focusNode: _passwordFocus,
-                      label: l10n.passwordLabel,
-                      hint: l10n.passwordHint,
-                      icon: Icons.lock_outline_rounded,
-                      enabled: !auth.isLoading,
-                      isPassword: true,
-                      textInputAction: TextInputAction.done,
-                      autofillHints: const [AutofillHints.password],
-                      validator: (value) =>
-                          AuthInputValidators.password(value ?? ''),
-                      onFieldSubmitted: (_) => _submit(),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: auth.isLoading
-                            ? null
-                            : () => context.push(AppRoutes.forgotPassword),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AuthExperienceColors.gold,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                        ),
-                        child: Text(l10n.forgotPassword),
+                    AnimatedContainer(
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 260),
+                      curve: Curves.easeOut,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: _partnerRecognized
+                            ? [
+                                BoxShadow(
+                                  color: AuthExperienceColors.gold.withValues(
+                                    alpha: 0.24,
+                                  ),
+                                  blurRadius: 16,
+                                ),
+                              ]
+                            : const [],
+                      ),
+                      child: AuthAnimatedField(
+                        key: const ValueKey('login-email-field'),
+                        controller: _emailController,
+                        label: l10n.emailLabel,
+                        hint: l10n.emailHint,
+                        icon: Icons.alternate_email_rounded,
+                        enabled: !auth.isLoading,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.email],
+                        validator: (value) =>
+                            AuthInputValidators.email(value ?? ''),
+                        onFieldSubmitted: (_) => _partnerRecognized
+                            ? _submit()
+                            : _passwordFocus.requestFocus(),
                       ),
                     ),
+                    const SizedBox(height: 14),
+                    AnimatedOpacity(
+                      key: const ValueKey('login-password-dimmer'),
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 260),
+                      opacity: _partnerRecognized ? 0.38 : 1,
+                      child: AuthAnimatedField(
+                        key: const ValueKey('login-password-field'),
+                        controller: _passwordController,
+                        focusNode: _passwordFocus,
+                        label: l10n.passwordLabel,
+                        hint: l10n.passwordHint,
+                        icon: Icons.lock_outline_rounded,
+                        // Accès partenaire : grisé, non éditable, jamais
+                        // validé.
+                        enabled: !auth.isLoading && !_partnerRecognized,
+                        isPassword: true,
+                        textInputAction: TextInputAction.done,
+                        autofillHints: const [AutofillHints.password],
+                        validator: (value) => _partnerRecognized
+                            ? null
+                            : AuthInputValidators.password(value ?? ''),
+                        onFieldSubmitted: (_) => _submit(),
+                      ),
+                    ),
+                    if (_partnerRecognized)
+                      Padding(
+                        key: const ValueKey('partner-access-status'),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.workspace_premium_rounded,
+                              size: 18,
+                              color: AuthExperienceColors.gold,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              l10n.partnerAccessStatus,
+                              style: const TextStyle(
+                                color: AuthExperienceColors.gold,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: auth.isLoading
+                              ? null
+                              : () => context.push(AppRoutes.forgotPassword),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AuthExperienceColors.gold,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                          child: Text(l10n.forgotPassword),
+                        ),
+                      ),
                     if (_conflict case final conflict?)
                       Padding(
                         key: const ValueKey('login-role-conflict'),

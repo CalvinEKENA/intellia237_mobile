@@ -94,8 +94,34 @@ export function demoAcademicFields(classLevel: unknown, series: unknown) {
 /** Classe d'arrivée : la Terminale D, la plus fournie en cours. */
 export const demoDefaultClass = { classLevel: "Terminale", series: "D" } as const;
 
+/**
+ * Un compte élève « semé » par le serveur : le compte démo partagé, ou le
+ * compte partenaire (`partnerAccess.ts`). Même construction, même profil,
+ * même Terminale D par défaut ; seuls l'identité et la marque diffèrent.
+ */
+export interface SeededStudentIdentity {
+  uid: string;
+  displayName: string;
+  firstName: string;
+  lastName: string;
+  /** Vide pour le compte démo (aucune adresse). */
+  email: string;
+  /** Marque durable : revendication du jeton et champ du profil. */
+  marker: "demo" | "demoForFrancis";
+}
+
+export const demoIdentity: SeededStudentIdentity = {
+  uid: demoAccessUid,
+  displayName: "Invité INTELLIA",
+  firstName: "Invité",
+  lastName: "INTELLIA",
+  email: "",
+  marker: "demo",
+};
+
 export interface DemoAccountStore {
-  /** Crée le compte démo s'il manque ; ne touche jamais un compte existant. */
+  /** Crée le compte s'il manque ; ne touche jamais un compte existant (sa
+   * progression et son historique restent ceux du même UID). */
   ensureAccount(uid: string): Promise<void>;
   updateClass(uid: string, fields: NonNullable<ReturnType<typeof demoAcademicFields>>): Promise<void>;
 }
@@ -104,17 +130,31 @@ export class FirestoreDemoAccountStore implements DemoAccountStore {
   constructor(
     private readonly firestore: Firestore = db,
     private readonly auth = getAuth(),
+    private readonly identity: SeededStudentIdentity = demoIdentity,
   ) {}
 
   async ensureAccount(uid: string): Promise<void> {
+    const { identity } = this;
+    if (uid !== identity.uid) throw new Error("Unexpected account.");
     try {
       await this.auth.getUser(uid);
     } catch {
-      await this.auth.createUser({ uid, displayName: "Invité INTELLIA" });
+      try {
+        await this.auth.createUser({
+          uid,
+          displayName: identity.displayName,
+          ...(identity.email ? { email: identity.email } : {}),
+        });
+      } catch (error) {
+        // L'adresse appartient déjà à un autre utilisateur : le compte est
+        // créé sans elle, le profil garde l'adresse. Jamais d'échec ici.
+        if ((error as { code?: string }).code !== "auth/email-already-exists") throw error;
+        await this.auth.createUser({ uid, displayName: identity.displayName });
+      }
     }
     // Marque durable : le client et `setDemoAccessClass` reconnaissent le
-    // compte démo, même après rafraîchissement du jeton.
-    await this.auth.setCustomUserClaims(uid, { demo: true });
+    // compte, même après rafraîchissement du jeton.
+    await this.auth.setCustomUserClaims(uid, { [identity.marker]: true });
 
     const academic = demoAcademicFields(demoDefaultClass.classLevel, demoDefaultClass.series)!;
     const users = this.firestore.collection("users").doc(uid);
@@ -125,9 +165,9 @@ export class FirestoreDemoAccountStore implements DemoAccountStore {
       if (!user.exists) {
         transaction.create(users, {
           uid,
-          firstName: "Invité",
-          lastName: "INTELLIA",
-          email: "",
+          firstName: identity.firstName,
+          lastName: identity.lastName,
+          email: identity.email,
           role: "student",
           classLevel: academic.classLevel,
           series: academic.series,
@@ -135,7 +175,7 @@ export class FirestoreDemoAccountStore implements DemoAccountStore {
           profileCompleted: true,
           tourGuideSeen: false,
           accountStatus: "active",
-          demo: true,
+          [identity.marker]: true,
           createdAt: now,
           updatedAt: now,
         });
@@ -143,9 +183,9 @@ export class FirestoreDemoAccountStore implements DemoAccountStore {
       if (!profile.exists) {
         transaction.create(profiles, {
           uid,
-          firstName: "Invité",
-          lastName: "INTELLIA",
-          email: "",
+          firstName: identity.firstName,
+          lastName: identity.lastName,
+          email: identity.email,
           classLevel: academic.classLevel,
           series: academic.series,
           points: 0,
@@ -174,7 +214,7 @@ export class FirestoreDemoAccountStore implements DemoAccountStore {
             acceptedAt: now,
           },
           profileCompleted: true,
-          demo: true,
+          [identity.marker]: true,
           createdAt: now,
           updatedAt: now,
         });
@@ -252,16 +292,31 @@ const setDemoClassInput = z.object({
   series: z.string().max(2).nullable().optional(),
 });
 
+/** Un compte qui peut changer sa propre classe pour tester chaque programme. */
+export interface DemoClassAccess {
+  uid: string;
+  /** Revendication du jeton qui doit l'accompagner. */
+  claim: "demo" | "demoForFrancis";
+}
+
+export const demoClassAccess: DemoClassAccess = { uid: demoAccessUid, claim: "demo" };
+
 /**
- * Callable réservée au compte démo : change sa classe (et sa série) pour
- * tester un autre programme. Aucun autre compte ne peut l'utiliser.
+ * Callable réservée aux comptes de test (démo, partenaire) : change leur
+ * classe (et leur série) pour tester un autre programme. Il faut l'UID exact
+ * ET la revendication émise par le serveur ; aucun autre compte ne peut
+ * l'utiliser.
  */
 export function createSetDemoAccessClassHandler(
   store: DemoAccountStore = new FirestoreDemoAccountStore(),
+  allowed: readonly DemoClassAccess[] = [demoClassAccess],
 ) {
   return async (request: CallableRequest<unknown>) => {
     const auth = request.auth;
-    if (!auth || auth.uid !== demoAccessUid || auth.token?.demo !== true) {
+    const access = auth
+      ? allowed.find((entry) => entry.uid === auth.uid && auth.token?.[entry.claim] === true)
+      : undefined;
+    if (!auth || !access) {
       throw new HttpsError("permission-denied", "Demo access only.");
     }
     const parsed = setDemoClassInput.safeParse(request.data);
@@ -269,7 +324,7 @@ export function createSetDemoAccessClassHandler(
       ? demoAcademicFields(parsed.data.classLevel, parsed.data.series ?? null)
       : null;
     if (!fields) throw new HttpsError("invalid-argument", "Unknown class.");
-    await store.updateClass(demoAccessUid, fields);
+    await store.updateClass(access.uid, fields);
     logger.info("Demo class changed.", { classLevel: fields.classLevel, series: fields.series });
     return { classLevel: fields.classLevel, series: fields.series };
   };

@@ -92,6 +92,8 @@
   "passwordHint": "Votre mot de passe",
   "forgotPassword": "Mot de passe oublié ?",
   "signIn": "Se connecter",
+  "partnerAccessStatus": "Accès partenaire INTELLIA",
+  "partnerAccessCta": "Accéder à INTELLIA",
   "noAccount": "Pas encore de compte ?",
   "createAccountLink": "Créer un compte",
   "forgotEyebrow": "Accès au compte",

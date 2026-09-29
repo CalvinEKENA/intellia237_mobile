@@ -55,10 +55,12 @@ abstract final class PassAuthProgress {
     required String email,
     required String password,
     required bool accessOpened,
+    bool passwordWaived = false,
   }) {
     if (accessOpened) return PassSealStage.verified;
     if (AuthInputValidators.email(email) != null) return PassSealStage.neutral;
-    return AuthInputValidators.password(password) == null
+    // Accès partenaire : aucun mot de passe n'est demandé, « 3 » est acquis.
+    return passwordWaived || AuthInputValidators.password(password) == null
         ? PassSealStage.secret
         : PassSealStage.identifier;
   }
@@ -150,12 +152,13 @@ abstract final class PassAuthProgress {
     required String email,
     required String password,
     required bool accessOpened,
+    bool passwordWaived = false,
   }) {
     if (accessOpened) return complete;
     if (AuthInputValidators.email(email) != null) {
       return email.trim().isEmpty ? empty : _third(0, 0.5);
     }
-    return _third(1, password.length / _passwordLength);
+    return _third(1, passwordWaived ? 1 : password.length / _passwordLength);
   }
 
   static double accessCodeLine({

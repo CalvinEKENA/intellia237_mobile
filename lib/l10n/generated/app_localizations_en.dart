@@ -284,6 +284,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signIn => 'Sign in';
 
   @override
+  String get partnerAccessStatus => 'INTELLIA partner access';
+
+  @override
+  String get partnerAccessCta => 'Enter INTELLIA';
+
+  @override
   String get noAccount => 'No account yet?';
 
   @override

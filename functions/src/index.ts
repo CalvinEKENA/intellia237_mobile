@@ -48,7 +48,9 @@ import {
 import {
   createSetDemoAccessClassHandler,
   createSignInWithDemoAccessHandler,
+  demoClassAccess,
 } from "./services/demoAccess";
+import { createSignInWithPartnerAccessHandler, partnerClassAccess } from "./services/partnerAccess";
 import { createDefaultMigrateStudentPhoneToParentHandler } from "./services/familyPhoneMigration";
 import { createListParentChildrenHandler } from "./services/parentChildrenCallable";
 import { createDefaultCreateChildStudentAccessHandler } from "./services/childStudentAccessCallable";
@@ -440,14 +442,28 @@ export const signInWithDemoAccessCode = onCall(
   ),
 );
 
-// Compte démo seulement : changer de classe pour tester chaque programme.
+// Comptes de test seulement (démo, démo pour Francis) : changer de classe pour
+// tester chaque programme. L'UID exact ET la revendication du serveur sont exigés.
 export const setDemoAccessClass = onCall(
   {
     region: env.FUNCTIONS_REGION,
     timeoutSeconds: 20,
     memory: "256MiB",
   },
-  createSetDemoAccessClassHandler(),
+  createSetDemoAccessClassHandler(undefined, [demoClassAccess, partnerClassAccess]),
+);
+
+// Accès partenaire : l'adresse exacte du compte de test « démo pour Francis »
+// ouvre son compte canonique (jeton personnalisé émis ici). Aucun secret :
+// décision assumée du propriétaire, voir services/partnerAccess.ts. Fermeture :
+// PARTNER_ACCESS_DISABLED=true puis redéploiement.
+export const signInWithPartnerAccess = onCall(
+  {
+    region: env.FUNCTIONS_REGION,
+    timeoutSeconds: 20,
+    memory: "256MiB",
+  },
+  createSignInWithPartnerAccessHandler(),
 );
 
 export const migrateStudentPhoneToParent = onCall(

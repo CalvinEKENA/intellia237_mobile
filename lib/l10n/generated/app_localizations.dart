@@ -608,6 +608,18 @@ abstract class AppLocalizations {
   /// **'Se connecter'**
   String get signIn;
 
+  /// No description provided for @partnerAccessStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès partenaire INTELLIA'**
+  String get partnerAccessStatus;
+
+  /// No description provided for @partnerAccessCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accéder à INTELLIA'**
+  String get partnerAccessCta;
+
   /// No description provided for @noAccount.
   ///
   /// In fr, this message translates to:

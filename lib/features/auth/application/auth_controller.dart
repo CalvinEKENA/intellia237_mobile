@@ -9,6 +9,8 @@ import '../../family_access/data/family_access_repository.dart';
 import '../../family_access/domain/family_access_models.dart';
 import '../../family_access/domain/family_access_outcomes.dart';
 import '../../onboarding/data/onboarding_preferences.dart';
+import '../../partner_access/data/partner_access_repository.dart';
+import '../../partner_access/domain/partner_access.dart';
 import '../../tutor/application/tutor_preference_provider.dart';
 import '../data/auth_entry_preferences.dart';
 import '../data/repositories/auth_repository_impl.dart';
@@ -628,6 +630,41 @@ class AuthController extends Notifier<AuthState> {
         StudentAccessCodeRejection.invalid,
       ),
     };
+  }
+
+  /// Code d'erreur de [signInWithPartnerAccess], lu par l'écran de connexion.
+  static const partnerAccessUnavailable = 'partner-access-unavailable';
+
+  /// Accès partenaire : l'adresse exacte du compte de test « démo pour
+  /// Francis » ouvre son compte canonique, sans mot de passe (décision
+  /// assumée du propriétaire, voir [PartnerAccess]). Le serveur émet une vraie
+  /// session Firebase sur un compte élève ordinaire ; l'application n'accorde
+  /// aucun privilège localement, et rien ne change pour toute autre adresse.
+  Future<AuthEntryAdoption> signInWithPartnerAccess(
+    String email, {
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) => holdSessionAdoption(
+    () => _signInWithPartnerAccess(email, beforeOpening: beforeOpening),
+  );
+
+  Future<AuthEntryAdoption> _signInWithPartnerAccess(
+    String email, {
+    Future<void> Function(AuthState opening)? beforeOpening,
+  }) async {
+    // Défense en profondeur : seule l'adresse exacte part au serveur.
+    if (!PartnerAccess.recognizes(email)) {
+      return const AuthEntryUnresolved(partnerAccessUnavailable);
+    }
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      await ref
+          .read(partnerAccessRepositoryProvider)
+          .signIn(PartnerAccess.normalize(email));
+    } catch (_) {
+      state = state.copyWith(isLoading: false, error: partnerAccessUnavailable);
+      return const AuthEntryUnresolved(partnerAccessUnavailable);
+    }
+    return adoptSessionForIntent(AppRole.student, beforeOpening: beforeOpening);
   }
 
   static Future<void> _beforeOpening(
