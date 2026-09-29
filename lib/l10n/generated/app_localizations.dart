@@ -11068,6 +11068,18 @@ abstract class AppLocalizations {
   /// **'Impossible d’ouvrir cet espace pour le moment. Réessayez ou reconnectez-vous.'**
   String get authFamilyUnavailable;
 
+  /// No description provided for @authFamilyVerifyAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour protéger l’espace de l’enfant, confirmez de nouveau votre numéro.'**
+  String get authFamilyVerifyAgain;
+
+  /// No description provided for @authFamilyVerifyAgainAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer mon numéro'**
+  String get authFamilyVerifyAgainAction;
+
   /// No description provided for @authFamilyNoChildren.
   ///
   /// In fr, this message translates to:

@@ -244,9 +244,12 @@ class AuthController extends Notifier<AuthState> {
           }
           await _clearLocalSession();
           await _clearFamilyEntry();
-          await _applyResolution(resolution);
+          await _applyResolution(
+            resolution,
+            resolved: _asStudentSetup(await _stateFor(resolution)),
+          );
           return true;
-        } catch (_) {
+        } catch (error) {
           // Si l'identité a déjà changé, ne jamais conserver un état parent.
           final uid = ref.read(firebaseIdentityPortProvider).currentUid;
           if (uid != state.userId) {
@@ -254,12 +257,36 @@ class AuthController extends Notifier<AuthState> {
           } else {
             state = state.copyWith(
               isLoading: false,
-              error: 'family-access-unavailable',
+              // La preuve du numéro a plus de cinq minutes : la confirmer à
+              // nouveau, et non « réessayer » un échange qui sera refusé.
+              error:
+                  error is FamilyAccessException &&
+                      error.code == 'failed-precondition'
+                  ? familyAccessVerifyAgain
+                  : familyAccessUnavailable,
             );
           }
           return false;
         }
       });
+
+  /// Codes d'erreur de [openFamilyChild], lus par l'écran de choix.
+  static const familyAccessUnavailable = 'family-access-unavailable';
+  static const familyAccessVerifyAgain = 'family-access-verify-again';
+
+  /// Un élève sans profil — accès ouvert par un parent, ou par un code —
+  /// commence son inscription d'élève, jamais le choix « élève / parent /
+  /// découverte » : son identité est déjà celle d'un élève.
+  AuthState _asStudentSetup(AuthState opening) =>
+      opening.status == AuthStatus.needsOnboarding && opening.role == null
+      ? AuthState.needsOnboarding(
+          userId: opening.userId ?? '',
+          email: opening.email,
+          firstName: opening.firstName,
+          recoveredRole: AppRole.student,
+          accountStatus: opening.accountStatus,
+        )
+      : opening;
 
   /// Connexion email/mot de passe.
   ///
@@ -448,11 +475,14 @@ class AuthController extends Notifier<AuthState> {
     }
 
     await _clearFamilyEntry();
-    final opening =
+    final resolved =
         resolution.user != null &&
             resolution.kind == AuthSessionResolutionKind.authenticated
         ? await _entryState(resolution.user!, intent)
         : await _stateFor(resolution);
+    final opening = intent == AppRole.student
+        ? _asStudentSetup(resolved)
+        : resolved;
     await _beforeOpening(beforeOpening, opening);
     await _applyResolution(resolution, resolved: opening);
     return const AuthEntryAdopted();

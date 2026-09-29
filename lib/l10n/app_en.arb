@@ -2933,6 +2933,8 @@
   "authFamilyWho": "Who is using INTELLIA?",
   "authFamilyChooseBody": "Choose the child’s profile. Their space stays personal.",
   "authFamilyUnavailable": "This space could not be opened. Try again or sign in again.",
+  "authFamilyVerifyAgain": "To protect your child’s space, confirm your number again.",
+  "authFamilyVerifyAgainAction": "Confirm my number",
   "authFamilyNoChildren": "No child profile is linked yet.",
   "authParentSpace": "Parent space",
   "authParentProofBody": "To protect family information, the parent must sign in again. The student space will close.",

@@ -6481,6 +6481,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'This space could not be opened. Try again or sign in again.';
 
   @override
+  String get authFamilyVerifyAgain =>
+      'To protect your child’s space, confirm your number again.';
+
+  @override
+  String get authFamilyVerifyAgainAction => 'Confirm my number';
+
+  @override
   String get authFamilyNoChildren => 'No child profile is linked yet.';
 
   @override

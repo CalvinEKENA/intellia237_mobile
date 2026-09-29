@@ -151,6 +151,17 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       }
     });
 
+    // Numéro vérifié, espace en cours d'ouverture : « Numéro vérifié » seul,
+    // sans titre ni lien qui laisserait croire qu'il reste un choix à faire.
+    final verifiedOnly =
+        !widget.linkCurrentUser &&
+        state.stage == PhoneAuthStage.success &&
+        migrated == null &&
+        _studentConfirmation == null &&
+        familyPhoneOffer == null &&
+        conflictingRole == null &&
+        _unresolvedCode == null;
+
     return AuthExperienceScaffold(
       showBackButton: widget.linkCurrentUser || intent != null,
       topBar: Align(
@@ -215,36 +226,37 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AuthHeader(
-            showBrand: false,
-            eyebrow: intent == null
-                ? context.l10n.passPhoneAccess
-                : passRoleLabel(context, intent),
-            title: widget.linkCurrentUser
-                ? l10n.phoneLinkTitle
-                : migrated != null
-                ? (migrated.parentUid.isEmpty
-                      ? context.l10n.passNumberAlreadyUsed
-                      : context.l10n.familyPhoneMigratedTitle)
-                : familyPhoneOffer != null || conflictingRole != null
-                ? context.l10n.passNumberAlreadyUsed
-                : state.stage == PhoneAuthStage.codeEntry
-                ? context.l10n.passSixDigitsThenWeContinue
-                : state.stage == PhoneAuthStage.success
-                ? context.l10n.passYourNumberIsConfirmed
-                : context.l10n.passYourNumberYourAccess,
-            subtitle: widget.linkCurrentUser
-                ? l10n.phoneLinkSubtitle
-                : conflictingRole != null ||
-                      familyPhoneOffer != null ||
-                      migrated != null
-                ? ''
-                : state.stage == PhoneAuthStage.codeEntry
-                ? l10n.phoneCodeSubtitle(state.phoneNumber)
-                : state.stage == PhoneAuthStage.success
-                ? l10n.phoneVerificationSuccessBody
-                : l10n.phoneAuthSubtitle,
-          ),
+          if (!verifiedOnly)
+            AuthHeader(
+              showBrand: false,
+              eyebrow: intent == null
+                  ? context.l10n.passPhoneAccess
+                  : passRoleLabel(context, intent),
+              title: widget.linkCurrentUser
+                  ? l10n.phoneLinkTitle
+                  : migrated != null
+                  ? (migrated.parentUid.isEmpty
+                        ? context.l10n.passNumberAlreadyUsed
+                        : context.l10n.familyPhoneMigratedTitle)
+                  : familyPhoneOffer != null || conflictingRole != null
+                  ? context.l10n.passNumberAlreadyUsed
+                  : state.stage == PhoneAuthStage.codeEntry
+                  ? context.l10n.passSixDigitsThenWeContinue
+                  : state.stage == PhoneAuthStage.success
+                  ? context.l10n.passYourNumberIsConfirmed
+                  : context.l10n.passYourNumberYourAccess,
+              subtitle: widget.linkCurrentUser
+                  ? l10n.phoneLinkSubtitle
+                  : conflictingRole != null ||
+                        familyPhoneOffer != null ||
+                        migrated != null
+                  ? ''
+                  : state.stage == PhoneAuthStage.codeEntry
+                  ? l10n.phoneCodeSubtitle(state.phoneNumber)
+                  : state.stage == PhoneAuthStage.success
+                  ? l10n.phoneVerificationSuccessBody
+                  : l10n.phoneAuthSubtitle,
+            ),
           if (childCodePending &&
               conflictingRole == null &&
               familyPhoneOffer == null &&
@@ -398,7 +410,8 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
           ],
           if (!widget.linkCurrentUser &&
               intent != AppRole.parent &&
-              conflictingRole == null) ...[
+              conflictingRole == null &&
+              !verifiedOnly) ...[
             const SizedBox(height: 18),
             TextButton(
               key: const ValueKey('phone-use-email'),
@@ -408,7 +421,7 @@ class _PhoneAuthScreenState extends ConsumerState<PhoneAuthScreen> {
               child: Text(l10n.useEmailCompatibility),
             ),
           ],
-          if (!widget.linkCurrentUser && intent == null)
+          if (!widget.linkCurrentUser && intent == null && !verifiedOnly)
             TextButton.icon(
               key: const ValueKey('phone-change-access'),
               onPressed: state.isLoading
@@ -1341,17 +1354,17 @@ class _PhoneSuccess extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 7),
-          Text(
-            linking
-                ? l10n.phoneLinkSuccessBody
-                : l10n.phoneVerificationSuccessBody,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AuthExperienceColors.textSecondary,
-              height: 1.45,
+          if (linking) ...[
+            const SizedBox(height: 7),
+            Text(
+              l10n.phoneLinkSuccessBody,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AuthExperienceColors.textSecondary,
+                height: 1.45,
+              ),
             ),
-          ),
+          ],
           if (linkingChild) ...[
             const SizedBox(height: 14),
             Row(

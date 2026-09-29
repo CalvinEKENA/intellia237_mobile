@@ -43,16 +43,22 @@ class FirebaseFamilyAccessRepository
   final FirebaseAuth _auth;
 
   @override
-  Future<void> signInAsLinkedChild(String studentId) async {
-    final data = await _call('openLinkedChildSession', {
-      'studentId': studentId,
-    });
-    final token = data['token'];
-    if (token is! String || token.isEmpty) {
-      throw const FamilyAccessException('internal');
-    }
-    await signInWithCustomToken(token);
-  }
+  Future<void> signInAsLinkedChild(String studentId) => openLinkedChildSession(
+    studentId,
+    direct: () async {
+      final data = await _call('openLinkedChildSession', {
+        'studentId': studentId,
+      });
+      final token = data['token'];
+      if (token is! String || token.isEmpty) {
+        throw const FamilyAccessException('internal');
+      }
+      return token;
+    },
+    issueCode: issueStudentAccessCode,
+    signInWithCode: signInWithStudentAccessCode,
+    signInWithToken: signInWithCustomToken,
+  );
 
   @override
   Future<void> signInWithStudentAccessCode(String code) async {
@@ -170,4 +176,37 @@ String _uuidV4() {
 /// Capacité d'ouverture d'une session enfant, sans conserver de jeton parent.
 abstract interface class FamilyChildSessionRepository {
   Future<void> signInAsLinkedChild(String studentId);
+}
+
+/// Codes d'un service absent du serveur (fonction pas encore en ligne).
+/// `openLinkedChildSession` ne renvoie jamais ces codes elle-même.
+bool isMissingFamilyService(String code) =>
+    code == 'not-found' || code == 'unimplemented';
+
+/// Remplace la session du parent par celle de l'enfant [studentId].
+///
+/// Voie directe : `openLinkedChildSession` (preuve récente, lien approuvé,
+/// jeton sans droit parent). Tant que ce service n'est pas en ligne, la même
+/// autorisation passe par les services déjà disponibles : le serveur émet un
+/// code d'accès pour l'enfant — il relit lui-même le lien parent approuvé —,
+/// puis ce code ouvre la session de l'élève. Ce repli n'ouvre rien qu'un
+/// parent ne puisse déjà faire depuis son espace ; il renouvelle le code
+/// d'accès de l'enfant. Tout autre refus du serveur est transmis tel quel.
+Future<void> openLinkedChildSession(
+  String studentId, {
+  required Future<String> Function() direct,
+  required Future<IssuedStudentAccessCode> Function(String studentId) issueCode,
+  required Future<void> Function(String code) signInWithCode,
+  required Future<void> Function(String token) signInWithToken,
+}) async {
+  final String token;
+  try {
+    token = await direct();
+  } on FamilyAccessException catch (error) {
+    if (!isMissingFamilyService(error.code)) rethrow;
+    final issued = await issueCode(studentId);
+    await signInWithCode(issued.code);
+    return;
+  }
+  await signInWithToken(token);
 }

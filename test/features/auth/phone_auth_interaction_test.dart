@@ -11,6 +11,7 @@ import 'package:intellia237/features/auth/domain/repositories/auth_repository.da
 import 'package:intellia237/features/auth/domain/repositories/phone_auth_repository.dart';
 import 'package:intellia237/features/auth/presentation/phone_auth_screen.dart';
 import 'package:intellia237/features/auth/presentation/widgets/auth_controls.dart';
+import 'package:intellia237/features/auth/presentation/widgets/auth_experience_scaffold.dart';
 import 'package:intellia237/features/auth/presentation/widgets/intellia_237_membrane.dart';
 import 'package:intellia237/features/auth/presentation/widgets/living_pass.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +26,9 @@ void main() {
       final repository = _PendingVerificationRepository();
       await tester.pumpWidget(_screen(repository));
       await tester.pump();
+      // Avant la vérification, les autres accès restent proposés.
+      expect(find.byKey(const ValueKey('phone-use-email')), findsOneWidget);
+      expect(find.byKey(const ValueKey('phone-change-access')), findsOneWidget);
       await tester.enterText(
         find.byKey(const ValueKey('phone-number-field')),
         '699123456',
@@ -82,6 +86,20 @@ void main() {
         tester.widget<LivingPass>(find.byType(LivingPass)).phase,
         'NUMBER VERIFIED',
       );
+      // Numéro vérifié : cette seule mention, sans titre, texte ni lien qui
+      // ferait croire qu'il reste quelque chose à toucher.
+      expect(find.byKey(const ValueKey('phone-success-stage')), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('phone-success-stage')),
+          matching: find.byType(Text),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Number verified'), findsOneWidget);
+      expect(find.byType(AuthHeader), findsNothing);
+      expect(find.byKey(const ValueKey('phone-use-email')), findsNothing);
+      expect(find.byKey(const ValueKey('phone-change-access')), findsNothing);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
       // Délai de lecture du profil (8 s) laissé en suspens par ce test.

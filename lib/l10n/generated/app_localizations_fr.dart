@@ -6518,6 +6518,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible d’ouvrir cet espace pour le moment. Réessayez ou reconnectez-vous.';
 
   @override
+  String get authFamilyVerifyAgain =>
+      'Pour protéger l’espace de l’enfant, confirmez de nouveau votre numéro.';
+
+  @override
+  String get authFamilyVerifyAgainAction => 'Confirmer mon numéro';
+
+  @override
   String get authFamilyNoChildren => 'Aucun profil enfant lié pour le moment.';
 
   @override

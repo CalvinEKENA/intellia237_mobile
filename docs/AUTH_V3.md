@@ -134,14 +134,36 @@ versionnés. Aucun snapshot, UID ni adresse personnelle n'est inclus dans ce gui
 ## Code et déploiement
 
 Le client et la callable sont préparés dans le dépôt. **La callable n'est pas
-déployée par cette mission.** Le parcours familial nécessite son déploiement
-séparément autorisé ; si le service est absent ou refuse l'accès, l'application
-n'ouvre pas silencieusement l'espace parent. Aucune règle n'est élargie.
+déployée par cette mission.** Si elle refuse l'accès, l'application n'ouvre
+jamais silencieusement l'espace parent. Aucune règle n'est élargie.
+
+Constat du 29/09/2026 (production, lecture seule) : `openLinkedChildSession`
+répond 404, alors que `listParentChildren`, `issueStudentAccessCode` et
+`signInWithStudentAccessCode` sont en ligne. D'où « Impossible d'ouvrir cet
+espace » après le choix de l'enfant.
+
+Tant que la callable est absente (`not-found` ou `unimplemented`, codes qu'elle
+ne renvoie jamais elle-même), le client passe par les services déjà en ligne :
+`issueStudentAccessCode` (le serveur relit le lien parent approuvé), puis
+`signInWithStudentAccessCode`. Ce repli n'ouvre rien qu'un parent ne puisse
+déjà faire depuis son espace. Il **renouvelle le code d'accès** de l'enfant :
+l'ancien code cesse de fonctionner. Une fois la callable déployée, elle est
+utilisée et le code n'est plus touché :
+
+```powershell
+firebase deploy --only functions:openLinkedChildSession --project edunova-aabd1
+```
+
+Preuve du numéro de plus de cinq minutes (`failed-precondition`) : l'écran
+demande de confirmer de nouveau le numéro, qui ferme la session du parent.
+Un enfant dont le profil n'est pas encore rempli (accès ouvert par le parent,
+ou code d'accès) arrive directement à l'inscription élève, jamais au choix
+« élève / parent / découverte ».
 
 Les vérifications couvrent les parcours Auth, les règles Firestore, l'échange
 de session sur émulateurs et les largeurs 320/360/412 dp à texte 1,0/1,3.
 Le bilan chiffré final figure dans la PR #11. Les tests de widgets ne remplacent
 pas une validation sur appareil Android réel.
 
-La version locale `3.2.1+34`, `pubspec.lock`, les fichiers utilisateur et les packs
+La version `3.2.1+38` (build de production demandé), `pubspec.lock`, les fichiers utilisateur et les packs
 pédagogiques sont conservés. Aucun déploiement, aucune fusion, aucun envoi Play.

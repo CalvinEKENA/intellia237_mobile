@@ -60,10 +60,22 @@ class _FamilyEntryScreenState extends ConsumerState<FamilyEntryScreen> {
     if (opened) context.go(AppRoutes.studentHome);
   }
 
+  /// La preuve du numéro est trop ancienne : la session du parent est
+  /// fermée, puis le numéro est confirmé de nouveau.
+  Future<void> _verifyAgain() async {
+    final router = GoRouter.of(context);
+    await ref.read(authControllerProvider.notifier).signOut();
+    router.go(AppRoutes.phoneAuth);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final children = ref.watch(familyEntryChildrenProvider);
+    final verifyAgain =
+        _failed &&
+        ref.watch(authControllerProvider.select((state) => state.error)) ==
+            AuthController.familyAccessVerifyAgain;
     return AuthExperienceScaffold(
       showBackButton: false,
       pass: LivingPass(
@@ -79,7 +91,24 @@ class _FamilyEntryScreenState extends ConsumerState<FamilyEntryScreen> {
             subtitle: l10n.authFamilyChooseBody,
           ),
           const SizedBox(height: 24),
-          if (_failed) AuthErrorBanner(message: l10n.authFamilyUnavailable),
+          if (_failed) ...[
+            AuthErrorBanner(
+              key: const ValueKey('family-open-failed'),
+              message: verifyAgain
+                  ? l10n.authFamilyVerifyAgain
+                  : l10n.authFamilyUnavailable,
+            ),
+            if (verifyAgain) ...[
+              const SizedBox(height: 12),
+              AuthPrimaryButton(
+                key: const ValueKey('family-verify-again'),
+                label: l10n.authFamilyVerifyAgainAction,
+                icon: Icons.phone_android_rounded,
+                onTap: _verifyAgain,
+              ),
+            ],
+            const SizedBox(height: 16),
+          ],
           children.when(
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, _) => Column(
