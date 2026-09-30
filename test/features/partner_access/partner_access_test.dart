@@ -358,7 +358,7 @@ void main() {
     });
 
     test(
-      'Terminale D : maths, anglais et physique, tous leurs chapitres',
+      'Terminale D : maths, anglais, physique et SVT, tous leurs chapitres',
       () async {
         final key = ClassKey.fromProfile('Terminale', series: 'D');
         expect(key, const ClassKey('terminale', series: 'd'));
@@ -370,12 +370,13 @@ void main() {
           'anglais',
           'mathematiques',
           'physique',
+          'svt',
         });
         final chapters = [
           for (final subject in subjects)
             for (final entry in subject.chapters) entry.contentId,
         ];
-        expect(chapters, hasLength(7));
+        expect(chapters, hasLength(8));
       },
     );
 

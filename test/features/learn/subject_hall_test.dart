@@ -262,14 +262,14 @@ void main() {
       return container.read(subjectJourneysProvider).requireValue;
     }
 
-    testWidgets('Terminale D : trois matières, une carte chacune', (
+    testWidgets('Terminale D : quatre matières, une carte chacune', (
       tester,
     ) async {
       final journeys = await terminaleD(tester);
       final hall = buildSubjectHall(journeys: journeys);
       expect(
         hall.map((s) => s.key),
-        unorderedEquals(['mathematiques', 'anglais', 'physique']),
+        unorderedEquals(['mathematiques', 'anglais', 'physique', 'svt']),
       );
       expect(hall.every((s) => s.opensContentEngine), isTrue);
       expect(hall.every((s) => s.lessonCount > 0), isTrue);
@@ -292,7 +292,13 @@ void main() {
         expect(keys.toSet(), hasLength(keys.length));
         expect(
           keys,
-          unorderedEquals(['mathematiques', 'anglais', 'physique', 'histoire']),
+          unorderedEquals([
+            'mathematiques',
+            'anglais',
+            'physique',
+            'svt',
+            'histoire',
+          ]),
         );
         final maths = hall.singleWhere((s) => s.key == 'mathematiques');
         expect(maths.opensContentEngine, isTrue);
@@ -312,8 +318,8 @@ void main() {
         for (final match in SubjectHallSearch.filter(hall, query))
           match.subject.key,
       ];
-      expect(keys(''), hasLength(3));
-      expect(keys('   '), hasLength(3));
+      expect(keys(''), hasLength(4));
+      expect(keys('   '), hasLength(4));
       expect(keys('anglais'), ['anglais']);
       expect(keys('  ANGLAIS '), ['anglais']);
       expect(keys('english'), ['anglais']);
@@ -323,6 +329,7 @@ void main() {
       expect(keys('mathé-matiques'), ['mathematiques']);
       expect(keys('physique'), ['physique']);
       expect(keys('phys'), ['physique']);
+      expect(keys('svt'), ['svt']);
       expect(keys('xxxx'), isEmpty);
     });
 
@@ -361,7 +368,7 @@ void main() {
       await _pumpHub(tester);
       expect(
         _cardKeys(tester),
-        unorderedEquals(['mathematiques', 'anglais', 'physique']),
+        unorderedEquals(['mathematiques', 'anglais', 'physique', 'svt']),
       );
       // Aucune ancienne section de chapitres : seulement les matières.
       expect(find.text('CHAPITRES INTERACTIFS'), findsNothing);
@@ -391,7 +398,7 @@ void main() {
 
       // La croix efface la recherche et rend toutes les matières.
       await _tap(tester, _key('learn-search-clear'));
-      expect(_cardKeys(tester), hasLength(3));
+      expect(_cardKeys(tester), hasLength(4));
       expect(_key('learn-search-clear'), findsNothing);
       expect(tester.takeException(), isNull);
     });
@@ -402,7 +409,7 @@ void main() {
       await _pumpHub(tester);
       await _search(tester, 'xxxx');
       await _tap(tester, find.text('Effacer la recherche'));
-      expect(_cardKeys(tester), hasLength(3));
+      expect(_cardKeys(tester), hasLength(4));
     });
 
     testWidgets('catalogue en ligne et packs : la recherche filtre les deux', (
@@ -417,7 +424,13 @@ void main() {
       );
       expect(
         _cardKeys(tester),
-        unorderedEquals(['mathematiques', 'anglais', 'physique', 'histoire']),
+        unorderedEquals([
+          'mathematiques',
+          'anglais',
+          'physique',
+          'svt',
+          'histoire',
+        ]),
       );
       expect(find.text('Mathématiques'), findsOneWidget);
 
@@ -555,6 +568,17 @@ void main() {
       expect(find.text('chapitre $_physicsS1'), findsOneWidget);
     });
 
+    testWidgets('SVT → échanges cellulaires → leçon 2', (tester) async {
+      final container = await _pumpHub(tester);
+      await openLesson(
+        tester,
+        container,
+        subject: 'svt',
+        contentId: 'svt_terminale_d_m1_s1_les_echanges_cellulaires',
+        lesson: 2,
+      );
+    });
+
     testWidgets('carte → page matière en transformation de conteneur', (
       tester,
     ) async {
@@ -579,7 +603,7 @@ void main() {
         expect(_key('subject-hall-rail'), findsNothing);
         final rects =
             [
-              for (final key in ['mathematiques', 'anglais', 'physique'])
+              for (final key in ['mathematiques', 'anglais', 'physique', 'svt'])
                 tester.getRect(_key('subject-card-$key')),
             ]..sort(
               (a, b) => a.top == b.top
@@ -607,7 +631,7 @@ void main() {
         expect(_key('subject-hall-rail'), findsOneWidget);
         expect(_key('subject-hall-grid'), findsNothing);
         List<Rect> rects() => [
-          for (final key in ['mathematiques', 'anglais', 'physique'])
+          for (final key in ['mathematiques', 'anglais', 'physique', 'svt'])
             tester.getRect(
               find.byKey(ValueKey('subject-card-$key'), skipOffstage: false),
             ),
@@ -659,7 +683,7 @@ void main() {
               scale: scale,
               dark: dark,
             );
-            expect(_cards, findsNWidgets(3));
+            expect(_cards, findsNWidgets(4));
             _expectReadable(tester, '$label Hall');
 
             await _tap(tester, _key('subject-card-mathematiques'));
