@@ -42,9 +42,9 @@
     "deterministic_companion_v1"
   ],
   "sha256": {
-    "source.json": "c2995e3fd6b95db7810faaa5d53d011c72c0c1cd332342dd794c2f9d2e4df346",
-    "pedagogy.json": "fd02ca197b518c64bd8213b2f1f72546db92b27cd5543056d2faa6ae4ca6e946",
-    "runtime.json": "6d8fa18fd5393ebea21f8e7ee3b67b0cfdac63d232551cdef91a3f119f92fab4",
-    "validation_report.json": "fd09abf409a0f82e2bfeaf0a6ce69b331fae4fbd7dd452e0aee272d4e9bea12f"
+    "source.json": "c8aa20605d463b30289a3c8625b49db163325d87df52f35dc339a02990eda967",
+    "pedagogy.json": "3d7edfd6d4fbd849fda70447206a6e0c83dd6692230c35a4b8e918fd37f2012c",
+    "runtime.json": "7ebf129a584d87730ef91ad3cd7c51610175af0fe6d5057312e6ed39989a7dba",
+    "validation_report.json": "87e1a11af4a7a8651a87369b4582dd71dc644432edefa1060b608d619133a20c"
   }
 }

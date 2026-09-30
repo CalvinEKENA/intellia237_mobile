@@ -39,9 +39,9 @@
     "matching_game_v1"
   ],
   "sha256": {
-    "pedagogy.json": "8602a2592d032b07d9ce3e89c040de7b9bc4750a26395510b4c6846417baedaa",
-    "runtime.json": "45ae426c3407098bf3744c424d197a650f1456b2d398ffd448c5fc2db5684db2",
-    "source.json": "eba3b57b59219efb7e8bdef6c16bbabdc89a05d11ccd00fa35e7ab88c1ef8c5b",
-    "validation_report.json": "6ae2bd486158cc0446966e4f6b4f85a46d913239c0c9f913acc257c0decffb97"
+    "pedagogy.json": "ccf9b9cae09e3da96103bcc84595f6fb20518da52c81a1a7871ad1f6abcfd222",
+    "runtime.json": "dbfd93f7bed02300cb61af131898e325f92fe9716bfbfa86f4ecb3424a043861",
+    "source.json": "a30dcf6aedf8338a7530a8f06f342f76f6833342713c9bf75dfcb7041eceb728",
+    "validation_report.json": "9a88e89710f5c37b9607767134f72f0bc2808ca8b8b6e9780d74ec778d947660"
   }
 }
