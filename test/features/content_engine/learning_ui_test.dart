@@ -359,7 +359,7 @@ void main() {
   });
 
   group('Apprendre', () {
-    testWidgets('Terminale D : exactement Mathématiques, Anglais, Physique', (
+    testWidgets('Terminale D : Mathématiques, Anglais, Physique et SVT', (
       tester,
     ) async {
       await _pump(
@@ -371,14 +371,15 @@ void main() {
             w.key is ValueKey<String> &&
             (w.key! as ValueKey<String>).value.startsWith('subject-card-'),
       );
-      expect(cards, findsNWidgets(3));
-      for (final key in ['mathematiques', 'anglais', 'physique']) {
+      expect(cards, findsNWidgets(4));
+      for (final key in ['mathematiques', 'anglais', 'physique', 'svt']) {
         expect(_key('subject-card-$key'), findsOneWidget, reason: key);
       }
       for (final (key, name) in [
         ('mathematiques', 'Mathématiques'),
         ('anglais', 'Anglais'),
         ('physique', 'Physique'),
+        ('svt', 'SVT'),
       ]) {
         expect(
           find.descendant(

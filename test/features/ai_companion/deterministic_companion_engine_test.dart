@@ -131,8 +131,9 @@ void main() {
         'anglais',
         'mathematiques',
         'physique',
+        'svt',
       ]);
-      expect(context.quizSubjects, hasLength(3));
+      expect(context.quizSubjects, hasLength(4));
       expect(context.reviewFocus, isNull);
       expect(context.startedConcepts, 0);
     });
@@ -208,6 +209,7 @@ void main() {
         'anglais',
         'mathematiques',
         'physique',
+        'svt',
       ]);
       for (final action in quizzes) {
         expect(action.setId, startsWith('seq:'));
@@ -233,7 +235,12 @@ void main() {
     }
 
     test('matière absente de la classe : jamais inventée', () {
-      final reply = say('on fait de la SVT ?');
+      final reply = engine.respond(
+        message: 'on fait de la SVT ?',
+        context: CompanionStudyContext.empty,
+        bank: fr,
+        personaId: 'kira',
+      );
       expect(reply.responseKey, 'want_subject_missing');
       expect(reply.actions.where((a) => a.subjectKey == 'svt'), isEmpty);
     });

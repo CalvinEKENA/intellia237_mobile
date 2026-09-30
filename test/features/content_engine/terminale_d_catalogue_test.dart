@@ -7,7 +7,7 @@ import 'pack_fixture.dart';
 /// Profil élève Terminale D : exactement les packs de sa série et les packs
 /// communs, par matière et dans l'ordre du programme ; rien d'une autre série.
 void main() {
-  test('Terminale D voit maths D, anglais Terminale et physique C-D', () async {
+  test('Terminale D voit maths D, anglais, physique C-D et SVT D', () async {
     final repository = ContentPackRepository(source: DiskContentPackSource());
     final subjects = await repository.subjectsFor(
       const ClassKey('terminale', series: 'd'),
@@ -31,6 +31,7 @@ void main() {
           'physique_terminale_cd_m1_s1_erreurs_et_incertitudes',
           'physique_terminale_cd_m1_s2_dimension_grandeur_physique',
         ],
+        'svt': ['svt_terminale_d_m1_s1_les_echanges_cellulaires'],
       },
     );
   });

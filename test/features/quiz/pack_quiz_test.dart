@@ -94,6 +94,7 @@ void main() {
         'anglais': [_english1, _english2],
         'mathematiques': [_maths1, _maths2, _maths3],
         'physique': [_physics1, _physics2],
+        'svt': ['svt_terminale_d_m1_s1_les_echanges_cellulaires'],
       });
 
       // Chaque séquence propose exactement ses questions éligibles.
@@ -110,6 +111,7 @@ void main() {
         _english2: 34,
         _physics1: 35,
         _physics2: 35,
+        'svt_terminale_d_m1_s1_les_echanges_cellulaires': 38,
       };
       for (final subject in catalog.subjects) {
         for (final set in subject.sequences) {
@@ -126,11 +128,15 @@ void main() {
           }
         }
       }
-      expect(catalog.questionCount, 250);
+      expect(catalog.questionCount, 288);
       // Révision mixte : plusieurs séquences, assez de questions.
       for (final subject in catalog.subjects) {
-        expect(subject.mixed, isNotNull, reason: subject.key);
-        expect(subject.mixed!.questionCount, subject.questionCount);
+        if (subject.sequences.length > 1) {
+          expect(subject.mixed, isNotNull, reason: subject.key);
+          expect(subject.mixed!.questionCount, subject.questionCount);
+        } else {
+          expect(subject.mixed, isNull);
+        }
       }
     });
 

@@ -1,0 +1,46 @@
+{
+  "schema_version": "intellia.pack-manifest.v3",
+  "id": "svt_terminale_d_m1_s1_les_echanges_cellulaires",
+  "title": "SVT Terminale D — Module 1 Séquence 1 : Les échanges cellulaires",
+  "class_keys": [
+    "terminale-d"
+  ],
+  "subject": "svt",
+  "module": 1,
+  "sequence": 1,
+  "version": 1,
+  "authoring_status": "validated_with_source_exclusions",
+  "publication_status": "draft",
+  "minimum_engine_version": 2,
+  "source_images": 15,
+  "files": {
+    "source": "source.json",
+    "pedagogy": "pedagogy.json",
+    "runtime": "runtime.json",
+    "validation": "validation_report.json"
+  },
+  "stats": {
+    "lessons": 5,
+    "concepts": 14,
+    "questions": 46,
+    "auto_scored_questions": 38,
+    "non_auto_scored_questions": 8,
+    "game_blueprints": 0,
+    "difficulty_levels": 3,
+    "explanation_levels": 3
+  },
+  "capabilities": [
+    "deterministic_qcm_shuffle_v1",
+    "stable_option_ids_v1",
+    "deterministic_companion_v1",
+    "self_evaluation_v1",
+    "integration_concepts_v1",
+    "offline_first_v1"
+  ],
+  "sha256": {
+    "pedagogy.json": "8602a2592d032b07d9ce3e89c040de7b9bc4750a26395510b4c6846417baedaa",
+    "runtime.json": "76a84b7b914472bbc9a1f13c0885bd6ef4c4326d9555c0ee68e0df36f64db8a7",
+    "source.json": "eba3b57b59219efb7e8bdef6c16bbabdc89a05d11ccd00fa35e7ab88c1ef8c5b",
+    "validation_report.json": "dda1da19fd9de95cf7a0575df68f9bd9ebd35eab3dd14f7f7d1779c03d883787"
+  }
+}

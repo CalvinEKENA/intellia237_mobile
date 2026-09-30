@@ -1,0 +1,115 @@
+{
+  "schema_version": "intellia.validation-report.v3",
+  "pack_id": "svt_terminale_d_m1_s1_les_echanges_cellulaires",
+  "status": "PASS_SOURCE_DERIVATION_AND_STRUCTURE",
+  "question_count": 46,
+  "game_count": 0,
+  "automated_checks": [
+    {
+      "check": "unique_question_ids",
+      "passed": true,
+      "details": "46"
+    },
+    {
+      "check": "all_questions_source_anchored",
+      "passed": true,
+      "details": "Image exacte et pages imprimées, reliées à l’inventaire."
+    },
+    {
+      "check": "all_exercises_accounted_for",
+      "passed": true,
+      "details": "29 groupes : A1–A10, QRO1–QRO7, C1–C5, B1–B4, I1–I3 ; restrictions documentées."
+    },
+    {
+      "check": "every_mcq_one_correct_and_specific_feedback",
+      "passed": true,
+      "details": "Identifiants stables, positions variées et feedback par distracteur."
+    },
+    {
+      "check": "manual_answers_excluded_from_objective_scoring",
+      "passed": true,
+      "details": "8 productions écrites avec réponse modèle et critères."
+    },
+    {
+      "check": "source_calculations",
+      "passed": true,
+      "details": "P = 9,84 atm ; ΔL = +1,6 mm ; T = 300 K ; 75/100 = 75 %."
+    },
+    {
+      "check": "complete_concept_explanations",
+      "passed": true,
+      "details": "Trois niveaux pour les 14 concepts."
+    }
+  ],
+  "source_quality_flags": [
+    {
+      "id": "printed_atomic_mass_oxygen",
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "severity": "high",
+      "source": "page_018.jpg / page_019.jpg — p.16 QRO6c et p.18 B1.4",
+      "issue": "La donnée imprimée pour O se lit « 6 » dans les masses molaires atomiques. Les exercices utilisent le saccharose ; cette donnée est incohérente et ne permet pas un calcul numérique fiable sans correction externe.",
+      "runtime_action": "Calculs massiques correspondants non notés. La seule question de pression utilise directement une concentration molaire lisible et les constantes du cours.",
+      "question_ids": []
+    },
+    {
+      "id": "qcm_osmose_dialyse",
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "severity": "high",
+      "source": "page_017.jpg — p.15 A6",
+      "issue": "Le QCM mélange le gradient de concentration de l’eau et celui du soluté ; une annotation manuscrite marque une proposition contradictoire avec le cours. Il ne fournit pas un corrigé univoque.",
+      "runtime_action": "Ne pas reprendre les choix ni la marque manuscrite. Question dérivée limitée au passage du soluté clairement décrit p.6.",
+      "question_ids": []
+    },
+    {
+      "id": "source_terminology",
+      "classification": "CONFIRMED",
+      "severity": "moderate",
+      "source": "page_017.jpg / page_018.jpg — p.15 A1/A2/A5 et p.16 QRO6a/QRO7d",
+      "issue": "Plusieurs formulations omettent le milieu de comparaison ou appellent la membrane « organite » ; QRO7d brouille sélectivité et perméabilité différentielle.",
+      "runtime_action": "Préciser les deux milieux et la cellule végétale ; utiliser membrane plasmique sans la qualifier d’organite ; distinguer les propriétés par le cours p.13.",
+      "question_ids": []
+    },
+    {
+      "id": "graph_estimates",
+      "classification": "CONFIRMED",
+      "severity": "moderate",
+      "source": "page_018.jpg — p.16 C1.4 et p.17 C3/C4",
+      "issue": "Le tableau ne mesure pas directement 50 % de plasmolyse. Les graphes sont qualitatifs ou en unités arbitraires et ne justifient pas des pressions chiffrées inventées.",
+      "runtime_action": "Aucun seuil exact de 50 % ni valeur arbitraire de pression notés ; analyse qualitative et limites de mesure explicites.",
+      "question_ids": []
+    },
+    {
+      "id": "diagram_labels_and_mitochondria",
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "severity": "moderate",
+      "source": "page_019.jpg — p.18 B1.3/B1.5 et p.19 B3.6",
+      "issue": "Des numéros de légende et des parties de la marge sont peu lisibles. La correspondance demandée avec une mitochondrie ne dispose pas d’un élément identifiable dans l’osmomètre.",
+      "runtime_action": "Ne pas noter de lettres/numéros de clichés ni inventer une correspondance mitochondrie–osmomètre ; utiliser des critères observables et les compartiments pertinents.",
+      "question_ids": []
+    },
+    {
+      "id": "medical_model_limits",
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "severity": "moderate",
+      "source": "page_013.jpg / page_020.jpg — p.10 et p.20–21",
+      "issue": "Le manuel présente des valeurs et des affirmations médicales simplifiées, dont une urée sortante nulle dans un tableau, un débit et une durée de dialyse. Elles ne constituent pas des références cliniques vérifiées.",
+      "runtime_action": "Aucune prescription, dose, durée ni norme clinique. Questions limitées aux échanges du modèle ; ne pas affirmer que la dialyse remplace toutes les fonctions rénales.",
+      "question_ids": []
+    }
+  ],
+  "review_scope": {
+    "course_printed_pages": [
+      3,
+      14
+    ],
+    "exercise_printed_pages": [
+      15,
+      21
+    ],
+    "images_inspected": 15,
+    "exercise_groups": 29,
+    "manual_answer_count": 8,
+    "excluded_details": "Calculs utilisant O ambigu, lettres de clichés peu lisibles, seuil exact de 50 %, correspondance mitochondrie et prescriptions médicales."
+  },
+  "verification_note": "Les vérifications Flutter et d’intégration sont consignées dans docs/content_engine/SVT_POST_RELEASE_39.md ; ce rapport ne prétend pas être un corrigé éditeur."
+}

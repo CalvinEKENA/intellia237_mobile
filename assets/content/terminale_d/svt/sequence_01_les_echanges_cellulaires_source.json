@@ -1,0 +1,396 @@
+{
+  "schema_version": "svt_source_extraction_v1",
+  "subject": "SVT",
+  "level": "Terminale D",
+  "module": {
+    "number": 1,
+    "title": "Le Monde vivant"
+  },
+  "category_of_action": {
+    "number": 1,
+    "title": "Limitation des conséquences liées aux échanges d’eau, de substances dissoutes et de particules entre la cellule et le milieu ambiant"
+  },
+  "sequence": {
+    "number": 1,
+    "title": "Les échanges cellulaires",
+    "printed_pages": {
+      "start": 3,
+      "core_end": 14,
+      "exercise_start": 15
+    },
+    "source_images": [
+      "page_006.jpg",
+      "page_007.jpg",
+      "page_008.jpg",
+      "page_009.jpg",
+      "page_010.jpg",
+      "page_011.jpg",
+      "page_012.jpg",
+      "page_013.jpg",
+      "page_014.jpg",
+      "page_015.jpg",
+      "page_016.jpg",
+      "page_017.jpg"
+    ]
+  },
+  "generalities": {
+    "framing": "La cellule réalise des échanges de matière avec son environnement à travers la membrane plasmique; ces échanges obéissent à des mécanismes différents selon l’eau, les substances dissoutes et les particules.",
+    "source_anchor": {
+      "printed_page": 3,
+      "image": "page_006.jpg"
+    }
+  },
+  "sessions": [
+    {
+      "number": 1,
+      "title": "Les échanges d’eau",
+      "pedagogical_objectives_from_source": [
+        "Observer des cellules animales et végétales dans des solutions de concentrations différentes.",
+        "Identifier les différents états de cellules animales et végétales placées dans des solutions de concentrations différentes.",
+        "Expliquer les mouvements d’eau à travers les membranes des cellules animales et végétales.",
+        "Interpréter les résultats des expériences de Dutrochet et de Pfeffer."
+      ],
+      "sections": [
+        {
+          "title": "Les échanges d’eau chez les cellules végétales",
+          "source_pages": [
+            3,
+            4
+          ],
+          "source_images": [
+            "page_006.jpg",
+            "page_007.jpg"
+          ],
+          "evidence": [
+            {
+              "activity": "Mise en évidence des échanges d’eau chez les cellules végétales",
+              "experiment": "Morceaux de pomme de terre placés dans de l’eau distillée puis dans des solutions de saccharose à 10 %, 20 %, 30 % et 40 %; variation d’épaisseur observée.",
+              "document": "Doc. 1 — Résultats expérimentaux"
+            },
+            {
+              "experiment": "Cellules d’épiderme d’oignon placées dans des solutions de NaCl à 0,5 %, 0,9 %, 1,1 % et 2 %, puis observées au microscope.",
+              "document": "Doc. 2 — Résultats expérimentaux"
+            }
+          ],
+          "source_backed_concepts": [
+            "absorption d’eau",
+            "perte d’eau",
+            "turgescence",
+            "plasmolyse",
+            "déplasmolyse",
+            "milieu hypotonique",
+            "milieu hypertonique"
+          ]
+        },
+        {
+          "title": "Échanges d’eau chez les cellules animales",
+          "source_pages": [
+            4,
+            5
+          ],
+          "source_images": [
+            "page_007.jpg",
+            "page_008.jpg"
+          ],
+          "evidence": [
+            {
+              "activity": "Mise en évidence des échanges d’eau chez les cellules animales",
+              "material": "Hématies placées dans l’eau distillée, une solution de NaCl à 9 g/L et une solution concentrée de NaCl à 100 g/L.",
+              "document": "Doc. 3 — Résultats expérimentaux",
+              "observations": [
+                "Dans l’eau pure : hématies gonflées et éclatées.",
+                "Dans NaCl 9 g/L : hématies biconcaves normales.",
+                "Dans NaCl 100 g/L : hématies crénelées."
+              ]
+            }
+          ],
+          "source_backed_concepts": [
+            "hémolyse",
+            "isotonie",
+            "plasmolyse des cellules animales au sens utilisé par le manuel",
+            "déplasmolyse"
+          ]
+        },
+        {
+          "title": "Interprétation des échanges d’eau : l’osmose et la dialyse",
+          "source_pages": [
+            5,
+            6
+          ],
+          "source_images": [
+            "page_008.jpg",
+            "page_009.jpg"
+          ],
+          "evidence": [
+            {
+              "experiment": "Expérience de Dutrochet",
+              "document": "Doc. 4 — Dispositif expérimental utilisé par Dutrochet",
+              "core_observation": "L’eau se déplace vers la solution la plus concentrée en soluté à travers une membrane semi-perméable; des solutés peuvent également diffuser selon le dispositif."
+            },
+            {
+              "experiment": "Expérience de Pfeffer",
+              "document": "Doc. 5 — Osmomètre de Pfeffer",
+              "core_observation": "La montée du liquide met en évidence une pression osmotique."
+            }
+          ],
+          "source_backed_concepts": [
+            "osmose",
+            "dialyse",
+            "solutions isotoniques",
+            "pression osmotique"
+          ],
+          "formula_as_printed": {
+            "forms": [
+              "Po = R × (C/M) × i × T",
+              "Po = R × n × i × T"
+            ],
+            "variables": {
+              "Po": "pression osmotique",
+              "R": "constante des gaz parfaits",
+              "C": "concentration massique",
+              "M": "masse molaire",
+              "i": "facteur de Van’t Hoff",
+              "T": "température absolue",
+              "n": "concentration molaire"
+            },
+            "source_anchor": {
+              "printed_page": 6,
+              "image": "page_009.jpg"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Les échanges des substances dissoutes et des particules",
+      "source_pages": [
+        6,
+        9
+      ],
+      "source_images": [
+        "page_009.jpg",
+        "page_010.jpg",
+        "page_011.jpg",
+        "page_012.jpg"
+      ],
+      "sections": [
+        {
+          "title": "Les échanges de substances dissoutes",
+          "source_pages": [
+            7,
+            8
+          ],
+          "source_images": [
+            "page_010.jpg",
+            "page_011.jpg"
+          ],
+          "source_backed_concepts": [
+            "perméabilité sélective de la membrane",
+            "diffusion libre",
+            "diffusion canalaire",
+            "transport facilité",
+            "transport actif",
+            "pompes membranaires",
+            "co-transport",
+            "symport",
+            "antiport",
+            "gradient de concentration",
+            "consommation d’ATP"
+          ],
+          "documents": [
+            "Doc. 1 — Perméabilité ou non de la bicouche lipidique à certaines molécules",
+            "Doc. 2 — Transport assuré par les protéines membranaires",
+            "Doc. 3 — Transport actif primaire",
+            "Doc. 4 — Transport actif couplé"
+          ]
+        },
+        {
+          "title": "Les échanges de particules",
+          "source_page": 9,
+          "source_image": "page_012.jpg",
+          "source_backed_concepts": [
+            "endocytose",
+            "phagocytose",
+            "pinocytose",
+            "exocytose",
+            "déformation de la membrane plasmique",
+            "dépense d’énergie sous forme d’ATP"
+          ],
+          "document": "Doc. 5 — Mode d’échange des particules à travers la membrane"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Importance des échanges cellulaires",
+      "source_pages": [
+        9,
+        10
+      ],
+      "source_images": [
+        "page_012.jpg",
+        "page_013.jpg"
+      ],
+      "source_backed_points": [
+        "Les échanges membranaires apportent aux cellules des nutriments et du dioxygène.",
+        "Ils permettent l’évacuation de déchets métaboliques tels que le dioxyde de carbone, l’urée ou l’acide lactique.",
+        "Ils participent aux échanges au niveau d’organes et de structures comme les alvéoles pulmonaires, la villosité intestinale et le rein.",
+        "Ils permettent également des communications cellulaires, notamment par des substances qui traversent les membranes pour atteindre des cellules-cibles."
+      ],
+      "document": "Doc. 6 — Les échanges cellulaires au niveau des organismes animal et végétal"
+    },
+    {
+      "number": 4,
+      "title": "Applications des échanges cellulaires dans la vie courante",
+      "source_pages": [
+        10,
+        11
+      ],
+      "source_images": [
+        "page_013.jpg",
+        "page_014.jpg"
+      ],
+      "applications": [
+        {
+          "title": "Dialyse sanguine",
+          "source_backed_summary": "Application des principes d’osmose et de dialyse à l’épuration du sang chez des patients atteints d’insuffisance rénale chronique.",
+          "document": "Doc. 7 — Principe de fonctionnement d’un dialyseur"
+        },
+        {
+          "title": "Laxatifs osmotiques",
+          "source_backed_summary": "Des laxatifs non absorbés comme le lactulose, le lactitol, le sorbitol ou le macrogol augmentent la pression osmotique dans la lumière intestinale et y attirent de l’eau.",
+          "document": "Doc. 8 — Effet des laxatifs dans la lumière intestinale"
+        }
+      ]
+    }
+  ],
+  "synthesis": {
+    "source_pages": [
+      11,
+      12
+    ],
+    "source_images": [
+      "page_014.jpg",
+      "page_015.jpg"
+    ],
+    "key_points": [
+      "L’eau traverse passivement les membranes suivant les différences de concentration en solutés.",
+      "Les milieux peuvent être décrits comme hypotoniques, hypertoniques ou isotoniques.",
+      "La diffusion des substances dissoutes peut être libre ou facilitée.",
+      "Le transport actif s’effectue contre le gradient de concentration et consomme de l’énergie sous forme d’ATP.",
+      "L’endocytose et l’exocytose assurent les échanges de particules.",
+      "Les échanges cellulaires sont indispensables aux échanges de matière et d’énergie entre les cellules et leur milieu.",
+      "Les principes d’osmose et de dialyse ont des applications médicales."
+    ],
+    "terms_to_retain_from_source": [
+      "plasmolyse",
+      "osmose",
+      "turgescence",
+      "dialyse"
+    ]
+  },
+  "further_knowledge": {
+    "source_page": 13,
+    "source_image": "page_016.jpg",
+    "membrane_permeability_modalities": [
+      "perméabilité sélective",
+      "perméabilité orientée",
+      "perméabilité différentielle"
+    ]
+  },
+  "integration_activity": {
+    "source_pages": [
+      13,
+      14
+    ],
+    "source_images": [
+      "page_016.jpg",
+      "page_017.jpg"
+    ],
+    "target_competency": "Limiter les conséquences liées aux échanges d’eau, de substances dissoutes et de particules entre la cellule et le milieu ambiant.",
+    "situation_theme": "Culture de tomates en milieu désertique, irrigation avec des eaux saumâtres et équilibre osmotique.",
+    "supports_visible": [
+      "État de cellules végétales placées dans une eau douce et dans une eau saumâtre.",
+      "Résultats des expériences de Dutrochet sur les échanges à travers une membrane semi-perméable.",
+      "Mécanisme de l’osmose."
+    ]
+  },
+  "exercise_boundary": {
+    "printed_page_15": "Début de la section Je m’exerce / évaluation des savoirs et savoir-faire.",
+    "source_image": "page_017.jpg",
+    "included_in_this_extraction": false
+  },
+  "visual_assets_identified": [
+    {
+      "printed_page": 3,
+      "kind": "graph",
+      "topic": "Variation d’épaisseur de morceaux de pomme de terre selon la concentration en saccharose"
+    },
+    {
+      "printed_page": 4,
+      "kind": "cell diagrams",
+      "topic": "États de cellules d’épiderme d’oignon en solutions de NaCl"
+    },
+    {
+      "printed_page": 4,
+      "kind": "table+diagrams",
+      "topic": "États des hématies selon la concentration en NaCl"
+    },
+    {
+      "printed_page": 5,
+      "kind": "experimental diagram",
+      "topic": "Dispositif de Dutrochet"
+    },
+    {
+      "printed_page": 6,
+      "kind": "experimental diagram",
+      "topic": "Osmomètre de Pfeffer"
+    },
+    {
+      "printed_page": 7,
+      "kind": "membrane diagram",
+      "topic": "Perméabilité de la bicouche lipidique"
+    },
+    {
+      "printed_page": 8,
+      "kind": "membrane transport diagrams",
+      "topic": "Diffusion canalaire, transport facilité, transport actif, symport et antiport"
+    },
+    {
+      "printed_page": 9,
+      "kind": "process diagram",
+      "topic": "Phagocytose, pinocytose, endocytose facilitée, exocytose"
+    },
+    {
+      "printed_page": 10,
+      "kind": "organism diagram",
+      "topic": "Échanges cellulaires chez les organismes animal et végétal"
+    },
+    {
+      "printed_page": 11,
+      "kind": "medical diagrams",
+      "topic": "Dialyseur et laxatifs osmotiques"
+    },
+    {
+      "printed_page": 12,
+      "kind": "summary diagram",
+      "topic": "Modes de transfert des substances à travers les membranes"
+    },
+    {
+      "printed_page": 13,
+      "kind": "cell diagram",
+      "topic": "Modalités de perméabilité membranaire"
+    },
+    {
+      "printed_page": 13,
+      "kind": "integration supports",
+      "topic": "Osmose et cellules végétales en eau douce/eau saumâtre"
+    }
+  ],
+  "quality_flags": [
+    "La page 17 de la série d’images photographie simultanément les pages imprimées 14 et 15; l’exercice démarre sur la page imprimée 15.",
+    "Cette extraction conserve la structure et les concepts visibles; elle ne remplace pas une transcription verbatim intégrale du manuel.",
+    "Les exercices de la page imprimée 15 et suivantes doivent être extraits séparément avant génération du runtime complet."
+  ]
+}

@@ -98,6 +98,7 @@ flutter:
     - assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/
     - assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/
     - assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/
+    - assets/content/terminale_d/svt/m1_s1_les_echanges_cellulaires/
     # Catalogue de référence des établissements (généré par
     # tool/establishments/import_master_catalog.dart).
     - assets/data/establishments/
