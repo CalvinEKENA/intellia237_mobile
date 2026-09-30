@@ -17,6 +17,7 @@ import {
   type FlowActivityKind,
   type FlowAnswer
 } from "./flowCatalog";
+import { hasUserRole } from "../auth/userRoles";
 
 export const FLOW_DAILY_POINTS_CAP = 400;
 const FLOW_TIMEZONE = "Africa/Douala";
@@ -81,7 +82,7 @@ export class FirestoreFlowPointsStore implements FlowPointsStore {
           transaction.get(userRef),
           transaction.get(profileRef)
         ]);
-        if (userSnapshot.data()?.role !== "student") {
+        if (!hasUserRole(userSnapshot.data(), "student")) {
           throw new AppError("permission-denied", "FLOW points are reserved for student accounts.");
         }
         return {
@@ -104,7 +105,7 @@ export class FirestoreFlowPointsStore implements FlowPointsStore {
           transaction.get(profileRef)
         ]);
 
-      if (userSnapshot.data()?.role !== "student") {
+      if (!hasUserRole(userSnapshot.data(), "student")) {
         throw new AppError("permission-denied", "FLOW points are reserved for student accounts.");
       }
       if (!profileSnapshot.exists) {
@@ -113,7 +114,10 @@ export class FirestoreFlowPointsStore implements FlowPointsStore {
 
       const liveItem = FLOW_CATALOG[command.cardId] ? undefined : (await transaction.get(this.firestore.doc(`flow_items/${command.cardId}`))).data();
       if (liveItem?.sourceLessonPath && !await publishedLessonAllows(this.firestore, liveItem.sourceLessonPath, userSnapshot.data()!, profileSnapshot.data()!, ref => transaction.get(ref))) {
-        throw new AppError("permission-denied", "Source lesson unavailable for this student.");
+        // La carte n'est plus proposée à cet élève (changement d'école, leçon
+        // retirée) : « introuvable », que l'application présente comme une
+        // activité non validée — pas un refus de rôle.
+        throw new AppError("not-found", "Source lesson unavailable for this student.");
       }
       const evaluation = FLOW_CATALOG[command.cardId]
         ? evaluateFlowActivity(command)

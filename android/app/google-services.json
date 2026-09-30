@@ -12,7 +12,44 @@
           "package_name": "com.edunova.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "199517096075-62phsj6me1b3e310th9q0br37hdpn5cc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edunova.app",
+            "certificate_hash": "e8f339143076d3ff867ea60d34d16c3e6b96bf2f"
+          }
+        },
+        {
+          "client_id": "199517096075-eiulseqkanufc2vgul79lhlh8grhajkj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edunova.app",
+            "certificate_hash": "2db349a1260f72f35d895adb680c9af8c1bfb5ef"
+          }
+        },
+        {
+          "client_id": "199517096075-k9kp3bj144r4qie9k8deslosmt75e8ov.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edunova.app",
+            "certificate_hash": "3375183132626c27fb414e0f954a7c5134fb1077"
+          }
+        },
+        {
+          "client_id": "199517096075-unf551qih813iudumucuikr80neqe3ao.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.edunova.app",
+            "certificate_hash": "7b5bef377560fd3fbb07191846c852c6281a2f0a"
+          }
+        },
+        {
+          "client_id": "199517096075-gmtdg0bvpnjcmo58fc4c64fimhc9c4vt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDq4HU94VNTjko3xtJkeNIeEYd-26f_yYk"
@@ -20,7 +57,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "199517096075-gmtdg0bvpnjcmo58fc4c64fimhc9c4vt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "199517096075-ifjelv5sh47iqt2lpe35hgtcqoe5vjgp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.edunova.app"
+              }
+            }
+          ]
         }
       }
     },
@@ -31,7 +80,12 @@
           "package_name": "com.example.edunova"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "199517096075-gmtdg0bvpnjcmo58fc4c64fimhc9c4vt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDq4HU94VNTjko3xtJkeNIeEYd-26f_yYk"
@@ -39,7 +93,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "199517096075-gmtdg0bvpnjcmo58fc4c64fimhc9c4vt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "199517096075-ifjelv5sh47iqt2lpe35hgtcqoe5vjgp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.edunova.app"
+              }
+            }
+          ]
         }
       }
     }

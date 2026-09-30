@@ -1,0 +1,279 @@
+{
+  "schema_version": "intellia.pedagogy.v3",
+  "content_id": "maths_td_ch03_fonctions_numeriques",
+  "difficulty_axis": {
+    "1": {
+      "label": "Facile",
+      "focus": "reconnaître et appliquer directement"
+    },
+    "2": {
+      "label": "Intermédiaire",
+      "focus": "combiner plusieurs propriétés"
+    },
+    "3": {
+      "label": "Difficile / Défi Bac",
+      "focus": "raisonnement, preuve et synthèse"
+    }
+  },
+  "explanation_axis": {
+    "standard": {
+      "label": "Terminale",
+      "style": "formalisme du programme"
+    },
+    "simple": {
+      "label": "Simple",
+      "style": "étapes courtes et explicites"
+    },
+    "ultra_simple": {
+      "label": "Comme si j'avais 12 ans",
+      "style": "intuition → image mentale → notation → méthode"
+    }
+  },
+  "concepts": [
+    {
+      "id": "continuous_image_interval",
+      "lesson": 1,
+      "title": "Image d'un intervalle par une fonction continue",
+      "aliases": [
+        "continuité",
+        "image d'un intervalle",
+        "minimum",
+        "maximum"
+      ],
+      "explanations": {
+        "standard": "Si f est continue et non constante sur un intervalle I, alors f(I) est un intervalle. Sur [a,b], une fonction continue atteint un minimum m et un maximum M, donc f([a,b])=[m,M].",
+        "simple": "Une fonction continue ne saute pas. Quand x parcourt un intervalle, les valeurs de f remplissent aussi un intervalle, sans trou.",
+        "ultra_simple": "Imagine que tu dessines la courbe sans lever le crayon. Entre deux hauteurs atteintes, le crayon passe forcément par toutes les hauteurs intermédiaires."
+      },
+      "visual_model": {
+        "engine": "continuous_interval_sweep",
+        "description": "Un curseur parcourt [a,b] et colore les valeurs atteintes."
+      },
+      "common_mistakes": [
+        "confondre image d'un intervalle et image de ses seules bornes",
+        "oublier qu'un extremum peut être atteint à l'intérieur"
+      ]
+    },
+    {
+      "id": "intermediate_value_root",
+      "lesson": 1,
+      "title": "Théorème des valeurs intermédiaires et racines",
+      "aliases": [
+        "TVI",
+        "valeurs intermédiaires",
+        "existence d'une solution",
+        "racine"
+      ],
+      "explanations": {
+        "standard": "Si f est continue sur [a,b], toute valeur comprise entre f(a) et f(b) possède au moins un antécédent. Si f(a)f(b)<0, f(x)=0 admet au moins une solution dans ]a,b[.",
+        "simple": "Si la courbe passe d'une valeur négative à une valeur positive sans saut, elle doit traverser 0.",
+        "ultra_simple": "Si tu es sous 0 au départ et au-dessus à l'arrivée, sans téléporter la courbe, tu dois passer par 0."
+      },
+      "visual_model": {
+        "engine": "tvi_crossing",
+        "description": "Bornes mobiles et ligne cible k montrent le croisement garanti."
+      },
+      "common_mistakes": [
+        "conclure à l'unicité avec la seule continuité",
+        "oublier que la cible doit être comprise entre les valeurs aux bornes"
+      ]
+    },
+    {
+      "id": "unique_root_bisection",
+      "lesson": 1,
+      "title": "Unicité et encadrement d'une solution",
+      "aliases": [
+        "encadrement",
+        "dichotomie",
+        "bisection",
+        "solution unique",
+        "monotonie stricte"
+      ],
+      "explanations": {
+        "standard": "La continuité donne l'existence ; la stricte monotonie donne l'unicité. Une solution unique peut ensuite être encadrée par subdivisions successives.",
+        "simple": "Pour savoir qu'il n'y a qu'une seule racine, il faut empêcher la courbe de revenir en arrière. Ensuite, on coupe l'intervalle en deux.",
+        "ultra_simple": "Tu prouves qu'il y a une seule porte de sortie, puis tu joues à chaud/froid en coupant la zone en deux."
+      },
+      "visual_model": {
+        "engine": "bisection_zoom",
+        "description": "L'intervalle contenant la racine est coupé en deux à chaque étape."
+      },
+      "common_mistakes": [
+        "confondre existence et unicité",
+        "garder la mauvaise moitié",
+        "annoncer trop de précision"
+      ]
+    },
+    {
+      "id": "inverse_function",
+      "lesson": 2,
+      "title": "Fonction réciproque",
+      "aliases": [
+        "bijection réciproque",
+        "fonction inverse",
+        "réciproque",
+        "symétrie y=x"
+      ],
+      "explanations": {
+        "standard": "Une fonction continue et strictement monotone sur un intervalle est bijective sur son image. Sa réciproque est continue, strictement monotone dans le même sens, et les deux courbes sont symétriques par rapport à y=x.",
+        "simple": "La réciproque échange l'entrée et la sortie. Graphiquement, c'est le reflet dans la droite y=x.",
+        "ultra_simple": "Si f transforme 3 en 10, sa réciproque fait le chemin retour : 10 devient 3."
+      },
+      "visual_model": {
+        "engine": "inverse_mirror",
+        "description": "Un point (x,f(x)) est réfléchi en (f(x),x)."
+      },
+      "common_mistakes": [
+        "confondre f⁻¹(x) avec 1/f(x)",
+        "oublier de restreindre le domaine pour obtenir une bijection"
+      ]
+    },
+    {
+      "id": "inverse_derivative",
+      "lesson": 2,
+      "title": "Dérivée de la fonction réciproque",
+      "aliases": [
+        "dérivée de la réciproque"
+      ],
+      "explanations": {
+        "standard": "Si y=f(x), f est bijective et f'(x)≠0, alors (f⁻¹)'(y)=1/f'(x)=1/f'(f⁻¹(y)).",
+        "simple": "Pour dériver le chemin retour, on prend l'inverse de la pente du chemin aller au point correspondant.",
+        "ultra_simple": "Si l'aller monte 4 fois plus vite, le retour avance 4 fois moins vite : sa pente vaut 1/4."
+      },
+      "visual_model": {
+        "engine": "inverse_slope",
+        "description": "Tangentes symétriques montrant des pentes réciproques."
+      },
+      "common_mistakes": [
+        "calculer 1/f'(y) au lieu de 1/f'(f⁻¹(y))",
+        "utiliser la formule quand f'(x)=0"
+      ]
+    },
+    {
+      "id": "roots_limits_inequalities",
+      "lesson": 2,
+      "title": "Racines n-ièmes, limites et accroissements finis",
+      "aliases": [
+        "racine n-ième",
+        "limites remarquables",
+        "expression conjuguée",
+        "accroissements finis"
+      ],
+      "explanations": {
+        "standard": "Le chapitre relie racines n-ièmes, limites trigonométriques, conjugaison pour les radicaux et inégalité des accroissements finis.",
+        "simple": "Racines, limites et bornes sur la dérivée servent à résoudre, simplifier et contrôler les variations.",
+        "ultra_simple": "Ce sont plusieurs outils : le conjugué aide avec les racines, les limites décrivent ce qui se passe très près ou très loin, la dérivée donne une vitesse maximale."
+      },
+      "visual_model": {
+        "engine": "limit_toolbox",
+        "description": "Onglets racines, rationalisation et borne de variation."
+      },
+      "common_mistakes": [
+        "substituer directement dans une forme indéterminée",
+        "oublier le conjugué",
+        "oublier la valeur absolue dans une majoration"
+      ]
+    },
+    {
+      "id": "asymptotes",
+      "lesson": 3,
+      "title": "Asymptotes verticales, horizontales et obliques",
+      "aliases": [
+        "asymptote verticale",
+        "asymptote horizontale",
+        "asymptote oblique"
+      ],
+      "explanations": {
+        "standard": "x=a est verticale si f(x) tend vers ±∞ près de a. y=b est horizontale si f(x)→b à l'infini. y=ax+b est oblique si f(x)−(ax+b)→0.",
+        "simple": "Une asymptote est une droite dont la courbe se rapproche : verticale, horizontale ou inclinée.",
+        "ultra_simple": "Imagine une route que la courbe suit de plus en plus près : debout, à plat ou en pente."
+      },
+      "visual_model": {
+        "engine": "asymptote_radar",
+        "description": "La distance entre courbe et droite candidate est visualisée."
+      },
+      "common_mistakes": [
+        "prendre toute valeur interdite pour une asymptote verticale",
+        "confondre direction asymptotique et asymptote"
+      ]
+    },
+    {
+      "id": "asymptotic_directions",
+      "lesson": 3,
+      "title": "Directions asymptotiques et branches paraboliques",
+      "aliases": [
+        "direction asymptotique",
+        "branche parabolique",
+        "direction Ox",
+        "direction Oy"
+      ],
+      "explanations": {
+        "standard": "Quand |f(x)|→∞, le comportement de f(x)/x permet de caractériser certaines directions asymptotiques.",
+        "simple": "On compare la hauteur f(x) à la distance x pour voir si la branche est plutôt horizontale, oblique ou verticale.",
+        "ultra_simple": "Quand tu vas très loin, la courbe monte-t-elle beaucoup moins vite que x, comme x, ou beaucoup plus vite ?"
+      },
+      "visual_model": {
+        "engine": "branch_direction",
+        "description": "Comparaison graphique de f(x) et x."
+      },
+      "common_mistakes": [
+        "conclure à une asymptote oblique avec le seul rapport f(x)/x",
+        "confondre direction et asymptote"
+      ]
+    },
+    {
+      "id": "complete_function_study",
+      "lesson": 3,
+      "title": "Étude complète et tracé d'une fonction",
+      "aliases": [
+        "tableau de variation",
+        "étude de fonction",
+        "tracé de courbe"
+      ],
+      "explanations": {
+        "standard": "Une étude complète enchaîne domaine, symétries éventuelles, limites, asymptotes, dérivée, variations, valeurs remarquables et tracé.",
+        "simple": "Toujours dans le même ordre : domaine, limites, variations, asymptotes, puis dessin.",
+        "ultra_simple": "Avant de dessiner la route, tu construis sa carte : zones interdites, directions, montées/descentes et points importants."
+      },
+      "visual_model": {
+        "engine": "function_study_canvas",
+        "description": "Checklist construisant progressivement tableau et courbe."
+      },
+      "common_mistakes": [
+        "tracer avant d'étudier les limites",
+        "oublier une composante du domaine",
+        "placer une asymptote sans vérifier la limite"
+      ]
+    },
+    {
+      "id": "chapter_integration",
+      "lesson": 0,
+      "title": "Intégration — fonctions numériques",
+      "aliases": [
+        "synthèse",
+        "mission chapitre",
+        "modélisation"
+      ],
+      "explanations": {
+        "standard": "Une situation d'intégration combine continuité, unicité, approximation et lecture graphique.",
+        "simple": "On modélise, on prouve l'existence et l'unicité, puis on approche suffisamment.",
+        "ultra_simple": "Le problème réel devient une courbe : tu prouves qu'il y a une seule bonne réponse, puis tu zoomes jusqu'à la précision demandée."
+      },
+      "visual_model": {
+        "engine": "function_mission_board",
+        "description": "Modéliser → existence → unicité → approcher → interpréter."
+      },
+      "common_mistakes": [
+        "donner une valeur approchée sans preuve d'existence",
+        "oublier l'interprétation finale"
+      ]
+    }
+  ],
+  "adaptive_rules": [
+    "Deux erreurs sur une notion → proposer Simple.",
+    "Une erreur supplémentaire → proposer Comme si j'avais 12 ans.",
+    "Trois réussites consécutives → proposer une difficulté supérieure.",
+    "Difficulté et niveau d'explication restent indépendants.",
+    "Le prénom peut être utilisé ponctuellement, jamais à chaque message."
+  ]
+}

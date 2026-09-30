@@ -183,10 +183,10 @@ class CampaignSubjects extends StatelessWidget {
             ),
             style: campaignBody(),
           ),
-          const SizedBox(height: 26),
+          const SizedBox(height: 18),
           for (var i = 0; i < 4; i++)
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: 10),
               child: _SubjectPoster(
                 index: i,
                 animation: animation,
@@ -280,7 +280,7 @@ class _SubjectPoster extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 13, 16, 17),
+                  padding: const EdgeInsets.fromLTRB(18, 11, 16, 13),
                   child: Row(
                     children: [
                       Expanded(
@@ -363,225 +363,236 @@ class _CampaignCompanionsState extends State<CampaignCompanions> {
         ? Duration.zero
         : const Duration(milliseconds: 550);
     return CampaignPage(
-      builder: (context, height, width) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CampaignEyebrow(
-                  campaignText(
-                    context,
-                    'DEUX PERSONNALITÉS. TON CHOIX.',
-                    'TWO PERSONALITIES. YOUR CHOICE.',
+      builder: (context, height, width) {
+        // La scène des personnages suit la hauteur de l'écran ; le texte et
+        // le bouton, eux, gardent leur taille réelle.
+        final stage = (height * 0.40)
+            .clamp(210.0, math.min(365.0, width * 0.91))
+            .toDouble();
+        final figure = math.min(width * 0.88, stage + 12);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 18, 24, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CampaignEyebrow(
+                    campaignText(
+                      context,
+                      'DEUX PERSONNALITÉS. TON CHOIX.',
+                      'TWO PERSONALITIES. YOUR CHOICE.',
+                    ),
                   ),
-                ),
-                CampaignHeadline(
-                  lines: [
-                    campaignText(context, 'AVANCE', 'MOVE FORWARD'),
-                    campaignText(context, 'À TA FAÇON.', 'YOUR WAY.'),
-                  ],
-                  animation: widget.animation,
-                  size: 101,
-                  accentLine: 1,
-                ),
-              ],
+                  CampaignHeadline(
+                    lines: [
+                      campaignText(context, 'AVANCE', 'MOVE FORWARD'),
+                      campaignText(context, 'À TA FAÇON.', 'YOUR WAY.'),
+                    ],
+                    animation: widget.animation,
+                    size: 101,
+                    accentLine: 1,
+                  ),
+                ],
+              ),
             ),
-          ),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onHorizontalDragStart: (_) =>
-                setState(() => _dragSplit = kira ? 0.60 : 0.40),
-            onHorizontalDragUpdate: (event) => setState(() {
-              _dragSplit = ((_dragSplit ?? 0.5) + event.delta.dx / width).clamp(
-                0.25,
-                0.75,
-              );
-            }),
-            onHorizontalDragEnd: (event) {
-              final velocity = event.primaryVelocity ?? 0;
-              final next = velocity.abs() > 180
-                  ? (velocity > 0
-                        ? OnboardingCompanionFocus.kira
-                        : OnboardingCompanionFocus.leo)
-                  : ((_dragSplit ?? 0.5) >= 0.5
-                        ? OnboardingCompanionFocus.kira
-                        : OnboardingCompanionFocus.leo);
-              setState(() => _dragSplit = null);
-              _select(next);
-            },
-            onHorizontalDragCancel: () => setState(() => _dragSplit = null),
-            child: SizedBox(
-              height: math.min(365, width * 0.91),
-              child: TweenAnimationBuilder<double>(
-                duration: _dragSplit == null ? duration : Duration.zero,
-                curve: Curves.easeOutCubic,
-                tween: Tween(end: _dragSplit ?? (kira ? 0.60 : 0.40)),
-                builder: (context, split, _) => Stack(
-                  fit: StackFit.expand,
-                  clipBehavior: Clip.hardEdge,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SizedBox(
-                          width: width * split,
-                          child: const ColoredBox(
-                            color: Color(0xFFD5C4D9),
-                            child: SizedBox.expand(),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onHorizontalDragStart: (_) =>
+                  setState(() => _dragSplit = kira ? 0.60 : 0.40),
+              onHorizontalDragUpdate: (event) => setState(() {
+                _dragSplit = ((_dragSplit ?? 0.5) + event.delta.dx / width)
+                    .clamp(0.25, 0.75);
+              }),
+              onHorizontalDragEnd: (event) {
+                final velocity = event.primaryVelocity ?? 0;
+                final next = velocity.abs() > 180
+                    ? (velocity > 0
+                          ? OnboardingCompanionFocus.kira
+                          : OnboardingCompanionFocus.leo)
+                    : ((_dragSplit ?? 0.5) >= 0.5
+                          ? OnboardingCompanionFocus.kira
+                          : OnboardingCompanionFocus.leo);
+                setState(() => _dragSplit = null);
+                _select(next);
+              },
+              onHorizontalDragCancel: () => setState(() => _dragSplit = null),
+              child: SizedBox(
+                height: stage,
+                child: TweenAnimationBuilder<double>(
+                  duration: _dragSplit == null ? duration : Duration.zero,
+                  curve: Curves.easeOutCubic,
+                  tween: Tween(end: _dragSplit ?? (kira ? 0.60 : 0.40)),
+                  builder: (context, split, _) => Stack(
+                    fit: StackFit.expand,
+                    clipBehavior: Clip.hardEdge,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          SizedBox(
+                            width: width * split,
+                            child: const ColoredBox(
+                              color: Color(0xFFD5C4D9),
+                              child: SizedBox.expand(),
+                            ),
                           ),
-                        ),
-                        const Expanded(
-                          child: ColoredBox(color: Color(0xFFB8C8ED)),
-                        ),
-                      ],
-                    ),
-                    Positioned(
-                      left: 15 - (0.60 - split) * 55,
-                      top: 16,
-                      child: ExcludeSemantics(
-                        child: Text(
-                          'KIRA',
-                          style: campaignDisplay(
-                            size: width * 0.29,
-                            color: const Color(0xFF6B4277),
+                          const Expanded(
+                            child: ColoredBox(color: Color(0xFFB8C8ED)),
                           ),
-                        ),
+                        ],
                       ),
-                    ),
-                    Positioned(
-                      right: 12 + (split - 0.40) * 55,
-                      bottom: 15,
-                      child: ExcludeSemantics(
-                        child: Text(
-                          'LÉO',
-                          style: campaignDisplay(
-                            size: width * 0.30,
-                            color: const Color(0xFF2C4990),
+                      Positioned(
+                        left: 15 - (0.60 - split) * 55,
+                        top: 16,
+                        child: ExcludeSemantics(
+                          child: Text(
+                            'KIRA',
+                            style: campaignDisplay(
+                              size: width * 0.29,
+                              color: const Color(0xFF6B4277),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Positioned(
-                      left: -width * 0.045 + (split - 0.5) * 20,
-                      bottom: -12,
-                      width: width * 0.59,
-                      height: width * 0.88,
-                      child: _SelectableCompanion(
-                        key: const ValueKey('companion-kira'),
-                        name: 'Kira',
-                        asset: IntelliaCompanionAssets.kiraOnboardingFullBody,
-                        selected: kira,
-                        duration: duration,
-                        onTap: () => _select(OnboardingCompanionFocus.kira),
-                      ),
-                    ),
-                    Positioned(
-                      right: -width * 0.04 - (split - 0.5) * 20,
-                      bottom: -14,
-                      width: width * 0.58,
-                      height: width * 0.88,
-                      child: _SelectableCompanion(
-                        key: const ValueKey('companion-leo'),
-                        name: 'Léo',
-                        asset: IntelliaCompanionAssets.leoOnboardingFullBody,
-                        selected: !kira,
-                        duration: duration,
-                        onTap: () => _select(OnboardingCompanionFocus.leo),
-                      ),
-                    ),
-                    Positioned(
-                      left: width * split - 17,
-                      top: 12,
-                      child: IgnorePointer(
-                        child: Container(
-                          width: 34,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: CampaignColors.paper,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Icon(
-                            Icons.swap_horiz_rounded,
-                            size: 20,
-                            color: CampaignColors.ink,
+                      Positioned(
+                        right: 12 + (split - 0.40) * 55,
+                        bottom: 15,
+                        child: ExcludeSemantics(
+                          child: Text(
+                            'LÉO',
+                            style: campaignDisplay(
+                              size: width * 0.30,
+                              color: const Color(0xFF2C4990),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        left: -width * 0.045 + (split - 0.5) * 20,
+                        bottom: -12,
+                        width: width * 0.59,
+                        height: figure,
+                        child: _SelectableCompanion(
+                          key: const ValueKey('companion-kira'),
+                          name: 'Kira',
+                          asset: IntelliaCompanionAssets.kiraOnboardingFullBody,
+                          selected: kira,
+                          duration: duration,
+                          onTap: () => _select(OnboardingCompanionFocus.kira),
+                        ),
+                      ),
+                      Positioned(
+                        right: -width * 0.04 - (split - 0.5) * 20,
+                        bottom: -14,
+                        width: width * 0.58,
+                        height: figure,
+                        child: _SelectableCompanion(
+                          key: const ValueKey('companion-leo'),
+                          name: 'Léo',
+                          asset: IntelliaCompanionAssets.leoOnboardingFullBody,
+                          selected: !kira,
+                          duration: duration,
+                          onTap: () => _select(OnboardingCompanionFocus.leo),
+                        ),
+                      ),
+                      Positioned(
+                        left: width * split - 17,
+                        top: 12,
+                        child: IgnorePointer(
+                          child: Container(
+                            width: 34,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: CampaignColors.paper,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Icon(
+                              Icons.swap_horiz_rounded,
+                              size: 20,
+                              color: CampaignColors.ink,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Container(
-            color: CampaignColors.paper,
-            padding: const EdgeInsets.fromLTRB(24, 19, 24, 26),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AnimatedSwitcher(
-                  duration: duration,
-                  child: Align(
-                    key: ValueKey(name),
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      kira
-                          ? campaignText(
-                              context,
-                              'Kira. La clarté, à ton rythme.',
-                              'Kira. Clarity, at your pace.',
-                            )
-                          : campaignText(
-                              context,
-                              'Léo. Le déclic, par la pratique.',
-                              'Léo. Understanding through practice.',
-                            ),
-                      style: campaignBody(size: 16, weight: FontWeight.w800),
+            Container(
+              color: CampaignColors.paper,
+              padding: const EdgeInsets.fromLTRB(24, 19, 24, 26),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AnimatedSwitcher(
+                    duration: duration,
+                    child: Align(
+                      key: ValueKey(name),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        kira
+                            ? campaignText(
+                                context,
+                                'Kira. La clarté, à ton rythme.',
+                                'Kira. Clarity, at your pace.',
+                              )
+                            : campaignText(
+                                context,
+                                'Léo. Le déclic, par la pratique.',
+                                'Léo. Understanding through practice.',
+                              ),
+                        style: campaignBody(size: 16, weight: FontWeight.w800),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 7),
-                Text(
-                  kira
-                      ? campaignText(
-                          context,
-                          '« On décompose ensemble, étape par étape. »',
-                          '“Let’s break it down together, step by step.”',
-                        )
-                      : campaignText(
-                          context,
-                          '« Essaie avec moi. Tu vas voir la logique. »',
-                          '“Try it with me. You’ll see the pattern.”',
-                        ),
-                  style: campaignBody(size: 13, color: CampaignColors.muted),
-                ),
-                const SizedBox(height: 20),
-                CampaignButton(
-                  key: const ValueKey('companion-continue'),
-                  label: campaignText(
-                    context,
-                    'Continuer avec $name',
-                    'Continue with $name',
+                  const SizedBox(height: 7),
+                  Text(
+                    kira
+                        ? campaignText(
+                            context,
+                            '« On décompose ensemble, étape par étape. »',
+                            '“Let’s break it down together, step by step.”',
+                          )
+                        : campaignText(
+                            context,
+                            '« Essaie avec moi. Tu vas voir la logique. »',
+                            '“Try it with me. You’ll see the pattern.”',
+                          ),
+                    style: campaignBody(size: 13, color: CampaignColors.muted),
                   ),
-                  onTap: widget.onContinue,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  campaignText(
-                    context,
-                    'Touche ou balaie. Tu pourras changer plus tard.',
-                    'Tap or swipe. You can change later.',
+                  const SizedBox(height: 20),
+                  CampaignButton(
+                    key: const ValueKey('companion-continue'),
+                    label: campaignText(
+                      context,
+                      'Continuer avec $name',
+                      'Continue with $name',
+                    ),
+                    onTap: widget.onContinue,
                   ),
-                  style: campaignBody(size: 11, color: CampaignColors.muted),
-                ),
-              ],
+                  if (!CampaignRoom.isShort(context)) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      campaignText(
+                        context,
+                        'Touche ou balaie. Tu pourras changer plus tard.',
+                        'Tap or swipe. You can change later.',
+                      ),
+                      style: campaignBody(
+                        size: 11,
+                        color: CampaignColors.muted,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }
@@ -696,7 +707,9 @@ class CampaignFinale extends StatelessWidget {
                 ),
             ],
           ),
-          SizedBox(height: math.max(44, height * 0.12)),
+          SizedBox(
+            height: (CampaignRoom.heightOf(context) ?? 800) < 760 ? 20 : 32,
+          ),
           AnimatedBuilder(
             animation: animation,
             child: _PassCard(
@@ -719,22 +732,25 @@ class CampaignFinale extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 16),
-          Container(
-            color: CampaignColors.ink,
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: Text(
-              campaignText(
-                context,
-                'Tes cours, tes livres, tes enseignants.\nEt un nouvel élan pour avancer.',
-                'Your lessons, your books, your teachers.\nAnd a fresh start to keep moving forward.',
-              ),
-              style: campaignBody(
-                size: 12,
-                color: CampaignColors.paper.withValues(alpha: 0.82),
+          // Écran court : la promesse cède sa place, le PASS reste entier.
+          if (!CampaignRoom.isShort(context)) ...[
+            const SizedBox(height: 16),
+            Container(
+              color: CampaignColors.ink,
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Text(
+                campaignText(
+                  context,
+                  'Tes cours, tes livres, tes enseignants.\nEt un nouvel élan pour avancer.',
+                  'Your lessons, your books, your teachers.\nAnd a fresh start to keep moving forward.',
+                ),
+                style: campaignBody(
+                  size: 12,
+                  color: CampaignColors.paper.withValues(alpha: 0.82),
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     ),

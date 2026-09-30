@@ -127,6 +127,26 @@ void main() {
     },
   );
 
+  test(
+    'verified email identity registers without a second password or account',
+    () async {
+      final auth = _FakeAuthGateway(
+        currentUser: _FakeAuthUser(email: 'learner@yahoo.fr'),
+      );
+      final store = _FakeDocumentStore();
+      final repository = FirebaseStudentRegistrationRepository(
+        authGateway: auth,
+        documentStore: store,
+      );
+      final result = await repository.registerStudent(
+        _payload(email: '', password: ''),
+      );
+      expect(result.email, 'learner@yahoo.fr');
+      expect(auth.createCalls, 0);
+      expect(store.lastUserCreate?['email'], 'learner@yahoo.fr');
+    },
+  );
+
   test('verified phone user registers without email or password', () async {
     final auth = _FakeAuthGateway(
       currentUser: _FakeAuthUser(email: null, phoneNumber: '+237699123456'),
@@ -144,6 +164,48 @@ void main() {
     expect(auth.createCalls, 0);
     expect(store.lastUserCreate?['phoneNumber'], '+237699123456');
   });
+
+  test(
+    'a Google identity registers on its own UID, never a second account',
+    () async {
+      final auth = _FakeAuthGateway(
+        currentUser: _FakeAuthUser(
+          email: 'parent.google@example.cm',
+          signedInWithGoogle: true,
+        ),
+      );
+      final store = _FakeDocumentStore();
+      final repository = FirebaseStudentRegistrationRepository(
+        authGateway: auth,
+        documentStore: store,
+      );
+
+      final result = await repository.registerStudent(
+        _payload(email: '', password: ''),
+      );
+
+      expect(result.uid, 'student-uid');
+      expect(auth.createCalls, 0);
+      expect(auth.signInCalls, 0);
+    },
+  );
+
+  test(
+    'without any authenticated identity, no silent account is created',
+    () async {
+      final auth = _FakeAuthGateway(currentUser: null);
+      final repository = FirebaseStudentRegistrationRepository(
+        authGateway: auth,
+        documentStore: _FakeDocumentStore(),
+      );
+
+      await expectLater(
+        repository.registerStudent(_payload(email: '', password: '')),
+        throwsA(anything),
+      );
+      expect(auth.createCalls, 0);
+    },
+  );
 
   test('Auth record without a current session signs in and resumes', () async {
     final auth = _FakeAuthGateway(emailAlreadyInUse: true);
@@ -284,11 +346,89 @@ void main() {
     );
     expect(appCheck.registrationOperation, 'APP_CHECK');
   });
+  group('establishment choice', () {
+    FirebaseStudentRegistrationRepository repository() =>
+        FirebaseStudentRegistrationRepository(
+          authGateway: _FakeAuthGateway(),
+          documentStore: _FakeDocumentStore(),
+          isRegisteredEstablishment: (id) async => id == 'ce-yaounde-leclerc',
+        );
+
+    test('a directory school is accepted and stays descriptive', () async {
+      const school = EstablishmentAffiliation(
+        name: 'Lycée Général Leclerc',
+        candidateId: 'ce-yaounde-leclerc',
+        city: 'Yaoundé',
+        region: 'Centre',
+        district: 'Yaoundé III',
+        source: EstablishmentAffiliationSource.catalogue,
+        status: EstablishmentAffiliationStatus.pendingVerification,
+      );
+      await repository().registerStudent(_payload(establishment: school));
+      final profile = _payload(
+        establishment: school,
+      ).toStudentProfileDocument(uid: 'uid', now: DateTime.utc(2026));
+      expect(profile.containsKey('establishmentId'), isFalse);
+      expect((profile['preferences'] as Map)['establishmentCandidate'], {
+        'candidateId': 'ce-yaounde-leclerc',
+        'name': 'Lycée Général Leclerc',
+        'city': 'Yaoundé',
+        'region': 'Centre',
+        'district': 'Yaoundé III',
+        'source': 'catalogue',
+        'status': 'pendingVerification',
+      });
+    });
+
+    test('a proposed school is accepted as a pending suggestion', () async {
+      await repository().registerStudent(
+        _payload(
+          establishment: const EstablishmentAffiliation(
+            name: 'Collège Étoile du Matin',
+            city: 'Bafia',
+            source: EstablishmentAffiliationSource.suggestion,
+            status: EstablishmentAffiliationStatus.pendingVerification,
+          ),
+        ),
+      );
+    });
+
+    test('an unknown id or a free name is refused', () async {
+      for (final school in const [
+        EstablishmentAffiliation(
+          name: 'Lycée inventé',
+          candidateId: 'forged-id',
+          source: EstablishmentAffiliationSource.partner,
+        ),
+        EstablishmentAffiliation(name: 'Lycée de la Réunification'),
+        // Une « suggestion » qui porte un identifiant n'en est pas une.
+        EstablishmentAffiliation(
+          name: 'Lycée inventé',
+          candidateId: 'forged-id',
+          source: EstablishmentAffiliationSource.suggestion,
+        ),
+      ]) {
+        await expectLater(
+          repository().registerStudent(_payload(establishment: school)),
+          throwsA(
+            isA<StudentRegistrationException>().having(
+              (e) => e.code,
+              'code',
+              'invalid-establishment',
+            ),
+          ),
+        );
+      }
+    });
+  });
 }
 
 StudentRegistrationPayload _payload({
   String email = 'amina.ndi@example.com',
   String password = 'MotDePasse!237',
+  EstablishmentAffiliation establishment = const EstablishmentAffiliation(
+    name: 'Lycée de la Réunification',
+  ),
 }) => StudentRegistrationPayload(
   firstName: 'Amina',
   lastName: 'Ndi',
@@ -297,7 +437,7 @@ StudentRegistrationPayload _payload({
   interfaceLanguage: InterfaceLanguage.french,
   educationalSubsystem: EducationalSubsystem.francophone,
   educationType: EducationType.general,
-  establishment: EstablishmentAffiliation(name: 'Lycée de la Réunification'),
+  establishment: establishment,
   accountLinkage: LearnerAccountLinkage.individual,
   selectedTutorId: 'leo',
   preferredSubjects: ['Mathématiques', 'Sciences'],
@@ -343,7 +483,17 @@ class _FakeAuthGateway implements RegistrationAuthGateway {
 }
 
 class _FakeAuthUser implements RegistrationAuthUser {
-  _FakeAuthUser({this.email = 'amina.ndi@example.com', this.phoneNumber});
+  @override
+  bool get openedByServerToken => false;
+
+  _FakeAuthUser({
+    this.email = 'amina.ndi@example.com',
+    this.phoneNumber,
+    this.signedInWithGoogle = false,
+  });
+
+  @override
+  final bool signedInWithGoogle;
 
   @override
   final String? email;

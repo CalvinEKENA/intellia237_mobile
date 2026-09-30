@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -10,14 +8,50 @@ import '../../../../core/widgets/intellia_pressable.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import '../../application/student_registration_controller.dart';
 
+/// Ce que l'élève regarde et peut faire à cet instant : le compagnon à
+/// l'écran et s'il a été assez découvert pour être choisi.
+@immutable
+class CompanionChoice {
+  const CompanionChoice({
+    required this.id,
+    required this.name,
+    required this.canChoose,
+  });
+
+  final String id;
+  final String name;
+  final bool canChoose;
+
+  @override
+  bool operator ==(Object other) =>
+      other is CompanionChoice &&
+      other.id == id &&
+      other.name == name &&
+      other.canChoose == canChoose;
+
+  @override
+  int get hashCode => Object.hash(id, name, canChoose);
+}
+
 /// Découverte cinématique des compagnons (Problème B).
 ///
 /// On ne montre jamais Kira et Léo en même temps : deux scènes plein cadre
-/// dans un [PageView]. Chaque scène se révèle (fondu + flou → net + tracking
-/// qui se resserre), pilotée par **un seul** [AnimationController] libéré
-/// proprement, mise en pause en arrière-plan, et respectant reduced-motion.
+/// dans un [PageView]. Chaque scène se révèle (fondu et légère montée),
+/// pilotée par **un seul** [AnimationController] libéré proprement, mise en
+/// pause en arrière-plan, et respectant reduced-motion.
 class CompanionDiscovery extends ConsumerStatefulWidget {
-  const CompanionDiscovery({super.key});
+  const CompanionDiscovery({
+    this.showChooseBar = true,
+    this.onChoiceChanged,
+    super.key,
+  });
+
+  /// `false` : le choix est porté par le bouton principal de l'écran
+  /// (inscription), la scène garde toute la place.
+  final bool showChooseBar;
+
+  /// Appelé quand le compagnon à l'écran ou sa disponibilité change.
+  final ValueChanged<CompanionChoice>? onChoiceChanged;
 
   @override
   ConsumerState<CompanionDiscovery> createState() => _CompanionDiscoveryState();
@@ -66,6 +100,17 @@ class _CompanionDiscoveryState extends ConsumerState<CompanionDiscovery> {
     );
   }
 
+  CompanionChoice? _reported;
+
+  void _report(CompanionChoice choice) {
+    final callback = widget.onChoiceChanged;
+    if (callback == null || choice == _reported) return;
+    _reported = choice;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) callback(choice);
+    });
+  }
+
   void _markDiscovered(String id) {
     if (!_discovered.contains(id)) setState(() => _discovered.add(id));
   }
@@ -79,14 +124,19 @@ class _CompanionDiscoveryState extends ConsumerState<CompanionDiscovery> {
 
     final media = MediaQuery.of(context);
     final sceneHeight = (media.size.height * 0.46)
-        .clamp(300.0, 380.0)
+        .clamp(300.0, 350.0)
         .toDouble();
     final pageIndex = _page.round();
-    final haloColor = Color.lerp(
-      AuthExperienceColors.purple,
-      AuthExperienceColors.blue,
-      _page.clamp(0.0, 1.0),
-    )!;
+
+    final currentId = pageIndex == 0 ? _kira : _leo;
+    final canChoose = _discovered.contains(currentId) || reduce;
+    _report(
+      CompanionChoice(
+        id: currentId,
+        name: pageIndex == 0 ? 'Kira' : 'Léo',
+        canChoose: canChoose,
+      ),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -97,23 +147,6 @@ class _CompanionDiscoveryState extends ConsumerState<CompanionDiscovery> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Halo respirant, couleur interpolée Kira → Léo.
-                IgnorePointer(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    width: 260,
-                    height: 260,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          haloColor.withValues(alpha: 0.34),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
                 PageView(
                   controller: _pageController,
                   children: [
@@ -160,23 +193,24 @@ class _CompanionDiscoveryState extends ConsumerState<CompanionDiscovery> {
             ),
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 8),
         _PageDots(count: 2, index: pageIndex),
-        const SizedBox(height: 16),
-        _ChooseBar(
-          currentId: pageIndex == 0 ? _kira : _leo,
-          currentName: pageIndex == 0 ? 'Kira' : 'Léo',
-          accent: pageIndex == 0
-              ? AuthExperienceColors.purple
-              : AuthExperienceColors.blue,
-          canChoose:
-              _discovered.contains(pageIndex == 0 ? _kira : _leo) || reduce,
-          selectedId: selected,
-          onChoose: (id) {
-            HapticFeedback.mediumImpact();
-            controller.setSelectedTutorId(id);
-          },
-        ),
+        if (widget.showChooseBar) ...[
+          const SizedBox(height: 16),
+          _ChooseBar(
+            currentId: pageIndex == 0 ? _kira : _leo,
+            currentName: pageIndex == 0 ? 'Kira' : 'Léo',
+            accent: pageIndex == 0
+                ? AuthExperienceColors.purple
+                : AuthExperienceColors.blue,
+            canChoose: canChoose,
+            selectedId: selected,
+            onChoose: (id) {
+              HapticFeedback.mediumImpact();
+              controller.setSelectedTutorId(id);
+            },
+          ),
+        ],
       ],
     );
   }
@@ -314,7 +348,7 @@ class _CompanionSceneState extends State<_CompanionScene>
                     scale: 0.92 + 0.08 * imageT,
                     child: Image.asset(
                       widget.asset,
-                      height: 124,
+                      height: 96,
                       fit: BoxFit.contain,
                       errorBuilder: (_, _, _) => Icon(
                         Icons.person_rounded,
@@ -361,7 +395,11 @@ class _CompanionSceneState extends State<_CompanionScene>
   }
 }
 
-/// Une phrase qui apparaît : fondu + flou qui devient net + tracking resserré.
+/// Une phrase qui apparaît : fondu et légère montée, toujours nette.
+///
+/// Registre (QA appareil, 24/09/2026) : l'apparition par flou et
+/// l'espacement qui se resserrait donnaient une police floue ; le texte est
+/// désormais net dès la première image.
 class _CinematicLine extends StatelessWidget {
   const _CinematicLine({required this.text, required this.t});
 
@@ -371,32 +409,24 @@ class _CinematicLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final eased = Curves.easeOut.transform(t);
-    final sigma = (1 - eased) * 6;
-    final line = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Opacity(
         opacity: eased,
         child: Transform.translate(
-          offset: Offset(0, (1 - eased) * 10),
+          offset: Offset(0, (1 - eased) * 8),
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AuthExperienceColors.textSecondary,
+            style: const TextStyle(
+              color: AuthExperienceColors.textPrimary,
               fontSize: 15,
               height: 1.35,
-              fontWeight: FontWeight.w500,
-              letterSpacing: 3 - 2.8 * eased,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
       ),
-    );
-    // Le flou n'est appliqué que pendant la transition (perf).
-    if (sigma < 0.05) return line;
-    return ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-      child: line,
     );
   }
 }

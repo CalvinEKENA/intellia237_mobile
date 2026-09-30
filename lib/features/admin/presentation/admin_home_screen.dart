@@ -7,6 +7,7 @@ import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../auth/presentation/widgets/role_switch_action.dart';
 import '../../parent/application/parent_preview.dart';
 import '../application/admin_providers.dart';
 import '../domain/admin_models.dart';
@@ -68,6 +69,7 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
         title: Text(items[_index].label),
         actions: [
           const NotificationAppBarAction(),
+          const RoleSwitchAction(compact: true),
           IconButton(
             key: const ValueKey('admin-sign-out'),
             tooltip: context.l10n.signOutTitle,

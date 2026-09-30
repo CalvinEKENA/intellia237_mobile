@@ -150,43 +150,52 @@ class _PassOtpFieldState extends State<PassOtpField> {
                       ),
                     ),
                   ),
-                  Semantics(
-                    label: label,
-                    child: TextFormField(
-                      key: widget.fieldKey,
-                      controller: controller,
-                      focusNode: focusNode,
-                      enabled: enabled,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.done,
-                      autofillHints: const [AutofillHints.oneTimeCode],
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      maxLength: 6,
-                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      onChanged: _onChanged,
-                      onFieldSubmitted: (_) {
-                        if (enabled) widget.onSubmit();
-                      },
-                      showCursor: false,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.transparent,
-                        fontSize: 22,
-                        letterSpacing: math.max(0, slotWidth + gap - 14),
-                      ),
-                      decoration: InputDecoration(
-                        filled: false,
-                        counterText: '',
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: math.max(12, (slotHeight - 26) / 2),
+                  // Le champ réel est transparent : seules les cases se lisent.
+                  // Sans cela, à 200 % de texte système, sa police invisible
+                  // grossissait et le champ débordait de la rangée de cases :
+                  // son centre n'était plus touchable (refonte Auth V2,
+                  // matrice 320 × 568).
+                  MediaQuery.withNoTextScaling(
+                    child: Semantics(
+                      label: label,
+                      child: TextFormField(
+                        key: widget.fieldKey,
+                        controller: controller,
+                        focusNode: focusNode,
+                        enabled: enabled,
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.done,
+                        autofillHints: const [AutofillHints.oneTimeCode],
+                        enableSuggestions: false,
+                        autocorrect: false,
+                        maxLength: 6,
+                        maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        onChanged: _onChanged,
+                        onFieldSubmitted: (_) {
+                          if (enabled) widget.onSubmit();
+                        },
+                        showCursor: false,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.transparent,
+                          fontSize: 22,
+                          letterSpacing: math.max(0, slotWidth + gap - 14),
                         ),
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        disabledBorder: InputBorder.none,
+                        decoration: InputDecoration(
+                          filled: false,
+                          counterText: '',
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: math.max(12, (slotHeight - 26) / 2),
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),

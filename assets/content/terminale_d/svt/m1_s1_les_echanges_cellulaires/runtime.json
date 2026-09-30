@@ -1,0 +1,3130 @@
+{
+  "schema_version": "intellia.runtime-learning-pack.v2",
+  "pack_id": "svt_terminale_d_m1_s1_les_echanges_cellulaires",
+  "engine_version_required": 2,
+  "llm_required": false,
+  "offline_ready": true,
+  "publication": {
+    "status": "draft",
+    "version": 1,
+    "reason": "Post-release local : aucune publication distante ni déploiement."
+  },
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale D",
+    "class_keys": [
+      "terminale-d"
+    ],
+    "subject": "SVT",
+    "module": 1,
+    "module_title": "Le Monde vivant",
+    "sequence": 1,
+    "sequence_title": "Les échanges cellulaires"
+  },
+  "lessons": [
+    {
+      "lesson": 1,
+      "title": "L’eau et l’état des cellules",
+      "concept_ids": [
+        "osmose",
+        "cellule_vegetale",
+        "hematies"
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Expériences et pression osmotique",
+      "concept_ids": [
+        "osmomètres",
+        "pression_osmotique",
+        "lecture_experimentale"
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Les transports de substances dissoutes",
+      "concept_ids": [
+        "diffusion",
+        "permeabilite",
+        "transport_actif"
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Les échanges de particules",
+      "concept_ids": [
+        "endocytose",
+        "exocytose"
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Rôles et applications des échanges",
+      "concept_ids": [
+        "importance",
+        "applications"
+      ]
+    }
+  ],
+  "explanation_modes": [
+    "standard",
+    "simple",
+    "ultra_simple"
+  ],
+  "difficulty_levels": [
+    1,
+    2,
+    3
+  ],
+  "question_bank": [
+    {
+      "id": "svt_s1_q01",
+      "lesson": 1,
+      "concept_id": "osmose",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Par rapport au contenu d’une cellule, un milieu hypertonique est…",
+      "answer": "plus concentré en solutés.",
+      "explanation": "Hypertonique est un terme de comparaison : le milieu extérieur contient une concentration en solutés supérieure à celle du milieu cellulaire. Comparer les deux milieux évite de confondre hypertonique et hypotonique.",
+      "simple_explanation": "Hypertonique est un terme de comparaison : le milieu extérieur contient une concentration en solutés supérieure à celle du milieu cellulaire. Comparer les deux milieux évite de confondre hypertonique et hypotonique.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare les concentrations des deux côtés de la membrane."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_008.jpg",
+      "source_reference": {
+        "printed_pages": [
+          5,
+          15
+        ],
+        "images": [
+          "page_008.jpg",
+          "page_017.jpg"
+        ],
+        "exercise_ids": [
+          "A1"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "plus concentré en solutés.",
+        "moins concentré en solutés.",
+        "de même concentration en solutés.",
+        "nécessairement dépourvu d’eau."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "plus concentré en solutés.",
+          "feedback": "Hypertonique est un terme de comparaison : le milieu extérieur contient une concentration en solutés supérieure à celle du milieu cellulaire. Comparer les deux milieux évite de confondre hypertonique et hypotonique."
+        },
+        {
+          "id": "o2",
+          "label": "moins concentré en solutés.",
+          "feedback": "Une concentration extérieure plus faible correspond à un milieu hypotonique."
+        },
+        {
+          "id": "o3",
+          "label": "de même concentration en solutés.",
+          "feedback": "Des concentrations comparables correspondent ici à l’isotonie."
+        },
+        {
+          "id": "o4",
+          "label": "nécessairement dépourvu d’eau.",
+          "feedback": "Hypertonique décrit une concentration relative, pas une absence d’eau."
+        }
+      ],
+      "correct_option_ids": [
+        "o1"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Une concentration extérieure plus faible correspond à un milieu hypotonique.",
+        "Des concentrations comparables correspondent ici à l’isotonie.",
+        "Hypertonique décrit une concentration relative, pas une absence d’eau."
+      ]
+    },
+    {
+      "id": "svt_s1_q02",
+      "lesson": 1,
+      "concept_id": "osmose",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Une cellule végétale est placée dans un milieu hypotonique par rapport à son contenu. Quel mouvement net explique sa turgescence ?",
+      "answer": "Une entrée d’eau dans la cellule.",
+      "explanation": "L’eau entre par osmose depuis le milieu moins concentré. La vacuole augmente de volume ; la paroi limite le gonflement. Ne confonds pas le mouvement de l’eau avec celui d’un soluté.",
+      "simple_explanation": "L’eau entre par osmose depuis le milieu moins concentré. La vacuole augmente de volume ; la paroi limite le gonflement. Ne confonds pas le mouvement de l’eau avec celui d’un soluté.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Relie la variation de volume de la vacuole au mouvement d’eau."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_007.jpg",
+      "source_reference": {
+        "printed_pages": [
+          4,
+          15
+        ],
+        "images": [
+          "page_007.jpg",
+          "page_017.jpg"
+        ],
+        "exercise_ids": [
+          "A2",
+          "A5"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Une disparition de la paroi cellulaire.",
+        "Une entrée d’eau dans la cellule.",
+        "Une sortie d’eau de la cellule.",
+        "Une entrée d’eau produite par une pompe à ATP."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Une disparition de la paroi cellulaire.",
+          "feedback": "La paroi reste présente et limite le gonflement de la cellule végétale."
+        },
+        {
+          "id": "o2",
+          "label": "Une entrée d’eau dans la cellule.",
+          "feedback": "L’eau entre par osmose depuis le milieu moins concentré. La vacuole augmente de volume ; la paroi limite le gonflement. Ne confonds pas le mouvement de l’eau avec celui d’un soluté."
+        },
+        {
+          "id": "o3",
+          "label": "Une sortie d’eau de la cellule.",
+          "feedback": "La sortie d’eau réduit le volume de la vacuole et peut entraîner la plasmolyse."
+        },
+        {
+          "id": "o4",
+          "label": "Une entrée d’eau produite par une pompe à ATP.",
+          "feedback": "Le mouvement d’eau décrit ici est passif : il s’explique par l’osmose."
+        }
+      ],
+      "correct_option_ids": [
+        "o2"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "La sortie d’eau réduit le volume de la vacuole et peut entraîner la plasmolyse.",
+        "Le mouvement d’eau décrit ici est passif : il s’explique par l’osmose.",
+        "La paroi reste présente et limite le gonflement de la cellule végétale."
+      ]
+    },
+    {
+      "id": "svt_s1_q03",
+      "lesson": 1,
+      "concept_id": "cellule_vegetale",
+      "difficulty": 1,
+      "type": "short_text",
+      "prompt": "Comment nomme-t-on l’état d’une cellule végétale dont la vacuole diminue et dont la membrane se décolle de la paroi après une perte d’eau ?",
+      "answer": "plasmolyse",
+      "explanation": "La perte d’eau rétracte le contenu cellulaire et décolle la membrane de la paroi : c’est la plasmolyse. La paroi ne disparaît pas.",
+      "simple_explanation": "La perte d’eau rétracte le contenu cellulaire et décolle la membrane de la paroi : c’est la plasmolyse. La paroi ne disparaît pas.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Distingue une cellule qui perd de l’eau d’une cellule qui en absorbe."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_007.jpg",
+      "source_reference": {
+        "printed_pages": [
+          4,
+          16
+        ],
+        "images": [
+          "page_007.jpg",
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "QRO1",
+          "C1"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "accepted_answers": [
+        "plasmolysée",
+        "cellule plasmolysée",
+        "état plasmolysé"
+      ]
+    },
+    {
+      "id": "svt_s1_q04",
+      "lesson": 1,
+      "concept_id": "cellule_vegetale",
+      "difficulty": 1,
+      "type": "short_text",
+      "prompt": "Une cellule végétale plasmolysée reçoit de nouveau de l’eau dans un milieu hypotonique et retrouve son état antérieur. Quel est le nom de ce phénomène ?",
+      "answer": "déplasmolyse",
+      "explanation": "La déplasmolyse correspond à la réabsorption d’eau après une plasmolyse. Le préfixe aide à distinguer ce retour de la perte d’eau initiale.",
+      "simple_explanation": "La déplasmolyse correspond à la réabsorption d’eau après une plasmolyse. Le préfixe aide à distinguer ce retour de la perte d’eau initiale.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Repère que le changement inverse l’état initial."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_007.jpg",
+      "source_reference": {
+        "printed_pages": [
+          4,
+          16
+        ],
+        "images": [
+          "page_007.jpg",
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "QRO1",
+          "QRO7"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "accepted_answers": [
+        "deplasmolyse",
+        "la déplasmolyse"
+      ]
+    },
+    {
+      "id": "svt_s1_q05",
+      "lesson": 1,
+      "concept_id": "osmose",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans le modèle du cours, deux solutions sont séparées par une membrane qui laisse passer l’eau mais retient le soluté. Vers quel côté se fait le mouvement net d’eau initial ?",
+      "answer": "Vers le côté le plus concentré en soluté.",
+      "explanation": "Dans les conditions du montage, l’eau va du milieu hypotonique au milieu hypertonique. Le soluté étant retenu, il ne faut pas lui attribuer le mouvement observé.",
+      "simple_explanation": "Dans les conditions du montage, l’eau va du milieu hypotonique au milieu hypertonique. Le soluté étant retenu, il ne faut pas lui attribuer le mouvement observé.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Identifie d’abord ce que la membrane laisse traverser."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_008.jpg",
+      "source_reference": {
+        "printed_pages": [
+          5,
+          6,
+          19
+        ],
+        "images": [
+          "page_008.jpg",
+          "page_009.jpg",
+          "page_019.jpg"
+        ],
+        "exercise_ids": [
+          "B2"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Vers le côté le plus concentré en soluté.",
+        "Vers le côté le moins concentré en soluté.",
+        "Uniquement vers le haut, quelle que soit la concentration.",
+        "Dans un sens déterminé par une consommation d’ATP."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Vers le côté le plus concentré en soluté.",
+          "feedback": "Dans les conditions du montage, l’eau va du milieu hypotonique au milieu hypertonique. Le soluté étant retenu, il ne faut pas lui attribuer le mouvement observé."
+        },
+        {
+          "id": "o2",
+          "label": "Vers le côté le moins concentré en soluté.",
+          "feedback": "Ce sens inverse le mouvement net d’eau initial décrit par l’osmose."
+        },
+        {
+          "id": "o3",
+          "label": "Uniquement vers le haut, quelle que soit la concentration.",
+          "feedback": "La hauteur traduit le résultat du mouvement ; ce n’est pas le critère qui détermine son sens initial."
+        },
+        {
+          "id": "o4",
+          "label": "Dans un sens déterminé par une consommation d’ATP.",
+          "feedback": "Le montage décrit un mouvement passif et ne comporte pas de pompe consommant de l’ATP."
+        }
+      ],
+      "correct_option_ids": [
+        "o1"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Ce sens inverse le mouvement net d’eau initial décrit par l’osmose.",
+        "La hauteur traduit le résultat du mouvement ; ce n’est pas le critère qui détermine son sens initial.",
+        "Le montage décrit un mouvement passif et ne comporte pas de pompe consommant de l’ATP."
+      ]
+    },
+    {
+      "id": "svt_s1_q06",
+      "lesson": 1,
+      "concept_id": "hematies",
+      "difficulty": 1,
+      "type": "short_text",
+      "prompt": "Quel terme désigne l’éclatement des hématies observé dans l’eau distillée dans l’expérience du manuel ?",
+      "answer": "hémolyse",
+      "explanation": "L’entrée excessive d’eau fait gonfler puis éclater les hématies : c’est l’hémolyse. Une cellule simplement gonflée n’est pas nécessairement déjà éclatée.",
+      "simple_explanation": "L’entrée excessive d’eau fait gonfler puis éclater les hématies : c’est l’hémolyse. Une cellule simplement gonflée n’est pas nécessairement déjà éclatée.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "La question porte sur l’éclatement, pas seulement sur le gonflement."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_007.jpg",
+      "source_reference": {
+        "printed_pages": [
+          4,
+          5
+        ],
+        "images": [
+          "page_007.jpg",
+          "page_008.jpg"
+        ],
+        "exercise_ids": [
+          "QRO1"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "accepted_answers": [
+        "hemolyse",
+        "une hémolyse"
+      ]
+    },
+    {
+      "id": "svt_s1_q07",
+      "lesson": 1,
+      "concept_id": "hematies",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Dans l’expérience du manuel, dans quelle solution les hématies gardent-elles leur forme biconcave normale ?",
+      "answer": "NaCl à 9 g/L.",
+      "explanation": "Le document montre des hématies biconcaves à 9 g/L. Cette solution est isotone par rapport aux hématies dans l’expérience ; le flux net d’eau est nul.",
+      "simple_explanation": "Le document montre des hématies biconcaves à 9 g/L. Cette solution est isotone par rapport aux hématies dans l’expérience ; le flux net d’eau est nul.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Repère le milieu où la forme des cellules est conservée."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_007.jpg",
+      "source_reference": {
+        "printed_pages": [
+          4,
+          20
+        ],
+        "images": [
+          "page_007.jpg",
+          "page_020.jpg"
+        ],
+        "exercise_ids": [
+          "B4"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "NaCl à 15 g/L.",
+        "NaCl à 4,5 g/L.",
+        "NaCl à 9 g/L.",
+        "De l’eau distillée."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "NaCl à 15 g/L.",
+          "feedback": "Dans le tableau p.20, ce milieu montre des hématies crénelées après une perte d’eau."
+        },
+        {
+          "id": "o2",
+          "label": "NaCl à 4,5 g/L.",
+          "feedback": "Dans le tableau p.20, ce milieu montre des hématies gonflées."
+        },
+        {
+          "id": "o3",
+          "label": "NaCl à 9 g/L.",
+          "feedback": "Le document montre des hématies biconcaves à 9 g/L. Cette solution est isotone par rapport aux hématies dans l’expérience ; le flux net d’eau est nul."
+        },
+        {
+          "id": "o4",
+          "label": "De l’eau distillée.",
+          "feedback": "Dans l’eau distillée, l’entrée d’eau provoque le gonflement puis l’hémolyse."
+        }
+      ],
+      "correct_option_ids": [
+        "o3"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Dans l’eau distillée, l’entrée d’eau provoque le gonflement puis l’hémolyse.",
+        "Dans le tableau p.20, ce milieu montre des hématies crénelées après une perte d’eau.",
+        "Dans le tableau p.20, ce milieu montre des hématies gonflées."
+      ]
+    },
+    {
+      "id": "svt_s1_q08",
+      "lesson": 1,
+      "concept_id": "hematies",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Le tableau montre une hématie crénelée dans NaCl à 15 g/L. Quelle interprétation correspond à cette observation ?",
+      "answer": "Elle a perdu de l’eau dans un milieu hypertonique.",
+      "explanation": "Le milieu plus concentré provoque une sortie nette d’eau. La cellule se rétracte et devient crénelée : ne confonds pas cette rétraction avec le gonflement.",
+      "simple_explanation": "Le milieu plus concentré provoque une sortie nette d’eau. La cellule se rétracte et devient crénelée : ne confonds pas cette rétraction avec le gonflement.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare la forme crénelée à la forme biconcave normale."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_020.jpg",
+      "source_reference": {
+        "printed_pages": [
+          20
+        ],
+        "images": [
+          "page_020.jpg"
+        ],
+        "exercise_ids": [
+          "B4"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Elle a absorbé de l’eau dans un milieu hypotonique.",
+        "Elle a fabriqué une paroi cellulosique.",
+        "Elle est restée inchangée dans un milieu isotone.",
+        "Elle a perdu de l’eau dans un milieu hypertonique."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Elle a absorbé de l’eau dans un milieu hypotonique.",
+          "feedback": "Une entrée d’eau ferait gonfler la cellule, au lieu de la rétracter."
+        },
+        {
+          "id": "o2",
+          "label": "Elle a fabriqué une paroi cellulosique.",
+          "feedback": "Les hématies représentées n’ont pas la paroi d’une cellule végétale."
+        },
+        {
+          "id": "o3",
+          "label": "Elle est restée inchangée dans un milieu isotone.",
+          "feedback": "La forme crénelée est justement un changement par rapport à la forme biconcave."
+        },
+        {
+          "id": "o4",
+          "label": "Elle a perdu de l’eau dans un milieu hypertonique.",
+          "feedback": "Le milieu plus concentré provoque une sortie nette d’eau. La cellule se rétracte et devient crénelée : ne confonds pas cette rétraction avec le gonflement."
+        }
+      ],
+      "correct_option_ids": [
+        "o4"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Une entrée d’eau ferait gonfler la cellule, au lieu de la rétracter.",
+        "Les hématies représentées n’ont pas la paroi d’une cellule végétale.",
+        "La forme crénelée est justement un changement par rapport à la forme biconcave."
+      ]
+    },
+    {
+      "id": "svt_s1_q09",
+      "lesson": 1,
+      "concept_id": "hematies",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "À 4,5 g/L de NaCl, le tableau représente des hématies plus volumineuses. Quelle conclusion est soutenue ?",
+      "answer": "Le milieu provoque une entrée nette d’eau.",
+      "explanation": "Le volume augmente : de l’eau est entrée dans les hématies. Le dessin montre le gonflement ; il ne permet pas d’affirmer que toutes les cellules ont déjà éclaté.",
+      "simple_explanation": "Le volume augmente : de l’eau est entrée dans les hématies. Le dessin montre le gonflement ; il ne permet pas d’affirmer que toutes les cellules ont déjà éclaté.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Sépare l’observation dessinée d’un événement qui pourrait survenir ensuite."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_020.jpg",
+      "source_reference": {
+        "printed_pages": [
+          20
+        ],
+        "images": [
+          "page_020.jpg"
+        ],
+        "exercise_ids": [
+          "B4"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Le milieu provoque une entrée nette d’eau.",
+        "Toutes les hématies sont déjà éclatées.",
+        "Le milieu provoque une sortie nette d’eau.",
+        "Le milieu ne provoque aucun changement de volume."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Le milieu provoque une entrée nette d’eau.",
+          "feedback": "Le volume augmente : de l’eau est entrée dans les hématies. Le dessin montre le gonflement ; il ne permet pas d’affirmer que toutes les cellules ont déjà éclaté."
+        },
+        {
+          "id": "o2",
+          "label": "Toutes les hématies sont déjà éclatées.",
+          "feedback": "Le tableau représente des cellules gonflées, pas leur éclatement complet."
+        },
+        {
+          "id": "o3",
+          "label": "Le milieu provoque une sortie nette d’eau.",
+          "feedback": "Une sortie nette d’eau réduirait leur volume."
+        },
+        {
+          "id": "o4",
+          "label": "Le milieu ne provoque aucun changement de volume.",
+          "feedback": "Le document montre précisément un volume augmenté."
+        }
+      ],
+      "correct_option_ids": [
+        "o1"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Le tableau représente des cellules gonflées, pas leur éclatement complet.",
+        "Une sortie nette d’eau réduirait leur volume.",
+        "Le document montre précisément un volume augmenté."
+      ]
+    },
+    {
+      "id": "svt_s1_q10",
+      "lesson": 2,
+      "concept_id": "osmomètres",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans le montage de Dutrochet, le soluté gagne le cristallisoir en traversant la membrane. Quel phénomène le cours nomme-t-il ainsi ?",
+      "answer": "La dialyse.",
+      "explanation": "Le cours emploie dialyse pour le passage des substances dissoutes à travers la membrane. L’osmose désigne ici le mouvement d’eau : commence par identifier la substance qui passe.",
+      "simple_explanation": "Le cours emploie dialyse pour le passage des substances dissoutes à travers la membrane. L’osmose désigne ici le mouvement d’eau : commence par identifier la substance qui passe.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Observe si la question porte sur l’eau ou sur le soluté."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_008.jpg",
+      "source_reference": {
+        "printed_pages": [
+          5,
+          6,
+          19
+        ],
+        "images": [
+          "page_008.jpg",
+          "page_009.jpg",
+          "page_019.jpg"
+        ],
+        "exercise_ids": [
+          "A6",
+          "QRO1",
+          "QRO7",
+          "B3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "L’exocytose.",
+        "La dialyse.",
+        "L’osmose.",
+        "La phagocytose."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "L’exocytose.",
+          "feedback": "L’exocytose libère un contenu vésiculaire ; elle n’explique pas ce montage."
+        },
+        {
+          "id": "o2",
+          "label": "La dialyse.",
+          "feedback": "Le cours emploie dialyse pour le passage des substances dissoutes à travers la membrane. L’osmose désigne ici le mouvement d’eau : commence par identifier la substance qui passe."
+        },
+        {
+          "id": "o3",
+          "label": "L’osmose.",
+          "feedback": "Dans ce chapitre, ce nom est réservé au déplacement d’eau à travers la membrane."
+        },
+        {
+          "id": "o4",
+          "label": "La phagocytose.",
+          "feedback": "La phagocytose implique l’entrée vésiculaire de particules solides dans une cellule."
+        }
+      ],
+      "correct_option_ids": [
+        "o2"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Dans ce chapitre, ce nom est réservé au déplacement d’eau à travers la membrane.",
+        "La phagocytose implique l’entrée vésiculaire de particules solides dans une cellule.",
+        "L’exocytose libère un contenu vésiculaire ; elle n’explique pas ce montage."
+      ]
+    },
+    {
+      "id": "svt_s1_q11",
+      "lesson": 2,
+      "concept_id": "osmomètres",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans le montage de Dutrochet, le niveau monte d’abord dans l’entonnoir contenant la solution de sulfate de cuivre. Quelle explication convient ?",
+      "answer": "De l’eau entre dans l’entonnoir par osmose.",
+      "explanation": "Le cristallisoir contient initialement de l’eau distillée. Son entrée dans la solution plus concentrée augmente le volume dans l’entonnoir et fait monter le niveau.",
+      "simple_explanation": "Le cristallisoir contient initialement de l’eau distillée. Son entrée dans la solution plus concentrée augmente le volume dans l’entonnoir et fait monter le niveau.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Relie la hausse du niveau à une variation de volume."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_008.jpg",
+      "source_reference": {
+        "printed_pages": [
+          5,
+          19
+        ],
+        "images": [
+          "page_008.jpg",
+          "page_019.jpg"
+        ],
+        "exercise_ids": [
+          "QRO4",
+          "B3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Une pompe absorbe activement de l’eau grâce à l’ATP.",
+        "Seule une sortie de soluté, sans entrée d’eau, augmente le volume intérieur.",
+        "De l’eau entre dans l’entonnoir par osmose.",
+        "L’eau sort de l’entonnoir."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Une pompe absorbe activement de l’eau grâce à l’ATP.",
+          "feedback": "Le dispositif décrit ne comporte pas de pompe consommant de l’ATP."
+        },
+        {
+          "id": "o2",
+          "label": "Seule une sortie de soluté, sans entrée d’eau, augmente le volume intérieur.",
+          "feedback": "La hausse initiale observée correspond à une entrée d’eau ; une sortie de soluté seule ne rend pas compte de ce gain de volume."
+        },
+        {
+          "id": "o3",
+          "label": "De l’eau entre dans l’entonnoir par osmose.",
+          "feedback": "Le cristallisoir contient initialement de l’eau distillée. Son entrée dans la solution plus concentrée augmente le volume dans l’entonnoir et fait monter le niveau."
+        },
+        {
+          "id": "o4",
+          "label": "L’eau sort de l’entonnoir.",
+          "feedback": "Une sortie d’eau n’explique pas la montée initiale du niveau."
+        }
+      ],
+      "correct_option_ids": [
+        "o3"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Une sortie d’eau n’explique pas la montée initiale du niveau.",
+        "Le dispositif décrit ne comporte pas de pompe consommant de l’ATP.",
+        "La hausse initiale observée correspond à une entrée d’eau ; une sortie de soluté seule ne rend pas compte de ce gain de volume."
+      ]
+    },
+    {
+      "id": "svt_s1_q12",
+      "lesson": 2,
+      "concept_id": "osmomètres",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans l’expérience de Pfeffer, aucun sucre n’est détecté dans le cristallisoir. Que montre cette observation sur la paroi préparée ?",
+      "answer": "Elle laisse passer l’eau mais retient le sucre.",
+      "explanation": "L’entrée d’eau explique la montée du liquide ; l’absence de sucre à l’extérieur montre qu’il est retenu par cette paroi. Il faut combiner les deux observations.",
+      "simple_explanation": "L’entrée d’eau explique la montée du liquide ; l’absence de sucre à l’extérieur montre qu’il est retenu par cette paroi. Il faut combiner les deux observations.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise à la fois la montée du niveau et la recherche de sucre."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_008.jpg",
+      "source_reference": {
+        "printed_pages": [
+          5,
+          6,
+          19
+        ],
+        "images": [
+          "page_008.jpg",
+          "page_009.jpg",
+          "page_019.jpg"
+        ],
+        "exercise_ids": [
+          "B2"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Elle laisse passer le sucre mais bloque l’eau.",
+        "Elle est imperméable à toute substance.",
+        "Elle laisse passer l’eau et le sucre de façon identique.",
+        "Elle laisse passer l’eau mais retient le sucre."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Elle laisse passer le sucre mais bloque l’eau.",
+          "feedback": "Cette proposition inverse les résultats observés."
+        },
+        {
+          "id": "o2",
+          "label": "Elle est imperméable à toute substance.",
+          "feedback": "Si l’eau ne passait pas, l’entrée d’eau et la montée du niveau ne seraient pas expliquées."
+        },
+        {
+          "id": "o3",
+          "label": "Elle laisse passer l’eau et le sucre de façon identique.",
+          "feedback": "Le sucre n’est pas retrouvé dans le cristallisoir, contrairement à ce que suppose cette proposition."
+        },
+        {
+          "id": "o4",
+          "label": "Elle laisse passer l’eau mais retient le sucre.",
+          "feedback": "L’entrée d’eau explique la montée du liquide ; l’absence de sucre à l’extérieur montre qu’il est retenu par cette paroi. Il faut combiner les deux observations."
+        }
+      ],
+      "correct_option_ids": [
+        "o4"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Cette proposition inverse les résultats observés.",
+        "Si l’eau ne passait pas, l’entrée d’eau et la montée du niveau ne seraient pas expliquées.",
+        "Le sucre n’est pas retrouvé dans le cristallisoir, contrairement à ce que suppose cette proposition."
+      ]
+    },
+    {
+      "id": "svt_s1_q13",
+      "lesson": 2,
+      "concept_id": "osmomètres",
+      "difficulty": 3,
+      "type": "mcq",
+      "prompt": "Dans l’expérience 2 de Pfeffer p.19, la pression osmotique extérieure vaut 2,276 atm, contre 1,138 atm à l’intérieur au départ. Le niveau intérieur descend. Quelle explication correspond au document ?",
+      "answer": "L’eau se déplace vers le milieu extérieur de pression osmotique plus élevée.",
+      "explanation": "Le milieu extérieur présente la pression osmotique la plus élevée. L’eau sort du vase, ce qui abaisse le niveau intérieur. La comparaison des deux valeurs donne le sens attendu.",
+      "simple_explanation": "Le milieu extérieur présente la pression osmotique la plus élevée. L’eau sort du vase, ce qui abaisse le niveau intérieur. La comparaison des deux valeurs donne le sens attendu.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare les deux pressions avant d’expliquer la hauteur du liquide."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_019.jpg",
+      "source_reference": {
+        "printed_pages": [
+          19
+        ],
+        "images": [
+          "page_019.jpg"
+        ],
+        "exercise_ids": [
+          "B2"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "L’eau se déplace vers le milieu extérieur de pression osmotique plus élevée.",
+        "L’eau entre parce que la pression intérieure est la plus élevée.",
+        "Le sucre sort obligatoirement à travers la paroi.",
+        "L’eau reste immobile malgré la baisse du niveau."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "L’eau se déplace vers le milieu extérieur de pression osmotique plus élevée.",
+          "feedback": "Le milieu extérieur présente la pression osmotique la plus élevée. L’eau sort du vase, ce qui abaisse le niveau intérieur. La comparaison des deux valeurs donne le sens attendu."
+        },
+        {
+          "id": "o2",
+          "label": "L’eau entre parce que la pression intérieure est la plus élevée.",
+          "feedback": "1,138 est inférieur à 2,276 : la comparaison est inversée."
+        },
+        {
+          "id": "o3",
+          "label": "Le sucre sort obligatoirement à travers la paroi.",
+          "feedback": "La paroi préparée du montage retient le sucre ; sa sortie n’explique pas l’observation."
+        },
+        {
+          "id": "o4",
+          "label": "L’eau reste immobile malgré la baisse du niveau.",
+          "feedback": "La baisse du niveau traduit au contraire une perte de volume intérieur."
+        }
+      ],
+      "correct_option_ids": [
+        "o1"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "1,138 est inférieur à 2,276 : la comparaison est inversée.",
+        "La paroi préparée du montage retient le sucre ; sa sortie n’explique pas l’observation.",
+        "La baisse du niveau traduit au contraire une perte de volume intérieur."
+      ]
+    },
+    {
+      "id": "svt_s1_q14",
+      "lesson": 2,
+      "concept_id": "pression_osmotique",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Le manuel utilise T = 273 + t pour la température absolue. À t = 27 °C, quelle valeur de T (en K) utilise-t-on ? Saisis seulement le nombre.",
+      "answer": 300,
+      "explanation": "Avec la convention du manuel, T = 273 + 27 = 300 K. Ne remplace pas directement T par 27 dans le calcul de pression osmotique.",
+      "simple_explanation": "Avec la convention du manuel, T = 273 + 27 = 300 K. Ne remplace pas directement T par 27 dans le calcul de pression osmotique.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Utilise la conversion explicitement donnée dans l’énoncé."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_009.jpg",
+      "source_reference": {
+        "printed_pages": [
+          6,
+          16
+        ],
+        "images": [
+          "page_009.jpg",
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "C1"
+        ]
+      },
+      "competency": "Convertir une température pour appliquer une relation scientifique.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ]
+    },
+    {
+      "id": "svt_s1_q15",
+      "lesson": 2,
+      "concept_id": "pression_osmotique",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Pour une solution de saccharose à n = 0,4 mol/L et 27 °C, calcule Pₒ = R × n × i × T. Utilise R = 0,082 L·atm·mol⁻¹·K⁻¹, i = 1 et T = 300 K. Donne seulement la valeur en atm.",
+      "answer": 9.84,
+      "explanation": "Pₒ = 0,082 × 0,4 × 1 × 300 = 9,84 atm. La concentration est déjà molaire : il ne faut pas la diviser une seconde fois par une masse molaire. Ce calcul concerne la solution à 0,4 mol/L, pas la pression moyenne des cellules.",
+      "simple_explanation": "Pₒ = 0,082 × 0,4 × 1 × 300 = 9,84 atm. La concentration est déjà molaire : il ne faut pas la diviser une seconde fois par une masse molaire. Ce calcul concerne la solution à 0,4 mol/L, pas la pression moyenne des cellules.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Vérifie que la concentration donnée est en mol/L."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_009.jpg",
+      "source_reference": {
+        "printed_pages": [
+          6,
+          16
+        ],
+        "images": [
+          "page_009.jpg",
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "C1"
+        ]
+      },
+      "competency": "Calculer une pression osmotique avec des unités cohérentes.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ]
+    },
+    {
+      "id": "svt_s1_q16",
+      "lesson": 2,
+      "concept_id": "lecture_experimentale",
+      "difficulty": 1,
+      "type": "numeric",
+      "prompt": "Le tableau du chou rouge donne 75 cellules plasmolysées sur 100 à 0,4 mol/L. Quel pourcentage cela représente-t-il ? Saisis seulement le nombre.",
+      "answer": 75,
+      "explanation": "Sur un total de 100 cellules, 75 cellules représentent 75 %. La concentration de 0,4 mol/L et le pourcentage de 75 % décrivent deux grandeurs différentes.",
+      "simple_explanation": "Sur un total de 100 cellules, 75 cellules représentent 75 %. La concentration de 0,4 mol/L et le pourcentage de 75 % décrivent deux grandeurs différentes.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Un pourcentage rapporte l’effectif à un total de cent."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_018.jpg",
+      "source_reference": {
+        "printed_pages": [
+          16
+        ],
+        "images": [
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "C1"
+        ]
+      },
+      "competency": "Lire un tableau expérimental et exprimer une proportion.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ]
+    },
+    {
+      "id": "svt_s1_q17",
+      "lesson": 2,
+      "concept_id": "lecture_experimentale",
+      "difficulty": 3,
+      "type": "mcq",
+      "prompt": "Le tableau donne 8 % de cellules plasmolysées à 0,2 mol/L et 75 % à 0,4 mol/L. Quelle conclusion est rigoureuse pour la concentration correspondant à 50 % ?",
+      "answer": "Elle n’a pas été mesurée exactement ; on peut seulement l’estimer entre ces concentrations.",
+      "explanation": "Le tableau ne contient aucun point à 50 %. Une interpolation exige une hypothèse sur la courbe entre les mesures : son résultat serait une estimation, pas une donnée exacte du tableau.",
+      "simple_explanation": "Le tableau ne contient aucun point à 50 %. Une interpolation exige une hypothèse sur la courbe entre les mesures : son résultat serait une estimation, pas une donnée exacte du tableau.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Distingue ce qui est mesuré de ce qui serait calculé entre deux mesures."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_018.jpg",
+      "source_reference": {
+        "printed_pages": [
+          16
+        ],
+        "images": [
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "C1"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Elle n’a pas été mesurée exactement ; on peut seulement l’estimer entre ces concentrations.",
+        "Elle vaut exactement 0,4 mol/L, puisque 75 % est proche de 50 %.",
+        "Elle vaut exactement 0,3 mol/L, sans hypothèse supplémentaire.",
+        "Elle vaut exactement 0,2 mol/L."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Elle n’a pas été mesurée exactement ; on peut seulement l’estimer entre ces concentrations.",
+          "feedback": "Le tableau ne contient aucun point à 50 %. Une interpolation exige une hypothèse sur la courbe entre les mesures : son résultat serait une estimation, pas une donnée exacte du tableau."
+        },
+        {
+          "id": "o2",
+          "label": "Elle vaut exactement 0,4 mol/L, puisque 75 % est proche de 50 %.",
+          "feedback": "75 % n’est pas 50 % : la valeur mesurée à 0,4 mol/L ne répond pas au critère demandé."
+        },
+        {
+          "id": "o3",
+          "label": "Elle vaut exactement 0,3 mol/L, sans hypothèse supplémentaire.",
+          "feedback": "Le milieu de l’intervalle de concentrations n’impose pas un pourcentage de 50 %."
+        },
+        {
+          "id": "o4",
+          "label": "Elle vaut exactement 0,2 mol/L.",
+          "feedback": "À cette concentration, le tableau donne 8 %, pas 50 %."
+        }
+      ],
+      "correct_option_ids": [
+        "o1"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "75 % n’est pas 50 % : la valeur mesurée à 0,4 mol/L ne répond pas au critère demandé.",
+        "Le milieu de l’intervalle de concentrations n’impose pas un pourcentage de 50 %.",
+        "À cette concentration, le tableau donne 8 %, pas 50 %."
+      ]
+    },
+    {
+      "id": "svt_s1_q18",
+      "lesson": 2,
+      "concept_id": "lecture_experimentale",
+      "difficulty": 2,
+      "type": "numeric",
+      "prompt": "Un morceau de pomme de terre mesure 30 mm avant l’expérience et 31,6 mm après séjour dans l’eau pure. De combien sa longueur a-t-elle augmenté, en mm ? Saisis seulement le nombre.",
+      "answer": 1.6,
+      "explanation": "La variation vaut longueur finale moins longueur initiale : 31,6 − 30 = +1,6 mm. Le signe positif indique un allongement.",
+      "simple_explanation": "La variation vaut longueur finale moins longueur initiale : 31,6 − 30 = +1,6 mm. Le signe positif indique un allongement.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Soustrais la longueur initiale à la longueur finale."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_018.jpg",
+      "source_reference": {
+        "printed_pages": [
+          16
+        ],
+        "images": [
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "C2"
+        ]
+      },
+      "competency": "Calculer une variation avec son unité et interpréter son signe.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ]
+    },
+    {
+      "id": "svt_s1_q19",
+      "lesson": 2,
+      "concept_id": "lecture_experimentale",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans le tableau, le morceau de pomme de terre passe de 30 mm à 29,7 mm dans une solution à 0,2 mol/L. Quel bilan d’eau explique ce résultat ?",
+      "answer": "Une perte nette d’eau vers le milieu extérieur.",
+      "explanation": "La diminution de longueur traduit une perte d’eau dans le modèle de l’exercice. Le milieu est hypertonique par rapport aux cellules du morceau. On compare toujours à 30 mm, la valeur initiale.",
+      "simple_explanation": "La diminution de longueur traduit une perte d’eau dans le modèle de l’exercice. Le milieu est hypertonique par rapport aux cellules du morceau. On compare toujours à 30 mm, la valeur initiale.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare la longueur finale à la longueur initiale."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_018.jpg",
+      "source_reference": {
+        "printed_pages": [
+          16,
+          17
+        ],
+        "images": [
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "C2"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Aucun échange net, puisque la longueur reste positive.",
+        "Une hémolyse des cellules de pomme de terre.",
+        "Une perte nette d’eau vers le milieu extérieur.",
+        "Une entrée nette d’eau dans le morceau."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Aucun échange net, puisque la longueur reste positive.",
+          "feedback": "Ce qui compte est la variation par rapport à 30 mm, pas le fait que la longueur soit positive."
+        },
+        {
+          "id": "o2",
+          "label": "Une hémolyse des cellules de pomme de terre.",
+          "feedback": "L’hémolyse désigne l’éclatement des hématies ; ce n’est pas le phénomène étudié ici."
+        },
+        {
+          "id": "o3",
+          "label": "Une perte nette d’eau vers le milieu extérieur.",
+          "feedback": "La diminution de longueur traduit une perte d’eau dans le modèle de l’exercice. Le milieu est hypertonique par rapport aux cellules du morceau. On compare toujours à 30 mm, la valeur initiale."
+        },
+        {
+          "id": "o4",
+          "label": "Une entrée nette d’eau dans le morceau.",
+          "feedback": "L’entrée d’eau expliquerait l’allongement observé dans l’eau pure, pas cette diminution."
+        }
+      ],
+      "correct_option_ids": [
+        "o3"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "L’entrée d’eau expliquerait l’allongement observé dans l’eau pure, pas cette diminution.",
+        "Ce qui compte est la variation par rapport à 30 mm, pas le fait que la longueur soit positive.",
+        "L’hémolyse désigne l’éclatement des hématies ; ce n’est pas le phénomène étudié ici."
+      ]
+    },
+    {
+      "id": "svt_s1_q20",
+      "lesson": 3,
+      "concept_id": "diffusion",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans le graphe glucose–mannitol p.17, le flux de glucose finit par atteindre un plateau lorsque la concentration extérieure augmente. Quelle observation décrit correctement ce plateau ?",
+      "answer": "Au-delà d’une certaine concentration, augmenter celle-ci n’augmente presque plus le flux de glucose.",
+      "explanation": "Le plateau correspond à un flux maximal dans les conditions de l’expérience. Ne le confonds pas avec un flux nul : la courbe reste au-dessus de zéro.",
+      "simple_explanation": "Le plateau correspond à un flux maximal dans les conditions de l’expérience. Ne le confonds pas avec un flux nul : la courbe reste au-dessus de zéro.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Observe ce qui arrive à la pente de la courbe à forte concentration."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_018.jpg",
+      "source_reference": {
+        "printed_pages": [
+          17
+        ],
+        "images": [
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "C4"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Le flux de glucose devient nul.",
+        "Le flux augmente toujours proportionnellement à la concentration.",
+        "Le glucose devient moins concentré dehors à chaque mesure.",
+        "Au-delà d’une certaine concentration, augmenter celle-ci n’augmente presque plus le flux de glucose."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Le flux de glucose devient nul.",
+          "feedback": "Le plateau est situé au-dessus de zéro ; le glucose continue à passer."
+        },
+        {
+          "id": "o2",
+          "label": "Le flux augmente toujours proportionnellement à la concentration.",
+          "feedback": "Une proportionnalité constante donnerait une droite ; le plateau montre une limite."
+        },
+        {
+          "id": "o3",
+          "label": "Le glucose devient moins concentré dehors à chaque mesure.",
+          "feedback": "L’axe horizontal représente au contraire une concentration extérieure croissante."
+        },
+        {
+          "id": "o4",
+          "label": "Au-delà d’une certaine concentration, augmenter celle-ci n’augmente presque plus le flux de glucose.",
+          "feedback": "Le plateau correspond à un flux maximal dans les conditions de l’expérience. Ne le confonds pas avec un flux nul : la courbe reste au-dessus de zéro."
+        }
+      ],
+      "correct_option_ids": [
+        "o4"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Le plateau est situé au-dessus de zéro ; le glucose continue à passer.",
+        "Une proportionnalité constante donnerait une droite ; le plateau montre une limite.",
+        "L’axe horizontal représente au contraire une concentration extérieure croissante."
+      ]
+    },
+    {
+      "id": "svt_s1_q21",
+      "lesson": 3,
+      "concept_id": "permeabilite",
+      "difficulty": 3,
+      "type": "mcq",
+      "prompt": "Le glucose (180 g/mol) et le mannitol (182 g/mol) ont des flux différents dans le document. Que peut-on conclure ?",
+      "answer": "La proximité des masses molaires ne suffit pas à prévoir le même flux membranaire.",
+      "explanation": "Les masses molaires sont proches tandis que les courbes diffèrent. Le document met donc en évidence une perméabilité différente aux deux substances ; il ne permet pas de réduire le transport à la seule masse molaire.",
+      "simple_explanation": "Les masses molaires sont proches tandis que les courbes diffèrent. Le document met donc en évidence une perméabilité différente aux deux substances ; il ne permet pas de réduire le transport à la seule masse molaire.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare les masses molaires puis les deux courbes."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_016.jpg",
+      "source_reference": {
+        "printed_pages": [
+          13,
+          17
+        ],
+        "images": [
+          "page_016.jpg",
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "C4"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "La proximité des masses molaires ne suffit pas à prévoir le même flux membranaire.",
+        "Deux masses molaires proches imposent des flux identiques.",
+        "Le mannitol ne traverse jamais la membrane.",
+        "Le graphe prouve que tous les transports consomment directement de l’ATP."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "La proximité des masses molaires ne suffit pas à prévoir le même flux membranaire.",
+          "feedback": "Les masses molaires sont proches tandis que les courbes diffèrent. Le document met donc en évidence une perméabilité différente aux deux substances ; il ne permet pas de réduire le transport à la seule masse molaire."
+        },
+        {
+          "id": "o2",
+          "label": "Deux masses molaires proches imposent des flux identiques.",
+          "feedback": "Les courbes observées contredisent précisément cette conclusion."
+        },
+        {
+          "id": "o3",
+          "label": "Le mannitol ne traverse jamais la membrane.",
+          "feedback": "Le document montre un flux de mannitol non nul."
+        },
+        {
+          "id": "o4",
+          "label": "Le graphe prouve que tous les transports consomment directement de l’ATP.",
+          "feedback": "Le graphe décrit des flux ; il ne mesure aucune consommation d’ATP."
+        }
+      ],
+      "correct_option_ids": [
+        "o1"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Les courbes observées contredisent précisément cette conclusion.",
+        "Le document montre un flux de mannitol non nul.",
+        "Le graphe décrit des flux ; il ne mesure aucune consommation d’ATP."
+      ]
+    },
+    {
+      "id": "svt_s1_q22",
+      "lesson": 3,
+      "concept_id": "transport_actif",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quel mécanisme permet à un soluté de traverser la membrane contre son gradient de concentration ?",
+      "answer": "Le transport actif.",
+      "explanation": "Le transport actif peut déplacer un soluté vers le milieu où il est plus concentré grâce à une dépense d’énergie. La diffusion suit le gradient : c’est la distinction essentielle.",
+      "simple_explanation": "Le transport actif peut déplacer un soluté vers le milieu où il est plus concentré grâce à une dépense d’énergie. La diffusion suit le gradient : c’est la distinction essentielle.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Cherche le mécanisme associé à un déplacement contre le gradient."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_011.jpg",
+      "source_reference": {
+        "printed_pages": [
+          8,
+          15
+        ],
+        "images": [
+          "page_011.jpg",
+          "page_017.jpg"
+        ],
+        "exercise_ids": [
+          "A8",
+          "QRO3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "L’osmose.",
+        "Le transport actif.",
+        "La diffusion simple.",
+        "La diffusion facilitée passive."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "L’osmose.",
+          "feedback": "L’osmose décrit un mouvement d’eau, pas le transport actif du soluté demandé."
+        },
+        {
+          "id": "o2",
+          "label": "Le transport actif.",
+          "feedback": "Le transport actif peut déplacer un soluté vers le milieu où il est plus concentré grâce à une dépense d’énergie. La diffusion suit le gradient : c’est la distinction essentielle."
+        },
+        {
+          "id": "o3",
+          "label": "La diffusion simple.",
+          "feedback": "La diffusion simple suit le gradient de concentration du soluté."
+        },
+        {
+          "id": "o4",
+          "label": "La diffusion facilitée passive.",
+          "feedback": "La présence d’un transporteur ne change pas le sens passif du gradient."
+        }
+      ],
+      "correct_option_ids": [
+        "o2"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "La diffusion simple suit le gradient de concentration du soluté.",
+        "La présence d’un transporteur ne change pas le sens passif du gradient.",
+        "L’osmose décrit un mouvement d’eau, pas le transport actif du soluté demandé."
+      ]
+    },
+    {
+      "id": "svt_s1_q23",
+      "lesson": 3,
+      "concept_id": "diffusion",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "L’utilisation d’une protéine membranaire suffit à prouver qu’un transport est actif.",
+      "answer": false,
+      "explanation": "C’est faux : la diffusion facilitée utilise aussi des protéines mais suit le gradient sans hydrolyse d’ATP pour ce transport. Il faut examiner le sens du déplacement et l’énergie, pas seulement la présence d’une protéine.",
+      "simple_explanation": "C’est faux : la diffusion facilitée utilise aussi des protéines mais suit le gradient sans hydrolyse d’ATP pour ce transport. Il faut examiner le sens du déplacement et l’énergie, pas seulement la présence d’une protéine.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare diffusion facilitée et pompe membranaire."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_010.jpg",
+      "source_reference": {
+        "printed_pages": [
+          7,
+          8
+        ],
+        "images": [
+          "page_010.jpg",
+          "page_011.jpg"
+        ],
+        "exercise_ids": [
+          "QRO3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ]
+    },
+    {
+      "id": "svt_s1_q24",
+      "lesson": 3,
+      "concept_id": "diffusion",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "D’après le schéma de perméabilité de la bicouche lipidique, quelle substance peut traverser directement cette bicouche ?",
+      "answer": "Le dioxygène O₂.",
+      "explanation": "Le schéma p.7 montre le passage direct du dioxygène, alors que les ions et les grosses molécules représentés ne traversent pas directement. Distingue bicouche seule et membrane équipée de protéines.",
+      "simple_explanation": "Le schéma p.7 montre le passage direct du dioxygène, alors que les ions et les grosses molécules représentés ne traversent pas directement. Distingue bicouche seule et membrane équipée de protéines.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "La question porte sur la bicouche seule, sans transporteur."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_010.jpg",
+      "source_reference": {
+        "printed_pages": [
+          7,
+          15
+        ],
+        "images": [
+          "page_010.jpg",
+          "page_017.jpg"
+        ],
+        "exercise_ids": [
+          "A3",
+          "A4",
+          "QRO2"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Un ion Na⁺.",
+        "Une protéine entière.",
+        "Le saccharose.",
+        "Le dioxygène O₂."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Un ion Na⁺.",
+          "feedback": "L’ion Na⁺ est représenté parmi les substances qui ne traversent pas directement la bicouche."
+        },
+        {
+          "id": "o2",
+          "label": "Une protéine entière.",
+          "feedback": "Le schéma bloque le passage direct des grosses molécules comme les protéines."
+        },
+        {
+          "id": "o3",
+          "label": "Le saccharose.",
+          "feedback": "Le saccharose est représenté parmi les substances dont le passage direct est bloqué."
+        },
+        {
+          "id": "o4",
+          "label": "Le dioxygène O₂.",
+          "feedback": "Le schéma p.7 montre le passage direct du dioxygène, alors que les ions et les grosses molécules représentés ne traversent pas directement. Distingue bicouche seule et membrane équipée de protéines."
+        }
+      ],
+      "correct_option_ids": [
+        "o4"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "L’ion Na⁺ est représenté parmi les substances qui ne traversent pas directement la bicouche.",
+        "Le schéma bloque le passage direct des grosses molécules comme les protéines.",
+        "Le saccharose est représenté parmi les substances dont le passage direct est bloqué."
+      ]
+    },
+    {
+      "id": "svt_s1_q25",
+      "lesson": 3,
+      "concept_id": "transport_actif",
+      "difficulty": 1,
+      "type": "short_text",
+      "prompt": "Comment nomme-t-on un cotransport où deux substances sont déplacées dans le même sens ?",
+      "answer": "symport",
+      "explanation": "Le symport associe deux déplacements de même sens. L’antiport concerne des sens opposés ; ces termes décrivent l’orientation relative des deux transports.",
+      "simple_explanation": "Le symport associe deux déplacements de même sens. L’antiport concerne des sens opposés ; ces termes décrivent l’orientation relative des deux transports.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare l’orientation des deux flèches du schéma."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_011.jpg",
+      "source_reference": {
+        "printed_pages": [
+          8
+        ],
+        "images": [
+          "page_011.jpg"
+        ],
+        "exercise_ids": [
+          "QRO3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "accepted_answers": [
+        "un symport",
+        "le symport"
+      ]
+    },
+    {
+      "id": "svt_s1_q26",
+      "lesson": 3,
+      "concept_id": "transport_actif",
+      "difficulty": 1,
+      "type": "short_text",
+      "prompt": "Comment nomme-t-on un cotransport où les deux substances se déplacent en sens opposés ?",
+      "answer": "antiport",
+      "explanation": "L’antiport couple des déplacements opposés. Pour ne pas le confondre avec le symport, regarde les deux flèches ensemble.",
+      "simple_explanation": "L’antiport couple des déplacements opposés. Pour ne pas le confondre avec le symport, regarde les deux flèches ensemble.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Observe les deux directions, pas seulement le mouvement d’une substance."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_011.jpg",
+      "source_reference": {
+        "printed_pages": [
+          8
+        ],
+        "images": [
+          "page_011.jpg"
+        ],
+        "exercise_ids": [
+          "QRO3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "accepted_answers": [
+        "un antiport",
+        "l’antiport"
+      ]
+    },
+    {
+      "id": "svt_s1_q27",
+      "lesson": 3,
+      "concept_id": "transport_actif",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans le transport actif primaire décrit par le cours, quelle transformation fournit de l’énergie à la pompe ?",
+      "answer": "L’hydrolyse de l’ATP.",
+      "explanation": "Le texte associe la pompe à une enzyme hydrolysant l’ATP. Ce mécanisme distingue le transport actif primaire de la diffusion facilitée passive.",
+      "simple_explanation": "Le texte associe la pompe à une enzyme hydrolysant l’ATP. Ce mécanisme distingue le transport actif primaire de la diffusion facilitée passive.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Repère le lien entre la pompe et la molécule énergétique du schéma."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_011.jpg",
+      "source_reference": {
+        "printed_pages": [
+          8,
+          21
+        ],
+        "images": [
+          "page_011.jpg",
+          "page_020.jpg"
+        ],
+        "exercise_ids": [
+          "QRO3",
+          "I3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Le seul écoulement passif du soluté selon son gradient.",
+        "La disparition de la membrane.",
+        "L’hydrolyse de l’ATP.",
+        "La formation d’une paroi cellulosique."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Le seul écoulement passif du soluté selon son gradient.",
+          "feedback": "Le transport actif étudié permet justement un déplacement contre le gradient."
+        },
+        {
+          "id": "o2",
+          "label": "La disparition de la membrane.",
+          "feedback": "La pompe fonctionne dans une membrane qui reste présente."
+        },
+        {
+          "id": "o3",
+          "label": "L’hydrolyse de l’ATP.",
+          "feedback": "Le texte associe la pompe à une enzyme hydrolysant l’ATP. Ce mécanisme distingue le transport actif primaire de la diffusion facilitée passive."
+        },
+        {
+          "id": "o4",
+          "label": "La formation d’une paroi cellulosique.",
+          "feedback": "La paroi n’est pas la source d’énergie de la pompe représentée."
+        }
+      ],
+      "correct_option_ids": [
+        "o3"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "La paroi n’est pas la source d’énergie de la pompe représentée.",
+        "Le transport actif étudié permet justement un déplacement contre le gradient.",
+        "La pompe fonctionne dans une membrane qui reste présente."
+      ]
+    },
+    {
+      "id": "svt_s1_q28",
+      "lesson": 4,
+      "concept_id": "endocytose",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Une cellule entoure une particule solide avec sa membrane et la fait entrer dans une vésicule. De quel mécanisme s’agit-il ?",
+      "answer": "La phagocytose.",
+      "explanation": "Le document associe les particules solides à la phagocytose, une modalité d’endocytose. Le critère est la nature du contenu et son entrée vésiculaire.",
+      "simple_explanation": "Le document associe les particules solides à la phagocytose, une modalité d’endocytose. Le critère est la nature du contenu et son entrée vésiculaire.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Identifie la nature du contenu et le sens du déplacement."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_012.jpg",
+      "source_reference": {
+        "printed_pages": [
+          9,
+          15
+        ],
+        "images": [
+          "page_012.jpg",
+          "page_017.jpg"
+        ],
+        "exercise_ids": [
+          "A7",
+          "QRO6"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "La pinocytose.",
+        "L’exocytose.",
+        "La diffusion libre.",
+        "La phagocytose."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "La pinocytose.",
+          "feedback": "La pinocytose concerne les gouttelettes liquides dans le document."
+        },
+        {
+          "id": "o2",
+          "label": "L’exocytose.",
+          "feedback": "L’exocytose correspond à une sortie de contenu, alors que la particule entre."
+        },
+        {
+          "id": "o3",
+          "label": "La diffusion libre.",
+          "feedback": "La particule est entourée par une vésicule ; elle ne traverse pas directement la bicouche."
+        },
+        {
+          "id": "o4",
+          "label": "La phagocytose.",
+          "feedback": "Le document associe les particules solides à la phagocytose, une modalité d’endocytose. Le critère est la nature du contenu et son entrée vésiculaire."
+        }
+      ],
+      "correct_option_ids": [
+        "o4"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "La pinocytose concerne les gouttelettes liquides dans le document.",
+        "L’exocytose correspond à une sortie de contenu, alors que la particule entre.",
+        "La particule est entourée par une vésicule ; elle ne traverse pas directement la bicouche."
+      ]
+    },
+    {
+      "id": "svt_s1_q29",
+      "lesson": 4,
+      "concept_id": "endocytose",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Le schéma du manuel montre l’entrée de gouttelettes liquides dans une petite vésicule. Quel terme est adapté ?",
+      "answer": "La pinocytose.",
+      "explanation": "La pinocytose est la modalité d’endocytose associée aux gouttelettes liquides dans le schéma. La phagocytose concerne les particules solides.",
+      "simple_explanation": "La pinocytose est la modalité d’endocytose associée aux gouttelettes liquides dans le schéma. La phagocytose concerne les particules solides.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Observe ce qui est contenu dans la vésicule."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_012.jpg",
+      "source_reference": {
+        "printed_pages": [
+          9,
+          15,
+          16
+        ],
+        "images": [
+          "page_012.jpg",
+          "page_017.jpg",
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "A10",
+          "QRO6",
+          "QRO7"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "La pinocytose.",
+        "La phagocytose.",
+        "L’osmose.",
+        "L’exocytose."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "La pinocytose.",
+          "feedback": "La pinocytose est la modalité d’endocytose associée aux gouttelettes liquides dans le schéma. La phagocytose concerne les particules solides."
+        },
+        {
+          "id": "o2",
+          "label": "La phagocytose.",
+          "feedback": "Ce terme désigne l’entrée de particules solides, pas les gouttelettes présentées."
+        },
+        {
+          "id": "o3",
+          "label": "L’osmose.",
+          "feedback": "L’osmose est un mouvement d’eau à travers une membrane ; ici, une vésicule se forme autour du contenu."
+        },
+        {
+          "id": "o4",
+          "label": "L’exocytose.",
+          "feedback": "Le contenu entre dans la cellule ; l’exocytose correspond au sens inverse."
+        }
+      ],
+      "correct_option_ids": [
+        "o1"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Ce terme désigne l’entrée de particules solides, pas les gouttelettes présentées.",
+        "L’osmose est un mouvement d’eau à travers une membrane ; ici, une vésicule se forme autour du contenu.",
+        "Le contenu entre dans la cellule ; l’exocytose correspond au sens inverse."
+      ]
+    },
+    {
+      "id": "svt_s1_q30",
+      "lesson": 4,
+      "concept_id": "exocytose",
+      "difficulty": 1,
+      "type": "short_text",
+      "prompt": "Une vésicule libère son contenu à l’extérieur de la cellule. Quel mécanisme est décrit ?",
+      "answer": "exocytose",
+      "explanation": "L’exocytose libère le contenu vésiculaire hors de la cellule. Le sens de la flèche permet de la distinguer de l’endocytose.",
+      "simple_explanation": "L’exocytose libère le contenu vésiculaire hors de la cellule. Le sens de la flèche permet de la distinguer de l’endocytose.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "La question décrit une libération vers l’extérieur."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_012.jpg",
+      "source_reference": {
+        "printed_pages": [
+          9,
+          16
+        ],
+        "images": [
+          "page_012.jpg",
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "QRO7"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "accepted_answers": [
+        "l’exocytose",
+        "une exocytose"
+      ]
+    },
+    {
+      "id": "svt_s1_q31",
+      "lesson": 4,
+      "concept_id": "endocytose",
+      "difficulty": 2,
+      "type": "true_false",
+      "prompt": "Dans le cours, les échanges par endocytose et exocytose sont associés à des déformations membranaires et à une dépense d’énergie.",
+      "answer": true,
+      "explanation": "Le cours relie ces mouvements de vésicules aux déformations de la membrane et à l’énergie issue de l’ATP. Ils se distinguent ainsi d’un simple passage diffusif d’une substance à travers la membrane.",
+      "simple_explanation": "Le cours relie ces mouvements de vésicules aux déformations de la membrane et à l’énergie issue de l’ATP. Ils se distinguent ainsi d’un simple passage diffusif d’une substance à travers la membrane.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare le schéma de vésicules au schéma de diffusion."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_012.jpg",
+      "source_reference": {
+        "printed_pages": [
+          9,
+          12
+        ],
+        "images": [
+          "page_012.jpg",
+          "page_015.jpg"
+        ],
+        "exercise_ids": [
+          "QRO3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ]
+    },
+    {
+      "id": "svt_s1_q32",
+      "lesson": 5,
+      "concept_id": "importance",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Quel bilan correspond aux échanges cellulaires présentés dans le cours ?",
+      "answer": "Apporter des nutriments et du dioxygène, et évacuer des déchets.",
+      "explanation": "Le cours associe les échanges à l’approvisionnement cellulaire, à l’évacuation de déchets et à la communication. Ils ne se limitent donc ni à une entrée ni à une seule substance.",
+      "simple_explanation": "Le cours associe les échanges à l’approvisionnement cellulaire, à l’évacuation de déchets et à la communication. Ils ne se limitent donc ni à une entrée ni à une seule substance.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Considère à la fois les besoins de la cellule et ses rejets."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_012.jpg",
+      "source_reference": {
+        "printed_pages": [
+          9,
+          10
+        ],
+        "images": [
+          "page_012.jpg",
+          "page_013.jpg"
+        ],
+        "exercise_ids": [
+          "I1"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Faire entrer toutes les substances sans sélection.",
+        "Empêcher toute sortie de déchets.",
+        "Transporter uniquement de l’eau.",
+        "Apporter des nutriments et du dioxygène, et évacuer des déchets."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Faire entrer toutes les substances sans sélection.",
+          "feedback": "La membrane possède une perméabilité sélective ; toutes les substances ne passent pas librement."
+        },
+        {
+          "id": "o2",
+          "label": "Empêcher toute sortie de déchets.",
+          "feedback": "L’évacuation des déchets fait partie des fonctions décrites."
+        },
+        {
+          "id": "o3",
+          "label": "Transporter uniquement de l’eau.",
+          "feedback": "Le cours traite aussi des substances dissoutes et des particules."
+        },
+        {
+          "id": "o4",
+          "label": "Apporter des nutriments et du dioxygène, et évacuer des déchets.",
+          "feedback": "Le cours associe les échanges à l’approvisionnement cellulaire, à l’évacuation de déchets et à la communication. Ils ne se limitent donc ni à une entrée ni à une seule substance."
+        }
+      ],
+      "correct_option_ids": [
+        "o4"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "La membrane possède une perméabilité sélective ; toutes les substances ne passent pas librement.",
+        "L’évacuation des déchets fait partie des fonctions décrites.",
+        "Le cours traite aussi des substances dissoutes et des particules."
+      ]
+    },
+    {
+      "id": "svt_s1_q33",
+      "lesson": 5,
+      "concept_id": "applications",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans le mécanisme présenté pour un laxatif osmotique restant dans la lumière intestinale, quel déplacement contribue à ramollir les selles ?",
+      "answer": "L’eau est attirée vers la lumière intestinale.",
+      "explanation": "Le soluté non absorbé augmente la pression osmotique dans la lumière intestinale et y attire de l’eau. Il faut localiser le soluté avant d’indiquer le sens du déplacement d’eau.",
+      "simple_explanation": "Le soluté non absorbé augmente la pression osmotique dans la lumière intestinale et y attire de l’eau. Il faut localiser le soluté avant d’indiquer le sens du déplacement d’eau.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Repère le compartiment où le soluté s’accumule."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_014.jpg",
+      "source_reference": {
+        "printed_pages": [
+          11
+        ],
+        "images": [
+          "page_014.jpg"
+        ],
+        "exercise_ids": [
+          "COURSE_p11"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "L’eau est attirée vers la lumière intestinale.",
+        "L’eau quitte la lumière intestinale vers les cellules.",
+        "Le soluté passe entièrement dans le sang pour y attirer l’eau.",
+        "L’eau ne se déplace pas car un soluté non absorbé ne peut pas agir."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "L’eau est attirée vers la lumière intestinale.",
+          "feedback": "Le soluté non absorbé augmente la pression osmotique dans la lumière intestinale et y attire de l’eau. Il faut localiser le soluté avant d’indiquer le sens du déplacement d’eau."
+        },
+        {
+          "id": "o2",
+          "label": "L’eau quitte la lumière intestinale vers les cellules.",
+          "feedback": "Ce sens réduirait l’eau présente dans la lumière, contrairement au mécanisme décrit."
+        },
+        {
+          "id": "o3",
+          "label": "Le soluté passe entièrement dans le sang pour y attirer l’eau.",
+          "feedback": "Le document précise que le soluté étudié reste dans la lumière intestinale."
+        },
+        {
+          "id": "o4",
+          "label": "L’eau ne se déplace pas car un soluté non absorbé ne peut pas agir.",
+          "feedback": "Même s’il ne traverse pas lui-même la membrane, ce soluté modifie la pression osmotique et donc les mouvements d’eau."
+        }
+      ],
+      "correct_option_ids": [
+        "o1"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Ce sens réduirait l’eau présente dans la lumière, contrairement au mécanisme décrit.",
+        "Le document précise que le soluté étudié reste dans la lumière intestinale.",
+        "Même s’il ne traverse pas lui-même la membrane, ce soluté modifie la pression osmotique et donc les mouvements d’eau."
+      ]
+    },
+    {
+      "id": "svt_s1_q34",
+      "lesson": 0,
+      "concept_id": "sequence_integration",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans le tableau du cas étudié, l’urée du sang reste à 0,45 g/L à l’entrée comme à la sortie du rein malade. Quelle conclusion est soutenue par ces deux mesures ?",
+      "answer": "Dans ce cas, le passage par le rein ne réduit pas la concentration sanguine d’urée mesurée.",
+      "explanation": "Les deux valeurs étant identiques, le tableau ne montre pas d’épuration de l’urée par ce rein. C’est une interprétation du document, pas une valeur de référence médicale universelle.",
+      "simple_explanation": "Les deux valeurs étant identiques, le tableau ne montre pas d’épuration de l’urée par ce rein. C’est une interprétation du document, pas une valeur de référence médicale universelle.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare les deux valeurs de la même ligne."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_020.jpg",
+      "source_reference": {
+        "printed_pages": [
+          20,
+          21
+        ],
+        "images": [
+          "page_020.jpg"
+        ],
+        "exercise_ids": [
+          "I1"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires",
+        "integration"
+      ],
+      "choices": [
+        "Le tableau prouve que toutes les substances du sang sont éliminées.",
+        "Dans ce cas, le passage par le rein ne réduit pas la concentration sanguine d’urée mesurée.",
+        "Toute l’urée a été retirée du sang.",
+        "La quantité d’urée a doublé à la sortie."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Le tableau prouve que toutes les substances du sang sont éliminées.",
+          "feedback": "Une ligne sur l’urée ne démontre pas l’élimination de toutes les substances."
+        },
+        {
+          "id": "o2",
+          "label": "Dans ce cas, le passage par le rein ne réduit pas la concentration sanguine d’urée mesurée.",
+          "feedback": "Les deux valeurs étant identiques, le tableau ne montre pas d’épuration de l’urée par ce rein. C’est une interprétation du document, pas une valeur de référence médicale universelle."
+        },
+        {
+          "id": "o3",
+          "label": "Toute l’urée a été retirée du sang.",
+          "feedback": "La valeur à la sortie reste 0,45 g/L : elle n’est pas devenue nulle."
+        },
+        {
+          "id": "o4",
+          "label": "La quantité d’urée a doublé à la sortie.",
+          "feedback": "Les deux concentrations présentées sont égales."
+        }
+      ],
+      "correct_option_ids": [
+        "o2"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "La valeur à la sortie reste 0,45 g/L : elle n’est pas devenue nulle.",
+        "Les deux concentrations présentées sont égales.",
+        "Une ligne sur l’urée ne démontre pas l’élimination de toutes les substances."
+      ]
+    },
+    {
+      "id": "svt_s1_q35",
+      "lesson": 0,
+      "concept_id": "sequence_integration",
+      "difficulty": 3,
+      "type": "mcq",
+      "prompt": "Pour favoriser la diffusion d’urée du sang vers le liquide de dialyse, quelle condition de concentration est nécessaire dans le modèle du cours ?",
+      "answer": "Le liquide de dialyse doit être moins concentré en urée que le sang.",
+      "explanation": "Le soluté diffuse suivant son gradient de concentration : une concentration d’urée plus faible dans le liquide de dialyse favorise son passage depuis le sang. Cette condition ne suffit pas à définir une formulation médicale complète du liquide.",
+      "simple_explanation": "Le soluté diffuse suivant son gradient de concentration : une concentration d’urée plus faible dans le liquide de dialyse favorise son passage depuis le sang. Cette condition ne suffit pas à définir une formulation médicale complète du liquide.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Applique le sens de diffusion au soluté nommé dans la question."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_011.jpg",
+      "source_reference": {
+        "printed_pages": [
+          8,
+          21
+        ],
+        "images": [
+          "page_011.jpg",
+          "page_020.jpg"
+        ],
+        "exercise_ids": [
+          "I2"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires",
+        "integration"
+      ],
+      "choices": [
+        "Les deux liquides doivent avoir exactement la même concentration en urée.",
+        "Le liquide doit être injecté directement dans les cellules sanguines.",
+        "Le liquide de dialyse doit être moins concentré en urée que le sang.",
+        "Le liquide de dialyse doit être plus concentré en urée que le sang."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Les deux liquides doivent avoir exactement la même concentration en urée.",
+          "feedback": "Sans différence de concentration, ce modèle n’explique pas de flux net diffusif d’urée vers le liquide."
+        },
+        {
+          "id": "o2",
+          "label": "Le liquide doit être injecté directement dans les cellules sanguines.",
+          "feedback": "Le schéma montre des compartiments séparés par une membrane, pas une injection dans les cellules."
+        },
+        {
+          "id": "o3",
+          "label": "Le liquide de dialyse doit être moins concentré en urée que le sang.",
+          "feedback": "Le soluté diffuse suivant son gradient de concentration : une concentration d’urée plus faible dans le liquide de dialyse favorise son passage depuis le sang. Cette condition ne suffit pas à définir une formulation médicale complète du liquide."
+        },
+        {
+          "id": "o4",
+          "label": "Le liquide de dialyse doit être plus concentré en urée que le sang.",
+          "feedback": "Cela inverserait le gradient souhaité pour l’urée."
+        }
+      ],
+      "correct_option_ids": [
+        "o3"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Cela inverserait le gradient souhaité pour l’urée.",
+        "Sans différence de concentration, ce modèle n’explique pas de flux net diffusif d’urée vers le liquide.",
+        "Le schéma montre des compartiments séparés par une membrane, pas une injection dans les cellules."
+      ]
+    },
+    {
+      "id": "svt_s1_q36",
+      "lesson": 5,
+      "concept_id": "applications",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Dans le schéma du dialyseur, quel élément sépare le sang du liquide de dialyse tout en permettant des échanges ?",
+      "answer": "Une membrane.",
+      "explanation": "Le schéma place une membrane entre les deux compartiments. Elle permet les échanges décrits sans mélanger directement le sang et le liquide de dialyse.",
+      "simple_explanation": "Le schéma place une membrane entre les deux compartiments. Elle permet les échanges décrits sans mélanger directement le sang et le liquide de dialyse.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Repère la frontière entre les deux liquides sur le schéma."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_014.jpg",
+      "source_reference": {
+        "printed_pages": [
+          11,
+          21
+        ],
+        "images": [
+          "page_014.jpg",
+          "page_020.jpg"
+        ],
+        "exercise_ids": [
+          "I2"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "La paroi cellulosique de chaque hématie.",
+        "Une absence totale de séparation.",
+        "Une couche de saccharose solide.",
+        "Une membrane."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "La paroi cellulosique de chaque hématie.",
+          "feedback": "Les hématies n’ont pas la paroi cellulosique d’une cellule végétale ; la séparation est celle du dialyseur."
+        },
+        {
+          "id": "o2",
+          "label": "Une absence totale de séparation.",
+          "feedback": "Cela décrirait un mélange direct, contrairement au schéma."
+        },
+        {
+          "id": "o3",
+          "label": "Une couche de saccharose solide.",
+          "feedback": "Le schéma identifie une membrane et non une couche de sucre."
+        },
+        {
+          "id": "o4",
+          "label": "Une membrane.",
+          "feedback": "Le schéma place une membrane entre les deux compartiments. Elle permet les échanges décrits sans mélanger directement le sang et le liquide de dialyse."
+        }
+      ],
+      "correct_option_ids": [
+        "o4"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Les hématies n’ont pas la paroi cellulosique d’une cellule végétale ; la séparation est celle du dialyseur.",
+        "Cela décrirait un mélange direct, contrairement au schéma.",
+        "Le schéma identifie une membrane et non une couche de sucre."
+      ]
+    },
+    {
+      "id": "svt_s1_q37",
+      "lesson": 3,
+      "concept_id": "diffusion",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Compare la diffusion libre, la diffusion facilitée et le transport actif en précisant trajet, gradient et énergie.",
+      "answer": "La diffusion libre peut traverser directement la bicouche ; la diffusion facilitée utilise une protéine. Toutes deux suivent le gradient sans hydrolyse d’ATP pour ce transport. Le transport actif peut aller contre le gradient et mobilise de l’énergie ; le cours illustre une pompe couplée à l’hydrolyse de l’ATP.",
+      "explanation": "Compare les trois critères dans le même ordre pour chaque mécanisme. Une protéine n’implique pas à elle seule un transport actif ; le sens du gradient et l’énergie sont déterminants.",
+      "simple_explanation": "Compare les trois critères dans le même ordre pour chaque mécanisme. Une protéine n’implique pas à elle seule un transport actif ; le sens du gradient et l’énergie sont déterminants.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Organise ta réponse avec trois colonnes : trajet, sens, énergie."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_010.jpg",
+      "source_reference": {
+        "printed_pages": [
+          7,
+          8,
+          15
+        ],
+        "images": [
+          "page_010.jpg",
+          "page_011.jpg",
+          "page_017.jpg"
+        ],
+        "exercise_ids": [
+          "QRO3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "model_answer": "La diffusion libre peut traverser directement la bicouche ; la diffusion facilitée utilise une protéine. Toutes deux suivent le gradient sans hydrolyse d’ATP pour ce transport. Le transport actif peut aller contre le gradient et mobilise de l’énergie ; le cours illustre une pompe couplée à l’hydrolyse de l’ATP.",
+      "expected_points": [
+        "Décrire un passage direct ou par protéine.",
+        "Distinguer suivre le gradient et aller contre lui.",
+        "Associer la pompe active primaire à l’hydrolyse de l’ATP."
+      ]
+    },
+    {
+      "id": "svt_s1_q38",
+      "lesson": 2,
+      "concept_id": "osmomètres",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "Propose une interprétation du début de l’expérience de Dutrochet : dispositif, observation, mouvement d’eau et phénomène mis en évidence.",
+      "answer": "Un entonnoir fermé par une membrane contient une solution de sulfate de cuivre et plonge dans l’eau distillée. Le niveau monte d’abord dans l’entonnoir. L’eau entre depuis le milieu moins concentré vers la solution plus concentrée : c’est l’osmose. Le passage ultérieur du soluté relève de la dialyse dans ce montage.",
+      "explanation": "Une interprétation relie une observation à un mécanisme. Nommer seulement l’osmose ne précise ni la membrane, ni les milieux, ni le sens du mouvement.",
+      "simple_explanation": "Une interprétation relie une observation à un mécanisme. Nommer seulement l’osmose ne précise ni la membrane, ni les milieux, ni le sens du mouvement.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Commence par nommer les deux compartiments et ce qu’ils contiennent."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_008.jpg",
+      "source_reference": {
+        "printed_pages": [
+          5,
+          6,
+          15,
+          19
+        ],
+        "images": [
+          "page_008.jpg",
+          "page_009.jpg",
+          "page_017.jpg",
+          "page_019.jpg"
+        ],
+        "exercise_ids": [
+          "QRO4",
+          "B3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "model_answer": "Un entonnoir fermé par une membrane contient une solution de sulfate de cuivre et plonge dans l’eau distillée. Le niveau monte d’abord dans l’entonnoir. L’eau entre depuis le milieu moins concentré vers la solution plus concentrée : c’est l’osmose. Le passage ultérieur du soluté relève de la dialyse dans ce montage.",
+      "expected_points": [
+        "Présenter les deux compartiments et la membrane.",
+        "Relier la montée initiale à une entrée d’eau.",
+        "Distinguer l’osmose du passage ultérieur de soluté."
+      ]
+    },
+    {
+      "id": "svt_s1_q39",
+      "lesson": 1,
+      "concept_id": "cellule_vegetale",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "La salade salée du document devient souple et du liquide s’accumule. Explique cette observation à l’aide des échanges d’eau ; indique aussi ce qu’on attend dans un milieu extérieur moins concentré.",
+      "answer": "Le milieu extérieur devenu plus concentré provoque une sortie d’eau des cellules. Elles perdent leur turgescence ; cette perte explique la souplesse de la feuille et contribue au liquide extérieur. Dans un milieu moins concentré, l’entrée d’eau peut rendre les cellules turgescentes ou permettre une déplasmolyse si elles étaient plasmolysées.",
+      "explanation": "Relie chaque observation à un mouvement d’eau. Évite de dire que la paroi disparaît : c’est l’état hydrique du contenu cellulaire qui change.",
+      "simple_explanation": "Relie chaque observation à un mouvement d’eau. Évite de dire que la paroi disparaît : c’est l’état hydrique du contenu cellulaire qui change.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare la concentration autour des cellules et celle de leur contenu."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_007.jpg",
+      "source_reference": {
+        "printed_pages": [
+          4,
+          16
+        ],
+        "images": [
+          "page_007.jpg",
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "QRO5"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "model_answer": "Le milieu extérieur devenu plus concentré provoque une sortie d’eau des cellules. Elles perdent leur turgescence ; cette perte explique la souplesse de la feuille et contribue au liquide extérieur. Dans un milieu moins concentré, l’entrée d’eau peut rendre les cellules turgescentes ou permettre une déplasmolyse si elles étaient plasmolysées.",
+      "expected_points": [
+        "Identifier un milieu extérieur hypertonique.",
+        "Expliquer sortie d’eau et perte de turgescence.",
+        "Prévoir l’effet inverse dans un milieu hypotonique."
+      ]
+    },
+    {
+      "id": "svt_s1_q40",
+      "lesson": 2,
+      "concept_id": "lecture_experimentale",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Le document p.17 ajoute d’abord N, qui ne pénètre pas dans la cellule, puis P, qui y pénètre. La pression osmotique extérieure augmente d’abord ; plus tard, la pression intérieure augmente. Interprète qualitativement le changement du flux d’eau, sans attribuer de valeurs numériques au graphe.",
+      "answer": "Après ajout de N à l’extérieur, l’augmentation de la pression osmotique extérieure favorise une sortie d’eau. Après ajout de P, sa pénétration augmente progressivement la pression osmotique intérieure ; la sortie d’eau diminue puis le document indique un retour vers une entrée d’eau lorsque la situation osmotique s’inverse.",
+      "explanation": "La perméabilité est décisive : N reste dehors alors que P pénètre. Le graphe permet une interprétation qualitative, mais aucune pression chiffrée ne doit être inventée.",
+      "simple_explanation": "La perméabilité est décisive : N reste dehors alors que P pénètre. Le graphe permet une interprétation qualitative, mais aucune pression chiffrée ne doit être inventée.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Suis séparément les deux pressions puis la courbe du flux d’eau."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_018.jpg",
+      "source_reference": {
+        "printed_pages": [
+          17
+        ],
+        "images": [
+          "page_018.jpg"
+        ],
+        "exercise_ids": [
+          "C3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "model_answer": "Après ajout de N à l’extérieur, l’augmentation de la pression osmotique extérieure favorise une sortie d’eau. Après ajout de P, sa pénétration augmente progressivement la pression osmotique intérieure ; la sortie d’eau diminue puis le document indique un retour vers une entrée d’eau lorsque la situation osmotique s’inverse.",
+      "expected_points": [
+        "Distinguer N non pénétrant et P pénétrant.",
+        "Relier l’augmentation extérieure à la sortie d’eau.",
+        "Relier la hausse intérieure au changement ultérieur du flux."
+      ]
+    },
+    {
+      "id": "svt_s1_q41",
+      "lesson": 3,
+      "concept_id": "transport_actif",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "Dans le document sur la racine, l’eau progresse dans le cortex suivant des pressions osmotiques croissantes. Le passage vers le cylindre central se fait ensuite vers une pression plus faible et diminue quand l’activité respiratoire est inhibée. Que peut-on conclure dans le cadre de l’exercice ?",
+      "answer": "L’osmose peut expliquer la progression dans le cortex vers les pressions osmotiques croissantes. Elle ne suffit pas à expliquer le passage final vers une pression plus faible. Sa dépendance à la respiration indique l’intervention d’un processus énergétique. Le document ne permet pas de préciser à lui seul toutes les protéines impliquées.",
+      "explanation": "Il faut distinguer les deux étapes. L’effet d’un inhibiteur apporte un indice sur l’énergie ; il ne justifie pas d’inventer le nom d’une pompe.",
+      "simple_explanation": "Il faut distinguer les deux étapes. L’effet d’un inhibiteur apporte un indice sur l’énergie ; il ne justifie pas d’inventer le nom d’une pompe.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Traite séparément le cortex et le passage vers le cylindre central."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_018.jpg",
+      "source_reference": {
+        "printed_pages": [
+          17,
+          18
+        ],
+        "images": [
+          "page_018.jpg",
+          "page_019.jpg"
+        ],
+        "exercise_ids": [
+          "C5"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "model_answer": "L’osmose peut expliquer la progression dans le cortex vers les pressions osmotiques croissantes. Elle ne suffit pas à expliquer le passage final vers une pression plus faible. Sa dépendance à la respiration indique l’intervention d’un processus énergétique. Le document ne permet pas de préciser à lui seul toutes les protéines impliquées.",
+      "expected_points": [
+        "Relier le trajet cortical au gradient osmotique.",
+        "Identifier la limite de cette explication pour la dernière étape.",
+        "Interpréter la sensibilité à l’inhibition respiratoire sans inventer un mécanisme moléculaire."
+      ]
+    },
+    {
+      "id": "svt_s1_q42",
+      "lesson": 1,
+      "concept_id": "cellule_vegetale",
+      "difficulty": 2,
+      "type": "reasoning",
+      "prompt": "Décris les critères permettant de distinguer une cellule d’oignon turgescente d’une cellule plasmolysée, puis explique le rôle de la paroi.",
+      "answer": "Une cellule turgescente présente une vacuole volumineuse et un contenu appliqué contre la paroi. Une cellule plasmolysée présente une vacuole réduite et une membrane décollée de la paroi. La paroi reste en place et limite le gonflement lors d’une entrée d’eau.",
+      "explanation": "Observe la vacuole et la position de la membrane plutôt que de mémoriser une lettre de cliché. Les annotations peu lisibles des schémas ne sont pas nécessaires pour expliquer le phénomène.",
+      "simple_explanation": "Observe la vacuole et la position de la membrane plutôt que de mémoriser une lettre de cliché. Les annotations peu lisibles des schémas ne sont pas nécessaires pour expliquer le phénomène.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare ce qui change à l’intérieur avec ce qui reste rigide à l’extérieur."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_007.jpg",
+      "source_reference": {
+        "printed_pages": [
+          4,
+          18
+        ],
+        "images": [
+          "page_007.jpg",
+          "page_019.jpg"
+        ],
+        "exercise_ids": [
+          "B1"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "model_answer": "Une cellule turgescente présente une vacuole volumineuse et un contenu appliqué contre la paroi. Une cellule plasmolysée présente une vacuole réduite et une membrane décollée de la paroi. La paroi reste en place et limite le gonflement lors d’une entrée d’eau.",
+      "expected_points": [
+        "Décrire le volume de la vacuole dans les deux états.",
+        "Décrire le décollement membranaire lors de la plasmolyse.",
+        "Préciser le rôle mécanique de la paroi."
+      ]
+    },
+    {
+      "id": "svt_s1_q43",
+      "lesson": 0,
+      "concept_id": "sequence_integration",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "À partir du cas du rein et du dialyseur, explique comment une défaillance des échanges peut conduire à l’accumulation d’urée et comment le dispositif illustré contribue à l’épuration.",
+      "answer": "Le tableau du cas montre que la concentration d’urée ne baisse pas entre l’entrée et la sortie du rein malade. L’urée peut donc s’accumuler. Le dialyseur met le sang au contact indirect d’un liquide séparé par une membrane. Une concentration d’urée plus faible dans ce liquide favorise le transfert diffusif d’urée hors du sang. Ce modèle ne signifie pas que le dialyseur reproduit toutes les fonctions rénales.",
+      "explanation": "Appuie le raisonnement sur les mesures, puis relie le sens de diffusion à la concentration. Une phrase sur le mécanisme vaut mieux qu’un simple nom d’appareil.",
+      "simple_explanation": "Appuie le raisonnement sur les mesures, puis relie le sens de diffusion à la concentration. Une phrase sur le mécanisme vaut mieux qu’un simple nom d’appareil.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Sépare le constat dans le tableau et l’explication du fonctionnement du dispositif."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_020.jpg",
+      "source_reference": {
+        "printed_pages": [
+          20,
+          21
+        ],
+        "images": [
+          "page_020.jpg"
+        ],
+        "exercise_ids": [
+          "I1",
+          "I2"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires",
+        "integration"
+      ],
+      "model_answer": "Le tableau du cas montre que la concentration d’urée ne baisse pas entre l’entrée et la sortie du rein malade. L’urée peut donc s’accumuler. Le dialyseur met le sang au contact indirect d’un liquide séparé par une membrane. Une concentration d’urée plus faible dans ce liquide favorise le transfert diffusif d’urée hors du sang. Ce modèle ne signifie pas que le dialyseur reproduit toutes les fonctions rénales.",
+      "expected_points": [
+        "Exploiter l’égalité des concentrations d’urée du cas malade.",
+        "Identifier la membrane séparant les compartiments.",
+        "Expliquer le transfert d’urée vers un milieu moins concentré sans proposer de traitement."
+      ]
+    },
+    {
+      "id": "svt_s1_q44",
+      "lesson": 0,
+      "concept_id": "sequence_integration",
+      "difficulty": 3,
+      "type": "reasoning",
+      "prompt": "La consigne du manuel évoque un transport actif de solutés du tubule urinaire vers le sang pendant la réabsorption. Explique ce que signifie « actif » et distingue-le de la diffusion et de l’osmose.",
+      "answer": "Le transport actif peut déplacer un soluté contre son gradient et nécessite de l’énergie. La diffusion déplace le soluté selon son gradient ; l’osmose concerne l’eau. La consigne désigne une composante active de la réabsorption : elle ne prouve pas que tous les échanges rénaux utilisent le même mécanisme.",
+      "explanation": "Précise toujours la substance transportée et le sens par rapport au gradient. Ne généralise pas une composante active à tous les transports de l’organe.",
+      "simple_explanation": "Précise toujours la substance transportée et le sens par rapport au gradient. Ne généralise pas une composante active à tous les transports de l’organe.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Compare soluté ou eau, sens du gradient et besoin d’énergie."
+        }
+      ],
+      "auto_score": false,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_011.jpg",
+      "source_reference": {
+        "printed_pages": [
+          8,
+          21
+        ],
+        "images": [
+          "page_011.jpg",
+          "page_020.jpg"
+        ],
+        "exercise_ids": [
+          "I3"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires",
+        "integration"
+      ],
+      "model_answer": "Le transport actif peut déplacer un soluté contre son gradient et nécessite de l’énergie. La diffusion déplace le soluté selon son gradient ; l’osmose concerne l’eau. La consigne désigne une composante active de la réabsorption : elle ne prouve pas que tous les échanges rénaux utilisent le même mécanisme.",
+      "expected_points": [
+        "Associer transport actif et dépense d’énergie.",
+        "Distinguer le transport du soluté du mouvement d’eau.",
+        "Éviter de présenter tous les échanges rénaux comme actifs."
+      ]
+    },
+    {
+      "id": "svt_s1_q45",
+      "lesson": 2,
+      "concept_id": "pression_osmotique",
+      "difficulty": 2,
+      "type": "mcq",
+      "prompt": "Pour une même substance, à température et facteur d’ionisation constants, doubler la concentration molaire dans Pₒ = R × n × i × T a quel effet ?",
+      "answer": "La pression osmotique est doublée.",
+      "explanation": "Les facteurs R, i et T restent constants : Pₒ est donc proportionnelle à n. Doubler n double Pₒ ; cette conclusion dépend bien des conditions précisées.",
+      "simple_explanation": "Les facteurs R, i et T restent constants : Pₒ est donc proportionnelle à n. Doubler n double Pₒ ; cette conclusion dépend bien des conditions précisées.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Repère les facteurs qui changent et ceux qui restent constants."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_009.jpg",
+      "source_reference": {
+        "printed_pages": [
+          6,
+          15
+        ],
+        "images": [
+          "page_009.jpg",
+          "page_017.jpg"
+        ],
+        "exercise_ids": [
+          "A9"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "La pression osmotique est doublée.",
+        "La pression osmotique est divisée par deux.",
+        "La pression osmotique reste identique.",
+        "La pression osmotique est multipliée par quatre."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "La pression osmotique est doublée.",
+          "feedback": "Les facteurs R, i et T restent constants : Pₒ est donc proportionnelle à n. Doubler n double Pₒ ; cette conclusion dépend bien des conditions précisées."
+        },
+        {
+          "id": "o2",
+          "label": "La pression osmotique est divisée par deux.",
+          "feedback": "La concentration est un facteur multiplicatif, pas un dénominateur."
+        },
+        {
+          "id": "o3",
+          "label": "La pression osmotique reste identique.",
+          "feedback": "La formule contient n : sa variation change le produit."
+        },
+        {
+          "id": "o4",
+          "label": "La pression osmotique est multipliée par quatre.",
+          "feedback": "La formule dépend de n et non de n²."
+        }
+      ],
+      "correct_option_ids": [
+        "o1"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "La concentration est un facteur multiplicatif, pas un dénominateur.",
+        "La formule contient n : sa variation change le produit.",
+        "La formule dépend de n et non de n²."
+      ]
+    },
+    {
+      "id": "svt_s1_q46",
+      "lesson": 3,
+      "concept_id": "permeabilite",
+      "difficulty": 1,
+      "type": "mcq",
+      "prompt": "Le cours distingue la perméabilité orientée. Quelle caractéristique la décrit ?",
+      "answer": "Une substance peut être transportée préférentiellement dans un sens donné.",
+      "explanation": "La perméabilité orientée porte sur le sens du transport. La sélectivité concerne la nature des substances et la perméabilité différentielle leurs vitesses de passage.",
+      "simple_explanation": "La perméabilité orientée porte sur le sens du transport. La sélectivité concerne la nature des substances et la perméabilité différentielle leurs vitesses de passage.",
+      "hints": [
+        {
+          "level": 1,
+          "content": "Associe chaque propriété à un critère : nature, vitesse ou sens."
+        }
+      ],
+      "auto_score": true,
+      "authoring_origin": "derived_from_visually_verified_source",
+      "source_anchor": "page_016.jpg",
+      "source_reference": {
+        "printed_pages": [
+          13,
+          15
+        ],
+        "images": [
+          "page_016.jpg",
+          "page_017.jpg"
+        ],
+        "exercise_ids": [
+          "A3",
+          "QRO2"
+        ]
+      },
+      "competency": "Interpréter un échange membranaire à partir du document.",
+      "tags": [
+        "svt",
+        "echanges_cellulaires"
+      ],
+      "choices": [
+        "Certaines substances passent et d’autres sont retenues, sans précision de sens.",
+        "Une substance peut être transportée préférentiellement dans un sens donné.",
+        "Toutes les substances passent toujours dans les deux sens de la même façon.",
+        "Les substances traversent à des vitesses différentes, sans précision de sens."
+      ],
+      "option_metadata": [
+        {
+          "id": "o1",
+          "label": "Certaines substances passent et d’autres sont retenues, sans précision de sens.",
+          "feedback": "Cette description porte sur la sélectivité, tandis que la propriété orientée concerne le sens."
+        },
+        {
+          "id": "o2",
+          "label": "Une substance peut être transportée préférentiellement dans un sens donné.",
+          "feedback": "La perméabilité orientée porte sur le sens du transport. La sélectivité concerne la nature des substances et la perméabilité différentielle leurs vitesses de passage."
+        },
+        {
+          "id": "o3",
+          "label": "Toutes les substances passent toujours dans les deux sens de la même façon.",
+          "feedback": "Cette proposition efface précisément la distinction de sens."
+        },
+        {
+          "id": "o4",
+          "label": "Les substances traversent à des vitesses différentes, sans précision de sens.",
+          "feedback": "Cette description correspond à la perméabilité différentielle, et non à la propriété orientée."
+        }
+      ],
+      "correct_option_ids": [
+        "o2"
+      ],
+      "option_order_policy": {
+        "mode": "deterministic_shuffle_per_attempt",
+        "stable_within_attempt": true,
+        "shuffle_between_attempts": true,
+        "correctness_binding": "option_id"
+      },
+      "plausible_errors": [
+        "Cette proposition efface précisément la distinction de sens.",
+        "Cette description correspond à la perméabilité différentielle, et non à la propriété orientée.",
+        "Cette description porte sur la sélectivité, tandis que la propriété orientée concerne le sens."
+      ]
+    }
+  ],
+  "games": [
+    {
+      "id": "membrane_links",
+      "title": "Liens membranaires",
+      "status": "ready",
+      "engine": "matching",
+      "concept_id": "cellule_vegetale",
+      "mechanic": "Reconstituer toutes les relations du plateau par deux taps ; paires réussies verrouillées.",
+      "scoring": "0 correct, +0 série ; exactitude au premier essai et erreurs affichées ; preuve de maîtrise sans erreur ni aide.",
+      "rounds": [
+        {
+          "id": "ml_cell_states",
+          "difficulty": 1,
+          "concept_id": "cellule_vegetale",
+          "prompt": "Relie chaque état de la cellule végétale à son observation.",
+          "hint": "Observe le volume de la vacuole et la position de la membrane.",
+          "pairs": [
+            {
+              "id": "ml_cell_states_p1",
+              "left": "Turgescence",
+              "right": "Vacuole volumineuse ; contenu appliqué contre la paroi",
+              "explanation": "L’entrée d’eau gonfle la vacuole ; la paroi limite le gonflement.",
+              "source_anchor": "page_007.jpg; runtime.json#svt_s1_q42"
+            },
+            {
+              "id": "ml_cell_states_p2",
+              "left": "Plasmolyse",
+              "right": "Vacuole réduite ; membrane décollée de la paroi",
+              "explanation": "La perte d’eau rétracte le contenu cellulaire ; la paroi demeure.",
+              "source_anchor": "page_007.jpg; runtime.json#svt_s1_q03"
+            },
+            {
+              "id": "ml_cell_states_p3",
+              "left": "Déplasmolyse",
+              "right": "Réabsorption d’eau après une plasmolyse",
+              "explanation": "L’eau entre à nouveau et la cellule retrouve son état antérieur.",
+              "source_anchor": "page_007.jpg; runtime.json#svt_s1_q04"
+            }
+          ]
+        },
+        {
+          "id": "ml_transport",
+          "difficulty": 2,
+          "concept_id": "transport_actif",
+          "prompt": "Reconstitue les trois mécanismes décrits par le cours.",
+          "hint": "Distingue le sens du gradient, la protéine et la source d’énergie.",
+          "pairs": [
+            {
+              "id": "ml_transport_p1",
+              "left": "Diffusion libre",
+              "right": "Selon le gradient, directement à travers la bicouche",
+              "explanation": "Ce transport passif suit le gradient et ne requiert pas de pompe à ATP.",
+              "source_anchor": "page_010.jpg; runtime.json#svt_s1_q24"
+            },
+            {
+              "id": "ml_transport_p2",
+              "left": "Diffusion facilitée",
+              "right": "Selon le gradient, avec une protéine membranaire",
+              "explanation": "La présence d’une protéine ne suffit pas à rendre le transport actif.",
+              "source_anchor": "page_010.jpg; runtime.json#svt_s1_q23"
+            },
+            {
+              "id": "ml_transport_p3",
+              "left": "Transport actif primaire",
+              "right": "Contre le gradient, avec hydrolyse de l’ATP",
+              "explanation": "L’hydrolyse de l’ATP fournit de l’énergie à la pompe décrite dans le cours.",
+              "source_anchor": "page_011.jpg; runtime.json#svt_s1_q22;svt_s1_q27"
+            }
+          ]
+        },
+        {
+          "id": "ml_vesicles",
+          "difficulty": 3,
+          "concept_id": "sequence_integration",
+          "prompt": "Relie chaque échange par vésicule à l’événement représenté.",
+          "hint": "Repère le sens de l’échange et la nature du contenu.",
+          "pairs": [
+            {
+              "id": "ml_vesicles_p1",
+              "left": "Phagocytose",
+              "right": "Entrée d’une particule solide dans une vésicule",
+              "explanation": "La phagocytose est une forme d’endocytose de particules solides.",
+              "source_anchor": "page_012.jpg; runtime.json#svt_s1_q28"
+            },
+            {
+              "id": "ml_vesicles_p2",
+              "left": "Pinocytose",
+              "right": "Entrée de gouttelettes liquides dans une petite vésicule",
+              "explanation": "La pinocytose concerne l’entrée de liquide par vésicule.",
+              "source_anchor": "page_012.jpg; runtime.json#svt_s1_q29"
+            },
+            {
+              "id": "ml_vesicles_p3",
+              "left": "Exocytose",
+              "right": "Libération du contenu d’une vésicule à l’extérieur",
+              "explanation": "L’exocytose dirige le contenu vésiculaire vers l’extérieur de la cellule.",
+              "source_anchor": "page_012.jpg; runtime.json#svt_s1_q30"
+            }
+          ]
+        }
+      ],
+      "authoring_origin": "relations_derived_from_validated_pack_source",
+      "difficulty": {
+        "1": "Identifier",
+        "2": "Distinguer",
+        "3": "Relier dans un contexte"
+      }
+    }
+  ],
+  "companion": {
+    "runtime_llm_required": false,
+    "quick_actions": [
+      "Explique simplement",
+      "Donne un indice"
+    ]
+  },
+  "mastery": {
+    "concept_score_range": [
+      0,
+      100
+    ],
+    "unlock_next_lesson_at": 70,
+    "suggest_harder_after_consecutive_correct": 3,
+    "show_simple_after_errors": 2,
+    "show_ultra_simple_after_additional_error": 1
+  }
+}

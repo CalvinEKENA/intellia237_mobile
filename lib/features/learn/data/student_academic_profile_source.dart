@@ -12,6 +12,12 @@ abstract interface class StudentAcademicProfileSource {
   Future<Map<String, dynamic>> fetch(String uid);
 }
 
+/// Source capable de rendre, sans réseau, le dernier profil lu sur cet
+/// appareil (null s'il n'y en a pas).
+abstract interface class CachedStudentAcademicProfileSource {
+  Future<Map<String, dynamic>?> fetchCached(String uid);
+}
+
 enum AcademicProfileFailureKind {
   missing,
   permission,
@@ -37,11 +43,29 @@ class AcademicProfileException implements Exception {
 }
 
 class FirebaseStudentAcademicProfileSource
-    implements StudentAcademicProfileSource {
+    implements
+        StudentAcademicProfileSource,
+        CachedStudentAcademicProfileSource {
   FirebaseStudentAcademicProfileSource({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
+
+  /// Le cache local de Firestore (persistance activée par défaut sur
+  /// mobile) : quelques millisecondes, aucune attente réseau.
+  @override
+  Future<Map<String, dynamic>?> fetchCached(String uid) async {
+    try {
+      final snapshot = await _firestore
+          .collection('student_profiles')
+          .doc(uid)
+          .get(const GetOptions(source: Source.cache))
+          .timeout(const Duration(seconds: 1));
+      return snapshot.data();
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   Future<Map<String, dynamic>> fetch(String uid) async {

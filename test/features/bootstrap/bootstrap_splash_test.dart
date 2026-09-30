@@ -1,171 +1,1033 @@
+// ignore_for_file: depend_on_referenced_packages
+import 'dart:async';
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intellia237/app/router/app_router.dart';
+import 'package:intellia237/app/router/app_routes.dart';
+import 'package:intellia237/core/assets/intellia_assets.dart';
 import 'package:intellia237/features/auth/application/auth_controller.dart';
+import 'package:intellia237/features/auth/application/auth_state.dart';
+import 'package:intellia237/features/auth/data/auth_entry_preferences.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
-import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
+import 'package:intellia237/features/bootstrap/application/launch_gate.dart';
+import 'package:intellia237/features/bootstrap/application/launch_video.dart';
 import 'package:intellia237/features/bootstrap/presentation/bootstrap_screen.dart';
-import 'package:intellia237/features/bootstrap/presentation/widgets/intellia_typewriter.dart';
+import 'package:intellia237/features/bootstrap/presentation/widgets/brand_launch_palette.dart';
+import 'package:intellia237/features/bootstrap/presentation/widgets/launch_motion.dart';
+import 'package:intellia237/features/bootstrap/presentation/widgets/launch_scene.dart';
+import 'package:intellia237/features/onboarding/data/onboarding_preferences.dart';
+import 'package:intellia237/l10n/generated/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player_platform_interface/video_player_platform_interface.dart';
+
+import '../../support/fake_video_platform.dart';
+
+/// Le temps laissé au décodage du logo avant que la séquence ne démarre.
+const _decodeWindow = Duration(milliseconds: 150);
 
 void main() {
-  test('le nom s’écrit lettre à lettre, puis le pays après une pause', () {
-    expect(SplashMotion.lettersAt(Duration.zero), 1);
-    expect(SplashMotion.lettersAt(SplashMotion.letter * 3), 4);
-    expect(
-      SplashMotion.lettersAt(SplashMotion.letter * 40),
-      SplashMotion.name.length,
-    );
-
-    // Rien du pays tant que la pause n’est pas passée : c’est elle qui sépare
-    // le nom du drapeau.
-    final lastLetter = SplashMotion.letter * SplashMotion.name.length;
-    expect(SplashMotion.digitsAt(lastLetter), 0);
-    expect(
-      SplashMotion.digitsAt(lastLetter + SplashMotion.breath ~/ 2),
-      0,
-      reason: 'la pause doit rester silencieuse',
-    );
-    expect(SplashMotion.digitsAt(SplashMotion.numberStart), 1);
-    expect(
-      SplashMotion.digitsAt(SplashMotion.typed),
-      SplashMotion.number.length,
-    );
-
-    // Le curseur accompagne la frappe et disparaît avec elle.
-    expect(SplashMotion.caretAt(Duration.zero), isTrue);
-    expect(SplashMotion.caretAt(SplashMotion.typed), isFalse);
-    expect(SplashMotion.caretAt(SplashMotion.total), isFalse);
-
-    // La sortie ne commence qu’après le temps de lecture.
-    expect(SplashMotion.exitAt(SplashMotion.typed), 0);
-    expect(SplashMotion.exitAt(SplashMotion.total), 1);
+  setUp(() {
+    SharedPreferences.setMockInitialValues(const {});
+    // Par défaut, le clip est absent : les autres tests ne dépendent pas de
+    // lui. LaunchVideoWarmup ne garde rien d'un test à l'autre.
+    VideoPlayerPlatform.instance = FakeVideoPlatform(createFails: true);
+    LaunchVideoWarmup.reset();
   });
 
-  testWidgets('le pays porte les trois couleurs du drapeau', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: IntelliaTypewriter(elapsed: Duration.zero, reduceMotion: true),
-        ),
-      ),
-    );
+  group('séquence', () {
+    LaunchFrame at(int ms, [LaunchPace pace = LaunchPace.full]) =>
+        LaunchMotion.frameAt(Duration(milliseconds: ms), pace);
 
-    final spans = <InlineSpan>[];
-    _wordmark(tester).textSpan!.visitChildren((span) {
-      spans.add(span);
-      return true;
+    test('la première image est la surface unie du splash natif', () {
+      final first = at(0);
+      expect(first.backdrop, 0);
+      expect(first.word, 0);
+      expect(first.fragments, everyElement(0));
+      expect(first.digits, everyElement(0));
+      expect(kSplashBackground, BrandLaunchPalette.surface);
+      expect(BrandLaunchPalette.surface, const Color(0xFFF2F9FC));
+      // Le centre du dégradé est exactement la surface.
+      expect(BrandLaunchPalette.backdrop.colors[1], BrandLaunchPalette.surface);
+      expect(BrandLaunchPalette.backdrop.stops, [0, 0.5, 1]);
     });
-    final coloured = [
-      for (final span in spans)
-        if (span is TextSpan && span.text != null)
-          (span.text!, span.style?.color),
-    ];
 
-    expect(coloured.first.$1, SplashMotion.name);
-    expect(coloured.first.$2, isNull, reason: 'le nom garde l’encre du titre');
-    expect(coloured.sublist(1), [
-      ('2', SplashPalette.green),
-      ('3', SplashPalette.red),
-      ('7', SplashPalette.yellow),
-    ]);
+    test('acte 2 : des fragments de logo.png, avant le logo entier', () {
+      final fragments = at(520);
+      expect(fragments.fragments.where((f) => f > 0).length, greaterThan(2));
+      expect(fragments.word, 0);
+      expect(fragments.assembled, isFalse);
+      expect(fragments.tilt, greaterThan(0));
+      expect(fragments.scale, lessThan(1));
+      // Les six fragments sont des zones de l'image, pas du texte.
+      for (final fragment in LaunchMotion.fragments) {
+        expect(fragment.rect.left, greaterThanOrEqualTo(0));
+        expect(fragment.rect.right, lessThanOrEqualTo(1));
+      }
+    });
+
+    test('acte 3 : INTELLIA presque complet, puis 2, 3, 7 décalés', () {
+      final frame = at(1080);
+      expect(frame.word, greaterThan(0.9));
+      expect(frame.digits[0], greaterThan(frame.digits[1]));
+      expect(frame.digits[1], greaterThan(frame.digits[2]));
+      final starts = [
+        for (var i = 0; i < 3; i++)
+          LaunchMotion.digitsStart + LaunchMotion.digitStagger * i,
+      ];
+      expect(starts.first, lessThan(LaunchMotion.wordEndAt));
+      expect(
+        LaunchMotion.digitStagger.inMilliseconds,
+        inInclusiveRange(30, 90),
+      );
+    });
+
+    test('LOCK : logo entier, net, exactement à l’échelle 1, et une onde', () {
+      final lock = LaunchMotion.frameAt(LaunchMotion.lock, LaunchPace.full);
+      expect(lock.assembled, isTrue);
+      expect(lock.scale, 1);
+      expect(lock.tilt, 0);
+      expect(lock.opacity, 1);
+      final ripple = at(LaunchMotion.lock.inMilliseconds + 200);
+      expect(ripple.ripple, inExclusiveRange(0, 1));
+    });
+
+    test('sweep fin, respiration, puis sortie vers la caméra', () {
+      final sweep = at(1600);
+      expect(sweep.sheen, inExclusiveRange(0, 1));
+      expect(LaunchMotion.sheenSpan.inMilliseconds, inInclusiveRange(250, 400));
+      final breath = at(2000);
+      expect(breath.sheen, isNull);
+      expect(breath.exit, 0);
+      final hold =
+          LaunchMotion.exitStart -
+          LaunchMotion.sheenStart -
+          LaunchMotion.sheenSpan;
+      expect(hold.inMilliseconds, inInclusiveRange(250, 400));
+      final leaving = LaunchMotion.exitTransform(1);
+      expect(leaving.opacity, 0);
+      expect(leaving.scale, greaterThan(1));
+      expect(leaving.scale, lessThan(1.05));
+      expect(leaving.lift, lessThan(0));
+    });
+
+    test('durées : première expérience 2,1–2,5 s, retour 0,7–1,0 s', () {
+      final full = LaunchMotion.durationOf(LaunchPace.full).inMilliseconds;
+      final brief = LaunchMotion.durationOf(LaunchPace.brief).inMilliseconds;
+      expect(full, inInclusiveRange(2100, 2500));
+      expect(brief, inInclusiveRange(700, 1000));
+      expect(brief, lessThan(full));
+    });
+
+    test('retour : apparition, lock, sortie, sans fragments', () {
+      for (var ms = 0; ms <= 900; ms += 30) {
+        final frame = at(ms, LaunchPace.brief);
+        expect(frame.fragments, everyElement(0));
+        expect(frame.sheen, isNull);
+      }
+      final lock = LaunchMotion.frameAt(
+        LaunchMotion.briefLock,
+        LaunchPace.brief,
+      );
+      expect(lock.assembled, isTrue);
+      expect(lock.scale, 1);
+    });
+
+    test('animations réduites : logo présent, une légère opacité, rien '
+        'd’autre', () {
+      for (var ms = 0; ms <= 450; ms += 30) {
+        final frame = at(ms, LaunchPace.still);
+        expect(frame.assembled, isTrue);
+        expect(frame.scale, 1);
+        expect(frame.tilt, 0);
+        expect(frame.sheen, isNull);
+        expect(frame.ripple, isNull);
+        expect(frame.exit, 0);
+        expect(frame.opacity, greaterThanOrEqualTo(0.6));
+      }
+    });
   });
 
-  testWidgets('le splash tient le papier de l’onboarding, sans logo', (
-    tester,
-  ) async {
-    await pumpSplash(tester);
+  group('logo officiel', () {
+    testWidgets('la zone utile correspond aux pixels réels de logo.png', (
+      tester,
+    ) async {
+      final bounds = await tester.runAsync(() async {
+        final codec = await ui.instantiateImageCodec(
+          File(IntelliaBrandAssets.logo).readAsBytesSync(),
+        );
+        final image = (await codec.getNextFrame()).image;
+        final rgba = (await image.toByteData())!;
+        var left = image.width, top = image.height, right = 0, bottom = 0;
+        for (var y = 0; y < image.height; y++) {
+          for (var x = 0; x < image.width; x++) {
+            if (rgba.getUint8((y * image.width + x) * 4 + 3) == 0) continue;
+            if (x < left) left = x;
+            if (x > right) right = x;
+            if (y < top) top = y;
+            if (y > bottom) bottom = y;
+          }
+        }
+        return (image.width, image.height, left, top, right + 1, bottom + 1);
+      });
+      final (w, h, left, top, right, bottom) = bounds!;
+      expect((w, h), (512, 512));
+      final rect = LaunchLogo.contentRect;
+      expect(rect.left * w, closeTo(left, 1));
+      expect(rect.top * h, closeTo(top, 1));
+      expect(rect.right * w, closeTo(right, 1));
+      expect(rect.bottom * h, closeTo(bottom, 1));
+    });
 
-    final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-    expect(scaffold.backgroundColor, kSplashBackground);
-    expect(scaffold.backgroundColor, const Color(0xFFF4EFE5));
-    expect(scaffold.backgroundColor, isNot(const Color(0xFFFFFFFF)));
-
-    // Plus aucune image : le nom est écrit, pas dessiné.
-    expect(find.byType(Image), findsNothing);
-    expect(find.text('by TECH MOTION'), findsNothing);
-    expect(tester.takeException(), isNull);
+    test('l’ancien nom frappé lettre à lettre a disparu', () {
+      expect(
+        File(
+          'lib/features/bootstrap/presentation/widgets/intellia_typewriter.dart',
+        ).existsSync(),
+        isFalse,
+      );
+      final lib = Directory('lib')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((file) => file.path.endsWith('.dart'))
+          .map((file) => file.readAsStringSync())
+          .join('\n');
+      expect(lib, isNot(contains('IntelliaTypewriter')));
+      expect(lib, isNot(contains('SplashMotion')));
+    });
   });
 
-  testWidgets('en mouvement réduit, le nom est là d’emblée', (tester) async {
-    await pumpSplash(tester);
+  group('écran de lancement', () {
+    testWidgets('logo.png, sur la surface du splash natif, sans aucun texte', (
+      tester,
+    ) async {
+      await _pumpLaunch(tester, _SpyAuth());
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+      expect(scaffold.backgroundColor, const Color(0xFFF2F9FC));
+      await tester.pump(_decodeWindow);
+      await tester.pump(LaunchMotion.lock);
+      final logos = tester.widgetList<Image>(find.byType(Image));
+      expect(logos, isNotEmpty);
+      for (final logo in logos) {
+        expect(
+          (logo.image as AssetImage).assetName,
+          'assets/branding/logo.png',
+        );
+        expect(logo.fit, BoxFit.contain);
+      }
+      // Ni « INTELLIA237 » écrit, ni « Chargement… », ni indicateur.
+      expect(find.byType(Text), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      await _finish(tester);
+    });
 
-    expect(_wordmark(tester).textSpan!.toPlainText(), 'INTELLIA237');
+    testWidgets('première expérience : fragments, assemblage, LOCK avec une '
+        'vibration discrète, puis une seule navigation', (tester) async {
+      final haptics = _recordHaptics(tester);
+      final auth = _SpyAuth();
+      await _pumpLaunch(tester, auth);
+      // Le démarrage part avec la première image, en parallèle de la marque.
+      expect(auth.calls, 1, reason: 'bootstrap parallèle : pas de délai');
+      final gate = _gateOf(tester);
+      await tester.pump(_decodeWindow);
+
+      await tester.pump(const Duration(milliseconds: 520));
+      expect(find.byKey(const ValueKey('launch-fragment-0')), findsOneWidget);
+      expect(find.byKey(const ValueKey('launch-focus')), findsOneWidget);
+      expect(find.byKey(const ValueKey('launch-logo')), findsNothing);
+
+      await tester.pump(const Duration(milliseconds: 540)); // ≈ 1060 ms
+      expect(find.byKey(const ValueKey('launch-word')), findsOneWidget);
+      expect(find.byKey(const ValueKey('launch-digit-0')), findsOneWidget);
+      expect(haptics, isEmpty);
+
+      await tester.pump(const Duration(milliseconds: 270)); // ≈ 1330 ms
+      expect(haptics, ['HapticFeedbackType.selectionClick']);
+      // LOCK : le PNG seul, net, sans fragments ni flou.
+      expect(find.byKey(const ValueKey('launch-logo')), findsOneWidget);
+      expect(find.byKey(const ValueKey('launch-fragment-0')), findsNothing);
+      expect(find.byKey(const ValueKey('launch-focus')), findsNothing);
+      expect(find.byKey(const ValueKey('launch-ripple')), findsOneWidget);
+
+      await tester.pump(const Duration(milliseconds: 270)); // ≈ 1600 ms
+      expect(find.byKey(const ValueKey('launch-sheen')), findsOneWidget);
+      expect(
+        gate.holding,
+        isTrue,
+        reason: 'la marque se voit avant que la navigation ne parte',
+      );
+      expect(auth.calls, 1);
+
+      await tester.pump(const Duration(milliseconds: 560)); // ≈ 2160 ms
+      expect(
+        gate.holding,
+        isFalse,
+        reason: 'sortie : la navigation est libérée',
+      );
+      expect(auth.calls, 1);
+      await tester.pump(const Duration(seconds: 1));
+      expect(auth.calls, 1, reason: 'aucun second démarrage');
+      expect(haptics, hasLength(1));
+      expect(tester.takeException(), isNull);
+      await _finish(tester);
+    });
+
+    testWidgets('retour avec session restaurable : version courte, sans '
+        'fragments ni vibration', (tester) async {
+      final haptics = _recordHaptics(tester);
+      final auth = _SpyAuth(restorable: true);
+      await _pumpLaunch(tester, auth);
+      expect(auth.calls, 1, reason: 'la restauration part tout de suite');
+      final gate = _gateOf(tester);
+      await tester.pump(_decodeWindow);
+      for (var ms = 0; ms < 600; ms += 60) {
+        await tester.pump(const Duration(milliseconds: 60));
+        expect(find.byKey(const ValueKey('launch-fragment-0')), findsNothing);
+        expect(gate.holding, isTrue);
+      }
+      await tester.pump(const Duration(milliseconds: 40)); // ≈ 640 ms
+      expect(gate.holding, isFalse);
+      expect(auth.calls, 1);
+      expect(
+        LaunchMotion.navigateAt(LaunchPace.brief),
+        lessThan(LaunchMotion.navigateAt(LaunchPace.full)),
+      );
+      expect(haptics, isEmpty);
+      await _finish(tester);
+    });
+
+    testWidgets('onboarding déjà vu : version courte aussi', (tester) async {
+      final auth = _SpyAuth();
+      await _pumpLaunch(tester, auth, seenOnboarding: true);
+      await tester.pump(_decodeWindow);
+      await tester.pump(LaunchMotion.briefExitStart);
+      await tester.pump();
+      expect(auth.calls, 1);
+      await _finish(tester);
+    });
+
+    testWidgets('animations réduites : aucun effet cinématique', (
+      tester,
+    ) async {
+      final haptics = _recordHaptics(tester);
+      final auth = _SpyAuth();
+      await _pumpLaunch(tester, auth, reduceMotion: true);
+      await tester.pump(_decodeWindow);
+      for (var ms = 0; ms < 420; ms += 60) {
+        await tester.pump(const Duration(milliseconds: 60));
+        expect(find.byKey(const ValueKey('launch-logo')), findsOneWidget);
+        for (final key in [
+          'launch-fragment-0',
+          'launch-word',
+          'launch-focus',
+          'launch-sheen',
+          'launch-ripple',
+        ]) {
+          expect(find.byKey(ValueKey(key)), findsNothing, reason: key);
+        }
+      }
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(auth.calls, 1);
+      expect(haptics, isEmpty);
+      await _finish(tester);
+    });
+
+    testWidgets('une erreur de démarrage reste lisible et se reprend', (
+      tester,
+    ) async {
+      final auth = _SpyAuth(failures: 1);
+      await _pumpLaunch(tester, auth, reduceMotion: true);
+      await tester.pump(_decodeWindow);
+      await tester.pump(LaunchMotion.stillHold);
+      await tester.pump();
+      expect(find.text('Démarrage interrompu'), findsOneWidget);
+      expect(find.byKey(const ValueKey('launch-logo')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('bootstrap-retry')));
+      await tester.pump();
+      expect(auth.calls, 2);
+      expect(find.text('Démarrage interrompu'), findsNothing);
+      await _finish(tester);
+    });
+
+    testWidgets('écran suivant lent : le logo revient au lieu d’un vide', (
+      tester,
+    ) async {
+      final auth = _SpyAuth(restorable: true);
+      await _pumpLaunch(tester, auth);
+      await tester.pump(_decodeWindow);
+      await tester.pump(LaunchMotion.durationOf(LaunchPace.brief));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const ValueKey('launch-return')), findsOneWidget);
+      expect(find.byKey(const ValueKey('launch-logo')), findsOneWidget);
+      expect(auth.calls, 1);
+      await _finish(tester);
+    });
+
+    testWidgets('les barres système se fondent dans la surface', (
+      tester,
+    ) async {
+      await _pumpLaunch(tester, _SpyAuth());
+      final region = tester.widget<AnnotatedRegion<SystemUiOverlayStyle>>(
+        find.byType(AnnotatedRegion<SystemUiOverlayStyle>).first,
+      );
+      expect(region.value.systemNavigationBarColor, kSplashBackground);
+      expect(region.value.statusBarColor, Colors.transparent);
+      expect(region.value.statusBarIconBrightness, Brightness.dark);
+      expect(region.value.systemNavigationBarIconBrightness, Brightness.dark);
+      await _finish(tester);
+    });
   });
 
-  testWidgets('la frappe se déroule avant que la route ne change', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
-        ],
-        child: const MaterialApp(home: BootstrapScreen()),
-      ),
+  group('responsive', () {
+    const sizes = {
+      '320 portrait': Size(320, 640),
+      '360 portrait': Size(360, 740),
+      '412 portrait': Size(412, 915),
+      'tablette': Size(820, 1180),
+      'paysage': Size(740, 360),
+    };
+    for (final entry in sizes.entries) {
+      for (final scale in const [1.0, 1.3]) {
+        for (final dark in const [false, true]) {
+          testWidgets(
+            '${entry.key} × $scale${dark ? ' · système sombre' : ''} : '
+            'logo imposant, entier, avec respiration, sans débordement',
+            (tester) async {
+              final size = entry.value;
+              await _pumpLaunch(
+                tester,
+                _SpyAuth(failures: 1),
+                size: size,
+                textScale: scale,
+                dark: dark,
+              );
+              await tester.pump(_decodeWindow);
+              // Chaque acte, sans débordement.
+              for (final ms in [300, 350, 400, 270, 300, 530]) {
+                await tester.pump(Duration(milliseconds: ms));
+                expect(tester.takeException(), isNull);
+              }
+              await tester.pump(); // LOCK passé, navigation demandée.
+              final box = tester.getRect(find.byType(LaunchLogo).first);
+              expect(box.left, greaterThanOrEqualTo(24));
+              expect(size.width - box.right, greaterThanOrEqualTo(24));
+              expect(box.top, greaterThanOrEqualTo(0));
+              expect(box.bottom, lessThanOrEqualTo(size.height));
+              if (size.width < 600) {
+                expect(box.width / size.width, closeTo(0.78, 0.01));
+              }
+              expect(
+                box.width / box.height,
+                closeTo(LaunchLogo.aspectRatio, 0.01),
+              );
+              // Erreur : le logo et la reprise tiennent ensemble.
+              expect(find.text('Démarrage interrompu'), findsOneWidget);
+              expect(tester.takeException(), isNull);
+              await _finish(tester);
+            },
+          );
+        }
+      }
+    }
+  });
+
+  group('transitions', () {
+    testWidgets('première expérience → onboarding, une seule fois', (
+      tester,
+    ) async {
+      final auth = _SpyAuth(
+        onComplete: (auth) => auth.resolve(const AuthState.unauthenticated()),
+      );
+      final app = await _RouterApp.start(
+        tester,
+        seenOnboarding: false,
+        auth: auth,
+      );
+      expect(app.location, AppRoutes.bootstrap);
+      expect(find.byType(LaunchScene), findsOneWidget);
+      await tester.pump(_decodeWindow);
+      await tester.pump(LaunchMotion.exitStart);
+      await tester.pump(const Duration(milliseconds: 16));
+      // L'onboarding apparaît pendant que le logo sort.
+      await tester.pump(LaunchMotion.exitSpan ~/ 2);
+      expect(find.text(AppRoutes.onboarding), findsOneWidget);
+      await app.settle();
+      expect(app.location, AppRoutes.onboarding);
+      expect(find.byType(LaunchScene), findsNothing);
+      expect(auth.calls, 1);
+      expect(
+        app.router.routerDelegate.currentConfiguration.matches,
+        hasLength(1),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('retour avec session → espace après la version courte', (
+      tester,
+    ) async {
+      final app = await _RouterApp.start(
+        tester,
+        seenOnboarding: true,
+        auth: _SpyAuth(
+          restorable: true,
+          onComplete: (auth) => auth.setAuthenticatedUser(
+            role: AppRole.parent,
+            userId: 'parent-a',
+            email: '',
+            firstName: 'Claire',
+          ),
+        ),
+      );
+      await tester.pump(_decodeWindow);
+      await tester.pump(LaunchMotion.briefExitStart);
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(app.location, AppRoutes.parentHome);
+      expect(app.auth.calls, 1);
+      await app.settle();
+      expect(find.byType(LaunchScene), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  });
+  group('matière vidéo (première expérience, Android)', () {
+    late FakeVideoPlatform fake;
+
+    void useVideo(FakeVideoPlatform platform) {
+      fake = platform;
+      VideoPlayerPlatform.instance = platform;
+    }
+
+    /// Laisse aboutir les libérations : l'annulation d'un flux vidéo ne se
+    /// termine qu'avec un vrai tour de boucle, jamais sous l'horloge simulée.
+    Future<void> settle(WidgetTester tester) async {
+      for (var i = 0; i < 3; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+    }
+
+    Future<void> startSequence(WidgetTester tester, _SpyAuth auth) async {
+      await _pumpLaunch(tester, auth);
+      await tester.pump(_decodeWindow);
+    }
+
+    Future<void> run(WidgetTester tester, int ms) async {
+      for (var elapsed = 0; elapsed < ms; elapsed += 100) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+
+    Color veilOf(WidgetTester tester) => tester
+        .widget<ColoredBox>(find.byKey(const ValueKey('launch-matter-veil')))
+        .color;
+
+    Future<void> finish(WidgetTester tester) async {
+      await tester.pump(const Duration(seconds: 7));
+      await settle(tester);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await settle(tester);
+    }
+
+    testWidgets(
+      'clip prêt : la matière joue à l’heure sous le vrai logo, une seule '
+      'vibration, jamais le fond actuel en même temps',
+      (tester) async {
+        useVideo(FakeVideoPlatform());
+        final haptics = _recordHaptics(tester);
+        final auth = _SpyAuth();
+        await _pumpLaunch(tester, auth);
+        // Première image : la surface unie, aucune matière encore.
+        expect(find.byKey(const ValueKey('launch-matter')), findsNothing);
+        expect(find.byKey(const ValueKey('launch-backdrop')), findsNothing);
+        await tester.pump(_decodeWindow);
+
+        await run(tester, 100);
+        expect(find.byKey(const ValueKey('launch-matter')), findsOneWidget);
+        expect(find.byKey(const ValueKey('launch-backdrop')), findsNothing);
+        expect(fake.plays, 1);
+        expect(
+          fake.seeks,
+          isEmpty,
+          reason: 'à l’heure : ni recalage ni avance',
+        );
+        expect(
+          veilOf(tester).a,
+          greaterThan(0.4),
+          reason: 'la matière entre en fondu',
+        );
+
+        await run(tester, 600); // ≈ 700 ms
+        expect(find.byKey(const ValueKey('launch-fragment-0')), findsOneWidget);
+        await run(tester, 700); // ≈ 1400 ms : LOCK passé
+        expect(find.byKey(const ValueKey('launch-logo')), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('launch-ripple')),
+          findsOneWidget,
+          reason: 'l’onde du LOCK reste au-dessus de la matière',
+        );
+        expect(
+          veilOf(tester).a,
+          lessThan(0.02),
+          reason: 'matière pleine au LOCK',
+        );
+        expect(haptics, ['HapticFeedbackType.selectionClick']);
+
+        await run(tester, 800); // ≈ 2200 ms : matière éteinte
+        expect(
+          veilOf(tester).a,
+          1.0,
+          reason: 'la dernière image est 100 % Flutter',
+        );
+        await run(tester, 400);
+        expect(find.byKey(const ValueKey('launch-matter')), findsNothing);
+        expect(haptics, hasLength(1));
+        await finish(tester);
+        expect(fake.disposed, fake.created, reason: 'le lecteur est libéré');
+        expect(tester.takeException(), isNull);
+      },
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 16));
 
-    String written() => _wordmark(tester).textSpan!.toPlainText();
+    testWidgets('clip absent : le splash actuel, à l’identique', (
+      tester,
+    ) async {
+      useVideo(FakeVideoPlatform(createFails: true));
+      final haptics = _recordHaptics(tester);
+      final auth = _SpyAuth();
+      await startSequence(tester, auth);
+      await run(tester, 100);
+      expect(find.byKey(const ValueKey('launch-matter')), findsNothing);
+      expect(find.byKey(const ValueKey('launch-backdrop')), findsOneWidget);
+      await run(tester, 500);
+      expect(find.byKey(const ValueKey('launch-fragment-0')), findsOneWidget);
+      await run(tester, 800);
+      expect(find.byKey(const ValueKey('launch-logo')), findsOneWidget);
+      expect(haptics, hasLength(1));
+      expect(auth.calls, 1);
+      await finish(tester);
+      expect(tester.takeException(), isNull);
+    });
 
-    expect(written().length, lessThan('INTELLIA237'.length));
-    expect(written(), startsWith('I'));
+    testWidgets('erreur du lecteur : le splash actuel, lecteur libéré', (
+      tester,
+    ) async {
+      useVideo(FakeVideoPlatform(fail: true));
+      final auth = _SpyAuth();
+      await startSequence(tester, auth);
+      await run(tester, 300);
+      expect(find.byKey(const ValueKey('launch-matter')), findsNothing);
+      expect(find.byKey(const ValueKey('launch-backdrop')), findsOneWidget);
+      await finish(tester);
+      expect(fake.plays, 0);
+      expect(fake.disposed, fake.created);
+      expect(tester.takeException(), isNull);
+    });
 
-    await tester.pump(SplashMotion.letter * SplashMotion.name.length);
-    expect(written(), SplashMotion.name);
+    testWidgets(
+      'initialisation lente mais dans la fenêtre : la matière rejoint en '
+      'retard, par un fondu de plus',
+      (tester) async {
+        useVideo(
+          FakeVideoPlatform(initDelay: const Duration(milliseconds: 700)),
+        );
+        await startSequence(tester, _SpyAuth());
+        await run(tester, 300);
+        expect(find.byKey(const ValueKey('launch-matter')), findsNothing);
+        await run(
+          tester,
+          400,
+        ); // ≈ 700 ms de séquence : le clip vient d'arriver
+        expect(find.byKey(const ValueKey('launch-matter')), findsOneWidget);
+        expect(fake.plays, 1);
+        final joined = fake.seeks.last;
+        expect(joined, greaterThan(const Duration(milliseconds: 400)));
+        expect(
+          joined,
+          lessThan(LaunchMotion.videoStartLimit + LaunchMotion.videoSeekCost),
+        );
+        await run(tester, 600);
+        expect(veilOf(tester).a, lessThan(0.1), reason: 'puis pleine matière');
+        await finish(tester);
+        expect(tester.takeException(), isNull);
+      },
+    );
 
-    await tester.pump(SplashMotion.breath + SplashMotion.digit * 3);
-    expect(written(), 'INTELLIA237');
+    testWidgets(
+      'initialisation trop lente : écartée, l’atmosphère actuelle revient en '
+      'fondu, le clip n’est jamais lancé',
+      (tester) async {
+        useVideo(
+          FakeVideoPlatform(initDelay: const Duration(milliseconds: 1500)),
+        );
+        final auth = _SpyAuth();
+        await startSequence(tester, auth);
+        await run(tester, 800);
+        expect(find.byKey(const ValueKey('launch-backdrop')), findsNothing);
+        await run(tester, 400); // ≈ 1200 ms : la fenêtre est passée
+        expect(find.byKey(const ValueKey('launch-backdrop')), findsOneWidget);
+        expect(find.byKey(const ValueKey('launch-matter')), findsNothing);
+        await run(tester, 800); // le clip arrive enfin : il est ignoré
+        expect(fake.plays, 0);
+        expect(find.byKey(const ValueKey('launch-matter')), findsNothing);
+        expect(
+          auth.calls,
+          1,
+          reason: 'le démarrage n’a jamais attendu le clip',
+        );
+        await finish(tester);
+        expect(fake.disposed, fake.created);
+        expect(tester.takeException(), isNull);
+      },
+    );
 
-    await tester.pump(SplashMotion.hold + SplashMotion.exit);
-    expect(tester.takeException(), isNull);
+    testWidgets(
+      'lecteur muet : aucun blocage, la navigation part à la sortie et '
+      'l’échéance libère le lecteur',
+      (tester) async {
+        useVideo(FakeVideoPlatform(hang: true));
+        final auth = _SpyAuth();
+        await startSequence(tester, auth);
+        final gate = _gateOf(tester);
+        expect(gate.holding, isTrue);
+        await run(tester, 1100);
+        expect(find.byKey(const ValueKey('launch-backdrop')), findsOneWidget);
+        await run(tester, 1100); // ≈ 2200 ms : la sortie a commencé
+        expect(gate.holding, isFalse);
+        await run(tester, 500);
+        expect(find.byKey(const ValueKey('launch-scene')), findsOneWidget);
+        await finish(tester);
+        expect(auth.calls, 1);
+        expect(fake.disposed, fake.created);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('animations réduites : aucun clip, aucun mouvement', (
+      tester,
+    ) async {
+      useVideo(FakeVideoPlatform());
+      await _pumpLaunch(tester, _SpyAuth(), reduceMotion: true);
+      await tester.pump(_decodeWindow);
+      await run(tester, 400);
+      expect(fake.created, 0);
+      expect(find.byKey(const ValueKey('launch-matter')), findsNothing);
+      expect(find.byKey(const ValueKey('launch-logo')), findsOneWidget);
+      await _finish(tester);
+    });
+
+    testWidgets('session restaurée : version courte, aucun clip', (
+      tester,
+    ) async {
+      useVideo(FakeVideoPlatform());
+      await _pumpLaunch(tester, _SpyAuth(restorable: true));
+      await tester.pump(_decodeWindow);
+      await run(tester, 900);
+      expect(fake.created, 0);
+      expect(find.byKey(const ValueKey('launch-matter')), findsNothing);
+      await _finish(tester);
+    });
+
+    testWidgets('onboarding déjà vu : version courte, aucun clip', (
+      tester,
+    ) async {
+      useVideo(FakeVideoPlatform());
+      await _pumpLaunch(tester, _SpyAuth(), seenOnboarding: true);
+      await tester.pump(_decodeWindow);
+      await run(tester, 900);
+      expect(fake.created, 0);
+      await _finish(tester);
+    });
+
+    testWidgets(
+      'hors Android (web, bureau, iOS) : le splash actuel, aucun clip',
+      (tester) async {
+        useVideo(FakeVideoPlatform());
+        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+        try {
+          await startSequence(tester, _SpyAuth());
+          await run(tester, 300);
+          expect(fake.created, 0);
+          expect(find.byKey(const ValueKey('launch-backdrop')), findsOneWidget);
+          await _finish(tester);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      },
+    );
+
+    testWidgets('clip échauffé au démarrage : adopté, jamais recréé', (
+      tester,
+    ) async {
+      useVideo(FakeVideoPlatform());
+      final warmed = LaunchVideo();
+      unawaited(warmed.prepare());
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(warmed.state, LaunchVideoState.ready);
+      await _pumpLaunch(
+        tester,
+        _SpyAuth(),
+        extraOverrides: [launchVideoProvider.overrideWithValue(warmed)],
+      );
+      await tester.pump(_decodeWindow);
+      await run(tester, 100);
+      expect(fake.created, 1, reason: 'pas de double initialisation');
+      expect(warmed.isStarted, isTrue);
+      expect(warmed.startedAt, Duration.zero);
+      await finish(tester);
+      expect(fake.disposed, 1);
+    });
+
+    testWidgets('clip échauffé pour rien (version courte) : libéré aussitôt', (
+      tester,
+    ) async {
+      useVideo(FakeVideoPlatform());
+      final warmed = LaunchVideo();
+      unawaited(warmed.prepare());
+      await tester.pump(const Duration(milliseconds: 200));
+      await _pumpLaunch(
+        tester,
+        _SpyAuth(restorable: true),
+        extraOverrides: [launchVideoProvider.overrideWithValue(warmed)],
+      );
+      expect(warmed.state, LaunchVideoState.disposed);
+      await settle(tester);
+      expect(fake.disposed, 1);
+      expect(fake.plays, 0);
+      await _finish(tester);
+    });
+
+    testWidgets(
+      'démonté en pleine séquence : la navigation est libérée, rien ne fuit',
+      (tester) async {
+        useVideo(FakeVideoPlatform());
+        await startSequence(tester, _SpyAuth());
+        final gate = _gateOf(tester);
+        await run(tester, 700);
+        expect(gate.holding, isTrue);
+        await tester.pumpWidget(const SizedBox.shrink());
+        expect(
+          gate.holding,
+          isFalse,
+          reason: 'jamais retenue par un écran disparu',
+        );
+        await settle(tester);
+        expect(fake.disposed, fake.created);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'routeur réel : démarrage en parallèle, une seule navigation à la '
+      'sortie, jamais avant',
+      (tester) async {
+        useVideo(FakeVideoPlatform());
+        final auth = _SpyAuth(
+          onComplete: (auth) => auth.resolve(const AuthState.unauthenticated()),
+        );
+        final app = await _RouterApp.start(
+          tester,
+          seenOnboarding: false,
+          auth: auth,
+        );
+        expect(
+          auth.calls,
+          1,
+          reason: 'la restauration part à la première image',
+        );
+        await tester.pump(_decodeWindow);
+        await run(tester, 1500);
+        // Le démarrage est fini depuis longtemps, mais la marque est encore là.
+        expect(app.location, AppRoutes.bootstrap);
+        expect(find.byType(LaunchScene), findsOneWidget);
+        await run(tester, 800);
+        await app.settle();
+        expect(app.location, AppRoutes.onboarding);
+        expect(find.byType(LaunchScene), findsNothing);
+        expect(auth.calls, 1, reason: 'aucun second démarrage');
+        expect(
+          app.router.routerDelegate.currentConfiguration.matches,
+          hasLength(1),
+          reason: 'aucune double navigation',
+        );
+        await tester.pump(const Duration(seconds: 7));
+        await settle(tester);
+        expect(fake.disposed, fake.created);
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }
 
-/// Le gabarit invisible porte lui aussi un Text : seul le mot visible est
-/// identifié.
-Text _wordmark(WidgetTester tester) =>
-    tester.widget<Text>(find.byKey(const ValueKey('splash-wordmark')));
+class _SpyAuth extends AuthController {
+  _SpyAuth({this.restorable = false, this.failures = 0, this.onComplete});
 
-Future<void> pumpSplash(WidgetTester tester) async {
+  final bool restorable;
+  int failures;
+  final void Function(_SpyAuth auth)? onComplete;
+  int calls = 0;
+
+  @override
+  AuthState build() => const AuthState.bootstrapping();
+
+  @override
+  bool get hasRestorableSession => restorable;
+
+  @override
+  Future<void> completeBootstrap() async {
+    calls++;
+    if (failures > 0) {
+      failures--;
+      throw StateError('démarrage interrompu');
+    }
+    onComplete?.call(this);
+  }
+
+  void resolve(AuthState next) => state = next;
+}
+
+Future<void> _pumpLaunch(
+  WidgetTester tester,
+  _SpyAuth auth, {
+  bool reduceMotion = false,
+  bool seenOnboarding = false,
+  Size size = const Size(360, 740),
+  double textScale = 1,
+  bool dark = false,
+  List<Override> extraOverrides = const [],
+}) async {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1;
+  tester.platformDispatcher.platformBrightnessTestValue = dark
+      ? Brightness.dark
+      : Brightness.light;
+  addTearDown(tester.view.reset);
+  addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        authRepositoryProvider.overrideWithValue(_FakeAuthRepository()),
+        authControllerProvider.overrideWith(() => auth),
+        hasSeenOnboardingProvider.overrideWith((ref) => seenOnboarding),
+        ...extraOverrides,
       ],
-      child: const MaterialApp(
-        home: MediaQuery(
-          data: MediaQueryData(disableAnimations: true),
-          child: BootstrapScreen(),
+      child: MaterialApp(
+        locale: const Locale('fr'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        themeMode: ThemeMode.system,
+        darkTheme: ThemeData.dark(),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            disableAnimations: reduceMotion,
+            textScaler: TextScaler.linear(textScale),
+          ),
+          child: child!,
         ),
+        home: const BootstrapScreen(),
       ),
     ),
   );
-  await tester.pump();
 }
 
-class _FakeAuthRepository implements AuthRepository {
-  @override
-  Future<AuthUserData?> getCurrentUser() async => null;
+LaunchGate _gateOf(WidgetTester tester) => ProviderScope.containerOf(
+  tester.element(find.byType(BootstrapScreen)),
+).read(launchGateProvider);
 
-  @override
-  Future<AuthUserData> register({
-    required String email,
-    required String password,
-    required String firstName,
-    required String lastName,
-    required AppRole role,
-  }) => throw UnimplementedError();
+/// Laisse finir toutes les minuteries du lancement avant le démontage.
+Future<void> _finish(WidgetTester tester) async {
+  await tester.pump(const Duration(seconds: 4));
+  await tester.pumpWidget(const SizedBox.shrink());
+}
 
-  @override
-  Future<void> sendPasswordResetEmail(String email) async {}
+List<String> _recordHaptics(WidgetTester tester) {
+  final calls = <String>[];
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+    SystemChannels.platform,
+    (call) async {
+      if (call.method == 'HapticFeedback.vibrate') {
+        calls.add(call.arguments as String);
+      }
+      return null;
+    },
+  );
+  addTearDown(
+    () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      null,
+    ),
+  );
+  return calls;
+}
 
-  @override
-  Future<void> signOut() async {}
+/// Le routeur de production, écran de lancement réel, autres écrans
+/// remplacés par des emplacements.
+class _RouterApp {
+  _RouterApp(this.tester, this.router, this.auth);
 
-  @override
-  Future<AuthUserData> signInWithEmail({
-    required String email,
-    required String password,
-  }) => throw UnimplementedError();
+  final WidgetTester tester;
+  final GoRouter router;
+  final _SpyAuth auth;
+
+  String get location => router.state.fullPath ?? router.state.uri.path;
+
+  Future<void> settle() async {
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+  }
+
+  static Future<_RouterApp> start(
+    WidgetTester tester, {
+    required _SpyAuth auth,
+    required bool seenOnboarding,
+  }) async {
+    Widget placeholder(BuildContext context, GoRouterState state) =>
+        Scaffold(body: Center(child: Text(state.fullPath ?? '')));
+    final container = ProviderContainer(
+      overrides: [
+        authControllerProvider.overrideWith(() => auth),
+        hasSeenOnboardingProvider.overrideWith((ref) => seenOnboarding),
+        hasAuthenticatedBeforeProvider.overrideWith((ref) => seenOnboarding),
+        appRouteSlotsProvider.overrideWithValue({
+          for (final path in [
+            AppRoutes.onboarding,
+            AppRoutes.authGateway,
+            AppRoutes.studentHome,
+            AppRoutes.parentHome,
+            AppRoutes.teacherHome,
+            AppRoutes.adminHome,
+          ])
+            path: placeholder,
+        }),
+      ],
+    );
+    addTearDown(container.dispose);
+    final router = container.read(appRouterProvider);
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: const Locale('fr'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+        ),
+      ),
+    );
+    return _RouterApp(tester, router, auth);
+  }
 }

@@ -15,7 +15,7 @@ abstract final class LearningReminderService {
   static Future<void> initialize() async {
     if (_initialized || kIsWeb) return;
     const settings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings('@drawable/ic_stat_intellia'),
       iOS: DarwinInitializationSettings(
         requestAlertPermission: false,
         requestBadgePermission: false,

@@ -1,0 +1,5 @@
+Reproduction at 7ea5cf0 (flutter test test/features/auth/auth_v2_p0_repro_7ea5cf0_test.dart test/l10n/hardcoded_french_audit_test.dart): +2 -5
+P0-1: Expected: AuthStatus.authenticated  Actual: AuthStatus.unauthenticated (gateway Google success, router stays on /auth)
+P0-2: Expected: not contains 'signInWithProvider'  Actual: ['signInWithProvider'] (Firebase identity created before any decision)
+P0-3: Expected: not contains 'EmailAuthProvider.credential('  Actual: source contains it, plus '+237$rawNumber'
+P0-4: auth : 52 chaînes françaises en dur (ceiling 0); priority surfaces test fails

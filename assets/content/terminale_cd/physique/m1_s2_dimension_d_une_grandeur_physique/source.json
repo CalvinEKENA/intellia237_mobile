@@ -1,0 +1,109 @@
+{
+  "schema_version": "intellia.source.v2",
+  "content_id": "physique_terminale_cd_m1_s2_dimension_grandeur_physique",
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale C-D",
+    "class_keys": [
+      "terminale-c-d"
+    ],
+    "subject": "Physique",
+    "module": 1,
+    "module_title": "Mesures et incertitudes",
+    "sequence": 2,
+    "sequence_title": "Dimension d'une grandeur physique"
+  },
+  "source_location": {
+    "provider": "Google Drive",
+    "folder": "/Google Drive/INTELLIA_CONTENT_SOURCE/PHYSIQUE TERMINALES C-D",
+    "image_range": "page_010.jpg → page_013.jpg",
+    "next_module_starts_at": "page_014.jpg",
+    "basis": "Scanned textbook pages supplied by the user."
+  },
+  "source_sections": [
+    {
+      "lesson": 1,
+      "title": "Dimension d'une grandeur et grandeurs fondamentales",
+      "images": [
+        "page_010.jpg"
+      ],
+      "verified_content": [
+        "La dimension d'une grandeur physique renseigne sur sa nature et doit être distinguée de son unité.",
+        "Les sept grandeurs de base du SI sont représentées par les dimensions L, M, T, I, Θ, N et J.",
+        "Une même dimension peut être exprimée au moyen d'unités différentes."
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Grandeurs dérivées et équations aux dimensions",
+      "images": [
+        "page_010.jpg",
+        "page_011.jpg"
+      ],
+      "verified_content": [
+        "Une grandeur dérivée s'exprime en fonction des grandeurs de base au moyen d'équations de la physique.",
+        "La dimension d'une grandeur Q peut s'écrire sous la forme L^a M^b T^c I^d Θ^e N^f J^g.",
+        "Les exposants a, b, c, d, e, f et g sont les exposants dimensionnels.",
+        "L'activité du cours utilise a = v²/R pour obtenir la dimension et l'unité de l'accélération."
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Unités dérivées et grandeurs sans dimension",
+      "images": [
+        "page_011.jpg"
+      ],
+      "verified_content": [
+        "Le cours présente des dimensions et unités dérivées usuelles : masse volumique, fréquence, vitesse, accélération, force, travail-énergie, puissance, pression et quantité de mouvement.",
+        "Le rapport de deux grandeurs de même dimension est sans dimension.",
+        "Les nombres et les angles sont sans dimension ; un angle en radians est un rapport de deux longueurs.",
+        "Les fonctions mathématiques comme cos, sin, tan, exp et ln, ainsi que leurs arguments, sont sans dimension."
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Analyse dimensionnelle et homogénéité",
+      "images": [
+        "page_012.jpg"
+      ],
+      "verified_content": [
+        "L'analyse dimensionnelle sert notamment à retrouver une unité, tester l'homogénéité d'une formule et faire des déductions à partir des dimensions.",
+        "Dans une somme ou une différence, tous les termes doivent avoir la même dimension.",
+        "Les deux membres d'une égalité homogène ont la même dimension.",
+        "Une équation non homogène est nécessairement fausse, mais une équation homogène n'est pas nécessairement juste.",
+        "Le cours vérifie l'homogénéité de x(t) = 1/2·g·t²."
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Applications de l'analyse dimensionnelle",
+      "images": [
+        "page_012.jpg",
+        "page_013.jpg"
+      ],
+      "verified_content": [
+        "Les exercices appliquent l'analyse dimensionnelle au pendule simple, à la gravitation, au mouvement circulaire, aux constantes physiques et à d'autres relations.",
+        "Le cours demande de retrouver l'unité SI du newton et celle de la constante de gravitation universelle à partir des relations physiques.",
+        "Pour un mouvement circulaire, l'accélération centripète v²/r a la dimension d'une accélération et la vitesse angulaire v/r a la dimension T^-1.",
+        "Les exercices avancés utilisent également la constante de Planck via E = h·ν et la constante de Boltzmann via Ec = 3/2·k·T."
+      ]
+    }
+  ],
+  "source_quality": {
+    "overall": "good_core_content_some_advanced_exercises_partially_legible",
+    "limitations": [
+      {
+        "id": "advanced_exercises_page_013_partially_legible",
+        "severity": "moderate",
+        "issue": "Certaines formules, constantes numériques et exposants des exercices avancés de la page 013 sont difficiles à lire avec certitude sur la photographie.",
+        "runtime_action": "Ne pas fabriquer d'exposant ou de constante numérique ambiguë ; les questions auto-corrigées n'utilisent que les relations clairement lisibles."
+      },
+      {
+        "id": "electrical_resistance_symbol_source_ambiguous",
+        "severity": "moderate",
+        "issue": "Dans le tableau des unités électriques de la page 011, le symbole imprimé/photographié associé à l'ohm est ambigu et ressemble à W ; le pack ne le corrige pas silencieusement.",
+        "runtime_action": "Aucune question auto-corrigée du pack ne dépend de ce symbole de tableau."
+      }
+    ]
+  }
+}

@@ -1,0 +1,417 @@
+{
+  "schema_version": "intellia.pedagogy.v3",
+  "content_id": "svt_terminale_d_m1_s1_les_echanges_cellulaires",
+  "design_principle": "Observer → comparer les milieux → identifier la substance → justifier le mécanisme → vérifier les limites du document.",
+  "difficulty_axis": {
+    "1": {
+      "label": "Repères",
+      "focus": "Reconnaître une définition, une cellule ou une donnée."
+    },
+    "2": {
+      "label": "Application",
+      "focus": "Appliquer une relation ou expliquer une observation."
+    },
+    "3": {
+      "label": "Raisonnement",
+      "focus": "Croiser les indices et expliciter les limites du document."
+    }
+  },
+  "explanation_axis": {
+    "standard": {
+      "label": "Terminale",
+      "style": "Vocabulaire scientifique et raisonnement explicite."
+    },
+    "simple": {
+      "label": "Simple",
+      "style": "Phrases courtes, étapes visibles."
+    },
+    "ultra_simple": {
+      "label": "Comme si j’avais 12 ans",
+      "style": "Observation et analogie limitée au mécanisme."
+    }
+  },
+  "concepts": [
+    {
+      "id": "osmose",
+      "lesson": 1,
+      "title": "Osmose et tonicité",
+      "aliases": [
+        "Osmose et tonicité"
+      ],
+      "explanations": {
+        "standard": "Dans les expériences du cours, une membrane sépare deux milieux de concentrations différentes. Le mouvement net d’eau va du milieu hypotonique, le moins concentré en solutés, vers le milieu hypertonique. À l’isotonie, le flux net d’eau est nul : il faut toujours comparer les deux milieux.",
+        "simple": "Compare le milieu extérieur à la cellule. S’il est plus concentré en solutés, la cellule perd de l’eau ; s’il est moins concentré, elle en reçoit.",
+        "ultra_simple": "Imagine deux côtés séparés par une membrane. L’eau rejoint le côté le plus concentré en solutés."
+      },
+      "common_mistakes": [
+        "Dire hypertonique sans préciser le milieu auquel on compare."
+      ],
+      "source_pages": [
+        5,
+        6,
+        11
+      ],
+      "source_images": [
+        "page_008.jpg",
+        "page_009.jpg",
+        "page_014.jpg"
+      ]
+    },
+    {
+      "id": "cellule_vegetale",
+      "lesson": 1,
+      "title": "Turgescence, plasmolyse et déplasmolyse",
+      "aliases": [
+        "Turgescence, plasmolyse et déplasmolyse"
+      ],
+      "explanations": {
+        "standard": "Les morceaux de pomme de terre changent de dimensions selon le milieu. Chez l’oignon, l’entrée d’eau agrandit la vacuole et rend la cellule turgescente ; la paroi limite son gonflement. Une perte d’eau réduit la vacuole et décolle la membrane de la paroi : c’est la plasmolyse. Un retour dans un milieu hypotonique peut permettre une déplasmolyse.",
+        "simple": "Une cellule végétale qui reçoit de l’eau devient turgescente. Si elle en perd, son contenu se rétracte : elle est plasmolysée. Le retour à l’état initial est la déplasmolyse.",
+        "ultra_simple": "La paroi est l’enveloppe rigide. À l’intérieur, la vacuole gonfle ou rétrécit selon l’eau reçue ou perdue."
+      },
+      "common_mistakes": [
+        "Confondre la paroi, qui reste en place, avec la membrane qui se décolle."
+      ],
+      "source_pages": [
+        3,
+        4,
+        11,
+        18
+      ],
+      "source_images": [
+        "page_006.jpg",
+        "page_007.jpg",
+        "page_014.jpg",
+        "page_019.jpg"
+      ]
+    },
+    {
+      "id": "hematies",
+      "lesson": 1,
+      "title": "Échanges d’eau des hématies",
+      "aliases": [
+        "Échanges d’eau des hématies"
+      ],
+      "explanations": {
+        "standard": "Dans le dispositif du manuel, les hématies sont biconcaves dans NaCl à 9 g/L, crénelées dans une solution plus concentrée et gonflées puis éclatées dans l’eau distillée. L’éclatement s’appelle hémolyse. Ces résultats décrivent les expériences du chapitre, pas une prescription médicale.",
+        "simple": "Un milieu plus concentré fait sortir l’eau des hématies ; un milieu moins concentré les fait gonfler. Une entrée trop importante peut les faire éclater.",
+        "ultra_simple": "Regarde la forme : biconcave = état conservé ; crénelée = eau perdue ; éclatée = entrée d’eau excessive."
+      },
+      "common_mistakes": [
+        "Attribuer aux hématies une paroi cellulosique comme celle des cellules végétales."
+      ],
+      "source_pages": [
+        4,
+        5,
+        20
+      ],
+      "source_images": [
+        "page_007.jpg",
+        "page_008.jpg",
+        "page_020.jpg"
+      ]
+    },
+    {
+      "id": "osmomètres",
+      "lesson": 2,
+      "title": "Dutrochet, Pfeffer et dialyse",
+      "aliases": [
+        "Dutrochet, Pfeffer et dialyse"
+      ],
+      "explanations": {
+        "standard": "Dans l’expérience de Dutrochet, l’eau entre d’abord dans l’entonnoir contenant le sulfate de cuivre ; du soluté gagne ensuite le cristallisoir. Le cours distingue le passage d’eau par osmose du passage de soluté par dialyse. Chez Pfeffer, la paroi préparée laisse passer l’eau mais retient le sucre : le liquide monte dans le tube.",
+        "simple": "Observe ce qui traverse : eau seule pour l’osmose ; soluté traversant la membrane pour la dialyse. La membrane de Pfeffer retient le sucre.",
+        "ultra_simple": "Dans ces montages, la membrane décide ce qui passe. Une montée du liquide révèle une entrée d’eau."
+      },
+      "common_mistakes": [
+        "Inverser le passage de l’eau et celui des substances dissoutes."
+      ],
+      "source_pages": [
+        5,
+        6,
+        19
+      ],
+      "source_images": [
+        "page_008.jpg",
+        "page_009.jpg",
+        "page_019.jpg"
+      ]
+    },
+    {
+      "id": "pression_osmotique",
+      "lesson": 2,
+      "title": "Calculer une pression osmotique",
+      "aliases": [
+        "Calculer une pression osmotique"
+      ],
+      "explanations": {
+        "standard": "Le manuel utilise Pₒ = R × (C/M) × i × T = R × n × i × T. C est en g/L, M en g/mol, n en mol/L et T = 273 + température en °C. Avec R = 0,082 L·atm·mol⁻¹·K⁻¹, Pₒ est en atm. Les constantes ambiguës des exercices ne sont pas utilisées pour noter une réponse.",
+        "simple": "Passe d’abord la température en kelvins. Si la concentration est déjà en mol/L, multiplie R, n, i et T. Vérifie l’unité de R.",
+        "ultra_simple": "Prépare les bonnes unités avant de multiplier. Une température en degrés Celsius ne va pas directement dans la formule."
+      },
+      "common_mistakes": [
+        "Utiliser 27 à la place de 300 K ou confondre g/L et mol/L."
+      ],
+      "source_pages": [
+        6,
+        16
+      ],
+      "source_images": [
+        "page_009.jpg",
+        "page_018.jpg"
+      ]
+    },
+    {
+      "id": "lecture_experimentale",
+      "lesson": 2,
+      "title": "Lire les résultats sans inventer une mesure",
+      "aliases": [
+        "Lire les résultats sans inventer une mesure"
+      ],
+      "explanations": {
+        "standard": "Le tableau du chou rouge donne 8, 75, 95, 100 et 100 cellules plasmolysées sur 100 pour 0,2 ; 0,4 ; 0,6 ; 0,8 et 1 mol/L. Aucun point mesuré ne correspond exactement à 50 %. Pour la pomme de terre, il faut comparer chaque longueur finale à la longueur initiale de 30 mm.",
+        "simple": "Distingue une valeur mesurée d’une estimation. Pour la pomme de terre, longueur finale moins 30 mm indique un gain ou une perte de longueur.",
+        "ultra_simple": "Lis les colonnes ensemble et conserve les unités. Une case absente du tableau ne devient pas une mesure."
+      },
+      "common_mistakes": [
+        "Présenter une interpolation comme une valeur mesurée exacte."
+      ],
+      "source_pages": [
+        16,
+        17
+      ],
+      "source_images": [
+        "page_018.jpg"
+      ]
+    },
+    {
+      "id": "diffusion",
+      "lesson": 3,
+      "title": "Diffusion libre et diffusion facilitée",
+      "aliases": [
+        "Diffusion libre et diffusion facilitée"
+      ],
+      "explanations": {
+        "standard": "La diffusion suit le gradient de concentration du soluté. Le cours distingue le passage direct dans la bicouche lipidique, les canaux et les transporteurs. Dans la diffusion facilitée, une protéine intervient sans hydrolyse d’ATP pour ce transport. Le graphe glucose–mannitol montre des flux différents ; celui du glucose atteint un plateau.",
+        "simple": "Suivre le gradient signifie aller du plus concentré au moins concentré pour le soluté étudié. Une protéine peut aider sans que le transport devienne actif.",
+        "ultra_simple": "Une porte dans la membrane ne signifie pas forcément une pompe. Regarde aussi le sens du passage et l’énergie."
+      },
+      "common_mistakes": [
+        "Croire que tout transport utilisant une protéine consomme directement de l’ATP."
+      ],
+      "source_pages": [
+        7,
+        8,
+        17
+      ],
+      "source_images": [
+        "page_010.jpg",
+        "page_011.jpg",
+        "page_018.jpg"
+      ]
+    },
+    {
+      "id": "permeabilite",
+      "lesson": 3,
+      "title": "Perméabilité sélective et différentielle",
+      "aliases": [
+        "Perméabilité sélective et différentielle"
+      ],
+      "explanations": {
+        "standard": "La membrane n’a pas la même perméabilité à toutes les substances. Le cours présente la perméabilité sélective comme le choix des substances qui passent, et la perméabilité différentielle comme des vitesses de passage différentes. Le glucose et le mannitol ont des masses molaires proches, mais leurs flux diffèrent dans le document expérimental.",
+        "simple": "Certaines substances passent, d’autres non ; parmi celles qui passent, les vitesses peuvent différer.",
+        "ultra_simple": "La membrane trie les substances et ne les laisse pas toutes passer au même rythme."
+      },
+      "common_mistakes": [
+        "Expliquer la vitesse de passage uniquement par la masse molaire."
+      ],
+      "source_pages": [
+        7,
+        13,
+        17
+      ],
+      "source_images": [
+        "page_010.jpg",
+        "page_016.jpg",
+        "page_018.jpg"
+      ]
+    },
+    {
+      "id": "transport_actif",
+      "lesson": 3,
+      "title": "Transport actif, pompes et ATP",
+      "aliases": [
+        "Transport actif, pompes et ATP"
+      ],
+      "explanations": {
+        "standard": "Le transport actif peut déplacer un soluté contre son gradient de concentration. Le cours décrit des pompes associées à l’hydrolyse de l’ATP. Le cotransport associe le déplacement de deux substances : même sens pour le symport, sens opposés pour l’antiport. Le couplage ne doit pas être confondu avec la diffusion facilitée.",
+        "simple": "Une pompe peut déplacer un soluté vers le côté déjà plus concentré grâce à une dépense d’énergie. Deux substances couplées peuvent aller ensemble ou en sens opposés.",
+        "ultra_simple": "Pour remonter un gradient, il faut une source d’énergie. Même sens : symport ; sens opposés : antiport."
+      },
+      "common_mistakes": [
+        "Confondre le sens du cotransport avec le fait de suivre ou non un gradient."
+      ],
+      "source_pages": [
+        8,
+        21
+      ],
+      "source_images": [
+        "page_011.jpg",
+        "page_020.jpg"
+      ]
+    },
+    {
+      "id": "endocytose",
+      "lesson": 4,
+      "title": "Endocytose : phagocytose et pinocytose",
+      "aliases": [
+        "Endocytose : phagocytose et pinocytose"
+      ],
+      "explanations": {
+        "standard": "L’endocytose fait entrer des particules par une déformation de la membrane plasmique et formation d’une vésicule. Le document associe la phagocytose à des particules solides et la pinocytose à des gouttelettes liquides. Ces mécanismes mobilisent de l’énergie issue de l’ATP.",
+        "simple": "La cellule entoure ce qu’elle fait entrer avec sa membrane. Solide : phagocytose ; liquide : pinocytose.",
+        "ultra_simple": "La membrane forme une petite poche qui entre dans la cellule."
+      },
+      "common_mistakes": [
+        "Appeler phagocytose l’entrée de gouttelettes liquides."
+      ],
+      "source_pages": [
+        9,
+        12,
+        15,
+        16
+      ],
+      "source_images": [
+        "page_012.jpg",
+        "page_015.jpg",
+        "page_017.jpg",
+        "page_018.jpg"
+      ]
+    },
+    {
+      "id": "exocytose",
+      "lesson": 4,
+      "title": "Exocytose et échanges de particules",
+      "aliases": [
+        "Exocytose et échanges de particules"
+      ],
+      "explanations": {
+        "standard": "L’exocytose libère à l’extérieur de la cellule le contenu d’une vésicule. Elle se distingue de l’endocytose par le sens du passage. Le cours relie ces échanges aux déformations membranaires et à une dépense d’énergie.",
+        "simple": "Endocytose : entrée. Exocytose : sortie du contenu d’une vésicule vers l’extérieur.",
+        "ultra_simple": "Regarde la flèche : la poche entre ou son contenu est libéré dehors."
+      },
+      "common_mistakes": [
+        "Confondre sortie vésiculaire et diffusion d’un soluté."
+      ],
+      "source_pages": [
+        9,
+        12,
+        16
+      ],
+      "source_images": [
+        "page_012.jpg",
+        "page_015.jpg",
+        "page_018.jpg"
+      ]
+    },
+    {
+      "id": "importance",
+      "lesson": 5,
+      "title": "Des échanges indispensables à la cellule",
+      "aliases": [
+        "Des échanges indispensables à la cellule"
+      ],
+      "explanations": {
+        "standard": "Les échanges membranaires apportent des nutriments et du dioxygène et permettent l’évacuation de déchets tels que le dioxyde de carbone et l’urée. Les documents les situent notamment au niveau des alvéoles, des villosités intestinales et du rein. Ils participent également à la communication cellulaire.",
+        "simple": "Les cellules reçoivent des substances utiles et rejettent des déchets. Les organes d’échange rendent ces transferts possibles.",
+        "ultra_simple": "Pour vivre, une cellule doit recevoir ce dont elle a besoin et évacuer ce qu’elle produit."
+      },
+      "common_mistakes": [
+        "Réduire tous les échanges à l’entrée d’eau."
+      ],
+      "source_pages": [
+        9,
+        10
+      ],
+      "source_images": [
+        "page_012.jpg",
+        "page_013.jpg"
+      ]
+    },
+    {
+      "id": "applications",
+      "lesson": 5,
+      "title": "Dialyse sanguine et laxatifs osmotiques",
+      "aliases": [
+        "Dialyse sanguine et laxatifs osmotiques"
+      ],
+      "explanations": {
+        "standard": "Dans le modèle de dialyse du chapitre, une membrane met le sang en contact indirect avec un liquide de dialyse qui reçoit des déchets. Les laxatifs osmotiques décrits restent dans la lumière intestinale, y augmentent la pression osmotique et y attirent de l’eau. Il s’agit d’expliquer des mécanismes, sans proposer de traitement ni de dosage.",
+        "simple": "Un dialyseur permet le passage de déchets à travers une membrane. Un soluté osmotique restant dans l’intestin y attire de l’eau.",
+        "ultra_simple": "Repère où se trouve le soluté, quelle membrane est traversée et où l’eau ou le déchet se déplace."
+      },
+      "common_mistakes": [
+        "Croire que le dialyseur déverse directement son liquide dans le sang."
+      ],
+      "source_pages": [
+        10,
+        11,
+        20,
+        21
+      ],
+      "source_images": [
+        "page_013.jpg",
+        "page_014.jpg",
+        "page_020.jpg"
+      ]
+    },
+    {
+      "id": "sequence_integration",
+      "lesson": 0,
+      "title": "Relier milieu, membrane et transport",
+      "aliases": [
+        "Relier milieu, membrane et transport"
+      ],
+      "explanations": {
+        "standard": "Pour interpréter une situation, identifier la substance échangée, comparer les deux milieux, préciser la perméabilité de la membrane, déterminer le sens du flux net et discuter le rôle éventuel de l’énergie. Confronter ensuite cette explication aux observations et aux limites du document.",
+        "simple": "Que transporte-t-on ? Entre quels milieux ? À travers quelle membrane ? Dans quel sens et avec quelle énergie ?",
+        "ultra_simple": "Commence par les observations. Ensuite, choisis le mécanisme qui les explique."
+      },
+      "common_mistakes": [
+        "Donner seulement le nom d’un mécanisme sans le relier aux observations."
+      ],
+      "source_pages": [
+        13,
+        14,
+        20,
+        21
+      ],
+      "source_images": [
+        "page_016.jpg",
+        "page_017.jpg",
+        "page_020.jpg"
+      ]
+    }
+  ],
+  "learning_path": [
+    "osmose",
+    "cellule_vegetale",
+    "hematies",
+    "osmomètres",
+    "pression_osmotique",
+    "lecture_experimentale",
+    "diffusion",
+    "permeabilite",
+    "transport_actif",
+    "endocytose",
+    "exocytose",
+    "importance",
+    "applications",
+    "sequence_integration"
+  ],
+  "adaptive_rules": [
+    "Après deux erreurs, proposer une explication simple.",
+    "Ne jamais afficher les réponses avant la validation finale en évaluation.",
+    "Les réponses rédigées sont des autoévaluations séparées du score objectif."
+  ]
+}

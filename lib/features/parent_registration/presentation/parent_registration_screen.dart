@@ -4,14 +4,17 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
+import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/app_role.dart';
 import '../../auth/presentation/widgets/auth_controls.dart';
 import '../../auth/presentation/widgets/auth_experience_scaffold.dart';
 import '../../auth/presentation/widgets/auth_registration_frame.dart';
 import '../../auth/presentation/widgets/living_pass.dart';
+import '../../auth/presentation/widgets/pass_auth_progress.dart';
 import '../../auth/domain/auth_input_validators.dart';
 import '../application/parent_registration_controller.dart';
 import '../../legal/presentation/legal_links.dart';
+import '../../parent/application/pending_child_link.dart';
 import '../application/parent_registration_state.dart';
 
 class ParentRegistrationScreen extends ConsumerStatefulWidget {
@@ -36,6 +39,17 @@ class _ParentRegistrationScreenState
   void initState() {
     super.initState();
     final draft = ref.read(parentRegistrationControllerProvider);
+    // Le code enfant saisi à l'entrée figure déjà parmi les enfants à relier.
+    // Ajouté après la première image : un provider ne se modifie pas pendant
+    // la construction de l'arbre, et la liste n'apparaît qu'à l'étape 2.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final pendingCode = ref.read(pendingChildLinkProvider).code;
+      if (pendingCode == null) return;
+      ref
+          .read(parentRegistrationControllerProvider.notifier)
+          .addChildIdentifier(pendingCode);
+    });
     _firstNameController.text = draft.firstName;
     _lastNameController.text = draft.lastName;
     _firstNameController.addListener(() {
@@ -81,10 +95,21 @@ class _ParentRegistrationScreenState
                 state.childIdentifiers.length,
               ),
         phase: labels[state.currentStep],
-        progress: 0.42 + state.currentStep * 0.23,
+        progress: PassAuthProgress.registrationLine(
+          step: state.currentStep,
+          steps: labels.length,
+        ),
+        // Le sceau dit la session réellement établie, pas l'étape du
+        // formulaire.
+        seal: PassAuthProgress.session(ref.watch(authControllerProvider)),
       ),
       currentStep: state.currentStep,
       labels: labels,
+      hints: [
+        l10n.parentGuideIdentity,
+        l10n.parentGuideChildren,
+        l10n.parentGuideFinal,
+      ],
       onBack: state.currentStep == 0
           ? () => context.pop()
           : () {

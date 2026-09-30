@@ -1,8 +1,16 @@
+import { randomInt } from "node:crypto";
+
 import type { CallableRequest } from "firebase-functions/v2/https";
 import { HttpsError } from "firebase-functions/v2/https";
 import { FieldValue } from "firebase-admin/firestore";
 
 import { db } from "../config/firebase";
+import {
+  authorizeStudentGuardianAction,
+  FirestoreStudentAccessStore,
+  type StudentAccessStore,
+} from "./studentAccessCode";
+import { hasUserRole } from "../auth/userRoles";
 
 /**
  * Liaison parent ↔ enfant, autoritaire côté serveur.
@@ -50,7 +58,8 @@ export const linkRateLimit = {
 
 export interface ChildLinkStore {
   /** Rôle stocké du compte appelant (`parent`, `student`, …), ou undefined. */
-  readRole(uid: string): Promise<string | undefined>;
+  /** Profil `users/{uid}` du compte, pour en lire les espaces. */
+  readUser(uid: string): Promise<Record<string, unknown> | undefined>;
 
   /** Vrai si le parent est temporairement bloqué (trop d'échecs récents). */
   isRateLimited(parentId: string): Promise<boolean>;
@@ -93,19 +102,21 @@ export function normalizeLinkCode(raw: unknown): string {
     .replace(/[\s-]+/g, "");
 }
 
-export function generateLinkCode(random: () => number = Math.random): string {
+/** Tirage CSPRNG : un code de liaison ne doit pas être prévisible. */
+export function generateLinkCode(
+  random: (max: number) => number = randomInt,
+): string {
   let code = "";
   for (let i = 0; i < _codeLength; i++) {
-    code += _codeAlphabet[Math.floor(random() * _codeAlphabet.length)];
+    code += _codeAlphabet[random(_codeAlphabet.length)];
   }
   return code;
 }
 
 export class FirestoreChildLinkStore implements ChildLinkStore {
-  async readRole(uid: string): Promise<string | undefined> {
+  async readUser(uid: string): Promise<Record<string, unknown> | undefined> {
     const snapshot = await db.collection("users").doc(uid).get();
-    const role = snapshot.data()?.role;
-    return typeof role === "string" ? role : undefined;
+    return snapshot.data();
   }
 
   async isRateLimited(parentId: string): Promise<boolean> {
@@ -251,8 +262,8 @@ export class FirestoreChildLinkStore implements ChildLinkStore {
   }
 }
 
-function requireParent(role: string | undefined): void {
-  if (role !== "parent") {
+function requireParent(user: Record<string, unknown> | undefined): void {
+  if (!hasUserRole(user, "parent")) {
     throw new HttpsError(
       "permission-denied",
       "Seul un compte parent peut rattacher un enfant.",
@@ -260,8 +271,8 @@ function requireParent(role: string | undefined): void {
   }
 }
 
-function requireStudent(role: string | undefined): void {
-  if (role !== "student") {
+function requireStudent(user: Record<string, unknown> | undefined): void {
+  if (!hasUserRole(user, "student")) {
     throw new HttpsError(
       "permission-denied",
       "Seul un compte élève possède un code de liaison.",
@@ -280,7 +291,7 @@ export function createLinkChildByCodeHandler(
     if (!uid) {
       throw new HttpsError("unauthenticated", "Firebase Auth is required.");
     }
-    requireParent(await store.readRole(uid));
+    requireParent(await store.readUser(uid));
 
     // Anti-bruteforce : au-delà du seuil d'échecs, on refuse sans révéler quoi
     // que ce soit sur l'existence d'un code (aucune énumération possible).
@@ -320,38 +331,63 @@ export function createLinkChildByCodeHandler(
   };
 }
 
-/** Callable élève : renvoie (ou génère) son code de liaison à partager. */
+type GuardianDirectory = Pick<StudentAccessStore, "readAccount" | "isLinkedParent">;
+
+/**
+ * Élève dont on veut le code de liaison. Sans `studentId`, l'appelant parle de
+ * lui-même et doit être élève. Avec `studentId`, il agit pour un élève : parent
+ * déjà lié (pour rattacher un second parent), direction de l'école de l'élève
+ * ou super-administration — les chemins de confiance, jamais un inconnu.
+ */
+async function resolveLinkCodeSubject(
+  request: CallableRequest<unknown>,
+  store: ChildLinkStore,
+  guardians: GuardianDirectory,
+): Promise<string> {
+  const uid = request.auth?.uid;
+  if (!uid) {
+    throw new HttpsError("unauthenticated", "Firebase Auth is required.");
+  }
+  const data = request.data as { studentId?: unknown } | null | undefined;
+  const studentId =
+    typeof data?.studentId === "string" ? data.studentId.trim() : "";
+  if (studentId.length === 0 || studentId === uid) {
+    requireStudent(await store.readUser(uid));
+    return uid;
+  }
+  if (studentId.length > 128 || studentId.includes("/")) {
+    throw new HttpsError("invalid-argument", "Invalid student.");
+  }
+  await authorizeStudentGuardianAction(guardians, uid, studentId);
+  return studentId;
+}
+
+/** Renvoie (ou génère) le code de liaison d'un élève à partager. */
 export function createEnsureStudentLinkCodeHandler(
   store: ChildLinkStore = new FirestoreChildLinkStore(),
+  guardians: GuardianDirectory = new FirestoreStudentAccessStore(),
 ) {
   return async (
     request: CallableRequest<unknown>,
   ): Promise<{ code: string }> => {
-    const uid = request.auth?.uid;
-    if (!uid) {
-      throw new HttpsError("unauthenticated", "Firebase Auth is required.");
-    }
-    requireStudent(await store.readRole(uid));
-    return { code: await store.ensureLinkCode(uid) };
+    const studentId = await resolveLinkCodeSubject(request, store, guardians);
+    return { code: await store.ensureLinkCode(studentId) };
   };
 }
 
 /**
- * Callable élève : révoque le code actuel et en génère un nouveau. L'ancien code
- * cesse immédiatement de fonctionner ; les liens déjà approuvés sont conservés.
+ * Révoque le code actuel et en génère un nouveau. L'ancien code cesse
+ * immédiatement de fonctionner ; les liens déjà approuvés sont conservés.
  */
 export function createRotateStudentLinkCodeHandler(
   store: ChildLinkStore = new FirestoreChildLinkStore(),
+  guardians: GuardianDirectory = new FirestoreStudentAccessStore(),
 ) {
   return async (
     request: CallableRequest<unknown>,
   ): Promise<{ code: string }> => {
-    const uid = request.auth?.uid;
-    if (!uid) {
-      throw new HttpsError("unauthenticated", "Firebase Auth is required.");
-    }
-    requireStudent(await store.readRole(uid));
-    return { code: await store.rotateLinkCode(uid) };
+    const studentId = await resolveLinkCodeSubject(request, store, guardians);
+    return { code: await store.rotateLinkCode(studentId) };
   };
 }
 

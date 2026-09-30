@@ -18,6 +18,8 @@ const _skipDirectories = {
   '.gradle',
   '.idea',
   '.claude',
+  '.codex-work',
+  '.kilo',
   'build',
   'node_modules',
 };
@@ -73,7 +75,7 @@ void main() {
   final root = Directory.current;
   final violations = <String>[];
 
-  for (final file in _sourceFiles(root)) {
+  for (final file in sourceFilesForBrandCheck(root)) {
     final path = _normalize(file.path, root.path);
     if (_legacyPattern.hasMatch(path) && !_isAllowed(path, 0, path)) {
       violations.add('$path: path contains a legacy EDUNOVA reference');
@@ -133,7 +135,7 @@ bool _isActiveBrandingSource(String path) =>
     path.startsWith('windows/') ||
     path.startsWith('macos/');
 
-Iterable<File> _sourceFiles(Directory root) sync* {
+Iterable<File> sourceFilesForBrandCheck(Directory root) sync* {
   yield* _sourceFilesIn(root, root);
 }
 
@@ -165,6 +167,8 @@ bool _isSkippedPath(String path) {
 
 bool _shouldScan(String path) {
   final fileName = path.split(Platform.pathSeparator).last;
+  // Machine-local credentials are never product branding sources.
+  if (fileName.endsWith('.local.json')) return false;
   if (_textFileNames.contains(fileName)) {
     return true;
   }

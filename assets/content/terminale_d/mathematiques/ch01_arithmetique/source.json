@@ -1,0 +1,176 @@
+{
+  "schema_version": "intellia.source.v1",
+  "content_id": "maths_td_ch01_arithmetique",
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale D",
+    "subject": "Mathématiques",
+    "module": "Relations et opérations fondamentales dans l'ensemble des nombres complexes",
+    "chapter_number": 1,
+    "chapter_title": "Arithmétique"
+  },
+  "source_location": {
+    "provider": "Google Drive",
+    "folder": "/Google Drive/INTELLIA_CONTENT_SOURCE/MATHS TERMINALE D",
+    "image_range": "page_006.jpg → page_025.jpg",
+    "printed_page_range": "9 → 28"
+  },
+  "chapter_map": [
+    {
+      "lesson": 1,
+      "title": "Division euclidienne dans N",
+      "images": [
+        "page_006.jpg",
+        "page_007.jpg"
+      ],
+      "printed_pages": [
+        9,
+        10
+      ],
+      "verified_core": [
+        "Pour a entier naturel et b entier naturel non nul, il existe un unique couple (q,r) d'entiers naturels tel que a=bq+r et 0≤r<b.",
+        "q est le quotient et r le reste de la division euclidienne de a par b.",
+        "Exemple visible : 1964=17×115+9."
+      ],
+      "source_situation": "Conditionnement de 2851 morceaux de savon dans des cartons de même contenance ; vérification d'un rapport annonçant 56 cartons pleins."
+    },
+    {
+      "lesson": 2,
+      "title": "Système de numération décimale et système binaire",
+      "images": [
+        "page_008.jpg",
+        "page_009.jpg",
+        "page_010.jpg"
+      ],
+      "printed_pages": [
+        11,
+        12,
+        13
+      ],
+      "verified_core": [
+        "Un entier peut être décomposé selon les puissances successives de la base.",
+        "Dans la base 2, les chiffres disponibles sont 0 et 1.",
+        "Le passage de la base 10 à la base 2 est construit par divisions euclidiennes successives par 2.",
+        "La valise de la situation-problème affiche 1111101 en base 2 ; ce nombre vaut 125 en base 10."
+      ],
+      "source_situation": "Décodage d'un code de valise écrit en système binaire."
+    },
+    {
+      "lesson": 3,
+      "title": "Division euclidienne et divisibilité dans Z",
+      "images": [
+        "page_011.jpg",
+        "page_012.jpg"
+      ],
+      "printed_pages": [
+        14,
+        15
+      ],
+      "verified_core": [
+        "Pour a et b entiers relatifs avec b≠0, il existe un unique couple (q,r) d'entiers relatifs tel que a=bq+r et 0≤r<|b|.",
+        "Lorsque r=0, b divise a.",
+        "Si b divise a et c, alors b divise ax+cy pour tous entiers x et y.",
+        "La situation-problème utilise (2n+6)/(n−1) entier."
+      ],
+      "source_situation": "Décodage d'une note à partir des entiers n pour lesquels (2n+6)/(n−1) est entier."
+    },
+    {
+      "lesson": 4,
+      "title": "Congruence dans Z",
+      "images": [
+        "page_013.jpg",
+        "page_014.jpg",
+        "page_015.jpg"
+      ],
+      "printed_pages": [
+        16,
+        17,
+        18
+      ],
+      "verified_core": [
+        "Pour n entier naturel non nul, a≡b [n] si a−b est un multiple de n.",
+        "Deux entiers congrus modulo n ont le même reste dans leur division euclidienne par n.",
+        "Les congruences sont compatibles avec l'addition et la multiplication.",
+        "Dans la situation-problème : 2^12≡1 [65], donc 2^100≡16 [65].",
+        "Le chapitre relie les congruences aux critères de divisibilité."
+      ],
+      "source_situation": "Recherche du reste de 2^100 cellules après partage entre 65 centres."
+    },
+    {
+      "lesson": 5,
+      "title": "Nombres premiers",
+      "images": [
+        "page_016.jpg",
+        "page_017.jpg"
+      ],
+      "printed_pages": [
+        19,
+        20
+      ],
+      "verified_core": [
+        "Un entier naturel premier admet exactement deux diviseurs distincts dans N : 1 et lui-même.",
+        "Si un entier n>1 n'est pas premier, il admet un diviseur premier p≤√n.",
+        "La situation-problème conduit à factoriser 6647.",
+        "6647=17²×23 ; avec une face carrée, les arêtes du coffret sont 17 cm, 17 cm et 23 cm."
+      ],
+      "source_situation": "Reconstitution d'un coffret de volume 6647 cm³ dont une face est carrée."
+    },
+    {
+      "lesson": 6,
+      "title": "PGCD et PPCM de deux nombres entiers non nuls",
+      "images": [
+        "page_018.jpg",
+        "page_019.jpg",
+        "page_020.jpg",
+        "page_021.jpg"
+      ],
+      "printed_pages": [
+        21,
+        22,
+        23,
+        24
+      ],
+      "verified_core": [
+        "Le PGCD est le plus grand diviseur commun positif.",
+        "L'algorithme d'Euclide permet de calculer le PGCD.",
+        "Le PPCM est le plus petit multiple commun strictement positif.",
+        "Pour a et b non nuls : PGCD(a,b)×PPCM(a,b)=|ab|.",
+        "Le sol de douche de la situation-problème mesure 2,4 m×1,8 m ; le plus grand carreau carré possible a un côté de 60 cm.",
+        "Les carreaux du salon mesurent 24 cm×18 cm ; une coïncidence des extrémités se reproduit tous les 72 cm."
+      ],
+      "source_situation": "Choix de carreaux pour une douche et étude des coïncidences de pose dans un salon."
+    }
+  ],
+  "chapter_exercises": {
+    "training_images": [
+      "page_022.jpg",
+      "page_023.jpg",
+      "page_024.jpg"
+    ],
+    "integration_image": "page_025.jpg",
+    "integration_activities_verified": [
+      {
+        "id": "source_integration_awa",
+        "summary": "250 savons de toilette pour 22 clients ; moins de 100 savons de ménage avec restes imposés modulo 5 et modulo 7 ; cartons de volume 31117 cm³ à dimensions entières.",
+        "quality_notes": [
+          "250≡8 (mod 22), donc l'ajout minimal pour un partage exact entre 22 clients est 14.",
+          "Sous les seules contraintes N<100, N≡3 (mod 5) et N≡2 (mod 7), il existe trois solutions : 23, 58 et 93. L'énoncé ne détermine donc pas une valeur unique.",
+          "31117=29²×37. Sans contrainte géométrique supplémentaire, le volume seul ne détermine pas un unique triplet de dimensions entières. 29×29×37 est une solution naturelle mais pas la seule."
+        ]
+      },
+      {
+        "id": "source_integration_seaux",
+        "summary": "Seaux de 20 L, 28 L et 36 L ; mesurer 52 L puis trouver une même quantité d'eau compatible avec les trois contenances.",
+        "quality_notes": [
+          "PGCD(20,28)=4, donc 52 L est mesurable avec des opérations de transvasement.",
+          "PPCM(20,28,36)=1260 L ; avec un fût de capacité supérieure à 1500 L, 1260 L convient. Abdel utilise alors 63 seaux de 20 L."
+        ]
+      }
+    ]
+  },
+  "source_quality": {
+    "overall": "good_with_perspective_distortion",
+    "method": "OCR-assisted extraction + visual verification of lesson-opening pages and critical numerical data",
+    "do_not_infer_rule": "If an equation, exponent, option or numerical datum is not visually reliable, it is not promoted to an auto-scored runtime item."
+  }
+}

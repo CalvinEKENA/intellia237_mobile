@@ -90,16 +90,31 @@ class FirestoreNotificationRepository implements NotificationRepository {
     QueryDocumentSnapshot<Map<String, dynamic>> document,
   ) {
     final data = document.data();
+    final type = _optionalString(data['type']) ?? 'information';
     final title = data['title']?.toString().trim() ?? '';
     final body = data['body']?.toString().trim() ?? '';
-    if (title.isEmpty || body.isEmpty) return null;
+
+    // Les notifications localisées côté client (titre/corps composés à partir
+    // d'un code de type + données) n'ont pas de texte stocké : on ne les rejette
+    // pas pour cause de titre/corps vides.
+    int? thresholdPercent;
+    if (type == 'study_reserve_threshold') {
+      final payload = data['data'];
+      if (payload is Map) {
+        final raw = payload['threshold'];
+        if (raw is num) thresholdPercent = raw.round();
+      }
+    } else if (title.isEmpty || body.isEmpty) {
+      return null;
+    }
 
     return StudentNotification(
       id: document.id,
       title: title,
       body: body,
       route: _optionalString(data['route']),
-      type: _optionalString(data['type']) ?? 'information',
+      type: type,
+      thresholdPercent: thresholdPercent,
       createdAt:
           _date(data['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
       readAt: _date(data['readAt']),

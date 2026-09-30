@@ -35,9 +35,14 @@ class CompanionHistorySheet extends ConsumerWidget {
     final learnerId = ref.watch(authControllerProvider).userId;
     final repository = ref.watch(companionHistoryRepositoryProvider);
 
-    final conversations =
-        repository.valueOrNull?.listConversations(learnerId) ??
-        const <CompanionConversation>[];
+    // Seuls les fils du compagnon actuel : les anciens, écrits par un autre
+    // service, restent sur l'appareil sans être rejoués comme les siens.
+    final conversations = [
+      for (final conversation
+          in repository.valueOrNull?.listConversations(learnerId) ??
+              const <CompanionConversation>[])
+        if (conversation.isDeterministic) conversation,
+    ];
 
     return SafeArea(
       child: ConstrainedBox(

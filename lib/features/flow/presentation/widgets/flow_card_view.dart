@@ -5,6 +5,7 @@ import '../../application/flow_controller.dart';
 import '../../domain/flow_card.dart';
 import 'flow_content_card_views.dart';
 import 'flow_exercise_card_views.dart';
+import 'flow_learning_card_view.dart';
 import 'flow_mini_quiz_card_view.dart';
 import 'flow_reward_card_view.dart';
 
@@ -37,6 +38,11 @@ class FlowCardView extends StatelessWidget {
           ),
           FlowOrderingCard c => FlowOrderingCardView(card: c, onAward: onAward),
           FlowRewardCard c => FlowRewardCardView(card: c),
+          FlowLearningCard c => FlowLearningCardView(
+            key: ValueKey(c.learning),
+            card: c,
+            onAward: onAward,
+          ),
         },
       ),
     );

@@ -13,6 +13,7 @@ class TeacherRegistrationState {
     this.acceptedTerms = false,
     this.acceptedPrivacy = false,
     this.awaitsValidation = false,
+    this.accountCreated = false,
   });
 
   final int currentStep;
@@ -36,6 +37,10 @@ class TeacherRegistrationState {
   /// d'un compte immédiatement actif.
   final bool awaitsValidation;
 
+  /// Le serveur a créé le compte ; son espace s'ouvre après que le Pass a
+  /// montré son sceau complet.
+  final bool accountCreated;
+
   bool get isFirstStep => currentStep == 0;
   bool get isLastStep => currentStep == 2;
 
@@ -54,6 +59,7 @@ class TeacherRegistrationState {
     bool? acceptedTerms,
     bool? acceptedPrivacy,
     bool? awaitsValidation,
+    bool? accountCreated,
   }) {
     return TeacherRegistrationState(
       currentStep: currentStep ?? this.currentStep,
@@ -69,6 +75,7 @@ class TeacherRegistrationState {
       acceptedTerms: acceptedTerms ?? this.acceptedTerms,
       acceptedPrivacy: acceptedPrivacy ?? this.acceptedPrivacy,
       awaitsValidation: awaitsValidation ?? this.awaitsValidation,
+      accountCreated: accountCreated ?? this.accountCreated,
     );
   }
 }

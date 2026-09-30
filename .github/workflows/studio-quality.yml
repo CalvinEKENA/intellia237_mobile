@@ -1,0 +1,59 @@
+name: Studio quality
+
+# INTELLIA Studio, application Windows distincte (apps/intellia_studio).
+# Exécutée sur Windows : les tests DPAPI y parcourent le vrai chemin natif.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/intellia_studio/**"
+      - ".github/workflows/studio-quality.yml"
+  push:
+    branches:
+      - main
+      - "fix/**"
+      - "feat/**"
+      - "feature/**"
+      - "refactor/**"
+      - "edu/**"
+      - "release/**"
+      - "integration/**"
+    paths:
+      - "apps/intellia_studio/**"
+      - ".github/workflows/studio-quality.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: studio-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  studio:
+    name: Analyze, format, test
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/intellia_studio
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: "3.44.2"
+          cache: true
+
+      - name: Resolve dependencies
+        run: flutter pub get
+
+      - name: Check Dart formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze --no-pub lib test
+
+      - name: Test
+        run: flutter test --no-pub

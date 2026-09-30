@@ -12,6 +12,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   runTransaction,
   setDoc,
@@ -21,6 +23,8 @@ import {
 } from "firebase/firestore";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 
+import { resolveEmulatorAddress } from "./emulator-address";
+
 const projectId = "demo-intellia237";
 
 let testEnv: RulesTestEnvironment;
@@ -29,8 +33,7 @@ beforeAll(async () => {
   testEnv = await initializeTestEnvironment({
     projectId,
     firestore: {
-      host: "127.0.0.1",
-      port: 8085,
+      ...resolveEmulatorAddress("firestore", "FIRESTORE_EMULATOR_HOST"),
       rules: readFileSync(join(process.cwd(), "../firestore.rules"), "utf8"),
     },
   });
@@ -431,7 +434,6 @@ describe("Firestore security rules", () => {
         email: "student@example.com",
         firstName: "New",
         lastName: "Student",
-        establishmentId: "school-a",
         classLevel: "Terminale",
         series: "D",
         profileCompleted: true,
@@ -444,8 +446,6 @@ describe("Firestore security rules", () => {
         firstName: "New",
         lastName: "Student",
         email: "student@example.com",
-        establishmentId: "school-a",
-        establishmentName: "School A",
         classLevel: "Terminale",
         series: "D",
         points: 0,
@@ -473,6 +473,124 @@ describe("Firestore security rules", () => {
         level: 10,
       }),
     );
+  });
+
+  describe("no client self-assignment to a school", () => {
+    const newStudentUser = (uid: string) => ({
+      uid,
+      role: "student",
+      email: `${uid}@example.com`,
+      firstName: "New",
+      lastName: "Student",
+      classLevel: "Terminale",
+      profileCompleted: true,
+    });
+    const newStudentProfile = (uid: string) => ({
+      uid,
+      firstName: "New",
+      lastName: "Student",
+      classLevel: "Terminale",
+      points: 0,
+      level: 1,
+    });
+
+    it("denies a new account that names an arbitrary establishmentId", async () => {
+      await seedFirestore();
+      const db = dbFor("intruder");
+      await assertFails(
+        setDoc(doc(db, "users/intruder"), {
+          ...newStudentUser("intruder"),
+          establishmentId: "school-a",
+        }),
+      );
+      await assertFails(
+        setDoc(doc(dbFor("intruder-parent"), "users/intruder-parent"), {
+          ...newStudentUser("intruder-parent"),
+          role: "parent",
+          establishmentId: "school-a",
+        }),
+      );
+      // Same payload without the claim is accepted: the claim is the reason.
+      await assertSucceeds(
+        setDoc(doc(dbFor("intruder-parent"), "users/intruder-parent"), {
+          ...newStudentUser("intruder-parent"),
+          role: "parent",
+        }),
+      );
+      await assertFails(
+        setDoc(doc(db, "student_profiles/intruder"), {
+          ...newStudentProfile("intruder"),
+          establishmentId: "school-a",
+        }),
+      );
+      // The honest path still works, and grants nothing on school A.
+      await assertSucceeds(setDoc(doc(db, "users/intruder"), newStudentUser("intruder")));
+      await assertFails(getDoc(doc(db, "establishments/school-a")));
+      await assertFails(getDoc(doc(db, "classes/class-a")));
+    });
+
+    it("denies a new account that names an arbitrary establishmentName", async () => {
+      const db = dbFor("name-claim");
+      await assertFails(
+        setDoc(doc(db, "student_profiles/name-claim"), {
+          ...newStudentProfile("name-claim"),
+          establishmentName: "Lycée Général Leclerc",
+        }),
+      );
+      await assertFails(
+        setDoc(doc(dbFor("parent-claim"), "parent_profiles/parent-claim"), {
+          uid: "parent-claim",
+          firstName: "Parent",
+          establishmentId: "school-a",
+        }),
+      );
+      await assertFails(
+        setDoc(doc(dbFor("parent-verified"), "parent_profiles/parent-verified"), {
+          uid: "parent-verified",
+          establishmentVerified: true,
+        }),
+      );
+    });
+
+    it("honours an establishment attached by an authorized server workflow", async () => {
+      await seedFirestore();
+      const db = dbFor("attached");
+      await assertSucceeds(setDoc(doc(db, "users/attached"), newStudentUser("attached")));
+      await assertFails(getDoc(doc(db, "establishments/school-a")));
+      // changeAccountEstablishment / reviewStaffAccount write with the Admin SDK.
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        await updateDoc(doc(context.firestore(), "users/attached"), {
+          establishmentId: "school-a",
+        });
+      });
+      await assertSucceeds(getDoc(doc(db, "establishments/school-a")));
+    });
+
+    it("denies a later direct change of school by the learner or a parent", async () => {
+      await seedFirestore();
+      const db = dbFor("student-a");
+      await assertFails(updateDoc(doc(db, "users/student-a"), { establishmentId: "school-b" }));
+      await assertFails(updateDoc(doc(db, "users/student-a"), { establishmentName: "School B" }));
+      await assertFails(
+        updateDoc(doc(db, "student_profiles/student-a"), { establishmentId: "school-b" }),
+      );
+      await assertFails(
+        updateDoc(doc(db, "student_profiles/student-a"), { establishmentName: "School B" }),
+      );
+      const parentDb = dbFor("parent-owner");
+      await assertSucceeds(
+        setDoc(doc(parentDb, "parent_profiles/parent-owner"), {
+          uid: "parent-owner",
+          firstName: "Parent",
+        }),
+      );
+      await assertFails(
+        updateDoc(doc(parentDb, "parent_profiles/parent-owner"), { establishmentId: "school-a" }),
+      );
+      await assertSucceeds(
+        updateDoc(doc(parentDb, "parent_profiles/parent-owner"), { firstName: "Parent B" }),
+      );
+    });
   });
 
   it("blocks public teacher and administrator role creation", async () => {
@@ -843,42 +961,119 @@ describe("Firestore security rules", () => {
     }));
   });
 
-  it("serves the school-scoped announcement queries of every dashboard", async () => {
-    // Reads stay open to signed-in accounts until installed versions that
-    // query without a school are gone; the new queries must already pass.
-    await seedFirestore();
-    await testEnv.withSecurityRulesDisabled(async (context) => {
-      const db = context.firestore();
-      await setDoc(doc(db, "announcements/news-a"), {
-        createdBy: "teacher-a",
-        establishmentId: "school-a",
-        title: "A",
-        message: "A",
-        audience: "Parents",
+  describe("announcements follow their real audience", () => {
+    async function seedAnnouncements() {
+      await seedFirestore();
+      await testEnv.withSecurityRulesDisabled(async (context) => {
+        const db = context.firestore();
+        const announcement = (
+          id: string,
+          fields: Record<string, unknown>,
+        ) => setDoc(doc(db, `announcements/${id}`), {
+          title: id,
+          message: id,
+          publishedAt: new Date("2026-09-22T08:00:00Z"),
+          ...fields,
+        });
+        await announcement("a-all", { establishmentId: "school-a", audience: "Tout l'établissement", createdBy: "admin-a" });
+        await announcement("a-students", { establishmentId: "school-a", audience: "Élèves", createdBy: "admin-a" });
+        await announcement("a-parents", { establishmentId: "school-a", audience: "Parents", createdBy: "admin-a" });
+        await announcement("a-teachers", { establishmentId: "school-a", audience: "Enseignants", createdBy: "admin-a" });
+        await announcement("a-admins", { establishmentId: "school-a", audience: "Administration", createdBy: "admin-a" });
+        await announcement("a-class", { establishmentId: "school-a", audience: "Classe", classId: "class-a", createdBy: "teacher-a" });
+        await announcement("b-all", { establishmentId: "school-b", audience: "Tout l'établissement", createdBy: "admin-b" });
+        await announcement("b-students", { establishmentId: "school-b", audience: "Élèves", createdBy: "admin-b" });
+        await announcement("b-teachers", { establishmentId: "school-b", audience: "Enseignants", createdBy: "admin-b" });
       });
-      await setDoc(doc(db, "announcements/news-b"), {
-        createdBy: "admin-b",
-        establishmentId: "school-b",
-        title: "B",
-        message: "B",
-        audience: "Parents",
-      });
+    }
+    const read = (uid: string | undefined, id: string) =>
+      getDoc(doc(dbFor(uid), `announcements/${id}`));
+
+    it("a student never reads another school's announcements", async () => {
+      await seedAnnouncements();
+      await assertFails(read("student-a", "b-all"));
+      await assertFails(read("student-a", "b-students"));
+      await assertFails(read("student-b", "a-all"));
+      await assertFails(read("student-b", "a-class"));
     });
-    const ofSchool = (uid: string, establishmentId: string) =>
-      getDocs(query(
+
+    it("a student reads only what is addressed to students in their school and class", async () => {
+      await seedAnnouncements();
+      await assertSucceeds(read("student-a", "a-all"));
+      await assertSucceeds(read("student-a", "a-students"));
+      await assertSucceeds(read("student-a", "a-class"));
+      await assertFails(read("student-a", "a-parents"));
+      await assertFails(read("student-a", "a-teachers"));
+      await assertFails(read("student-a", "a-admins"));
+    });
+
+    it("a teacher never reads another school's announcements", async () => {
+      await seedAnnouncements();
+      await assertFails(read("teacher-a", "b-all"));
+      await assertFails(read("teacher-a", "b-teachers"));
+      await assertFails(getDocs(query(
+        collection(dbFor("teacher-a"), "announcements"),
+        where("establishmentId", "==", "school-b"),
+      )));
+    });
+
+    it("a teacher reads their own, the staff ones and their class in their school", async () => {
+      await seedAnnouncements();
+      await assertSucceeds(read("teacher-a", "a-all"));
+      await assertSucceeds(read("teacher-a", "a-teachers"));
+      await assertSucceeds(read("teacher-a", "a-class"));
+      await assertFails(read("teacher-a", "a-parents"));
+      await assertFails(read("teacher-a", "a-admins"));
+    });
+
+    it("an inactive teacher or an account without a role reads nothing", async () => {
+      await seedAnnouncements();
+      await assertFails(read("pending-teacher", "a-all"));
+      await assertFails(read("pending-teacher", "a-teachers"));
+      await assertFails(read("no-profile-yet", "a-all"));
+      await assertFails(getDocs(query(
+        collection(dbFor("no-profile-yet"), "announcements"),
+        where("establishmentId", "==", "school-a"),
+      )));
+      await assertFails(read(undefined, "a-all"));
+    });
+
+    it("keeps the exact queries of the installed app working during the transition", async () => {
+      // Requêtes de la version en production (7521a94), sans école : les
+      // resserrer ferait échouer tout le tableau de bord administration et
+      // parent. Phase 2 (docs/security/ANNOUNCEMENTS_ACCESS.md) les fermera.
+      await seedAnnouncements();
+      const latestFive = (uid: string) => getDocs(query(
+        collection(dbFor(uid), "announcements"),
+        orderBy("publishedAt", "desc"),
+        limit(5),
+      ));
+      await assertSucceeds(latestFive("admin-a"));
+      await assertSucceeds(latestFive("parent-a"));
+      await assertSucceeds(getDocs(query(
+        collection(dbFor("teacher-a"), "announcements"),
+        where("createdBy", "==", "teacher-a"),
+        limit(5),
+      )));
+    });
+
+    it("serves the school-scoped queries of the new app", async () => {
+      await seedAnnouncements();
+      const ofSchool = (uid: string, establishmentId: string) => getDocs(query(
         collection(dbFor(uid), "announcements"),
         where("establishmentId", "==", establishmentId),
+        limit(50),
       ));
-
-    await assertSucceeds(ofSchool("admin-a", "school-a"));
-    await assertSucceeds(ofSchool("parent-a", "school-a"));
-    await assertSucceeds(getDocs(query(
-      collection(dbFor("teacher-a"), "announcements"),
-      where("establishmentId", "==", "school-a"),
-      where("createdBy", "==", "teacher-a"),
-    )));
-    await assertFails(getDocs(collection(dbFor(), "announcements")));
-    await assertSucceeds(getDocs(collection(dbFor("root"), "announcements")));
+      await assertSucceeds(ofSchool("admin-a", "school-a"));
+      await assertSucceeds(ofSchool("parent-a", "school-a"));
+      await assertSucceeds(getDocs(query(
+        collection(dbFor("teacher-a"), "announcements"),
+        where("establishmentId", "==", "school-a"),
+        where("createdBy", "==", "teacher-a"),
+        limit(5),
+      )));
+      await assertSucceeds(getDocs(collection(dbFor("root"), "announcements")));
+    });
   });
 
   it("blocks client writes to generated quizzes and summaries", async () => {
@@ -926,6 +1121,118 @@ describe("Firestore security rules", () => {
     await assertSucceeds(updateDoc(reference, { readAt: new Date() }));
     await assertFails(updateDoc(reference, { title: "Texte falsifié" }));
     await assertFails(updateDoc(reference, { userId: "student-b" }));
+  });
+
+  it("keeps Study Reserve aggregates, ledger and plan configuration server-only", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, "study_reserve/student-a"), {
+        allowanceInternal: 600000,
+        consumed: 1000,
+        cycleId: "school-a_1780000000000_0",
+        holds: {},
+      });
+      await setDoc(doc(db, "study_reserve/student-a/ledger/school-a_1780000000000_0__req-1"), {
+        billableUnits: 1000,
+      });
+      await setDoc(doc(db, "study_reserve_plans/school-a"), {
+        allowanceInternal: 600000,
+        cycleDays: 30,
+      });
+    });
+
+    // Même l'élève et son parent lié ne lisent la réserve que via le callable
+    // product-safe : l'allocation interne n'est jamais exposée au client.
+    for (const uid of ["student-a", "parent-a", "student-b", "root"]) {
+      const db = dbFor(uid);
+      await assertFails(getDoc(doc(db, "study_reserve/student-a")));
+      await assertFails(
+        getDoc(doc(db, "study_reserve/student-a/ledger/school-a_1780000000000_0__req-1")),
+      );
+      await assertFails(getDoc(doc(db, "study_reserve_plans/school-a")));
+      await assertFails(updateDoc(doc(db, "study_reserve/student-a"), { consumed: 0 }));
+      await assertFails(
+        setDoc(doc(db, "study_reserve_plans/school-a"), { allowanceInternal: 9999999, cycleDays: 30 }),
+      );
+    }
+    await assertFails(
+      setDoc(doc(dbFor("student-b"), "study_reserve/student-b"), { allowanceInternal: 9999999, consumed: 0 }),
+    );
+  });
+
+  it("lets only the owner and the general administration read a deletion request", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), "account_deletion_requests/student-a"), {
+        uid: "student-a",
+        status: "scheduled",
+      });
+    });
+    await assertSucceeds(getDoc(doc(dbFor("student-a"), "account_deletion_requests/student-a")));
+    await assertFails(getDoc(doc(dbFor("student-b"), "account_deletion_requests/student-a")));
+    await assertFails(getDoc(doc(dbFor("admin-a"), "account_deletion_requests/student-a")));
+    await assertFails(
+      setDoc(doc(dbFor("student-a"), "account_deletion_requests/student-a"), {
+        uid: "student-a",
+        status: "cancelled",
+      }),
+    );
+  });
+
+  it("keeps the tutor idempotency ledger server-only, even for its owner", async () => {
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), "tutor_requests/student-a__req-00000001"), {
+        userId: "student-a",
+        state: "completed",
+        response: { text: "Réponse." },
+      });
+    });
+    const db = dbFor("student-a");
+    await assertFails(getDoc(doc(db, "tutor_requests/student-a__req-00000001")));
+    await assertFails(
+      setDoc(doc(db, "tutor_requests/student-a__req-00000002"), {
+        userId: "student-a",
+        state: "completed",
+        response: { text: "Réponse forgée." },
+      }),
+    );
+  });
+
+  it("keeps unused client collections closed and content sources staff-only", async () => {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, "courses/global-course"), { title: "National", status: "published" });
+      await setDoc(doc(db, "courses/school-a-course"), {
+        title: "École A",
+        status: "published",
+        scope: { type: "establishment", establishmentId: "school-a" },
+      });
+      await setDoc(doc(db, "lesson_assets/asset-a"), {
+        title: "Résumé",
+        scope: { type: "establishment", establishmentId: "school-a" },
+      });
+      await setDoc(doc(db, "recommendations/reco-a"), { studentId: "student-a", title: "Révise" });
+      await setDoc(doc(db, "settings/student-a"), { theme: "light" });
+    });
+
+    const student = dbFor("student-a");
+    await assertFails(getDoc(doc(student, "courses/global-course")));
+    await assertFails(getDoc(doc(student, "lesson_assets/asset-a")));
+    await assertFails(setDoc(doc(student, "ai_conversations/mine"), { userId: "student-a", text: "x" }));
+    await assertFails(getDoc(doc(student, "settings/student-a")));
+    await assertFails(setDoc(doc(student, "settings/student-a"), { theme: "dark" }));
+    await assertSucceeds(getDoc(doc(student, "recommendations/reco-a")));
+    await assertFails(updateDoc(doc(student, "recommendations/reco-a"), { studentId: "student-b" }));
+
+    const teacherA = dbFor("teacher-a");
+    await assertSucceeds(getDoc(doc(teacherA, "courses/global-course")));
+    await assertSucceeds(getDoc(doc(teacherA, "courses/school-a-course")));
+    await assertSucceeds(getDoc(doc(teacherA, "lesson_assets/asset-a")));
+    const adminB = dbFor("admin-b");
+    await assertFails(getDoc(doc(adminB, "courses/school-a-course")));
+    await assertFails(getDoc(doc(adminB, "lesson_assets/asset-a")));
   });
 
   it("scopes notification device tokens to the authenticated owner", async () => {
@@ -1220,6 +1527,23 @@ describe("Child link codes stay server-authoritative (section C)", () => {
     );
   });
 
+  it("forces the canonical link id and forbids linking oneself", async () => {
+    await seedFirestore();
+    const db = dbFor("parent-b");
+    const pending = (parentId: string, studentId: string) => ({
+      parentId,
+      studentId,
+      status: "pending",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    // Un lien au mauvais identifiant pourrait être approuvé pour un autre parent.
+    await assertFails(setDoc(doc(db, "children_links/parent-a_student-b"), pending("parent-b", "student-b")));
+    await assertFails(setDoc(doc(db, "children_links/random-id"), pending("parent-b", "student-b")));
+    await assertFails(setDoc(doc(db, "children_links/parent-b_parent-b"), pending("parent-b", "parent-b")));
+    await assertSucceeds(setDoc(doc(db, "children_links/parent-b_student-b"), pending("parent-b", "student-b")));
+  });
+
   it("a linked parent can read their approved link; a stranger cannot", async () => {
     await seedFirestore();
     await assertSucceeds(
@@ -1244,6 +1568,143 @@ describe("Child link codes stay server-authoritative (section C)", () => {
         setDoc(doc(db, "link_attempts/parent-a"), { failures: 0 }),
       );
     }
+  });
+});
+
+describe("Family access stays server-only and school-scoped", () => {
+  async function seedFamilyAcrossSchools() {
+    await seedFirestore();
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      // Un parent sans école, lié à un enfant dans chaque école.
+      await setDoc(doc(db, "users/parent-x"), { role: "parent" });
+      for (const studentId of ["student-a", "student-b"]) {
+        await setDoc(doc(db, `children_links/parent-x_${studentId}`), {
+          parentId: "parent-x",
+          studentId,
+          status: "approved",
+          linkedVia: "code",
+        });
+      }
+      await setDoc(doc(db, "student_access_credentials/student-a"), {
+        studentId: "student-a",
+        lookupKey: "f".repeat(64),
+        version: 1,
+        status: "active",
+      });
+      await setDoc(doc(db, `student_access_codes/${"f".repeat(64)}`), {
+        studentId: "student-a",
+        version: 1,
+      });
+      await setDoc(doc(db, "student_access_attempts/client-key"), { failures: 2 });
+      await setDoc(doc(db, "pending_student_accounts/child-x"), { firstName: "Awa", createdBy: "parent-x" });
+      await setDoc(doc(db, "child_access_requests/parent-x_req"), { studentId: "child-x" });
+      await setDoc(doc(db, "child_access_quotas/parent-x"), { count: 1 });
+      await setDoc(doc(db, "student_access_audit/event-1"), {
+        type: "issued",
+        studentId: "student-a",
+        actorUid: "parent-a",
+      });
+      await setDoc(doc(db, "auth_phone_migrations/phone-key"), {
+        studentUid: "student-a",
+        parentUid: "parent-x",
+        status: "completed",
+      });
+      await setDoc(doc(db, "mobile_money_payment_requests/payment-x-a"), {
+        parentId: "parent-x",
+        establishmentId: "school-a",
+        beneficiaryStudentId: "student-a",
+        status: "pending",
+      });
+      await setDoc(doc(db, "mobile_money_payment_requests/payment-x-b"), {
+        parentId: "parent-x",
+        establishmentId: "school-b",
+        beneficiaryStudentId: "student-b",
+        status: "pending",
+      });
+      await setDoc(doc(db, "entitlements/parent-x_school-b"), {
+        userId: "parent-x",
+        establishmentId: "school-b",
+        status: "active",
+      });
+    });
+  }
+
+  it("no client ever reads or writes a student access credential, its index or its counter", async () => {
+    await seedFamilyAcrossSchools();
+    for (const uid of ["student-a", "parent-a", "parent-x", "teacher-a", "admin-a", "root", undefined]) {
+      const db = dbFor(uid);
+      await assertFails(getDoc(doc(db, "student_access_credentials/student-a")));
+      await assertFails(getDoc(doc(db, `student_access_codes/${"f".repeat(64)}`)));
+      await assertFails(getDoc(doc(db, "student_access_attempts/client-key")));
+      await assertFails(getDoc(doc(db, "pending_student_accounts/child-x")));
+      await assertFails(getDoc(doc(db, "child_access_requests/parent-x_req")));
+      await assertFails(getDoc(doc(db, "child_access_quotas/parent-x")));
+      await assertFails(setDoc(doc(db, "pending_student_accounts/child-y"), { firstName: "Forged" }));
+      await assertFails(setDoc(doc(db, "child_access_quotas/parent-x"), { count: 0 }));
+      await assertFails(getDocs(collection(db, "student_access_codes")));
+      await assertFails(setDoc(doc(db, "student_access_credentials/student-a"), { lookupKey: "x" }));
+      await assertFails(setDoc(doc(db, "student_access_codes/guess"), { studentId: "student-a" }));
+      await assertFails(setDoc(doc(db, "student_access_attempts/client-key"), { failures: 0 }));
+      await assertFails(setDoc(doc(db, "auth_phone_migrations/phone-key"), { status: "started" }));
+      await assertFails(setDoc(doc(db, "student_access_audit/forged"), { type: "issued" }));
+    }
+  });
+
+  it("access audits and phone migration journals are for the general administration only", async () => {
+    await seedFamilyAcrossSchools();
+    await assertSucceeds(getDoc(doc(dbFor("root"), "student_access_audit/event-1")));
+    await assertSucceeds(getDoc(doc(dbFor("root"), "auth_phone_migrations/phone-key")));
+    for (const uid of ["student-a", "parent-a", "parent-x", "admin-a", undefined]) {
+      await assertFails(getDoc(doc(dbFor(uid), "student_access_audit/event-1")));
+      await assertFails(getDoc(doc(dbFor(uid), "auth_phone_migrations/phone-key")));
+    }
+  });
+
+  it("school head A never inspects student B, even through a parent linked to both schools", async () => {
+    await seedFamilyAcrossSchools();
+    const headA = dbFor("admin-a");
+    await assertSucceeds(getDoc(doc(headA, "users/student-a")));
+    await assertSucceeds(getDoc(doc(headA, "children_links/parent-x_student-a")));
+    await assertFails(getDoc(doc(headA, "users/student-b")));
+    await assertFails(getDoc(doc(headA, "student_profiles/student-b")));
+    await assertFails(getDoc(doc(headA, "children_links/parent-x_student-b")));
+    await assertFails(getDoc(doc(headA, "mobile_money_payment_requests/payment-x-b")));
+    await assertFails(getDoc(doc(headA, "entitlements/parent-x_school-b")));
+    // La super-administration voit les deux écoles. Les paiements et
+    // abonnements lui parviennent par la callable de revue (non restreinte),
+    // jamais par une lecture directe : la règle existante n'est pas élargie.
+    const root = dbFor("root");
+    for (const path of [
+      "users/student-a",
+      "users/student-b",
+      "student_profiles/student-b",
+      "children_links/parent-x_student-a",
+      "children_links/parent-x_student-b",
+    ]) {
+      await assertSucceeds(getDoc(doc(root, path)));
+    }
+  });
+
+  it("a parent sees each of their children across schools, and never a child linked only to another parent", async () => {
+    await seedFamilyAcrossSchools();
+    const parentX = dbFor("parent-x");
+    for (const path of [
+      "users/student-a",
+      "users/student-b",
+      "student_profiles/student-a",
+      "student_profiles/student-b",
+      "mobile_money_payment_requests/payment-x-a",
+      "mobile_money_payment_requests/payment-x-b",
+      "entitlements/parent-x_school-b",
+    ]) {
+      await assertSucceeds(getDoc(doc(parentX, path)));
+    }
+    const parentA = dbFor("parent-a");
+    await assertFails(getDoc(doc(parentA, "users/student-b")));
+    await assertFails(getDoc(doc(parentA, "student_profiles/student-b")));
+    await assertFails(getDoc(doc(parentA, "children_links/parent-x_student-b")));
+    await assertFails(getDoc(doc(parentA, "mobile_money_payment_requests/payment-x-b")));
   });
 });
 

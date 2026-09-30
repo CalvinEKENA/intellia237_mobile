@@ -549,7 +549,7 @@ Future<void> _confirmCatalogDeletion(
           title: const Text('Supprimer ce contenu ?'),
           content: Text(
             error ??
-                'Supprimer $label ? Les quiz et cartes FLOW associés seront aussi retirés. Cette suppression est définitive.',
+                'Supprimer $label ? Les quiz et cartes de parcours associées seront aussi retirés. Cette suppression est définitive.',
           ),
           actions: [
             TextButton(

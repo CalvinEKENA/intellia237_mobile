@@ -11,12 +11,28 @@ import '../../auth/application/auth_controller.dart';
 /// Collection des publications du fil pédagogique.
 const kFlowItemsCollection = 'flow_items';
 
-/// Nombre de publications lues par requête.
-///
-/// Le fil se parcourt carte par carte : charger tout `flow_items` en mémoire
-/// serait coûteux sans rien apporter, et deviendrait ruineux à mesure que le
-/// catalogue grandit.
+/// Nombre de publications lues par requête, par défaut.
 const kFlowPageSize = 10;
+
+/// Première fenêtre du fil : de quoi commencer tout de suite, sans jamais
+/// charger tout le catalogue à l'ouverture.
+const kFlowFirstPageSize = 12;
+
+/// Pages suivantes, demandées quand l'élève approche de la fin.
+const kFlowNextPageSize = 12;
+
+/// L'écran demande la page suivante à ce nombre de cartes de la fin.
+const kFlowPrefetchThreshold = 4;
+
+/// Une page peut revenir vide avec un curseur (le serveur borne ce qu'il lit
+/// par appel). On en suit au plus ce nombre par demande : jamais de cascade.
+const kFlowMaxPagesPerLoad = 2;
+
+/// Au-delà, l'écran cesse de redemander jusqu'à la prochaine ouverture.
+const kFlowMaxLoadFailures = 3;
+
+/// Cartes gardées dans le cache hors ligne.
+const kFlowCacheLimit = 60;
 
 /// Source des publications du fil.
 abstract interface class FlowFeedRepository {
@@ -30,27 +46,34 @@ abstract interface class FlowFeedRepository {
   });
 }
 
-/// Consume the cursor, including pages containing only filtered-out entries.
-/// Previously the UI silently stopped after its first ten documents.
-Future<List<FlowItem>> fetchFlowCatalog(
+/// Une fenêtre du fil : une page, plus au plus [kFlowMaxPagesPerLoad] - 1
+/// pages vides suivies si le serveur a borné sa lecture. Jamais de boucle sur
+/// tout le catalogue.
+Future<FlowFeedPage> fetchFlowWindow(
   FlowFeedRepository repository,
-  String classLevel,
-) async {
-  final items = <String, FlowItem>{};
-  final seenCursors = <String>{};
-  String? cursor;
-  do {
-    final page = await repository.fetchPage(
+  String classLevel, {
+  String? cursor,
+  int limit = kFlowFirstPageSize,
+}) async {
+  var page = await repository.fetchPage(
+    classLevel: classLevel,
+    cursor: cursor,
+    limit: limit,
+  );
+  var requests = 1;
+  final seenCursors = <String>{?cursor};
+  while (page.items.isEmpty &&
+      page.nextCursor != null &&
+      requests < kFlowMaxPagesPerLoad &&
+      seenCursors.add(page.nextCursor!)) {
+    page = await repository.fetchPage(
       classLevel: classLevel,
-      cursor: cursor,
-      limit: 100,
+      cursor: page.nextCursor,
+      limit: limit,
     );
-    for (final item in page.items) {
-      items[item.id] = item;
-    }
-    cursor = page.nextCursor;
-  } while (cursor != null && seenCursors.add(cursor));
-  return items.values.toList(growable: false);
+    requests++;
+  }
+  return page;
 }
 
 class FirestoreFlowFeedRepository implements FlowFeedRepository {
@@ -107,10 +130,21 @@ class FlowFeedCache {
   Future<void> save(String classLevel, List<FlowItem> items) async {
     if (items.isEmpty) return;
     final payload = jsonEncode([
-      for (final item in items)
+      for (final item in items.take(kFlowCacheLimit))
         <String, Object?>{'id': item.id, ...item.toFirestore()},
     ]);
     await _prefs.setString(_key(classLevel), payload);
+  }
+
+  /// Ajoute une page chargée plus tard, sans doublon et dans la limite.
+  Future<void> append(String classLevel, List<FlowItem> items) async {
+    if (items.isEmpty) return;
+    final current = read(classLevel);
+    final known = {for (final item in current) item.id};
+    await save(classLevel, [
+      ...current,
+      ...items.where((item) => known.add(item.id)),
+    ]);
   }
 
   List<FlowItem> read(String classLevel) {
@@ -138,9 +172,11 @@ class FlowFeedCache {
   Future<void> clear(String classLevel) => _prefs.remove(_key(classLevel));
 }
 
+/// Ne dépend que de l'établissement : un simple drapeau de chargement de la
+/// session ne doit pas reconstruire le dépôt, donc recomposer le fil.
 final flowFeedRepositoryProvider = Provider<FlowFeedRepository>(
   (ref) => FirestoreFlowFeedRepository(
     null,
-    ref.watch(authControllerProvider).establishmentId,
+    ref.watch(authControllerProvider.select((auth) => auth.establishmentId)),
   ),
 );

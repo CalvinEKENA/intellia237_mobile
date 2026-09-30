@@ -1,0 +1,54 @@
+{
+  "schema_version": "intellia.pack-manifest.v3",
+  "id": "physique_terminale_cd_m1_s1_erreurs_et_incertitudes",
+  "title": "Physique Terminales C-D — Module 1 Séquence 1 : Erreurs et incertitudes",
+  "class_keys": [
+    "terminale-c-d"
+  ],
+  "subject": "physique",
+  "module": 1,
+  "sequence": 1,
+  "version": 1,
+  "authoring_status": "validated",
+  "publication_status": "draft",
+  "minimum_engine_version": 2,
+  "source_images": 6,
+  "files": {
+    "source": "source.json",
+    "pedagogy": "pedagogy.json",
+    "runtime": "runtime.json",
+    "validation": "validation_report.json"
+  },
+  "stats": {
+    "lessons": 5,
+    "concepts": 10,
+    "questions": 40,
+    "auto_scored_questions": 35,
+    "non_auto_scored_questions": 5,
+    "game_blueprints": 5,
+    "learning_card_seeds": 14,
+    "difficulty_levels": 3,
+    "explanation_levels": 3
+  },
+  "capabilities": [
+    "deterministic_qcm_shuffle_v1",
+    "stable_option_ids_v1",
+    "deterministic_companion_v1",
+    "learning_cards_v1",
+    "remote_delivery_v1",
+    "offline_first_v1",
+    "physics_measurement_v1"
+  ],
+  "remote_delivery": {
+    "eligible": true,
+    "preferred_storage": "firebase_storage",
+    "catalog_status": "do_not_publish_until_engine_validation",
+    "cache_policy": "latest_valid_with_rollback"
+  },
+  "sha256": {
+    "pedagogy.json": "3996d82aff3bb28948688996978d6c235e0359ed905e1fdd2eabbcc9fd73e6fe",
+    "source.json": "a35cd93723a1f83a839b08aaf6ec3a603c2780e12c940597527ca281f07d135a",
+    "validation_report.json": "e5221cbdb54a73b849712537cae165d28717570ee2ceacb0205c3ddb2a7d5343",
+    "runtime.json": "23d619f06dbbcaef2a2c4974915d46dcb2e25240b0d8feaeca6c0dd7104a075a"
+  }
+}

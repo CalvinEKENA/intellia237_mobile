@@ -51,6 +51,17 @@ describe("admin account management with transactional Firestore", () => {
       .toMatchObject({role: "student", establishmentId: "school", profileCompleted: false});
     expect((await firestore.collection("account_management_audit").get()).size).toBe(1);
   });
+  it("creates a student with no phone number anywhere", async () => {
+    const {phoneNumber: _phone, ...withoutPhone} = creation;
+    const created = await store.execute("root", {...withoutPhone, requestId: "0a2b3000-0000-4000-8000-000000000002"});
+    expect(users.get(created.accountId)?.phoneNumber).toBeUndefined();
+    const profile = (await firestore.doc(`users/${created.accountId}`).get()).data()!;
+    expect(profile).toMatchObject({role: "student", establishmentId: "school", profileCompleted: false});
+    expect(profile.phoneNumber).toBeUndefined();
+    // Rejouer la même demande ne crée rien de plus.
+    await store.execute("root", {...withoutPhone, requestId: "0a2b3000-0000-4000-8000-000000000002"});
+    expect(users.size).toBe(1);
+  });
   it("rejects a school head before any account is provisioned", async () => {
     await expect(store.execute("head", creation)).rejects.toMatchObject({code: "permission-denied"});
     expect(users.size).toBe(0);

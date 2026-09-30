@@ -1,0 +1,2 @@
+# Content pack checksums use the same canonical bytes on every platform.
+assets/content/**/*.json text eol=lf

@@ -1,22 +1,71 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../family_access/data/family_access_repository.dart';
+import '../../family_access/domain/family_access_models.dart';
 import '../domain/parent_announcement.dart';
 import '../domain/parent_child_profile.dart';
 import '../domain/parent_dashboard.dart';
 import 'parent_repository.dart';
 
+/// Enfants lus dans Firestore, enrichis de la projection serveur.
+///
+/// Sans projection (fonction absente, réseau), les enfants restent affichés
+/// tels quels. Un enfant dont le parent a ouvert l'accès n'a pas encore de
+/// profil Firestore : seule la projection le fait apparaître.
+List<ParentChildProfile> mergeChildSummaries(
+  List<ParentChildProfile> linked,
+  Map<String, ParentChildSummary>? summaries,
+) {
+  final linkedIds = {for (final child in linked) child.id};
+  return [
+    for (final child in linked)
+      switch (summaries?[child.id]) {
+        final summary? => child.withSummary(summary),
+        null => child,
+      },
+    for (final summary in summaries?.values ?? const <ParentChildSummary>[])
+      if (summary.pendingFirstSignIn && !linkedIds.contains(summary.studentId))
+        ParentChildProfile.pending(summary),
+  ];
+}
+
 class FirestoreParentRepository implements ParentRepository {
-  FirestoreParentRepository({FirebaseFirestore? firestore})
-    : _db = firestore ?? FirebaseFirestore.instance;
+  FirestoreParentRepository({
+    FirebaseFirestore? firestore,
+    FamilyAccessRepository? familyAccess,
+  }) : _db = firestore ?? FirebaseFirestore.instance,
+       _familyAccess = familyAccess;
 
   final FirebaseFirestore _db;
+  final FamilyAccessRepository? _familyAccess;
 
   @override
   Future<ParentDashboard> fetchDashboard({required String parentUid}) async {
-    final children = await _fetchLinkedChildren(parentUid);
-    final announcements = await _fetchAnnouncements(parentUid);
+    // La projection serveur (école, accès, abonnement de chaque enfant) est
+    // un enrichissement : sans elle — fonction pas encore déployée, réseau —
+    // les enfants liés restent affichés depuis Firestore.
+    final summariesFuture = _fetchSummaries(parentUid);
+    final linked = await _fetchLinkedChildren(parentUid);
+    final summaries = await summariesFuture;
+    final children = mergeChildSummaries(linked, summaries);
+    final announcements = await _fetchAnnouncements(parentUid, children);
 
     return ParentDashboard(children: children, announcements: announcements);
+  }
+
+  Future<Map<String, ParentChildSummary>?> _fetchSummaries(
+    String parentUid,
+  ) async {
+    final familyAccess = _familyAccess;
+    if (familyAccess == null) return null;
+    try {
+      final summaries = await familyAccess
+          .listParentChildren(parentUid: parentUid)
+          .timeout(const Duration(seconds: 10));
+      return {for (final summary in summaries) summary.studentId: summary};
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<List<ParentChildProfile>> _fetchLinkedChildren(
@@ -74,29 +123,54 @@ class FirestoreParentRepository implements ParentRepository {
     }
   }
 
-  Future<List<ParentAnnouncement>> _fetchAnnouncements(String parentUid) async {
-    // Une famille lit les annonces de son école, et la requête doit le dire :
-    // les règles refusent en bloc une lecture qui ne se borne pas à une école.
-    final user = await _db.collection('users').doc(parentUid).get();
-    final establishmentId =
-        (user.data()?['establishmentId'] as String?)?.trim() ?? '';
-    if (establishmentId.isEmpty) return const [];
-    final snapshot = await _db
-        .collection('announcements')
-        .where('establishmentId', isEqualTo: establishmentId)
-        .limit(50)
-        .get();
+  /// Annonces des écoles de TOUS les enfants, plus l'école historique du
+  /// parent s'il en a une. Chaque requête se borne à une école, comme
+  /// l'exigent les règles.
+  Future<List<ParentAnnouncement>> _fetchAnnouncements(
+    String parentUid,
+    List<ParentChildProfile> children,
+  ) async {
+    final schools = <String, String?>{};
+    for (final child in children) {
+      final id = child.establishmentId?.trim() ?? '';
+      if (id.isNotEmpty) schools[id] ??= child.establishmentName;
+    }
+    try {
+      final user = await _db.collection('users').doc(parentUid).get();
+      final legacy = (user.data()?['establishmentId'] as String?)?.trim() ?? '';
+      if (legacy.isNotEmpty) schools.putIfAbsent(legacy, () => null);
+    } catch (_) {
+      // Le profil parent illisible n'efface pas les écoles des enfants.
+    }
+    if (schools.isEmpty) return const [];
+
+    final pages = await Future.wait([
+      for (final entry in schools.entries.take(10))
+        _db
+            .collection('announcements')
+            .where('establishmentId', isEqualTo: entry.key)
+            .limit(30)
+            .get()
+            .then((snapshot) => (entry, snapshot.docs))
+            .catchError(
+              (Object _) =>
+                  (entry, <QueryDocumentSnapshot<Map<String, dynamic>>>[]),
+            ),
+    ]);
     int millis(Object? value) =>
         value is Timestamp ? value.millisecondsSinceEpoch : 0;
-    final docs = [...snapshot.docs]
-      ..sort(
-        (a, b) => millis(
-          b.data()['publishedAt'],
-        ).compareTo(millis(a.data()['publishedAt'])),
-      );
+    final docs =
+        [
+          for (final (school, schoolDocs) in pages)
+            for (final doc in schoolDocs) (school, doc),
+        ]..sort(
+          (a, b) => millis(
+            b.$2.data()['publishedAt'],
+          ).compareTo(millis(a.$2.data()['publishedAt'])),
+        );
 
     return [
-      for (final doc in docs.take(5))
+      for (final (school, doc) in docs.take(8))
         ParentAnnouncement(
           id: doc.id,
           title: (doc.data()['title'] as String?)?.trim() ?? 'Annonce',
@@ -105,6 +179,8 @@ class FirestoreParentRepository implements ParentRepository {
               (doc.data()['body'] as String?)?.trim() ??
               '',
           publishedAt: _readDate(doc.data()['publishedAt']),
+          establishmentId: school.key,
+          establishmentName: school.value,
         ),
     ];
   }
@@ -125,8 +201,17 @@ class FirestoreParentRepository implements ParentRepository {
         progress is Map<String, dynamic> &&
         progress['studyMinutesToday'] is num;
 
+    final establishmentId = (data['establishmentId'] as String?)?.trim();
+    final establishmentName = (data['establishmentName'] as String?)?.trim();
     return ParentChildProfile(
       id: id,
+      lastName: (data['lastName'] as String?)?.trim(),
+      establishmentId: establishmentId == null || establishmentId.isEmpty
+          ? null
+          : establishmentId,
+      establishmentName: establishmentName == null || establishmentName.isEmpty
+          ? null
+          : establishmentName,
       firstName: (data['firstName'] as String?)?.trim() ?? 'Enfant',
       classLevel: (data['classLevel'] as String?)?.trim() ?? 'Classe',
       series: (data['series'] as String?)?.trim(),

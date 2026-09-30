@@ -13,6 +13,7 @@ import { z } from "zod";
 
 import { db } from "../config/firebase";
 import { AppError, toHttpsError } from "../utils/errors";
+import { hasUserRole, isSuperAdminUser } from "../auth/userRoles";
 
 const documentIdSchema = z
   .string()
@@ -31,6 +32,9 @@ const operatorCodeSchema = z
 const submitPaymentSchema = z
   .object({
     offerId: documentIdSchema,
+    // Contexte explicite : l'enfant pour qui l'on paie. Il désigne l'école et
+    // donc l'offre ; le serveur ne devine jamais l'école d'un parent.
+    beneficiaryStudentId: documentIdSchema.optional(),
     operatorCode: operatorCodeSchema,
     payerPhone: z.string().trim().min(9).max(24),
     transactionReference: z.string().trim().min(4).max(80),
@@ -41,6 +45,10 @@ const submitPaymentSchema = z
       .max(80)
       .regex(/^[A-Za-z0-9_-]+$/),
   })
+  .strict();
+
+const overviewSchema = z
+  .object({ beneficiaryStudentId: documentIdSchema.optional() })
   .strict();
 
 const listPaymentRequestsSchema = z
@@ -101,6 +109,8 @@ export interface MobileMoneyOffer {
 
 export interface ParentPaymentStatus {
   requestId: string;
+  establishmentId: string;
+  beneficiaryStudentId: string | null;
   offerTitle: string;
   amountXaf: number;
   operatorLabel: string;
@@ -111,6 +121,13 @@ export interface ParentPaymentStatus {
   reviewNote: string | null;
 }
 
+/** Un enfant lié, avec l'école qui détermine son offre. */
+export interface MobileMoneyChildContext {
+  studentId: string;
+  firstName: string;
+  establishmentId: string;
+}
+
 export interface MobileMoneyOverview {
   availability:
     | "available"
@@ -119,10 +136,24 @@ export interface MobileMoneyOverview {
     | "multiple_schools";
   offer: MobileMoneyOffer | null;
   recentRequests: ParentPaymentStatus[];
+  /** Enfants liés (champ additif : les anciennes versions l'ignorent). */
+  children: MobileMoneyChildContext[];
+  /** L'enfant choisi quand l'appel en nomme un, sinon null. */
+  beneficiary: MobileMoneyChildContext | null;
+  /**
+   * Enfants de ce parent couverts par un paiement pour cette école
+   * (sémantique V1 : un parent paie pour ses enfants d'une même école).
+   */
+  coveredStudentIds: string[];
+}
+
+export interface MobileMoneyOverviewOptions {
+  beneficiaryStudentId?: string;
 }
 
 export interface SubmitMobileMoneyPaymentInput {
   offerId: string;
+  beneficiaryStudentId?: string;
   operatorCode: string;
   payerPhone: string;
   transactionReference: string;
@@ -146,6 +177,7 @@ export interface AdminPaymentRequest {
   parentId: string;
   parentName: string;
   establishmentId: string;
+  beneficiaryStudentId: string | null;
   offerTitle: string;
   amountXaf: number;
   currency: "XAF";
@@ -165,7 +197,10 @@ export interface ReviewMobileMoneyPaymentResult {
 }
 
 export interface MobileMoneyStore {
-  getParentOverview(parentId: string): Promise<MobileMoneyOverview>;
+  getParentOverview(
+    parentId: string,
+    options?: MobileMoneyOverviewOptions,
+  ): Promise<MobileMoneyOverview>;
   submitParentPayment(
     parentId: string,
     input: SubmitMobileMoneyPaymentInput,
@@ -183,22 +218,31 @@ export interface MobileMoneyStore {
 export class FirestoreMobileMoneyStore implements MobileMoneyStore {
   constructor(private readonly firestore: Firestore = db) {}
 
-  async getParentOverview(parentId: string): Promise<MobileMoneyOverview> {
-    const scope = await this.resolveParentScope(parentId);
+  async getParentOverview(
+    parentId: string,
+    options: MobileMoneyOverviewOptions = {},
+  ): Promise<MobileMoneyOverview> {
+    const scope = options.beneficiaryStudentId
+      ? await this.resolveBeneficiaryScope(parentId, options.beneficiaryStudentId)
+      : await this.resolveParentScope(parentId);
     const recentRequests = await this.fetchParentRequests(parentId);
+    const context = {
+      recentRequests,
+      children: scope.children,
+      beneficiary: scope.beneficiary,
+      coveredStudentIds: scope.establishmentId
+        ? coveredChildren(scope.children, scope.establishmentId)
+        : [],
+    };
     if (scope.availability !== "available" || !scope.establishmentId) {
-      return {
-        availability: scope.availability,
-        offer: null,
-        recentRequests,
-      };
+      return { availability: scope.availability, offer: null, ...context };
     }
 
     const offer = await this.fetchActiveOffer(scope.establishmentId);
     return {
       availability: offer ? "available" : "not_configured",
       offer,
-      recentRequests,
+      ...context,
     };
   }
 
@@ -206,11 +250,15 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
     parentId: string,
     input: SubmitMobileMoneyPaymentInput,
   ): Promise<SubmitMobileMoneyPaymentResult> {
-    const scope = await this.resolveParentScope(parentId);
+    const scope = input.beneficiaryStudentId
+      ? await this.resolveBeneficiaryScope(parentId, input.beneficiaryStudentId)
+      : await this.resolveParentScope(parentId);
     if (scope.availability !== "available" || !scope.establishmentId) {
       throw new AppError(
         "failed-precondition",
-        "No single authorized school is linked to this parent account.",
+        input.beneficiaryStudentId
+          ? "This child's school is not linked to a Mobile Money offer."
+          : "No single authorized school is linked to this parent account.",
       );
     }
 
@@ -254,6 +302,10 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
         operatorCode: operator.code,
         payerPhone,
         transactionReference,
+        // Absent des anciennes demandes : leur empreinte reste identique.
+        ...(input.beneficiaryStudentId
+          ? { beneficiaryStudentId: input.beneficiaryStudentId }
+          : {}),
       }),
     );
     const requestRef = this.firestore
@@ -300,6 +352,13 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
         requestId,
         parentId,
         parentName,
+        // Payeur et bénéficiaire sont modélisés séparément. Le numéro Mobile
+        // Money n'est qu'un moyen de paiement : jamais une preuve d'identité.
+        payerType: "parent",
+        payerId: parentId,
+        beneficiaryStudentId: input.beneficiaryStudentId ?? null,
+        beneficiaryScope: "parent_children_in_establishment",
+        coveredStudentIds: coveredChildren(scope.children, offer.establishmentId),
         establishmentId: offer.establishmentId,
         offerId: offer.id,
         offerTitle: offer.title,
@@ -413,6 +472,12 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
           {
             entitlementId,
             userId: parentId,
+            payerType: "parent",
+            payerId: parentId,
+            beneficiaryScope: "parent_children_in_establishment",
+            ...(normalizedString(requestData.beneficiaryStudentId)
+              ? { lastBeneficiaryStudentId: normalizedString(requestData.beneficiaryStudentId) }
+              : {}),
             establishmentId,
             status: "active",
             source: "manual_mobile_money",
@@ -448,30 +513,91 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
     });
   }
 
-  private async resolveParentScope(parentId: string): Promise<{
-    availability: MobileMoneyOverview["availability"];
-    establishmentId: string | null;
-  }> {
-    const parentSnapshot = await this.firestore
-      .collection("users")
-      .doc(parentId)
-      .get();
-    const parentData = parentSnapshot.data();
-    if (!parentSnapshot.exists || normalizedString(parentData?.role) !== "parent") {
-      throw new AppError(
-        "permission-denied",
-        "Only a parent account can access Mobile Money subscriptions.",
-      );
-    }
+  private async resolveParentScope(parentId: string): Promise<ParentScope> {
+    const parentData = await this.requireParent(parentId);
+    const children = await this.linkedChildren(parentId);
 
     const directEstablishmentId = normalizedString(parentData?.establishmentId);
     // A parent can only use a direct school assignment when a trusted backend
     // explicitly marked it as verified. Public profile creation cannot set
     // this marker; otherwise an arbitrary school id would become an offer leak.
     if (directEstablishmentId && parentData?.establishmentVerified === true) {
-      return { availability: "available", establishmentId: directEstablishmentId };
+      return {
+        availability: "available",
+        establishmentId: directEstablishmentId,
+        children,
+        beneficiary: null,
+      };
     }
 
+    const none = { establishmentId: null, children, beneficiary: null };
+    if (children.length === 0) {
+      return { availability: "school_not_linked", ...none };
+    }
+    const establishmentIds = new Set(
+      children.map((child) => child.establishmentId).filter(Boolean),
+    );
+    if (establishmentIds.size === 0) {
+      return { availability: "school_not_linked", ...none };
+    }
+    if (establishmentIds.size > 1) {
+      // Sans enfant nommé, l'école est ambiguë : les versions récentes
+      // choisissent l'enfant (donc l'école), les anciennes gardent ce refus.
+      return { availability: "multiple_schools", ...none };
+    }
+    return {
+      availability: "available",
+      establishmentId: [...establishmentIds][0],
+      children,
+      beneficiary: null,
+    };
+  }
+
+  /** Contexte explicite : l'école est celle de l'enfant, jamais celle du parent. */
+  private async resolveBeneficiaryScope(
+    parentId: string,
+    studentId: string,
+  ): Promise<ParentScope> {
+    await this.requireParent(parentId);
+    const children = await this.linkedChildren(parentId);
+    const beneficiary = children.find((child) => child.studentId === studentId);
+    if (!beneficiary) {
+      throw new AppError(
+        "permission-denied",
+        "This child is not linked to this parent account.",
+      );
+    }
+    return beneficiary.establishmentId
+      ? {
+        availability: "available",
+        establishmentId: beneficiary.establishmentId,
+        children,
+        beneficiary,
+      }
+      : {
+        availability: "school_not_linked",
+        establishmentId: null,
+        children,
+        beneficiary,
+      };
+  }
+
+  private async requireParent(parentId: string): Promise<DocumentData | undefined> {
+    const parentSnapshot = await this.firestore
+      .collection("users")
+      .doc(parentId)
+      .get();
+    const parentData = parentSnapshot.data();
+    if (!parentSnapshot.exists || !hasUserRole(parentData, "parent")) {
+      throw new AppError(
+        "permission-denied",
+        "Only a parent account can access Mobile Money subscriptions.",
+      );
+    }
+    return parentData;
+  }
+
+  private async linkedChildren(parentId: string): Promise<MobileMoneyChildContext[]> {
     const links = await this.firestore
       .collection("children_links")
       .where("parentId", "==", parentId)
@@ -481,30 +607,20 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
       .filter((link) => normalizedString(link.data().status) === "approved")
       .map((link) => normalizedString(link.data().studentId))
       .filter(Boolean);
-    if (studentIds.length === 0) {
-      return { availability: "school_not_linked", establishmentId: null };
-    }
-
+    if (studentIds.length === 0) return [];
+    // Même source que la Réserve d'étude : `users/{id}.establishmentId`.
     const studentSnapshots = await this.firestore.getAll(
       ...studentIds.map((studentId) =>
         this.firestore.collection("users").doc(studentId),
       ),
     );
-    const establishmentIds = new Set(
-      studentSnapshots
-        .map((snapshot) => normalizedString(snapshot.data()?.establishmentId))
-        .filter(Boolean),
-    );
-    if (establishmentIds.size === 0) {
-      return { availability: "school_not_linked", establishmentId: null };
-    }
-    if (establishmentIds.size > 1) {
-      return { availability: "multiple_schools", establishmentId: null };
-    }
-    return {
-      availability: "available",
-      establishmentId: [...establishmentIds][0],
-    };
+    return studentSnapshots
+      .filter((snapshot) => snapshot.exists)
+      .map((snapshot) => ({
+        studentId: snapshot.id,
+        firstName: normalizedString(snapshot.data()?.firstName),
+        establishmentId: normalizedString(snapshot.data()?.establishmentId),
+      }));
   }
 
   private async fetchActiveOffer(
@@ -547,6 +663,8 @@ export class FirestoreMobileMoneyStore implements MobileMoneyStore {
         const data = document.data();
         return {
           requestId: document.id,
+          establishmentId: normalizedString(data.establishmentId),
+          beneficiaryStudentId: normalizedString(data.beneficiaryStudentId) || null,
           offerTitle: normalizedString(data.offerTitle),
           amountXaf: integerInRange(data.amountXaf, 0, 10_000_000),
           operatorLabel: normalizedString(data.operatorLabel),
@@ -581,7 +699,8 @@ export function createGetMobileMoneyOverviewHandler(
   return async (request: CallableRequest<unknown>): Promise<MobileMoneyOverview> => {
     const uid = requireAuthenticatedUid(request);
     try {
-      return await store.getParentOverview(uid);
+      const input = overviewSchema.parse(request.data ?? {});
+      return await store.getParentOverview(uid, input);
     } catch (error) {
       logger.error("getMobileMoneyOverview failed.", {
         uid,
@@ -663,8 +782,8 @@ export function createReviewMobileMoneyPaymentHandler(
 export function authorizePaymentReviewer(
   reviewerData: DocumentData | undefined,
 ): { unrestricted: boolean; establishmentId: string } {
-  const role = normalizedString(reviewerData?.role);
-  if (role !== "admin" && role !== "superAdmin" && role !== "super_admin") {
+  const unrestricted = isSuperAdminUser(reviewerData);
+  if (!unrestricted && !hasUserRole(reviewerData, "admin")) {
     throw new AppError(
       "permission-denied",
       "Only an administrator can review a payment request.",
@@ -678,7 +797,7 @@ export function authorizePaymentReviewer(
     );
   }
   const establishmentId = normalizedString(reviewerData?.establishmentId);
-  if (role === "superAdmin" || role === "super_admin") {
+  if (unrestricted) {
     return { unrestricted: true, establishmentId };
   }
   if (!establishmentId) {
@@ -753,6 +872,23 @@ function entitlementDocumentId(parentId: string, establishmentId: string): strin
   return `${parentId}_${establishmentId}`;
 }
 
+interface ParentScope {
+  availability: MobileMoneyOverview["availability"];
+  establishmentId: string | null;
+  children: MobileMoneyChildContext[];
+  beneficiary: MobileMoneyChildContext | null;
+}
+
+/** Enfants de ce parent qu'un paiement pour [establishmentId] couvre (V1). */
+function coveredChildren(
+  children: MobileMoneyChildContext[],
+  establishmentId: string,
+): string[] {
+  return children
+    .filter((child) => child.establishmentId === establishmentId)
+    .map((child) => child.studentId);
+}
+
 function readPaymentStatus(value: unknown): MobileMoneyPaymentStatus {
   if (value === "approved" || value === "rejected") return value;
   return "pending";
@@ -767,6 +903,7 @@ function toAdminPaymentRequest(
     parentId: normalizedString(data.parentId),
     parentName: normalizedString(data.parentName) || "Parent",
     establishmentId: normalizedString(data.establishmentId),
+    beneficiaryStudentId: normalizedString(data.beneficiaryStudentId) || null,
     offerTitle: normalizedString(data.offerTitle),
     amountXaf: integerInRange(data.amountXaf, 0, 10_000_000),
     currency: "XAF",

@@ -2,191 +2,272 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/localization/localization_extensions.dart';
-import '../../../auth/presentation/widgets/auth_experience_scaffold.dart';
-import '../../data/establishment_catalog.dart';
-import '../../data/registration_establishments_provider.dart';
+import '../../application/school_directory.dart';
+import '../../domain/academic_rules.dart';
 import '../../domain/establishment.dart';
+import 'school_picker.dart';
+import 'school_picker_palette.dart';
 
-class EstablishmentSearchField extends ConsumerStatefulWidget {
+/// L'établissement dans l'étape « passeport » : une carte qui ouvre le choix,
+/// puis confirme ce qui a été choisi, avec « Changer ».
+///
+/// Choisir un établissement ne donne aucun droit : le serveur seul le relie
+/// au compte, après vérification.
+class EstablishmentSearchField extends ConsumerWidget {
   const EstablishmentSearchField({
     required this.onSelected,
     this.onSuggestion,
-    this.onCleared,
-    this.initialName,
-    this.initialId,
+    this.value,
     super.key,
   });
-  final String? initialName;
-  final String? initialId;
+
+  final EstablishmentAffiliation? value;
   final ValueChanged<Establishment> onSelected;
   final ValueChanged<EstablishmentSuggestion>? onSuggestion;
-  final VoidCallback? onCleared;
+
+  Future<void> _open(BuildContext context) async {
+    switch (await openSchoolPicker(context)) {
+      case SchoolPicked(:final school):
+        onSelected(school);
+      case SchoolSuggested(:final suggestion):
+        onSuggestion?.call(suggestion);
+      case null:
+        break;
+    }
+  }
+
   @override
-  ConsumerState<EstablishmentSearchField> createState() =>
-      _EstablishmentSearchFieldState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    // L'annuaire se prépare dès l'étape : le choix s'ouvre sans attendre.
+    ref.watch(schoolDirectoryProvider);
+    final palette = SchoolPickerPalette.of(context);
+    final current = value;
+    return current == null || current.name.trim().isEmpty
+        ? _TriggerCard(palette: palette, onTap: () => _open(context))
+        : _SelectedCard(
+            affiliation: current,
+            palette: palette,
+            onChange: () => _open(context),
+          );
+  }
 }
 
-class _EstablishmentSearchFieldState
-    extends ConsumerState<EstablishmentSearchField> {
-  late final TextEditingController _controller;
-  String? _selectedId;
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialName ?? '');
-    _selectedId = widget.initialId;
-  }
+class _TriggerCard extends StatelessWidget {
+  const _TriggerCard({required this.palette, required this.onTap});
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  final SchoolPickerPalette palette;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final catalog = ref.watch(registrationEstablishmentsProvider);
-    final french = Localizations.localeOf(context).languageCode == 'fr';
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextFormField(
-          key: const ValueKey('passport-establishment'),
-          controller: _controller,
-          onChanged: (_) {
-            setState(() => _selectedId = null);
-            widget.onCleared?.call();
-          },
-          textInputAction: TextInputAction.search,
-          style: const TextStyle(color: AuthExperienceColors.textPrimary),
-          decoration: InputDecoration(
-            labelStyle: const TextStyle(
-              color: AuthExperienceColors.textSecondary,
+    final l10n = context.l10n;
+    return Semantics(
+      button: true,
+      label: '${l10n.spSelectedTitle}. ${l10n.spTitle}',
+      hint: l10n.spTriggerHint,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Material(
+        key: const ValueKey('passport-establishment'),
+        color: palette.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: palette.border),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: palette.accentSoft,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(Icons.search_rounded, color: palette.accent),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.spEyebrow,
+                        style: TextStyle(
+                          color: palette.gold,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.spTitle,
+                        style: TextStyle(
+                          color: palette.textPrimary,
+                          fontSize: 16,
+                          height: 1.2,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.spTriggerHint,
+                        style: TextStyle(
+                          color: palette.textSecondary,
+                          fontSize: 13,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(Icons.chevron_right_rounded, color: palette.textSecondary),
+              ],
             ),
-            hintStyle: const TextStyle(
-              color: AuthExperienceColors.textTertiary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SelectedCard extends StatelessWidget {
+  const _SelectedCard({
+    required this.affiliation,
+    required this.palette,
+    required this.onChange,
+  });
+
+  final EstablishmentAffiliation affiliation;
+  final SchoolPickerPalette palette;
+  final VoidCallback onChange;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final partner =
+        affiliation.source == EstablishmentAffiliationSource.partner;
+    final suggestion =
+        affiliation.source == EstablishmentAffiliationSource.suggestion;
+    final place = [
+      for (final part in [affiliation.city, affiliation.district])
+        if (part != null && part.trim().isNotEmpty) part.trim(),
+    ].join(' · ');
+    final note = partner
+        ? l10n.spPartnerNote
+        : suggestion
+        ? l10n.spSuggestionNote
+        : l10n.spSelectedNote;
+    return Container(
+      key: const ValueKey('passport-establishment'),
+      padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: palette.success.withValues(alpha: 0.55),
+          width: 1.4,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(
+              suggestion
+                  ? Icons.hourglass_top_rounded
+                  : Icons.check_circle_rounded,
+              color: palette.success,
+              size: 26,
             ),
-            filled: true,
-            fillColor: AuthExperienceColors.surface,
-            labelText: context.l10n.schoolSearchLabel,
-            hintText: french
-                ? 'Nom ou ville de votre établissement'
-                : 'School name or city',
-            helperText: french
-                ? 'Les établissements inscrits sur Intellia, uniquement.'
-                : 'Schools registered with Intellia only.',
-            helperMaxLines: 2,
-            prefixIcon: const Icon(Icons.search_rounded),
-            suffixIcon: _selectedId == null
-                ? null
-                : IconButton(
-                    tooltip: french ? 'Changer' : 'Change',
-                    icon: const Icon(
-                      Icons.check_circle_rounded,
-                      color: AuthExperienceColors.success,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Semantics(
+              container: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.spEyebrow,
+                    style: TextStyle(
+                      color: palette.gold,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.4,
                     ),
-                    onPressed: () {
-                      _controller.clear();
-                      setState(() => _selectedId = null);
-                      widget.onCleared?.call();
-                    },
                   ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        catalog.when(
-          loading: () => const LinearProgressIndicator(),
-          error: (_, _) => TextButton.icon(
-            onPressed: () => ref.invalidate(registrationEstablishmentsProvider),
-            icon: const Icon(Icons.refresh),
-            label: Text(
-              french
-                  ? 'Liste indisponible · Réessayer'
-                  : 'List unavailable · Retry',
+                  const SizedBox(height: 4),
+                  Text(
+                    affiliation.name,
+                    key: const ValueKey('passport-establishment-name'),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: palette.textPrimary,
+                      fontSize: 16,
+                      height: 1.25,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  if (place.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      place,
+                      style: TextStyle(
+                        color: palette.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                  if (partner) ...[
+                    const SizedBox(height: 8),
+                    SchoolChip(
+                      chip: (
+                        label: l10n.spPartner,
+                        tone: SchoolChipTone.partner,
+                      ),
+                      palette: palette,
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  Text(
+                    note,
+                    style: TextStyle(
+                      color: palette.textSecondary,
+                      fontSize: 12.5,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          data: (schools) {
-            final query = _controller.text.trim();
-            final results = query.isEmpty
-                ? schools
-                : EstablishmentSearch.query(
-                    query,
-                    catalog: schools,
-                    limit: schools.length,
-                  ).map((result) => result.establishment).toList();
-            if (_selectedId != null &&
-                schools.any((s) => s.id == _selectedId)) {
-              return Text(
-                french ? 'Établissement sélectionné' : 'School selected',
-                style: const TextStyle(color: AuthExperienceColors.success),
-              );
-            }
-            if (results.isEmpty) {
-              return Text(
-                french
-                    ? 'Aucun établissement disponible pour cette recherche. Contactez votre établissement ou choisissez un compte individuel.'
-                    : 'No school matches this search. Contact your school or choose an individual account.',
-                style: const TextStyle(
-                  color: AuthExperienceColors.textSecondary,
-                ),
-              );
-            }
-            return Container(
-              constraints: const BoxConstraints(maxHeight: 280),
-              decoration: BoxDecoration(
-                color: AuthExperienceColors.surface,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AuthExperienceColors.border),
+          TextButton(
+            key: const ValueKey('school-change'),
+            style: TextButton.styleFrom(
+              foregroundColor: palette.accent,
+              minimumSize: const Size(48, 48),
+            ),
+            onPressed: onChange,
+            child: Semantics(
+              label: l10n.spChangeSemantics,
+              excludeSemantics: true,
+              child: Text(
+                l10n.spChange,
+                style: const TextStyle(fontWeight: FontWeight.w800),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: Material(
-                color: Colors.transparent,
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  primary: false,
-                  itemCount: results.length,
-                  separatorBuilder: (_, _) => const Divider(
-                    height: 1,
-                    color: AuthExperienceColors.border,
-                  ),
-                  itemBuilder: (context, index) {
-                    final school = results[index];
-                    return ListTile(
-                      key: ValueKey('school-${school.id}'),
-                      leading: const Icon(
-                        Icons.school_outlined,
-                        color: AuthExperienceColors.gold,
-                      ),
-                      title: Text(
-                        school.officialName,
-                        style: const TextStyle(
-                          color: AuthExperienceColors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      subtitle: Text(
-                        [
-                          school.city,
-                          school.region,
-                        ].where((s) => s.isNotEmpty).join(' · '),
-                        style: const TextStyle(
-                          color: AuthExperienceColors.textSecondary,
-                        ),
-                      ),
-                      onTap: () {
-                        _controller.text = school.officialName;
-                        setState(() => _selectedId = school.id);
-                        widget.onSelected(school);
-                        FocusScope.of(context).unfocus();
-                      },
-                    );
-                  },
-                ),
-              ),
-            );
-          },
-        ),
-      ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -63,9 +63,6 @@ abstract final class IntelliaTelemetry {
   static Future<void> offlineActionQueued({required String kind}) =>
       _log('offline_action_queued', {'action_kind': kind});
 
-  static Future<void> offlinePackSaved({required int lessonCount}) =>
-      _log('offline_pack_saved', {'lesson_count': lessonCount});
-
   static Future<void> safeScreenError({required String surface}) =>
       _log('screen_error', {'surface': surface});
 

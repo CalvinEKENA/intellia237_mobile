@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
@@ -6,6 +7,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import '../../domain/app_role.dart';
 import 'auth_experience_scaffold.dart';
+import 'intellia_237_membrane.dart';
+import 'pass_auth_progress.dart';
 
 String passRoleLabel(BuildContext context, AppRole? role) => switch (role) {
   AppRole.student => context.l10n.studentRole,
@@ -40,6 +43,10 @@ class PassRoom extends InheritedWidget {
   /// Below this, the full card would leave too little room to type.
   static const threshold = 620.0;
 
+  /// Sous cette hauteur, un formulaire à action épinglée (inscription)
+  /// montre le PASS compact : téléphones oui, tablettes et ordinateurs non.
+  static const formThreshold = 860.0;
+
   static bool of(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<PassRoom>()?.tight ?? false;
 
@@ -47,64 +54,154 @@ class PassRoom extends InheritedWidget {
   bool updateShouldNotify(PassRoom oldWidget) => tight != oldWidget.tight;
 }
 
-class LivingPass extends StatelessWidget {
+class LivingPass extends StatefulWidget {
   const LivingPass({
+    required this.seal,
     this.role,
     this.name,
     this.detail,
     this.companionAsset,
     this.phase,
-    this.progress = 0,
-    this.verified = false,
+    this.progress = PassAuthProgress.empty,
     this.compact = false,
     this.heroEnabled = true,
     super.key,
   });
 
   static const heroTag = 'intellia-living-pass';
+
+  /// Emblème du Pass : le logo INTELLIA237.
+  static const emblemKey = ValueKey<String>('living-pass-emblem');
   final AppRole? role;
   final String? name;
   final String? detail;
   final String? companionAsset;
   final String? phase;
+
+  /// Étape du sceau « 237 », toujours calculée par `PassAuthProgress` à
+  /// partir de l'état réel du parcours.
+  ///
+  /// Registre de décisions (QA appareil, round 3) : le sceau retombait sur
+  /// [progress] quand un écran ne le précisait pas, si bien que l'avancement
+  /// d'un formulaire colorait « 237 ». Il n'y a plus de valeur par défaut :
+  /// chaque écran dit explicitement où en est l'authentification.
+  final PassSealStage seal;
+
+  /// Avancement du parcours en cours, gravé au bas de la carte. Ne touche
+  /// jamais le sceau.
   final double progress;
-  final bool verified;
   final bool compact;
   final bool heroEnabled;
 
+  bool get verified => seal.isComplete;
+
+  @override
+  State<LivingPass> createState() => _LivingPassState();
+}
+
+class _LivingPassState extends State<LivingPass> with WidgetsBindingObserver {
+  /// Un chiffre s'est allumé pendant que le clavier couvrait l'écran.
+  bool _revealPending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Registre de décisions (QA appareil, round 3) : sur un petit Android au
+  /// texte agrandi, la page défile pour garder le champ au-dessus du clavier
+  /// et reste défilée quand il se referme. Le sceau était alors entièrement
+  /// hors de l'écran à chaque étape, réussite comprise. Le Pass revient donc
+  /// à l'écran :
+  /// - quand le clavier se referme après qu'un chiffre s'est allumé pendant
+  ///   la frappe — le formulaire vient d'être envoyé ;
+  /// - aussitôt quand l'accès s'ouvre : il n'y a plus rien à toucher.
+  /// Jamais pendant la frappe, et jamais sous le doigt de quelqu'un qui
+  /// s'apprête à toucher un bouton, clavier fermé.
+  @override
+  void didUpdateWidget(LivingPass oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.seal.index <= oldWidget.seal.index) return;
+    if (View.of(context).viewInsets.bottom > 0) {
+      _revealPending = true;
+    } else if (widget.seal.isComplete) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _reveal());
+    }
+  }
+
+  @override
+  void didChangeMetrics() {
+    if (!_revealPending) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_revealPending) return;
+      if (View.of(context).viewInsets.bottom > 0) return;
+      _revealPending = false;
+      _reveal();
+    });
+  }
+
+  void _reveal() {
+    if (!mounted) return;
+    unawaited(
+      Scrollable.ensureVisible(
+        context,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 320),
+        curve: Curves.easeInOutCubic,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final widget = this.widget;
+    final compact = widget.compact;
+    final seal = widget.seal;
     final small =
         compact ||
         PassRoom.of(context) ||
         MediaQuery.viewInsetsOf(context).bottom > 0;
     final reduced = MediaQuery.disableAnimationsOf(context);
     final surface = _PassSurface(
-      name: name?.trim().isNotEmpty == true ? name!.trim() : null,
-      role: passRoleLabel(context, role),
-      roleChosen: role != null,
-      detail: detail,
-      asset: companionAsset,
+      name: widget.name?.trim().isNotEmpty == true ? widget.name!.trim() : null,
+      role: passRoleLabel(context, widget.role),
+      roleChosen: widget.role != null,
+      detail: widget.detail,
+      asset: widget.companionAsset,
       phase:
-          phase ??
-          (verified
+          widget.phase ??
+          (seal.isComplete
               ? context.l10n.passPassReady
               : context.l10n.passTakingShape),
       emptyName: context.l10n.passAPlaceForYou,
       readyLabel: context.l10n.passPassReady,
-      progress: progress.clamp(0, 1),
-      verified: verified,
+      progress: widget.progress.clamp(0, 1),
+      seal: seal,
+      breathing: !compact,
       expansion: small ? 0 : 1,
     );
-    final card = heroEnabled
+    final card = widget.heroEnabled
         ? Hero(
-            tag: heroTag,
+            tag: LivingPass.heroTag,
             createRectTween: (begin, end) =>
                 MaterialRectArcTween(begin: begin, end: end),
             flightShuttleBuilder: (_, animation, direction, from, to) {
               final source = (from.widget as Hero).child as _PassSurface;
               final target = (to.widget as Hero).child as _PassSurface;
-              return AnimatedBuilder(
+              // Le rectangle de vol interpole deux hauteurs de carte, mais le
+              // contenu est celui de la destination : il garde sa hauteur
+              // naturelle et le vol le découpe, au lieu de le comprimer — ce
+              // qui débordait dès que la destination portait plus de texte.
+              final flying = AnimatedBuilder(
                 animation: animation,
                 builder: (context, _) {
                   final raw = direction == HeroFlightDirection.push
@@ -115,6 +212,32 @@ class LivingPass extends StatelessWidget {
                     lerpDouble(source.expansion, target.expansion, t)!,
                   );
                 },
+              );
+              // Un écran fixe peut être réduit pour tenir (FitViewport) : le
+              // rectangle de vol est alors plus étroit que la carte réelle.
+              // La carte vole à sa largeur réelle, mise à l'échelle, plutôt
+              // que d'être posée trop étroite et de déborder.
+              final destination = to.findRenderObject();
+              final naturalWidth =
+                  destination is RenderBox && destination.hasSize
+                  ? destination.size.width
+                  : null;
+              if (naturalWidth != null && naturalWidth > 0) {
+                return ClipRect(
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(width: naturalWidth, child: flying),
+                  ),
+                );
+              }
+              return ClipRect(
+                child: OverflowBox(
+                  alignment: Alignment.topCenter,
+                  minHeight: 0,
+                  maxHeight: double.infinity,
+                  child: flying,
+                ),
               );
             },
             child: surface,
@@ -141,7 +264,8 @@ class _PassSurface extends StatelessWidget {
     required this.emptyName,
     required this.readyLabel,
     required this.progress,
-    required this.verified,
+    required this.seal,
+    required this.breathing,
     required this.expansion,
   });
 
@@ -154,7 +278,8 @@ class _PassSurface extends StatelessWidget {
   final String emptyName;
   final String readyLabel;
   final double progress;
-  final bool verified;
+  final PassSealStage seal;
+  final bool breathing;
   final double expansion;
 
   _PassSurface withExpansion(double value) => _PassSurface(
@@ -167,7 +292,8 @@ class _PassSurface extends StatelessWidget {
     emptyName: emptyName,
     readyLabel: readyLabel,
     progress: progress,
-    verified: verified,
+    seal: seal,
+    breathing: breathing,
     expansion: value,
   );
 
@@ -186,102 +312,145 @@ class _PassSurface extends StatelessWidget {
             horizontal: lerpDouble(16, 22, e)!,
             vertical: lerpDouble(12, 20, e)!,
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'INTELLIA PASS',
-                        key: const ValueKey('living-pass-brand'),
-                        style: passDisplay(
-                          size: lerpDouble(18, 47, e)!,
-                          color: e < 0.5 ? AuthExperienceColors.indigo : ink,
+          child: LayoutBuilder(
+            builder: (context, box) => Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'INTELLIA PASS',
+                          key: const ValueKey('living-pass-brand'),
+                          style: passDisplay(
+                            size: lerpDouble(18, 47, e)!,
+                            color: e < 0.5 ? AuthExperienceColors.indigo : ink,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: lerpDouble(4, 21, e)!),
-                    Text(
-                      name ?? emptyName,
-                      key: const ValueKey('living-pass-name'),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: passDisplay(size: lerpDouble(27, 31, e)!),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      [
-                        if (roleChosen) role,
-                        if (detail?.trim().isNotEmpty == true) detail!.trim(),
-                        if (!roleChosen && detail?.trim().isNotEmpty != true)
-                          'INTELLIA 237',
-                      ].join('  ·  '),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontFamily: 'CampaignBody',
-                        fontSize: 11,
-                        height: 1.35,
-                        fontWeight: FontWeight.w600,
-                        color: AuthExperienceColors.textSecondary,
+                      SizedBox(height: lerpDouble(4, 21, e)!),
+                      Text(
+                        name ?? emptyName,
+                        key: const ValueKey('living-pass-name'),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: passDisplay(size: lerpDouble(27, 31, e)!),
                       ),
-                    ),
-                    if (e > 0)
-                      ClipRect(
-                        child: Align(
-                          heightFactor: e,
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: Opacity(
-                              opacity: e,
-                              child: Text(
-                                phase.toUpperCase(),
-                                style: TextStyle(
-                                  fontFamily: 'CampaignBody',
-                                  fontSize: 9,
-                                  letterSpacing: 1.5,
-                                  fontWeight: FontWeight.w800,
-                                  color: verified
-                                      ? AuthExperienceColors.success
-                                      : AuthExperienceColors.textSecondary,
+                      const SizedBox(height: 5),
+                      Text(
+                        [
+                          if (roleChosen) role,
+                          if (detail?.trim().isNotEmpty == true) detail!.trim(),
+                          if (!roleChosen && detail?.trim().isNotEmpty != true)
+                            'INTELLIA 237',
+                        ].join('  ·  '),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'CampaignBody',
+                          fontSize: 11,
+                          height: 1.35,
+                          fontWeight: FontWeight.w600,
+                          color: AuthExperienceColors.textSecondary,
+                        ),
+                      ),
+                      if (e > 0)
+                        ClipRect(
+                          child: Align(
+                            heightFactor: e,
+                            alignment: Alignment.topLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: Opacity(
+                                opacity: e,
+                                child: Text(
+                                  phase.toUpperCase(),
+                                  // À l'ouverture, la phase passe à l'encre,
+                                  // pas au vert : à cet instant le vert
+                                  // appartient au « 2 » du sceau.
+                                  style: TextStyle(
+                                    fontFamily: 'CampaignBody',
+                                    fontSize: 9,
+                                    letterSpacing: 1.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: seal.isComplete
+                                        ? AuthExperienceColors.textPrimary
+                                        : AuthExperienceColors.textSecondary,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(width: lerpDouble(10, 16, e)!),
-              SizedBox(
-                width: lerpDouble(42, 74, e)!,
-                height: lerpDouble(52, 102, e)!,
-                child: asset == null
-                    ? ExcludeSemantics(
-                        child: CustomPaint(painter: _PassSeal(ready: verified)),
-                      )
-                    : Image.asset(
-                        asset!,
-                        fit: BoxFit.contain,
-                        excludeFromSemantics: true,
-                        errorBuilder: (_, _, _) =>
-                            CustomPaint(painter: _PassSeal(ready: verified)),
-                      ),
-              ),
-            ],
+                SizedBox(width: lerpDouble(10, 16, e)!),
+                SizedBox(
+                  // Le logo est en largeur : il cède la place au nom sur les
+                  // petits écrans, jamais l'inverse.
+                  width: math.min(lerpDouble(60, 124, e)!, box.maxWidth * 0.36),
+                  height: lerpDouble(52, 102, e)!,
+                  child: asset == null
+                      ? PassEmblem(stage: seal)
+                      : Image.asset(
+                          asset!,
+                          fit: BoxFit.contain,
+                          excludeFromSemantics: true,
+                          errorBuilder: (_, _, _) => PassEmblem(stage: seal),
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+/// Le logo INTELLIA237 (`assets/branding/logo.png`), à la place de la
+/// rosace du « 237 ».
+///
+/// Le fichier est un carré de 512 px dont le dessin n'occupe qu'une bande
+/// horizontale (x 25 → 491, y 202 → 300) : seule cette bande est montrée,
+/// à la largeur de l'emplacement. L'étape du sceau reste portée par le Pass
+/// (ligne de progression, libellé d'étape) et par ce widget, pour les
+/// relevés ; le logo lui-même ne change pas.
+class PassEmblem extends StatelessWidget {
+  const PassEmblem({required this.stage}) : super(key: LivingPass.emblemKey);
+
+  static const asset = 'assets/branding/logo.png';
+
+  final PassSealStage stage;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final width = box.maxWidth;
+      // Bande de 110 px sur 512, centrée sur le dessin (y ≈ 251).
+      return Center(
+        child: ClipRect(
+          child: SizedBox(
+            width: width,
+            height: width * 110 / 512,
+            child: Image.asset(
+              asset,
+              fit: BoxFit.fitWidth,
+              alignment: const Alignment(0, -0.025),
+              excludeFromSemantics: true,
+              filterQuality: FilterQuality.medium,
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
 
 class _PassEngraving extends CustomPainter {
@@ -327,43 +496,4 @@ class _PassEngraving extends CustomPainter {
   @override
   bool shouldRepaint(_PassEngraving oldDelegate) =>
       oldDelegate.progress != progress || oldDelegate.expansion != expansion;
-}
-
-class _PassSeal extends CustomPainter {
-  const _PassSeal({required this.ready});
-  final bool ready;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = size.center(Offset.zero);
-    final unit = size.width * 0.46;
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.8
-      ..color = AuthExperienceColors.indigo.withValues(alpha: 0.6);
-    for (var i = 0; i < 11; i++) {
-      final path = Path();
-      for (var step = 0; step <= 160; step++) {
-        final angle = step / 160 * math.pi * 2;
-        final r = unit * (0.49 + i * 0.043 + 0.085 * math.cos(angle * 8));
-        final p = center + Offset(math.cos(angle), math.sin(angle) * 1.12) * r;
-        step == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
-      }
-      canvas.drawPath(path..close(), paint);
-    }
-    final text = TextPainter(
-      text: TextSpan(
-        text: ready ? '✓' : '237',
-        style: passDisplay(
-          size: unit * 0.67,
-          color: AuthExperienceColors.indigo,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    text.paint(canvas, center - Offset(text.width / 2, text.height / 2));
-  }
-
-  @override
-  bool shouldRepaint(_PassSeal oldDelegate) => oldDelegate.ready != ready;
 }

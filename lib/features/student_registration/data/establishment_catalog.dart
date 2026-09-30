@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import '../domain/establishment.dart';
+import '../domain/school_name_canon.dart';
 
 /// Bundled Cameroon secondary-school seed.
 ///
@@ -589,41 +592,17 @@ Establishment _e(
   );
 }
 
+/// Recherche locale, sans réseau : tolère accents, tirets, apostrophes,
+/// espaces manquants (« nkolbisson »), chiffres romains, alias, ville,
+/// arrondissement et fautes légères. Un rapprochement approximatif classe un
+/// résultat, il ne choisit jamais à la place de l'élève.
 abstract final class EstablishmentSearch {
-  static String normalize(String input) {
-    const accents = <String, String>{
-      'à': 'a',
-      'â': 'a',
-      'ä': 'a',
-      'á': 'a',
-      'ç': 'c',
-      'é': 'e',
-      'è': 'e',
-      'ê': 'e',
-      'ë': 'e',
-      'î': 'i',
-      'ï': 'i',
-      'í': 'i',
-      'ô': 'o',
-      'ö': 'o',
-      'ó': 'o',
-      'ù': 'u',
-      'û': 'u',
-      'ü': 'u',
-      'ú': 'u',
-      'ÿ': 'y',
-      'œ': 'oe',
-    };
-    var value = input.toLowerCase().replaceAll('’', "'");
-    accents.forEach(
-      (source, target) => value = value.replaceAll(source, target),
-    );
-    value = value
-        .replaceAll(RegExp(r"['`´]"), ' ')
-        .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
-        .trim();
-    return value.replaceAll(RegExp(r'\s+'), ' ');
-  }
+  static String normalize(String input) => SchoolNameCanon.fold(input);
+
+  static final _indexes = Expando<_SearchIndex>();
+
+  static _SearchIndex _indexOf(Establishment establishment) =>
+      _indexes[establishment] ??= _SearchIndex(establishment);
 
   static List<EstablishmentSearchResult> query(
     String rawQuery, {
@@ -632,11 +611,12 @@ abstract final class EstablishmentSearch {
   }) {
     final query = normalize(rawQuery);
     if (query.isEmpty) return const <EstablishmentSearchResult>[];
+    final probe = _Query(query);
 
     final scored = <({Establishment establishment, int score})>[];
     for (final establishment in catalog ?? EstablishmentCatalog.all) {
       if (establishment.status != EstablishmentCatalogStatus.active) continue;
-      final score = _score(establishment, query);
+      final score = _indexOf(establishment).score(probe);
       if (score > 0) scored.add((establishment: establishment, score: score));
     }
     scored.sort((a, b) {
@@ -649,71 +629,84 @@ abstract final class EstablishmentSearch {
     });
 
     final visible = scored.take(limit).toList(growable: false);
+    // Dominant : le seul résultat, une correspondance exacte unique, ou une
+    // avance nette. Jamais choisi à la place de l'élève.
     final dominant =
         visible.isNotEmpty &&
-        (visible.first.score >= 850 ||
-            visible.length == 1 ||
+        (visible.length == 1 ||
+            visible.first.score >= 990 && visible[1].score < 990 ||
             visible.first.score - visible[1].score >= 90);
     return <EstablishmentSearchResult>[
       for (var index = 0; index < visible.length; index++)
-        EstablishmentSearchResult(
-          establishment: visible[index].establishment,
-          score: visible[index].score,
-          highlightStart: _highlightSpan(
-            visible[index].establishment.officialName,
-            query,
-          ).$1,
-          highlightEnd: _highlightSpan(
-            visible[index].establishment.officialName,
-            query,
-          ).$2,
-          isDominant: index == 0 && dominant,
-        ),
+        _result(visible[index], probe, dominant: index == 0 && dominant),
     ];
   }
 
-  static int _score(Establishment establishment, String query) {
-    final names = <String>[
-      establishment.normalizedName,
-      ...establishment.aliases.map(normalize),
-    ];
-    var best = 0;
-    for (final candidate in names) {
-      if (candidate == query) best = best < 1000 ? 1000 : best;
-      if (candidate.startsWith(query)) best = best < 880 ? 880 : best;
-      if (candidate.split(' ').any((word) => word.startsWith(query))) {
-        best = best < 760 ? 760 : best;
-      }
-      if (candidate.contains(query)) best = best < 650 ? 650 : best;
+  static EstablishmentSearchResult _result(
+    ({Establishment establishment, int score}) entry,
+    _Query query, {
+    required bool dominant,
+  }) {
+    final (start, end) = highlight(
+      entry.establishment.officialName,
+      query.text,
+    );
+    return EstablishmentSearchResult(
+      establishment: entry.establishment,
+      score: entry.score,
+      highlightStart: start,
+      highlightEnd: end,
+      isDominant: dominant,
+    );
+  }
 
-      final compactQuery = query.replaceAll(' ', '');
-      if (compactQuery.length >= 3) {
-        final distance = _boundedDistance(compactQuery, candidate);
-        final threshold = compactQuery.length <= 5 ? 1 : 2;
-        if (distance <= threshold) {
-          final fuzzy = 560 - distance * 45;
-          best = best < fuzzy ? fuzzy : best;
-        }
-      }
+  /// Portion de [original] qui correspond à la recherche : la requête
+  /// entière, sinon sans espaces, sinon son mot le plus long.
+  static (int, int) highlight(String original, String rawQuery) {
+    final query = normalize(rawQuery);
+    if (query.isEmpty) return (0, 0);
+    final folded = SchoolNameCanon.foldWithOffsets(original);
+    (int, int) span(int start, int length, List<int> offsets) =>
+        (offsets[start], offsets[start + length - 1] + 1);
+
+    final whole = _wordStartIndex(folded.folded, query);
+    if (whole >= 0) return span(whole, query.length, folded.offsets);
+
+    final compactQuery = query.replaceAll(' ', '');
+    final compactOffsets = <int>[];
+    final compact = StringBuffer();
+    for (var i = 0; i < folded.folded.length; i++) {
+      if (folded.folded.codeUnitAt(i) == 0x20) continue;
+      compact.writeCharCode(folded.folded.codeUnitAt(i));
+      compactOffsets.add(folded.offsets[i]);
+    }
+    final compactStart = compact.toString().indexOf(compactQuery);
+    if (compactQuery.length >= 3 && compactStart >= 0) {
+      return span(compactStart, compactQuery.length, compactOffsets);
     }
 
-    final normalizedCity = normalize(establishment.city);
-    final normalizedRegion = normalize(establishment.region);
-    if (normalizedCity == query) best = best < 720 ? 720 : best;
-    if (normalizedCity.startsWith(query)) best = best < 540 ? 540 : best;
-    if (normalizedRegion == query) best = best < 420 ? 420 : best;
-
-    final queryTokens = query.split(' ');
-    final searchable = '${names.join(' ')} $normalizedCity $normalizedRegion';
-    if (queryTokens.every(searchable.contains)) best += queryTokens.length * 18;
-    return best;
+    final words = query.split(' ')..sort((a, b) => b.length - a.length);
+    for (final word in words) {
+      final start = _wordStartIndex(folded.folded, word);
+      if (start >= 0) return span(start, word.length, folded.offsets);
+    }
+    return (0, 0);
   }
 
-  static int _boundedDistance(String query, String candidate) {
+  /// Première occurrence de [needle] en début de mot, sinon n'importe où.
+  static int _wordStartIndex(String haystack, String needle) {
+    var index = haystack.indexOf(needle);
+    final first = index;
+    while (index > 0 && haystack.codeUnitAt(index - 1) != 0x20) {
+      index = haystack.indexOf(needle, index + 1);
+      if (index < 0) return first;
+    }
+    return index;
+  }
+
+  static int _boundedDistance(String query, Iterable<String> candidates) {
     var best = query.length + 1;
-    final words = candidate.split(RegExp(r'\s+'));
-    final compactCandidate = candidate.replaceAll(' ', '');
-    for (final word in <String>[compactCandidate, ...words]) {
+    for (final word in candidates) {
       final sample = word.length > query.length + 2
           ? word.substring(0, query.length + 2)
           : word;
@@ -740,16 +733,157 @@ abstract final class EstablishmentSearch {
     return previous.last;
   }
 
-  static (int, int) _highlightSpan(String original, String query) {
-    final queryToken = query.split(' ').last;
-    for (var start = 0; start < original.length; start++) {
-      for (var end = start + 1; end <= original.length; end++) {
-        final normalized = normalize(original.substring(start, end));
-        if (normalized == query || normalized == queryToken) {
-          return (start, end);
+  static int _typoThreshold(String word) => word.length <= 5 ? 1 : 2;
+}
+
+/// Une requête préparée une fois pour tout le catalogue.
+class _Query {
+  _Query(this.text)
+    : compact = text.replaceAll(' ', ''),
+      words = text.split(' '),
+      tokens = SchoolNameCanon.tokens(text);
+
+  final String text;
+  final String compact;
+  final List<String> words;
+
+  /// Mots aux chiffres romains unifiés (« 2 » → « ii »).
+  final List<String> tokens;
+}
+
+/// Formes pliées d'un établissement, calculées une fois par établissement.
+class _SearchIndex {
+  _SearchIndex(Establishment establishment)
+    : names = <String>{
+        EstablishmentSearch.normalize(establishment.officialName),
+        for (final alias in establishment.aliases)
+          EstablishmentSearch.normalize(alias),
+      }.where((name) => name.isNotEmpty).toList(growable: false),
+      city = EstablishmentSearch.normalize(establishment.city),
+      region = EstablishmentSearch.normalize(establishment.region),
+      district = EstablishmentSearch.normalize(establishment.district ?? '') {
+    compactNames = [for (final name in names) name.replaceAll(' ', '')];
+    shortestName = max(1, compactNames.map((name) => name.length).reduce(min));
+    nameTokens = {for (final name in names) ...SchoolNameCanon.tokens(name)};
+    placeTokens = {
+      ...SchoolNameCanon.tokens(city),
+      ...SchoolNameCanon.tokens(district),
+    };
+    districtTokens = SchoolNameCanon.tokens(district).join(' ');
+  }
+
+  final List<String> names;
+  final String city;
+  final String region;
+  final String district;
+  late final List<String> compactNames;
+  late final int shortestName;
+  late final Set<String> nameTokens;
+  late final Set<String> placeTokens;
+  late final String districtTokens;
+
+  int score(_Query query) {
+    var best = 0;
+    void atLeast(int value) {
+      if (value > best) best = value;
+    }
+
+    final text = query.text;
+    for (var i = 0; i < names.length; i++) {
+      final candidate = names[i];
+      final compact = compactNames[i];
+      if (candidate == text) atLeast(1000);
+      if (query.compact.length >= 4 && compact == query.compact) atLeast(990);
+
+      var partial = 0;
+      if (candidate.startsWith(text)) {
+        partial = 880;
+      } else if (query.compact.length >= 4 &&
+          compact.startsWith(query.compact)) {
+        partial = 870;
+      } else if (candidate.split(' ').any((word) => word.startsWith(text))) {
+        partial = 760;
+      } else if (candidate.contains(text)) {
+        partial = 650;
+      } else if (query.compact.length >= 4 && compact.contains(query.compact)) {
+        partial = 640;
+      }
+      // À correspondance égale, le nom que la recherche couvre le mieux
+      // passe devant (« Ngoa Ekelle » : le lycée avant le CETIC).
+      if (partial > 0) {
+        atLeast(partial + 30 * query.compact.length ~/ compact.length);
+      }
+
+      if (query.compact.length >= 3) {
+        final distance = EstablishmentSearch._boundedDistance(query.compact, [
+          compact,
+          ...candidate.split(' '),
+        ]);
+        if (distance <= EstablishmentSearch._typoThreshold(query.compact)) {
+          atLeast(560 - distance * 45);
         }
       }
     }
-    return (0, 0);
+
+    // Plusieurs mots, dans n'importe quel ordre : « lycee biyem »,
+    // « marie albert 2 », « leclerc yaounde ».
+    if (query.tokens.length >= 2) {
+      var inName = 0;
+      var inPlace = 0;
+      var typos = 0;
+      final tokens = query.tokens;
+      for (var t = 0; t < tokens.length; t++) {
+        final token = tokens[t];
+        // « nkol bisson » : deux mots tapés pour un seul.
+        final joined = t + 1 < tokens.length ? token + tokens[t + 1] : null;
+        if (joined != null &&
+            nameTokens.any((word) => word.startsWith(joined))) {
+          inName += 2;
+          t++;
+        } else if (nameTokens.any((word) => word.startsWith(token))) {
+          inName++;
+        } else if (placeTokens.any((word) => word.startsWith(token))) {
+          inPlace++;
+        } else if (token.length >= 4) {
+          final distance = EstablishmentSearch._boundedDistance(
+            token,
+            nameTokens,
+          );
+          if (distance > EstablishmentSearch._typoThreshold(token)) {
+            inName = -1;
+            break;
+          }
+          typos += distance;
+          inName++;
+        } else {
+          inName = -1;
+          break;
+        }
+      }
+      if (inName > 0 && inName + inPlace == query.tokens.length) {
+        final covered = query.tokens.fold<int>(0, (n, t) => n + t.length);
+        atLeast(
+          (inPlace == 0 ? 780 : 740) -
+              typos * 40 +
+              min(30, 30 * covered ~/ shortestName),
+        );
+      }
+    }
+
+    if (city == text) atLeast(720);
+    if (city.startsWith(text)) atLeast(540);
+    if (district.isNotEmpty) {
+      if (district == text || districtTokens == query.tokens.join(' ')) {
+        atLeast(700);
+      }
+      if (text.length >= 3 && district.startsWith(text)) atLeast(600);
+    }
+    if (region == text) atLeast(420);
+
+    final searchable = '${names.join(' ')} $city $region $district';
+    if (best > 0 && query.words.every(searchable.contains)) {
+      best += query.words.length * 18;
+    }
+    return best;
   }
 }

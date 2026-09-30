@@ -37,6 +37,8 @@ functions/node_modules/
 functions/.env
 functions/.env.local
 functions/.env.*.local
+# Condensat de l'accès partenaire : jamais dans le dépôt public (voir docs/ACCES_PARTENAIRE.md)
+config/*.local.json
 llm-service/.venv/
 llm-service/.pytest_cache/
 llm-service/.ruff_cache/

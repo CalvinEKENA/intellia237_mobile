@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/app_routes.dart';
 import '../../../../core/localization/localization_extensions.dart';
+import '../../../auth/domain/app_role.dart';
 import 'auth_controls.dart';
 import 'auth_experience_scaffold.dart';
 import 'living_pass.dart';
@@ -52,13 +53,6 @@ class _SchoolHeadAccessSheet extends StatelessWidget {
   const _SchoolHeadAccessSheet({required this.onRoute});
 
   final ValueChanged<String> onRoute;
-
-  static const _note = TextStyle(
-    fontFamily: 'CampaignBody',
-    fontSize: 12,
-    height: 1.4,
-    color: AuthExperienceColors.textTertiary,
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -118,34 +112,35 @@ class _SchoolHeadAccessSheet extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             AuthPrimaryButton(
-              key: const ValueKey('school-head-email'),
-              label: l10n.schoolHeadContinueEmail,
-              icon: Icons.alternate_email_rounded,
-              onTap: () => onRoute(AppRoutes.emailLogin),
+              key: const ValueKey('school-staff-teacher'),
+              label: l10n.authStaffTeacher,
+              icon: Icons.cast_for_education_rounded,
+              onTap: () => onRoute(AppRoutes.emailSignIn(AppRole.teacher)),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             OutlinedButton.icon(
-              key: const ValueKey('school-head-phone'),
-              onPressed: () => onRoute(AppRoutes.login),
-              icon: const Icon(Icons.phone_iphone_rounded),
-              label: Text(l10n.schoolHeadContinuePhone),
+              key: const ValueKey('school-staff-direction'),
+              onPressed: () => onRoute(AppRoutes.emailSignIn(AppRole.admin)),
+              icon: const Icon(Icons.school_outlined),
+              label: Text(l10n.authStaffDirection, textAlign: TextAlign.center),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AuthExperienceColors.textPrimary,
-                side: const BorderSide(color: AuthExperienceColors.border),
                 minimumSize: const Size.fromHeight(52),
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              l10n.schoolHeadPhoneNote,
-              textAlign: TextAlign.center,
-              style: _note,
-            ),
-            const SizedBox(height: 14),
-            TextButton(
-              key: const ValueKey('school-head-request'),
-              onPressed: () => onRoute(AppRoutes.adminRegistration),
-              child: Text(l10n.schoolHeadRequestAccess),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              key: const ValueKey('school-staff-administration'),
+              onPressed: () => onRoute(
+                '${AppRoutes.emailSignIn(AppRole.admin)}&scope=global',
+              ),
+              icon: const Icon(Icons.admin_panel_settings_outlined),
+              label: Text(
+                l10n.authStaffAdministration,
+                textAlign: TextAlign.center,
+              ),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
             ),
           ],
         ),

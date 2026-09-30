@@ -9,8 +9,9 @@ import '../domain/registration_diagnostic.dart';
 import '../domain/student_registration_payload.dart';
 import '../domain/student_registration_result.dart';
 import 'student_registration_gateways.dart';
-import 'student_registration_repository.dart';
+import 'reference_establishment_catalog.dart';
 import 'registration_establishments_provider.dart';
+import 'student_registration_repository.dart';
 
 final studentRegistrationRepositoryProvider =
     Provider<StudentRegistrationRepository>((ref) {
@@ -27,9 +28,22 @@ final studentRegistrationRepositoryProvider =
       return FirebaseStudentRegistrationRepository(
         projectId: projectId,
         appId: appId,
-        isRegisteredEstablishment: (id) async => (await ref.read(
-          registrationEstablishmentsProvider.future,
-        )).any((school) => school.id == id),
+        isRegisteredEstablishment: (id) async {
+          // Catalogue de référence ou partenaire serveur. Choisir un
+          // établissement ne donne aucun droit : seul le serveur écrit
+          // establishmentId.
+          final reference = await ref.read(
+            referenceEstablishmentsProvider.future,
+          );
+          if (reference.any((school) => school.id == id)) return true;
+          try {
+            return (await ref.read(
+              registrationEstablishmentsProvider.future,
+            )).any((school) => school.id == id);
+          } on Object {
+            return false;
+          }
+        },
       );
     });
 
@@ -76,8 +90,9 @@ class FirebaseStudentRegistrationRepository
       final school = payload.establishment;
       if (school != null &&
           isRegisteredEstablishment != null &&
-          (school.candidateId == null ||
-              !await isRegisteredEstablishment!(school.candidateId!))) {
+          !(school.isSuggestion ||
+              (school.candidateId != null &&
+                  await isRegisteredEstablishment!(school.candidateId!)))) {
         throw const StudentRegistrationException(
           message: 'Sélectionnez un établissement dans la liste actualisée.',
           code: 'invalid-establishment',
@@ -87,6 +102,15 @@ class FirebaseStudentRegistrationRepository
       final uid = user.uid;
       final userCreateData = payload.toUserDocument(uid: uid, now: now);
       final userUpdateData = payload.toUserUpdateDocument(now: now);
+      final profileCreateData = payload.toStudentProfileDocument(
+        uid: uid,
+        now: now,
+      );
+      final identityEmail = user.email?.trim() ?? '';
+      if (identityEmail.isNotEmpty) {
+        userCreateData['email'] = identityEmail;
+        profileCreateData['email'] = identityEmail;
+      }
       final verifiedPhone = user.phoneNumber?.trim();
       if (verifiedPhone != null && verifiedPhone.isNotEmpty) {
         userCreateData['phoneNumber'] = verifiedPhone;
@@ -100,7 +124,7 @@ class FirebaseStudentRegistrationRepository
       );
       operation = await _documentStore.upsertProfile(
         uid: uid,
-        createData: payload.toStudentProfileDocument(uid: uid, now: now),
+        createData: profileCreateData,
         updateData: payload.toStudentProfileUpdateDocument(now: now),
       );
 
@@ -158,7 +182,15 @@ class FirebaseStudentRegistrationRepository
       final verifiedPhone = currentUser.phoneNumber?.trim() ?? '';
       final currentEmail = currentUser.email?.trim().toLowerCase() ?? '';
       if (verifiedPhone.isNotEmpty ||
-          (normalizedEmail.isNotEmpty && currentEmail == normalizedEmail)) {
+          // Identité e-mail déjà prouvée avant le choix de l'espace.
+          (normalizedEmail.isEmpty && currentEmail.isNotEmpty) ||
+          (normalizedEmail.isNotEmpty && currentEmail == normalizedEmail) ||
+          // Élève sans téléphone entré avec son code d'accès : il complète le
+          // profil de SA propre identité, sans créer de compte e-mail.
+          (normalizedEmail.isEmpty && currentUser.openedByServerToken) ||
+          // Élève entré avec Google : son identité Google est réutilisée,
+          // jamais doublée d'un compte e-mail.
+          (normalizedEmail.isEmpty && currentUser.signedInWithGoogle)) {
         return currentUser;
       }
     }
@@ -245,7 +277,8 @@ class FirebaseStudentRegistrationRepository
             technicalMessage: technicalMessage,
           );
     throw StudentRegistrationException(
-      message: '$baseMessage\n[$diagnosticId]',
+      // La référence technique reste dans les journaux, jamais à l'écran.
+      message: baseMessage,
       code: normalized,
       registrationOperation: classifiedOperation.code,
       diagnosticId: diagnosticId,

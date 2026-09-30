@@ -19,6 +19,7 @@ import {
   type QuizSubmissionResult,
   type StoredQuizAttempt
 } from "./quizTypes";
+import { hasUserRole } from "../auth/userRoles";
 
 const STREAK_TIMEZONE = "Africa/Douala";
 
@@ -515,7 +516,7 @@ export function assertLessonProgressAuthorized({
   lessonData: DocumentData | undefined;
   profileData?: DocumentData;
 }): void {
-  if (!userData || normalizedString(userData.role) !== "student") {
+  if (!userData || !hasUserRole(userData, "student")) {
     throw new AppError("permission-denied", "A student account is required.");
   }
   const accountStatus = normalizedString(userData.accountStatus);

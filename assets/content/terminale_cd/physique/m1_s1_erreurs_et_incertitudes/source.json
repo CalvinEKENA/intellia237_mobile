@@ -1,0 +1,108 @@
+{
+  "schema_version": "intellia.source.v2",
+  "content_id": "physique_terminale_cd_m1_s1_erreurs_et_incertitudes",
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale C-D",
+    "class_keys": [
+      "terminale-c-d"
+    ],
+    "subject": "Physique",
+    "module": 1,
+    "module_title": "Mesures et incertitudes",
+    "sequence": 1,
+    "sequence_title": "Erreurs et incertitudes"
+  },
+  "source_location": {
+    "provider": "Google Drive",
+    "folder": "/Google Drive/INTELLIA_CONTENT_SOURCE/PHYSIQUE TERMINALES C-D",
+    "image_range": "page_004.jpg → page_009.jpg",
+    "next_sequence_starts_at": "page_010.jpg",
+    "basis": "Scanned textbook pages supplied by the user."
+  },
+  "source_sections": [
+    {
+      "lesson": 1,
+      "title": "Qualités d'un appareil de mesure et types d'erreurs",
+      "images": [
+        "page_004.jpg",
+        "page_005.jpg"
+      ],
+      "verified_content": [
+        "Étendue de mesurage, justesse, fidélité, exactitude/précision et rapidité d'indication.",
+        "Distinction entre erreurs aléatoires et erreurs systématiques.",
+        "Les erreurs aléatoires peuvent être réduites en répétant les mesures.",
+        "Les erreurs systématiques ne sont pas réduites par la répétition seule et peuvent nécessiter correction ou contrôle de l'appareil."
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Incertitude de type A",
+      "images": [
+        "page_005.jpg",
+        "page_006.jpg"
+      ],
+      "verified_content": [
+        "Une grandeur estimée à partir de mesures répétées indépendantes est traitée statistiquement.",
+        "La moyenne est calculée à partir des observations.",
+        "L'incertitude type A est reliée à la dispersion statistique des observations."
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Incertitude de type B et incertitude composée",
+      "images": [
+        "page_006.jpg",
+        "page_007.jpg"
+      ],
+      "verified_content": [
+        "L'incertitude type B peut dépendre de la lecture, des caractéristiques de l'appareil, de la résolution ou des indications du constructeur.",
+        "Des contributions indépendantes sont combinées quadratiquement.",
+        "Le texte introduit la propagation des incertitudes pour des grandeurs calculées."
+      ]
+    },
+    {
+      "lesson": 4,
+      "title": "Incertitude absolue et niveau de confiance",
+      "images": [
+        "page_007.jpg",
+        "page_008.jpg"
+      ],
+      "verified_content": [
+        "L'incertitude absolue élargie est reliée à l'incertitude type par un facteur d'élargissement k.",
+        "Le résultat d'un mesurage doit inclure une incertitude, une unité et un niveau de confiance."
+      ]
+    },
+    {
+      "lesson": 5,
+      "title": "Écriture correcte d'un résultat et règles d'arrondissage",
+      "images": [
+        "page_007.jpg",
+        "page_008.jpg",
+        "page_009.jpg"
+      ],
+      "verified_content": [
+        "L'incertitude doit être arrondie avec prudence.",
+        "Le résultat et l'incertitude doivent être cohérents en position décimale.",
+        "Le chapitre propose des exercices d'application sur tensions, vitesses, masses, séries de mesures et propagation d'incertitudes."
+      ]
+    }
+  ],
+  "source_quality": {
+    "overall": "good_core_content_some_formulas_partially_legible",
+    "limitations": [
+      {
+        "id": "some_type_b_formulas_partially_legible",
+        "severity": "important",
+        "issue": "Certaines formules détaillées de type B sur les pages 006-007 sont partiellement difficiles à lire dans le scan.",
+        "runtime_action": "Ne pas fabriquer de coefficient ou de dénominateur illisible ; privilégier les relations clairement identifiées."
+      },
+      {
+        "id": "exercise_tables_partially_legible",
+        "severity": "moderate",
+        "issue": "Certains tableaux de mesures et valeurs numériques des exercices de fin de séquence sont partiellement difficiles à lire.",
+        "runtime_action": "Ne pas recopier une série numérique incertaine dans une question auto-corrigée."
+      }
+    ]
+  }
+}

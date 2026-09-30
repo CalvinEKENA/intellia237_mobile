@@ -1,0 +1,240 @@
+{
+  "schema_version": "intellia.pedagogy.v3",
+  "content_id": "physique_terminale_cd_m1_s1_erreurs_et_incertitudes",
+  "difficulty_axis": {
+    "1": {
+      "label": "Facile",
+      "focus": "définitions et reconnaissance"
+    },
+    "2": {
+      "label": "Intermédiaire",
+      "focus": "application et petits calculs"
+    },
+    "3": {
+      "label": "Défi Bac",
+      "focus": "raisonnement et synthèse"
+    }
+  },
+  "explanation_axis": {
+    "standard": {
+      "label": "Terminale",
+      "style": "formalisme scientifique du niveau"
+    },
+    "simple": {
+      "label": "Simple",
+      "style": "étapes courtes et vocabulaire direct"
+    },
+    "ultra_simple": {
+      "label": "Comme si j'avais 12 ans",
+      "style": "intuition → exemple → formule"
+    }
+  },
+  "concepts": [
+    {
+      "id": "measurement_range",
+      "lesson": 1,
+      "title": "Étendue de mesurage",
+      "aliases": [
+        "étendue de mesure",
+        "étendue de mesurage",
+        "minimum",
+        "maximum"
+      ],
+      "explanations": {
+        "standard": "L'étendue de mesurage est le domaine de variation des valeurs que l'appareil peut mesurer, délimité par une valeur minimale et une valeur maximale.",
+        "simple": "C'est l'intervalle de valeurs que l'appareil peut mesurer correctement.",
+        "ultra_simple": "Imagine une règle graduée : elle a une plus petite et une plus grande valeur. L'appareil aussi."
+      },
+      "common_mistakes": [
+        "confondre étendue de mesurage et précision",
+        "croire qu'un appareil peut mesurer au-delà de sa plage annoncée"
+      ]
+    },
+    {
+      "id": "accuracy_precision",
+      "lesson": 1,
+      "title": "Justesse, fidélité et exactitude",
+      "aliases": [
+        "justesse",
+        "fidélité",
+        "exactitude",
+        "précision"
+      ],
+      "explanations": {
+        "standard": "La justesse concerne la proximité de la valeur vraie, la fidélité la proximité entre mesures répétées, et l'exactitude associe justesse et fidélité.",
+        "simple": "Juste = proche de la vraie valeur. Fidèle = donne presque la même valeur à chaque répétition. Exact = les deux à la fois.",
+        "ultra_simple": "Un bon appareil doit viser juste et répéter presque la même chose."
+      },
+      "common_mistakes": [
+        "confondre justesse et fidélité",
+        "croire qu'une série très groupée est forcément proche de la valeur vraie"
+      ]
+    },
+    {
+      "id": "random_systematic_errors",
+      "lesson": 1,
+      "title": "Erreurs aléatoires et systématiques",
+      "aliases": [
+        "erreur aléatoire",
+        "erreur systématique",
+        "répétition",
+        "correction"
+      ],
+      "explanations": {
+        "standard": "Les erreurs aléatoires varient de façon imprévisible et peuvent être réduites par répétition. Les erreurs systématiques proviennent d'un effet identifiable et ne disparaissent pas par simple répétition.",
+        "simple": "Aléatoire : ça change d'une mesure à l'autre. Systématique : le même biais revient.",
+        "ultra_simple": "Si ça bouge au hasard, répéter aide. Si l'appareil est toujours décalé pareil, répéter ne suffit pas."
+      },
+      "common_mistakes": [
+        "penser que toute erreur disparaît en répétant",
+        "confondre biais constant et fluctuation aléatoire"
+      ]
+    },
+    {
+      "id": "type_a_uncertainty",
+      "lesson": 2,
+      "title": "Incertitude de type A",
+      "aliases": [
+        "type A",
+        "moyenne",
+        "série de mesures",
+        "statistique"
+      ],
+      "explanations": {
+        "standard": "L'incertitude de type A est déterminée à partir d'une série de mesures répétées indépendantes et de leur dispersion statistique.",
+        "simple": "On répète la mesure plusieurs fois, puis on utilise les valeurs obtenues pour estimer l'incertitude.",
+        "ultra_simple": "Type A = plusieurs mesures + calcul statistique."
+      },
+      "common_mistakes": [
+        "utiliser le type A avec une seule mesure",
+        "oublier que les observations doivent être exploitées statistiquement"
+      ]
+    },
+    {
+      "id": "type_b_uncertainty",
+      "lesson": 3,
+      "title": "Incertitude de type B",
+      "aliases": [
+        "type B",
+        "résolution",
+        "constructeur",
+        "lecture",
+        "tolérance"
+      ],
+      "explanations": {
+        "standard": "L'incertitude de type B est estimée à partir d'informations autres qu'une série statistique répétée : résolution, lecture, caractéristiques de l'appareil ou données constructeur.",
+        "simple": "Type B utilise les informations de l'appareil et de la méthode de lecture.",
+        "ultra_simple": "Type B = ce que l'appareil et sa notice te disent sur l'incertitude."
+      },
+      "common_mistakes": [
+        "confondre type B et moyenne statistique",
+        "inventer une précision non fournie par l'appareil"
+      ]
+    },
+    {
+      "id": "combined_uncertainty",
+      "lesson": 3,
+      "title": "Combinaison quadratique des incertitudes",
+      "aliases": [
+        "incertitude composée",
+        "somme quadratique",
+        "propagation"
+      ],
+      "explanations": {
+        "standard": "Lorsque plusieurs contributions indépendantes interviennent, elles peuvent être combinées par une somme quadratique des incertitudes types.",
+        "simple": "On ne les additionne pas simplement : on additionne leurs carrés puis on prend la racine.",
+        "ultra_simple": "Carré + carré → somme → racine."
+      },
+      "common_mistakes": [
+        "additionner directement les incertitudes types indépendantes",
+        "oublier de travailler avec des grandeurs homogènes"
+      ]
+    },
+    {
+      "id": "expanded_uncertainty",
+      "lesson": 4,
+      "title": "Incertitude absolue élargie",
+      "aliases": [
+        "incertitude absolue",
+        "incertitude élargie",
+        "facteur k",
+        "niveau de confiance"
+      ],
+      "explanations": {
+        "standard": "L'incertitude absolue élargie peut s'écrire ΔX = k·u, où u est l'incertitude type et k un facteur d'élargissement lié au niveau de confiance.",
+        "simple": "On multiplie l'incertitude type par le facteur k correspondant au niveau de confiance choisi.",
+        "ultra_simple": "Incertitude élargie = k × incertitude type."
+      },
+      "common_mistakes": [
+        "oublier le facteur d'élargissement",
+        "annoncer un niveau de confiance sans préciser l'incertitude correspondante"
+      ]
+    },
+    {
+      "id": "measurement_result_format",
+      "lesson": 5,
+      "title": "Écriture d'un résultat de mesure",
+      "aliases": [
+        "résultat de mesure",
+        "x plus ou moins delta x",
+        "unité",
+        "niveau de confiance"
+      ],
+      "explanations": {
+        "standard": "Un résultat de mesurage doit présenter la valeur mesurée, son incertitude absolue, l'unité et, si demandé, le niveau de confiance.",
+        "simple": "Écris la valeur, puis ± l'incertitude, puis l'unité.",
+        "ultra_simple": "Valeur ± incertitude + unité."
+      },
+      "common_mistakes": [
+        "oublier l'unité",
+        "donner plus de décimales au résultat qu'il n'est justifié"
+      ]
+    },
+    {
+      "id": "rounding_uncertainty",
+      "lesson": 5,
+      "title": "Règles d'arrondissage",
+      "aliases": [
+        "arrondissage",
+        "chiffre significatif",
+        "par excès",
+        "position décimale"
+      ],
+      "explanations": {
+        "standard": "Le texte recommande d'arrondir l'incertitude avec prudence, puis d'écrire la valeur mesurée jusqu'à la même position décimale que l'incertitude.",
+        "simple": "Arrondis d'abord l'incertitude, puis aligne le nombre de décimales de la valeur.",
+        "ultra_simple": "Même colonne décimale pour la valeur et l'incertitude."
+      },
+      "common_mistakes": [
+        "arrondir trop tôt dans les calculs intermédiaires",
+        "écrire la valeur avec une précision supérieure à celle de l'incertitude"
+      ]
+    },
+    {
+      "id": "sequence_integration",
+      "lesson": 0,
+      "title": "Intégration — choisir, mesurer et communiquer",
+      "aliases": [
+        "intégration",
+        "qualité de mesure",
+        "incertitude",
+        "rapport de mesure"
+      ],
+      "explanations": {
+        "standard": "Une démarche complète consiste à choisir une méthode de mesure, identifier les sources d'erreur, estimer l'incertitude, puis communiquer correctement le résultat.",
+        "simple": "Mesurer ne suffit pas : il faut savoir à quel point le résultat est fiable et l'écrire correctement.",
+        "ultra_simple": "Mesure → incertitude → résultat bien écrit."
+      },
+      "common_mistakes": [
+        "donner uniquement un nombre sans incertitude",
+        "ne pas distinguer erreur et incertitude"
+      ]
+    }
+  ],
+  "adaptive_rules": [
+    "Après deux erreurs sur une notion, proposer Simple.",
+    "Après une erreur supplémentaire, proposer Comme si j'avais 12 ans.",
+    "Après trois réponses correctes consécutives, proposer une difficulté supérieure.",
+    "La difficulté de l'exercice reste indépendante du niveau d'explication."
+  ]
+}

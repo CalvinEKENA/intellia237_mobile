@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { DocumentData } from "firebase-admin/firestore";
+import { hasAnyUserRole, hasUserRole, isSuperAdminUser } from "../auth/userRoles";
 
 const values = z.array(z.string().trim().min(1).max(100)).max(64).default([]);
 export const audienceClauseSchema = z.object({
@@ -43,11 +44,11 @@ export function learnerAudienceContext(user: DocumentData, profile: DocumentData
  */
 export function audienceAllows(data: DocumentData, user: DocumentData, profile: DocumentData = {}, fallbackClass?: string): boolean {
   if (user.accountStatus && user.accountStatus !== "active") return false;
-  if (["superAdmin", "super_admin"].includes(user.role)) return true;
+  if (isSuperAdminUser(user)) return true;
   const scope = data.scope?.type === "establishment" ? data.scope.establishmentId : data.establishmentId;
   if (scope && scope !== "global" && scope !== user.establishmentId) return false;
-  if (["teacher", "admin"].includes(user.role)) return true;
-  if (user.role !== "student") return false;
+  if (hasAnyUserRole(user, ["teacher", "admin"])) return true;
+  if (!hasUserRole(user, "student")) return false;
   const context = learnerAudienceContext(user, profile);
   if (!registry.some(row => row[0] === context.classLevels)) return false;
   if (data.audience !== undefined) {
@@ -55,6 +56,11 @@ export function audienceAllows(data: DocumentData, user: DocumentData, profile: 
     if (!parsed.success) return false;
     return parsed.data.clauses.some(clause => Object.entries(clause).every(([key, allowed]) => {
       const actual = context[key as keyof typeof context];
+      // A clause without class levels never means "every class": it stays
+      // bound to the class the document physically belongs to, when known.
+      if (key === "classLevels" && allowed.length === 0 && fallbackClass) {
+        return canonicalClass(fallbackClass) === actual;
+      }
       return allowed.length === 0 || allowed.some(value => key === "classLevels" ? canonicalClass(value) === actual : value === actual);
     }));
   }
@@ -74,7 +80,46 @@ export function effectiveAudience(data: DocumentData, parent: DocumentData, clas
 
 export function staffCanWrite(user: DocumentData, data: DocumentData): boolean {
   if (user.accountStatus && user.accountStatus !== "active") return false;
-  if (["superAdmin", "super_admin"].includes(user.role)) return true;
+  if (isSuperAdminUser(user)) return true;
   const scope = data.scope?.type === "establishment" ? data.scope.establishmentId : data.establishmentId;
-  return ["teacher", "admin"].includes(user.role) && !!user.establishmentId && scope === user.establishmentId;
+  return hasAnyUserRole(user, ["teacher", "admin"]) && !!user.establishmentId && scope === user.establishmentId;
+}
+
+/** Clé « tout niveau » : publication sans restriction de classe. */
+export const FLOW_AUDIENCE_ANY_LEVEL = "lvl:*";
+
+/**
+ * Clés d'audience indexables d'une publication Parcours.
+ *
+ * Elles forment un SUR-ENSEMBLE des élèves autorisés : la requête indexée
+ * `array-contains-any` ne sert qu'à ne plus lire tout `flow_items` ; la
+ * décision finale reste `audienceAllows`. Une clause sans niveau, ou une
+ * publication historique sans niveau, vaut pour tous les niveaux.
+ */
+export function flowAudienceKeys(data: DocumentData): string[] {
+  const keys = new Set<string>();
+  const addLevels = (levels: unknown) => {
+    const list = Array.isArray(levels)
+      ? levels.filter((level): level is string => typeof level === "string" && level.trim().length > 0)
+      : [];
+    if (list.length === 0) keys.add(FLOW_AUDIENCE_ANY_LEVEL);
+    for (const level of list) keys.add(`lvl:${canonicalClass(level)}`);
+  };
+  const parsed = data.audience !== undefined ? contentAudienceSchema.safeParse(data.audience) : null;
+  if (parsed?.success) {
+    for (const clause of parsed.data.clauses) addLevels(clause.classLevels);
+  } else {
+    addLevels(data.classLevels ?? (data.classLevel ? [data.classLevel] : []));
+  }
+  return [...keys].sort();
+}
+
+/** Clés à interroger pour un élève d'un niveau donné. */
+export function learnerFlowAudienceKeys(classLevel: string): string[] {
+  return [`lvl:${canonicalClass(classLevel)}`, FLOW_AUDIENCE_ANY_LEVEL];
+}
+
+/** Niveau canonique d'un élève, tel que `audienceAllows` le compare. */
+export function learnAudienceContextClass(user: DocumentData, profile: DocumentData = {}): string {
+  return hasUserRole(user, "student") ? learnerAudienceContext(user, profile).classLevels : "";
 }

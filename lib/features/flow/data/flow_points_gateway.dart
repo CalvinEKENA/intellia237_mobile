@@ -23,7 +23,7 @@ extension FlowActivityKindWire on FlowActivityKind {
     'boolean' => FlowActivityKind.boolean,
     'text' => FlowActivityKind.text,
     'ordering' => FlowActivityKind.ordering,
-    _ => throw FormatException('Type d’activité FLOW inconnu : $value'),
+    _ => throw FormatException('Type d’activité du parcours inconnu : $value'),
   };
 }
 

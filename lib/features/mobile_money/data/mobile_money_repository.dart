@@ -5,9 +5,14 @@ import 'package:cloud_functions/cloud_functions.dart';
 import '../domain/mobile_money_models.dart';
 
 abstract class MobileMoneyRepository {
-  Future<MobileMoneyOverview> fetchParentOverview();
+  /// Offre et demandes du parent ; avec [beneficiaryStudentId], l'offre de
+  /// l'école de cet enfant.
+  Future<MobileMoneyOverview> fetchParentOverview({
+    String? beneficiaryStudentId,
+  });
 
   Future<void> submitPayment({
+    String? beneficiaryStudentId,
     required String offerId,
     required String operatorCode,
     required String payerPhone,
@@ -32,11 +37,17 @@ class FirebaseMobileMoneyRepository implements MobileMoneyRepository {
   final FirebaseFunctions _functions;
 
   @override
-  Future<MobileMoneyOverview> fetchParentOverview() async {
+  Future<MobileMoneyOverview> fetchParentOverview({
+    String? beneficiaryStudentId,
+  }) async {
     try {
       final result = await _functions
           .httpsCallable('getMobileMoneyOverview')
-          .call<Map<String, dynamic>>();
+          .call<Map<String, dynamic>>(
+            beneficiaryStudentId == null
+                ? null
+                : {'beneficiaryStudentId': beneficiaryStudentId},
+          );
       return MobileMoneyOverview.fromMap(result.data);
     } on FirebaseFunctionsException catch (error) {
       throw MobileMoneyException(error.code);
@@ -45,6 +56,7 @@ class FirebaseMobileMoneyRepository implements MobileMoneyRepository {
 
   @override
   Future<void> submitPayment({
+    String? beneficiaryStudentId,
     required String offerId,
     required String operatorCode,
     required String payerPhone,
@@ -53,6 +65,7 @@ class FirebaseMobileMoneyRepository implements MobileMoneyRepository {
   }) async {
     try {
       await _functions.httpsCallable('submitMobileMoneyPayment').call<void>({
+        'beneficiaryStudentId': ?beneficiaryStudentId,
         'offerId': offerId,
         'operatorCode': operatorCode,
         'payerPhone': payerPhone,

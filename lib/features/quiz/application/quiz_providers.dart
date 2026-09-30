@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/telemetry/startup_trace.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_user_id.dart';
 import '../../learn/application/learn_providers.dart';
@@ -22,9 +23,12 @@ final quizHubProvider = FutureProvider<List<QuizModel>>((ref) async {
   try {
     final context = await ref.watch(studentAcademicContextProvider.future);
 
-    return await repository.fetchQuizzes(
-      classLevel: context.quizAndCatalogClassLevel,
-      series: context.series,
+    return await StartupTrace.measure(
+      'quiz-hub (quiz publiés)',
+      () => repository.fetchQuizzes(
+        classLevel: context.quizAndCatalogClassLevel,
+        series: context.series,
+      ),
     );
   } on AcademicProfileException catch (error, stackTrace) {
     final failure = QuizContentException.fromAcademic(error);
@@ -46,9 +50,12 @@ final quizByIdProvider = FutureProvider.family<QuizModel, String>((
 final quizAttemptHistoryProvider = FutureProvider<List<QuizAttemptSummary>>((
   ref,
 ) async {
-  final auth = ref.watch(authControllerProvider);
-  final studentId = auth.userId;
-  if (!auth.isAuthenticated || studentId == null || studentId.trim().isEmpty) {
+  final (authenticated, studentId) = ref.watch(
+    authControllerProvider.select(
+      (auth) => (auth.isAuthenticated, auth.userId),
+    ),
+  );
+  if (!authenticated || studentId == null || studentId.trim().isEmpty) {
     return const [];
   }
 
@@ -58,7 +65,12 @@ final quizAttemptHistoryProvider = FutureProvider<List<QuizAttemptSummary>>((
 });
 
 final currentQuizUserIdProvider = Provider<String>((ref) {
-  return requireAuthenticatedUserId(ref.watch(authControllerProvider));
+  ref.watch(
+    authControllerProvider.select(
+      (auth) => (auth.isAuthenticated, auth.userId),
+    ),
+  );
+  return requireAuthenticatedUserId(ref.read(authControllerProvider));
 });
 
 final quizAttemptSaverProvider = Provider<QuizAttemptSaver>((ref) {

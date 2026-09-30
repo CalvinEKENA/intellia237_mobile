@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -5,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/network_status.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../../core/telemetry/startup_trace.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/application/auth_user_id.dart';
 import '../../auth/domain/app_role.dart';
@@ -22,9 +24,20 @@ import '../domain/learn_route_requests.dart';
 import '../domain/learn_subject.dart';
 
 final learnRepositoryProvider = Provider<LearnRepository>((ref) {
-  ref.watch(learnCatalogRevisionProvider);
-  final auth = ref.watch(authControllerProvider);
-  return FirestoreLearnRepository(establishmentId: auth.establishmentId);
+  // Une nouvelle publication reconstruit le dépôt (caches vidés). La
+  // première révision lue n'est qu'un point de départ : la recevoir ne
+  // relance pas le catalogue déjà en cours de lecture.
+  ref.listen(learnCatalogRevisionProvider, (previous, next) {
+    final before = previous?.valueOrNull;
+    final after = next.valueOrNull;
+    if (before != null && after != null && before != after) {
+      ref.invalidateSelf();
+    }
+  });
+  final establishmentId = ref.watch(
+    authControllerProvider.select((auth) => auth.establishmentId),
+  );
+  return FirestoreLearnRepository(establishmentId: establishmentId);
 });
 
 // Parent indexes are updated in the publication commit. A catalog change
@@ -40,14 +53,28 @@ final learnCatalogRevisionProvider = StreamProvider.autoDispose<String>((
       .distinct();
 });
 
+/// Profil académique de l'élève : sa classe décide de tout le reste
+/// (catalogue, packs, quiz).
+///
+/// Registre de décisions (QA appareil, 28/09/2026) : sur réseau lent, la
+/// lecture en ligne du profil (jusqu'à 8 s) retenait Apprendre, Quiz et les
+/// packs embarqués eux-mêmes. Au premier chargement, le dernier profil
+/// connu de l'appareil (cache local de Firestore) est servi aussitôt, puis
+/// confirmé en ligne en arrière-plan ; une différence remplace la valeur.
+/// Un rafraîchissement explicite (changement de classe, « Réessayer »)
+/// relit toujours le serveur.
 final studentAcademicContextProvider = FutureProvider<LearnAcademicContext>((
   ref,
 ) async {
-  final auth = ref.watch(authControllerProvider);
+  // Seule l'identité compte : un chargement ou une erreur d'authentification
+  // ne relance pas la lecture du profil.
+  final (authenticated, role, userId) = ref.watch(
+    authControllerProvider.select(
+      (auth) => (auth.isAuthenticated, auth.role, auth.userId),
+    ),
+  );
 
-  if (!auth.isAuthenticated ||
-      auth.role != AppRole.student ||
-      auth.userId == null) {
+  if (!authenticated || role != AppRole.student || userId == null) {
     throw const AcademicProfileException(
       kind: AcademicProfileFailureKind.missing,
       normalizedErrorCode: 'unauthenticated',
@@ -55,10 +82,87 @@ final studentAcademicContextProvider = FutureProvider<LearnAcademicContext>((
     );
   }
 
-  final uid = auth.userId!;
-  final data = await ref.watch(studentAcademicProfileSourceProvider).fetch(uid);
+  final source = ref.watch(studentAcademicProfileSourceProvider);
+  final memory = ref.watch(_academicProfileMemoryProvider);
+  final confirmed = memory.takeConfirmed(userId);
+  if (confirmed != null) return confirmed;
+
+  if (source case final CachedStudentAcademicProfileSource cache
+      when memory.isFirstLoad(userId)) {
+    final cached = await StartupTrace.measure(
+      'academic-profile (cache)',
+      () => cache.fetchCached(userId),
+    );
+    final known = cached == null ? null : _tryAcademicContext(cached);
+    if (known != null) {
+      var disposed = false;
+      ref.onDispose(() => disposed = true);
+      unawaited(
+        StartupTrace.measure(
+              'academic-profile (confirmation en ligne)',
+              () => source.fetch(userId),
+            )
+            .then((data) {
+              final fresh = studentAcademicContextFromProfile(data);
+              if (disposed ||
+                  _academicSignature(fresh) == _academicSignature(known)) {
+                return;
+              }
+              memory.confirm(userId, fresh);
+              ref.invalidateSelf();
+            })
+            .catchError((Object _) {
+              // Hors ligne ou lent : le profil connu reste en place.
+            }),
+      );
+      return known;
+    }
+  }
+
+  final data = await StartupTrace.measure(
+    'academic-profile',
+    () => source.fetch(userId),
+  );
   return studentAcademicContextFromProfile(data);
 });
+
+LearnAcademicContext? _tryAcademicContext(Map<String, dynamic> data) {
+  try {
+    return studentAcademicContextFromProfile(data);
+  } catch (_) {
+    return null;
+  }
+}
+
+String _academicSignature(LearnAcademicContext context) => [
+  context.classLevel,
+  context.series,
+  context.catalogClassLevel,
+  context.academicLevelId,
+  context.displayClassLevel,
+  context.educationalSubsystem,
+  context.educationType,
+  context.tutorId,
+].join('|');
+
+/// Ce que le profil académique retient entre deux évaluations : les
+/// identités déjà chargées une fois, et une réponse en ligne à appliquer.
+class _AcademicProfileMemory {
+  final Set<String> _loaded = {};
+  final Map<String, LearnAcademicContext> _confirmed = {};
+
+  /// Vrai au tout premier chargement de [uid] (et le retient).
+  bool isFirstLoad(String uid) => _loaded.add(uid);
+
+  void confirm(String uid, LearnAcademicContext context) =>
+      _confirmed[uid] = context;
+
+  LearnAcademicContext? takeConfirmed(String uid) => _confirmed.remove(uid);
+}
+
+final _academicProfileMemoryProvider = Provider<_AcademicProfileMemory>(
+  (ref) => _AcademicProfileMemory(),
+);
 
 /// Pure profile contract used by post-registration and compatibility tests.
 LearnAcademicContext studentAcademicContextFromProfile(
@@ -100,8 +204,12 @@ LearnAcademicContext studentAcademicContextFromProfile(
 }
 
 final _learnUserIdProvider = Provider<String>((ref) {
-  final auth = ref.watch(authControllerProvider);
-  return requireAuthenticatedUserId(auth);
+  ref.watch(
+    authControllerProvider.select(
+      (auth) => (auth.isAuthenticated, auth.userId),
+    ),
+  );
+  return requireAuthenticatedUserId(ref.read(authControllerProvider));
 });
 
 final learnHubProvider = FutureProvider<LearnHubSnapshot>((ref) async {
@@ -109,10 +217,13 @@ final learnHubProvider = FutureProvider<LearnHubSnapshot>((ref) async {
   final context = await ref.watch(studentAcademicContextProvider.future);
   final userId = ref.watch(_learnUserIdProvider);
 
-  final subjects = await repository.fetchSubjects(
-    userId: userId,
-    classLevel: context.quizAndCatalogClassLevel,
-    series: context.series,
+  final subjects = await StartupTrace.measure(
+    'learn-hub (catalogue en ligne)',
+    () => repository.fetchSubjects(
+      userId: userId,
+      classLevel: context.quizAndCatalogClassLevel,
+      series: context.series,
+    ),
   );
 
   return LearnHubSnapshot(context: context, subjects: subjects);

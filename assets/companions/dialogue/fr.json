@@ -1,0 +1,1614 @@
+{
+ "schemaVersion": 1,
+ "language": "fr",
+ "normalization": {
+  "pls": "",
+  "plz": "",
+  "please": "",
+  "u": "you",
+  "ur": "your",
+  "wanna": "want to",
+  "gonna": "going to",
+  "im": "i am",
+  "i m": "i am",
+  "dont": "don t",
+  "cant": "can t",
+  "thx": "thanks",
+  "ty": "thank you",
+  "stp": "",
+  "svp": "",
+  "s il te plait": "",
+  "s il vous plait": "",
+  "j veux": "je veux",
+  "jveux": "je veux",
+  "chui": "je suis",
+  "chuis": "je suis",
+  "jsuis": "je suis",
+  "j suis": "je suis",
+  "pk": "pourquoi",
+  "pq": "pourquoi",
+  "koi": "quoi",
+  "mtn": "maintenant",
+  "bcp": "beaucoup",
+  "slt": "salut",
+  "bjr": "bonjour",
+  "cc": "coucou",
+  "tkt": "t inquiete",
+  "dacc": "d accord",
+  "dak": "d accord",
+  "ok ok": "ok",
+  "g": "j ai",
+  "jai": "j ai",
+  "ya": "il y a"
+ },
+ "subjects": {
+  "mathematiques": {
+   "name": "maths",
+   "aliases": [
+    "maths",
+    "math",
+    "mathematiques",
+    "mathematique",
+    "mathematics",
+    "algebre",
+    "geometrie",
+    "arithmetique",
+    "algebra",
+    "geometry"
+   ]
+  },
+  "anglais": {
+   "name": "anglais",
+   "aliases": [
+    "anglais",
+    "english",
+    "langue anglaise",
+    "english language"
+   ]
+  },
+  "physique": {
+   "name": "physique",
+   "aliases": [
+    "physique",
+    "physics",
+    "sciences physiques"
+   ]
+  },
+  "chimie": {
+   "name": "chimie",
+   "aliases": [
+    "chimie",
+    "chemistry"
+   ]
+  },
+  "svt": {
+   "name": "SVT",
+   "aliases": [
+    "svt",
+    "biologie",
+    "sciences de la vie",
+    "biology",
+    "life sciences"
+   ]
+  },
+  "francais": {
+   "name": "français",
+   "aliases": [
+    "francais",
+    "french",
+    "litterature"
+   ]
+  },
+  "philosophie": {
+   "name": "philosophie",
+   "aliases": [
+    "philo",
+    "philosophie",
+    "philosophy"
+   ]
+  },
+  "histoire_geographie": {
+   "name": "histoire-géographie",
+   "aliases": [
+    "histoire",
+    "geographie",
+    "histoire geo",
+    "histoire geographie",
+    "geo",
+    "history",
+    "geography"
+   ]
+  },
+  "informatique": {
+   "name": "informatique",
+   "aliases": [
+    "informatique",
+    "computer science",
+    "programmation",
+    "coding",
+    "programming"
+   ]
+  },
+  "espagnol": {
+   "name": "espagnol",
+   "aliases": [
+    "espagnol",
+    "spanish"
+   ]
+  },
+  "allemand": {
+   "name": "allemand",
+   "aliases": [
+    "allemand",
+    "german"
+   ]
+  }
+ },
+ "questionMarkers": [
+  "explique",
+  "expliquer",
+  "explique moi",
+  "c est quoi",
+  "qu est ce que",
+  "qu est ce qu",
+  "pourquoi",
+  "comment on",
+  "comment fait",
+  "definition",
+  "definis",
+  "calcule",
+  "resous",
+  "resoudre",
+  "donne moi la reponse",
+  "quelle est",
+  "quel est",
+  "qui a invente",
+  "raconte",
+  "parle moi de",
+  "what is",
+  "explain",
+  "why",
+  "how does",
+  "tell me about",
+  "what are",
+  "how do",
+  "define",
+  "who invented",
+  "solve",
+  "calculate",
+  "give me the answer"
+ ],
+ "triggers": {
+  "greeting": [
+   "bonjour",
+   "salut",
+   "coucou",
+   "bonsoir",
+   "hello",
+   "hey",
+   "yo",
+   "hi",
+   "salut kira",
+   "salut leo",
+   "bonjour kira",
+   "bonjour leo",
+   "wesh",
+   "good morning",
+   "good evening",
+   "good afternoon",
+   "hiya",
+   "hi kira",
+   "hi leo"
+  ],
+  "how_are_you": [
+   "ca va",
+   "comment ca va",
+   "comment tu vas",
+   "comment vas tu",
+   "tu vas bien",
+   "la forme",
+   "quoi de neuf",
+   "ca va toi",
+   "et toi",
+   "how are you",
+   "how are you doing",
+   "how s it going",
+   "you ok",
+   "what s up",
+   "how do you feel",
+   "and you"
+  ],
+  "thanks": [
+   "merci",
+   "merci beaucoup",
+   "merci bien",
+   "je te remercie",
+   "thanks",
+   "thank you",
+   "mrc",
+   "c est gentil de m aider",
+   "thanks a lot",
+   "cheers",
+   "much appreciated"
+  ],
+  "goodbye": [
+   "au revoir",
+   "a demain",
+   "a plus",
+   "a plus tard",
+   "a bientot",
+   "bonne nuit",
+   "bye",
+   "ciao",
+   "je dois y aller",
+   "je m en vais",
+   "a toute",
+   "a la prochaine",
+   "je vais dormir",
+   "bonne soiree",
+   "je te laisse",
+   "goodbye",
+   "see you",
+   "see you tomorrow",
+   "good night",
+   "gotta go",
+   "i have to go",
+   "later",
+   "see ya",
+   "i m off"
+  ],
+  "motivation": [
+   "motive moi",
+   "motivation",
+   "je n arrive pas a travailler",
+   "j arrive pas a travailler",
+   "pas envie",
+   "pas motive",
+   "pas motivee",
+   "flemme",
+   "la flemme",
+   "je procrastine",
+   "encourage moi",
+   "pas le courage",
+   "donne moi du courage",
+   "je n ai pas envie",
+   "j ai pas envie",
+   "motivate me",
+   "no motivation",
+   "i can t work",
+   "i can t get started",
+   "not motivated",
+   "i don t feel like it",
+   "procrastinating",
+   "encourage me",
+   "i can t focus"
+  ],
+  "tired": [
+   "fatigue",
+   "fatiguee",
+   "je suis fatigue",
+   "je suis fatiguee",
+   "creve",
+   "crevee",
+   "epuise",
+   "epuisee",
+   "pas d energie",
+   "sommeil",
+   "j ai sommeil",
+   "trop fatigue",
+   "longue journee",
+   "tired",
+   "je suis mort",
+   "je suis morte",
+   "k o",
+   "i am tired",
+   "exhausted",
+   "sleepy",
+   "no energy",
+   "worn out",
+   "long day",
+   "so tired"
+  ],
+  "discouraged": [
+   "decourage",
+   "decouragee",
+   "j abandonne",
+   "je n y arrive pas",
+   "j y arrive pas",
+   "ca sert a rien",
+   "je lache",
+   "je vais echouer",
+   "c est trop dur",
+   "trop dur",
+   "ca va pas",
+   "ca ne va pas",
+   "je rate tout",
+   "demoralise",
+   "demoralisee",
+   "j en ai marre",
+   "marre",
+   "je baisse les bras",
+   "discouraged",
+   "i give up",
+   "i can t do it",
+   "it s useless",
+   "i m going to fail",
+   "too hard",
+   "it s too hard",
+   "i fail everything",
+   "fed up",
+   "hopeless",
+   "not going well"
+  ],
+  "self_doubt": [
+   "je suis nul",
+   "je suis nulle",
+   "suis nul",
+   "suis nulle",
+   "trop nul",
+   "trop nulle",
+   "je suis bete",
+   "je suis mauvais",
+   "je suis mauvaise",
+   "je suis le pire",
+   "je suis la pire",
+   "je suis idiot",
+   "je suis idiote",
+   "je suis bidon",
+   "i am stupid",
+   "i am bad",
+   "i m stupid",
+   "i m bad at",
+   "i am useless",
+   "i m useless",
+   "i m dumb",
+   "i am dumb",
+   "i m the worst",
+   "i suck"
+  ],
+  "exam_stress": [
+   "examen",
+   "examens",
+   "exam",
+   "bac",
+   "baccalaureat",
+   "probatoire",
+   "peur",
+   "j ai peur",
+   "stress",
+   "stresse",
+   "stressee",
+   "angoisse",
+   "angoissee",
+   "panique",
+   "controle",
+   "composition",
+   "epreuve",
+   "concours",
+   "l examen approche",
+   "exams",
+   "test anxiety",
+   "scared",
+   "afraid",
+   "stressed",
+   "anxious",
+   "panic",
+   "worried",
+   "baccalaureate",
+   "finals"
+  ],
+  "dont_understand": [
+   "je ne comprends pas",
+   "je comprends pas",
+   "comprends rien",
+   "je ne comprends rien",
+   "j ai pas compris",
+   "je n ai pas compris",
+   "pas compris",
+   "je suis perdu",
+   "je suis perdue",
+   "c est flou",
+   "je bloque",
+   "ca bloque",
+   "j y comprends rien",
+   "je capte pas",
+   "i don t understand",
+   "i do not understand",
+   "i didn t understand",
+   "don t get it",
+   "i m lost",
+   "i am lost",
+   "confused",
+   "i m stuck",
+   "makes no sense"
+  ],
+  "help": [
+   "aide moi",
+   "aide",
+   "aidez moi",
+   "help",
+   "besoin d aide",
+   "tu peux m aider",
+   "peux tu m aider",
+   "sos",
+   "au secours",
+   "je ne sais pas quoi faire",
+   "je sais pas quoi faire",
+   "par ou commencer",
+   "que faire",
+   "je suis coince",
+   "je suis coincee",
+   "help me",
+   "can you help",
+   "i need help",
+   "what should i do",
+   "where do i start",
+   "i don t know what to do"
+  ],
+  "want_to_study": [
+   "travailler",
+   "reviser",
+   "etudier",
+   "apprendre",
+   "je veux travailler",
+   "on travaille",
+   "on revise",
+   "fais moi reviser",
+   "je veux reviser",
+   "une lecon",
+   "le cours",
+   "cours",
+   "bosser",
+   "on bosse",
+   "je veux apprendre",
+   "continuer",
+   "reprendre",
+   "on reprend",
+   "revoir",
+   "je veux revoir",
+   "study",
+   "learn",
+   "help me revise",
+   "revise",
+   "i want to study",
+   "let s study",
+   "let s work",
+   "work",
+   "lesson",
+   "course",
+   "continue",
+   "resume",
+   "go over"
+  ],
+  "want_quiz": [
+   "quiz",
+   "quizz",
+   "exercice",
+   "exercices",
+   "des questions",
+   "quelques questions",
+   "teste moi",
+   "test",
+   "tester",
+   "interroge moi",
+   "defi",
+   "challenge",
+   "evaluation",
+   "entrainement",
+   "s entrainer",
+   "m entrainer",
+   "qcm",
+   "je veux un quiz",
+   "un quiz",
+   "me tester",
+   "entraine moi",
+   "i want a quiz",
+   "quizzes",
+   "exercise",
+   "exercises",
+   "questions",
+   "some questions",
+   "test me",
+   "assessment",
+   "practice",
+   "practise",
+   "quiz me"
+  ],
+  "what_should_i_review": [
+   "que dois je reviser",
+   "qu est ce que je dois reviser",
+   "je revise quoi",
+   "quoi reviser",
+   "qu est ce que je revise",
+   "par quoi je commence",
+   "mes points faibles",
+   "point faible",
+   "points faibles",
+   "ou je bloque",
+   "quelle matiere reviser",
+   "priorite",
+   "conseille moi",
+   "que me conseilles tu",
+   "je dois reviser quoi",
+   "tu me conseilles quoi",
+   "what should i review",
+   "what should i revise",
+   "what do i revise",
+   "what should i study",
+   "my weak points",
+   "weak points",
+   "weak spot",
+   "where am i weak",
+   "priority",
+   "advise me",
+   "what do you recommend"
+  ],
+  "ask_progress": [
+   "progression",
+   "ma progression",
+   "mon niveau",
+   "mes resultats",
+   "mon score",
+   "mes notes",
+   "ou j en suis",
+   "ou en suis je",
+   "mes progres",
+   "j ai progresse",
+   "mon avancement",
+   "mes stats",
+   "statistiques",
+   "bilan",
+   "mon bilan",
+   "my progress",
+   "progress",
+   "my level",
+   "my results",
+   "my score",
+   "my grades",
+   "how am i doing",
+   "my stats",
+   "statistics",
+   "summary"
+  ],
+  "who_are_you": [
+   "qui es tu",
+   "t es qui",
+   "tu es qui",
+   "presente toi",
+   "comment tu t appelles",
+   "ton nom",
+   "tu fais quoi",
+   "a quoi tu sers",
+   "que peux tu faire",
+   "tu sers a quoi",
+   "tu peux faire quoi",
+   "who are you",
+   "what s your name",
+   "introduce yourself",
+   "what can you do",
+   "what do you do",
+   "what are you for"
+  ],
+  "are_you_ai": [
+   "tu es une ia",
+   "t es une ia",
+   "es tu une ia",
+   "ia",
+   "intelligence artificielle",
+   "robot",
+   "un bot",
+   "bot",
+   "chatgpt",
+   "gemini",
+   "tu es humain",
+   "tu es humaine",
+   "t es un robot",
+   "tu es reel",
+   "tu es reelle",
+   "une vraie personne",
+   "machine",
+   "are you an ai",
+   "are you human",
+   "are you ai",
+   "ai",
+   "artificial intelligence",
+   "are you real",
+   "a real person"
+  ],
+  "compliment": [
+   "tu es belle",
+   "t es belle",
+   "tu es beau",
+   "t es beau",
+   "t es fort",
+   "tu es fort",
+   "tu es forte",
+   "t es forte",
+   "je t aime",
+   "je t aime bien",
+   "t es genial",
+   "tu es genial",
+   "tu es geniale",
+   "t es cool",
+   "tu es cool",
+   "tu es sympa",
+   "t es sympa",
+   "t es la meilleure",
+   "t es le meilleur",
+   "tu es la meilleure",
+   "tu es le meilleur",
+   "trop fort",
+   "trop forte",
+   "t es mignonne",
+   "tu es gentille",
+   "tu es gentil",
+   "tu es drole",
+   "you re beautiful",
+   "you are beautiful",
+   "you re great",
+   "you are great",
+   "i love you",
+   "you re cool",
+   "you re the best",
+   "you are the best",
+   "you re smart",
+   "you re nice",
+   "you re awesome",
+   "you are awesome",
+   "you re funny"
+  ],
+  "bored": [
+   "je m ennuie",
+   "ennui",
+   "ennuyeux",
+   "c est nul",
+   "c est chiant",
+   "chiant",
+   "boring",
+   "rien a faire",
+   "pas interessant",
+   "monotone",
+   "c est long",
+   "je m ennuie grave",
+   "bored",
+   "i m bored",
+   "nothing to do",
+   "not interesting",
+   "this is dull"
+  ],
+  "surprise_me": [
+   "surprends moi",
+   "surprise",
+   "au hasard",
+   "n importe quoi",
+   "choisis pour moi",
+   "tu choisis",
+   "choisis toi",
+   "peu importe",
+   "decide pour moi",
+   "random",
+   "je ne sais pas quoi choisir",
+   "je sais pas quoi choisir",
+   "surprise me",
+   "at random",
+   "you choose",
+   "pick for me",
+   "choose for me",
+   "whatever",
+   "i can t decide",
+   "anything"
+  ],
+  "affirm": [
+   "oui",
+   "ouais",
+   "ouai",
+   "ok",
+   "okay",
+   "d accord",
+   "vas y",
+   "go",
+   "allons y",
+   "carrement",
+   "bien sur",
+   "yes",
+   "yep",
+   "c est parti",
+   "parfait",
+   "volontiers",
+   "pourquoi pas",
+   "ca marche",
+   "grave",
+   "on y va",
+   "bien",
+   "yeah",
+   "sure",
+   "let s go",
+   "alright",
+   "of course",
+   "why not",
+   "sounds good",
+   "absolutely",
+   "fine"
+  ],
+  "decline": [
+   "non",
+   "nan",
+   "pas maintenant",
+   "plus tard",
+   "non merci",
+   "laisse tomber",
+   "une autre fois",
+   "no",
+   "nope",
+   "pas aujourd hui",
+   "not now",
+   "later",
+   "no thanks",
+   "maybe later",
+   "not today",
+   "forget it"
+  ]
+ },
+ "suggestions": {
+  "review": "Fais-moi réviser",
+  "quiz": "Je veux un quiz",
+  "what_to_review": "Qu'est-ce que je révise ?",
+  "subject": "On travaille en {subjectName} ?",
+  "progress": "Où j'en suis ?",
+  "surprise": "Surprends-moi"
+ },
+ "responses": {
+  "greeting": {
+   "kira": [
+    "Salut {firstName}. Je suis là. On travaille un peu ensemble ?",
+    "Coucou {firstName}. Contente de te retrouver. Tu veux reprendre un cours ou te tester avec quelques questions ?",
+    "Bonjour {firstName}. On peut y aller tranquillement : une matière, quelques questions, et on voit où tu en es.",
+    "Je suis prête. Tu me dis simplement ce que tu veux travailler.",
+    "Hey {firstName}. Tu préfères commencer doucement ou te lancer directement dans un quiz ?",
+    "Bonjour ! Ça me fait plaisir de te voir. On commence par quoi aujourd'hui ?",
+    "Salut. Prends ton temps : dis-moi juste si tu veux apprendre ou t'entraîner.",
+    "Coucou. Une petite séance ensemble ? Un cours ou un quiz, c'est toi qui choisis."
+   ],
+   "leo": [
+    "Salut {firstName} ! On s'y remet ?",
+    "Te voilà. Tu veux apprendre quelque chose ou tester ton niveau ?",
+    "Une petite session, ça te dit ? Choisis une matière et on y va.",
+    "Salut ! J'ai quelques défis qui t'attendent.",
+    "Content de te revoir, {firstName}. On vise quoi aujourd'hui ?",
+    "Yo ! Cours ou quiz ? Dis-moi et on démarre.",
+    "Salut ! Bonne énergie aujourd'hui ? On en profite.",
+    "Hey {firstName} ! Une matière, un objectif, et c'est parti."
+   ]
+  },
+  "how_are_you": {
+   "kira": [
+    "Oui, merci. Et toi ? Si ta journée a été longue, on peut commencer par quelque chose de léger.",
+    "Ça va bien. Je suis surtout contente de te retrouver ici.",
+    "Très bien. Et toi, comment tu te sens avant qu'on commence ?",
+    "Ça va, merci de demander. Et de ton côté, la journée se passe comment ?",
+    "Bien, merci. Dis-moi comment tu te sens, et on adapte la séance.",
+    "Ça va doucement mais sûrement. Et toi, plutôt en forme ou pas trop ?",
+    "Je vais bien. Et toi ? On peut faire court si tu as besoin.",
+    "Ça va, merci. Je suis prête quand tu l'es."
+   ],
+   "leo": [
+    "En forme. Et toi ?",
+    "Toujours prêt pour un défi. Mais toi d'abord : ça va ?",
+    "Ça roule. Dis-moi juste si aujourd'hui on révise tranquille ou si on attaque.",
+    "Super bien ! Et toi, niveau énergie, on en est où ?",
+    "Ça va très bien. Et toi ? On s'adapte à ta forme du jour.",
+    "Au top. Raconte : journée facile ou journée chargée ?",
+    "Ça va ! Et toi, on s'y met ?",
+    "Nickel. Et de ton côté ?"
+   ]
+  },
+  "thanks": {
+   "kira": [
+    "Avec plaisir.",
+    "Toujours là pour ça.",
+    "Ça me fait plaisir. On continue quand tu veux.",
+    "Pas de souci. Tu avances, c'est l'essentiel.",
+    "De rien. C'est toi qui fais le travail.",
+    "Merci à toi pour ta confiance.",
+    "Avec plaisir. Je reste là si tu as besoin.",
+    "C'est normal. On forme une bonne équipe."
+   ],
+   "leo": [
+    "Avec plaisir.",
+    "Quand tu veux.",
+    "On remet ça quand tu veux.",
+    "Bien joué surtout à toi.",
+    "De rien ! Tu as fait le plus dur.",
+    "Pas de quoi. Prochaine étape quand tu le sens.",
+    "Merci à toi, c'est toi qui bosses.",
+    "Toujours là pour te pousser un peu."
+   ]
+  },
+  "goodbye": {
+   "kira": [
+    "À bientôt, {firstName}. Reviens quand tu veux.",
+    "Bonne suite de journée. Tu as fait ta part pour aujourd'hui.",
+    "À demain peut-être. Repose-toi bien.",
+    "Au revoir. Ta progression t'attendra ici.",
+    "À plus tard. Prends soin de toi.",
+    "Bonne soirée. Ce que tu as fait aujourd'hui compte.",
+    "À bientôt. Je serai là quand tu reviendras.",
+    "Salut {firstName}. Repose-toi, on reprendra doucement."
+   ],
+   "leo": [
+    "À plus, {firstName}. On reprend quand tu veux.",
+    "Bonne pause. On remet ça bientôt.",
+    "À bientôt. Le prochain défi t'attendra.",
+    "Ciao ! Reviens en forme.",
+    "À la prochaine. On gardera le rythme.",
+    "Salut ! Recharge les batteries.",
+    "À demain peut-être. Les quiz t'attendront.",
+    "Bye ! Repose-toi bien."
+   ]
+  },
+  "motivation": {
+   "kira": [
+    "Ça arrive à tout le monde. On commence par cinq minutes, juste pour se mettre en route ?",
+    "Pas besoin d'avoir envie pour commencer. Une seule question, et on voit après.",
+    "Je te propose quelque chose de très court. Si ça va, on continue ; sinon, on s'arrête.",
+    "Le plus dur, c'est de démarrer. Choisis une matière, je t'accompagne.",
+    "On peut commencer par ce que tu connais déjà. Ça aide à se lancer.",
+    "Tu n'as pas à tout faire aujourd'hui. Juste un petit pas.",
+    "Et si on faisait quelques questions faciles pour te remettre dans le bain ?",
+    "Un peu de travail vaut mieux que pas du tout. On essaie ensemble ?"
+   ],
+   "leo": [
+    "Pas envie ? Normal. On fait cinq minutes et on juge après.",
+    "Un petit round, pas plus. Le reste viendra tout seul.",
+    "L'envie arrive souvent en route. Allez, une première question.",
+    "Objectif du jour : juste commencer. Le reste, c'est du bonus.",
+    "On ne vise pas la perfection. On vise le premier point.",
+    "Trois questions. Si tu veux arrêter après, tu arrêtes.",
+    "La motivation suit l'action. On lance un petit quiz ?",
+    "Viens, on se chauffe avec quelque chose de facile."
+   ]
+  },
+  "tired": {
+   "kira": [
+    "Alors on ne va pas se battre contre ta fatigue. Faisons juste quelques questions, tranquillement.",
+    "Je comprends. On peut faire court aujourd'hui : un petit quiz et tu t'arrêtes quand tu veux.",
+    "Pas besoin d'une longue séance. Cinq ou dix minutes bien faites, c'est déjà utile.",
+    "On peut choisir une matière que tu connais déjà et reprendre doucement.",
+    "Écoute ta fatigue. Une petite révision légère, ou du repos si tu en as besoin.",
+    "D'accord. On garde ça simple : un seul thème, sans pression.",
+    "Tu peux aussi te reposer et revenir plus tard. Je serai là.",
+    "On y va en douceur. Quelques questions en entraînement, avec les corrections."
+   ],
+   "leo": [
+    "D'accord. Pas de marathon aujourd'hui. Un petit round et on voit.",
+    "Coup de fatigue ? Alors objectif simple : quelques questions, pas plus.",
+    "On réduit la difficulté de la séance, pas ton ambition.",
+    "Viens, on fait quelque chose de court et propre.",
+    "Mode économie d'énergie : un mini quiz et c'est tout.",
+    "Pas grave. Dix minutes efficaces valent mieux qu'une heure dans le brouillard.",
+    "Repos ou mini séance, c'est toi qui choisis. Les deux se défendent.",
+    "On fait léger aujourd'hui. Demain, on accélère."
+   ]
+  },
+  "discouraged": {
+   "kira": [
+    "Une difficulté ne dit rien de ton niveau final. On peut reprendre une notion à la fois.",
+    "Tu n'as pas besoin de tout réussir d'un coup. Choisissons juste la prochaine petite étape.",
+    "Si une matière te résiste, ce n'est pas grave. On va simplement voir où ça coince.",
+    "On peut commencer par une question facile pour reprendre confiance.",
+    "C'est normal de se sentir comme ça parfois. Je reste avec toi, on avance doucement.",
+    "Tu as déjà fait des efforts pour en arriver là. On repart de ce que tu sais.",
+    "On va découper le problème en petits morceaux. Ce sera plus léger.",
+    "Pas de pression. Une petite réussite aujourd'hui, c'est déjà beaucoup."
+   ],
+   "leo": [
+    "Un mauvais passage ne décide pas de la suite.",
+    "On ne cherche pas la perfection maintenant. On cherche juste le prochain point gagné.",
+    "Tu bloques ? Très bien. Ça nous donne justement quelque chose à attaquer.",
+    "On repart sur une petite victoire.",
+    "Tout le monde galère parfois. La différence, c'est de revenir. Et tu es là.",
+    "On garde la tête haute. Une question à la fois.",
+    "Ce qui est dur aujourd'hui sera plus simple demain. On s'y met ?",
+    "Tu n'as pas perdu. Tu es en train d'apprendre."
+   ]
+  },
+  "self_doubt": {
+   "kira": [
+    "Non. Tu es peut-être en difficulté sur certaines notions, mais ce n'est pas la même chose.",
+    "Ne résume pas ton niveau à une mauvaise séance. Montre-moi plutôt la matière qui te pose problème.",
+    "On va éviter de te coller une étiquette. Dis-moi ce qui bloque et on commence par là.",
+    "Personne n'est nul. Il y a juste des notions pas encore maîtrisées, et ça se travaille.",
+    "Je ne suis pas d'accord. Tu apprends, et apprendre, ça passe par des erreurs.",
+    "Parle-toi avec un peu plus de douceur. On regarde ensemble ce qui coince ?",
+    "Tes erreurs montrent ce qu'il reste à apprendre, pas ce que tu vaux.",
+    "Donne-moi une matière, et je te montre qu'on peut avancer."
+   ],
+   "leo": [
+    "Pas d'étiquette. On regarde les faits et on progresse.",
+    "Tu as peut-être des points faibles. Parfait : on sait quoi travailler.",
+    "On ne dit pas « je suis nul ». On dit « ça, je ne le maîtrise pas encore ».",
+    "Stop. Personne n'est nul ici. Tu es en chantier, et un chantier, ça avance.",
+    "Ce genre de phrase ne t'aide pas. Une question réussie, si.",
+    "Tout le monde commence quelque part. On va te prouver le contraire.",
+    "Les points faibles d'aujourd'hui sont les points gagnés de demain.",
+    "Donne-moi une matière. On va te trouver une victoire rapide."
+   ]
+  },
+  "exam_stress": {
+   "kira": [
+    "C'est normal de ressentir de la pression. On peut la transformer en plan : une matière, quelques questions, puis la suivante.",
+    "On ne va pas essayer de tout revoir maintenant. Commençons par un petit diagnostic.",
+    "Respire. Choisis une matière et on regarde simplement ce que tu maîtrises déjà.",
+    "Le stress montre que ça compte pour toi. On va le canaliser, étape par étape.",
+    "Une chose à la fois. Un quiz court te dira par où commencer.",
+    "Pas besoin de tout savoir aujourd'hui. On construit ta révision petit à petit.",
+    "On fait le point calmement : ce que tu sais, ce qui reste à revoir. Ça rassure.",
+    "Prends une grande inspiration. Ensuite, une seule matière, sans te disperser."
+   ],
+   "leo": [
+    "On transforme le stress en action. Une matière. Un quiz. Un résultat.",
+    "Tu n'as pas besoin de revoir tout le programme en même temps.",
+    "On commence par mesurer ton niveau. Après, on saura exactement quoi attaquer.",
+    "Le stress, c'est de l'énergie. On la met dans les révisions.",
+    "Plan simple : un diagnostic, puis les points faibles. Rien d'autre.",
+    "Chaque question réussie, c'est un peu moins de stress. On en enchaîne quelques-unes ?",
+    "L'examen se prépare séance après séance. Celle d'aujourd'hui compte.",
+    "On garde la tête froide. Une matière, et on attaque."
+   ]
+  },
+  "dont_understand": {
+   "kira": [
+    "Dis-moi simplement la matière qui te bloque.",
+    "Pas de souci, on va démêler ça. C'est dans quelle matière ?",
+    "Ça arrive. Quelle matière te pose problème en ce moment ?",
+    "On reprend ensemble. Tu me dis juste de quelle matière il s'agit ?",
+    "Ne t'inquiète pas. Choisis la matière, et on repart du cours.",
+    "D'accord. On va chercher où ça coince. Quelle matière ?",
+    "C'est le bon réflexe de le dire. Sur quelle matière on travaille ?",
+    "On va y aller pas à pas. Commence par me dire la matière."
+   ],
+   "leo": [
+    "Pas grave. Quelle matière ?",
+    "OK, on va régler ça. C'est en quoi ?",
+    "Tu bloques ? Donne-moi la matière et on attaque le problème.",
+    "Bien de le dire. Maintenant, la matière ?",
+    "On décortique ça ensemble. Quelle matière ?",
+    "On ne reste pas sur un blocage. Dis-moi la matière et on repart du cours.",
+    "Compris. On cible où ? Choisis la matière.",
+    "Un blocage, ça se débloque. Quelle matière ?"
+   ]
+  },
+  "dont_understand_lesson": {
+   "kira": [
+    "Tu es sur « {lessonTitle} ». On peut reprendre cette leçon, ou utiliser quelques questions pour repérer ce qui bloque.",
+    "D'accord. Reprenons « {lessonTitle} » tranquillement, ou fais quelques questions pour voir ce qui coince.",
+    "« {lessonTitle} » te résiste ? On relit la leçon ensemble, ou on s'entraîne avec les corrections.",
+    "Pas de souci. Pour « {lessonTitle} », je te propose de relire le cours, puis quelques questions.",
+    "On va y arriver. Reprends « {lessonTitle} » ou teste-toi avec les indices."
+   ],
+   "leo": [
+    "« {lessonTitle} » ? On reprend la leçon ou on attaque les questions pour trouver le blocage.",
+    "OK, « {lessonTitle} ». Relecture ou entraînement, à toi de voir.",
+    "On règle ça : reprends « {lessonTitle} », puis quelques questions corrigées.",
+    "« {lessonTitle} » te bloque ? Parfait, on sait où travailler.",
+    "Deux options pour « {lessonTitle} » : relire, ou s'entraîner avec les corrections."
+   ]
+  },
+  "help": {
+   "kira": [
+    "Bien sûr. On peut reprendre un cours, faire quelques questions ou regarder ce que tu devrais réviser. Tu préfères quoi ?",
+    "Je suis là pour ça. Cours, quiz ou bilan : dis-moi ce qui t'aiderait.",
+    "Avec plaisir. Tu veux apprendre une notion, t'entraîner, ou savoir quoi réviser ?",
+    "Évidemment. Commençons par ce dont tu as besoin : un cours, un quiz ou un conseil de révision.",
+    "Oui. Je peux t'emmener vers un cours, te proposer des questions ou t'indiquer une priorité.",
+    "Je t'aide volontiers. Choisis ci-dessous, ou dis-moi une matière.",
+    "Bien sûr. On y va à ton rythme : cours, questions, ou point sur tes révisions.",
+    "Compte sur moi. Tu préfères comprendre, t'entraîner, ou faire le point ?"
+   ],
+   "leo": [
+    "Oui. Donne-moi une cible : une matière, un cours, ou lance-moi simplement un quiz.",
+    "Je suis là. Cours, quiz ou bilan ? Choisis.",
+    "Bien sûr. Tu veux apprendre, t'entraîner ou savoir quoi réviser ?",
+    "Compte sur moi. On attaque par quoi ?",
+    "Pas de souci. Trois options : cours, quiz, conseil de révision.",
+    "Oui ! Dis-moi une matière ou choisis une action juste en dessous.",
+    "Allez, on s'organise : un cours, un défi ou un bilan ?",
+    "Je t'aide. Tu choisis la direction, je te montre le chemin."
+   ]
+  },
+  "want_to_study": {
+   "kira": [
+    "Très bonne idée. Quelle matière veux-tu travailler ?",
+    "Avec plaisir. On commence par quelle matière ?",
+    "D'accord. Choisis une matière, et je t'y emmène.",
+    "J'aime bien cette énergie. Quelle matière aujourd'hui ?",
+    "On y va. Dis-moi la matière qui te tente.",
+    "Parfait. Une matière en tête, ou tu veux que je choisisse ?",
+    "Super. Tu préfères reprendre un cours dans quelle matière ?",
+    "Allons-y doucement. Quelle matière on ouvre ?"
+   ],
+   "leo": [
+    "Excellent. Quelle matière ?",
+    "C'est ce que je voulais entendre. On attaque quoi ?",
+    "Allez ! Choisis ta matière.",
+    "Bonne décision. Matière ?",
+    "On y va. Dis-moi par où on commence.",
+    "Parfait. Une matière, et on démarre.",
+    "Je te suis. Quelle matière aujourd'hui ?",
+    "Ça, c'est de l'attitude. Quelle matière on travaille ?"
+   ]
+  },
+  "want_to_study_resume": {
+   "kira": [
+    "Tu as déjà travaillé en {subjectName}, sur « {topicTitle} ». On peut repartir de là.",
+    "La dernière fois, c'était « {topicTitle} » en {subjectName}. On reprend là ?",
+    "On peut reprendre « {topicTitle} » en {subjectName}, ou choisir une autre matière.",
+    "Je te propose de continuer « {topicTitle} ». Ça te va ?",
+    "Ta dernière séquence ouverte : « {topicTitle} », en {subjectName}. On continue ?"
+   ],
+   "leo": [
+    "On reprend « {topicTitle} » en {subjectName} ?",
+    "Dernière séquence ouverte : « {topicTitle} ». On continue sur cette lancée ?",
+    "{SubjectName}, « {topicTitle} ». On repart de là ?",
+    "Tu connais déjà le chemin : « {topicTitle} ». On y retourne ?",
+    "Suite de « {topicTitle} » en {subjectName}, ou autre matière ? À toi."
+   ]
+  },
+  "want_quiz": {
+   "kira": [
+    "Oui. J'ai des questions prêtes pour toi. Choisis une matière.",
+    "Bonne idée. On peut faire un entraînement tranquille ou une évaluation.",
+    "Parfait. J'ai trouvé {quizCount} quiz pour ta classe.",
+    "Avec plaisir. Dans quelle matière veux-tu te tester ?",
+    "Un quiz, c'est une bonne façon de voir où tu en es. Tu choisis la matière ?",
+    "D'accord. En entraînement, tu as les corrections tout de suite ; en évaluation, le bilan à la fin.",
+    "Très bien. Voici les matières où j'ai des questions pour toi.",
+    "On y va. Quelques questions, et on verra ensemble ce qui est acquis."
+   ],
+   "leo": [
+    "Ça, j'aime. Choisis ta matière et on démarre.",
+    "Quiz ? Très bon choix. On teste ton niveau.",
+    "J'ai de quoi te challenger : {quizCount} quiz pour ta classe.",
+    "Enfin une bonne idée ! Matière ?",
+    "Défi accepté. Tu choisis le terrain.",
+    "On y va. Entraînement pour apprendre, évaluation pour te mesurer.",
+    "Parfait. Voilà où je peux te tester.",
+    "C'est parti. Choisis, et vise le meilleur score."
+   ]
+  },
+  "want_quiz_subject": {
+   "kira": [
+    "Oui. J'ai des questions prêtes en {subjectName}. Tu préfères un entraînement ou une évaluation ?",
+    "Très bien, un quiz en {subjectName}. Avec les corrections au fil de l'eau, ou le bilan à la fin ?",
+    "D'accord, un quiz en {subjectName}. Choisis ton mode.",
+    "{SubjectName}, c'est noté. Entraînement tranquille ou évaluation ?",
+    "Parfait. On se teste en {subjectName} ?"
+   ],
+   "leo": [
+    "{SubjectName} ! Entraînement ou évaluation ?",
+    "Quiz en {subjectName}, c'est parti. Choisis ton mode.",
+    "J'ai de quoi te challenger en {subjectName}.",
+    "On teste ton niveau en {subjectName}. Tu choisis le mode ?",
+    "Bon choix. En {subjectName}, on va voir ce qui tient."
+   ]
+  },
+  "want_quiz_none": {
+   "kira": [
+    "Je n'ai pas encore de quiz à te proposer ici. Tu peux déjà consulter les cours disponibles.",
+    "Pas de quiz disponible pour l'instant de mon côté. Je peux t'emmener vers tes cours.",
+    "Les quiz de ta classe ne sont pas encore là. En attendant, les cours t'attendent.",
+    "Je préfère être honnête : aucun quiz n'est prêt ici pour le moment. Regardons tes matières."
+   ],
+   "leo": [
+    "Pas encore de quiz pour ta classe ici. On passe par les cours en attendant ?",
+    "Aucun quiz prêt pour l'instant. Les cours, eux, sont là.",
+    "Les quiz arrivent plus tard. On s'échauffe avec les cours ?",
+    "Rien à tester pour le moment ici. On révise d'abord ?"
+   ]
+  },
+  "want_subject": {
+   "kira": [
+    "On passe en {subjectName}. Tu veux revoir le cours ou te tester directement ?",
+    "Très bien, {subjectName}. Cours ou quelques questions ?",
+    "{SubjectName}, bonne idée. On commence par relire ou par s'entraîner ?",
+    "D'accord, on travaille en {subjectName}. Je peux t'ouvrir le cours ou te proposer un quiz.",
+    "Allons-y en {subjectName}. Tu préfères comprendre d'abord, ou vérifier ce que tu sais ?",
+    "Parfait. En {subjectName}, on peut reprendre une séquence ou faire quelques questions.",
+    "{SubjectName} : c'est parti. Cours ou quiz ?",
+    "Bon choix. On y va à ton rythme en {subjectName}."
+   ],
+   "leo": [
+    "{SubjectName}. Très bien. Cours ou défi ?",
+    "En {subjectName} ? On révise ou on passe direct au quiz ?",
+    "{SubjectName}, excellent. On apprend ou on se teste ?",
+    "Allez, en {subjectName}. Tu choisis : cours ou challenge.",
+    "On attaque en {subjectName}. Relire ou tester ?",
+    "{SubjectName}, c'est noté. Quel mode ?",
+    "Bon terrain. En {subjectName}, cours ou quiz ?",
+    "On y va en {subjectName}. À toi de choisir l'angle."
+   ]
+  },
+  "want_math": {
+   "kira": [
+    "Les maths sont prêtes. Tu veux revoir le cours ou vérifier directement ce que tu maîtrises ?",
+    "Des maths, très bien. On relit une séquence ou on fait quelques questions ?",
+    "On passe aux maths. Tranquillement : cours d'abord, ou quiz ?",
+    "Les maths, ça se travaille avec méthode. On commence par le cours ou par l'entraînement ?",
+    "D'accord pour les maths. Je peux t'ouvrir le cours ou te proposer des questions.",
+    "Maths, bonne idée. Tu préfères comprendre ou t'exercer ?",
+    "On fait des maths ensemble. Choisis : cours ou quiz.",
+    "Parfait. En maths, un peu de pratique aide beaucoup. Tu veux des questions ?"
+   ],
+   "leo": [
+    "Maths. Très bien. Cours ou défi ?",
+    "Des maths ? J'adore. On révise ou on se teste ?",
+    "Maths, excellent choix. Cours ou quiz ?",
+    "On attaque les maths. Relire ou calculer ?",
+    "Les maths, c'est de l'entraînement. On y va ?",
+    "Maths ! Tu choisis : comprendre ou te mesurer.",
+    "Place aux maths. Cours ou challenge ?",
+    "Les chiffres t'attendent. Cours ou quiz ?"
+   ]
+  },
+  "want_english": {
+   "kira": [
+    "On passe à l'anglais. Tu peux revoir tes unités ou te tester directement.",
+    "Très bien. On peut reprendre une unité d'anglais ou faire quelques questions.",
+    "De l'anglais, avec plaisir. Cours ou quiz ?",
+    "L'anglais, ça vient avec la pratique. On relit une unité ou on s'entraîne ?",
+    "D'accord pour l'anglais. Je t'ouvre le cours ou je te propose des questions ?",
+    "Anglais, bonne idée. Tu préfères comprendre ou t'exercer ?",
+    "On travaille l'anglais ensemble. Choisis ton point de départ.",
+    "Parfait. En anglais, quelques questions régulières font la différence."
+   ],
+   "leo": [
+    "English mode. Tu veux réviser ou passer directement au quiz ?",
+    "Anglais ? Let's go. Cours ou challenge ?",
+    "Anglais, excellent. On relit ou on se teste ?",
+    "Ready ? Cours d'anglais ou quiz ?",
+    "On parle anglais aujourd'hui. Cours ou défi ?",
+    "Anglais. Tu choisis : apprendre ou te mesurer.",
+    "Good choice. Cours ou quiz ?",
+    "Place à l'anglais. On y va comment ?"
+   ]
+  },
+  "want_physics": {
+   "kira": [
+    "D'accord. La physique demande parfois un peu de calme. On reprend un cours ou on teste directement tes acquis ?",
+    "La physique, très bien. Cours ou quelques questions ?",
+    "On passe à la physique. Tranquillement : relire, puis s'entraîner ?",
+    "De la physique, avec plaisir. Tu préfères comprendre ou vérifier ?",
+    "D'accord pour la physique. Je t'ouvre le cours ou je te propose un quiz ?",
+    "Physique, bonne idée. On y va pas à pas.",
+    "On travaille la physique ensemble. Cours ou quiz ?",
+    "En physique, la méthode compte. On commence par le cours ?"
+   ],
+   "leo": [
+    "Physique. Excellent. On va voir si les notions tiennent.",
+    "Physique ? Cours ou défi ?",
+    "On attaque la physique. Relire ou tester ?",
+    "Physique, j'aime. Tu choisis : comprendre ou te mesurer.",
+    "Place à la physique. Cours ou quiz ?",
+    "La physique, c'est du concret. On y va ?",
+    "Physique ! On révise ou on challenge ?",
+    "Bon choix. En physique, on vérifie ce qui tient."
+   ]
+  },
+  "want_subject_no_quiz": {
+   "kira": [
+    "Je n'ai pas encore de quiz en {subjectName} pour ta classe, mais tu peux consulter les cours disponibles.",
+    "Pas encore de questions en {subjectName} ici. Les cours, eux, sont prêts.",
+    "En {subjectName}, je peux t'ouvrir le cours. Les quiz viendront plus tard.",
+    "Commençons par le cours en {subjectName} : je n'ai pas encore de quiz."
+   ],
+   "leo": [
+    "Pas encore de quiz en {subjectName}. Mais le cours est là.",
+    "En {subjectName}, on passe par le cours pour l'instant.",
+    "Aucun quiz en {subjectName} pour le moment. On révise le cours ?",
+    "{SubjectName} : cours dispo, quiz plus tard. On y va ?"
+   ]
+  },
+  "want_subject_missing": {
+   "kira": [
+    "Je n'ai pas encore de contenus en {subjectName} pour ta classe. Je peux t'aider avec les matières disponibles.",
+    "En {subjectName}, je n'ai rien pour ta classe pour le moment. Regardons les matières disponibles.",
+    "Je préfère être honnête : je n'ai pas de cours en {subjectName} ici. On travaille autre chose ?",
+    "{SubjectName} n'est pas encore dans tes contenus. Voici ce que je peux te proposer."
+   ],
+   "leo": [
+    "Pas encore de contenus en {subjectName} pour ta classe. On prend une autre matière ?",
+    "{SubjectName} ? Pas encore chez moi. Regarde ce qui est dispo.",
+    "Je n'ai rien en {subjectName} pour l'instant, et je n'invente pas. On change de matière ?",
+    "En {subjectName}, c'est vide pour le moment. Voilà ce que j'ai."
+   ]
+  },
+  "what_should_i_review": {
+   "kira": [
+    "En ce moment, c'est en {subjectName} que tu as le plus de notions à consolider. Je commencerais par « {topicTitle} ».",
+    "D'après tes réponses, « {topicTitle} » en {subjectName} mérite un peu d'attention.",
+    "Je te conseille de revoir « {topicTitle} », en {subjectName}.",
+    "Ta priorité du moment : « {topicTitle} » en {subjectName}.",
+    "Tes réponses montrent que « {topicTitle} » n'est pas encore bien acquis. On s'y met ?",
+    "Si je devais choisir pour toi : « {topicTitle} », en {subjectName}.",
+    "En {subjectName}, « {topicTitle} » est la notion à consolider en premier.",
+    "On gagnerait à reprendre « {topicTitle} ». C'est là que tu as le plus à gagner en {subjectName}."
+   ],
+   "leo": [
+    "Priorité : « {topicTitle} » en {subjectName}. On y va ?",
+    "Tes réponses parlent : « {topicTitle} », en {subjectName}. C'est là qu'on gagne des points.",
+    "Cible repérée : « {topicTitle} » en {subjectName}.",
+    "Si tu veux progresser vite, attaque « {topicTitle} » en {subjectName}.",
+    "En {subjectName}, « {topicTitle} » est ton meilleur levier.",
+    "Mon conseil : « {topicTitle} ». C'est là que ça coince le plus en {subjectName}.",
+    "On vise « {topicTitle} » en {subjectName}. Le reste suivra.",
+    "Objectif du jour : « {topicTitle} », en {subjectName}."
+   ]
+  },
+  "what_should_i_review_no_data": {
+   "kira": [
+    "Tu n'as pas encore assez de réponses pour que je te conseille une priorité. Fais un petit quiz et j'aurai quelque chose de concret.",
+    "Je n'ai pas encore assez d'éléments pour te guider. Quelques questions, et je pourrai te conseiller.",
+    "Pour l'instant, je ne veux pas deviner. Un quiz diagnostic me dira où tu en es.",
+    "Je préfère ne rien inventer : fais d'abord quelques questions, puis je te dirai quoi revoir."
+   ],
+   "leo": [
+    "Pas encore assez de données. Un petit quiz et je te sors une priorité.",
+    "Je ne devine pas. Tu fais quelques questions, je te dis quoi attaquer.",
+    "Fais un quiz de diagnostic, et je te trouve ta cible.",
+    "Trop tôt pour un conseil précis. Teste-toi d'abord."
+   ]
+  },
+  "ask_progress": {
+   "kira": [
+    "Notions travaillées : {started}. Notions maîtrisées : {mastered}. Tu avances à ton rythme.",
+    "Voici ton bilan. Travaillées : {started}. Maîtrisées : {mastered}.",
+    "Bilan du moment — notions travaillées : {started} ; maîtrisées : {mastered}.",
+    "Voici où tu en es. Notions travaillées : {started}. Déjà maîtrisées : {mastered}.",
+    "Maîtrisées : {mastered}. Travaillées : {started}. On continue pour faire grimper le premier chiffre.",
+    "Ton compteur — travaillées : {started}, maîtrisées : {mastered}. Chaque séance le fait bouger.",
+    "D'après tes réponses — notions travaillées : {started} ; notions maîtrisées : {mastered}.",
+    "Voilà ton point d'étape. Travaillées : {started}. Maîtrisées : {mastered}. Et ça continue."
+   ],
+   "leo": [
+    "Tes chiffres : travaillées {started}, maîtrisées {mastered}. On les fait monter ?",
+    "Bilan express — travaillées : {started}. Maîtrisées : {mastered}.",
+    "Score de parcours — maîtrisées : {mastered}, travaillées : {started}.",
+    "Voilà où tu en es. Travaillées : {started}. Maîtrisées : {mastered}. Prochain objectif : +1.",
+    "Maîtrisées : {mastered}. Travaillées : {started}. On transforme les unes en autres ?",
+    "Ton tableau de bord — notions travaillées : {started} ; maîtrisées : {mastered}.",
+    "Les faits : travaillées {started}, maîtrisées {mastered}. La suite dépend de toi.",
+    "Point d'étape — travaillées : {started}. Maîtrisées : {mastered}. On accélère ?"
+   ]
+  },
+  "ask_progress_subject": {
+   "kira": [
+    "En {subjectName}, ta progression actuelle est de {percent} %.",
+    "{SubjectName} : tu en es à {percent} %. On continue ?",
+    "Ta maîtrise en {subjectName} est à {percent} % pour l'instant.",
+    "En {subjectName}, tu es à {percent} %. Chaque séance fait monter ce chiffre."
+   ],
+   "leo": [
+    "{SubjectName} : {percent} %. On vise plus haut ?",
+    "En {subjectName}, tu es à {percent} %. Objectif : grimper.",
+    "Ta jauge en {subjectName} : {percent} %.",
+    "{percent} % en {subjectName}. Le prochain quiz peut faire bouger ça."
+   ]
+  },
+  "ask_progress_no_data": {
+   "kira": [
+    "Je n'ai pas encore assez d'activité pour te montrer une tendance. Quelques questions suffiront pour commencer.",
+    "Ton parcours commence à peine. Fais un premier quiz et je pourrai te montrer ta progression.",
+    "Pas encore de chiffres à te montrer. Dès tes premières réponses, ta progression apparaîtra.",
+    "Je préfère ne pas inventer de bilan. Réponds à quelques questions, et on regardera ensemble."
+   ],
+   "leo": [
+    "Pas encore de stats. Un quiz et on a de quoi parler.",
+    "Ton compteur est encore à zéro. On le lance ?",
+    "Rien à mesurer pour l'instant. Quelques questions et ça démarre.",
+    "Pas de bilan inventé chez moi. Fais un quiz d'abord."
+   ]
+  },
+  "who_are_you": {
+   "kira": [
+    "Je suis Kira, ton compagnon d'étude dans INTELLIA237. Je peux t'aider à choisir quoi réviser, suivre ta progression et t'accompagner dans les quiz.",
+    "Moi, c'est Kira. Je t'accompagne dans tes cours, tes quiz et tes révisions, ici dans l'application.",
+    "Kira, ton compagnon d'étude. Mon rôle : t'orienter vers le bon cours ou le bon quiz, au bon moment.",
+    "Je suis Kira. Je connais tes matières et ton parcours dans INTELLIA237, et je t'aide à t'organiser.",
+    "Je m'appelle Kira. Je suis là pour te guider dans tes révisions, calmement.",
+    "Kira, enchantée. Je t'aide à savoir quoi travailler et je t'accompagne pendant les quiz.",
+    "Je suis Kira, et je t'accompagne pas à pas dans tes cours et tes quiz.",
+    "Kira. Je suis là pour que tes révisions soient plus simples et plus régulières."
+   ],
+   "leo": [
+    "Moi c'est Léo. Je suis là pour t'aider à travailler, te challenger et te guider vers les bons quiz.",
+    "Léo, ton partenaire de révision. Mon truc : te pousser à progresser.",
+    "Je suis Léo. Je t'oriente vers les cours et les quiz qui te feront avancer.",
+    "Léo, compagnon d'étude d'INTELLIA237. Je te challenge, je te guide, je suis ta progression.",
+    "Léo ! Je connais tes matières et tes quiz, et je t'aide à viser juste.",
+    "Moi, c'est Léo. Je transforme tes révisions en défis.",
+    "Léo, pour te servir. Cours, quiz, bilan : je t'aide à choisir.",
+    "Je suis Léo. Mon objectif : que tu gagnes des points, séance après séance."
+   ]
+  },
+  "are_you_ai": {
+   "kira": [
+    "Je suis un compagnon d'étude d'INTELLIA237. Ici, mes réponses et mes conseils sont préparés par l'application à partir de ton parcours et de tes contenus. Je ne suis pas un chat libre qui invente des réponses.",
+    "Je suis ton compagnon INTELLIA237. Je fonctionne avec ton parcours, tes cours et tes quiz, sans chat IA en ligne.",
+    "Je ne suis pas une personne, et pas un chat qui invente des réponses. Mes phrases sont écrites à l'avance et s'appuient sur ton parcours.",
+    "Je suis un personnage de l'application. Mes conseils viennent de tes cours et de tes résultats, rien d'inventé.",
+    "Bonne question. Je ne suis pas humaine : je suis le compagnon d'INTELLIA237, avec des réponses préparées et tes vraies données de parcours.",
+    "Je ne suis pas une intelligence artificielle qui improvise. Je te guide avec ce que l'application connaît de ton parcours.",
+    "Je suis Kira, un compagnon intégré à l'application. Je ne devine rien : je m'appuie sur tes cours et tes quiz.",
+    "Ni une personne, ni un robot qui invente : un compagnon d'étude qui connaît tes contenus et ta progression."
+   ],
+   "leo": [
+    "Je suis un compagnon d'étude d'INTELLIA237. Mes réponses sont préparées par l'application à partir de ton parcours. Pas de chat libre qui invente.",
+    "Léo, compagnon INTELLIA237. Je marche avec tes cours, tes quiz et ta progression, sans chat IA en ligne.",
+    "Pas humain, pas un chat qui improvise. Des réponses préparées, et tes vraies données.",
+    "Je suis un personnage de l'application. Tout ce que je te conseille vient de tes cours et de tes résultats.",
+    "Franchement ? Je ne suis pas une personne. Je suis le compagnon d'INTELLIA237, et je ne dis que ce que je sais.",
+    "Pas une intelligence artificielle qui invente. Un coach qui connaît ton parcours dans l'application.",
+    "Je suis Léo, intégré à l'application. Zéro réponse inventée : tes cours, tes quiz, ta progression.",
+    "Ni humain, ni robot bavard. Un compagnon d'étude, branché sur ton parcours."
+   ]
+  },
+  "compliment": {
+   "kira": [
+    "C'est gentil. Merci 😊 Maintenant, dis-moi ce qu'on travaille.",
+    "Merci, ça me fait sourire. On continue ?",
+    "C'est adorable, merci. On se remet au travail ?",
+    "Merci beaucoup. Je suis contente de t'accompagner.",
+    "Ça me touche. Et si on mettait cette bonne humeur dans une petite séance ?",
+    "Merci ! Toi aussi, tu fais du bon travail quand tu t'y mets.",
+    "C'est gentil de ta part. On passe à la suite ?",
+    "Merci 😊 Je suis là pour t'aider à réussir, alors on y va ?"
+   ],
+   "leo": [
+    "Merci ! Je prends le compliment 😄 On attaque quoi maintenant ?",
+    "Sympa. Bon… maintenant, montre-moi ce que tu sais faire.",
+    "Merci ! Mais le vrai talent, c'est l'entraînement. On y va ?",
+    "Ça fait plaisir. Maintenant, à toi de briller.",
+    "Merci ! On garde cette énergie pour un quiz ?",
+    "Je note 😄 Allez, on se concentre.",
+    "Merci, c'est cool. Et toi, tu vas assurer aujourd'hui.",
+    "Ha, merci ! On transforme ça en points ?"
+   ]
+  },
+  "bored": {
+   "kira": [
+    "Alors évitons une longue leçon. Je peux te proposer un petit défi.",
+    "On change de rythme. Quelques questions rapides ?",
+    "D'accord, on fait quelque chose de plus vivant : un quiz court.",
+    "L'ennui, ça se combat avec un peu de nouveauté. Je choisis une matière pour toi ?",
+    "On peut rendre ça plus léger. Un petit quiz, sans pression.",
+    "Et si on essayait une autre matière pour changer d'air ?",
+    "Je comprends. Un format court, ça te dirait ?",
+    "On bouge un peu les choses : quelques questions, et tu vois ton score à la fin."
+   ],
+   "leo": [
+    "Parfait, on va casser l'ennui avec un challenge.",
+    "Alors pas de blabla. Quiz rapide.",
+    "L'ennui ? Je connais le remède : un défi.",
+    "On passe en mode jeu : questions, score, revanche.",
+    "Ennui détecté. Solution : un quiz court et nerveux.",
+    "On change de terrain ? Je te choisis une matière.",
+    "Tu t'ennuies ? Montre-moi ton meilleur score.",
+    "Allez, un petit défi pour réveiller tout ça."
+   ]
+  },
+  "surprise_me": {
+   "kira": [
+    "D'accord. Je choisis pour toi : {subjectName}. Quelques questions pour voir où tu en es ?",
+    "Surprise : aujourd'hui, ce sera {subjectName}. On y va doucement ?",
+    "J'ai tiré {subjectName} pour toi. Un petit entraînement ?",
+    "Et si on travaillait en {subjectName} aujourd'hui ?",
+    "Je te propose {subjectName}. Quelques questions, tranquillement.",
+    "Mon choix du jour : {subjectName}. Ça te va ?",
+    "Allez, {subjectName} ! J'ai un petit entraînement pour toi.",
+    "Laisse-moi faire : ce sera {subjectName}. On commence ?"
+   ],
+   "leo": [
+    "Marché conclu. Aujourd'hui : {subjectName}. Pas de négociation 😄",
+    "Tirage au sort : {subjectName} ! On y va.",
+    "Je choisis {subjectName}. Défi lancé.",
+    "Surprise : {subjectName}. Montre-moi ce que tu vaux.",
+    "Le hasard a parlé : {subjectName}.",
+    "Ce sera {subjectName}. Pas le temps d'hésiter !",
+    "Mon pari du jour : {subjectName}. Tu relèves ?",
+    "{SubjectName} ! Allez, un petit round."
+   ]
+  },
+  "surprise_me_none": {
+   "kira": [
+    "Je n'ai pas encore de quiz à tirer au sort pour ta classe. Regardons tes cours ensemble.",
+    "Pas de surprise possible pour l'instant : aucun quiz n'est prêt ici. Tes cours, eux, sont là.",
+    "J'aimerais bien, mais je n'ai pas encore de questions pour toi. On ouvre un cours ?",
+    "Rien à tirer au sort pour le moment. Je te montre tes matières ?"
+   ],
+   "leo": [
+    "Pas de quiz à tirer au sort pour l'instant. On passe par les cours ?",
+    "Aucun défi en stock ici pour le moment. Les cours sont là.",
+    "Surprise impossible : pas encore de quiz. On révise ?",
+    "Rien à piocher pour l'instant. Voilà tes matières."
+   ]
+  },
+  "course_topic": {
+   "kira": [
+    "Oui. J'ai trouvé « {topicTitle} ». Je peux t'y emmener directement, ou on peut commencer par quelques questions.",
+    "« {topicTitle} » est bien dans tes cours. Tu veux relire le cours ou te tester ?",
+    "Je vois « {topicTitle} » dans ton programme. On l'ouvre ensemble ?",
+    "Très bien, « {topicTitle} ». Cours d'abord, ou quelques questions ?",
+    "J'ai « {topicTitle} » sous la main. Tu préfères comprendre ou vérifier ?",
+    "Bonne idée de revoir « {topicTitle} ». Je t'ouvre le cours ?",
+    "« {topicTitle} », c'est parti. Choisis : relire ou t'entraîner.",
+    "Je t'emmène vers « {topicTitle} » quand tu veux. Cours ou quiz ?"
+   ],
+   "leo": [
+    "« {topicTitle} » trouvé. Tu veux réviser ou te tester ?",
+    "Cible : « {topicTitle} ». Cours ou défi ?",
+    "« {topicTitle} » ? Je l'ai. On y va comment ?",
+    "Trouvé : « {topicTitle} ». Relire ou attaquer les questions ?",
+    "« {topicTitle} », excellent. Cours ou quiz ?",
+    "C'est dans tes cours : « {topicTitle} ». On fonce ?",
+    "« {topicTitle} » est prêt. À toi de choisir le mode.",
+    "Bon choix, « {topicTitle} ». On révise ou on se mesure ?"
+   ]
+  },
+  "unsupported_freeform": {
+   "kira": [
+    "Je ne veux pas t'inventer une explication. Ce sujet n'est pas encore dans les contenus que je peux utiliser ici. Je peux par contre t'aider avec les matières disponibles.",
+    "Je préfère être honnête : je n'ai pas ce sujet dans tes contenus. Regardons ce qui est disponible.",
+    "Ça, je ne peux pas te l'expliquer sans risquer de dire une bêtise. Je t'accompagne sur tes cours à la place ?",
+    "Ce sujet n'est pas dans tes cours pour l'instant. Je ne réponds qu'avec ce que je connais vraiment.",
+    "Je n'ai pas de contenu fiable là-dessus ici. Choisis une matière disponible et je t'y guide.",
+    "Bonne curiosité ! Mais je ne l'ai pas dans tes contenus, et je ne veux pas improviser.",
+    "Je ne sais pas t'expliquer ça avec tes cours actuels. Tu veux voir tes matières ?",
+    "Je reste sur ce que je connais : tes cours et tes quiz. Ce sujet-là n'y est pas encore."
+   ],
+   "leo": [
+    "Je préfère ne pas improviser une réponse. Ce sujet n'est pas dans mes contenus actuels. Choisis une matière disponible et je t'y accompagne.",
+    "Pas dans mes contenus. Et je n'invente pas. On passe à une matière dispo ?",
+    "Joker sur celle-là : ce n'est pas dans tes cours. Je te montre ce que j'ai ?",
+    "Je ne vais pas te raconter n'importe quoi. Ce sujet n'est pas encore ici.",
+    "Hors programme pour moi. Mais tes matières, elles, sont prêtes.",
+    "Question intéressante, mais pas dans mes contenus. On reste sur du solide ?",
+    "Je ne réponds qu'avec tes vrais cours. Celui-là n'y est pas encore.",
+    "Pas de réponse inventée chez moi. Choisis plutôt une matière disponible."
+   ]
+  },
+  "unknown": {
+   "kira": [
+    "Je ne suis pas sûre de bien comprendre. Tu veux apprendre, t'entraîner, ou savoir quoi réviser ?",
+    "Hmm, je n'ai pas saisi. Dis-moi une matière, ou choisis une action ci-dessous.",
+    "Je n'ai pas bien compris. Tu peux reformuler, ou me dire simplement « un quiz » ou « un cours ».",
+    "Pardon, je n'ai pas compris. On peut parler de tes matières, de tes quiz ou de ta progression.",
+    "Je ne suis pas certaine de te suivre. Tu cherches un cours ou des questions ?",
+    "Je n'ai pas saisi ta demande. Voici ce que je peux faire pour toi.",
+    "Désolée, ça m'échappe. Tu veux qu'on regarde tes matières ?",
+    "Je comprends mieux les demandes simples : une matière, un quiz, un conseil de révision."
+   ],
+   "leo": [
+    "Pas sûr d'avoir compris. Cours, quiz ou bilan ?",
+    "Hmm, je n'ai pas capté. Donne-moi une matière ou choisis ci-dessous.",
+    "Reformule, ou dis-moi juste « quiz » ou « cours ».",
+    "Là, je sèche. Tu veux apprendre ou te tester ?",
+    "Je n'ai pas saisi. On parle matières, quiz ou progression ?",
+    "Pas compris, désolé. Voilà ce que je sais faire.",
+    "Je ne te suis pas. Une matière, et on repart.",
+    "Message pas clair pour moi. Tu veux un défi ?"
+   ]
+  },
+  "affirm": {
+   "kira": [
+    "Parfait. C'est juste en dessous.",
+    "Super, on y va.",
+    "D'accord. Tu peux ouvrir quand tu veux.",
+    "Très bien. Tout est prêt.",
+    "Allons-y ensemble.",
+    "Avec plaisir. Touche le bouton pour commencer.",
+    "Bonne décision.",
+    "C'est parti, doucement mais sûrement."
+   ],
+   "leo": [
+    "Go !",
+    "C'est parti.",
+    "Excellent. Le bouton est juste là.",
+    "On fonce.",
+    "Parfait, à toi de jouer.",
+    "Yes ! On y va.",
+    "Top. Lance-toi.",
+    "Ça, c'est une réponse."
+   ]
+  },
+  "affirm_open": {
+   "kira": [
+    "Oui ? Dis-moi ce que tu veux faire : un cours, un quiz ou un bilan.",
+    "D'accord. Et on fait quoi, alors ?",
+    "Je t'écoute. Une matière en tête ?",
+    "Très bien. Choisis une action juste en dessous."
+   ],
+   "leo": [
+    "OK ! On fait quoi ?",
+    "Top. Cours, quiz ou bilan ?",
+    "Je t'écoute. Quelle matière ?",
+    "Parfait. Choisis ci-dessous."
+   ]
+  },
+  "decline": {
+   "kira": [
+    "D'accord, pas de souci. Dis-moi quand tu veux.",
+    "Pas de problème. On fait autre chose ?",
+    "Très bien. Je reste là si tu changes d'avis.",
+    "Comme tu veux. Tu préfères un cours, peut-être ?",
+    "Aucun souci. On peut aussi faire le point sur tes révisions.",
+    "D'accord. Prends ton temps.",
+    "Entendu. Une autre matière, alors ?",
+    "Pas de pression. Je suis là quand tu veux."
+   ],
+   "leo": [
+    "OK, pas de souci. On fait autre chose ?",
+    "Reçu. Une autre idée ?",
+    "Pas grave. Tu me dis quand tu veux y aller.",
+    "D'accord. Autre matière ?",
+    "Compris. Je garde le défi au chaud.",
+    "OK. Tu veux plutôt un cours ?",
+    "Pas de souci, on change de plan.",
+    "Noté. Dis-moi ce qui te tente."
+   ]
+  },
+  "quiz_return_high": {
+   "kira": [
+    "Tu viens de faire {score}/{total}. C'est une très belle séance.",
+    "{score}/{total} : bravo. Tes efforts se voient.",
+    "Beau résultat, {score}/{total}. On consolide avec un autre thème ?",
+    "Tu as terminé ton quiz avec {score}/{total}. Belle maîtrise.",
+    "{score}/{total}. Tu as de bonnes bases sur ce thème.",
+    "Très bien joué : {score}/{total}. On continue sur cette lancée ?"
+   ],
+   "leo": [
+    "{score}/{total} ! Solide.",
+    "Tu viens de faire {score}/{total}. Ça, c'est un score.",
+    "{score}/{total}. On monte d'un cran avec une évaluation ?",
+    "Carton : {score}/{total}. Prochain défi ?",
+    "{score}/{total}, propre. On garde le rythme.",
+    "Belle perf : {score}/{total}. On en redemande ?"
+   ]
+  },
+  "quiz_return_mid": {
+   "kira": [
+    "Tu viens de faire {score}/{total}. Il y a déjà de bonnes bases.",
+    "Tu as terminé ton quiz : {score}/{total}. On peut revoir les notions qui t'ont posé problème.",
+    "{score}/{total}, c'est un bon point de départ. Un entraînement avec les corrections t'aiderait à combler le reste.",
+    "Quiz terminé, {score}/{total}. On reprend les points à consolider ?",
+    "{score}/{total}. Tu es sur la bonne voie ; quelques notions restent à revoir.",
+    "Bien. {score}/{total}. On regarde ensemble ce qui a coincé ?"
+   ],
+   "leo": [
+    "{score}/{total}. Maintenant on sait exactement où gagner les prochains points.",
+    "Quiz terminé : {score}/{total}. Tu veux prendre ta revanche sur les questions ratées ?",
+    "{score}/{total} : pas mal. On vise plus haut ?",
+    "{score}/{total}. Encore un effort et ça passe au-dessus.",
+    "Quiz bouclé : {score}/{total}. On retente pour faire mieux ?",
+    "{score}/{total}. Les bases sont là, on peaufine ?"
+   ]
+  },
+  "quiz_return_low": {
+   "kira": [
+    "Tu as terminé ton quiz : {score}/{total}. Ce résultat nous montre surtout quoi revoir, et c'est utile.",
+    "{score}/{total}. Ce n'est qu'un point de départ. On reprend le cours tranquillement ?",
+    "Merci d'avoir essayé jusqu'au bout. {score}/{total} : on sait maintenant où travailler.",
+    "Quiz terminé, {score}/{total}. On repart du cours, sans pression.",
+    "{score}/{total}. Ne t'inquiète pas : un entraînement avec les corrections va t'aider.",
+    "Tu as fait {score}/{total}. Chaque erreur est une notion de plus à maîtriser. On y va ensemble ?"
+   ],
+   "leo": [
+    "{score}/{total}. Ce n'est que le début. On retourne au cours et on revient en force.",
+    "Quiz terminé : {score}/{total}. Maintenant, on sait quoi attaquer.",
+    "{score}/{total}. La revanche, c'est quand tu veux.",
+    "{score}/{total}. Pas grave : chaque erreur est un point à récupérer.",
+    "Tu as tenu jusqu'au bout : {score}/{total}. On passe en entraînement ?",
+    "{score}/{total}. On repart du cours, puis revanche."
+   ]
+  }
+ }
+}

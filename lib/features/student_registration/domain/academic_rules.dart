@@ -32,12 +32,26 @@ enum EstablishmentAffiliationStatus {
   rejected,
 }
 
+/// D'où vient l'établissement choisi par l'élève.
+enum EstablishmentAffiliationSource {
+  /// Établissement connecté à INTELLIA (le serveur l'a dit).
+  partner,
+
+  /// Établissement du catalogue de référence, sans lien avec INTELLIA.
+  catalogue,
+
+  /// Établissement proposé par l'élève, à vérifier.
+  suggestion,
+}
+
 class EstablishmentAffiliation {
   const EstablishmentAffiliation({
     required this.name,
     this.candidateId,
     this.city,
     this.region,
+    this.district,
+    this.source,
     this.status = EstablishmentAffiliationStatus.selectedUnverified,
   });
 
@@ -45,7 +59,14 @@ class EstablishmentAffiliation {
   final String? candidateId;
   final String? city;
   final String? region;
+  final String? district;
+  final EstablishmentAffiliationSource? source;
   final EstablishmentAffiliationStatus status;
+
+  bool get isSuggestion =>
+      source == EstablishmentAffiliationSource.suggestion &&
+      candidateId == null &&
+      name.trim().isNotEmpty;
 
   /// A user selection is descriptive only. Only a server-verified link may
   /// authorise private establishment data.

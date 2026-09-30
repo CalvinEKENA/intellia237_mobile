@@ -1,0 +1,66 @@
+[
+  {
+    "name": "word_order with every optional field",
+    "proposal": {
+      "type": "word_order",
+      "language": "en",
+      "subject": "Anglais",
+      "instruction": "Put the words in the correct order.",
+      "sequence": ["I", "want", "to", "go"],
+      "trailing": ".",
+      "hints": ["Start with the subject."],
+      "explanation": "Subject, verb, then infinitive.",
+      "difficulty": 1,
+      "rationale": "Checks basic sentence order."
+    },
+    "block": {
+      "version": 1,
+      "id": "blk_5",
+      "type": "word_order",
+      "primitive": "ordering",
+      "layout": "inline",
+      "language": "en",
+      "subject": "Anglais",
+      "instruction": "Put the words in the correct order.",
+      "items": [
+        { "id": "it_1", "text": "I" },
+        { "id": "it_2", "text": "want" },
+        { "id": "it_3", "text": "to" },
+        { "id": "it_4", "text": "go" }
+      ],
+      "solution": ["it_1", "it_2", "it_3", "it_4"],
+      "trailing": ".",
+      "hints": ["Start with the subject."],
+      "explanation": "Subject, verb, then infinitive.",
+      "difficulty": 1,
+      "rationale": "Checks basic sentence order."
+    }
+  },
+  {
+    "name": "stacked timeline in French, minimal fields",
+    "proposal": {
+      "type": "timeline_order",
+      "sequence": [
+        "Protectorat allemand (1884)",
+        "Indépendance du Cameroun (1960)",
+        "Réunification (1961)"
+      ]
+    },
+    "block": {
+      "version": 1,
+      "id": "blk_4",
+      "type": "timeline_order",
+      "primitive": "ordering",
+      "layout": "stacked",
+      "language": "fr",
+      "items": [
+        { "id": "it_1", "text": "Protectorat allemand (1884)" },
+        { "id": "it_2", "text": "Indépendance du Cameroun (1960)" },
+        { "id": "it_3", "text": "Réunification (1961)" }
+      ],
+      "solution": ["it_1", "it_2", "it_3"],
+      "hints": [],
+      "difficulty": 1
+    }
+  }
+]

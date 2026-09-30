@@ -130,7 +130,7 @@ void main() {
     await pumpDiscovery(tester, reduceMotion: false);
 
     final disabled = tester.widget<Text>(
-      find.textContaining('pour pouvoir le choisir', findRichText: false),
+      find.textContaining('avant de choisir', findRichText: false),
     );
     expect(
       Contrast.ratio(disabled.style!.color!, AuthExperienceColors.surfaceSoft),

@@ -1,6 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intellia237/features/ai_companion/data/cloud_ai_repository.dart';
-import 'package:intellia237/features/ai_companion/domain/ai_message.dart';
 import 'package:intellia237/features/learn/application/learn_providers.dart';
 import 'package:intellia237/features/student_home/domain/student_home_snapshot.dart';
 import 'package:intellia237/features/student_registration/domain/academic_rules.dart';
@@ -11,7 +9,7 @@ import 'package:intellia237/features/tutor/domain/tutor_persona.dart';
 void main() {
   for (final tutorId in const ['kira', 'leo']) {
     test(
-      'new student immediately satisfies home, quiz and tutor contract ($tutorId)',
+      'new student immediately satisfies home, quiz and companion contract ($tutorId)',
       () async {
         final payload = _newStudent(tutorId);
         final now = DateTime.utc(2026, 8, 30, 12);
@@ -46,19 +44,6 @@ void main() {
         final tutor = TutorPersona.resolve(context.tutorId);
         expect(tutor.id, tutorId);
 
-        // askTutor can be prepared immediately with the same authoritative
-        // class written to users/{uid} and student_profiles/{uid}.
-        final gateway = _ContractTutorGateway();
-        final repository = CloudAIRepository(gateway: gateway);
-        await repository.sendMessage(
-          tutor: tutor,
-          classLevel: context.classLevel,
-          history: const <AIMessage>[],
-          userMessage: 'Explique-moi ce chapitre',
-        );
-        expect(gateway.lastPayload?['classLevel'], user['classLevel']);
-        expect((gateway.lastPayload?['tutor'] as Map)['name'], tutor.name);
-
         final preferences = profile['preferences'] as Map<String, dynamic>;
         expect(preferences['academicLevelId'], 'fr_general_6e');
         expect(preferences['educationalSubsystem'], 'francophone');
@@ -89,19 +74,4 @@ StudentRegistrationPayload _newStudent(String tutorId) {
     acceptedPrivacy: true,
     acceptedDataPolicy: true,
   );
-}
-
-class _ContractTutorGateway implements TutorFunctionsGateway {
-  Map<String, dynamic>? lastPayload;
-
-  @override
-  Future<Object?> askTutor(Map<String, dynamic> payload) async {
-    lastPayload = payload;
-    return <String, dynamic>{
-      'text': 'Voici une explication.',
-      'limit': 10,
-      'remaining': 9,
-      'resetsAt': '2026-08-30T23:00:00.000Z',
-    };
-  }
 }

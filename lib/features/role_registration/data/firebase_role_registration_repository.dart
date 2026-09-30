@@ -91,10 +91,20 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
     try {
       final currentUser = _auth.currentUser;
       final hasVerifiedPhone = currentUser?.phoneNumber?.isNotEmpty ?? false;
+      final hasGoogle =
+          currentUser?.providerData.any(
+            (info) => info.providerId == 'google.com',
+          ) ??
+          false;
       final User? user;
-      if (hasVerifiedPhone && email.trim().isEmpty && password.isEmpty) {
-        // Phone-first registration reuses the already verified Firebase user.
-        // No account is replaced and rollback must never delete this identity.
+      if ((hasVerifiedPhone ||
+              hasGoogle ||
+              (currentUser?.email?.isNotEmpty ?? false)) &&
+          email.trim().isEmpty &&
+          password.isEmpty) {
+        // Identity-first registration (phone, Google or e-mail) reuses the
+        // already proven Firebase user: no second account is ever created,
+        // and rollback must never delete this identity.
         user = currentUser;
       } else {
         credential = await _auth.createUserWithEmailAndPassword(
@@ -120,6 +130,10 @@ class FirebaseRoleRegistrationRepository implements RoleRegistrationRepository {
       if (verifiedPhone != null && verifiedPhone.isNotEmpty) {
         userData['phoneNumber'] = verifiedPhone;
         profileData['phoneNumber'] = verifiedPhone;
+      }
+      final accountEmail = user.email?.trim() ?? '';
+      if (accountEmail.isNotEmpty) {
+        userData['email'] = accountEmail;
       }
 
       final userRef = _firestore.collection(_usersCollection).doc(uid);

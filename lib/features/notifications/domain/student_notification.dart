@@ -6,6 +6,7 @@ class StudentNotification {
     required this.createdAt,
     this.route,
     this.type = 'information',
+    this.thresholdPercent,
     this.readAt,
   });
 
@@ -15,7 +16,14 @@ class StudentNotification {
   final DateTime createdAt;
   final String? route;
   final String type;
+
+  /// Seuil de Réserve d'étude franchi (pour les notifications de type
+  /// `study_reserve_threshold`, dont le texte est localisé côté client).
+  final int? thresholdPercent;
   final DateTime? readAt;
 
   bool get isUnread => readAt == null;
+
+  /// Vrai si le texte doit être composé (localisé) à partir du type + données.
+  bool get isLocalizedByType => type == 'study_reserve_threshold';
 }

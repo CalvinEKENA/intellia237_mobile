@@ -42,7 +42,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminCreateStudentBody =>
-      'Crée son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.';
+      'Créez son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.';
 
   @override
   String get adminStudentCreated =>
@@ -50,7 +50,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminStudentContactExists =>
-      'Ce téléphone ou cet e-mail possède déjà un compte. Retrouve-le avec la recherche.';
+      'Ce téléphone ou cet e-mail possède déjà un compte. Retrouvez-le avec la recherche.';
 
   @override
   String get adminStudentFirstName => 'Prénom';
@@ -65,7 +65,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminStudentEmailOptional => 'E-mail (facultatif)';
 
   @override
-  String get adminInvalidEmail => 'Vérifie l’adresse e-mail.';
+  String get adminInvalidEmail => 'Vérifiez l’adresse e-mail.';
 
   @override
   String get adminStatusSuspended => 'Compte suspendu';
@@ -223,7 +223,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get establishmentSecurityNote =>
-      'La sélection d’un établissement ne donne accès à aucune donnée privée. L’autorisation du serveur reste obligatoire.';
+      'Choisir ton école ne donne accès à aucune donnée privée. Ton accès est vérifié avant d’être ouvert.';
 
   @override
   String get individualAccount => 'Compte élève individuel';
@@ -285,6 +285,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get signIn => 'Se connecter';
 
   @override
+  String get partnerAccessStatus => 'Accès partenaire INTELLIA';
+
+  @override
+  String get partnerAccessCta => 'Accéder à INTELLIA';
+
+  @override
   String get noAccount => 'Pas encore de compte ?';
 
   @override
@@ -324,11 +330,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emailOptional => 'E-mail (optionnel)';
 
   @override
-  String get phoneIdentityTarget => 'Identité cible : téléphone + code OTP';
-
-  @override
-  String get temporaryEmailNotice =>
-      'Dans cette version, un e-mail technique reste temporairement nécessaire pour créer le compte Firebase. Il ne constitue pas l’identité principale cible.';
+  String get phoneIdentityTarget => 'Ton accès vérifié';
 
   @override
   String get temporaryEmailLabel => 'E-mail technique (temporaire)';
@@ -400,7 +402,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get companionStatusReady => 'Prêt à t’aider';
+  String get companionStatusReady => 'Là pour t’aider';
 
   @override
   String get companionStatusThinking => 'réfléchit…';
@@ -501,7 +503,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneErrorTooManyRequests =>
-      'Les demandes de code sont temporairement bloquées par Firebase. Le délai de déblocage n’est pas communiqué et peut dépasser une heure. Évite les demandes répétées. Si tu as déjà associé un e-mail à ton compte, utilise-le pour te connecter.';
+      'Trop de demandes de code pour ce numéro. Attends un moment avant de réessayer : cela peut prendre plus d’une heure. Si ton compte a un e-mail, tu peux t’en servir pour te connecter.';
 
   @override
   String get phoneErrorAppVerification =>
@@ -526,7 +528,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneErrorDisabled =>
-      'La connexion par téléphone doit être activée dans Firebase Authentication.';
+      'La connexion par téléphone n’est pas disponible pour le moment. Réessaie plus tard.';
 
   @override
   String get phoneErrorCollision =>
@@ -665,10 +667,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get meetCompanionTitle => 'Rencontre ton compagnon';
 
   @override
-  String get meetCompanionSubtitle =>
-      'Découvre Kira, puis Léo. Tu choisiras une fois que tu les auras vus.';
-
-  @override
   String get secureAccountTitle => 'Sécurise ton compte';
 
   @override
@@ -677,7 +675,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneVerifiedNoExtraCredential =>
-      'Votre numéro a été vérifié. Aucun e-mail ni mot de passe supplémentaire n’est nécessaire.';
+      'Votre identité a été vérifiée. Aucun identifiant supplémentaire n’est nécessaire.';
 
   @override
   String get classToConfirm => 'Classe à confirmer';
@@ -716,13 +714,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get linkChildrenSubtitle =>
-      'Ajoutez un identifiant élève maintenant, ou plus tard.';
+      'Votre enfant trouve ce code dans son profil, rubrique « Mon code parent ». Vous pouvez aussi le relier plus tard.';
 
   @override
-  String get childIdentifierLabel => 'Code / Identifiant enfant';
+  String get childIdentifierLabel => 'Code parent de votre enfant';
 
   @override
-  String get childIdentifierHint => 'Ex. STU-94K2';
+  String get childIdentifierHint => 'Ex. K7PM2QXA';
 
   @override
   String get addLabel => 'Ajouter';
@@ -861,7 +859,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get deleteRequestBody =>
-      'La demande sera enregistrée pour vérification et traitement sécurisé. Cette action te déconnectera.';
+      'Le compte et ses données seront supprimés dans 7 jours. D’ici là, le compte reste utilisable et la demande peut être annulée depuis cet écran.';
 
   @override
   String get sendRequestLabel => 'Envoyer la demande';
@@ -869,6 +867,36 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get deleteRequestError =>
       'Impossible d’envoyer la demande maintenant. Réessaie plus tard.';
+
+  @override
+  String deleteScheduledSubtitle(String date) {
+    return 'Suppression prévue le $date. Touchez pour annuler.';
+  }
+
+  @override
+  String deleteScheduledConfirmation(String date) {
+    return 'Suppression programmée le $date. Elle peut être annulée d’ici là.';
+  }
+
+  @override
+  String get deleteInProgressSubtitle => 'Suppression en cours de traitement.';
+
+  @override
+  String get cancelDeletionQuestion => 'Annuler la suppression ?';
+
+  @override
+  String get cancelDeletionBody =>
+      'Le compte sera conservé et la demande abandonnée.';
+
+  @override
+  String get cancelDeletionAction => 'Annuler la suppression';
+
+  @override
+  String get cancelDeletionDone => 'La suppression est annulée.';
+
+  @override
+  String get cancelDeletionError =>
+      'Impossible d’annuler la demande maintenant. Réessayez plus tard.';
 
   @override
   String get chooseReminderTime => 'Choisir l’heure du rappel';
@@ -911,10 +939,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get learnTitle => 'Apprendre';
 
   @override
-  String get learnSubtitle => 'Tes matières, adaptées à ton niveau.';
+  String get learnEyebrow => 'Explorer · comprendre · progresser';
 
   @override
-  String get subjectsLoadError => 'Impossible de charger les matières';
+  String get learnUnavailableTitle => 'Tes matières arrivent';
+
+  @override
+  String get learnUnavailableBody =>
+      'Rien à afficher pour l’instant. Continue ton parcours, puis reviens ici.';
+
+  @override
+  String get learnUnavailableOfflineBody =>
+      'Vérifie ta connexion, puis actualise. Ton parcours reste disponible.';
+
+  @override
+  String get learnSubtitle => 'Tes matières, adaptées à ton niveau.';
 
   @override
   String get subjectsComingTitle => 'Tes matières arrivent';
@@ -1004,14 +1043,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get prepareOfflineLessons =>
       'Prépare toutes les leçons pour une lecture hors connexion.';
-
-  @override
-  String get chapterReadyOffline =>
-      'Chapitre prêt pour une lecture hors connexion.';
-
-  @override
-  String get downloadFailed =>
-      'Le téléchargement n’a pas abouti. Vérifie la connexion et réessaie.';
 
   @override
   String get nextLabelShort => 'À suivre';
@@ -1106,20 +1137,9 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get saveChapterOffline =>
-      'Enregistrer ce chapitre pour la lecture hors connexion';
-
-  @override
-  String get reconnectToPrepareLessons =>
-      'Reconnecte-toi pour préparer toutes les leçons.';
-
-  @override
   String prepareChapterLessons(int count) {
     return 'Prépare les $count leçons de ce chapitre.';
   }
-
-  @override
-  String get prepareLabel => 'Préparer';
 
   @override
   String get backLabel => 'Revenir en arrière';
@@ -1157,7 +1177,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get authChooseProfileBody =>
-      'Choisis le profil à créer. Ta session Firebase vérifiée sera réutilisée.';
+      'Choisis le profil à créer. Ton numéro est déjà vérifié.';
 
   @override
   String get authProfileSyncFailureBody =>
@@ -1265,7 +1285,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String discoverCompanionBeforeChoice(String name) {
-    return 'Découvre $name pour pouvoir le choisir';
+    return 'Découvre $name avant de choisir';
   }
 
   @override
@@ -1413,37 +1433,33 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizProfileIncompleteBody =>
-      'Ton profil scolaire doit être complété ou resynchronisé avant de choisir les quiz de ton niveau.';
+      'Choisis ta classe dans ton profil pour voir les quiz de ton niveau.';
 
   @override
   String get quizCatalogDeniedBody =>
-      'L’accès au catalogue n’a pas été autorisé pour ce profil. Tu peux continuer avec tes cours pendant la vérification.';
+      'Tes quiz ne sont pas encore ouverts pour ton profil. Tu peux continuer avec tes cours en attendant.';
 
   @override
   String get quizCatalogUnavailableBody =>
-      'Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec le Flow ou tes cours.';
+      'Tes quiz sont momentanément inaccessibles. Continue ton parcours ou tes cours en attendant.';
 
   @override
   String get quizCatalogInvalidBody =>
-      'Le catalogue reçu est incomplet. Il n’est pas affiché afin de ne pas te proposer un contenu incorrect.';
+      'Certains quiz ne sont pas encore prêts. Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.';
 
   @override
   String get quizCatalogNetworkBody =>
-      'La connexion au catalogue est interrompue. Tes cours et le Flow restent disponibles.';
-
-  @override
-  String get quizLoadErrorTitle =>
-      'Impossible de charger les quiz pour le moment.';
+      'La connexion est interrompue. Tes cours et ton parcours restent disponibles.';
 
   @override
   String get quizOfflineTitle => 'Les quiz attendent le réseau';
 
   @override
   String get quizOfflineBody =>
-      'Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec le Flow ou une leçon téléchargée.';
+      'Un quiz a besoin d’internet : sa correction se fait en ligne et tes réponses ne sont pas gardées sur le téléphone. Tu peux continuer ton parcours ou une leçon téléchargée.';
 
   @override
-  String get openOfflineFlow => 'Ouvrir le Flow hors ligne';
+  String get openOfflineFlow => 'Ouvrir mon parcours hors ligne';
 
   @override
   String get viewDownloadedLessons => 'Voir mes leçons téléchargées';
@@ -1462,7 +1478,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizHubIntro =>
-      'Entraîne-toi avec des corrections guidées ou évalue-toi dans les conditions d’un examen blanc.';
+      'Entraîne-toi avec des corrections guidées, ou évalue-toi : ton score et ton bilan à la fin.';
 
   @override
   String get chooseRevisionMode => 'Choisis ton mode de révision';
@@ -1472,7 +1488,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizPausedOfflineBody =>
-      'Les corrections et l’envoi sont vérifiés par le serveur. Pour protéger l’évaluation, aucune réponse ni aucun corrigé n’est conservé hors ligne.';
+      'La correction se fait en ligne. Tes réponses et les corrigés ne sont pas gardés sur le téléphone.';
 
   @override
   String get displayLabel => 'Afficher';
@@ -1485,7 +1501,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizComingBody =>
-      'De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance le Flow depuis l’accueil.';
+      'De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance ton parcours depuis l’accueil.';
 
   @override
   String get quizTrainingAction => 'S’entraîner';
@@ -1506,6 +1522,24 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizTitle => 'Quiz';
+
+  @override
+  String get quizEyebrow => 'S’entraîner · se tester';
+
+  @override
+  String get quizUnavailableTitle => 'Tes quiz arrivent';
+
+  @override
+  String get quizUnavailableBody =>
+      'Rien à t’entraîner pour l’instant. Continue ton parcours, puis reviens ici.';
+
+  @override
+  String get quizUnavailableOfflineBody =>
+      'Vérifie ta connexion, puis actualise. Ton parcours reste disponible.';
+
+  @override
+  String get quizUnavailableModesLabel =>
+      'Deux façons de t’entraîner t’attendent';
 
   @override
   String get quizHistoryLoading => 'Chargement des tentatives validées…';
@@ -1532,7 +1566,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizFirstResultBody =>
-      'Aucun résultat inventé ici : ta première tentative apparaîtra après sa validation par le serveur.';
+      'Ton premier résultat apparaîtra ici une fois ta tentative corrigée.';
 
   @override
   String get quizMasteryUnavailable =>
@@ -1575,14 +1609,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizNeedsNetworkBody =>
-      'Le serveur protège la correction et valide l’envoi. Intellia237 ne met ni tes réponses ni les corrigés en cache. Reconnecte-toi pour commencer, ou poursuis une activité disponible hors ligne.';
+      'La correction se fait en ligne, et rien n’est gardé sur le téléphone. Reconnecte-toi pour commencer, ou continue une activité disponible sans internet.';
 
   @override
   String get quizPlayOfflineTitle => 'Quiz indisponible hors connexion';
 
   @override
   String get quizPlayOfflineBody =>
-      'Le contenu, la correction et l’envoi sont vérifiés par le serveur. Intellia237 ne conserve ni tes réponses ni les corrigés hors ligne. Reconnecte-toi, ou poursuis une activité déjà disponible sur cet appareil.';
+      'Ce quiz a besoin d’internet pour être corrigé. Reconnecte-toi, ou continue une activité déjà disponible sur ce téléphone.';
 
   @override
   String get quizQuestionsComingTitle => 'Questions en préparation';
@@ -1614,7 +1648,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String guidedCorrectionFailureBody(String reason) {
-    return '$reason\nTa réponse reste saisie sur cet écran et n’est pas mise en cache.';
+    return '$reason\nTa réponse reste sur cet écran.';
   }
 
   @override
@@ -1698,7 +1732,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quizSubmissionUnavailable =>
-      'Le serveur n’a pas pu valider cette tentative pour le moment.';
+      'Ta tentative n’a pas pu être corrigée pour le moment. Réessaie dans un instant.';
 
   @override
   String get singleAnswerQcm => 'QCM — Une seule bonne réponse';
@@ -1785,7 +1819,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get continueWithFlow => 'Continuer avec le Flow';
+  String get continueWithFlow => 'Continuer mon parcours';
 
   @override
   String get homeLabel => 'Accueil';
@@ -1797,11 +1831,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileNavLabel => 'Profil';
 
   @override
-  String get homeLoadError => 'Impossible de charger l’accueil';
+  String get homeLoadError => 'L’accueil n’a pas pu s’afficher';
 
   @override
   String get flowSyncSignedOut =>
-      'Connecte-toi pour faire valider tes points FLOW.';
+      'Connecte-toi pour faire valider tes points du parcours.';
 
   @override
   String get flowSyncUnavailable =>
@@ -1813,67 +1847,30 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get flowSyncNotEligible =>
-      'La validation des points FLOW est réservée aux profils élèves.';
+      'La validation des points du parcours est réservée aux profils élèves.';
 
   @override
   String get flowSyncContentNotValidated =>
-      'Cette activité FLOW n’est pas encore validée par le serveur.';
+      'Cette activité du parcours n’est pas encore prête.';
 
   @override
   String get flowSyncDuplicate =>
       'Cette validation a déjà été utilisée pour une autre activité.';
 
   @override
-  String get flowSyncInvalidAnswer => 'La réponse FLOW envoyée est invalide.';
+  String get flowSyncInvalidAnswer =>
+      'La réponse envoyée pour cette activité est invalide.';
 
   @override
   String get flowSyncUnknown =>
-      'Impossible de valider les points FLOW pour le moment.';
+      'Impossible de valider les points du parcours pour le moment.';
 
   @override
   String get flowDailyCapReached =>
       'Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.';
 
   @override
-  String get companionSpeak => 'Parler';
-
-  @override
   String get companionSend => 'Envoyer';
-
-  @override
-  String companionMicRationale(String name) {
-    return '$name a besoin du micro pour t’écouter. Rien n’est enregistré sans que tu envoies.';
-  }
-
-  @override
-  String get companionMicDenied =>
-      'Le micro est refusé. Tu peux l’autoriser dans les réglages, ou écrire ta question.';
-
-  @override
-  String get companionMicUnavailable =>
-      'La dictée n’est pas disponible sur cet appareil. Tu peux écrire ta question.';
-
-  @override
-  String get companionListening => 'Je t’écoute';
-
-  @override
-  String get companionDictationCancel => 'Annuler';
-
-  @override
-  String get companionDictationStop => 'Arrêter';
-
-  @override
-  String get companionDictationNearEnd => 'Bientôt la fin';
-
-  @override
-  String get companionDictationFailed =>
-      'Je n’ai pas bien entendu. Tu peux réessayer ou écrire.';
-
-  @override
-  String get companionListen => 'Écouter';
-
-  @override
-  String get companionPauseListening => 'Pause';
 
   @override
   String get companionHistoryTitle => 'Tes conversations';
@@ -1893,7 +1890,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authGatewayTitle => 'Bienvenue sur INTELLIA237';
 
   @override
-  String get authGatewaySubtitle => 'Quel espace veux-tu ouvrir ?';
+  String get authGatewaySubtitle =>
+      'Un espace éducatif sécurisé, pensé pour le Cameroun.';
 
   @override
   String get todayEyebrow => 'Aujourd’hui';
@@ -1921,13 +1919,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get homeLessonsComingBody =>
-      'Les leçons de ta classe sont en cours de préparation. En attendant, découvre le Flow ou révise avec ton compagnon.';
+      'Les leçons de ta classe sont en cours de préparation. En attendant, découvre ton parcours ou révise avec ton compagnon.';
 
   @override
-  String get discoverFlow => 'Découvrir le Flow';
+  String get discoverFlow => 'Découvrir mon parcours';
 
   @override
-  String get talkToCompanion => 'Parler à mon compagnon';
+  String get talkToCompanion => 'Écrire à mon compagnon';
 
   @override
   String get forYouEyebrow => 'Pour toi';
@@ -2356,7 +2354,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get totalPendingValidation => 'Total en attente de validation serveur';
+  String get totalPendingValidation => 'Total en attente de vérification';
 
   @override
   String totalVerifiedPoints(int count) {
@@ -2808,7 +2806,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get mobileMoneyParentDescription =>
-      'Paiement Mobile Money déclaré puis vérifié manuellement par votre établissement.';
+      'Paiement Mobile Money déclaré, puis vérifié manuellement par l’établissement de l’enfant concerné.';
 
   @override
   String get myPaymentRequests => 'Mes demandes';
@@ -2878,11 +2876,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get multipleSchoolsLinked =>
-      'Plusieurs établissements sont liés. Contactez l’assistance pour choisir celui qui facturera l’accès.';
+      'Vos enfants sont inscrits dans plusieurs établissements : choisissez l’enfant pour qui vous payez.';
 
   @override
   String get noActiveMobileMoneyOffer =>
-      'Votre établissement n’a pas encore publié d’offre Mobile Money active.';
+      'L’établissement de cet enfant n’a pas encore publié d’offre Mobile Money active.';
 
   @override
   String get offerUnavailable => 'Offre indisponible';
@@ -3487,11 +3485,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get aiGenerationBackendOnly =>
-      'La génération IA n’est plus disponible côté client. Le flux backend-only passe désormais par Cloud Functions et le microservice LLM.';
+      'La génération automatique ne se lance pas depuis cet écran.';
 
   @override
   String get aiGenerationBackendInstructions =>
-      'Rédigez la leçon manuellement ici, puis utilisez le parcours backend sécurisé pour produire résumés et quiz.';
+      'Rédigez la leçon ici. Pour partir de pages de cours photographiées, utilisez « Importer des pages » depuis le chapitre : des brouillons sont préparés, que vous relisez avant publication.';
 
   @override
   String courseSectionsCount(int count) {
@@ -4008,17 +4006,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'Application conçue par Calvin EKENA · +237 699 98 90 99';
 
   @override
-  String get schoolHeadShieldTooltip => 'Espace direction d’établissement';
+  String get schoolHeadShieldTooltip => 'Accès établissement';
 
   @override
-  String get schoolHeadSheetEyebrow => 'ESPACE DIRECTION';
+  String get schoolHeadSheetEyebrow => 'ESPACE ÉTABLISSEMENT';
 
   @override
-  String get schoolHeadSheetTitle => 'Votre école,\nen entier.';
+  String get schoolHeadSheetTitle => 'Votre accès professionnel';
 
   @override
   String get schoolHeadSheetBody =>
-      'Connectez-vous pour administrer toute votre école : personnel, classes, contenus et suivi. Les comptes des élèves restent les leurs : vous ne pouvez ni en ajouter ni en supprimer.';
+      'Choisissez votre espace. Seuls les accès accordés à votre compte peuvent être ouverts.';
 
   @override
   String get schoolHeadContinueEmail => 'Continuer par e-mail';
@@ -4267,7 +4265,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get addChildCodeHelp =>
-      'Demande à ton enfant son code, visible dans son espace Profil › « Mon code parent ».';
+      'Demandez à votre enfant son code, visible dans son espace Profil › « Mon code parent ».';
 
   @override
   String get addChildSubmit => 'Lier l’enfant';
@@ -4279,7 +4277,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String addChildAlready(String name) {
-    return '$name est déjà lié à ton compte.';
+    return '$name est déjà lié à votre compte.';
   }
 
   @override
@@ -4359,4 +4357,3191 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get establishmentCityLabel => 'Ville';
+
+  @override
+  String get flowChoiceTrue => 'Vrai';
+
+  @override
+  String get flowChoiceFalse => 'Faux';
+
+  @override
+  String flowHintPrefix(String hint) {
+    return 'Indice : $hint';
+  }
+
+  @override
+  String get flowFeedbackCorrect => 'Exact !';
+
+  @override
+  String get flowFeedbackIncorrect => 'Pas encore.';
+
+  @override
+  String flowExpectedOrder(String order) {
+    return 'Ordre attendu : $order';
+  }
+
+  @override
+  String get flowSwipeToContinue => 'Balaie vers le haut pour continuer';
+
+  @override
+  String get childLinkErrorNotFound =>
+      'Ce code enfant est introuvable. Vérifie-le avec ton enfant.';
+
+  @override
+  String get childLinkErrorInvalid =>
+      'Saisis le code de liaison de ton enfant.';
+
+  @override
+  String get childLinkErrorPermission =>
+      'Seul un compte parent peut rattacher un enfant.';
+
+  @override
+  String get childLinkErrorUnauthenticated =>
+      'Ta session a expiré. Reconnecte-toi puis réessaie.';
+
+  @override
+  String get childLinkErrorTooMany =>
+      'Trop de tentatives. Réessaie un peu plus tard.';
+
+  @override
+  String get childLinkErrorGeneric =>
+      'La liaison n’a pas abouti. Réessaie dans un instant.';
+
+  @override
+  String get studyReserveTitle => 'Réserve d’étude';
+
+  @override
+  String studyReserveRemaining(int percent) {
+    return '$percent % restants';
+  }
+
+  @override
+  String studyReserveRenews(String date) {
+    return 'Renouvellement le $date';
+  }
+
+  @override
+  String get studyReserveStatusHealthy => 'Bonne réserve';
+
+  @override
+  String get studyReserveStatusWarning => 'À surveiller';
+
+  @override
+  String get studyReserveStatusLow => 'Réserve basse';
+
+  @override
+  String get studyReserveStatusCritical => 'Presque épuisée';
+
+  @override
+  String get studyReserveStatusDepleted => 'Réserve épuisée';
+
+  @override
+  String get studyReserveDepletedHelp =>
+      'Le tuteur IA se repose jusqu’au renouvellement. Les cours, quiz et lectures restent accessibles.';
+
+  @override
+  String get studyReserveUnavailable =>
+      'Réserve d’étude indisponible pour le moment.';
+
+  @override
+  String get studyReserveNotifTitle => 'Réserve d’étude';
+
+  @override
+  String studyReserveNotifInfo(int percent) {
+    return 'Il reste $percent % de la réserve d’étude ce cycle.';
+  }
+
+  @override
+  String studyReserveNotifLow(int percent) {
+    return 'La réserve d’étude est à $percent %. Pense à la ménager pour le tuteur.';
+  }
+
+  @override
+  String studyReserveNotifCritical(int percent) {
+    return 'La réserve d’étude est presque épuisée ($percent %).';
+  }
+
+  @override
+  String get studyReserveNotifDepleted =>
+      'La réserve d’étude est épuisée ; elle se renouvelle au prochain cycle. Les cours et quiz restent accessibles.';
+
+  @override
+  String get studyReserveLoadError =>
+      'Impossible de charger la réserve d’étude pour le moment.';
+
+  @override
+  String companionStudyReserveDepleted(String name) {
+    return 'Ta réserve d’étude est épuisée pour ce cycle. $name reprendra au renouvellement ; tes cours et quiz restent accessibles.';
+  }
+
+  @override
+  String get parentEntryTitle => 'Reliez votre enfant';
+
+  @override
+  String get parentEntrySubtitle =>
+      'Saisissez son code, puis connectez-vous avec votre propre numéro.';
+
+  @override
+  String get parentEntryHaveCode => 'J’ai un code enfant';
+
+  @override
+  String get parentEntryCodeLabel => 'Code de l’enfant';
+
+  @override
+  String get parentEntryCodeHint => 'Ex. K7MP2QXA';
+
+  @override
+  String get parentEntryCodeHelp =>
+      'Votre enfant le trouve dans son profil, rubrique « Mon code parent ».';
+
+  @override
+  String get parentEntryCodeInvalid =>
+      'Un code enfant compte 8 lettres et chiffres. Vérifiez-le avec votre enfant.';
+
+  @override
+  String get parentEntryPaste => 'Coller';
+
+  @override
+  String get parentEntryAlreadyParent => 'Je suis déjà parent';
+
+  @override
+  String get parentEntryPrivacy =>
+      'Le code sert uniquement à relier votre enfant, une fois votre connexion établie.';
+
+  @override
+  String get phonePendingChildCode =>
+      'Code enfant prêt : il sera relié après votre connexion.';
+
+  @override
+  String get phoneLinkingChild => 'Rattachement de votre enfant…';
+
+  @override
+  String get passNumberAlreadyUsed => 'Numéro déjà associé';
+
+  @override
+  String get roleConflictStudentAccount =>
+      'Ce numéro est déjà associé à un compte élève.';
+
+  @override
+  String get roleConflictParentAccount =>
+      'Ce numéro est déjà associé à un compte parent.';
+
+  @override
+  String get roleConflictStaffAccount =>
+      'Ce numéro est déjà associé à un compte de l’établissement.';
+
+  @override
+  String get roleConflictCredentialsStudentAccount =>
+      'Ces identifiants ouvrent un compte élève.';
+
+  @override
+  String get roleConflictCredentialsParentAccount =>
+      'Ces identifiants ouvrent un compte parent.';
+
+  @override
+  String get roleConflictCredentialsStaffAccount =>
+      'Ces identifiants ouvrent un compte de l’établissement.';
+
+  @override
+  String get roleConflictUseParentCredentials =>
+      'Pour créer ou ouvrir un espace parent, utilisez les identifiants du parent.';
+
+  @override
+  String get roleConflictUseStudentCredentials =>
+      'Pour ouvrir l’espace élève, utilisez les identifiants de l’élève.';
+
+  @override
+  String get roleConflictChildCodeKept => 'Le code enfant reste enregistré.';
+
+  @override
+  String get roleConflictUseAnotherNumber => 'Utiliser un autre numéro';
+
+  @override
+  String get childLinkReportFailedTitle =>
+      'Le code enfant n’a pas pu être relié';
+
+  @override
+  String childLinkBatchSuccess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count enfants reliés à votre compte.',
+      one: '1 enfant relié à votre compte.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get parentEntryCodePurpose =>
+      'Ce code permet de rattacher l’enfant.\nVotre numéro de téléphone sert à vous identifier comme parent.';
+
+  @override
+  String get passFamilyNumber => 'Numéro de la famille';
+
+  @override
+  String get familyPhoneMigrationPrompt =>
+      'Ce numéro est actuellement utilisé pour l’accès d’un élève. Souhaitez-vous l’utiliser comme numéro du parent ? L’élève conservera son profil et utilisera désormais son code d’accès INTELLIA.';
+
+  @override
+  String get familyPhoneMigrationConfirm => 'Utiliser ce numéro pour le parent';
+
+  @override
+  String get familyPhoneMigrationNothingChanged =>
+      'Le transfert n’a pas abouti. Rien n’a changé : réessayez.';
+
+  @override
+  String get familyPhoneMigrationVerifyAgain =>
+      'Pour votre sécurité, vérifiez à nouveau ce numéro avant de le transférer.';
+
+  @override
+  String get familyPhoneMigrationVerifyAgainAction =>
+      'Vérifier à nouveau le numéro';
+
+  @override
+  String get familyPhoneMigrationInProgress =>
+      'Un transfert est déjà en cours pour ce numéro. Patientez un instant puis réessayez.';
+
+  @override
+  String get familyPhoneMigrationVerifyAgainToFinish =>
+      'L’élève a déjà son code d’accès. Vérifiez à nouveau ce numéro pour terminer l’ouverture de votre espace parent.';
+
+  @override
+  String get familyPhoneMigrationRefused =>
+      'Ce numéro ne peut pas être transféré depuis ce compte. Utilisez un autre numéro ou contactez l’établissement.';
+
+  @override
+  String get familyPhoneMigrationUnavailable =>
+      'Le transfert du numéro n’est pas encore disponible. Réessayez plus tard ou utilisez un autre numéro.';
+
+  @override
+  String get familyPhoneMigratedTitle => 'Ce numéro est désormais le vôtre';
+
+  @override
+  String get familyPhoneMigratedContinue =>
+      'J’ai noté le code, ouvrir mon espace parent';
+
+  @override
+  String get studentNoPhoneUseAccessCode =>
+      'Pas de téléphone ? Entre avec ton code d’accès INTELLIA';
+
+  @override
+  String get studentAccessCodePhase => 'Ton code d’accès';
+
+  @override
+  String get studentAccessCodeTitle => 'Entre avec ton code d’accès';
+
+  @override
+  String get studentAccessCodeSubtitle =>
+      'Saisis les 12 caractères que ton parent ou ton établissement t’a donnés. Pas besoin de téléphone.';
+
+  @override
+  String get studentAccessCodeLabel => 'Code d’accès INTELLIA';
+
+  @override
+  String get studentAccessCodeSubmit => 'Entrer dans mon espace';
+
+  @override
+  String get studentAccessCodePrivacy =>
+      'Garde ce code pour toi : il ouvre ton espace. Si tu l’as perdu, demande un nouveau code à ton parent ou à ton établissement.';
+
+  @override
+  String get studentAccessCodeUsePhone => 'J’ai un téléphone : recevoir un SMS';
+
+  @override
+  String get studentAccessCodeInvalid =>
+      'Ce code ne fonctionne pas. Vérifie-le, ou demande un nouveau code à ton parent ou à ton établissement.';
+
+  @override
+  String get studentAccessCodeTooManyAttempts =>
+      'Trop d’essais. Attends quelques minutes avant de réessayer.';
+
+  @override
+  String get studentAccessCodeUnavailable =>
+      'Le service ne répond pas pour le moment. Réessaie dans un instant.';
+
+  @override
+  String studentAccessCodeRevealTitle(String name) {
+    return 'Code d’accès INTELLIA de $name';
+  }
+
+  @override
+  String get studentAccessCodeRevealTitleGeneric =>
+      'Code d’accès INTELLIA de l’élève';
+
+  @override
+  String studentAccessCodeRevealBody(String name) {
+    return 'Notez ce code et remettez-le à $name : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.';
+  }
+
+  @override
+  String get studentAccessCodeRevealBodyGeneric =>
+      'Notez ce code et remettez-le à l’élève : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.';
+
+  @override
+  String get studentAccessCodeNotShownAgain =>
+      'Le code d’accès de l’élève a déjà été créé. Pour sa sécurité, il n’est jamais affiché à nouveau : générez-en un nouveau depuis sa fiche.';
+
+  @override
+  String get studentAccessCodeCopy => 'Copier le code';
+
+  @override
+  String get studentAccessCodeCopied => 'Code copié';
+
+  @override
+  String get studentAccessCodeSheetBody =>
+      'Ce code permet à votre enfant d’ouvrir son espace INTELLIA sans téléphone. Pour sa sécurité, il n’est jamais affiché à nouveau : générer un nouveau code remplace l’ancien, qui cesse aussitôt de fonctionner.';
+
+  @override
+  String get studentAccessCodeGenerate =>
+      'Afficher / générer un nouveau code d’accès';
+
+  @override
+  String get studentAccessCodeReplaceTitle => 'Remplacer le code d’accès ?';
+
+  @override
+  String studentAccessCodeReplaceBody(String name) {
+    return 'L’ancien code de $name cessera immédiatement de fonctionner.';
+  }
+
+  @override
+  String get studentAccessCodeReplaceConfirm => 'Générer le nouveau code';
+
+  @override
+  String get studentAccessCodeDone => 'J’ai noté le code';
+
+  @override
+  String get studentAccessCodeIssueFailed =>
+      'Le code n’a pas pu être généré. Réessayez.';
+
+  @override
+  String studentAccessCodeActiveSince(String date) {
+    return 'Code d’accès actif depuis le $date';
+  }
+
+  @override
+  String get studentAccessCodeActive => 'Code d’accès actif';
+
+  @override
+  String get studentAccessCodeNone => 'Aucun code d’accès pour l’instant';
+
+  @override
+  String get childAccessOwnPhone => 'Connecté avec son propre accès INTELLIA';
+
+  @override
+  String get childAccessCodeOnly =>
+      'Se connecte avec son code d’accès INTELLIA';
+
+  @override
+  String get childAccessUnknown =>
+      'Accès de l’enfant non disponible pour le moment';
+
+  @override
+  String get childAccessNone =>
+      'Aucun accès personnel : générez son code d’accès';
+
+  @override
+  String get childActionViewProfile => 'Voir le profil';
+
+  @override
+  String get childActionViewActivity => 'Voir son activité';
+
+  @override
+  String get childActionAccessCode => 'Code d’accès élève';
+
+  @override
+  String get childActionSubscription => 'Abonnement';
+
+  @override
+  String childSubscriptionActiveUntil(String date) {
+    return 'Abonnement actif jusqu’au $date';
+  }
+
+  @override
+  String get childSubscriptionPaidByAnotherGuardian =>
+      'Réglé par un autre responsable de l’enfant';
+
+  @override
+  String get childSubscriptionInactive =>
+      'Aucun abonnement actif pour cet enfant';
+
+  @override
+  String get childSchoolUnknown => 'Établissement non renseigné';
+
+  @override
+  String parentChildrenCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count enfants',
+      one: '1 enfant',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String parentModeProfileBanner(String name) {
+    return 'MODE PARENT — PROFIL DE $name';
+  }
+
+  @override
+  String get parentModeProfileNote =>
+      'Vous consultez ce profil avec votre compte parent. Vous ne pouvez rien y modifier au nom de votre enfant.';
+
+  @override
+  String get childProfileTitle => 'Profil de l’enfant';
+
+  @override
+  String get childProfileClass => 'Classe';
+
+  @override
+  String get childProfileSchool => 'Établissement';
+
+  @override
+  String get childProfileAccess => 'Accès INTELLIA';
+
+  @override
+  String get childProfileSubscription => 'Abonnement';
+
+  @override
+  String get parentSchoolsAnnouncements => 'Annonces des écoles de vos enfants';
+
+  @override
+  String get mobileMoneyChooseChild => 'Pour quel enfant payez-vous ?';
+
+  @override
+  String mobileMoneyOfferOfSchool(String school) {
+    return 'Offre de $school';
+  }
+
+  @override
+  String mobileMoneyCoversChildren(String names) {
+    return 'Ce paiement couvre : $names';
+  }
+
+  @override
+  String get childPendingFirstSignIn => 'En attente de sa première connexion';
+
+  @override
+  String get addChildNoAccountAction =>
+      'Mon enfant n’a pas encore de compte INTELLIA';
+
+  @override
+  String get addChildNoAccountTitle => 'Ouvrir l’accès de votre enfant';
+
+  @override
+  String get addChildNoAccountBody =>
+      'Votre enfant n’a pas besoin de téléphone. Vous recevrez son code d’accès INTELLIA ; il complétera lui-même son profil scolaire à sa première connexion.';
+
+  @override
+  String get addChildNoAccountNameLabel => 'Prénom de l’enfant';
+
+  @override
+  String get addChildNoAccountNameRequired =>
+      'Indiquez le prénom de votre enfant.';
+
+  @override
+  String get addChildNoAccountSubmit => 'Créer son code d’accès';
+
+  @override
+  String get addChildNoAccountFailed =>
+      'L’accès n’a pas pu être ouvert. Réessayez.';
+
+  @override
+  String get adminStudentAccessRecoveryTitle => 'Récupérer l’accès de l’élève';
+
+  @override
+  String get adminStudentAccessRecoveryBody =>
+      'Un nouveau code d’accès INTELLIA remplace le précédent, qui cesse aussitôt de fonctionner. Remettez-le à l’élève ou à sa famille en main propre : il ne sera plus affiché.';
+
+  @override
+  String get adminStudentPhoneOptional => 'Téléphone de l’élève (facultatif)';
+
+  @override
+  String get childActionLinkCode => 'Code de liaison parent';
+
+  @override
+  String guardianLinkCodeBody(String name) {
+    return 'Ce code permet à un autre parent ou responsable de rattacher $name à son propre compte. Il n’ouvre pas l’espace de l’élève : pour cela, utilisez le code d’accès élève.';
+  }
+
+  @override
+  String get guardianLinkCodeRotate => 'Remplacer ce code';
+
+  @override
+  String get guardianLinkCodeRotateBody =>
+      'L’ancien code de liaison cessera immédiatement de fonctionner. Les responsables déjà rattachés le restent.';
+
+  @override
+  String get guardianLinkCodeUnavailable =>
+      'Le code de liaison n’a pas pu être obtenu. Réessayez.';
+
+  @override
+  String get ilbWordOrderInstruction => 'Remets les mots dans le bon ordre.';
+
+  @override
+  String get ilbStepOrderInstruction => 'Remets les étapes dans le bon ordre.';
+
+  @override
+  String get ilbTimelineInstruction =>
+      'Remets ces événements dans l’ordre chronologique.';
+
+  @override
+  String get ilbProcessInstruction =>
+      'Remets les étapes de ce processus dans l’ordre.';
+
+  @override
+  String get ilbCheck => 'Vérifier';
+
+  @override
+  String get ilbRestart => 'Recommencer';
+
+  @override
+  String get ilbHint => 'Un indice';
+
+  @override
+  String get ilbShowSolution => 'Voir la solution';
+
+  @override
+  String ilbContinueWith(String name) {
+    return 'Continuer avec $name';
+  }
+
+  @override
+  String get ilbContinueMessage => 'J’ai terminé l’exercice. On continue ?';
+
+  @override
+  String get ilbCorrect1 => 'Exact.';
+
+  @override
+  String get ilbCorrect2 => 'Très bien.';
+
+  @override
+  String get ilbCorrect3 => 'Oui, c’est ça.';
+
+  @override
+  String get ilbAlmost => 'Presque.';
+
+  @override
+  String get ilbTryAgain => 'Essaie encore.';
+
+  @override
+  String ilbPositionHint(int position) {
+    return 'Regarde la position $position.';
+  }
+
+  @override
+  String ilbAttempt(int count) {
+    return 'Essai $count';
+  }
+
+  @override
+  String ilbHintsUsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count indices',
+      one: '1 indice',
+      zero: 'Aucun indice',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ilbAnswerZoneEmpty => 'Touche ou glisse les mots ici';
+
+  @override
+  String get ilbAnswerZoneA11y => 'Ta réponse';
+
+  @override
+  String get ilbWordBankA11y => 'Mots à placer';
+
+  @override
+  String ilbPlaceWordA11y(String word) {
+    return 'Placer « $word »';
+  }
+
+  @override
+  String ilbRemoveWordA11y(String word, int position) {
+    return 'Retirer « $word », position $position';
+  }
+
+  @override
+  String get ilbMoveUp => 'Monter';
+
+  @override
+  String get ilbMoveDown => 'Descendre';
+
+  @override
+  String ilbStepA11y(int position, String text) {
+    return 'Étape $position : $text';
+  }
+
+  @override
+  String get ilbSolutionShown => 'Voici la bonne réponse.';
+
+  @override
+  String get ilbKiraWords =>
+      'Essaie de remettre cette phrase dans le bon ordre.';
+
+  @override
+  String get ilbLeoWords => 'À toi. Reconstruis cette phrase.';
+
+  @override
+  String get ilbKiraSteps =>
+      'Prends ton temps : remets les étapes dans l’ordre.';
+
+  @override
+  String get ilbLeoSteps =>
+      'Défi : remets les étapes dans l’ordre, sans aide si tu peux.';
+
+  @override
+  String get parcoursEmptyTitle => 'Ton parcours se prépare';
+
+  @override
+  String get parcoursEmptyBody =>
+      'Aucune carte n’est encore publiée pour ta classe. Reviens après une synchronisation.';
+
+  @override
+  String get parcoursEmptyRefresh => 'Actualiser';
+
+  @override
+  String get parcoursEmptyHome => 'Revenir à l’accueil';
+
+  @override
+  String get parcoursVideoPending => 'Cette vidéo n’est pas encore disponible.';
+
+  @override
+  String get authGatewayPhone => 'Continuer avec mon numéro';
+
+  @override
+  String get authGatewayPhoneSemantics =>
+      'Continuer avec mon numéro de téléphone camerounais';
+
+  @override
+  String get authGatewayStudentCode => 'J’ai un code élève';
+
+  @override
+  String get authGatewayStudentCodeSemantics =>
+      'J’ai un code élève : connexion sans téléphone ni e-mail';
+
+  @override
+  String get authGatewayOr => 'ou';
+
+  @override
+  String get authGatewayStaff =>
+      'Personnel scolaire, enseignant ou direction ?';
+
+  @override
+  String get authGatewayTerms => 'Conditions d’utilisation';
+
+  @override
+  String get authGatewayPrivacy => 'Confidentialité';
+
+  @override
+  String get authAccountSuspended =>
+      'Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.';
+
+  @override
+  String get authGoogleContinue => 'Continuer avec Google';
+
+  @override
+  String get authGoogleInProgress => 'Connexion Google en cours';
+
+  @override
+  String get authGoogleQuestionEyebrow => 'Compte Google';
+
+  @override
+  String get authGoogleQuestionTitle => 'Vous utilisez déjà INTELLIA237 ?';
+
+  @override
+  String get authGoogleQuestionBody =>
+      'Ce compte Google n’ouvre encore aucun compte INTELLIA237. Si vous avez déjà un compte, par numéro de téléphone ou par e-mail, retrouvez-le : Google y sera ajouté, et votre espace comme vos données restent les mêmes.';
+
+  @override
+  String authGoogleQuestionAccount(String email) {
+    return 'Compte Google choisi : $email';
+  }
+
+  @override
+  String get authGoogleQuestionYes => 'Oui, retrouver mon compte';
+
+  @override
+  String get authGoogleQuestionNo => 'Non, continuer';
+
+  @override
+  String get authGoogleQuestionNoHint =>
+      'Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous choisissez ensuite ce que vous souhaitez faire.';
+
+  @override
+  String get authGoogleQuestionOtherAccount =>
+      'Utiliser un autre compte Google';
+
+  @override
+  String get authGoogleStepExpired =>
+      'Cette étape a expiré. Recommencez avec « Continuer avec Google ».';
+
+  @override
+  String get authBackToGateway => 'Revenir à l’accueil';
+
+  @override
+  String get authRecoveryEyebrow => 'Retrouver mon compte';
+
+  @override
+  String get authRecoveryTitle => 'Connectez-vous à votre compte existant';
+
+  @override
+  String get authRecoveryBody =>
+      'Prouvez que ce compte est le vôtre. Google y sera ensuite ajouté comme nouvelle façon de vous connecter.';
+
+  @override
+  String authRecoveryEmailInUse(String email) {
+    return 'Un compte INTELLIA237 utilise déjà l’adresse $email. Connectez-vous à ce compte pour y ajouter Google.';
+  }
+
+  @override
+  String get authRecoveryByPhone => 'Par téléphone';
+
+  @override
+  String get authRecoveryByEmail => 'Par e-mail';
+
+  @override
+  String get authRecoveryPhoneLabel => 'Numéro de téléphone';
+
+  @override
+  String get authRecoveryPhoneHint => '6XX XX XX XX';
+
+  @override
+  String get authRecoverySendCode => 'Recevoir le code par SMS';
+
+  @override
+  String get authRecoveryCodeLabel => 'Code reçu par SMS';
+
+  @override
+  String authRecoveryCodeSentTo(String phone) {
+    return 'Code envoyé au $phone.';
+  }
+
+  @override
+  String get authRecoveryVerifyCode => 'Vérifier le code';
+
+  @override
+  String get authRecoveryChangeNumber => 'Modifier le numéro';
+
+  @override
+  String authRecoveryResendIn(int seconds) {
+    return 'Nouveau code possible dans $seconds s';
+  }
+
+  @override
+  String get authRecoveryResend => 'Renvoyer le code';
+
+  @override
+  String get authRecoveryEmailLabel => 'Adresse e-mail';
+
+  @override
+  String get authRecoveryPasswordLabel => 'Mot de passe';
+
+  @override
+  String get authRecoverySignIn => 'Me connecter et ajouter Google';
+
+  @override
+  String get authRecoveryLinking => 'Ajout de Google à votre compte…';
+
+  @override
+  String get authRecoveryNoAccountForPhone =>
+      'Aucun compte INTELLIA237 n’utilise ce numéro. Vérifiez-le, ou revenez en arrière et choisissez « Non, continuer ».';
+
+  @override
+  String get authRecoveryNoProfile =>
+      'Ce compte n’a pas encore d’espace INTELLIA237. Revenez en arrière et choisissez « Non, continuer ».';
+
+  @override
+  String get authRecoveryLinkedElsewhere =>
+      'Ce compte Google est déjà associé à un autre compte INTELLIA237.';
+
+  @override
+  String get authRecoveryLinkedElsewhereHelp =>
+      'Rien n’a été modifié ni fusionné. Pour utiliser ce compte Google, choisissez « Continuer avec Google » depuis l’accueil. En cas de doute, contactez votre établissement ou l’assistance INTELLIA237.';
+
+  @override
+  String get authRecoveryProviderTaken =>
+      'Votre compte INTELLIA237 est déjà associé à un autre compte Google.';
+
+  @override
+  String get authRecoveryProviderTakenHelp =>
+      'Rien n’a été modifié. Connectez-vous avec le compte Google déjà associé, ou avec votre numéro.';
+
+  @override
+  String get authRecoveryOpenWithoutGoogle => 'Ouvrir mon espace sans Google';
+
+  @override
+  String get authRecoveryCancel => 'Annuler et revenir à l’accueil';
+
+  @override
+  String get authRecoveryCleanupFailed =>
+      'La vérification de ce numéro n’a pas pu être annulée. Aucun espace n’a été créé ; réessayez plus tard ou contactez l’assistance INTELLIA237.';
+
+  @override
+  String get authWelcomeEyebrow => 'Nouveau sur INTELLIA237';
+
+  @override
+  String get authWelcomeTitle => 'Que souhaitez-vous faire ?';
+
+  @override
+  String get authWelcomeBody =>
+      'Votre identité est vérifiée. Choisissez comment commencer.';
+
+  @override
+  String get authWelcomeParent => 'Suivre mon enfant';
+
+  @override
+  String get authWelcomeParentHint =>
+      'Créer mon espace famille, puis rattacher mon enfant avec son code.';
+
+  @override
+  String get authWelcomeStudent => 'Créer mon espace élève';
+
+  @override
+  String get authWelcomeStudentHint =>
+      'Choisir ma classe et commencer à apprendre.';
+
+  @override
+  String get authWelcomeDiscover => 'Découvrir INTELLIA237';
+
+  @override
+  String get authWelcomeDiscoverHint =>
+      'Voir comment fonctionne l’application, sans créer d’espace.';
+
+  @override
+  String get authWelcomeStaffNote =>
+      'Enseignant ou direction : votre accès est ouvert par votre établissement, puis validé.';
+
+  @override
+  String get authUseAnotherAccount => 'Utiliser un autre compte';
+
+  @override
+  String authStudentPhoneTitle(String name) {
+    return 'Ce numéro ouvre l’espace élève de $name.';
+  }
+
+  @override
+  String get authStudentPhoneTitleUnnamed => 'Ce numéro ouvre un espace élève.';
+
+  @override
+  String get authStudentPhoneBody =>
+      'Sur un téléphone de famille, dites-nous qui se connecte.';
+
+  @override
+  String authStudentPhoneContinue(String name) {
+    return 'Continuer comme $name';
+  }
+
+  @override
+  String get authStudentPhoneContinueUnnamed => 'C’est mon espace, continuer';
+
+  @override
+  String get authStudentPhoneParent => 'Je suis son parent';
+
+  @override
+  String get authSpaceEyebrow => 'Plusieurs espaces';
+
+  @override
+  String get authSpaceTitle => 'Choisissez votre espace';
+
+  @override
+  String get authSpaceBody =>
+      'Votre compte donne accès à plusieurs espaces. Vous pourrez en changer à tout moment depuis votre profil, sans vous déconnecter.';
+
+  @override
+  String get authSpaceStudent => 'Espace élève';
+
+  @override
+  String get authSpaceStudentHint =>
+      'Cours, exercices, Parcours et compagnons KIRA et LÉO.';
+
+  @override
+  String get authSpaceParent => 'Espace parent';
+
+  @override
+  String get authSpaceParentHint =>
+      'Suivre le travail et les progrès de vos enfants.';
+
+  @override
+  String get authSpaceTeacher => 'Espace enseignant';
+
+  @override
+  String get authSpaceTeacherHint =>
+      'Vos classes, vos contenus et le suivi de vos élèves.';
+
+  @override
+  String get authSpaceAdmin => 'Espace direction';
+
+  @override
+  String get authSpaceAdminHint =>
+      'Administration et pilotage de l’établissement.';
+
+  @override
+  String get authSpaceCurrent => 'Espace actuel';
+
+  @override
+  String get authSpaceSignOut => 'Me déconnecter';
+
+  @override
+  String get authSwitchSpace => 'Changer d’espace';
+
+  @override
+  String get authSwitchSpaceHint =>
+      'Passer à un autre espace de votre compte, sans vous déconnecter.';
+
+  @override
+  String get authErrorNetwork =>
+      'Connexion Internet instable. Vérifiez votre réseau, puis réessayez.';
+
+  @override
+  String get authErrorInvalidCode =>
+      'Ce code est incorrect ou a expiré. Vérifiez le SMS, ou demandez un nouveau code.';
+
+  @override
+  String get authErrorTooManyRequests =>
+      'Trop de tentatives. Patientez quelques minutes avant de réessayer.';
+
+  @override
+  String get authErrorAccountExists =>
+      'Un compte INTELLIA237 utilise déjà cette adresse avec un autre mode de connexion. Connectez-vous à ce compte pour y ajouter Google.';
+
+  @override
+  String get authErrorCredentialInUse =>
+      'Ce compte Google est déjà associé à un autre compte INTELLIA237.';
+
+  @override
+  String get authErrorWrongPassword =>
+      'Adresse e-mail ou mot de passe incorrect.';
+
+  @override
+  String get authErrorUserDisabled =>
+      'Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.';
+
+  @override
+  String get authErrorProviderAlreadyLinked =>
+      'Ce compte est déjà associé à un autre compte Google.';
+
+  @override
+  String get authErrorGoogleNotConfigured =>
+      'Connexion Google bientôt disponible. Utilisez votre numéro de téléphone.';
+
+  @override
+  String get authErrorGoogleUnavailable =>
+      'Le sélecteur de comptes Google ne s’est pas ouvert. Vérifiez qu’un compte Google est présent sur l’appareil, puis réessayez.';
+
+  @override
+  String get authErrorInvalidPhone =>
+      'Ce numéro n’est pas un numéro mobile camerounais valide. Exemple : 6 99 12 34 56.';
+
+  @override
+  String get authErrorMissingFields =>
+      'Renseignez l’adresse e-mail et le mot de passe.';
+
+  @override
+  String get authErrorGeneric =>
+      'La connexion n’a pas abouti. Réessayez dans un instant.';
+
+  @override
+  String get discoveryBadge => 'Découverte';
+
+  @override
+  String get discoveryExit => 'Quitter';
+
+  @override
+  String get discoveryTitle => 'Découvrez INTELLIA237';
+
+  @override
+  String get discoveryIntro =>
+      'Un aperçu de l’application, sans espace ni donnée scolaire. Rien de ce que vous voyez ici n’est enregistré.';
+
+  @override
+  String get discoveryFictionalNotice =>
+      'Exemples fictifs, à titre d’illustration : ils ne décrivent aucun élève réel.';
+
+  @override
+  String get discoveryTutorsTitle =>
+      'Des compagnons qui guident, sans donner la réponse';
+
+  @override
+  String get discoveryKiraRole => 'Sciences et mathématiques';
+
+  @override
+  String get discoveryKiraSample =>
+      'Pour isoler x, quelle opération ferais-tu d’abord des deux côtés de l’égalité ?';
+
+  @override
+  String get discoveryLeoRole => 'Méthode, langues et rédaction';
+
+  @override
+  String get discoveryLeoSample =>
+      'Commençons par ce que la solidarité évoque pour toi. Peux-tu citer deux exemples ?';
+
+  @override
+  String get discoveryParcoursTitle => 'Parcours, leçons et quiz';
+
+  @override
+  String get discoveryParcoursBody =>
+      'Des leçons courtes, des exercices et des quiz alignés sur le programme camerounais, avec une correction expliquée.';
+
+  @override
+  String get discoveryParentTitle => 'Le suivi des parents';
+
+  @override
+  String get discoveryParentBody =>
+      'Un parent rattache son enfant avec un code, puis suit son travail : régularité, matières travaillées, points à revoir.';
+
+  @override
+  String get discoveryParentExample =>
+      'Exemple fictif : « Élève A » a travaillé régulièrement cette semaine ; une notion de géométrie est à revoir.';
+
+  @override
+  String get discoveryCreateTitle => 'Créer mon espace';
+
+  @override
+  String get discoveryCtaParent => 'Je suis parent';
+
+  @override
+  String get discoveryCtaStudent => 'Rejoindre mon école';
+
+  @override
+  String get discoveryCtaCode => 'J’ai un code élève';
+
+  @override
+  String registrationGuideNext(String step) {
+    return 'Ensuite : $step';
+  }
+
+  @override
+  String get registrationGuideLast => 'Dernière étape';
+
+  @override
+  String get parentGuideIdentity =>
+      'Votre prénom et votre nom s’afficheront dans votre espace parent. Votre numéro est déjà vérifié : aucun mot de passe à créer.';
+
+  @override
+  String get parentGuideChildren =>
+      'Demandez à votre enfant son « code parent » (8 caractères) : il le trouve dans son profil, rubrique « Mon code parent ». Pas encore de code ? Continuez, vous le relierez plus tard.';
+
+  @override
+  String get parentGuideFinal =>
+      'Acceptez les conditions pour ouvrir votre espace. Vous y suivrez les progrès de votre enfant et pourrez en ajouter d’autres.';
+
+  @override
+  String get studentGuideIdentity =>
+      'Écris ton prénom et ton nom comme à l’école : ton professeur te reconnaîtra.';
+
+  @override
+  String get studentGuideClass =>
+      'Choisis ta classe : tes cours, tes quiz et ton parcours seront faits pour elle.';
+
+  @override
+  String get studentGuideCompanion =>
+      'Découvre Kira et Léo, puis choisis celui qui t’aidera à réviser.';
+
+  @override
+  String get studentGuideSecurity =>
+      'Ton numéro protège ton compte : personne d’autre ne pourra entrer à ta place.';
+
+  @override
+  String get teacherGuideIdentity =>
+      'Votre nom tel que vos élèves et votre établissement le connaissent.';
+
+  @override
+  String get teacherGuideTeaching =>
+      'Vos matières et vos classes : votre espace et vos contenus seront préparés pour elles.';
+
+  @override
+  String get teacherGuideFinal =>
+      'Acceptez les conditions : votre établissement validera ensuite votre compte.';
+
+  @override
+  String get flowExit => 'Quitter';
+
+  @override
+  String get parentGuideOpen => 'Guide de votre espace';
+
+  @override
+  String get parentGuideReplay => 'Revoir le guide';
+
+  @override
+  String parentGuideProgress(int current, int total) {
+    return 'ÉTAPE $current SUR $total';
+  }
+
+  @override
+  String get parentGuideSkip => 'Passer';
+
+  @override
+  String get parentGuideNext => 'Suivant';
+
+  @override
+  String get parentGuideDone => 'C’est compris';
+
+  @override
+  String get parentGuideWelcomeTitle => 'Bienvenue dans votre espace parent';
+
+  @override
+  String get parentGuideWelcomeBody =>
+      'Vous y suivez la progression de vos enfants, les annonces de leur école et les paiements. Voici l’essentiel en six étapes.';
+
+  @override
+  String get parentGuideAddTitle => 'Ajouter un enfant';
+
+  @override
+  String get parentGuideAddBody =>
+      'Onglet « Mes enfants », puis « Ajouter un enfant ». Deux cas : votre enfant a déjà un compte INTELLIA, ou pas encore.';
+
+  @override
+  String get parentGuideLinkTitle => 'Il a déjà un compte : le code parent';
+
+  @override
+  String get parentGuideLinkBody =>
+      'Demandez à votre enfant son « code parent » (8 caractères). Il le trouve dans son Profil, rubrique « Mon code parent ». Saisissez-le, puis touchez « Lier l’enfant ».';
+
+  @override
+  String get parentGuideAccessTitle => 'Pas encore de compte : le code d’accès';
+
+  @override
+  String get parentGuideAccessBody =>
+      'Choisissez « Mon enfant n’a pas encore de compte INTELLIA ». Vous obtenez son code d’accès : notez-le, il n’est affiché qu’une fois. Un nouveau code se crée depuis sa fiche, « Code d’accès élève ».';
+
+  @override
+  String get parentGuideSwitchTitle => 'Votre enfant utilise ce téléphone';
+
+  @override
+  String get parentGuideSwitchBody =>
+      'Profil, puis « Se déconnecter ». Sur l’écran d’accueil, votre enfant touche « J’ai un code élève » et saisit son code d’accès. Pour revenir à votre espace : il se déconnecte, puis vous entrez avec votre numéro.';
+
+  @override
+  String get parentGuideAgainTitle => 'Retrouver ce guide';
+
+  @override
+  String get parentGuideAgainBody =>
+      'Touchez la boussole en haut de votre espace, ou « Revoir le guide » dans Profil, quand vous le souhaitez.';
+
+  @override
+  String get ceLocalChaptersTitle => 'Chapitres interactifs';
+
+  @override
+  String get ceLocalChaptersSubtitle =>
+      'Disponibles sans connexion : explications, exercices et jeux.';
+
+  @override
+  String ceChapterNumber(int number) {
+    return 'Chapitre $number';
+  }
+
+  @override
+  String ceModuleHeading(int number, String title) {
+    return 'Module $number — $title';
+  }
+
+  @override
+  String ceSequenceNumber(int number) {
+    return 'Séquence $number';
+  }
+
+  @override
+  String ceUnitNumber(int number) {
+    return 'Unit $number';
+  }
+
+  @override
+  String get ceSubjectEnglish => 'Anglais';
+
+  @override
+  String ceLessonCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count leçons',
+      one: '1 leçon',
+      zero: 'Aucune leçon',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ceLessonLabel(int number) {
+    return 'Leçon $number';
+  }
+
+  @override
+  String ceLessonRecommendedAfter(int score) {
+    return 'Conseillée après $score % sur la leçon précédente';
+  }
+
+  @override
+  String ceMasteryPercent(int score) {
+    return 'Maîtrise : $score %';
+  }
+
+  @override
+  String get ceJourneyTitle => 'Ton chemin dans chaque leçon';
+
+  @override
+  String get ceJourneyUnderstand => 'Je comprends';
+
+  @override
+  String get ceJourneySee => 'Je vois';
+
+  @override
+  String get ceJourneyTry => 'J\'essaie';
+
+  @override
+  String get ceJourneySucceed => 'Je réussis';
+
+  @override
+  String get ceJourneyFormal => 'Je passe au formalisme';
+
+  @override
+  String get ceIntegrationTitle => 'Défis d\'intégration';
+
+  @override
+  String get ceSynthesis => 'Synthèse';
+
+  @override
+  String get ceSelfEvaluation => 'Auto-évaluation';
+
+  @override
+  String get ceOpenResponseHelp =>
+      'Écris ta réponse, courte ou développée. Tu pourras ensuite la comparer à une réponse modèle.';
+
+  @override
+  String get ceYourResponse => 'Ta réponse';
+
+  @override
+  String get ceRevealModel => 'J\'ai terminé · Voir la réponse modèle';
+
+  @override
+  String get ceModelAnswer => 'Réponse modèle';
+
+  @override
+  String get ceExpectedPoints => 'Points clés attendus';
+
+  @override
+  String get ceSelfEvaluationHelp =>
+      'Compare les idées avec ta réponse. Ce choix indique ta confiance ; ce n\'est pas une note ni une correction automatique.';
+
+  @override
+  String get ceNeedsReview => 'Je dois revoir';
+
+  @override
+  String get cePartialConfidence => 'Presque';
+
+  @override
+  String get ceSelfMastered => 'J\'ai compris';
+
+  @override
+  String get ceSelfEvaluationSaved =>
+      'Ton auto-évaluation est enregistrée pour guider tes révisions.';
+
+  @override
+  String get ceSelfSaveError =>
+      'Ton auto-évaluation n\'a pas pu être enregistrée. Réessaie.';
+
+  @override
+  String get ceIntegrationBody =>
+      'Des situations complètes qui mêlent les notions du chapitre.';
+
+  @override
+  String get ceIntegrationTag => 'Intégration';
+
+  @override
+  String get ceSituationTag => 'Situation du manuel';
+
+  @override
+  String get ceUnavailableTitle => 'Ce chapitre n\'est pas encore prêt';
+
+  @override
+  String get ceUnavailableBody =>
+      'Il sera proposé dès qu\'il aura été vérifié.';
+
+  @override
+  String get ceLoadError =>
+      'Ce chapitre n\'a pas pu s\'ouvrir. Reviens en arrière et réessaie.';
+
+  @override
+  String get ceStepUnderstand => 'Comprendre';
+
+  @override
+  String get ceStepSee => 'Voir';
+
+  @override
+  String get ceStepPractice => 'S\'entraîner';
+
+  @override
+  String get ceStepPlay => 'Jouer';
+
+  @override
+  String get ceStepFormal => 'Formalisme';
+
+  @override
+  String ceNextStep(String step) {
+    return 'Ensuite : $step';
+  }
+
+  @override
+  String get ceModeStandard => 'Terminale';
+
+  @override
+  String get ceModeSimple => 'Simple';
+
+  @override
+  String get ceModeUltra => 'Comme si j\'avais 12 ans';
+
+  @override
+  String get ceModeLock => 'Garder ce niveau';
+
+  @override
+  String get ceModeUnlock => 'Niveau gardé · libérer';
+
+  @override
+  String ceIdeaProgress(int current, int total) {
+    return 'Idée $current sur $total';
+  }
+
+  @override
+  String get ceNextIdea => 'Idée suivante';
+
+  @override
+  String get cePreviousIdea => 'Idée précédente';
+
+  @override
+  String ceSeeStandardVersion(String mode) {
+    return 'Voir la version $mode';
+  }
+
+  @override
+  String get ceExplanationUnavailable =>
+      'Cette explication n\'est pas encore disponible dans ce cours.';
+
+  @override
+  String ceShownInsteadMode(String mode) {
+    return 'Voici la version « $mode ».';
+  }
+
+  @override
+  String get ceMistakesTitle => 'Pièges à éviter';
+
+  @override
+  String get cePrerequisitesTitle => 'À savoir avant';
+
+  @override
+  String get ceSeeCaption => 'Manipule : tout se met à jour sous tes yeux.';
+
+  @override
+  String get ceNoVisual => 'Pas encore de schéma animé pour cette notion.';
+
+  @override
+  String get ceVisItems => 'Objets';
+
+  @override
+  String get ceVisBoxSize => 'Taille d\'une boîte';
+
+  @override
+  String ceVisLeftover(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count objets restent dehors.',
+      one: '1 objet reste dehors.',
+      zero: 'Rien ne reste dehors.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ceVisDividend => 'Nombre a';
+
+  @override
+  String get ceVisDivisor => 'Diviseur b';
+
+  @override
+  String ceVisAllowedRemainders(int max) {
+    return 'Restes permis : de 0 à $max';
+  }
+
+  @override
+  String get ceVisModulus => 'Modulo n';
+
+  @override
+  String get ceVisNumber => 'Nombre';
+
+  @override
+  String get ceVisPrimeBadge =>
+      'Nombre premier : une seule brique, impossible à casser.';
+
+  @override
+  String get ceVisWidth => 'Largeur';
+
+  @override
+  String get ceVisHeight => 'Hauteur';
+
+  @override
+  String get ceVisRhythmA => 'Rythme A';
+
+  @override
+  String get ceVisRhythmB => 'Rythme B';
+
+  @override
+  String get ceVisTilesFit => 'Les carreaux tombent juste.';
+
+  @override
+  String get ceVisTilesCut => 'Il faudrait couper des carreaux.';
+
+  @override
+  String ceClockLaps(int value, int laps, int modulus, int rest) {
+    return '$value = $laps tours de $modulus + $rest';
+  }
+
+  @override
+  String get ceGcd => 'PGCD';
+
+  @override
+  String get ceLcm => 'PPCM';
+
+  @override
+  String ceDifficultyLevel(int level) {
+    return 'Niveau $level';
+  }
+
+  @override
+  String ceQuestionProgress(int current, int total) {
+    return 'Question $current sur $total';
+  }
+
+  @override
+  String get ceCheck => 'Vérifier';
+
+  @override
+  String get ceCorrect => 'Juste !';
+
+  @override
+  String get ceIncorrect => 'Pas encore.';
+
+  @override
+  String get ceTryAgain => 'Réessayer';
+
+  @override
+  String get ceNextQuestion => 'Question suivante';
+
+  @override
+  String get ceHint => 'Indice';
+
+  @override
+  String get ceSimpler => 'Plus simple';
+
+  @override
+  String get ceWhyWrong => 'Pourquoi c\'est faux ?';
+
+  @override
+  String get ceTrue => 'Vrai';
+
+  @override
+  String get ceFalse => 'Faux';
+
+  @override
+  String get ceYes => 'Oui';
+
+  @override
+  String get ceNo => 'Non';
+
+  @override
+  String get ceYourAnswer => 'Ta réponse';
+
+  @override
+  String get ceFactorizationHint => 'Écris par exemple 2²×3×5';
+
+  @override
+  String get ceFieldRealPart => 'Partie réelle';
+
+  @override
+  String get ceFieldImaginaryPart => 'Partie imaginaire';
+
+  @override
+  String get ceFieldConjugate => 'Conjugué';
+
+  @override
+  String get ceFieldModulus => 'Module';
+
+  @override
+  String get ceFieldSolutions => 'Solutions';
+
+  @override
+  String get ceComplexHint => 'Forme a+bi, par exemple 3−2i';
+
+  @override
+  String get ceComplexSetHint => 'Sépare les solutions par ; ou écris 1±2i';
+
+  @override
+  String get ceRadicalHint => 'Valeur exacte, par exemple 5√2';
+
+  @override
+  String get ceDecimalHint =>
+      'Nombre décimal ou fraction, par exemple 0,25 ou 1/4';
+
+  @override
+  String get ceIntervalHint => 'Par exemple [0;4] ou ]1;+∞[';
+
+  @override
+  String get ceShortTextHint => 'Écris ta réponse';
+
+  @override
+  String get ceExpressionHint => 'Par exemple y=x+1';
+
+  @override
+  String get ceExpressionSetHint => 'Sépare tes réponses par ;';
+
+  @override
+  String get ceListHint => 'Sépare les nombres par des virgules';
+
+  @override
+  String get ceSetPrompt => 'Ajoute chaque solution, puis vérifie.';
+
+  @override
+  String get ceAddValue => 'Ajouter';
+
+  @override
+  String get ceSelectAll => 'Choisis toutes les bonnes réponses.';
+
+  @override
+  String ceResiduesPrompt(int modulus) {
+    return 'Touche les restes qui conviennent (modulo $modulus).';
+  }
+
+  @override
+  String get ceFieldQuotient => 'Quotient q';
+
+  @override
+  String get ceFieldRemainder => 'Reste r';
+
+  @override
+  String get ceFieldDivisor => 'Diviseur b';
+
+  @override
+  String get ceFieldBinary => 'Écriture en base 2';
+
+  @override
+  String get ceFieldDecimal => 'Valeur en base 10';
+
+  @override
+  String get ceFieldDecomposition => 'Décomposition';
+
+  @override
+  String get ceFieldLitres => 'Litres';
+
+  @override
+  String get ceFieldBuckets => 'Nombre de seaux';
+
+  @override
+  String get ceDiagnosisUnreadable =>
+      'Je n\'arrive pas à lire ta réponse : vérifie l\'écriture.';
+
+  @override
+  String get ceDiagnosisSomeFields =>
+      'Une partie est juste : regarde les cases en rouge.';
+
+  @override
+  String ceDiagnosisMissing(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Il te manque $count solutions.',
+      one: 'Il te manque une solution.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ceDiagnosisExtra(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count valeurs sont en trop.',
+      one: 'Une valeur est en trop.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ceDiagnosisNotPrime =>
+      'Le produit est bon, mais un facteur n\'est pas premier.';
+
+  @override
+  String get ceDiagnosisExponents =>
+      'Les facteurs sont bons : vérifie les exposants.';
+
+  @override
+  String get ceDiagnosisProduct =>
+      'Le produit ne redonne pas le nombre de départ.';
+
+  @override
+  String get ceDiagnosisDifferent => 'Ce n\'est pas la réponse attendue.';
+
+  @override
+  String get ceSourceCaution => 'Point signalé dans le manuel';
+
+  @override
+  String get ceNoQuestions =>
+      'Pas encore d\'exercice à ce niveau pour cette leçon.';
+
+  @override
+  String get ceLessonDone =>
+      'Tu as fait toutes les questions de ce niveau. Essaie un autre niveau ou joue !';
+
+  @override
+  String ceSuggestSimpler(String mode) {
+    return 'Veux-tu l\'explication « $mode » ? La difficulté ne change pas.';
+  }
+
+  @override
+  String ceSuggestHarder(String level) {
+    return 'Trois réussites d\'affilée ! Passer au niveau « $level » ?';
+  }
+
+  @override
+  String get ceAccept => 'Oui, allons-y';
+
+  @override
+  String get ceDismiss => 'Pas maintenant';
+
+  @override
+  String get ceNoGame => 'Pas encore de jeu pour cette leçon.';
+
+  @override
+  String get ceGameComingSoon => 'En préparation';
+
+  @override
+  String get ceGameChooseLevel => 'Choisis ton niveau';
+
+  @override
+  String ceGameRound(int current, int total) {
+    return 'Manche $current/$total';
+  }
+
+  @override
+  String ceGameScore(int points) {
+    return '$points pts';
+  }
+
+  @override
+  String ceGameStreak(int count) {
+    return 'Série ×$count';
+  }
+
+  @override
+  String ceGameTimeLeft(int seconds) {
+    return '$seconds s';
+  }
+
+  @override
+  String get ceGameValidate => 'Valider';
+
+  @override
+  String get ceGameGreat => 'Bravo !';
+
+  @override
+  String get ceGameMissed => 'Raté, la prochaine sera la bonne.';
+
+  @override
+  String get ceGameContinue => 'Continuer';
+
+  @override
+  String get ceGameFinished => 'Partie terminée';
+
+  @override
+  String ceGameFinalScore(int points) {
+    return 'Score : $points';
+  }
+
+  @override
+  String ceGameWins(int wins, int rounds, int streak) {
+    return '$wins manches réussies sur $rounds · meilleure série : $streak';
+  }
+
+  @override
+  String get ceGameReplay => 'Rejouer';
+
+  @override
+  String get ceGameNextLevel => 'Niveau suivant';
+
+  @override
+  String ceGroupingQuotientGoal(int items, int capacity) {
+    return '$items objets, des boîtes de $capacity. Remplis le plus de boîtes possible.';
+  }
+
+  @override
+  String get ceGroupingFullBoxesLabel => 'Boîtes pleines';
+
+  @override
+  String ceGroupingState(int full, int left) {
+    return '$full boîtes pleines · $left dehors';
+  }
+
+  @override
+  String get ceGroupingTooMany => 'Pas assez d\'objets pour autant de boîtes.';
+
+  @override
+  String get ceGroupingCapacity => 'Taille d\'une boîte';
+
+  @override
+  String ceGroupingCapacityGoal(int items, int full, int left) {
+    return '$items objets donnent $full boîtes pleines et $left dehors. Quelle est la taille d\'une boîte ?';
+  }
+
+  @override
+  String ceGroupingReportGoal(int items, int full) {
+    return 'Rapport : $items objets, exactement $full boîtes pleines. Est-ce possible ?';
+  }
+
+  @override
+  String ceGroupingPossibleWith(int capacity) {
+    return 'Possible (boîtes de $capacity)';
+  }
+
+  @override
+  String get ceGroupingImpossible => 'Impossible';
+
+  @override
+  String ceBinaryTarget(int value) {
+    return 'Allume les interrupteurs pour faire $value.';
+  }
+
+  @override
+  String ceBinaryCurrent(int value) {
+    return 'Valeur actuelle : $value';
+  }
+
+  @override
+  String get ceBinaryReadGoal =>
+      'Lis le code de la valise et écris sa valeur en base 10.';
+
+  @override
+  String ceClockGoalReduce(String expression, int modulus) {
+    return 'Sur une horloge de $modulus cases, où s\'arrête $expression ?';
+  }
+
+  @override
+  String ceClockGoalOperation(String expression, int modulus) {
+    return 'Où s\'arrête $expression modulo $modulus ?';
+  }
+
+  @override
+  String get ceClockTap => 'Touche la case d\'arrivée.';
+
+  @override
+  String ceForgePrimeGoal(int number) {
+    return '$number est-il premier ? Essaie les marteaux.';
+  }
+
+  @override
+  String ceForgeSplitGoal(int number) {
+    return 'Casse $number en briques premières.';
+  }
+
+  @override
+  String ceForgeBounce(int prime) {
+    return '$prime rebondit : il ne divise pas ce bloc.';
+  }
+
+  @override
+  String ceForgeDivisorsGoal(int number) {
+    return 'Combien de diviseurs positifs a $number ?';
+  }
+
+  @override
+  String get ceForgeDivisorsLabel => 'Nombre de diviseurs';
+
+  @override
+  String ceForgeIsPrime(int number) {
+    return '$number est premier.';
+  }
+
+  @override
+  String get cePrime => 'Premier';
+
+  @override
+  String get ceComposite => 'Composé';
+
+  @override
+  String ceTilingGcdGoal(int width, int height) {
+    return 'Un sol de $width × $height : quel est le plus grand carreau carré sans découpe ?';
+  }
+
+  @override
+  String ceTilingLcmGoal(int a, int b) {
+    return 'Des carreaux de $a et de $b : où leurs bords se rejoignent-ils à nouveau ?';
+  }
+
+  @override
+  String get ceTilingChooseTool => 'Quel outil faut-il ici ?';
+
+  @override
+  String get ceTilingFitsButSmaller =>
+      'Ça tombe juste, mais un carreau plus grand existe.';
+
+  @override
+  String get ceTilingDistance => 'Distance';
+
+  @override
+  String get ceTilingTile => 'Côté du carreau';
+
+  @override
+  String get ceCompanionButton => 'Compagnon';
+
+  @override
+  String ceCompanionTitle(String name) {
+    return '$name t\'aide';
+  }
+
+  @override
+  String get ceCompanionOffline =>
+      'Réponses tirées de ton cours, même sans connexion.';
+
+  @override
+  String get ceActionExplain => 'Explique-moi';
+
+  @override
+  String get ceActionSimpler => 'Plus simplement';
+
+  @override
+  String get ceActionUltra => 'Comme si j\'avais 12 ans';
+
+  @override
+  String get ceActionShow => 'Montre-moi';
+
+  @override
+  String get ceActionHint => 'Donne-moi un indice';
+
+  @override
+  String get ceActionTest => 'Teste-moi';
+
+  @override
+  String get ceActionWhyWrong => 'Pourquoi ma réponse est fausse ?';
+
+  @override
+  String get ceAskHint => 'Pose ta question sur ce chapitre…';
+
+  @override
+  String get ceAskSend => 'Envoyer';
+
+  @override
+  String get ceCompanionUnknown =>
+      'Je n\'ai pas encore d\'explication sur ce sujet dans ce chapitre.';
+
+  @override
+  String get ceCompanionClosest => 'Notions proches :';
+
+  @override
+  String get ceCompanionNoMoreHints =>
+      'Tu as vu tous les indices de ce cours. Essaie « Plus simplement ».';
+
+  @override
+  String get ceCompanionNothingWrong =>
+      'Réponds d\'abord à une question : je t\'expliquerai ce qui cloche.';
+
+  @override
+  String get ceCompanionNoQuestion =>
+      'Tu as réussi toutes les questions de cette leçon !';
+
+  @override
+  String get ceCompanionNoConcept => 'Ouvre une leçon pour que je t\'aide.';
+
+  @override
+  String get ceCompanionTrap => 'Piège à éviter';
+
+  @override
+  String get ceCompanionCorrection => 'Correction';
+
+  @override
+  String get ceCompanionTryIt => 'Essayer cette question';
+
+  @override
+  String get ceFormalTitle => 'La formulation officielle';
+
+  @override
+  String get ceCourseSays => 'Ce que dit le cours';
+
+  @override
+  String get ceSituationTitle => 'La situation du manuel';
+
+  @override
+  String ceFormalProgress(int score, int correct, int attempts) {
+    return 'Maîtrise $score % · $correct bonnes réponses sur $attempts';
+  }
+
+  @override
+  String ceRemainderGoal(int a, int b) {
+    return 'Fais la division de $a par $b : règle q jusqu\'à ce que le reste r tombe dans la zone permise.';
+  }
+
+  @override
+  String get ceRemainderInZone => 'Le reste est dans la zone : 0 ≤ r < |b|.';
+
+  @override
+  String get ceRemainderTooSmall => 'Reste négatif : il faut changer q.';
+
+  @override
+  String get ceRemainderTooLarge =>
+      'Reste trop grand : une part entière de plus tient encore.';
+
+  @override
+  String get ceRemainderWhy => 'Quelle condition doit vérifier le reste ?';
+
+  @override
+  String ceMissionStep(int current, int total) {
+    return 'Étape $current sur $total';
+  }
+
+  @override
+  String get ceMissionCriticalThinking =>
+      'Bien vu : savoir dire quand les données ne suffisent pas, c\'est aussi des mathématiques.';
+
+  @override
+  String get ceActionExample => 'Donne-moi un exemple';
+
+  @override
+  String get ceCompanionExample => 'Exemple';
+
+  @override
+  String get ceCompanionNoExample =>
+      'Je n\'ai pas encore d\'exemple pour cette notion dans ton cours.';
+
+  @override
+  String ceCompanionNameHello(String name) {
+    return '$name, voici ce que dit ton cours.';
+  }
+
+  @override
+  String ceCompanionNameAfterErrors(String name) {
+    return '$name, reprenons calmement : tu y es presque.';
+  }
+
+  @override
+  String ceCompanionNameSuccess(String name) {
+    return 'Bravo $name, tu maîtrises très bien cette notion.';
+  }
+
+  @override
+  String get ceChapterPromise =>
+      'Même si l\'exercice est difficile, tu peux demander une explication plus simple sans changer son niveau.';
+
+  @override
+  String get ceFeedKickerExplanation => 'L\'idée clé';
+
+  @override
+  String get ceFeedKickerUltraSimple => 'Comme si j\'avais 12 ans';
+
+  @override
+  String get ceFeedKickerFlash => 'Question éclair';
+
+  @override
+  String get ceFeedKickerMcq => 'Choisis la bonne réponse';
+
+  @override
+  String get ceFeedKickerTrueFalse => 'Vrai ou faux';
+
+  @override
+  String get ceFeedKickerExercise => 'Exercice';
+
+  @override
+  String get ceFeedKickerVisual => 'Regarde';
+
+  @override
+  String get ceFeedKickerGame => 'Jeu';
+
+  @override
+  String get ceFeedKickerMistake => 'Piège fréquent';
+
+  @override
+  String get ceFeedKickerRevision => 'À retenir';
+
+  @override
+  String get ceFeedKickerChallenge => 'Défi';
+
+  @override
+  String get ceFeedKickerMastery => 'Tu maîtrises ?';
+
+  @override
+  String get ceFeedKickerNew => 'Nouveau chapitre';
+
+  @override
+  String get ceFeedKickerCompanion => 'Une question ?';
+
+  @override
+  String get ceFeedDeepen => 'Approfondir';
+
+  @override
+  String get ceFeedAskCompanion => 'Demander au Compagnon';
+
+  @override
+  String get ceFeedCheck => 'Vérifier';
+
+  @override
+  String get ceFeedCorrect => 'Bonne réponse !';
+
+  @override
+  String get ceFeedWrong =>
+      'Pas encore. Regarde l\'explication, puis réessaie plus tard.';
+
+  @override
+  String get ceFeedPlay => 'Jouer';
+
+  @override
+  String get ceFeedOpenChapter => 'Découvrir le chapitre';
+
+  @override
+  String get ceFeedNewBody =>
+      'Un nouveau chapitre vient d\'arriver pour ta classe. Il commence par :';
+
+  @override
+  String ceFeedCompanionBody(String concept) {
+    return 'Quelque chose n\'est pas clair sur « $concept » ? Le Compagnon t\'explique à partir de ton cours, aussi simplement que tu veux.';
+  }
+
+  @override
+  String get ceFeedMistakeLead => 'Beaucoup d\'élèves se trompent ici :';
+
+  @override
+  String ceFeedNameAfterErrors(String name) {
+    return '$name, ce n\'est pas grave : une explication plus simple arrive dans ton fil.';
+  }
+
+  @override
+  String ceFeedNameSuccess(String name) {
+    return 'Bravo $name, c\'était un vrai défi.';
+  }
+
+  @override
+  String get ceNewContentAvailable =>
+      'Nouveaux contenus disponibles pour ta classe.';
+
+  @override
+  String get hapticsLabel => 'Vibrations pédagogiques';
+
+  @override
+  String get hapticsDescription =>
+      'De petites vibrations accompagnent tes réussites.';
+
+  @override
+  String get hapticsOn => 'Activées';
+
+  @override
+  String get hapticsReduced => 'Réduites : seulement pour les vrais progrès';
+
+  @override
+  String get hapticsOff => 'Désactivées';
+
+  @override
+  String get rewardExact => 'Exact.';
+
+  @override
+  String get rewardWellSeen => 'Bien vu.';
+
+  @override
+  String get rewardYes => 'Oui.';
+
+  @override
+  String get rewardVeryClean => 'Très propre.';
+
+  @override
+  String get rewardGotIt => 'Tu l\'as.';
+
+  @override
+  String get rewardNiceProgress => 'Belle progression.';
+
+  @override
+  String rewardStreak(int count) {
+    return '$count de suite.';
+  }
+
+  @override
+  String get rewardLevelUp => 'Niveau supérieur débloqué.';
+
+  @override
+  String get rewardGotItThisTime => 'Oui. Cette fois, tu l\'as.';
+
+  @override
+  String get rewardFoundIt => 'Voilà. Tu as trouvé.';
+
+  @override
+  String get rewardRealStep => 'Très bien. Tu viens de franchir un vrai cap.';
+
+  @override
+  String get rewardChallengeMet => 'Défi relevé.';
+
+  @override
+  String rewardConceptMastered(String concept) {
+    return 'Notion maîtrisée : $concept';
+  }
+
+  @override
+  String get rewardConceptMasteredGeneric => 'Notion maîtrisée.';
+
+  @override
+  String rewardChapterDone(String chapter) {
+    return 'Chapitre réussi : $chapter';
+  }
+
+  @override
+  String get rewardChapterDoneGeneric => 'Chapitre réussi.';
+
+  @override
+  String rewardWithName(String name, String message) {
+    return '$name, $message';
+  }
+
+  @override
+  String get authGatewayEmail => 'Se connecter avec un e-mail';
+
+  @override
+  String get authStaffTeacher => 'Enseignant';
+
+  @override
+  String get authStaffDirection => 'Direction / Proviseur';
+
+  @override
+  String get authStaffAdministration => 'Administration INTELLIA';
+
+  @override
+  String get authEmailCreateTitle => 'Créer mon accès par e-mail';
+
+  @override
+  String get authEmailCreateBody =>
+      'Votre adresse vous permet de vous connecter. Vous choisirez votre espace ensuite.';
+
+  @override
+  String get authFamilyWho => 'Qui utilise INTELLIA ?';
+
+  @override
+  String get authFamilyChooseBody =>
+      'Choisissez le profil de l’enfant. Son espace reste personnel.';
+
+  @override
+  String get authFamilyUnavailable =>
+      'Impossible d’ouvrir cet espace pour le moment. Réessayez ou reconnectez-vous.';
+
+  @override
+  String get authFamilyVerifyAgain =>
+      'Pour protéger l’espace de l’enfant, confirmez de nouveau votre numéro.';
+
+  @override
+  String get authFamilyVerifyAgainAction => 'Confirmer mon numéro';
+
+  @override
+  String get authFamilyNoChildren => 'Aucun profil enfant lié pour le moment.';
+
+  @override
+  String get authParentSpace => 'Espace parent';
+
+  @override
+  String get authParentProofBody =>
+      'Pour protéger les informations de la famille, le parent doit se connecter à nouveau. L’espace élève sera fermé.';
+
+  @override
+  String get authParentProofContinue => 'Se connecter comme parent';
+
+  @override
+  String get authFamilyRetry => 'Réessayer';
+
+  @override
+  String get authStaffUseShield =>
+      'Pour votre espace professionnel, utilisez le bouclier Accès établissement.';
+
+  @override
+  String get ljSubjectsTitle => 'Tes matières';
+
+  @override
+  String get ljSubjectsSubtitle =>
+      'Chaque matière, ses séquences et ta progression, même sans connexion.';
+
+  @override
+  String ljSequenceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count séquences',
+      one: '1 séquence',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljUnitCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count units',
+      one: '1 unit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljChapterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chapitres',
+      one: '1 chapitre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljConceptsMastered(int mastered, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      mastered,
+      locale: localeName,
+      other: '$mastered notions maîtrisées sur $total',
+      one: '1 notion maîtrisée sur $total',
+      zero: 'Aucune notion maîtrisée sur $total',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljProgressPercent(int percent) {
+    return '$percent %';
+  }
+
+  @override
+  String ljResume(String title) {
+    return 'Reprendre · $title';
+  }
+
+  @override
+  String ljOpenSubject(String subject) {
+    return 'Ouvrir $subject';
+  }
+
+  @override
+  String get ljStatusNotStarted => 'À commencer';
+
+  @override
+  String get ljStatusInProgress => 'En cours';
+
+  @override
+  String get ljStatusCompleted => 'Terminé';
+
+  @override
+  String get ljStatusToReview => 'À revoir';
+
+  @override
+  String get ljLastVisited => 'Dernière visite';
+
+  @override
+  String get ljPracticeTitle => 'S\'entraîner';
+
+  @override
+  String get ljPracticeSubtitle =>
+      'Des exercices corrigés tout de suite, séquence par séquence.';
+
+  @override
+  String ljPracticeExercises(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercices corrigés',
+      one: '1 exercice corrigé',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ljPracticeDone(int done, int total) {
+    return '$done sur $total déjà faits';
+  }
+
+  @override
+  String ljPracticeFocus(String concept) {
+    return 'À consolider : $concept';
+  }
+
+  @override
+  String ljPracticeFirst(String concept) {
+    return 'Pour commencer : $concept';
+  }
+
+  @override
+  String get ljPracticeAllMastered => 'Tout est maîtrisé : garde la main.';
+
+  @override
+  String get ljPracticeGo => 'M\'entraîner';
+
+  @override
+  String get ljFlowForYou => 'Pour toi';
+
+  @override
+  String get ljFlowBySubject => 'Par matière';
+
+  @override
+  String get ljFlowNoCards => 'Pas encore de carte dans cette matière.';
+
+  @override
+  String get spEyebrow => 'TON ÉTABLISSEMENT';
+
+  @override
+  String get spTitle => 'Retrouve ton lycée ou ton collège';
+
+  @override
+  String get spTriggerHint =>
+      'Touche ici pour le chercher : nom, ville ou quartier.';
+
+  @override
+  String get spSearchHint => 'Nom, ville ou quartier';
+
+  @override
+  String get spSearchLabel => 'Chercher ton établissement';
+
+  @override
+  String get spClearSearch => 'Effacer la recherche';
+
+  @override
+  String get spClose => 'Fermer';
+
+  @override
+  String get spAllCities => 'Toutes';
+
+  @override
+  String get spStartTyping =>
+      'Écris le nom de ton établissement, sa ville ou son quartier.';
+
+  @override
+  String spCityList(int count, String city) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count établissements à $city',
+      one: '1 établissement à $city',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get spBestMatch => 'Meilleur résultat';
+
+  @override
+  String get spPartner => 'Partenaire INTELLIA';
+
+  @override
+  String get spBilingual => 'Bilingue';
+
+  @override
+  String get spAnglophone => 'Anglophone';
+
+  @override
+  String get spFrancophone => 'Francophone';
+
+  @override
+  String get spTrilingual => 'Trilingue';
+
+  @override
+  String get spTechnical => 'Technique';
+
+  @override
+  String get spGeneralAndTechnical => 'Général et technique';
+
+  @override
+  String get spCityUnknown => 'Ville à préciser';
+
+  @override
+  String get spSelectedTitle => 'Ton établissement';
+
+  @override
+  String get spChange => 'Changer';
+
+  @override
+  String get spChangeSemantics => 'Changer d\'établissement';
+
+  @override
+  String get spSelectedNote =>
+      'C\'est noté. Ton établissement confirmera ton inscription.';
+
+  @override
+  String get spPartnerNote =>
+      'Ton établissement utilise INTELLIA : il confirmera ton inscription.';
+
+  @override
+  String get spSuggestionNote =>
+      'Proposition envoyée. Nous vérifions cet établissement.';
+
+  @override
+  String get spNotFoundTitle => 'Ton établissement n\'apparaît pas ?';
+
+  @override
+  String get spNotFoundBody =>
+      'Vérifie l\'orthographe, ou propose-le : nous l\'ajouterons après vérification.';
+
+  @override
+  String get spSuggestAction => 'Proposer mon établissement';
+
+  @override
+  String get spSuggestTitle => 'Proposer mon établissement';
+
+  @override
+  String get spSuggestBody =>
+      'Nous vérifions chaque proposition avant de l\'ajouter.';
+
+  @override
+  String get spSuggestName => 'Nom de l\'établissement';
+
+  @override
+  String get spSuggestCity => 'Ville';
+
+  @override
+  String get spSuggestDistrict => 'Quartier ou arrondissement (facultatif)';
+
+  @override
+  String get spSuggestSubmit => 'Envoyer ma proposition';
+
+  @override
+  String get spSuggestNameRequired => 'Écris le nom de ton établissement.';
+
+  @override
+  String get spSuggestCityRequired => 'Écris la ville de ton établissement.';
+
+  @override
+  String spResultSemantics(String name, String place) {
+    return '$name, $place';
+  }
+
+  @override
+  String get spSearchAllCities => 'Chercher dans toutes les villes';
+
+  @override
+  String get demoWelcomeEyebrow => 'ACCÈS EXCLUSIF';
+
+  @override
+  String get demoWelcomeTitle => 'Bienvenue dans INTELLIA237 !';
+
+  @override
+  String get demoWelcomeBody =>
+      'Calvin EKENA t\'offre un accès exclusif à l\'application. Toutes les classes sont ouvertes pour toi, de la 6e à la Terminale, sans oublier le sous-système anglophone.';
+
+  @override
+  String get demoWelcomeTip =>
+      'Notre conseil : commence par la Terminale D. C\'est la classe la plus riche en cours pour le moment, et la meilleure façon de découvrir tout ce qu\'INTELLIA237 sait faire.';
+
+  @override
+  String get demoWelcomeChangeLater =>
+      'Tu pourras changer de classe à tout moment, depuis ton accueil. Bonne exploration !';
+
+  @override
+  String get demoWelcomeStart => 'Commencer par la Terminale D';
+
+  @override
+  String get demoWelcomeOther => 'Choisir une autre classe';
+
+  @override
+  String get demoCardEyebrow => 'ACCÈS EXCLUSIF';
+
+  @override
+  String demoCardTitle(String classLabel) {
+    return 'Tu explores la classe : $classLabel';
+  }
+
+  @override
+  String get demoCardSubtitle =>
+      'Accès offert par Calvin EKENA. Toutes les classes sont ouvertes.';
+
+  @override
+  String get demoCardAction => 'Changer de classe';
+
+  @override
+  String get demoPickerTitle => 'Quelle classe veux-tu explorer ?';
+
+  @override
+  String get demoPickerSubtitle =>
+      'Tes cours, tes quiz et ton accueil suivront la classe choisie.';
+
+  @override
+  String get demoPickerRecommended => 'Le plus de cours';
+
+  @override
+  String get demoPickerCurrent => 'En cours';
+
+  @override
+  String get demoPickerFrancophone => 'Sous-système francophone';
+
+  @override
+  String get demoPickerAnglophone => 'Sous-système anglophone';
+
+  @override
+  String demoClassChanged(String classLabel) {
+    return 'C\'est parti : tu explores maintenant la classe $classLabel.';
+  }
+
+  @override
+  String get demoClassChangeFailed =>
+      'Impossible de changer de classe pour le moment. Réessaie dans un instant.';
+
+  @override
+  String get learnHallTitle => 'Tes matières';
+
+  @override
+  String get learnHallSubtitle =>
+      'Choisis une matière pour voir ses modules et ses leçons.';
+
+  @override
+  String learnHallFoundIn(String title) {
+    return 'Dans : $title';
+  }
+
+  @override
+  String learnHallResults(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count matières trouvées',
+      one: '1 matière trouvée',
+      zero: 'Aucune matière trouvée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ceShowLessons => 'Voir les leçons';
+
+  @override
+  String get ceHideLessons => 'Masquer les leçons';
+
+  @override
+  String get ceSequenceOverview => 'Vue d\'ensemble et parcours';
+
+  @override
+  String get ceLessonCompletedA11y => 'terminée';
+
+  @override
+  String quizLineKiraSessionStarted0(String subject, int count, String title) {
+    return 'On travaille $subject ? Je t\'ai préparé $count questions sur « $title ».';
+  }
+
+  @override
+  String quizLineKiraSessionStarted1(String subject, int count, String title) {
+    return '$count questions sur « $title ». On avance pas à pas, je suis là.';
+  }
+
+  @override
+  String quizLineKiraSessionStarted2(String subject, int count, String title) {
+    return 'On commence $subject ? $count questions sur « $title », à ton rythme.';
+  }
+
+  @override
+  String quizLineKiraQuestionPresented0(int current, int total) {
+    return 'Question $current sur $total. Lis bien l\'énoncé.';
+  }
+
+  @override
+  String quizLineKiraQuestionPresented1(int current, int total) {
+    return 'Question $current. Repère d\'abord ce qu\'on te demande.';
+  }
+
+  @override
+  String quizLineKiraQuestionPresented2(int current, int total) {
+    return 'Voici la question $current sur $total.';
+  }
+
+  @override
+  String get quizLineKiraCorrect0 => 'Exact. Tu maîtrises cette idée.';
+
+  @override
+  String get quizLineKiraCorrect1 => 'Bien vu, c\'est juste.';
+
+  @override
+  String get quizLineKiraCorrect2 => 'C\'est ça. On continue.';
+
+  @override
+  String get quizLineKiraIncorrect0 => 'Pas encore. Regarde ce point avec moi.';
+
+  @override
+  String get quizLineKiraIncorrect1 =>
+      'Presque. Lis l\'explication, elle t\'aidera.';
+
+  @override
+  String get quizLineKiraIncorrect2 => 'Pas cette fois. Regardons pourquoi.';
+
+  @override
+  String quizLineKiraStreak0(int count) {
+    return '$count bonnes réponses d\'affilée. Beau travail.';
+  }
+
+  @override
+  String quizLineKiraStreak1(int count) {
+    return 'Déjà $count de suite. Ta méthode paie.';
+  }
+
+  @override
+  String quizLineKiraStreak2(int count) {
+    return '$count d\'affilée : continue comme ça.';
+  }
+
+  @override
+  String get quizLineKiraHintRequested0 => 'Je te donne un indice.';
+
+  @override
+  String get quizLineKiraHintRequested1 => 'Voici un indice pour t\'aider.';
+
+  @override
+  String get quizLineKiraHintRequested2 =>
+      'Un indice, sans te donner la réponse.';
+
+  @override
+  String get quizLineKiraHalfway0 => 'Tu es à mi-parcours. Continue ainsi.';
+
+  @override
+  String get quizLineKiraHalfway1 =>
+      'La moitié est faite. Garde ta concentration.';
+
+  @override
+  String get quizLineKiraHalfway2 => 'Mi-parcours : on garde le même soin.';
+
+  @override
+  String get quizLineKiraLastQuestion0 =>
+      'Dernière question. Prends ton temps.';
+
+  @override
+  String get quizLineKiraLastQuestion1 => 'Plus qu\'une question.';
+
+  @override
+  String get quizLineKiraLastQuestion2 =>
+      'Voici la dernière. Relis bien avant de valider.';
+
+  @override
+  String quizLineKiraSessionCompleted0(int score, int total) {
+    return 'C\'est terminé : $score sur $total. Regardons ce que tu as réussi.';
+  }
+
+  @override
+  String quizLineKiraSessionCompleted1(int score, int total) {
+    return 'Fin de la séance : $score sur $total. Voici ton bilan.';
+  }
+
+  @override
+  String quizLineKiraSessionCompleted2(int score, int total) {
+    return 'Tu as terminé avec $score sur $total. Voyons la suite.';
+  }
+
+  @override
+  String quizLineKiraMasteryImproved0(String concept) {
+    return 'Tu progresses sur « $concept ».';
+  }
+
+  @override
+  String quizLineKiraMasteryImproved1(String concept) {
+    return '« $concept » est mieux maîtrisé qu\'au début.';
+  }
+
+  @override
+  String quizLineKiraMasteryImproved2(String concept) {
+    return 'Belle avancée sur « $concept ».';
+  }
+
+  @override
+  String quizLineKiraNeedsReview0(String concept) {
+    return 'Revois « $concept », puis réessaie.';
+  }
+
+  @override
+  String quizLineKiraNeedsReview1(String concept) {
+    return '« $concept » mérite encore un peu de travail.';
+  }
+
+  @override
+  String quizLineKiraNeedsReview2(String concept) {
+    return 'Je te conseille de revoir « $concept ».';
+  }
+
+  @override
+  String quizLineLeoSessionStarted0(String subject, int count, String title) {
+    return '$subject, c\'est parti : $count questions sur « $title ».';
+  }
+
+  @override
+  String quizLineLeoSessionStarted1(String subject, int count, String title) {
+    return '$count questions, un objectif : « $title ». On y va ?';
+  }
+
+  @override
+  String quizLineLeoSessionStarted2(String subject, int count, String title) {
+    return 'Allez, $count questions de $subject. Concentre-toi, je te suis.';
+  }
+
+  @override
+  String quizLineLeoQuestionPresented0(int current, int total) {
+    return 'Question $current sur $total.';
+  }
+
+  @override
+  String quizLineLeoQuestionPresented1(int current, int total) {
+    return 'Suivante : $current sur $total.';
+  }
+
+  @override
+  String quizLineLeoQuestionPresented2(int current, int total) {
+    return 'Question $current. À toi.';
+  }
+
+  @override
+  String get quizLineLeoCorrect0 => 'Bien vu !';
+
+  @override
+  String get quizLineLeoCorrect1 => 'Exact.';
+
+  @override
+  String get quizLineLeoCorrect2 => 'Juste. On enchaîne.';
+
+  @override
+  String get quizLineLeoIncorrect0 => 'Pas encore. Regarde ce point.';
+
+  @override
+  String get quizLineLeoIncorrect1 => 'Raté cette fois, voici l\'explication.';
+
+  @override
+  String get quizLineLeoIncorrect2 =>
+      'Pas tout à fait. Lis ça, puis on repart.';
+
+  @override
+  String quizLineLeoStreak0(int count) {
+    return '$count d\'affilée !';
+  }
+
+  @override
+  String quizLineLeoStreak1(int count) {
+    return 'Série de $count. Garde le rythme.';
+  }
+
+  @override
+  String quizLineLeoStreak2(int count) {
+    return '$count de suite, impressionnant.';
+  }
+
+  @override
+  String get quizLineLeoHintRequested0 => 'Un indice, tiens.';
+
+  @override
+  String get quizLineLeoHintRequested1 => 'Voilà un coup de pouce.';
+
+  @override
+  String get quizLineLeoHintRequested2 => 'Voilà un indice.';
+
+  @override
+  String get quizLineLeoHalfway0 => 'Moitié faite !';
+
+  @override
+  String get quizLineLeoHalfway1 => 'Mi-parcours. Garde le cap.';
+
+  @override
+  String get quizLineLeoHalfway2 => 'La moitié, déjà.';
+
+  @override
+  String get quizLineLeoLastQuestion0 => 'Dernière question !';
+
+  @override
+  String get quizLineLeoLastQuestion1 => 'Plus qu\'une.';
+
+  @override
+  String get quizLineLeoLastQuestion2 => 'Dernière ligne droite.';
+
+  @override
+  String quizLineLeoSessionCompleted0(int score, int total) {
+    return 'Terminé : $score sur $total !';
+  }
+
+  @override
+  String quizLineLeoSessionCompleted1(int score, int total) {
+    return '$score sur $total. Voici ton bilan.';
+  }
+
+  @override
+  String quizLineLeoSessionCompleted2(int score, int total) {
+    return 'Séance bouclée : $score sur $total.';
+  }
+
+  @override
+  String quizLineLeoMasteryImproved0(String concept) {
+    return '« $concept » : en progrès !';
+  }
+
+  @override
+  String quizLineLeoMasteryImproved1(String concept) {
+    return 'Tu montes sur « $concept ».';
+  }
+
+  @override
+  String quizLineLeoMasteryImproved2(String concept) {
+    return 'Progrès net sur « $concept ».';
+  }
+
+  @override
+  String quizLineLeoNeedsReview0(String concept) {
+    return 'À revoir : « $concept ».';
+  }
+
+  @override
+  String quizLineLeoNeedsReview1(String concept) {
+    return 'Repasse sur « $concept ».';
+  }
+
+  @override
+  String quizLineLeoNeedsReview2(String concept) {
+    return '« $concept » : encore un effort.';
+  }
+
+  @override
+  String get quizPackSectionTitle => 'Quiz de tes cours';
+
+  @override
+  String get quizPackSectionSubtitle =>
+      'Des questions de tes séquences, corrigées sur ton téléphone, même sans connexion.';
+
+  @override
+  String quizPackQuestionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions disponibles',
+      one: '1 question disponible',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quizPackCompanionWith(String name) {
+    return '$name t\'accompagne';
+  }
+
+  @override
+  String get quizPackTraining => 'S\'entraîner';
+
+  @override
+  String get quizPackEvaluation => 'Évaluation';
+
+  @override
+  String get quizPackMixed => 'Révision mixte';
+
+  @override
+  String get quizPackMixedBody =>
+      'Des questions de toutes tes séquences de cette matière.';
+
+  @override
+  String get quizPackSequencesTitle => 'Par séquence';
+
+  @override
+  String get quizPackStart => 'Commencer';
+
+  @override
+  String get quizPackModeTrainingBody =>
+      'Correction et explication après chaque réponse. Indices si tu en as besoin.';
+
+  @override
+  String get quizPackModeEvaluationBody =>
+      'Pas de correction avant la fin. Ton score et ton bilan à la fin.';
+
+  @override
+  String quizPackDistribution(int easy, int medium, int hard) {
+    return 'Niveaux : $easy × 1 · $medium × 2 · $hard × 3';
+  }
+
+  @override
+  String quizPackSessionLength(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '1 question',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quizPackQuestionProgress(int current, int total) {
+    return 'Question $current sur $total';
+  }
+
+  @override
+  String get quizPackValidate => 'Valider';
+
+  @override
+  String get quizPackNext => 'Question suivante';
+
+  @override
+  String get quizPackSeeResult => 'Voir mon bilan';
+
+  @override
+  String get quizPackHint => 'Un indice';
+
+  @override
+  String quizPackHintLabel(int number) {
+    return 'Indice $number';
+  }
+
+  @override
+  String get quizPackCorrect => 'Bonne réponse';
+
+  @override
+  String get quizPackIncorrect => 'Pas encore';
+
+  @override
+  String get quizPackAnswerSaved =>
+      'Réponse enregistrée. La correction viendra à la fin.';
+
+  @override
+  String get quizPackResultTitle => 'Ton bilan';
+
+  @override
+  String quizPackScore(int score, int total) {
+    return '$score sur $total';
+  }
+
+  @override
+  String get quizPackMastered => 'Réussies';
+
+  @override
+  String get quizPackToReview => 'À revoir';
+
+  @override
+  String quizPackConceptScore(String title, int correct, int total) {
+    return '$title · $correct/$total';
+  }
+
+  @override
+  String get quizPackReview => 'Revoir mes réponses';
+
+  @override
+  String get quizPackRetry => 'Recommencer';
+
+  @override
+  String get quizPackContinue => 'Continuer mon parcours';
+
+  @override
+  String get quizPackReviewTitle => 'Tes réponses';
+
+  @override
+  String get quizPackUnscoredNote =>
+      'Les questions à réponse rédigée restent dans tes leçons : elles ne comptent pas dans ce score.';
+
+  @override
+  String get quizPackRecentTitle => 'Tes dernières séances';
+
+  @override
+  String quizPackRecentRow(String title, String mode, int score, int total) {
+    return '$title · $mode · $score/$total';
+  }
+
+  @override
+  String get quizPackNoLesson =>
+      'Aucune question disponible pour ce quiz pour l\'instant.';
+
+  @override
+  String get quizPackPublishedTitle => 'Quiz publiés par tes professeurs';
+
+  @override
+  String quizPackCompanionA11y(String name, String line) {
+    return '$name dit : $line';
+  }
+
+  @override
+  String companionTopBarSubtitle(Object level) {
+    return 'Compagnon d’étude • $level';
+  }
+
+  @override
+  String companionHeaderStatus(Object status) {
+    return 'Compagnon • $status';
+  }
+
+  @override
+  String companionStatusWriting(Object name) {
+    return '$name écrit…';
+  }
+
+  @override
+  String companionLocalUnavailable(Object name) {
+    return '$name n’a pas pu se préparer. Relance l’application.';
+  }
+
+  @override
+  String get companionActionKeepLearning => 'Continuer à apprendre';
+
+  @override
+  String get companionActionTakeQuiz => 'Faire un quiz';
+
+  @override
+  String get companionActionSeeSubjects => 'Voir mes matières';
+
+  @override
+  String get companionActionSeeAllQuizzes => 'Voir tous les quiz';
+
+  @override
+  String companionActionSubjectQuiz(Object subject) {
+    return 'Quiz $subject';
+  }
+
+  @override
+  String companionActionLearnSubject(Object subject) {
+    return 'Apprendre : $subject';
+  }
+
+  @override
+  String get companionActionOpenCourse => 'Ouvrir le cours';
+
+  @override
+  String get companionActionTopicQuiz => 'Faire le quiz';
+
+  @override
+  String companionActionReviewSubject(Object subject) {
+    return 'Réviser : $subject';
+  }
+
+  @override
+  String get companionActionDiagnostic => 'Quiz diagnostic';
+
+  @override
+  String get companionActionProgress => 'Voir ma progression';
+
+  @override
+  String get companionActionGo => 'C’est parti';
+
+  @override
+  String get companionActionRetryQuiz => 'Refaire ce quiz';
+
+  @override
+  String get companionActionTrainTopic => 'M’entraîner sur ce thème';
+
+  @override
+  String get companionActionContinueCourse => 'Continuer le cours';
+
+  @override
+  String get companionActionResume => 'Reprendre';
+
+  @override
+  String get companionActionResumeLesson => 'Reprendre la leçon';
+
+  @override
+  String get companionActionPractice => 'M’entraîner';
+
+  @override
+  String get pvTitle => 'Mon avancée';
+
+  @override
+  String get pvChapterMap => 'Ma carte du parcours';
+
+  @override
+  String get pvChapterScope =>
+      'Les anneaux comptent les notions au seuil du pack. Une lecture seule ne certifie pas un acquis.';
+
+  @override
+  String get pvNoAvailablePack =>
+      'Aucun chapitre disponible pour ta classe sur cet appareil.';
+
+  @override
+  String get pvStrengthen => 'À renforcer';
+
+  @override
+  String get pvNextStep => 'Ma prochaine étape';
+
+  @override
+  String get pvQuizActivity => 'Mes 14 derniers jours de Quiz';
+
+  @override
+  String get pvQuizHistoryScope =>
+      'Séances Quiz terminées conservées sur cet appareil (30 au maximum). Un zéro ne décrit pas tout ton travail.';
+
+  @override
+  String get pvQuizCurve => 'Mes résultats, Quiz par Quiz';
+
+  @override
+  String get pvQuizCurveScope =>
+      'Un même Quiz et un même mode. Les questions peuvent varier : cette courbe représente tes scores, pas une mesure de maîtrise.';
+
+  @override
+  String get pvNoQuizHistory =>
+      'Termine un Quiz pour retrouver ici ton premier résultat.';
+
+  @override
+  String get pvCurveNeedsTwo =>
+      'Un premier résultat est enregistré. La courbe apparaîtra avec une deuxième séance de ce Quiz dans ce mode.';
+
+  @override
+  String pvGoalActiveDays(int days, int target) {
+    return '$days jours actifs enregistrés cette semaine · objectif $target';
+  }
+
+  @override
+  String pvQuizDay(String date, int sessions) {
+    return '$date : $sessions séances Quiz enregistrées';
+  }
+
+  @override
+  String get profilePhotoTitle => 'Photo de profil';
+
+  @override
+  String get profilePhotoGallery => 'Choisir depuis la galerie';
+
+  @override
+  String get profilePhotoCamera => 'Prendre une photo';
+
+  @override
+  String get profilePhotoRemove => 'Supprimer la photo';
+
+  @override
+  String get profilePhotoUpdated => 'Photo de profil mise à jour';
+
+  @override
+  String get profilePhotoError =>
+      'La photo n’a pas pu être enregistrée. Vérifie la connexion et réessaie.';
+
+  @override
+  String get profilePhotoRemoveError =>
+      'La photo n’a pas pu être supprimée. Réessaie quand la connexion est disponible.';
+
+  @override
+  String gmBoard(int board, int total, int level) {
+    return 'Plateau $board/$total · difficulté $level';
+  }
+
+  @override
+  String get gmInstruction =>
+      'Choisis une carte dans la première liste, puis sa relation dans la seconde. Reconstruis toutes les associations.';
+
+  @override
+  String get gmLeft => 'Cartes à relier';
+
+  @override
+  String get gmRight => 'Relations proposées';
+
+  @override
+  String get gmCorrectLink => 'Association juste.';
+
+  @override
+  String get gmWrongLink => 'Cette association ne convient pas. Retenir :';
+
+  @override
+  String gmAccuracy(int correct, int total, int errors) {
+    return '$correct/$total relations au premier essai · $errors erreurs';
+  }
+
+  @override
+  String get gmAssisted =>
+      'Plateau terminé avec aide : entraînement, sans nouvelle preuve de maîtrise.';
+
+  @override
+  String get gmRecorded => 'Résultat enregistré dans ta progression.';
+
+  @override
+  String get gmAlreadyRecorded =>
+      'Ce plateau a déjà été validé. Rejouer reste un entraînement.';
+
+  @override
+  String get gmSaveError =>
+      'La progression n’a pas pu être enregistrée. Réessaie.';
+
+  @override
+  String get gmReplay => 'Rejouer';
 }

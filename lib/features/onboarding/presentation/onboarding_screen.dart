@@ -157,8 +157,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   /// The signed pass gives way. The screen is captured as it stands, the
   /// route is exchanged underneath it, and the capture breaks apart above the
-  /// registration screen: the learner sees one continuous surface tearing
-  /// open, never a cut between two screens.
+  /// neutral entry gateway: the learner sees one continuous surface tearing
+  /// open, never a cut between two screens. No role is asked here: identity
+  /// comes first (Auth V2 rework).
   Future<void> _sign(Offset origin) async {
     if (_completing || _moving) return;
     setState(() => _completing = true);
@@ -179,7 +180,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           .read(screenShatterProvider)
           .play(image: debris, pixelRatio: ratio, origin: origin);
     }
-    context.go(AppRoutes.register);
+    context.go(AppRoutes.authGateway);
     await Future.wait([persistence, ?breaking]);
   }
 
@@ -449,6 +450,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     );
   }
 
+  Widget _collapseWhenAnswered(Widget child) => _reduced
+      ? child
+      : AnimatedSize(
+          duration: const Duration(milliseconds: 380),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topLeft,
+          child: child,
+        );
+
   Widget _scene() => switch (_act) {
     OnboardingAct.activation => CampaignOpening(
       animation: _entrance,
@@ -472,16 +482,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 'YOUR FIRST DISCOVERY',
               ),
             ),
-            CampaignHeadline(
-              lines: [
-                campaignText(context, 'ÇA PREND', 'IT MAKES'),
-                campaignText(context, 'SENS.', 'SENSE.'),
-              ],
-              animation: _entrance,
-              size: 104,
-              accentLine: 1,
+            // Après la réponse, le grand titre se retire : l'explication et
+            // le bouton prennent sa place, en taille réelle, sans défiler.
+            _collapseWhenAnswered(
+              _journey.challengeOutcome == OnboardingChallengeOutcome.unanswered
+                  ? Column(
+                      key: const ValueKey('challenge-headline'),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CampaignHeadline(
+                          lines: [
+                            campaignText(context, 'ÇA PREND', 'IT MAKES'),
+                            campaignText(context, 'SENS.', 'SENSE.'),
+                          ],
+                          animation: _entrance,
+                          size: 104,
+                          accentLine: 1,
+                        ),
+                        const SizedBox(height: 22),
+                      ],
+                    )
+                  : const SizedBox(width: double.infinity, height: 12),
             ),
-            const SizedBox(height: 22),
             CampaignChallenge(
               subject: _journey.selectedSubject ?? 'Mathématiques',
               reduceMotion: _reduced,

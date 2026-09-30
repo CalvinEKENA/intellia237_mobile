@@ -73,70 +73,98 @@ void main() {
       story: paragraph,
     ),
   ];
-  for (final width in [320.0, 360.0, 390.0, 412.0, 480.0, 640.0]) {
-    for (final scale in [1.0, 1.15, 1.3, 1.5, 2.0]) {
-      testWidgets('FLOW width=$width textScale=$scale FR/EN chemistry', (
-        tester,
-      ) async {
-        tester.view.devicePixelRatio = 1;
-        tester.view.physicalSize = Size(width, 760);
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        for (final card in cards) {
-          await tester.pumpWidget(
-            ProviderScope(
-              overrides: [
-                flowCatalogProvider.overrideWith(
-                  (_) async => FlowCatalog.empty,
-                ),
-              ],
-              child: MaterialApp(
-                locale: const Locale('fr'),
-                supportedLocales: AppLocalizations.supportedLocales,
-                localizationsDelegates: const [
-                  AppLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                home: MediaQuery(
-                  data: MediaQueryData(
-                    size: Size(width, 760),
-                    textScaler: TextScaler.linear(scale),
-                  ),
-                  child: Scaffold(
-                    body: FlowCardView(
-                      key: ValueKey(card.id),
-                      card: card,
-                      onAward: (_) {},
+  for (final locale in const [Locale('fr'), Locale('en')]) {
+    for (final width in [320.0, 360.0, 390.0, 412.0, 480.0, 640.0]) {
+      for (final scale in [1.0, 1.3, 1.5, 2.0]) {
+        testWidgets(
+          'FLOW ${locale.languageCode} width=$width textScale=$scale',
+          (tester) async {
+            tester.view.devicePixelRatio = 1;
+            tester.view.physicalSize = Size(width, 760);
+            addTearDown(tester.view.resetPhysicalSize);
+            addTearDown(tester.view.resetDevicePixelRatio);
+            for (final card in cards) {
+              await tester.pumpWidget(
+                ProviderScope(
+                  overrides: [
+                    flowCatalogProvider.overrideWith(
+                      (_) async => FlowCatalog.empty,
+                    ),
+                  ],
+                  child: MaterialApp(
+                    locale: locale,
+                    supportedLocales: AppLocalizations.supportedLocales,
+                    localizationsDelegates: const [
+                      AppLocalizations.delegate,
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate,
+                      GlobalCupertinoLocalizations.delegate,
+                    ],
+                    home: MediaQuery(
+                      data: MediaQueryData(
+                        size: Size(width, 760),
+                        textScaler: TextScaler.linear(scale),
+                      ),
+                      child: Scaffold(
+                        body: FlowCardView(
+                          key: ValueKey(card.id),
+                          card: card,
+                          onAward: (_) {},
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          );
-          await tester.pump(const Duration(seconds: 1));
-          expect(
-            tester.takeException(),
-            isNull,
-            reason: '${card.id} at $width × $scale',
-          );
-          final scroll = find.byKey(const ValueKey('flow-content-scroll'));
-          expect(scroll, findsOneWidget);
-          await tester.drag(scroll, const Offset(0, -600));
-          await tester.pump(const Duration(milliseconds: 500));
-          expect(
-            tester.takeException(),
-            isNull,
-            reason: '${card.id} after scrolling',
-          );
-          final ctx = tester.element(find.byType(FlowTypographyScope));
-          expect(FlowTypography.title(ctx).fontSize, inInclusiveRange(26, 32));
-          expect(FlowTypography.body(ctx).fontSize, inInclusiveRange(16, 18));
-        }
-        await tester.pumpWidget(const SizedBox.shrink());
-        await tester.pump();
-      });
+              );
+              await tester.pump(const Duration(seconds: 1));
+              expect(
+                tester.takeException(),
+                isNull,
+                reason: '${card.id} at $width × $scale',
+              );
+              final scroll = find.byKey(const ValueKey('flow-content-scroll'));
+              expect(scroll, findsOneWidget);
+              await tester.drag(scroll, const Offset(0, -600));
+              await tester.pump(const Duration(milliseconds: 500));
+              expect(
+                tester.takeException(),
+                isNull,
+                reason: '${card.id} after scrolling',
+              );
+              // Échelle éditoriale compacte device-QA (jamais l'ancienne trop
+              // grande). L'accessibilité de Flutter s'applique par-dessus, non
+              // capturée ici — ces valeurs sont la base avant textScale.
+              final ctx = tester.element(find.byType(FlowTypographyScope));
+              expect(
+                FlowTypography.eyebrow(ctx).fontSize,
+                inInclusiveRange(12, 13),
+              );
+              expect(
+                FlowTypography.title(ctx).fontSize,
+                inInclusiveRange(18, 21),
+              );
+              expect(
+                FlowTypography.question(ctx).fontSize,
+                inInclusiveRange(19, 22),
+              );
+              expect(
+                FlowTypography.body(ctx).fontSize,
+                inInclusiveRange(15, 17),
+              );
+              expect(
+                FlowTypography.choice(ctx).fontSize,
+                inInclusiveRange(15, 16),
+              );
+              expect(
+                FlowTypography.explanation(ctx).fontSize,
+                inInclusiveRange(16, 17),
+              );
+            }
+            await tester.pumpWidget(const SizedBox.shrink());
+            await tester.pump();
+          },
+        );
+      }
     }
   }
 }

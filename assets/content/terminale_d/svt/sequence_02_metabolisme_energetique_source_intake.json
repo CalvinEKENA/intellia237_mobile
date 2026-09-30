@@ -1,0 +1,183 @@
+{
+  "schema_version": "intellia.source-intake.v1",
+  "status": "PARTIAL_SOURCE_ONLY_NOT_RUNTIME",
+  "sequence": 2,
+  "module": 1,
+  "title": "Quelques aspects du métabolisme énergétique chez l’Homme",
+  "inspected_printed_pages": [
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "images": [
+    {
+      "name": "page_021.jpg",
+      "printed_pages": [
+        22,
+        23
+      ],
+      "sha256": "8b1caac59eeddb459669eb729d65a0c4def9cad932d103790244741ff4f586ca"
+    },
+    {
+      "name": "page_022.jpg",
+      "printed_pages": [
+        24,
+        25
+      ],
+      "sha256": "c31cfb071f96c6703cdbdcdd4851f906d318839b916cdbc9b315261b2c337a8b"
+    },
+    {
+      "name": "page_023.jpg",
+      "printed_pages": [
+        26,
+        27
+      ],
+      "sha256": "cac4e90281323b0f68aebfa23c0933a66e01ab09d0c8ede7d8f0e2dd5f28fb84"
+    },
+    {
+      "name": "page_024.jpg",
+      "printed_pages": [
+        28,
+        29
+      ],
+      "sha256": "17ed2c7caf0acd4de1763a1983126896271dfe545a2be727c4b895ed2a550084"
+    }
+  ],
+  "verified_facts": [
+    {
+      "id": "s2_intake_01",
+      "source_anchor": "page_021.jpg",
+      "printed_pages": [
+        23
+      ],
+      "derived_summary": "Le titre de S2 est Quelques aspects du métabolisme énergétique chez l’Homme ; la première séance porte sur les cellules musculaires."
+    },
+    {
+      "id": "s2_intake_02",
+      "source_anchor": "page_021.jpg",
+      "printed_pages": [
+        23
+      ],
+      "derived_summary": "Objectifs : décrire une fibre striée, interpréter repos/contraction, expliquer le mécanisme, comparer la composition et distinguer des types de fibres."
+    },
+    {
+      "id": "s2_intake_03",
+      "source_anchor": "page_022.jpg",
+      "printed_pages": [
+        24
+      ],
+      "derived_summary": "La fibre striée contient des myofibrilles, des mitochondries et de la myoglobine ; sa membrane est le sarcolemme."
+    },
+    {
+      "id": "s2_intake_04",
+      "source_anchor": "page_022.jpg",
+      "printed_pages": [
+        24,
+        25
+      ],
+      "derived_summary": "La longueur du sarcomère change pendant la contraction alors que la longueur des myofilaments reste inchangée ; le cours explique un glissement."
+    },
+    {
+      "id": "s2_intake_05",
+      "source_anchor": "page_022.jpg",
+      "printed_pages": [
+        25
+      ],
+      "derived_summary": "Dans le dispositif présenté, ATP et calcium sont nécessaires à la contraction ; le document propose des ponts d’union actine–myosine."
+    },
+    {
+      "id": "s2_intake_06",
+      "source_anchor": "page_022.jpg",
+      "printed_pages": [
+        25
+      ],
+      "derived_summary": "Le tableau de composition identifie actine/myosine comme protéines contractiles et la myoglobine comme transport du dioxygène vers les mitochondries."
+    },
+    {
+      "id": "s2_intake_07",
+      "source_anchor": "page_022.jpg",
+      "printed_pages": [
+        25
+      ],
+      "derived_summary": "Le glycogène et les triglycérides sont présentés comme réserves ; la phosphocréatine participe à la régénération de l’ATP."
+    },
+    {
+      "id": "s2_intake_08",
+      "source_anchor": "page_023.jpg",
+      "printed_pages": [
+        26
+      ],
+      "derived_summary": "Le bilan décrit une baisse du glycogène, une hausse de l’acide lactique et une quantité d’ATP stable pendant l’activité : la restauration est rapide."
+    },
+    {
+      "id": "s2_intake_09",
+      "source_anchor": "page_023.jpg",
+      "printed_pages": [
+        26
+      ],
+      "derived_summary": "Les fibres de type I et II ont des caractéristiques différentes ; les proportions dépendent du sport. Aucun pourcentage exact n’est extrait du graphe."
+    },
+    {
+      "id": "s2_intake_10",
+      "source_anchor": "page_023.jpg",
+      "printed_pages": [
+        27
+      ],
+      "derived_summary": "La deuxième séance porte sur les voies de restauration de l’ATP ; le tableau classe des activités selon la durée de l’effort."
+    },
+    {
+      "id": "s2_intake_11",
+      "source_anchor": "page_024.jpg",
+      "printed_pages": [
+        28
+      ],
+      "derived_summary": "Le document nomme voie anaérobie alactique la restauration de l’ATP couplée à l’utilisation de phosphocréatine pour des efforts très brefs."
+    },
+    {
+      "id": "s2_intake_12",
+      "source_anchor": "page_024.jpg",
+      "printed_pages": [
+        28
+      ],
+      "derived_summary": "Les graphes de biopsies comparent travail et repos ; les réserves de phosphocréatine baissent au travail et se restaurent pendant le repos dans le document."
+    },
+    {
+      "id": "s2_intake_13",
+      "source_anchor": "page_024.jpg",
+      "printed_pages": [
+        29
+      ],
+      "derived_summary": "La voie anaérobie lactique est illustrée par une chaîne depuis le glycogène/glucose vers le pyruvate puis l’acide lactique."
+    },
+    {
+      "id": "s2_intake_14",
+      "source_anchor": "page_024.jpg",
+      "printed_pages": [
+        29
+      ],
+      "derived_summary": "Les graphes du document montrent une augmentation de l’acide lactique et une diminution du pH au cours de l’effort ; ils ne sont pas utilisés comme normes cliniques."
+    }
+  ],
+  "review_flags": [
+    {
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "issue": "Les valeurs fines des graphes et certaines cases de tableaux restent à vérifier sur les images en résolution native. Pas de calcul noté."
+    },
+    {
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "issue": "Le classement durée/voie énergétique p.27 doit être confronté à la suite p.30–36 avant synthèse ; aucune règle universelle sportive ajoutée."
+    }
+  ],
+  "remaining": [
+    "Inspecter cours p.30–36 et cartographier les images exactes.",
+    "Inventorier exercices à partir de p.37 jusqu’à la limite de S3 p.43, puis relever sous-consignes.",
+    "Dériver pédagogie/runtime uniquement après revue complète de S2."
+  ],
+  "offline_asset_registered": false,
+  "questions_published": 0,
+  "games_published": 0
+}

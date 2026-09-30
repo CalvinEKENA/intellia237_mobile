@@ -7,11 +7,17 @@ final mobileMoneyRepositoryProvider = Provider<MobileMoneyRepository>((ref) {
   return FirebaseMobileMoneyRepository();
 });
 
-final parentMobileMoneyOverviewProvider = FutureProvider<MobileMoneyOverview>((
-  ref,
-) {
-  return ref.watch(mobileMoneyRepositoryProvider).fetchParentOverview();
-});
+/// Vue Mobile Money du parent ; la famille est l'enfant choisi (null : aucun
+/// enfant nommé, comportement des versions antérieures).
+final parentMobileMoneyOverviewProvider =
+    FutureProvider.family<MobileMoneyOverview, String?>((
+      ref,
+      beneficiaryStudentId,
+    ) {
+      return ref
+          .watch(mobileMoneyRepositoryProvider)
+          .fetchParentOverview(beneficiaryStudentId: beneficiaryStudentId);
+    });
 
 final adminMobileMoneyQueueProvider = FutureProvider<List<AdminPaymentRequest>>(
   (ref) {
@@ -29,6 +35,7 @@ class MobileMoneyActions {
   final Ref _ref;
 
   Future<void> submit({
+    String? beneficiaryStudentId,
     required MobileMoneyOffer offer,
     required MobileMoneyOperator operator,
     required String payerPhone,
@@ -38,6 +45,7 @@ class MobileMoneyActions {
     await _ref
         .read(mobileMoneyRepositoryProvider)
         .submitPayment(
+          beneficiaryStudentId: beneficiaryStudentId,
           offerId: offer.id,
           operatorCode: operator.code,
           payerPhone: payerPhone,

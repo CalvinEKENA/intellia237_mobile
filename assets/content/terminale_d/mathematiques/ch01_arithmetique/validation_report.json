@@ -1,0 +1,170 @@
+{
+  "schema_version": "intellia.validation-report.v1",
+  "pack_id": "maths_td_ch01_arithmetique_runtime_v1",
+  "status": "PASS_WITH_SOURCE_QUALITY_FLAGS",
+  "automated_checks": [
+    {
+      "check": "1964 division by 17",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "2550 division by 27",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "binary 125",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "binary 1000",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "-54 division by 5",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "27 division by -5",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "(2n+6)/(n-1) solutions",
+      "passed": true,
+      "details": "[-7, -3, -1, 0, 2, 3, 5, 9]"
+    },
+    {
+      "check": "Paul score",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "2^100 mod 65",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "n²+6=0 mod5",
+      "passed": true,
+      "details": "[2, 3]"
+    },
+    {
+      "check": "6647 factorization",
+      "passed": true,
+      "details": "{17: 2, 23: 1}"
+    },
+    {
+      "check": "6647 volume",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "6647 divisor count",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "gcd shower",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "lcm salon",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "gcd 46269/16854",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "lcm 46269/16854",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "Awa add",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "Awa household solutions",
+      "passed": true,
+      "details": "[23, 58, 93]"
+    },
+    {
+      "check": "31117 factorization",
+      "passed": true,
+      "details": "{29: 2, 37: 1}"
+    },
+    {
+      "check": "52 measurable criterion",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "water lcm",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "20L bucket count",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "check": "unique question ids",
+      "passed": true,
+      "details": "41 questions"
+    },
+    {
+      "check": "three difficulty levels",
+      "passed": true,
+      "details": ""
+    }
+  ],
+  "visual_review": {
+    "verified_images": [
+      "page_002.jpg (sommaire)",
+      "page_006.jpg (leçon 1)",
+      "page_008.jpg (leçon 2)",
+      "page_011.jpg (leçon 3)",
+      "page_013.jpg (leçon 4)",
+      "page_016.jpg (leçon 5)",
+      "page_018.jpg (leçon 6)",
+      "page_022.jpg (exercices)",
+      "page_025.jpg (activités d'intégration)"
+    ],
+    "ocr_policy": "L'OCR est une aide. Les données critiques utilisées pour le scoring ont été recalculées et/ou vérifiées visuellement."
+  },
+  "source_quality_flags": [
+    {
+      "severity": "important",
+      "source": "page_025.jpg – Activité 1, tâche 2",
+      "issue": "Les contraintes donnent trois valeurs possibles sous 100 : 23, 58 et 93.",
+      "runtime_action": "Ne jamais afficher une valeur unique comme corrigé.",
+      "question_ids": [
+        "int_awa2"
+      ]
+    },
+    {
+      "severity": "important",
+      "source": "page_025.jpg – Activité 1, tâche 3",
+      "issue": "Le volume 31117 cm³ et des dimensions entières ne déterminent pas un pavé droit unique.",
+      "runtime_action": "Transformer en activité d'esprit critique ou exiger une contrainte supplémentaire.",
+      "question_ids": [
+        "int_awa3"
+      ]
+    }
+  ],
+  "question_count": 41,
+  "game_count": 7,
+  "math_checks_passed": 25,
+  "math_checks_total": 25
+}

@@ -1,0 +1,6318 @@
+{
+  "schema": "intellia.establishments.v1",
+  "version": "cm-secondary-2026.09-master",
+  "sources": [
+    {
+      "file": "base_maitresse_lycees_colleges_yaounde_douala_2026_09.xlsx",
+      "sheet": "Base maîtresse",
+      "sha256": "9f157bfe357e74723ce8bdcf411c83c128885a66b76e5de61c339399e530f326",
+      "rows": 250
+    },
+    {
+      "file": "tool/establishments/sources/owner_additions_2026_09.json"
+    },
+    {
+      "catalogue": "EstablishmentCatalog (INTELLIA237)",
+      "matchedIds": [
+        "ce-yaounde-bilingue-application",
+        "ce-yaounde-biyem-assi",
+        "ce-yaounde-charles-atangana",
+        "ce-yaounde-leclerc",
+        "ce-yaounde-mballa-ii",
+        "ce-yaounde-ngoa-ekelle",
+        "ce-yaounde-retraite",
+        "ce-yaounde-vogt",
+        "lt-douala-akwa",
+        "lt-douala-bassa-technique",
+        "lt-douala-deido",
+        "lt-douala-joss",
+        "lt-douala-libermann"
+      ]
+    }
+  ],
+  "count": 339,
+  "establishments": [
+    {
+      "id": "ad-banyo",
+      "name": "Lycée de Banyo",
+      "aliases": [],
+      "city": "Banyo",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ad-belel",
+      "name": "Lycée de Belel",
+      "aliases": [],
+      "city": "Belel",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ad-meiganga-bilingue",
+      "name": "Lycée Bilingue de Meiganga",
+      "aliases": [],
+      "city": "Meiganga",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ad-meiganga",
+      "name": "Lycée de Meiganga",
+      "aliases": [],
+      "city": "Meiganga",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ad-protestant-ngaoundere",
+      "name": "Collège Protestant de Ngaoundéré",
+      "aliases": [],
+      "city": "Ngaoundéré",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "privateSecondarySchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ad-ngaoundere-bilingue",
+      "name": "Lycée Bilingue de Ngaoundéré",
+      "aliases": [
+        "LB Ngaoundéré"
+      ],
+      "city": "Ngaoundéré",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ad-ngaoundere-classique",
+      "name": "Lycée Classique et Moderne de Ngaoundéré",
+      "aliases": [
+        "LCM Ngaoundéré"
+      ],
+      "city": "Ngaoundéré",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ad-ngaoundere-technique",
+      "name": "Lycée Technique de Ngaoundéré",
+      "aliases": [],
+      "city": "Ngaoundéré",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ad-tibati",
+      "name": "Lycée de Tibati",
+      "aliases": [],
+      "city": "Tibati",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ad-tignere",
+      "name": "Lycée de Tignère",
+      "aliases": [],
+      "city": "Tignère",
+      "region": "Adamaoua",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ce-yaounde-amasia-mahanaim-bilingual-secondary-school",
+      "name": "Amasia Mahanaim Bilingual Secondary School",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 56,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-cegep-sainte-foi",
+      "name": "CEGEP Sainte Foi",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 115,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-centre-educatif-bon-berger",
+      "name": "Centre Éducatif Le Bon Berger (CEBER)",
+      "aliases": [
+        "CEBER"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 57,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-ces-nyom",
+      "name": "CES de Nyom",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé I",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 7
+      }
+    },
+    {
+      "id": "ce-yaounde-cetic-ngoa-ekelle",
+      "name": "CETIC de Ngoa-Ekellé",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 23
+      }
+    },
+    {
+      "id": "ce-yaounde-cetif-ngoa-ekelle",
+      "name": "CETIF de Ngoa-Ekellé",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 24
+      }
+    },
+    {
+      "id": "ce-yaounde-christ-king-anglo-saxon-boarding-college",
+      "name": "Christ the King Anglo-Saxon Boarding College",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 112,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-bilingue-horeb",
+      "name": "Collège Bilingue Horeb",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 108,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-bilingue-international-fierte",
+      "name": "Collège Bilingue International La Fierté",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 58,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-bilingue-kiatabala",
+      "name": "Collège Bilingue Kiatabala",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 84,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-enseignement-technique-adolph-kolping",
+      "name": "Collège d'Enseignement Technique Adolph Kolping (COPAK)",
+      "aliases": [
+        "COPAK"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 114,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-enseignement-technique-commercial-industriel-coc",
+      "name": "Collège d'Enseignement Technique Commercial et Industriel Les Cocotiers",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 111,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-enseignement-technique-commercial-industriel-nfa",
+      "name": "Collège d'Enseignement Technique Commercial et Industriel Nfandja II",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 59,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-enseignement-technique-ekani-eyenga",
+      "name": "Collège d'Enseignement Technique Ekani Eyenga",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 85,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-paix",
+      "name": "Collège de la Paix",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 86,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-retraite",
+      "name": "Collège de la Retraite",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/communiques",
+        "line": 44,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-succes",
+      "name": "Collège du Succès",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 71,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-fleming",
+      "name": "Collège Fleming",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/communiques",
+        "line": 46,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-francois-kammogne",
+      "name": "Collège François Kammogne",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 60,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-vogt",
+      "name": "Collège François-Xavier Vogt",
+      "aliases": [
+        "Collège Vogt",
+        "Vogt"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/communiques",
+        "line": 42,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-jean-tabi",
+      "name": "Collège Jean Tabi",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/communiques",
+        "line": 43,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-moukete",
+      "name": "Collège Moukete",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 87,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-onana-ebode",
+      "name": "Collège Onana Ebode",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 117,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-panafricain-excellence",
+      "name": "Collège Panafricain de l'Excellence",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 104,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-pi-and-ju",
+      "name": "Collège PI and JU",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 61,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-polyvalent-saint-augustin",
+      "name": "Collège Polyvalent Saint-Augustin",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 72,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-catholique-enseignement-technique-industri",
+      "name": "Collège Privé Catholique d'Enseignement Technique Industriel Féminin Maria Goretti",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 116,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-diderot",
+      "name": "Collège Privé Diderot",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 47,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-islamique-al-haramain",
+      "name": "Collège Privé Islamique Al Haramain",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 119,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-atangana-essomba",
+      "name": "Collège Privé Laïc Atangana Essomba",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 62,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-centre-socio-educatif-bilingue-david",
+      "name": "Collège Privé Laïc Centre Socio-Éducatif Bilingue David Lavoisier",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 48,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-esperance",
+      "name": "Collège Privé Laïc de l'Espérance (COPES)",
+      "aliases": [
+        "COPES"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 74,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-dolta",
+      "name": "Collège Privé Laïc Dolta",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 64,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-mont-valerien",
+      "name": "Collège Privé Laïc du Mont Valérien",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 65,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-frantz-fanon",
+      "name": "Collège Privé Laïc Frantz Fanon",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 66,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-golden-institute",
+      "name": "Collège Privé Laïc Golden Institute",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 75,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-colombe",
+      "name": "Collège Privé Laïc La Colombe",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 49,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-dignite",
+      "name": "Collège Privé Laïc La Dignité",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 76,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-larousse",
+      "name": "Collège Privé Laïc Larousse",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 77,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-lilas",
+      "name": "Collège Privé Laïc Les Lilas",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 73,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-sapins",
+      "name": "Collège Privé Laïc Les Sapins",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 50,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-marie-albert-ii",
+      "name": "Collège Privé Laïc Marie Albert II (COMAL II)",
+      "aliases": [
+        "COMAL II",
+        "Collège Marie Albert",
+        "Marie Albert II",
+        "COMAL"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 67,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-saint-michel-archange",
+      "name": "Collège Privé Laïc Saint Michel Archange",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 105,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-laic-technique-stella-maris",
+      "name": "Collège Privé Laïc Technique Stella Maris",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 88,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-mekouja",
+      "name": "Collège Privé Mekouja",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 109,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-prive-polyvalent-tsinga-village",
+      "name": "Collège Privé Polyvalent de Tsinga Village",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 113,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-saint-benoit",
+      "name": "Collège Saint-Benoît",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/communiques",
+        "line": 45,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-college-technique-prive-sainte-therese",
+      "name": "Collège Technique Privé Sainte-Thérèse",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 68,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-complexe-bilingue-yondo",
+      "name": "Complexe Bilingue Yondo",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 63,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-complexe-enseignements-secondaires-general-professionnel",
+      "name": "Complexe d'Enseignements Secondaires Général et Professionnel Bilingue Mgr Jean Zoa",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 51,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-complexe-scolaire-akoa",
+      "name": "Complexe Scolaire AKOA",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 106,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-complexe-scolaire-bilingue-saint-germain",
+      "name": "Complexe Scolaire Bilingue Saint Germain",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 107,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-complexe-scolaire-lenya",
+      "name": "Complexe Scolaire Lenya",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 69,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-complexe-scolaire-saint-andre",
+      "name": "Complexe Scolaire Saint-André",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 78,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-complexe-scolaire-yona",
+      "name": "Complexe Scolaire Yona",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 89,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-genius-trilingual-college",
+      "name": "Genius Trilingual College",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": "trilingual",
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 90
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-bilingue-roger-ampere",
+      "name": "Institut Bilingue Roger Ampère",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 93,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-techniques-sciences-enseignements",
+      "name": "Institut des Techniques, des Sciences et des Enseignements (ITSE)",
+      "aliases": [
+        "ITSE"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 94,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-gazolent",
+      "name": "Institut Gazolent",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 70,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-jourdain",
+      "name": "Institut Le Jourdain",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 91,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-mak-mbe",
+      "name": "Institut MAK MBE",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 52,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-mgr-rene-graffin",
+      "name": "Institut Mgr René Graffin",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 92,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-petou",
+      "name": "Institut Petou",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 95,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-polyvalent-bilingue-cecile-gabriel-dipito",
+      "name": "Institut Polyvalent Bilingue Cécile et Gabriel Dipito",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 96,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-prive-islamique-gestion",
+      "name": "Institut Privé Islamique de Gestion",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 79,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-prive-laic-central",
+      "name": "Institut Privé Laïc Central (INSTIC)",
+      "aliases": [
+        "INSTIC"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 97,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-prive-laic-essomba",
+      "name": "Institut Privé Laïc Essomba",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 80,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-prive-laic-international-aime-cesaire",
+      "name": "Institut Privé Laïc International Aimé Césaire",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 98,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-prive-laic-mbe",
+      "name": "Institut Privé Laïc MBE",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 99,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-prive-laic-paul-momo",
+      "name": "Institut Privé Laïc Paul Momo",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 53,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-prive-laic-polyvalent-bilingue-nations",
+      "name": "Institut Privé Laïc Polyvalent Bilingue des Nations",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 54,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-prive-laic-polyvalent-renovation-pedagogique",
+      "name": "Institut Privé Laïc Polyvalent Rénovation Pédagogique",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 55,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-sacre-charlemagne",
+      "name": "Institut Sacré Charlemagne",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 110,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-samba",
+      "name": "Institut Samba",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 81,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-siantou",
+      "name": "Institut Siantou",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 100,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-institut-technique-industriel-etoug-ebe",
+      "name": "Institut Technique Industriel d'Etoug-Ebé",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 82,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-jeunesse-lumiere",
+      "name": "Jeunesse Lumière (COBIJEL)",
+      "aliases": [
+        "COBIJEL"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 101,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-bambis-lay-private-bilingual-college",
+      "name": "Les Bambis Lay Private Bilingual College",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 118,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-anguissa",
+      "name": "Lycée Bilingue d'Anguissa",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé IV",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 26
+      }
+    },
+    {
+      "id": "ce-yaounde-bilingue-application",
+      "name": "Lycée Bilingue d'Application",
+      "aliases": [
+        "LBA Yaoundé",
+        "Lycée Bilingue d’Application de Yaoundé"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 15
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-ekounou",
+      "name": "Lycée Bilingue d'Ekounou",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé IV",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 25
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-essos",
+      "name": "Lycée Bilingue d'Essos",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé V",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 32
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-etoug-ebe",
+      "name": "Lycée Bilingue d'Etoug-Ebé",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé VI",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 36
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-odza",
+      "name": "Lycée Bilingue d'Odza",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé IV",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 29
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-mendong",
+      "name": "Lycée Bilingue de Mendong",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé VI",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 35
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-mimboman",
+      "name": "Lycée Bilingue de Mimboman",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé IV",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 28
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-nkol-eton",
+      "name": "Lycée Bilingue de Nkol-Eton",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé I",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 6
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-nkolbisson",
+      "name": "Lycée Bilingue de Nkolbisson",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé VII",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 37
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-bilingue-nyom",
+      "name": "Lycée Bilingue de Nyom",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 41
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-afan-oyoa",
+      "name": "Lycée d'Afan-Oyoa",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 18
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-ahala",
+      "name": "Lycée d'Ahala",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 19
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-ekorezock",
+      "name": "Lycée d'Ekorézock",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé VII",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 38
+      }
+    },
+    {
+      "id": "ce-yaounde-ekounou",
+      "name": "Lycée d’Ekounou",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ce-yaounde-lycee-elig-essono",
+      "name": "Lycée d'Elig-Essono",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé I",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 5
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-emana",
+      "name": "Lycée d'Emana",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé I",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 2
+      }
+    },
+    {
+      "id": "ce-yaounde-biyem-assi",
+      "name": "Lycée de Biyem-Assi",
+      "aliases": [
+        "Lycée Biyem Assi"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 17
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-cite-verte",
+      "name": "Lycée de la Cité-Verte",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé II",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 10
+      }
+    },
+    {
+      "id": "ce-yaounde-mballa-ii",
+      "name": "Lycée de Mballa II",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé I",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 4
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-minkan",
+      "name": "Lycée de Minkan",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé IV",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 30
+      }
+    },
+    {
+      "id": "ce-yaounde-ngoa-ekelle",
+      "name": "Lycée de Ngoa-Ekellé",
+      "aliases": [
+        "Lycée Ngoa Ekelle"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 14
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-ngousso-ngoulmekong",
+      "name": "Lycée de Ngousso-Ngoulmekong",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé V",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 33
+      }
+    },
+    {
+      "id": "ce-yaounde-nkol-eton",
+      "name": "Lycée de Nkol-Eton",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ce-yaounde-lycee-nkolmesseng",
+      "name": "Lycée de Nkolmesseng",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé V",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 34
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-nkolndongo",
+      "name": "Lycée de Nkolndongo",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé IV",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 27
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-nkolondom",
+      "name": "Lycée de Nkolondom",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé I",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 3
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-nsam-efoulan",
+      "name": "Lycée de Nsam-Efoulan",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 16
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-tsinga",
+      "name": "Lycée de Tsinga",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé II",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 11
+      }
+    },
+    {
+      "id": "ce-yaounde-leclerc",
+      "name": "Lycée Général Leclerc",
+      "aliases": [
+        "Leclerc",
+        "LGL",
+        "Lycée Leclerc"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 13
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-technique-bilingue-mewoulou",
+      "name": "Lycée Technique Bilingue de Mewoulou",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "public",
+      "track": "technical",
+      "language": "bilingual",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 40
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-technique-bilingue-nkolbisson",
+      "name": "Lycée Technique Bilingue de Nkolbisson",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé VII",
+      "ownership": "public",
+      "track": "technical",
+      "language": "bilingual",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 39
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-technique-bilingue-nsam",
+      "name": "Lycée Technique Bilingue de Nsam",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "technical",
+      "language": "bilingual",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 21
+      }
+    },
+    {
+      "id": "ce-yaounde-charles-atangana",
+      "name": "Lycée Technique Charles Atangana",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé I",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 8
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-technique-afan-oyoa",
+      "name": "Lycée Technique d'Afan-Oyoa",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 22
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-technique-ekounou",
+      "name": "Lycée Technique d'Ekounou",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé IV",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 31
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-technique-nsam-efoulan",
+      "name": "Lycée Technique de Nsam-Efoulan",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé I",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 9
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-technique-yaounde-ii",
+      "name": "Lycée Technique de Yaoundé II",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé II",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 12
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-technique-industriel-commercial-bilingue",
+      "name": "Lycée Technique Industriel et Commercial Bilingue de Yaoundé",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé III",
+      "ownership": "public",
+      "track": "technical",
+      "language": "bilingual",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC / DDES Mfoundi",
+        "confidence": "high",
+        "url": "https://dres-ce.jimdofree.com/ddes/mfoundi/publics/",
+        "line": 20
+      }
+    },
+    {
+      "id": "ce-yaounde-lycee-technique-prive-keynes",
+      "name": "Lycée Technique Privé Keynes",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 83,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "ce-yaounde-mbohmelites-bilingual-college",
+      "name": "MBOHMELITES BILINGUAL COLLEGE",
+      "aliases": [
+        "MBOHMELITES",
+        "Mbohm Elites"
+      ],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": "Yaoundé VII",
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "privateSecondarySchool",
+      "origin": "owner",
+      "provenance": {
+        "source": "Propriétaire — arrondissement confirmé par le MINESEC",
+        "confidence": "declared"
+      }
+    },
+    {
+      "id": "ce-yaounde-nono-bilingual-technical-college",
+      "name": "Nono Bilingual Technical College",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 102,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "ce-yaounde-saint-joseph-s-foundation-anglo-saxon-technical-college",
+      "name": "St Joseph's Foundation Anglo-Saxon Technical College",
+      "aliases": [],
+      "city": "Yaoundé",
+      "region": "Centre",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 103,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "es-abong-mbang",
+      "name": "Lycée d’Abong-Mbang",
+      "aliases": [],
+      "city": "Abong-Mbang",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "es-batouri",
+      "name": "Lycée de Batouri",
+      "aliases": [],
+      "city": "Batouri",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "es-belabo",
+      "name": "Lycée de Bélabo",
+      "aliases": [],
+      "city": "Bélabo",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "es-bertoua-bilingue",
+      "name": "Lycée Bilingue de Bertoua",
+      "aliases": [],
+      "city": "Bertoua",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "es-bertoua-classique",
+      "name": "Lycée Classique de Bertoua",
+      "aliases": [],
+      "city": "Bertoua",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "es-bertoua-technique",
+      "name": "Lycée Technique de Bertoua",
+      "aliases": [],
+      "city": "Bertoua",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "es-doume",
+      "name": "Lycée de Doumé",
+      "aliases": [],
+      "city": "Doumé",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "es-garoua-boulai",
+      "name": "Lycée de Garoua-Boulaï",
+      "aliases": [],
+      "city": "Garoua-Boulaï",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "es-lomie",
+      "name": "Lycée de Lomié",
+      "aliases": [],
+      "city": "Lomié",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "es-yokadouma",
+      "name": "Lycée de Yokadouma",
+      "aliases": [],
+      "city": "Yokadouma",
+      "region": "Est",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-guidiguis",
+      "name": "Lycée de Guidiguis",
+      "aliases": [],
+      "city": "Guidiguis",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-kaele",
+      "name": "Lycée de Kaélé",
+      "aliases": [],
+      "city": "Kaélé",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-kousseri",
+      "name": "Lycée de Kousséri",
+      "aliases": [],
+      "city": "Kousséri",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-maroua-bilingue",
+      "name": "Lycée Bilingue de Maroua",
+      "aliases": [],
+      "city": "Maroua",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-maroua-classique",
+      "name": "Lycée Classique et Moderne de Maroua",
+      "aliases": [
+        "LCM Maroua"
+      ],
+      "city": "Maroua",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-maroua-technique",
+      "name": "Lycée Technique de Maroua",
+      "aliases": [],
+      "city": "Maroua",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-mokolo",
+      "name": "Lycée de Mokolo",
+      "aliases": [],
+      "city": "Mokolo",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-mora",
+      "name": "Lycée de Mora",
+      "aliases": [],
+      "city": "Mora",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-waza",
+      "name": "Lycée de Waza",
+      "aliases": [],
+      "city": "Waza",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "en-yagoua",
+      "name": "Lycée de Yagoua",
+      "aliases": [],
+      "city": "Yagoua",
+      "region": "Extrême-Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "lt-douala-atlanta-bilingual-comprehensive-high-school",
+      "name": "Atlanta Bilingual Comprehensive High School",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 190,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-atlantic-bilingual-college-grand-hangar",
+      "name": "Atlantic Bilingual College Grand Hangar",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 191,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-centre-enseignement-formation-technique-industrielle",
+      "name": "Centre d'Enseignement et de Formation Technique Industrielle (CEFTI)",
+      "aliases": [
+        "CEFTI"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 207,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-ces-bilingue-douala-ii",
+      "name": "CES Bilingue de Douala II",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala II",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 127
+      }
+    },
+    {
+      "id": "lt-douala-ces-bilingue-minkwelle",
+      "name": "CES Bilingue de Minkwelle",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala IV",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 147
+      }
+    },
+    {
+      "id": "lt-douala-ces-bilingue-moungui-logbessou",
+      "name": "CES Bilingue Moungui de Logbessou",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 140
+      }
+    },
+    {
+      "id": "lt-douala-ceti-bilingue-nguega",
+      "name": "CETI Bilingue Nguega",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 192,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-cetic-bonaberi",
+      "name": "CETIC de Bonabéri",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala IV",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 145
+      }
+    },
+    {
+      "id": "lt-douala-city-bilingual-college-excellence",
+      "name": "City Bilingual College of Excellence",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 230,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-dja-tafen",
+      "name": "Collège Bilingue Dja Tafen",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 245,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-centre",
+      "name": "Collège Bilingue du Centre",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 208,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-echos-savoir",
+      "name": "Collège Bilingue Échos du Savoir",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 231,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-emergence-miaffo-solange",
+      "name": "Collège Bilingue Emergence Miaffo Solange",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 196,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-excellence-foem",
+      "name": "Collège Bilingue Excellence FOEM",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 243,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-excellence-tercio",
+      "name": "Collège Bilingue Excellence Tercio",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 224,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-fanon-cesaire",
+      "name": "Collège Bilingue Fanon et Césaire",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 232,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-fatime",
+      "name": "Collège Bilingue Fatime",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 229,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-maturite",
+      "name": "Collège Bilingue La Maturité",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 209,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-chrysalides",
+      "name": "Collège Bilingue Les Chrysalides",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 244,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-leaders",
+      "name": "Collège Bilingue Les Leaders",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 210,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-mamdom",
+      "name": "Collège Bilingue Mamdom",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 222,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-nguesson-charles",
+      "name": "Collège Bilingue Nguesson Charles",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 197,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-njakou",
+      "name": "Collège Bilingue Njakou",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 233,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-oeuvre-vie",
+      "name": "Collège Bilingue Œuvre et Vie",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 234,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-prive-laic-merveilles",
+      "name": "Collège Bilingue Privé Laïc Les Merveilles",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 236,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-simo",
+      "name": "Collège Bilingue Simo",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 235,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-bilingue-tongo",
+      "name": "Collège Bilingue Tongo",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 198,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-catholique-notre-dame-nations",
+      "name": "Collège Catholique Notre-Dame-des-Nations",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 226,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-chevreul",
+      "name": "Collège Chevreul",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "privateSecondarySchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "lt-douala-college-levant",
+      "name": "Collège du Levant",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 193,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-evangelique-new-bell",
+      "name": "Collège Évangélique New-Bell",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 156,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-germana-sommaruga",
+      "name": "Collège Germana Sommaruga",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 237,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-king-akwa",
+      "name": "Collège King Akwa",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 155,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-source",
+      "name": "Collège La Source",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 238,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-lamartine",
+      "name": "Collège Lamartine",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 194,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-libermann",
+      "name": "Collège Libermann",
+      "aliases": [
+        "Libermann"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/communiques",
+        "line": 153,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-maarif-douala-yassa",
+      "name": "Collège Maarif Douala-Yassa",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 239,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-manga-sarah",
+      "name": "Collège Manga et Sarah",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 240,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-moderne-bilingue-laureats",
+      "name": "Collège Moderne Bilingue des Lauréats",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 211,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-polyvalent-bilingue-baho",
+      "name": "Collège Polyvalent Bilingue Baho",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 212,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-polyvalent-bilingue-vaal",
+      "name": "Collège Polyvalent Bilingue du Vaal",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 213,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-polyvalent-bilingue-mewe",
+      "name": "Collège Polyvalent Bilingue Mewe",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 251,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-polyvalent-bilingue-reti",
+      "name": "Collège Polyvalent Bilingue RETI",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 227,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-polyvalent-kouakeu-tonfeu",
+      "name": "Collège Polyvalent Kouakeu de Tonfeu",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 242,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-polyvalent-maria-goretti",
+      "name": "Collège Polyvalent Maria Goretti",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 223,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-polyvalent-mohoua-tachomkam",
+      "name": "Collège Polyvalent Mohoua Tachomkam",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 176,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-polyvalent-notre-dame-perpetuel-secours",
+      "name": "Collège Polyvalent Notre-Dame du Perpétuel Secours",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 241,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-pozam",
+      "name": "Collège Pozam",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 177,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-bilingue-elisabeth-nkwamegni",
+      "name": "Collège Privé Bilingue Elisabeth Nkwamegni",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 161,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-catholique-anuarite",
+      "name": "Collège Privé Catholique Anuarite",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 162,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-catholique-enseignement-technique-salle",
+      "name": "Collège Privé Catholique d'Enseignement Technique De La Salle",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/communiques",
+        "line": 154,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-catholique-sainte-cecile",
+      "name": "Collège Privé Catholique Sainte-Cécile",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 195,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-andre-nguebong",
+      "name": "Collège Privé Laïc André Nguebong (CPLAN)",
+      "aliases": [
+        "CPLAN"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 165,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-benedict",
+      "name": "Collège Privé Laïc Benedict",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 166,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-bernard-eyengue-nkongo",
+      "name": "Collège Privé Laïc Bernard Eyengue Nkongo",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 157,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-bilingue-orchidee",
+      "name": "Collège Privé Laïc Bilingue L'Orchidée",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 214,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-charles-gaulle",
+      "name": "Collège Privé Laïc Charles de Gaulle",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 215,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-classique-bonaberi",
+      "name": "Collège Privé Laïc Classique de Bonabéri",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 199,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-vallee",
+      "name": "Collège Privé Laïc de la Vallée",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 167,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-fotso-daniel",
+      "name": "Collège Privé Laïc Fotso Daniel",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 168,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-bergere",
+      "name": "Collège Privé Laïc La Bergère",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 163,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-conquete",
+      "name": "Collège Privé Laïc La Conquête",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 216,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-manne",
+      "name": "Collège Privé Laïc La Manne",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 170,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-roche",
+      "name": "Collège Privé Laïc La Roche",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 171,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-laval",
+      "name": "Collège Privé Laïc Laval",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 217,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-nil",
+      "name": "Collège Privé Laïc Le Nil",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 218,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-zenith",
+      "name": "Collège Privé Laïc Le Zénith",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 172,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-conquerants",
+      "name": "Collège Privé Laïc Les Conquérants",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 173,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-ngayo",
+      "name": "Collège Privé Laïc Ngayo",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 250,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-polyvalent",
+      "name": "Collège Privé Laïc Polyvalent de Douala (CPD)",
+      "aliases": [
+        "CPD"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 159,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-polyvalent-deo-gratias",
+      "name": "Collège Privé Laïc Polyvalent Deo Gratias",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 174,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-polyvalent-prodiges",
+      "name": "Collège Privé Laïc Polyvalent Les Prodiges",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 175,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-pratique-formation-ouvriere",
+      "name": "Collège Privé Laïc Pratique de Formation Ouvrière (CPFO)",
+      "aliases": [
+        "CPFO"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 160,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-roger-mfupa",
+      "name": "Collège Privé Laïc Roger Mfupa",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 164,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-soleil",
+      "name": "Collège Privé Laïc Soleil",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 219,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-laic-tcheuffa-fils",
+      "name": "Collège Privé Laïc Tcheuffa Fils",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 200,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-prive-sainte-marthe",
+      "name": "Collège Privé Sainte-Marthe",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 178,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-saint-charles-borromee",
+      "name": "Collège Saint-Charles-Borromée",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 180,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-college-suzanna",
+      "name": "Collège Suzanna",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "college",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 179,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-complexe-academique-bilingue-venise",
+      "name": "Complexe Académique Bilingue de Venise",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 201,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-complexe-scolaire-bilingue-rainbow",
+      "name": "Complexe Scolaire Bilingue Rainbow",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 249,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-complexe-scolaire-bilingue-saint-gabriel-rita",
+      "name": "Complexe Scolaire Bilingue Saint Gabriel Rita",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 181,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-copseco",
+      "name": "COPSECO",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 158,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-douala-academy-arts-and-sciences",
+      "name": "Douala Academy of Arts and Sciences (DASS)",
+      "aliases": [
+        "DASS"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 202,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-ecole-sciences-appliquees-orientation",
+      "name": "École des Sciences Appliquées et d'Orientation (ESAO)",
+      "aliases": [
+        "ESAO"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 220,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-emunah-bilingual-college",
+      "name": "Emunah Bilingual College",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 248,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-fondation-bilingue-pierre-marie-ndjoko",
+      "name": "Fondation Bilingue Pierre Marie Ndjoko",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 182,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-institut-bilingue-tonji",
+      "name": "Institut Bilingue Tonji",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 203,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-institut-etudes-techniques",
+      "name": "Institut d'Études Techniques",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 247,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-technologie-gestion",
+      "name": "Institut de Technologie et de Gestion (INTEG)",
+      "aliases": [
+        "INTEG"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 221,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-techniques-industrielles-commerciales",
+      "name": "Institut des Techniques Industrielles et Commerciales (ITIC)",
+      "aliases": [
+        "ITIC"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 183,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-madone",
+      "name": "Institut La Madone",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 184,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-moderne-polyvalent-bonaberi",
+      "name": "Institut Moderne Polyvalent de Bonabéri",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 204,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-polyvalent-bilingue-rayons-soleil",
+      "name": "Institut Polyvalent Bilingue Les Rayons Soleil",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 205,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-institut-polyvalent-bilingue-piedjou",
+      "name": "Institut Polyvalent Bilingue Piedjou",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 185,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-institut-polyvalent-futura",
+      "name": "Institut Polyvalent Futura",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 246,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-prive-laic-polyvalent-minfang",
+      "name": "Institut Privé Laïc Polyvalent Minfang",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "polyvalent",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 186,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-prive-saint-louis-complexe-scolaire",
+      "name": "Institut Privé Saint-Louis du Complexe Scolaire de Douala",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 187,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-prive-yuliana",
+      "name": "Institut Privé Yuliana",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 189,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-professionnel-technologies-avancees",
+      "name": "Institut Professionnel des Technologies Avancées (IPTA)",
+      "aliases": [
+        "IPTA"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 225,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-institut-secondaire-technologie",
+      "name": "Institut Secondaire de Technologie (IST)",
+      "aliases": [
+        "IST"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "technical",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 188,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-douala-king-david-comprehensive-college",
+      "name": "King David Comprehensive College",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 169,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-bobongo-petit-paris",
+      "name": "Lycée Bilingue de Bobongo-Petit-Paris",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 129
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-bojongo",
+      "name": "Lycée Bilingue de Bojongo",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala IV",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 146
+      }
+    },
+    {
+      "id": "lt-douala-deido",
+      "name": "Lycée Bilingue de Deïdo",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala I",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 122
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-japoma",
+      "name": "Lycée Bilingue de Japoma",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 130
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-logpom",
+      "name": "Lycée Bilingue de Logpom",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala V",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 149
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-mbanga-pongo",
+      "name": "Lycée Bilingue de Mbanga-Pongo",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 131
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-new-bell",
+      "name": "Lycée Bilingue de New-Bell",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala II",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 125
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-ngodi-bakoko",
+      "name": "Lycée Bilingue de Ngodi-Bakoko",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 132
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-nyalla",
+      "name": "Lycée Bilingue de Nyalla",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 133
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-nylon-brazzaville",
+      "name": "Lycée Bilingue de Nylon-Brazzaville",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 134
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-nylon-ndogpassi",
+      "name": "Lycée Bilingue de Nylon-Ndogpassi",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 135
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bilingue-genie-militaire",
+      "name": "Lycée Bilingue du Génie Militaire",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 136
+      }
+    },
+    {
+      "id": "lt-douala-akwa",
+      "name": "Lycée d'Akwa",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala I",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 121
+      }
+    },
+    {
+      "id": "lt-douala-lycee-oyack",
+      "name": "Lycée d'Oyack",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 137
+      }
+    },
+    {
+      "id": "lt-douala-lycee-bepanda",
+      "name": "Lycée de Bépanda",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala V",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 151
+      }
+    },
+    {
+      "id": "lt-douala-lycee-cite-palmiers",
+      "name": "Lycée de la Cité des Palmiers",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala V",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 152
+      }
+    },
+    {
+      "id": "lt-douala-lycee-makepe",
+      "name": "Lycée de Makepe",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala V",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 150
+      }
+    },
+    {
+      "id": "lt-douala-lycee-ndog-hem",
+      "name": "Lycée de Ndog-Hem",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 138
+      }
+    },
+    {
+      "id": "lt-douala-new-bell",
+      "name": "Lycée de New-Bell",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "lt-douala-lycee-pk21-massoumbou",
+      "name": "Lycée de PK21/Massoumbou",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 139
+      }
+    },
+    {
+      "id": "lt-douala-lycee-sodiko",
+      "name": "Lycée de Sodiko",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala IV",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 148
+      }
+    },
+    {
+      "id": "lt-douala-joss",
+      "name": "Lycée Joss",
+      "aliases": [
+        "Joss"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala I",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 120
+      }
+    },
+    {
+      "id": "lt-douala-mongo-joseph",
+      "name": "Lycée Mongo Joseph",
+      "aliases": [
+        "Mongo Joseph"
+      ],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "lt-douala-lycee-polyvalent-bonaberi",
+      "name": "Lycée Polyvalent de Bonabéri",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala IV",
+      "ownership": "public",
+      "track": "polyvalent",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 143
+      }
+    },
+    {
+      "id": "lt-douala-lycee-technique-bilingue-bonaberi",
+      "name": "Lycée Technique Bilingue de Bonabéri",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala IV",
+      "ownership": "public",
+      "track": "technical",
+      "language": "bilingual",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 144
+      }
+    },
+    {
+      "id": "lt-douala-lycee-technique-bilingue-bonandoumbe",
+      "name": "Lycée Technique Bilingue de Bonandoumbé",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala II",
+      "ownership": "public",
+      "track": "technical",
+      "language": "bilingual",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 128
+      }
+    },
+    {
+      "id": "lt-douala-lycee-technique-bilingue-douala-akwa",
+      "name": "Lycée Technique Bilingue de Douala-Akwa",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala I",
+      "ownership": "public",
+      "track": "technical",
+      "language": "bilingual",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 124
+      }
+    },
+    {
+      "id": "lt-douala-bassa-technique",
+      "name": "Lycée Technique de Douala-Bassa",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference+legacy",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 142
+      }
+    },
+    {
+      "id": "lt-douala-lycee-technique-douala-koumassi",
+      "name": "Lycée Technique de Douala-Koumassi",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala I",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 123
+      }
+    },
+    {
+      "id": "lt-douala-lycee-technique-nylon",
+      "name": "Lycée Technique de Nylon",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala III",
+      "ownership": "public",
+      "track": "technical",
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 141
+      }
+    },
+    {
+      "id": "lt-douala-lycee-tsf-mongo-joseph",
+      "name": "Lycée TSF Mongo Joseph",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": "Douala II",
+      "ownership": "public",
+      "track": "general",
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "high",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 126
+      }
+    },
+    {
+      "id": "lt-douala-national-bilingual-college",
+      "name": "National Bilingual College",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 206,
+        "languageNote": "Bilingue / anglophone"
+      }
+    },
+    {
+      "id": "lt-douala-sacred-heart-college",
+      "name": "Sacred Heart College",
+      "aliases": [],
+      "city": "Douala",
+      "region": "Littoral",
+      "district": null,
+      "ownership": "private",
+      "track": "general",
+      "language": null,
+      "type": "privateSecondarySchool",
+      "origin": "reference",
+      "provenance": {
+        "source": "MINESEC",
+        "confidence": "medium",
+        "url": "https://www.minesec.gov.cm/web/index.php/fr/carte-scolaire/immatriculation-fr",
+        "line": 228,
+        "languageNote": "À confirmer"
+      }
+    },
+    {
+      "id": "lt-edéa-bilingue",
+      "name": "Lycée Bilingue d’Édéa",
+      "aliases": [],
+      "city": "Édéa",
+      "region": "Littoral",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "lt-nkongsamba-manzengue",
+      "name": "Lycée de Manengouba",
+      "aliases": [
+        "Lycée du Manengouba"
+      ],
+      "city": "Nkongsamba",
+      "region": "Littoral",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-bambili-ccast",
+      "name": "Cameroon College of Arts, Science and Technology Bambili",
+      "aliases": [
+        "CCAST Bambili"
+      ],
+      "city": "Bambili",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "technicalSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-bamenda-gbhs",
+      "name": "Government Bilingual High School Bamenda",
+      "aliases": [
+        "GBHS Bamenda"
+      ],
+      "city": "Bamenda",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-bamenda-ghs",
+      "name": "Government High School Bamenda",
+      "aliases": [
+        "GHS Bamenda"
+      ],
+      "city": "Bamenda",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-mankon-lourdes",
+      "name": "Our Lady of Lourdes College Mankon",
+      "aliases": [],
+      "city": "Bamenda",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "privateSecondarySchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-mankon-pss",
+      "name": "Presbyterian Secondary School Mankon",
+      "aliases": [
+        "PSS Mankon"
+      ],
+      "city": "Bamenda",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "privateSecondarySchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-mankon-sacred-heart",
+      "name": "Sacred Heart College Mankon",
+      "aliases": [
+        "SHC Mankon"
+      ],
+      "city": "Bamenda",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "privateSecondarySchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-jakiri-gbhs",
+      "name": "Government Bilingual High School Jakiri",
+      "aliases": [],
+      "city": "Jakiri",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-kumbo-gbhs",
+      "name": "Government Bilingual High School Kumbo",
+      "aliases": [
+        "GBHS Kumbo"
+      ],
+      "city": "Kumbo",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-ndop-gbhs",
+      "name": "Government Bilingual High School Ndop",
+      "aliases": [],
+      "city": "Ndop",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "nw-wum-ghs",
+      "name": "Government High School Wum",
+      "aliases": [],
+      "city": "Wum",
+      "region": "Nord-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-garoua-bilingue",
+      "name": "Lycée Bilingue de Garoua",
+      "aliases": [],
+      "city": "Garoua",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-garoua-classique",
+      "name": "Lycée Classique et Moderne de Garoua",
+      "aliases": [
+        "LCM Garoua"
+      ],
+      "city": "Garoua",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-garoua-technique",
+      "name": "Lycée Technique de Garoua",
+      "aliases": [],
+      "city": "Garoua",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-guider",
+      "name": "Lycée de Guider",
+      "aliases": [],
+      "city": "Guider",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-lagdo",
+      "name": "Lycée de Lagdo",
+      "aliases": [],
+      "city": "Lagdo",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-ngong",
+      "name": "Lycée de Ngong",
+      "aliases": [],
+      "city": "Ngong",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-pitoa",
+      "name": "Lycée de Pitoa",
+      "aliases": [],
+      "city": "Pitoa",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-poli",
+      "name": "Lycée de Poli",
+      "aliases": [],
+      "city": "Poli",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-rey-bouba",
+      "name": "Lycée de Rey-Bouba",
+      "aliases": [],
+      "city": "Rey-Bouba",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "no-tchollire",
+      "name": "Lycée de Tcholliré",
+      "aliases": [],
+      "city": "Tcholliré",
+      "region": "Nord",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-bafang",
+      "name": "Lycée de Bafang",
+      "aliases": [],
+      "city": "Bafang",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-bafoussam-bilingue",
+      "name": "Lycée Bilingue de Bafoussam",
+      "aliases": [],
+      "city": "Bafoussam",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-bafoussam-classique",
+      "name": "Lycée Classique de Bafoussam",
+      "aliases": [],
+      "city": "Bafoussam",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-bafoussam-technique",
+      "name": "Lycée Technique de Bafoussam",
+      "aliases": [],
+      "city": "Bafoussam",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-bangangte",
+      "name": "Lycée Classique de Bangangté",
+      "aliases": [],
+      "city": "Bangangté",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-dschang-bilingue",
+      "name": "Lycée Bilingue de Dschang",
+      "aliases": [],
+      "city": "Dschang",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-dschang-classique",
+      "name": "Lycée Classique de Dschang",
+      "aliases": [],
+      "city": "Dschang",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-foumban-bilingue",
+      "name": "Lycée Bilingue de Foumban",
+      "aliases": [],
+      "city": "Foumban",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-foumban-classique",
+      "name": "Lycée Classique de Foumban",
+      "aliases": [],
+      "city": "Foumban",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "ou-mbouda-bilingue",
+      "name": "Lycée Bilingue de Mbouda",
+      "aliases": [],
+      "city": "Mbouda",
+      "region": "Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-buea-baptist",
+      "name": "Baptist High School Buea",
+      "aliases": [],
+      "city": "Buea",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "privateSecondarySchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-buea-molyko",
+      "name": "Government Bilingual High School Molyko",
+      "aliases": [
+        "GBHS Molyko"
+      ],
+      "city": "Buea",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-sasse-st-joseph",
+      "name": "Saint Joseph’s College Sasse",
+      "aliases": [
+        "Sasse College"
+      ],
+      "city": "Buea",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "privateSecondarySchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-kumba-gbhs",
+      "name": "Government Bilingual High School Kumba",
+      "aliases": [
+        "GBHS Kumba"
+      ],
+      "city": "Kumba",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-kumba-ghs",
+      "name": "Government High School Kumba",
+      "aliases": [
+        "GHS Kumba"
+      ],
+      "city": "Kumba",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-kumba-pss",
+      "name": "Presbyterian Secondary School Kumba",
+      "aliases": [
+        "PSS Kumba"
+      ],
+      "city": "Kumba",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "privateSecondarySchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-limbe-gbhs",
+      "name": "Government Bilingual High School Limbe",
+      "aliases": [
+        "GBHS Limbe"
+      ],
+      "city": "Limbe",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-limbe-ghs",
+      "name": "Government High School Limbe",
+      "aliases": [
+        "GHS Limbe"
+      ],
+      "city": "Limbe",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-limbe-saker",
+      "name": "Saker Baptist College",
+      "aliases": [
+        "Saker"
+      ],
+      "city": "Limbe",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "anglophone",
+      "type": "privateSecondarySchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "sw-mamfe-gbhs",
+      "name": "Government Bilingual High School Mamfe",
+      "aliases": [
+        "GBHS Mamfe"
+      ],
+      "city": "Mamfe",
+      "region": "Sud-Ouest",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "governmentHighSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-ambam",
+      "name": "Lycée d’Ambam",
+      "aliases": [],
+      "city": "Ambam",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-ebolowa-bilingue",
+      "name": "Lycée Bilingue d’Ebolowa",
+      "aliases": [],
+      "city": "Ebolowa",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-ebolowa-classique",
+      "name": "Lycée Classique et Moderne d’Ebolowa",
+      "aliases": [
+        "LCM Ebolowa"
+      ],
+      "city": "Ebolowa",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-ebolowa-technique",
+      "name": "Lycée Technique d’Ebolowa",
+      "aliases": [],
+      "city": "Ebolowa",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "technicalSchool",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-kribi-bilingue",
+      "name": "Lycée Bilingue de Kribi",
+      "aliases": [],
+      "city": "Kribi",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "bilingual",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-kribi-classique",
+      "name": "Lycée Classique de Kribi",
+      "aliases": [],
+      "city": "Kribi",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-lolodorf",
+      "name": "Lycée de Lolodorf",
+      "aliases": [],
+      "city": "Lolodorf",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-meyomessala",
+      "name": "Lycée de Meyomessala",
+      "aliases": [],
+      "city": "Meyomessala",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-mvangan",
+      "name": "Lycée de Mvangan",
+      "aliases": [],
+      "city": "Mvangan",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "su-sangmelima",
+      "name": "Lycée Classique de Sangmélima",
+      "aliases": [],
+      "city": "Sangmélima",
+      "region": "Sud",
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": "francophone",
+      "type": "lycee",
+      "origin": "legacy",
+      "provenance": null
+    },
+    {
+      "id": "college-le-savoir",
+      "name": "Collège LE SAVOIR",
+      "aliases": [
+        "Le Savoir"
+      ],
+      "city": null,
+      "region": null,
+      "district": null,
+      "ownership": null,
+      "track": null,
+      "language": null,
+      "type": "college",
+      "origin": "owner",
+      "provenance": {
+        "source": "Propriétaire — établissement LE SAVOIR",
+        "confidence": "declared"
+      }
+    }
+  ]
+}

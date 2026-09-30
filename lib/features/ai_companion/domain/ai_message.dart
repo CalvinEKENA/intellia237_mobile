@@ -1,3 +1,6 @@
+import '../../interactive_learning/domain/interactive_block.dart';
+import '../deterministic/companion_reply_action.dart';
+
 enum AIMessageRole { user, assistant }
 
 class AIMessage {
@@ -7,6 +10,8 @@ class AIMessage {
     required this.text,
     required this.createdAt,
     this.companionId,
+    this.block,
+    this.actions = const [],
   });
 
   final String id;
@@ -24,11 +29,21 @@ class AIMessage {
   /// messages de l'élève et pour l'historique antérieur à ce champ.
   final String? companionId;
 
+  /// Activité interactive proposée avec cette réponse, déjà validée par le
+  /// serveur puis relue strictement par l'application.
+  final InteractiveLearningBlock? block;
+
+  /// Actions proposées sous la réponse (ouvrir un quiz, une matière…),
+  /// toutes tirées des contenus réellement disponibles.
+  final List<CompanionReplyAction> actions;
+
   AIMessage copyWith({String? text, String? companionId}) => AIMessage(
     id: id,
     role: role,
     text: text ?? this.text,
     createdAt: createdAt,
     companionId: companionId ?? this.companionId,
+    block: block,
+    actions: actions,
   );
 }

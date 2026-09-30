@@ -1,0 +1,32 @@
+{
+  "schema_version": "intellia.pack-manifest.v2",
+  "id": "maths_td_ch01_arithmetique",
+  "title": "Mathématiques Terminale D — Chapitre 1 : Arithmétique",
+  "class_keys": [
+    "terminale-d"
+  ],
+  "subject": "mathematiques",
+  "chapter_number": 1,
+  "version": 1,
+  "status": "published",
+  "minimum_engine_version": 2,
+  "runtime_schema": "intellia.runtime-learning-pack.v2",
+  "collection": "INTELLIA237 – Mathématiques Terminale D",
+  "chapter": "01 – Arithmétique",
+  "files": {
+    "source": "source.json",
+    "pedagogy": "pedagogy.json",
+    "runtime": "runtime.json",
+    "validation": "validation_report.json"
+  },
+  "stats": {
+    "source_images": 20,
+    "lessons": 6,
+    "runtime_questions": 41,
+    "games": 7,
+    "difficulty_levels": 3,
+    "explanation_levels": 3,
+    "concepts": 7
+  },
+  "next_step": "Use this chapter as the quality baseline before processing Chapter 2."
+}

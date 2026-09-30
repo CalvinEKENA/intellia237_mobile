@@ -163,6 +163,14 @@ service firebase.storage {
       allow update, delete: if false;
     }
 
+    // Content Engine : catalogue et bundles de packs pédagogiques validés.
+    // Lecture par tout compte connecté (l'application filtre par classe) ;
+    // publication uniquement par l'outillage d'administration (console).
+    match /content/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }

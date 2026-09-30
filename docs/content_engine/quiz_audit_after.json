@@ -1,0 +1,861 @@
+{
+  "schema_version": 1,
+  "scope": "Offline repository snapshot; no cloud production query",
+  "counts": {
+    "packs": 8,
+    "questions": 329,
+    "explicitly_manual": 41,
+    "content_json_files": 43,
+    "legacy_json_files_scanned": 9,
+    "legacy_embedded_questions": 0,
+    "errors": 0,
+    "warnings": 37
+  },
+  "diagnostics_by_code": {
+    "choice_feedback_generic": 29,
+    "correct_choice_position_bias": 3,
+    "hint_reveals_answer": 1,
+    "short_text_alternatives_review": 4
+  },
+  "classifications": {
+    "CONFIRMED": 3,
+    "NEEDS_SOURCE_REVIEW": 4,
+    "PROBABLE": 30
+  },
+  "packs": [
+    {
+      "id": "english_terminale_m1_u1_applying_for_passport",
+      "directory": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport",
+      "questions": 40,
+      "explicitly_manual": 6,
+      "types": {
+        "mcq": 21,
+        "multi_select": 1,
+        "reasoning": 6,
+        "short_text": 4,
+        "true_false": 8
+      },
+      "correct_choice_positions": {
+        "0": 15,
+        "1": 4,
+        "2": 1,
+        "3": 1
+      },
+      "source_quality": [
+        {
+          "overall": "usable_with_specific_gaps",
+          "limitations": [
+            {
+              "id": "listening_passage_missing",
+              "severity": "important",
+              "issue": "The listening questions are present but the teacher-read listening passage is not present in the supplied extracted body next to Unit 1.",
+              "runtime_action": "Do not invent an answer key. Listening-specific tasks remain non-auto-scored unless a validated transcript/audio source is later supplied."
+            },
+            {
+              "id": "speech_text_only",
+              "severity": "moderate",
+              "issue": "Speech-work material is present as text, but the source extraction does not provide validated audio.",
+              "runtime_action": "Do not auto-score pronunciation from the text extraction alone."
+            },
+            {
+              "id": "official_procedure_scope",
+              "severity": "important",
+              "issue": "The unit is textbook material, not a claim about current official passport procedures.",
+              "runtime_action": "Keep exercises focused on the textbook language and form-reading skills; do not present the pack as current administrative guidance."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "english_terminale_m1_u2_discussing_recreational_activities",
+      "directory": "assets/content/terminale/anglais/m1_u2_discussing_recreational_activities",
+      "questions": 40,
+      "explicitly_manual": 6,
+      "types": {
+        "mcq": 22,
+        "reasoning": 6,
+        "short_text": 3,
+        "true_false": 9
+      },
+      "correct_choice_positions": {
+        "0": 21,
+        "2": 1
+      },
+      "source_quality": [
+        {
+          "overall": "usable_with_specific_gaps",
+          "limitations": [
+            {
+              "id": "listening_testimony_incomplete",
+              "severity": "important",
+              "issue": "The listening questions are present, but the full teacher-read testimony is not available in the supplied extraction; only a short contextual note about Kibonen Nfi is visible.",
+              "runtime_action": "Do not invent answers to the listening-comprehension questions."
+            },
+            {
+              "id": "speech_without_validated_audio",
+              "severity": "moderate",
+              "issue": "Speech-work rules and tongue twisters are present as text, but no validated audio accompanies the extraction.",
+              "runtime_action": "Conceptual voiced/unvoiced knowledge may be auto-scored; pronunciation quality is self-evaluated only."
+            },
+            {
+              "id": "formal_letter_signoff_inconsistency",
+              "severity": "important",
+              "issue": "The extracted formal-letter annotations contain internally inconsistent guidance about 'Yours faithfully'/'Yours sincerely'.",
+              "runtime_action": "Do not auto-score that sign-off rule; teach only source-supported structure and the instruction to close politely."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "physique_terminale_cd_m1_s1_erreurs_et_incertitudes",
+      "directory": "assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes",
+      "questions": 40,
+      "explicitly_manual": 5,
+      "types": {
+        "mcq": 17,
+        "numeric": 8,
+        "reasoning": 5,
+        "true_false": 10
+      },
+      "correct_choice_positions": {
+        "0": 17
+      },
+      "source_quality": [
+        {
+          "overall": "good_core_content_some_formulas_partially_legible",
+          "limitations": [
+            {
+              "id": "some_type_b_formulas_partially_legible",
+              "severity": "important",
+              "issue": "Certaines formules détaillées de type B sur les pages 006-007 sont partiellement difficiles à lire dans le scan.",
+              "runtime_action": "Ne pas fabriquer de coefficient ou de dénominateur illisible ; privilégier les relations clairement identifiées."
+            },
+            {
+              "id": "exercise_tables_partially_legible",
+              "severity": "moderate",
+              "issue": "Certains tableaux de mesures et valeurs numériques des exercices de fin de séquence sont partiellement difficiles à lire.",
+              "runtime_action": "Ne pas recopier une série numérique incertaine dans une question auto-corrigée."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "physique_terminale_cd_m1_s2_dimension_grandeur_physique",
+      "directory": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique",
+      "questions": 40,
+      "explicitly_manual": 5,
+      "types": {
+        "mcq": 26,
+        "numeric": 1,
+        "reasoning": 5,
+        "true_false": 8
+      },
+      "correct_choice_positions": {
+        "0": 26
+      },
+      "source_quality": [
+        {
+          "overall": "good_core_content_some_advanced_exercises_partially_legible",
+          "limitations": [
+            {
+              "id": "advanced_exercises_page_013_partially_legible",
+              "severity": "moderate",
+              "issue": "Certaines formules, constantes numériques et exposants des exercices avancés de la page 013 sont difficiles à lire avec certitude sur la photographie.",
+              "runtime_action": "Ne pas fabriquer d'exposant ou de constante numérique ambiguë ; les questions auto-corrigées n'utilisent que les relations clairement lisibles."
+            },
+            {
+              "id": "electrical_resistance_symbol_source_ambiguous",
+              "severity": "moderate",
+              "issue": "Dans le tableau des unités électriques de la page 011, le symbole imprimé/photographié associé à l'ohm est ambigu et ressemble à W ; le pack ne le corrige pas silencieusement.",
+              "runtime_action": "Aucune question auto-corrigée du pack ne dépend de ce symbole de tableau."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "maths_td_ch01_arithmetique",
+      "directory": "assets/content/terminale_d/mathematiques/ch01_arithmetique",
+      "questions": 41,
+      "explicitly_manual": 0,
+      "types": {
+        "factorization": 2,
+        "mcq": 4,
+        "multi_select": 1,
+        "multi_step": 3,
+        "numeric": 20,
+        "procedure": 1,
+        "reasoning": 2,
+        "solution_set": 3,
+        "true_false": 5
+      },
+      "correct_choice_positions": {
+        "1": 1,
+        "2": 3
+      },
+      "source_quality": [
+        {
+          "overall": "good_with_perspective_distortion",
+          "method": "OCR-assisted extraction + visual verification of lesson-opening pages and critical numerical data",
+          "do_not_infer_rule": "If an equation, exponent, option or numerical datum is not visually reliable, it is not promoted to an auto-scored runtime item."
+        }
+      ]
+    },
+    {
+      "id": "maths_td_ch02_nombres_complexes_algebrique",
+      "directory": "assets/content/terminale_d/mathematiques/ch02_nombres_complexes",
+      "questions": 37,
+      "explicitly_manual": 2,
+      "types": {
+        "complex_number": 7,
+        "complex_parts": 1,
+        "mcq": 2,
+        "multi_step": 5,
+        "numeric": 3,
+        "numeric_radical": 4,
+        "reasoning": 3,
+        "solution_set_complex": 8,
+        "true_false": 4
+      },
+      "correct_choice_positions": {
+        "1": 2
+      },
+      "source_quality": [
+        {
+          "overall": "good_for_core_lessons_partial_for_late_exercises",
+          "method": "lecture des images + extraction assistée ; seules les données lisibles et mathématiquement vérifiables sont promues au runtime",
+          "do_not_infer_rule": "Une formule, un coefficient ou un exposant incertain n'est jamais réparé silencieusement."
+        }
+      ]
+    },
+    {
+      "id": "maths_td_ch03_fonctions_numeriques",
+      "directory": "assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques",
+      "questions": 45,
+      "explicitly_manual": 9,
+      "types": {
+        "expression": 5,
+        "interval": 3,
+        "mcq": 3,
+        "multi_answer": 3,
+        "multi_step": 1,
+        "numeric": 12,
+        "numeric_approx": 1,
+        "reasoning": 10,
+        "solution_set": 1,
+        "true_false": 6
+      },
+      "correct_choice_positions": {
+        "1": 3
+      },
+      "source_quality": [
+        {
+          "overall": "good_for_core_lessons_partial_for_some_exercise_formulas",
+          "policy": "Seules les expressions lisibles et mathématiquement vérifiables sont promues au runtime. Les exercices runtime sont originaux et alignés sur les notions du chapitre.",
+          "uncertain_source_ranges": [
+            "Certaines formules et figures de page_049.jpg à page_060.jpg sont difficiles à lire intégralement.",
+            "Les valeurs illisibles ne sont jamais reconstituées par supposition."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "svt_terminale_d_m1_s1_les_echanges_cellulaires",
+      "directory": "assets/content/terminale_d/svt/m1_s1_les_echanges_cellulaires",
+      "questions": 46,
+      "explicitly_manual": 8,
+      "types": {
+        "mcq": 26,
+        "numeric": 4,
+        "reasoning": 8,
+        "short_text": 6,
+        "true_false": 2
+      },
+      "correct_choice_positions": {
+        "0": 9,
+        "1": 5,
+        "2": 5,
+        "3": 7
+      },
+      "source_quality": [
+        {
+          "overall": "Visually verified; local ambiguities explicitly quarantined",
+          "limitations": [
+            {
+              "id": "printed_atomic_mass_oxygen",
+              "classification": "NEEDS_SOURCE_REVIEW",
+              "severity": "high",
+              "source": "page_018.jpg / page_019.jpg — p.16 QRO6c et p.18 B1.4",
+              "issue": "La donnée imprimée pour O se lit « 6 » dans les masses molaires atomiques. Les exercices utilisent le saccharose ; cette donnée est incohérente et ne permet pas un calcul numérique fiable sans correction externe.",
+              "runtime_action": "Calculs massiques correspondants non notés. La seule question de pression utilise directement une concentration molaire lisible et les constantes du cours.",
+              "question_ids": []
+            },
+            {
+              "id": "qcm_osmose_dialyse",
+              "classification": "NEEDS_SOURCE_REVIEW",
+              "severity": "high",
+              "source": "page_017.jpg — p.15 A6",
+              "issue": "Le QCM mélange le gradient de concentration de l’eau et celui du soluté ; une annotation manuscrite marque une proposition contradictoire avec le cours. Il ne fournit pas un corrigé univoque.",
+              "runtime_action": "Ne pas reprendre les choix ni la marque manuscrite. Question dérivée limitée au passage du soluté clairement décrit p.6.",
+              "question_ids": []
+            },
+            {
+              "id": "source_terminology",
+              "classification": "CONFIRMED",
+              "severity": "moderate",
+              "source": "page_017.jpg / page_018.jpg — p.15 A1/A2/A5 et p.16 QRO6a/QRO7d",
+              "issue": "Plusieurs formulations omettent le milieu de comparaison ou appellent la membrane « organite » ; QRO7d brouille sélectivité et perméabilité différentielle.",
+              "runtime_action": "Préciser les deux milieux et la cellule végétale ; utiliser membrane plasmique sans la qualifier d’organite ; distinguer les propriétés par le cours p.13.",
+              "question_ids": []
+            },
+            {
+              "id": "graph_estimates",
+              "classification": "CONFIRMED",
+              "severity": "moderate",
+              "source": "page_018.jpg — p.16 C1.4 et p.17 C3/C4",
+              "issue": "Le tableau ne mesure pas directement 50 % de plasmolyse. Les graphes sont qualitatifs ou en unités arbitraires et ne justifient pas des pressions chiffrées inventées.",
+              "runtime_action": "Aucun seuil exact de 50 % ni valeur arbitraire de pression notés ; analyse qualitative et limites de mesure explicites.",
+              "question_ids": []
+            },
+            {
+              "id": "diagram_labels_and_mitochondria",
+              "classification": "NEEDS_SOURCE_REVIEW",
+              "severity": "moderate",
+              "source": "page_019.jpg — p.18 B1.3/B1.5 et p.19 B3.6",
+              "issue": "Des numéros de légende et des parties de la marge sont peu lisibles. La correspondance demandée avec une mitochondrie ne dispose pas d’un élément identifiable dans l’osmomètre.",
+              "runtime_action": "Ne pas noter de lettres/numéros de clichés ni inventer une correspondance mitochondrie–osmomètre ; utiliser des critères observables et les compartiments pertinents.",
+              "question_ids": []
+            },
+            {
+              "id": "medical_model_limits",
+              "classification": "NEEDS_SOURCE_REVIEW",
+              "severity": "moderate",
+              "source": "page_013.jpg / page_020.jpg — p.10 et p.20–21",
+              "issue": "Le manuel présente des valeurs et des affirmations médicales simplifiées, dont une urée sortante nulle dans un tableau, un débit et une durée de dialyse. Elles ne constituent pas des références cliniques vérifiées.",
+              "runtime_action": "Aucune prescription, dose, durée ni norme clinique. Questions limitées aux échanges du modèle ; ne pas affirmer que la dialyse remplace toutes les fonctions rénales.",
+              "question_ids": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "inventory": [
+    {
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/manifest.json",
+      "sha256": "a56de9f70ac7a8e45dc3707cf86ceb9e14248e6fa9737e5ffaad146f6c000d66"
+    },
+    {
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/pedagogy.json",
+      "sha256": "d271b3786d567f9c7ad0b07dff84af7426d282cee475193e46a8c79f7c1e658f"
+    },
+    {
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/runtime.json",
+      "sha256": "bf655c7b45422917a5db00beb8a0ffa51ae120b4e5e8af858978da35e97b7a91"
+    },
+    {
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/source.json",
+      "sha256": "1089acb91f21e7da3fd5567cf273fefda991864fc6518a6d2b7f5cf424021438"
+    },
+    {
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/validation_report.json",
+      "sha256": "4fda63133304a859230446e1d5536349315b2562a4245c6b2d67a46e4d49d1d8"
+    },
+    {
+      "file": "assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/manifest.json",
+      "sha256": "8445efe7693641d8fd2b9f90e729b47a7846e934c83677e827824acd33dd9395"
+    },
+    {
+      "file": "assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/pedagogy.json",
+      "sha256": "d82e4415d9e33f67eac17ace5f42f913c17de2a38bd52852ebde5cd14c5566f4"
+    },
+    {
+      "file": "assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/runtime.json",
+      "sha256": "27aa46284fcd92e08bbbbbec32d1ab0d8b3f67d80fcc42f095939baf7fbe9292"
+    },
+    {
+      "file": "assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/source.json",
+      "sha256": "cfeb3bff8429d705c94e7adcb14dd19dd0b7171a3f532f6b15432d3255e3f752"
+    },
+    {
+      "file": "assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/validation_report.json",
+      "sha256": "bbaba07103e492babcaa852f128b1a3cd0a1b8211c767bfc5f2742c8f758d3a2"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/manifest.json",
+      "sha256": "842f1ec88defd72bde331c3a750014b740cc342234017d20a73b8cc703e13d23"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/pedagogy.json",
+      "sha256": "3996d82aff3bb28948688996978d6c235e0359ed905e1fdd2eabbcc9fd73e6fe"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/runtime.json",
+      "sha256": "23d619f06dbbcaef2a2c4974915d46dcb2e25240b0d8feaeca6c0dd7104a075a"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/source.json",
+      "sha256": "a35cd93723a1f83a839b08aaf6ec3a603c2780e12c940597527ca281f07d135a"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/validation_report.json",
+      "sha256": "e5221cbdb54a73b849712537cae165d28717570ee2ceacb0205c3ddb2a7d5343"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/manifest.json",
+      "sha256": "3675218e0b1f7a3d6c18054f5cb12684231a05568887eebad86a06edcff42d03"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/pedagogy.json",
+      "sha256": "10258bd54dfe8b8293881576adb78773c4c56388c53fdac9496345b9efedb121"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "sha256": "a8ece046ea45d3a172c2d329ba210b793f8d8326d4edc9be5340b40699b0c2f4"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/source.json",
+      "sha256": "7c3b97b451f3172efffcbf3092ec2ed522ea6dbe795f5974ad0e2028ce468706"
+    },
+    {
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/validation_report.json",
+      "sha256": "a166022ba530623834163a5eec6ebbfad590d0acff7183bbb6eddaf295076ba4"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch01_arithmetique/manifest.json",
+      "sha256": "cf6e816c6f5ce5920d51a1402a26ab3f62d78d9e7196cff4050f76920628cb29"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch01_arithmetique/pedagogy.json",
+      "sha256": "d5a04aec6b8c7c01825b8fd14f6c21ff873b34da4348e304c6ecae089426f108"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch01_arithmetique/runtime.json",
+      "sha256": "704b66f61e064e902b9f9155eeeaa6a21c11c5d8c53ec8c2e61402f6382ce6b3"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch01_arithmetique/source.json",
+      "sha256": "892d1224b66daed017d41c56a97df09e1216e6ef39c69e3a523c116e18cc3fd6"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch01_arithmetique/validation_report.json",
+      "sha256": "8cbf58a66c91d5921d30c3120a80523cc7b9dfb3cc19d4c492a047c9a24865c4"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch02_nombres_complexes/manifest.json",
+      "sha256": "093082944fc1640532865377ebe5dd0dacfc64c3976e8bcca1ce46d0bc22fd39"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch02_nombres_complexes/pedagogy.json",
+      "sha256": "3d7edfd6d4fbd849fda70447206a6e0c83dd6692230c35a4b8e918fd37f2012c"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch02_nombres_complexes/runtime.json",
+      "sha256": "7ebf129a584d87730ef91ad3cd7c51610175af0fe6d5057312e6ed39989a7dba"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch02_nombres_complexes/source.json",
+      "sha256": "c8aa20605d463b30289a3c8625b49db163325d87df52f35dc339a02990eda967"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch02_nombres_complexes/validation_report.json",
+      "sha256": "87e1a11af4a7a8651a87369b4582dd71dc644432edefa1060b608d619133a20c"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/manifest.json",
+      "sha256": "4c004be3843a4b487a8f43dfc59a7a0dc8e7033975efa67a4b2e764da7ffde1f"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/pedagogy.json",
+      "sha256": "8e80e4fee53a314f2d3156393f91de5581573e9fcbf1562b718ef7d93cbaa738"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/runtime.json",
+      "sha256": "d79e601e7aeac3ae844d0c86dedc02165a8617fb0aa0e9b2d2ca1738298a1d89"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/source.json",
+      "sha256": "54b502e0dabe358fcca288877d8379a6a2669a161ccd24f7a615b7202f560bb1"
+    },
+    {
+      "file": "assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/validation_report.json",
+      "sha256": "3aef1c9babe06aa2f29474776a3f418f8cc060c1c834473247188f05be4c2cc5"
+    },
+    {
+      "file": "assets/content/terminale_d/svt/corpus_index.json",
+      "sha256": "32645816dbb3431966a4f57db685d1cedcb882eb9a763bd21b5c050a815e453a"
+    },
+    {
+      "file": "assets/content/terminale_d/svt/m1_s1_les_echanges_cellulaires/manifest.json",
+      "sha256": "c925b995a9d05876a4122c575a0a8ffaaf450e3a44d5334ea009dd697735e11e"
+    },
+    {
+      "file": "assets/content/terminale_d/svt/m1_s1_les_echanges_cellulaires/pedagogy.json",
+      "sha256": "ccf9b9cae09e3da96103bcc84595f6fb20518da52c81a1a7871ad1f6abcfd222"
+    },
+    {
+      "file": "assets/content/terminale_d/svt/m1_s1_les_echanges_cellulaires/runtime.json",
+      "sha256": "dbfd93f7bed02300cb61af131898e325f92fe9716bfbfa86f4ecb3424a043861"
+    },
+    {
+      "file": "assets/content/terminale_d/svt/m1_s1_les_echanges_cellulaires/source.json",
+      "sha256": "a30dcf6aedf8338a7530a8f06f342f76f6833342713c9bf75dfcb7041eceb728"
+    },
+    {
+      "file": "assets/content/terminale_d/svt/m1_s1_les_echanges_cellulaires/validation_report.json",
+      "sha256": "9a88e89710f5c37b9607767134f72f0bc2808ca8b8b6e9780d74ec778d947660"
+    },
+    {
+      "file": "assets/content/terminale_d/svt/sequence_01_les_echanges_cellulaires_source.json",
+      "sha256": "ebdecd97f40bf2aed07549dc4c40e6ce64ef2c94d8c30c1d9f99c6a57a5578c1"
+    },
+    {
+      "file": "assets/content/terminale_d/svt/sequence_02_metabolisme_energetique_source_intake.json",
+      "sha256": "2d8ff406c330c8c5bd0c79ca2a5469291cec702d5419134a0965f32a7a1f8963"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/runtime.json",
+      "path": "$.question_bank[32]",
+      "question_id": "l5_q01",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "code": "short_text_alternatives_review",
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/runtime.json",
+      "path": "$.question_bank[33]",
+      "question_id": "l5_q02",
+      "message": "Réponse textuelle exacte : vérifier les autres formulations légitimes."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "code": "short_text_alternatives_review",
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/runtime.json",
+      "path": "$.question_bank[34]",
+      "question_id": "l5_q03",
+      "message": "Réponse textuelle exacte : vérifier les autres formulations légitimes."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "code": "short_text_alternatives_review",
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/runtime.json",
+      "path": "$.question_bank[35]",
+      "question_id": "l5_q04",
+      "message": "Réponse textuelle exacte : vérifier les autres formulations légitimes."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "NEEDS_SOURCE_REVIEW",
+      "code": "short_text_alternatives_review",
+      "file": "assets/content/terminale/anglais/m1_u1_applying_for_a_passport/runtime.json",
+      "path": "$.question_bank[36]",
+      "question_id": "l5_q05",
+      "message": "Réponse textuelle exacte : vérifier les autres formulations légitimes."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "CONFIRMED",
+      "code": "correct_choice_position_bias",
+      "file": "assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/runtime.json",
+      "path": "$.question_bank",
+      "question_id": null,
+      "message": "Positions correctes dans les données : {0: 21, 2: 1}. UI mélange par tentative ; maintenir les tests."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/runtime.json",
+      "path": "$.question_bank[13]",
+      "question_id": "l2_q06",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/runtime.json",
+      "path": "$.question_bank[5]",
+      "question_id": "l1_q06",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "CONFIRMED",
+      "code": "correct_choice_position_bias",
+      "file": "assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/runtime.json",
+      "path": "$.question_bank",
+      "question_id": null,
+      "message": "Positions correctes dans les données : {0: 17}. UI mélange par tentative ; maintenir les tests."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "CONFIRMED",
+      "code": "correct_choice_position_bias",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank",
+      "question_id": null,
+      "message": "Positions correctes dans les données : {0: 26}. UI mélange par tentative ; maintenir les tests."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[0]",
+      "question_id": "l1_q01",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[10]",
+      "question_id": "l2_q03",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[11]",
+      "question_id": "l2_q04",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[12]",
+      "question_id": "l2_q05",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[13]",
+      "question_id": "l2_q06",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[16]",
+      "question_id": "l3_q01",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[17]",
+      "question_id": "l3_q02",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[18]",
+      "question_id": "l3_q03",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[19]",
+      "question_id": "l3_q04",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[20]",
+      "question_id": "l3_q05",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[24]",
+      "question_id": "l4_q01",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[27]",
+      "question_id": "l4_q04",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[29]",
+      "question_id": "l4_q06",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[2]",
+      "question_id": "l1_q03",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[30]",
+      "question_id": "l4_q07",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[32]",
+      "question_id": "l5_q01",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[33]",
+      "question_id": "l5_q02",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[34]",
+      "question_id": "l5_q03",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[36]",
+      "question_id": "l5_q05",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[37]",
+      "question_id": "l5_q06",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[38]",
+      "question_id": "l5_q07",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[3]",
+      "question_id": "l1_q04",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[4]",
+      "question_id": "l1_q05",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[5]",
+      "question_id": "l1_q06",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[8]",
+      "question_id": "l2_q01",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "choice_feedback_generic",
+      "file": "assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/runtime.json",
+      "path": "$.question_bank[9]",
+      "question_id": "l2_q02",
+      "message": "Tous les distracteurs ont le même feedback : vérifier pourquoi chacun est faux."
+    },
+    {
+      "severity": "WARNING",
+      "classification": "PROBABLE",
+      "code": "hint_reveals_answer",
+      "file": "assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/runtime.json",
+      "path": "$.question_bank[9]",
+      "question_id": "l1_m5",
+      "message": "Indice 1 contient la réponse exacte 3."
+    }
+  ],
+  "limitations": [
+    "No cloud quiz corpus export in the repository: remote question count unknown.",
+    "Lexical heuristics cannot prove scientific truth, grammatical correctness, distractor quality, difficulty or source faithfulness.",
+    "Source exercise counts are not inferred from heterogeneous extraction schemas; runtime question count is exact.",
+    "explicitly_manual counts auto_score:false; parser also infers written self-evaluation from non-scorable prose."
+  ]
+}

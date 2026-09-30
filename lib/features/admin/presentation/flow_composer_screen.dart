@@ -309,7 +309,7 @@ class _FlowComposerScreenState extends ConsumerState<FlowComposerScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Publication Flow'),
+        title: const Text('Publication de parcours'),
         actions: [
           TextButton(
             key: const ValueKey('flow-composer-save'),

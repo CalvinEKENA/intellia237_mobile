@@ -1,4 +1,5 @@
 import 'admin_models.dart';
+import '../../auth/domain/cameroon_phone_number.dart';
 
 /// Un compte retrouvé par l'administration générale pour lui donner, ou lui
 /// corriger, son école.
@@ -45,6 +46,13 @@ class AccountSchoolRecord {
 String? normalizeCameroonPhone(String raw) {
   final compact = raw.replaceAll(RegExp(r'[\s().-]'), '');
   if (compact.isEmpty) return null;
+  // Mobile camerounais : le normaliseur unique de l'authentification, pour
+  // retrouver exactement la forme enregistrée à la connexion.
+  try {
+    return CameroonPhoneNumber.normalize(compact);
+  } on PhoneNumberFormatException {
+    // Fixe ou numéro étranger : recherche d'un compte existant seulement.
+  }
   final international = compact.startsWith('+') || compact.startsWith('00');
   final digits = compact.startsWith('+')
       ? compact.substring(1)
@@ -52,9 +60,8 @@ String? normalizeCameroonPhone(String raw) {
       ? compact.substring(2)
       : compact;
   if (!RegExp(r'^\d+$').hasMatch(digits)) return null;
-  if (digits.length == 9 &&
-      (digits.startsWith('6') || digits.startsWith('2'))) {
-    return '+237$digits';
+  if (digits.length == 9 && digits.startsWith('2')) {
+    return '${CameroonPhoneNumber.countryCode}$digits';
   }
   if (digits.length == 12 && digits.startsWith('237')) return '+$digits';
   // Un numéro étranger saisi avec son indicatif reste tel quel.

@@ -185,7 +185,7 @@ class CoursePageImportService {
         await flowRepository.save(item);
         flowItemsCreated += 1;
       } catch (error) {
-        failures.add('FLOW « ${item.title} » : $error');
+        failures.add('Carte de parcours « ${item.title} » : $error');
       }
     }
 

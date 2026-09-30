@@ -18,7 +18,6 @@ import 'package:intellia237/app/config/app_config.dart';
 import 'package:intellia237/app/router/app_routes.dart';
 import 'package:intellia237/app/theme/app_theme.dart';
 import 'package:intellia237/features/ai_companion/data/companion_history_repository.dart';
-import 'package:intellia237/features/ai_companion/data/speech_services.dart';
 import 'package:intellia237/features/auth/application/auth_controller.dart';
 import 'package:intellia237/features/auth/domain/app_role.dart';
 import 'package:intellia237/features/auth/domain/repositories/auth_repository.dart';
@@ -135,7 +134,7 @@ Future<void> _loadFonts() async {
   // apparaîtraient en barres alors qu'ils sont parfaitement lisibles sur
   // l'appareil.
   final fallback = ByteData.sublistView(
-    await File('assets/fonts/Montserrat-500.ttf').readAsBytes(),
+    await File('assets/fonts/Montserrat-Medium.ttf').readAsBytes(),
   );
   for (final name in const ['FlutterTest', 'Ahem', 'Roboto', 'sans-serif']) {
     final loader = FontLoader(name)..addFont(Future.value(fallback));
@@ -276,26 +275,6 @@ void main() {
     await _selectTab(tester, 4);
     await settle(tester);
     await shoot(tester, '07_mastery.png');
-  });
-
-  testWidgets('08 dictée vocale', (tester) async {
-    final recognizer = _ScriptedRecognizer();
-    await _pumpShell(
-      tester,
-      seedConversation: true,
-      overrides: [speechRecognizerProvider.overrideWithValue(recognizer)],
-    );
-    await _selectTab(tester, 3);
-    await settle(tester);
-
-    // Geste explicite de l'élève, puis parole en cours de transcription.
-    await tester.tap(find.byIcon(Icons.mic_none_rounded));
-    await tester.pump();
-    recognizer.emitLevel(6);
-    recognizer.emit('Explique-moi comment calculer le discriminant');
-    await tester.pump(const Duration(milliseconds: 1200));
-    await settle(tester);
-    await shoot(tester, '08_companion_voice.png');
   });
 }
 
@@ -620,37 +599,6 @@ class _InertGateway implements FlowPointsGateway {
 
   @override
   Future<int> pendingCount() async => 0;
-}
-
-class _ScriptedRecognizer implements SpeechRecognizer {
-  void Function(String, bool)? _onResult;
-  void Function(double)? _onLevel;
-
-  void emit(String text) => _onResult?.call(text, false);
-
-  void emitLevel(double level) => _onLevel?.call(level);
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  Future<bool> initialize() async => true;
-
-  @override
-  Future<void> listen({
-    required String localeId,
-    required void Function(String transcript, bool isFinal) onResult,
-    required void Function(double level) onSoundLevel,
-  }) async {
-    _onResult = onResult;
-    _onLevel = onSoundLevel;
-  }
-
-  @override
-  Future<void> stop() async {}
-
-  @override
-  Future<void> cancel() async {}
 }
 
 class _AuthRepository implements AuthRepository {

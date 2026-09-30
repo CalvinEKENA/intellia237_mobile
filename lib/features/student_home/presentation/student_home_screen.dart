@@ -1,21 +1,26 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../demo_access/presentation/demo_access_card.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../app/config/build_identity.dart';
 import '../../../app/config/feature_flags.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/telemetry/intellia_telemetry.dart';
+import '../../../core/telemetry/startup_trace.dart';
+import '../../content_engine/application/content_providers.dart';
+import '../../content_engine/application/subject_journey.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_bottom_nav_bar.dart';
 import '../../../core/widgets/intellia_state_view.dart';
+import '../../../core/widgets/intellia_skeleton.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../ai_companion/presentation/ai_companion_screen.dart';
 import '../../auth/application/auth_controller.dart';
@@ -55,6 +60,10 @@ import 'widgets/streak_motivation_card.dart';
 import 'widgets/student_home_header.dart';
 import 'widgets/student_home_skeleton.dart';
 import 'widgets/subjects_carousel.dart';
+import '../../study_reserve/presentation/study_reserve_card.dart';
+import '../../profile/presentation/widgets/profile_identity_card.dart';
+import '../../profile/presentation/widgets/profile_surfaces.dart';
+import '../../profile/presentation/widgets/profile_weekly_goal.dart';
 
 /// Compteur de taps de navigation : outil de diagnostic de terrain.
 ///
@@ -73,9 +82,21 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   late final AppLifecycleListener _lifecycle;
   DateTime? _hiddenAt;
 
+  /// Onglets déjà ouverts : leur contenu est construit à la première visite
+  /// puis conservé (état, défilement, saisie). L'Accueil l'est d'emblée.
+  final Set<int> _visited = {0};
+
+  /// Préchargements différés, annulés si l'espace se ferme avant.
+  final List<Timer> _warmUps = [];
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      StartupTrace.mark(StartupMilestone.studentShell);
+      _scheduleWarmUps();
+    });
     // Ce que le Studio publie doit atteindre l'élève sans qu'il ferme
     // l'application : au retour après quelques minutes, le fil et les quiz se
     // relisent.
@@ -94,11 +115,47 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
     );
   }
 
+  /// Registre de décisions (QA appareil, 28/09/2026) : les cinq onglets
+  /// étaient construits dès l'ouverture et lançaient ensemble leurs lectures
+  /// en ligne (catalogue, quiz, compagnon, profil), en concurrence avec
+  /// l'Accueil. L'Accueil passe d'abord ; ensuite, en arrière-plan et sans
+  /// rien afficher, les contenus locaux d'Apprendre, puis la mise à jour des
+  /// packs et les quiz publiés, pour que chaque onglet soit prêt à sa
+  /// première visite.
+  void _scheduleWarmUps() {
+    void after(Duration delay, void Function() warmUp) {
+      _warmUps.add(
+        Timer(delay, () {
+          if (mounted) warmUp();
+        }),
+      );
+    }
+
+    after(const Duration(milliseconds: 600), () {
+      ref.read(subjectJourneysProvider);
+    });
+    after(const Duration(seconds: 2), () {
+      ref.read(contentSyncControllerProvider);
+      ref.read(quizHubProvider);
+    });
+  }
+
   @override
   void dispose() {
+    for (final timer in _warmUps) {
+      timer.cancel();
+    }
     _lifecycle.dispose();
     super.dispose();
   }
+
+  /// La racine de chaque onglet existe toujours ; son contenu attend la
+  /// première visite (jamais visible avant : seul l'onglet actif est peint).
+  Widget _lazyTab(int index, String rootKey, Widget Function() content) =>
+      KeyedSubtree(
+        key: ValueKey(rootKey),
+        child: _visited.contains(index) ? content() : const SizedBox.shrink(),
+      );
 
   List<IntelliaBottomNavItem> _navItems(BuildContext context) => [
     IntelliaBottomNavItem(
@@ -171,6 +228,9 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final snapshotAsync = ref.watch(studentHomeControllerProvider);
+    if (snapshotAsync.hasValue) {
+      StartupTrace.mark(StartupMilestone.homeUseful);
+    }
     final showTapDiagnostics = debugShowNavTapCounter;
     final unreadNotifications = ref.watch(unreadNotificationCountProvider);
     _scheduleTourGuideIfNeeded(snapshotAsync);
@@ -227,25 +287,31 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
                         },
                       ),
                     ),
-                    const KeyedSubtree(
-                      key: ValueKey('student-tab-learn'),
-                      child: _EmbeddedTab(
+                    _lazyTab(
+                      1,
+                      'student-tab-learn',
+                      () => const _EmbeddedTab(
                         child: LearnHubScreen(embedded: true),
                       ),
                     ),
-                    const KeyedSubtree(
-                      key: ValueKey('student-tab-quiz'),
-                      child: _EmbeddedTab(child: QuizHubScreen(embedded: true)),
+                    _lazyTab(
+                      2,
+                      'student-tab-quiz',
+                      () => const _EmbeddedTab(
+                        child: QuizHubScreen(embedded: true),
+                      ),
                     ),
-                    const KeyedSubtree(
-                      key: ValueKey('student-tab-companion'),
-                      child: _EmbeddedTab(
+                    _lazyTab(
+                      3,
+                      'student-tab-companion',
+                      () => const _EmbeddedTab(
                         child: AICompanionScreen(embedded: true),
                       ),
                     ),
-                    const KeyedSubtree(
-                      key: ValueKey('student-tab-profile'),
-                      child: StudentProfileTab(),
+                    _lazyTab(
+                      4,
+                      'student-tab-profile',
+                      () => const StudentProfileTab(),
                     ),
                   ],
                 ),
@@ -296,7 +362,10 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   void _selectTab(int index) {
     if (!mounted || index == _currentIndex) return;
     FocusManager.instance.primaryFocus?.unfocus();
-    setState(() => _currentIndex = index);
+    setState(() {
+      _currentIndex = index;
+      _visited.add(index);
+    });
   }
 
   void _handleNavTap(int index) {
@@ -313,6 +382,7 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
     if (index != previous) FocusManager.instance.primaryFocus?.unfocus();
     setState(() {
       _currentIndex = index;
+      _visited.add(index);
       if (diagnosticsEnabled) _debugTapCount += 1;
     });
     if (diagnosticsEnabled) {
@@ -517,7 +587,9 @@ class _StudentHomeTab extends ConsumerWidget {
           ),
           KeyedSubtree(
             key: tourTargets[TourGuideTargetIds.studentSubjects],
-            child: snapshot.subjects.isEmpty
+            child: snapshot.subjectsPending
+                ? const _SubjectsArriving()
+                : snapshot.subjects.isEmpty
                 ? IntelliaStateView(
                     kind: IntelliaStateKind.comingSoon,
                     compact: true,
@@ -620,6 +692,8 @@ class _StudentHomeTab extends ConsumerWidget {
                   sliver: SliverToBoxAdapter(
                     child: Column(
                       children: [
+                        // Accès démo seulement (invisible sinon).
+                        const DemoAccessCard(),
                         for (final section in sections) ...[
                           FadeSlideEntrance(
                             delay: entranceDelays.next(),
@@ -636,6 +710,28 @@ class _StudentHomeTab extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// Les matières arrivent (catalogue en ligne) : leur emplacement, à la
+/// taille du carrousel, plutôt qu'un faux « rien pour l'instant ».
+class _SubjectsArriving extends StatelessWidget {
+  const _SubjectsArriving();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      key: const ValueKey('home-subjects-arriving'),
+      height: 120,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 3,
+        separatorBuilder: (_, _) => const SizedBox(width: IntelliaSpacing.sm),
+        itemBuilder: (_, _) =>
+            const IntelliaSkeletonBlock(width: 160, height: 120),
+      ),
     );
   }
 }
@@ -843,61 +939,83 @@ class StudentProfileTab extends ConsumerWidget {
     final showBuildIdentity = kDebugMode;
 
     final sections = <Widget>[
-      const StudentLearningIdentity(),
-      const SizedBox(height: 12),
-      _TutorSection(classLevel: academicAsync.valueOrNull?.classLevel),
+      const IntelliaProfileIdentityCard(),
       const SizedBox(height: 24),
-      const StudentMasterySummary(),
-      const SizedBox(height: 28),
-      const StudentSubjectMastery(),
+      IntelliaProfileSection(
+        title: context.l10n.myProgress,
+        children: const [
+          Padding(padding: EdgeInsets.all(18), child: StudentMasterySummary()),
+          ProfileWeeklyGoal(),
+        ],
+      ),
       const SizedBox(height: 24),
+      IntelliaProfileSection(
+        title: context.l10n.learningCompanion,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: _TutorSection(
+              classLevel: academicAsync.valueOrNull?.classLevel,
+            ),
+          ),
+          const Padding(padding: EdgeInsets.all(16), child: StudyReserveCard()),
+        ],
+      ),
+      const SizedBox(height: 24),
+      IntelliaProfileSection(
+        title: context.l10n.academicJourney,
+        children: const [
+          Padding(padding: EdgeInsets.all(18), child: StudentSubjectMastery()),
+        ],
+      ),
+      const SizedBox(height: 20),
       const StudentLearningContinuity(),
       const SizedBox(height: 16),
       const OfficialRecordNotice(),
       const SizedBox(height: 20),
       const StudentLinkCodeCard(),
       const SizedBox(height: 20),
-      ListTile(
-        onTap: () => context.push(AppRoutes.settings),
-        leading: const Icon(Icons.settings_outlined),
-        title: Text(context.l10n.settingsTitle),
-        subtitle: Text(context.l10n.settingsDescription),
-        trailing: const Icon(Icons.chevron_right_rounded),
+      IntelliaProfileSection(
+        title: context.l10n.settingsTitle,
+        children: [
+          IntelliaProfileTile(
+            onTap: () => context.push(AppRoutes.settings),
+            leading: const Icon(Icons.tune_rounded),
+            title: Text(context.l10n.settingsTitle),
+            subtitle: Text(context.l10n.settingsDescription),
+          ),
+          IntelliaProfileTile(
+            destructive: true,
+            leading: const Icon(Icons.logout_rounded),
+            title: Text(context.l10n.signOutTitle),
+            onTap: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                animationStyle: profileDialogAnimation(context, ref),
+                builder: (dialogContext) => CupertinoAlertDialog(
+                  title: Text(context.l10n.signOutQuestion),
+                  content: Text(context.l10n.signOutDescription),
+                  actions: [
+                    CupertinoDialogAction(
+                      onPressed: () => Navigator.pop(dialogContext, false),
+                      child: Text(context.l10n.cancelLabel),
+                    ),
+                    CupertinoDialogAction(
+                      isDestructiveAction: true,
+                      onPressed: () => Navigator.pop(dialogContext, true),
+                      child: Text(context.l10n.signOutTitle),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                await ref.read(authControllerProvider.notifier).signOut();
+              }
+            },
+          ),
+        ],
       ),
       const SizedBox(height: IntelliaSpacing.xl),
-      OutlinedButton.icon(
-        onPressed: () async {
-          final confirmed = await showDialog<bool>(
-            context: context,
-            builder: (dialogContext) => AlertDialog(
-              title: Text(context.l10n.signOutQuestion),
-              content: Text(context.l10n.signOutDescription),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext, false),
-                  child: Text(context.l10n.cancelLabel),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.pop(dialogContext, true),
-                  child: Text(context.l10n.signOutTitle),
-                ),
-              ],
-            ),
-          );
-          if (confirmed == true) {
-            await ref.read(authControllerProvider.notifier).signOut();
-          }
-        },
-        icon: const Icon(Icons.logout_rounded, color: Colors.red),
-        label: Text(
-          context.l10n.signOutTitle,
-          style: const TextStyle(color: Colors.red),
-        ),
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Colors.red),
-          padding: const EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
-        ),
-      ),
       if (showBuildIdentity) ...[
         const SizedBox(height: IntelliaSpacing.md),
         _BuildIdentityLabel(identity: ref.watch(buildIdentityProvider)),
@@ -905,14 +1023,14 @@ class StudentProfileTab extends ConsumerWidget {
     ];
 
     return Material(
-      color: MasteryStyle.paper,
+      color: IntelliaColors.backgroundPremium,
       child: _ResponsiveBody(
         child: CustomScrollView(
           slivers: [
             PinnedHeaderSliver(
               key: const ValueKey('profile-sticky-header'),
               child: Material(
-                color: MasteryStyle.paper,
+                color: IntelliaColors.backgroundPremium,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
@@ -942,7 +1060,12 @@ class StudentProfileTab extends ConsumerWidget {
                 IntelliaSpacing.lg,
                 132,
               ),
-              sliver: SliverList.list(children: sections),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: sections,
+                ),
+              ),
             ),
           ],
         ),
@@ -1027,7 +1150,7 @@ class _TutorSection extends ConsumerWidget {
     TutorPersona? current,
     String? classLevel,
   ) {
-    HapticFeedback.lightImpact();
+    profileSelectionHaptic(ref);
     final filterLevel = SchoolClassX.tutorLevelFromClassLabel(classLevel);
     final params = <String, String>{};
     if (filterLevel != null) params['filterLevel'] = filterLevel;
@@ -1036,10 +1159,25 @@ class _TutorSection extends ConsumerWidget {
         ? ''
         : '?${params.entries.map((e) => '${e.key}=${e.value}').join('&')}';
 
+    // Le conteneur, pas `ref` : l'enregistrement peut finir après que cette
+    // section a été reconstruite.
+    final container = ProviderScope.containerOf(context, listen: false);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final l10n = context.l10n;
     context.push(
       AppRoutes.tutorSelection + query,
-      extra: (TutorPersona chosen) =>
-          unawaited(_persistTutorSelection(context, ref, current, chosen)),
+      extra: (TutorPersona chosen) => _persistTutorSelection(
+        container,
+        chosen,
+        onDeferred: () => messenger
+          ?..clearSnackBars()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(l10n.companionSaveDeferred(chosen.name)),
+              behavior: SnackBarBehavior.floating,
+            ),
+          ),
+      ),
     );
   }
 
@@ -1056,38 +1194,33 @@ class _TutorSection extends ConsumerWidget {
   /// message existant n'est réattribué : chacun garde le compagnon qui l'a
   /// écrit.
   Future<void> _persistTutorSelection(
-    BuildContext context,
-    WidgetRef ref,
-    TutorPersona? current,
-    TutorPersona chosen,
-  ) async {
-    final userId = ref.read(authControllerProvider).userId;
+    ProviderContainer container,
+    TutorPersona chosen, {
+    required VoidCallback onDeferred,
+  }) async {
+    final userId = container.read(authControllerProvider).userId;
     if (userId == null) return;
+    final preference = container.read(tutorPreferenceProvider.notifier);
 
     // Le choix prend effet immédiatement, en attente de confirmation.
-    await ref
-        .read(tutorPreferenceProvider.notifier)
-        .select(chosen.id, pendingSync: true);
+    await preference.select(chosen.id, pendingSync: true);
 
     try {
-      await ref
+      await container
           .read(tutorPreferenceRepositoryProvider)
           .save(userId: userId, tutorId: chosen.id);
-      await ref.read(tutorPreferenceProvider.notifier).markSynced();
-      ref.invalidate(studentAcademicContextProvider);
-      if (context.mounted) context.pop();
     } catch (_) {
       // Le compagnon reste changé : seule la synchronisation a échoué.
-      if (!context.mounted) return;
-      context.pop();
-      ScaffoldMessenger.of(context)
-        ..clearSnackBars()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.companionSaveDeferred(chosen.name)),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+      onDeferred();
+      return;
+    }
+    try {
+      // Le profil relu porte le nouveau compagnon avant que la synchronisation
+      // ne soit déclarée : l'ancien ne réapparaît jamais, même un instant.
+      await container.refresh(studentAcademicContextProvider.future);
+      await preference.markSynced();
+    } catch (_) {
+      // Relecture impossible : le choix local reste prioritaire.
     }
   }
 }

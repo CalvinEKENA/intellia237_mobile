@@ -241,11 +241,11 @@ class _NotificationCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      notification.title,
+                      _notificationTitle(context, notification),
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 4),
-                    Text(notification.body),
+                    Text(_notificationBody(context, notification)),
                     const SizedBox(height: 6),
                     Text(
                       _dateLabel(notification.createdAt),
@@ -278,4 +278,23 @@ class _NotificationCard extends StatelessWidget {
     return '${two(local.day)}/${two(local.month)}/${local.year} · '
         '${two(local.hour)}:${two(local.minute)}';
   }
+}
+
+/// Titre affiché : localisé côté client pour les notifications composées par
+/// code de type (Réserve d'étude), sinon le titre stocké.
+String _notificationTitle(BuildContext context, StudentNotification n) {
+  if (n.isLocalizedByType) return context.l10n.studyReserveNotifTitle;
+  return n.title;
+}
+
+/// Corps affiché : pour la Réserve d'étude, texte FR/EN dérivé du seuil (jamais
+/// alarmiste), sinon le corps stocké.
+String _notificationBody(BuildContext context, StudentNotification n) {
+  if (!n.isLocalizedByType) return n.body;
+  final percent = n.thresholdPercent ?? 0;
+  final l10n = context.l10n;
+  if (percent <= 0) return l10n.studyReserveNotifDepleted;
+  if (percent <= 5) return l10n.studyReserveNotifCritical(percent);
+  if (percent <= 25) return l10n.studyReserveNotifLow(percent);
+  return l10n.studyReserveNotifInfo(percent);
 }

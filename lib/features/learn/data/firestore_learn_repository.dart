@@ -5,6 +5,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import '../domain/content_block.dart';
 import '../domain/learn_chapter.dart';
+import '../domain/learn_class_guard.dart';
 import '../domain/learn_lesson.dart';
 import '../domain/learn_subject.dart';
 import 'learn_catalog_cache.dart';
@@ -143,12 +144,13 @@ class FirestoreLearnRepository implements LearnRepository {
     });
 
     final visibleSubjects = subjectDocuments;
+    final guard = LearnClassGuard.forProfile(classLevel, series);
 
     // Les anciennes lectures attendaient chaque sous-collection de chapitres
     // l'une après l'autre. Future.wait ramène la latence à celle de la requête
     // la plus lente. Un import peut aussi fournir `chapterSummaries` sur le
     // document matière et supprimer entièrement ces lectures secondaires.
-    return Future.wait(
+    final subjects = await Future.wait(
       visibleSubjects.map((subject) async {
         final sd = subject.data;
         final subjectId = subject.id;
@@ -158,6 +160,7 @@ class FirestoreLearnRepository implements LearnRepository {
 
         final chapterSummaries = chapterDocuments
             .where((chapter) => _visibleLessonCount(chapter.data) > 0)
+            .where((chapter) => guard.admitsChapter(chapter.data, subject: sd))
             .map((chapter) {
               final cd = chapter.data;
               final lessonsCount = _visibleLessonCount(cd);
@@ -177,6 +180,7 @@ class FirestoreLearnRepository implements LearnRepository {
             })
             .toList(growable: false);
 
+        if (chapterSummaries.isEmpty) return null;
         return LearnSubject(
           id: subjectId,
           title: sd['title'] as String? ?? '',
@@ -187,6 +191,8 @@ class FirestoreLearnRepository implements LearnRepository {
         );
       }),
     );
+    // Une matière sans chapitre destiné à l'élève n'entre pas dans la liste.
+    return [...subjects.nonNulls];
   }
 
   // ───── fetchSubjectDetail ─────────────────────────────────
@@ -209,7 +215,11 @@ class FirestoreLearnRepository implements LearnRepository {
 
     final subject = await subjectFuture;
     if (subject == null) throw StateError('Matière introuvable: $subjectId');
-    final chapterDocuments = await chaptersFuture;
+    final guard = LearnClassGuard.forProfile(classLevel, series);
+    final chapterDocuments = [
+      for (final chapter in await chaptersFuture)
+        if (guard.admitsChapter(chapter.data, subject: subject.data)) chapter,
+    ];
     final progressSnapshot = await progressFuture;
     final progress = _ProgressIndex({
       for (final doc in progressSnapshot.docs) doc.id: doc.data(),
@@ -299,6 +309,13 @@ class FirestoreLearnRepository implements LearnRepository {
 
     final chapter = await chapterFuture;
     if (chapter == null) throw StateError('Chapitre introuvable: $chapterId');
+    final subject = await _subjectCatalog(catalogClassLevel, subjectId);
+    if (!LearnClassGuard.forProfile(
+      classLevel,
+      series,
+    ).admitsChapter(chapter.data, subject: subject?.data)) {
+      throw StateError('Chapitre introuvable: $chapterId');
+    }
     final progressSnapshot = await progressFuture;
     final lessonDocuments =
         _embeddedLessonCatalog(chapter.data) ??
@@ -358,6 +375,19 @@ class FirestoreLearnRepository implements LearnRepository {
     final progressFuture = _progress(userId).doc(key).get();
     final lesson = await lessonFuture;
     if (lesson == null) throw StateError('Leçon introuvable: $lessonId');
+    final chapter = await _chapterCatalog(
+      catalogClassLevel,
+      subjectId,
+      chapterId,
+    );
+    final subject = await _subjectCatalog(catalogClassLevel, subjectId);
+    if (chapter == null ||
+        !LearnClassGuard.forProfile(
+          classLevel,
+          series,
+        ).admitsChapter(chapter.data, subject: subject?.data)) {
+      throw StateError('Leçon introuvable: $lessonId');
+    }
     final progressDocument = await progressFuture;
     final data = lesson.data;
     if (data['status'] != 'published' || !_visible(data)) {

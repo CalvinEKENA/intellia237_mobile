@@ -18,10 +18,20 @@ class StudentLinkCodeService {
   /// Révoque le code actuel et en génère un nouveau (l'ancien devient invalide).
   Future<String> rotateLinkCode() => _callForCode('rotateStudentLinkCode');
 
-  Future<String> _callForCode(String name) async {
-    final response = await _functions
-        .httpsCallable(name)
-        .call<dynamic>(<String, dynamic>{});
+  /// Code de liaison d'un élève désigné, pour un adulte de confiance : parent
+  /// déjà lié (second responsable), direction de l'école de l'élève,
+  /// super-administration. Le serveur vérifie cette autorisation.
+  Future<String> ensureLinkCodeFor(String studentId) =>
+      _callForCode('ensureStudentLinkCode', studentId: studentId);
+
+  /// Remplace le code de liaison d'un élève désigné.
+  Future<String> rotateLinkCodeFor(String studentId) =>
+      _callForCode('rotateStudentLinkCode', studentId: studentId);
+
+  Future<String> _callForCode(String name, {String? studentId}) async {
+    final response = await _functions.httpsCallable(name).call<dynamic>(
+      <String, dynamic>{'studentId': ?studentId},
+    );
     final data = Map<String, dynamic>.from(response.data as Map);
     return (data['code'] as String?)?.trim() ?? '';
   }

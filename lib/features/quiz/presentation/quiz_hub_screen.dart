@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,13 +9,18 @@ import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../../../core/network/network_status.dart';
+import '../../../core/telemetry/startup_trace.dart';
 import '../../../core/widgets/tab_section_header.dart';
+import '../application/pack_quiz_providers.dart';
+import 'pack_quiz_hub_section.dart';
 import '../application/quiz_providers.dart';
 import '../data/quiz_diagnostic.dart';
 import '../domain/quiz_attempt_summary.dart';
 import '../domain/quiz_mode.dart';
 import '../domain/quiz_model.dart';
+import 'widgets/quiz_unavailable_state.dart';
 import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_skeleton.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 
 class QuizHubScreen extends ConsumerWidget {
@@ -25,12 +32,31 @@ class QuizHubScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final quizAsync = ref.watch(quizHubProvider);
     final offline = ref.watch(isOfflineProvider);
+    // Les quiz des packs de la classe vivent sur l'appareil : ils restent
+    // jouables quand les quiz publiés tardent ou manquent.
+    final packPractice = ref.watch(
+      packQuizCatalogProvider.select(
+        (catalog) => !(catalog.valueOrNull?.isEmpty ?? true),
+      ),
+    );
+    if (packPractice || quizAsync.hasValue) {
+      StartupTrace.mark(StartupMilestone.quizUsable);
+    }
 
     final content = quizAsync.when(
-      loading: () => offline
+      // Les quiz publiés tardent : l'onglet montre déjà sa structure et les
+      // exercices des packs (locaux), les quiz publiés les rejoignent.
+      loading: () => offline && !packPractice
           ? const _OfflineQuizHubState()
-          : const IntelliaStateView(kind: IntelliaStateKind.loading),
-      error: (error, stackTrace) => offline
+          : _QuizHubBody(
+              quizzes: const [],
+              offline: offline,
+              publishedPending: !offline,
+              packQuizzes: packPractice,
+            ),
+      error: (error, stackTrace) => packPractice
+          ? _QuizHubBody(quizzes: const [], offline: offline, packQuizzes: true)
+          : offline
           ? const _OfflineQuizHubState()
           : _QuizFailureState(
               error: error,
@@ -47,7 +73,11 @@ class QuizHubScreen extends ConsumerWidget {
             // L'état d'erreur du hub prend le relais.
           }
         },
-        child: _QuizHubBody(quizzes: quizzes, offline: offline),
+        child: _QuizHubBody(
+          quizzes: quizzes,
+          offline: offline,
+          packQuizzes: packPractice,
+        ),
       ),
     );
 
@@ -73,28 +103,49 @@ class _QuizFailureState extends StatelessWidget {
     final failure = error is QuizContentException
         ? error as QuizContentException
         : null;
-    final message = switch (failure?.operation) {
+    // La cause reste dans les journaux ; l'élève voit un état humain.
+    developer.log(
+      'Quiz hub unavailable.',
+      name: 'intellia.quiz',
+      error: failure?.operation.name ?? error.runtimeType.toString(),
+    );
+    final operation = failure?.operation;
+    final offline =
+        operation == QuizOperation.network ||
+        operation == QuizOperation.appCheck ||
+        (operation == null &&
+            stateKindForError(error) == IntelliaStateKind.offline);
+    // Seul un profil à compléter mérite un message particulier : c'est une
+    // action que l'élève peut faire.
+    final message = switch (operation) {
       QuizOperation.profileMissing ||
       QuizOperation.classMapping => context.l10n.quizProfileIncompleteBody,
       QuizOperation.firestorePermission => context.l10n.quizCatalogDeniedBody,
-      QuizOperation.callableUnavailable =>
-        context.l10n.quizCatalogUnavailableBody,
-      QuizOperation.invalidResponse ||
-      QuizOperation.subjectMapping => context.l10n.quizCatalogInvalidBody,
-      QuizOperation.appCheck ||
-      QuizOperation.network => context.l10n.quizCatalogNetworkBody,
-      QuizOperation.unknown ||
-      null => stateMessageForKind(context, stateKindForError(error)),
+      _ => null,
     };
 
-    return IntelliaStateView(
-      kind: stateKindForError(error),
-      title: context.l10n.quizLoadErrorTitle,
+    return QuizUnavailableState(
       message: message,
-      primaryLabel: context.l10n.retryLabel,
-      onPrimary: onRetry,
-      secondaryLabel: context.l10n.continueWithFlow,
-      onSecondary: () => context.push(AppRoutes.flow),
+      offline: offline,
+      onRetry: onRetry,
+      onContinuePath: () => context.push(AppRoutes.flow),
+    );
+  }
+}
+
+/// Les quiz publiés arrivent : deux emplacements à la forme des cartes.
+class _PublishedQuizzesArriving extends StatelessWidget {
+  const _PublishedQuizzesArriving();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      key: ValueKey('quiz-hub-loading'),
+      children: [
+        IntelliaSkeletonBlock(height: 88, radius: IntelliaRadii.medium),
+        SizedBox(height: IntelliaSpacing.sm),
+        IntelliaSkeletonBlock(height: 88, radius: IntelliaRadii.medium),
+      ],
     );
   }
 }
@@ -127,10 +178,21 @@ extension on _QuizHubFilter {
 }
 
 class _QuizHubBody extends StatefulWidget {
-  const _QuizHubBody({required this.quizzes, required this.offline});
+  const _QuizHubBody({
+    required this.quizzes,
+    required this.offline,
+    this.publishedPending = false,
+    this.packQuizzes = false,
+  });
+
+  /// Des quiz tirés des cours existent pour la classe.
+  final bool packQuizzes;
 
   final List<QuizModel> quizzes;
   final bool offline;
+
+  /// Les quiz publiés sont en route : leur emplacement, pas « rien ».
+  final bool publishedPending;
 
   @override
   State<_QuizHubBody> createState() => _QuizHubBodyState();
@@ -148,67 +210,89 @@ class _QuizHubBodyState extends State<_QuizHubBody> {
         .where((quiz) => quiz.mode == QuizMode.exam)
         .toList(growable: false);
 
+    final showPublished =
+        widget.quizzes.isNotEmpty ||
+        widget.publishedPending ||
+        !widget.packQuizzes;
+
     final sections = <Widget>[
       Text(
         context.l10n.quizHubIntro,
         style: Theme.of(context).textTheme.bodyMedium,
       ),
       const SizedBox(height: IntelliaSpacing.md),
-      _QuizResultsPanel(quizzes: widget.quizzes),
-      const SizedBox(height: IntelliaSpacing.md),
-      // Focal : carte d'appel (fond sombre → texte blanc à contraste garanti).
-      Container(
-        padding: const EdgeInsets.all(IntelliaSpacing.lg),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(IntelliaRadii.large),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0369A1), Color(0xFF1D4ED8)],
-          ),
-          boxShadow: IntelliaShadows.glow(
-            const Color(0xFF1D4ED8),
-            intensity: 0.22,
-          ),
+      // Les quiz tirés des cours de la classe, hors ligne.
+      const PackQuizHubSection(),
+      if (widget.packQuizzes &&
+          (widget.quizzes.isNotEmpty || widget.publishedPending)) ...[
+        Text(
+          context.l10n.quizPackPublishedTitle,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                context.l10n.chooseRevisionMode,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  height: 1.2,
+        const SizedBox(height: IntelliaSpacing.sm),
+      ],
+      // La partie « quiz publiés » (résultats, modes, filtres) n'existe que
+      // s'il y a des quiz publiés, ou s'il n'y a aucun quiz de cours : sans
+      // eux, elle promettrait un mode (examen blanc) qui n'a aucun contenu.
+      if (showPublished) ...[
+        _QuizResultsPanel(quizzes: widget.quizzes),
+        const SizedBox(height: IntelliaSpacing.md),
+        // Focal : carte d'appel (fond sombre → texte blanc à contraste garanti).
+        Container(
+          padding: const EdgeInsets.all(IntelliaSpacing.lg),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(IntelliaRadii.large),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF0369A1), Color(0xFF1D4ED8)],
+            ),
+            boxShadow: IntelliaShadows.glow(
+              const Color(0xFF1D4ED8),
+              intensity: 0.22,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.l10n.chooseRevisionMode,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    height: 1.2,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: IntelliaSpacing.sm),
-            Icon(
-              Icons.bolt_rounded,
-              color: Colors.white.withValues(alpha: 0.9),
-              size: 30,
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: IntelliaSpacing.md),
-      if (widget.offline) ...[
-        IntelliaStateView(
-          kind: IntelliaStateKind.offline,
-          compact: true,
-          title: context.l10n.quizPausedOfflineTitle,
-          message: context.l10n.quizPausedOfflineBody,
-          primaryLabel: context.l10n.openOfflineFlow,
-          onPrimary: () => context.push(AppRoutes.flow),
-          secondaryLabel: context.l10n.viewDownloadedLessons,
-          onSecondary: () => context.push(AppRoutes.learnHub),
+              const SizedBox(width: IntelliaSpacing.sm),
+              Icon(
+                Icons.bolt_rounded,
+                color: Colors.white.withValues(alpha: 0.9),
+                size: 30,
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: IntelliaSpacing.md),
+        if (widget.offline) ...[
+          IntelliaStateView(
+            kind: IntelliaStateKind.offline,
+            compact: true,
+            title: context.l10n.quizPausedOfflineTitle,
+            message: context.l10n.quizPausedOfflineBody,
+            primaryLabel: context.l10n.openOfflineFlow,
+            onPrimary: () => context.push(AppRoutes.flow),
+            secondaryLabel: context.l10n.viewDownloadedLessons,
+            onSecondary: () => context.push(AppRoutes.learnHub),
+          ),
+          const SizedBox(height: IntelliaSpacing.md),
+        ],
+        const _QuizModeGuide(),
+        const SizedBox(height: IntelliaSpacing.md),
       ],
-      const _QuizModeGuide(),
-      const SizedBox(height: IntelliaSpacing.md),
       if (widget.quizzes.isNotEmpty) ...[
         Text(
           context.l10n.displayLabel,
@@ -235,7 +319,11 @@ class _QuizHubBodyState extends State<_QuizHubBody> {
         ),
         const SizedBox(height: IntelliaSpacing.lg),
       ],
-      if (widget.quizzes.isEmpty)
+      if (widget.publishedPending)
+        const _PublishedQuizzesArriving()
+      // « Les quiz arrivent » seulement quand il n'y a vraiment rien : ni
+      // quiz tirés des cours, ni quiz publiés.
+      else if (widget.quizzes.isEmpty && !widget.packQuizzes)
         IntelliaStateView(
           kind: IntelliaStateKind.comingSoon,
           compact: true,

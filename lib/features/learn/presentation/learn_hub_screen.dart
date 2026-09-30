@@ -1,19 +1,27 @@
-import 'package:animations/animations.dart';
+import 'dart:developer' as developer;
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
-import '../../../core/widgets/intellia_pressable.dart';
+import '../../../core/telemetry/startup_trace.dart';
+import '../../../core/widgets/intellia_async_states.dart';
+import '../../../core/widgets/intellia_skeleton.dart';
+import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../../../core/widgets/tab_section_header.dart';
+import '../../content_engine/application/content_providers.dart';
+import '../../content_engine/application/subject_journey.dart';
+import '../../content_engine/presentation/subject_identity.dart';
 import '../application/learn_providers.dart';
-import '../domain/learn_subject.dart';
-import 'subject_detail_screen.dart';
-import '../../../core/widgets/intellia_async_states.dart';
-import '../../../core/widgets/intellia_state_view.dart';
+import '../application/subject_hall.dart';
+import 'subject_hall_view.dart';
+import 'widgets/learn_unavailable_state.dart';
 
 class LearnHubScreen extends ConsumerStatefulWidget {
   const LearnHubScreen({super.key, this.embedded = false});
@@ -31,8 +39,10 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
   @override
   void initState() {
     super.initState();
+    // Recherche réactive et locale : chaque frappe refiltre le Hall.
     _searchCtrl.addListener(() {
-      setState(() => _searchQuery = _searchCtrl.text.trim().toLowerCase());
+      if (_searchCtrl.text == _searchQuery) return;
+      setState(() => _searchQuery = _searchCtrl.text);
     });
   }
 
@@ -44,22 +54,51 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hubAsync = ref.watch(learnHubProvider);
+    // Ouvrir Apprendre lance la mise à jour des packs de la classe, en
+    // arrière-plan, quel que soit l'état du catalogue : les contenus en
+    // place restent affichés, les nouveaux apparaissent d'eux-mêmes.
+    ref.listen(contentSyncControllerProvider, (_, _) {});
 
-    final content = hubAsync.when(
+    // Une seule source : les parcours de la classe et le catalogue, réunis
+    // en une matière par carte.
+    final hallAsync = ref.watch(subjectHallProvider);
+    if (hallAsync.valueOrNull?.isNotEmpty ?? false) {
+      StartupTrace.mark(StartupMilestone.learnUsable);
+    }
+
+    final content = hallAsync.when(
       loading: _LearnHubLoading.new,
-      error: (error, stackTrace) => IntelliaStateView(
-        kind: stateKindForError(error),
-        title: context.l10n.subjectsLoadError,
-        message: stateMessageForKind(context, stateKindForError(error)),
-        primaryLabel: context.l10n.retryLabel,
-        onPrimary: () => ref.invalidate(learnHubProvider),
-      ),
-      data: (snapshot) => _LearnHubBody(
-        classLabel: snapshot.context.label,
-        subjects: snapshot.subjects,
-        searchQuery: _searchQuery,
-        searchCtrl: _searchCtrl,
+      error: (error, stackTrace) {
+        // La cause reste dans les journaux ; l'élève voit un état humain.
+        developer.log(
+          'Learn hub unavailable.',
+          name: 'intellia.learn',
+          error: error.runtimeType.toString(),
+        );
+        return LearnUnavailableState(
+          offline: stateKindForError(error) == IntelliaStateKind.offline,
+          onRetry: () {
+            ref.invalidate(learnHubProvider);
+            ref.invalidate(subjectJourneysProvider);
+          },
+          onContinuePath: () => context.push(AppRoutes.flow),
+        );
+      },
+      // Tirer pour actualiser : le catalogue et les packs de la classe.
+      data: (_) => RefreshIndicator(
+        key: const ValueKey('learn-refresh'),
+        onRefresh: () async {
+          await ref.read(contentSyncControllerProvider.notifier).refresh();
+          ref.invalidate(learnHubProvider);
+        },
+        child: _LearnHubBody(
+          classLabel:
+              ref.watch(learnHubProvider).valueOrNull?.context.label ??
+              ref.watch(studentAcademicContextProvider).valueOrNull?.label ??
+              '',
+          searchQuery: _searchQuery,
+          searchCtrl: _searchCtrl,
+        ),
       ),
     );
 
@@ -89,135 +128,82 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
   }
 }
 
+/// Le Hall d'Apprendre : en-tête, bandeau de classe, recherche, puis une
+/// carte par matière. Aucun chapitre ni séquence ici : ils vivent dans la
+/// page de chaque matière.
 class _LearnHubBody extends StatelessWidget {
   const _LearnHubBody({
     required this.classLabel,
-    required this.subjects,
     required this.searchQuery,
     required this.searchCtrl,
   });
 
   final String classLabel;
-  final List<LearnSubject> subjects;
   final String searchQuery;
   final TextEditingController searchCtrl;
 
-  List<LearnSubject> get _filtered {
-    var result = subjects;
-    if (searchQuery.isNotEmpty) {
-      result = result
-          .where((s) => s.title.toLowerCase().contains(searchQuery))
-          .toList();
-    }
-    return result;
-  }
+  /// Marge sous le Hall : la barre de navigation flottante ne masque
+  /// jamais la dernière carte.
+  static const bottomClearance = 132.0;
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _filtered;
     final l10n = context.l10n;
-    // Hauteur de tuile adaptative : évite tout débordement à grand facteur
-    // de texte (1.3 / 1.5).
-    final textScale = MediaQuery.textScalerOf(context).scale(1);
-    final tileExtent = 160 + (textScale - 1).clamp(0.0, 0.6) * 96;
-
-    return CustomScrollView(
-      slivers: [
-        // ── En-tête commun clair ───────────────────────────
-        StickyTabSectionHeader(
-          key: const ValueKey('learn-sticky-header'),
-          eyebrow: l10n.studentSpaceEyebrow,
-          title: l10n.learnTitle,
-        ),
-        // ── Context banner ─────────────────────────────────
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              IntelliaSpacing.lg,
-              IntelliaSpacing.md,
-              IntelliaSpacing.lg,
-              0,
-            ),
-            child: _ContextBanner(classLabel: classLabel),
+    // Un seul arrière-plan partagé pour tous les verres de l'écran : le
+    // flou est calculé une fois, pas une fois par carte.
+    return BackdropGroup(
+      child: Stack(
+        children: [
+          const Positioned.fill(child: SubjectHallAuras()),
+          CustomScrollView(
+            slivers: [
+              StickyTabSectionHeader(
+                key: const ValueKey('learn-sticky-header'),
+                eyebrow: l10n.studentSpaceEyebrow,
+                title: l10n.learnTitle,
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    SubjectHallLayout.gutter,
+                    IntelliaSpacing.sm,
+                    SubjectHallLayout.gutter,
+                    0,
+                  ),
+                  child: _ContextBanner(classLabel: classLabel),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    SubjectHallLayout.gutter,
+                    IntelliaSpacing.sm,
+                    SubjectHallLayout.gutter,
+                    0,
+                  ),
+                  child: _GlassSearchBar(controller: searchCtrl),
+                ),
+              ),
+              const SliverToBoxAdapter(child: NewContentNotice()),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: IntelliaSpacing.lg - 4),
+              ),
+              SliverToBoxAdapter(
+                child: SubjectHall(
+                  query: searchQuery,
+                  onClearSearch: searchCtrl.clear,
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height:
+                      bottomClearance + MediaQuery.paddingOf(context).bottom,
+                ),
+              ),
+            ],
           ),
-        ),
-
-        // ── Glass search bar ───────────────────────────────
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              IntelliaSpacing.lg,
-              IntelliaSpacing.md,
-              IntelliaSpacing.lg,
-              0,
-            ),
-            child: _GlassSearchBar(controller: searchCtrl),
-          ),
-        ),
-
-        // (Chips de filtre sans effet retirées : fausse affordance. Le
-        // contexte de classe est déjà affiché dans le banner.)
-        const SliverToBoxAdapter(child: SizedBox(height: IntelliaSpacing.md)),
-
-        // ── Subject grid ───────────────────────────────────
-        if (subjects.isEmpty)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                IntelliaSpacing.lg,
-                IntelliaSpacing.md,
-                IntelliaSpacing.lg,
-                132,
-              ),
-              child: IntelliaStateView(
-                kind: IntelliaStateKind.comingSoon,
-                compact: true,
-                title: l10n.subjectsComingTitle,
-                message: l10n.subjectsComingBody,
-              ),
-            ),
-          )
-        else if (filtered.isEmpty)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                IntelliaSpacing.lg,
-                IntelliaSpacing.md,
-                IntelliaSpacing.lg,
-                132,
-              ),
-              child: IntelliaStateView(
-                kind: IntelliaStateKind.noResults,
-                compact: true,
-                title: l10n.noSubjectFound,
-                message: l10n.tryAnotherKeyword,
-                primaryLabel: l10n.clearSearch,
-                onPrimary: searchCtrl.clear,
-              ),
-            ),
-          )
-        else
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(
-              IntelliaSpacing.lg,
-              0,
-              IntelliaSpacing.lg,
-              132,
-            ),
-            sliver: SliverGrid(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 360,
-                mainAxisSpacing: IntelliaSpacing.md,
-                crossAxisSpacing: IntelliaSpacing.md,
-                mainAxisExtent: tileExtent,
-              ),
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final subject = filtered[index];
-                return _SubjectCard(subject: subject, index: index);
-              }, childCount: filtered.length),
-            ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -226,6 +212,7 @@ class _LearnHubBody extends StatelessWidget {
 // Context banner
 // ─────────────────────────────────────────────────────────────
 
+/// Bandeau de classe, compact : le Hall reste visible sans défiler.
 class _ContextBanner extends StatelessWidget {
   const _ContextBanner({required this.classLabel});
 
@@ -233,68 +220,79 @@ class _ContextBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Vrai gradient indigo→violet affirmé : texte blanc à contraste garanti,
-    // sans BackdropFilter (perf + lisibilité sur fond clair).
+    // Vrai gradient indigo→violet affirmé : texte blanc à contraste garanti.
     return Container(
-      padding: const EdgeInsets.all(IntelliaSpacing.lg),
+      padding: const EdgeInsets.symmetric(
+        horizontal: IntelliaSpacing.md,
+        vertical: IntelliaSpacing.sm,
+      ),
       decoration: BoxDecoration(
         gradient: IntelliaGradients.brand,
         borderRadius: BorderRadius.circular(IntelliaRadii.large),
         boxShadow: IntelliaShadows.glow(
           IntelliaColors.brandIndigo,
-          intensity: 0.22,
+          intensity: 0.18,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Wrap(
+        spacing: IntelliaSpacing.sm,
+        runSpacing: IntelliaSpacing.xs,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(
-            context.l10n.personalizedPath,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.l10n.personalizedPath,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+              Text(
+                context.l10n.levelAdaptedContent,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: Colors.white.withValues(alpha: 0.85),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: IntelliaSpacing.xxs),
-          Text(
-            context.l10n.levelAdaptedContent,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.white.withValues(alpha: 0.85),
-            ),
-          ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: IntelliaSpacing.sm,
-              vertical: IntelliaSpacing.xxs + 2,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.20),
-              borderRadius: BorderRadius.circular(99),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.school_rounded, size: 14, color: Colors.white),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    classLabel,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+          if (classLabel.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: IntelliaSpacing.sm,
+                vertical: IntelliaSpacing.xxs + 2,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.20),
+                borderRadius: BorderRadius.circular(99),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.school_rounded,
+                    size: 14,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      classLabel,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -308,214 +306,70 @@ class _ContextBanner extends StatelessWidget {
 class _GlassSearchBar extends StatelessWidget {
   const _GlassSearchBar({required this.controller});
 
+  static const clearKey = ValueKey('learn-search-clear');
+
   final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
     final s = TabSurface.of(context);
-    return TextField(
-      controller: controller,
-      style: TextStyle(color: s.textPrimary, fontSize: 15),
-      decoration: InputDecoration(
-        hintText: context.l10n.searchSubjectHint,
-        hintStyle: TextStyle(color: s.textTertiary, fontSize: 15),
-        filled: true,
-        fillColor: s.fieldFill,
-        prefixIcon: const Icon(
-          Icons.search_rounded,
-          color: IntelliaColors.brandIndigo,
-        ),
-        suffixIcon: controller.text.isNotEmpty
-            ? IconButton(
-                icon: Icon(Icons.close_rounded, color: s.textTertiary),
-                onPressed: controller.clear,
-              )
-            : null,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-          borderSide: BorderSide(color: s.surfaceBorder),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-          borderSide: const BorderSide(
-            color: IntelliaColors.brandIndigo,
-            width: 1.5,
-          ),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: IntelliaSpacing.md,
-          vertical: IntelliaSpacing.sm,
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-// Filter chip
-// ─────────────────────────────────────────────────────────────
-
-// ─────────────────────────────────────────────────────────────
-// Subject card
-// ─────────────────────────────────────────────────────────────
-
-class _SubjectCard extends StatelessWidget {
-  const _SubjectCard({required this.subject, required this.index});
-
-  final LearnSubject subject;
-  final int index;
-
-  // Détail ouvert en route fondue (200 ms) lorsque les animations sont réduites.
-  void _openFaded(BuildContext context) {
-    Navigator.of(context).push(
-      PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 200),
-        reverseTransitionDuration: const Duration(milliseconds: 200),
-        pageBuilder: (_, _, _) =>
-            SubjectDetailScreen(subjectId: subject.id, summary: subject),
-        transitionsBuilder: (_, animation, _, child) =>
-            FadeTransition(opacity: animation, child: child),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final gradient = AppGradients.forSubject(subject.iconKey);
-    final reduceMotion =
-        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
-    final tile = _SubjectTileVisual(subject: subject, gradient: gradient);
-
-    // Container Transform : la tuile se transforme en écran Détail Matière.
-    // Reduced motion : pas de morph, simple cross-fade 200 ms (même destination).
-    final Widget interactive = reduceMotion
-        ? IntelliaPressable(onTap: () => _openFaded(context), child: tile)
-        : OpenContainer<void>(
-            tappable: false,
-            closedElevation: 0,
-            closedColor: Colors.transparent,
-            openColor: IntelliaColors.backgroundPrimary,
-            middleColor: IntelliaColors.backgroundPrimary,
-            closedShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-            ),
-            // `fade` (et non fadeThrough) garde la source visible plus longtemps
-            // → l'expansion spatiale du conteneur est nettement plus perceptible.
-            transitionType: ContainerTransitionType.fade,
-            transitionDuration: const Duration(milliseconds: 450),
-            closedBuilder: (context, openContainer) =>
-                IntelliaPressable(onTap: openContainer, child: tile),
-            openBuilder: (context, _) =>
-                SubjectDetailScreen(subjectId: subject.id, summary: subject),
-          );
-
-    final lessons = context.l10n.lessonCount(subject.lessonsCount);
-    return Semantics(
-          button: true,
-          label: context.l10n.subjectTileA11y(
-            subject.title,
-            (subject.completion * 100).round(),
-            lessons,
-          ),
-          child: interactive,
-        )
-        .animate(delay: Duration(milliseconds: index * 60))
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: 0.05, end: 0);
-  }
-}
-
-/// Visuel de la tuile matière (sans logique de navigation) — sert de
-/// `closedBuilder` au Container Transform et de fallback reduced-motion.
-class _SubjectTileVisual extends StatelessWidget {
-  const _SubjectTileVisual({required this.subject, required this.gradient});
-
-  final LearnSubject subject;
-  final LinearGradient gradient;
-
-  @override
-  Widget build(BuildContext context) {
+    final dark = learningBrightness(context) == Brightness.dark;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final radius = BorderRadius.circular(IntelliaRadii.medium);
+    final accent = dark ? const Color(0xFFB4B2FF) : IntelliaColors.brandIndigo;
     return ClipRRect(
-      borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: DecoratedBox(decoration: BoxDecoration(gradient: gradient)),
-          ),
-          Positioned(
-            top: -30,
-            right: -30,
-            child: Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.07),
+      borderRadius: radius,
+      child: BackdropFilter.grouped(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: TextField(
+          key: const ValueKey('learn-search-field'),
+          controller: controller,
+          textInputAction: TextInputAction.search,
+          onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+          style: TextStyle(color: s.textPrimary, fontSize: 15),
+          decoration: InputDecoration(
+            hintText: context.l10n.searchSubjectHint,
+            hintStyle: TextStyle(color: s.textTertiary, fontSize: 15),
+            filled: true,
+            fillColor: dark ? const Color(0x99232736) : const Color(0xB8FFFFFF),
+            prefixIcon: Icon(Icons.search_rounded, color: accent),
+            // La croix apparaît avec le texte, sans décaler le champ.
+            suffixIcon: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, _) => AnimatedSwitcher(
+                duration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 160),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(scale: animation, child: child),
+                ),
+                child: value.text.isEmpty
+                    ? const SizedBox(width: 48, height: 48)
+                    : IconButton(
+                        key: clearKey,
+                        tooltip: context.l10n.clearSearch,
+                        icon: Icon(Icons.close_rounded, color: s.textTertiary),
+                        onPressed: controller.clear,
+                      ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(IntelliaSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        AppIcons.forSubject(subject.iconKey),
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '${(subject.completion * 100).round()}%',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Text(
-                  subject.title,
-                  style: GoogleFonts.manrope(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: IntelliaSpacing.xxs),
-                Text(
-                  context.l10n.lessonCount(subject.lessonsCount),
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white.withValues(alpha: 0.65),
-                  ),
-                ),
-                const SizedBox(height: IntelliaSpacing.xs),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(99),
-                  child: LinearProgressIndicator(
-                    value: subject.completion,
-                    minHeight: 4,
-                    backgroundColor: Colors.white.withValues(alpha: 0.20),
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+            enabledBorder: OutlineInputBorder(
+              borderRadius: radius,
+              borderSide: BorderSide(
+                color: dark ? const Color(0x24FFFFFF) : const Color(0xE6FFFFFF),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: radius,
+              borderSide: BorderSide(color: accent, width: 1.5),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: IntelliaSpacing.md,
+              vertical: IntelliaSpacing.sm,
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -525,47 +379,77 @@ class _SubjectTileVisual extends StatelessWidget {
 // Loading & error states
 // ─────────────────────────────────────────────────────────────
 
+/// Chargement : le cadre de l'onglet s'affiche tout de suite (en-tête,
+/// bandeau, emplacements des matières) ; seules les matières arrivent ensuite.
 class _LearnHubLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(IntelliaSpacing.lg),
+    final l10n = context.l10n;
+    return Stack(
       children: [
-        _SkeletonBox(height: 140),
-        const SizedBox(height: IntelliaSpacing.md),
-        for (int i = 0; i < 4; i++) ...[
-          _SkeletonBox(height: 160),
-          const SizedBox(height: IntelliaSpacing.md),
-        ],
-      ],
-    );
-  }
-}
-
-class _SkeletonBox extends StatelessWidget {
-  const _SkeletonBox({required this.height});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.55, end: 1.0),
-      duration: const Duration(milliseconds: 900),
-      curve: Curves.easeInOut,
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Container(
-            height: height,
-            decoration: BoxDecoration(
-              color: s.surfaceMuted,
-              borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+        const Positioned.fill(child: SubjectHallAuras()),
+        CustomScrollView(
+          key: const ValueKey('learn-hub-loading'),
+          slivers: [
+            StickyTabSectionHeader(
+              key: const ValueKey('learn-sticky-header'),
+              eyebrow: l10n.studentSpaceEyebrow,
+              title: l10n.learnTitle,
             ),
-          ),
-        );
-      },
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                SubjectHallLayout.gutter,
+                IntelliaSpacing.sm,
+                SubjectHallLayout.gutter,
+                _LearnHubBody.bottomClearance,
+              ),
+              sliver: SliverList.list(
+                children: [
+                  // Bandeau de classe et recherche, à leur taille réelle.
+                  const IntelliaSkeletonBlock(height: 84, radius: 24),
+                  const SizedBox(height: IntelliaSpacing.sm),
+                  const IntelliaSkeletonBlock(height: 48, radius: 16),
+                  const SizedBox(height: IntelliaSpacing.lg),
+                  const IntelliaSkeletonBlock(
+                    width: 150,
+                    height: 22,
+                    radius: 8,
+                  ),
+                  const SizedBox(height: IntelliaSpacing.sm),
+                  // Les cartes du Hall : grille ou rail, comme le vrai Hall.
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final layout = SubjectHallLayout.resolve(
+                        constraints.maxWidth + 2 * SubjectHallLayout.gutter,
+                        MediaQuery.textScalerOf(context).scale(1),
+                      );
+                      final card = IntelliaSkeletonBlock(
+                        width: layout.cardWidth,
+                        height: layout.minCardHeight,
+                        radius: SubjectHallCard.radius,
+                      );
+                      final columns = layout.isRail ? 1 : layout.columns;
+                      return Wrap(
+                        key: const ValueKey('learn-hall-skeleton'),
+                        spacing: SubjectHallLayout.gap,
+                        runSpacing: SubjectHallLayout.gap,
+                        children: [
+                          for (
+                            var i = 0;
+                            i < (layout.isRail ? 1 : columns * 2);
+                            i++
+                          )
+                            card,
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

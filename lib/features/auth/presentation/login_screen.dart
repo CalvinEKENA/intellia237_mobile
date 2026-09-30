@@ -1,3 +1,4 @@
+import 'auth_error_copy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,13 +6,29 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/auth_controller.dart';
+import '../domain/app_role.dart';
+import '../domain/auth_entry_intent.dart';
 import '../domain/auth_input_validators.dart';
+import '../../partner_access/domain/partner_access.dart';
 import 'widgets/auth_controls.dart';
 import 'widgets/auth_experience_scaffold.dart';
 import 'widgets/living_pass.dart';
+import 'widgets/pass_auth_progress.dart';
+import 'widgets/role_conflict_copy.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({
+    this.authIntent,
+    this.createIdentity = false,
+    this.requireSuperAdmin = false,
+    super.key,
+  });
+
+  /// Espace choisi avant de passer à l'e-mail, s'il y en a un : un compte
+  /// d'un autre rôle n'est alors pas ouvert.
+  final AppRole? authIntent;
+  final bool createIdentity;
+  final bool requireSuperAdmin;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -21,7 +38,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late final _passInputs = Listenable.merge([
+    _emailController,
+    _passwordController,
+  ]);
   final _passwordFocus = FocusNode();
+  AuthEntryRoleConflict? _conflict;
+
+  /// Identifiants acceptés, espace compatible : « 7 » est allumé.
+  bool _accessOpened = false;
+
+  /// L'adresse saisie est exactement celle du compte de test « démo pour
+  /// Francis » : le mot de passe est grisé, aucun n'est demandé.
+  bool _partnerRecognized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_onEmailChanged);
+  }
+
+  void _onEmailChanged() {
+    final recognized =
+        !widget.requireSuperAdmin &&
+        PartnerAccess.recognizes(_emailController.text);
+    if (recognized != _partnerRecognized) {
+      setState(() => _partnerRecognized = recognized);
+    }
+  }
 
   @override
   void dispose() {
@@ -34,13 +78,68 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _submit() async {
     if (ref.read(authControllerProvider).isLoading) return;
     FocusManager.instance.primaryFocus?.unfocus();
+    if (_partnerRecognized) {
+      await _submitPartner();
+      return;
+    }
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    await ref
+    setState(() => _conflict = null);
+    if (widget.createIdentity) {
+      await ref
+          .read(authControllerProvider.notifier)
+          .createEmailIdentity(
+            email: _emailController.text,
+            password: _passwordController.text,
+          );
+      return;
+    }
+    final adoption = await ref
         .read(authControllerProvider.notifier)
         .signInWithEmail(
           email: _emailController.text,
           password: _passwordController.text,
+          intent: widget.authIntent,
+          requireSuperAdmin: widget.requireSuperAdmin,
+          beforeOpening: _holdCompletedSeal,
         );
+    if (!mounted) return;
+    setState(() {
+      if (adoption is AuthEntryRoleConflict) _conflict = adoption;
+      // Un écran encore là après la connexion n'a rien ouvert.
+      if (!ref.read(authControllerProvider).isAuthenticated) {
+        _accessOpened = false;
+      }
+    });
+  }
+
+  /// Accès partenaire : aucun mot de passe, aucune validation de mot de
+  /// passe. Le serveur ouvre la session du compte canonique ; le reste du
+  /// parcours (sceau, transition, accueil) est celui de toute connexion.
+  Future<void> _submitPartner() async {
+    setState(() => _conflict = null);
+    final adoption = await ref
+        .read(authControllerProvider.notifier)
+        .signInWithPartnerAccess(
+          _emailController.text,
+          beforeOpening: (_) => _holdCompletedSeal(),
+        );
+    if (!mounted) return;
+    setState(() {
+      if (adoption is AuthEntryRoleConflict) _conflict = adoption;
+      if (!ref.read(authControllerProvider).isAuthenticated) {
+        _accessOpened = false;
+      }
+    });
+  }
+
+  /// Registre de décisions (QA appareil, round 3) : l'état authentifié
+  /// emportait aussitôt l'écran vers l'accueil ; la connexion par e-mail
+  /// n'a jamais montré « 7 » sur son propre Pass. Le sceau complet reste
+  /// désormais à l'écran avant l'ouverture de l'espace.
+  Future<void> _holdCompletedSeal() async {
+    if (!mounted) return;
+    setState(() => _accessOpened = true);
+    await Future<void>.delayed(PassSealTiming.completionHold);
   }
 
   @override
@@ -51,13 +150,69 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return AuthExperienceScaffold(
       showBackButton: false,
-      pass: ValueListenableBuilder<TextEditingValue>(
-        valueListenable: _emailController,
-        builder: (context, value, _) => LivingPass(
-          detail: value.text.trim().isEmpty ? null : value.text.trim(),
+      pass: ListenableBuilder(
+        listenable: _passInputs,
+        builder: (context, _) => LivingPass(
+          detail: _emailController.text.trim().isEmpty
+              ? null
+              : _emailController.text.trim(),
           phase: context.l10n.passSignIn,
-          progress: .65,
+          // Adresse valide : « 2 ». Mot de passe recevable : « 3 ».
+          // Identifiants acceptés : « 7 », tenu avant l'ouverture.
+          seal: PassAuthProgress.emailSignIn(
+            email: _emailController.text,
+            password: _passwordController.text,
+            accessOpened: _accessOpened,
+            passwordWaived: _partnerRecognized,
+          ),
+          progress: PassAuthProgress.emailLine(
+            email: _emailController.text,
+            password: _passwordController.text,
+            accessOpened: _accessOpened,
+            passwordWaived: _partnerRecognized,
+          ),
         ),
+      ),
+      // Le bouton reste visible au-dessus du clavier, sans cacher le PASS.
+      footer: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AnimatedSwitcher(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 220),
+            child: auth.error == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    key: ValueKey(auth.error),
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: AuthErrorBanner(
+                      message:
+                          auth.error == 'staff-access-required' ||
+                              auth.error ==
+                                  AuthController.partnerAccessUnavailable
+                          ? authErrorMessage(l10n, auth.error!)
+                          : auth.error!,
+                      onRetry: _submit,
+                      onDismiss: controller.clearError,
+                    ),
+                  ),
+          ),
+          AuthPrimaryButton(
+            key: const ValueKey('login-submit'),
+            label: _partnerRecognized
+                ? l10n.partnerAccessCta
+                : widget.createIdentity
+                ? l10n.createAccountLink
+                : l10n.signIn,
+            onTap: auth.isLoading ? null : _submit,
+            isLoading: auth.isLoading,
+            icon: _partnerRecognized
+                ? Icons.north_east_rounded
+                : Icons.login_rounded,
+          ),
+        ],
       ),
       child: AutofillGroup(
         child: Form(
@@ -68,109 +223,175 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               AuthHeader(
                 showBrand: false,
                 eyebrow: context.l10n.passEmailAccess,
-                title: context.l10n.passYourNextChapterAwaits,
-                subtitle: context.l10n.passReturnToYourSpaceWithYour,
+                title: widget.createIdentity
+                    ? l10n.authEmailCreateTitle
+                    : l10n.passYourNextChapterAwaits,
+                subtitle: widget.createIdentity
+                    ? l10n.authEmailCreateBody
+                    : l10n.passReturnToYourSpaceWithYour,
               ),
               const SizedBox(height: 24),
               AuthGlassPanel(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    AuthAnimatedField(
-                      key: const ValueKey('login-email-field'),
-                      controller: _emailController,
-                      label: l10n.emailLabel,
-                      hint: l10n.emailHint,
-                      icon: Icons.alternate_email_rounded,
-                      enabled: !auth.isLoading,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      autofillHints: const [AutofillHints.email],
-                      validator: (value) =>
-                          AuthInputValidators.email(value ?? ''),
-                      onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
-                    ),
-                    const SizedBox(height: 14),
-                    AuthAnimatedField(
-                      key: const ValueKey('login-password-field'),
-                      controller: _passwordController,
-                      focusNode: _passwordFocus,
-                      label: l10n.passwordLabel,
-                      hint: l10n.passwordHint,
-                      icon: Icons.lock_outline_rounded,
-                      enabled: !auth.isLoading,
-                      isPassword: true,
-                      textInputAction: TextInputAction.done,
-                      autofillHints: const [AutofillHints.password],
-                      validator: (value) =>
-                          AuthInputValidators.password(value ?? ''),
-                      onFieldSubmitted: (_) => _submit(),
-                    ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: auth.isLoading
-                            ? null
-                            : () => context.push(AppRoutes.forgotPassword),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AuthExperienceColors.gold,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                        ),
-                        child: Text(l10n.forgotPassword),
-                      ),
-                    ),
-                    AnimatedSwitcher(
+                    AnimatedContainer(
                       duration: MediaQuery.disableAnimationsOf(context)
                           ? Duration.zero
-                          : const Duration(milliseconds: 220),
-                      child: auth.error == null
-                          ? const SizedBox.shrink()
-                          : Padding(
-                              key: ValueKey(auth.error),
-                              padding: const EdgeInsets.only(bottom: 14),
-                              child: AuthErrorBanner(
-                                message: auth.error!,
-                                onRetry: _submit,
-                                onDismiss: controller.clearError,
+                          : const Duration(milliseconds: 260),
+                      curve: Curves.easeOut,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: _partnerRecognized
+                            ? [
+                                BoxShadow(
+                                  color: AuthExperienceColors.gold.withValues(
+                                    alpha: 0.24,
+                                  ),
+                                  blurRadius: 16,
+                                ),
+                              ]
+                            : const [],
+                      ),
+                      child: AuthAnimatedField(
+                        key: const ValueKey('login-email-field'),
+                        controller: _emailController,
+                        label: l10n.emailLabel,
+                        hint: l10n.emailHint,
+                        icon: Icons.alternate_email_rounded,
+                        enabled: !auth.isLoading,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.email],
+                        validator: (value) =>
+                            AuthInputValidators.email(value ?? ''),
+                        onFieldSubmitted: (_) => _partnerRecognized
+                            ? _submit()
+                            : _passwordFocus.requestFocus(),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    AnimatedOpacity(
+                      key: const ValueKey('login-password-dimmer'),
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 260),
+                      opacity: _partnerRecognized ? 0.38 : 1,
+                      child: AuthAnimatedField(
+                        key: const ValueKey('login-password-field'),
+                        controller: _passwordController,
+                        focusNode: _passwordFocus,
+                        label: l10n.passwordLabel,
+                        hint: l10n.passwordHint,
+                        icon: Icons.lock_outline_rounded,
+                        // Accès partenaire : grisé, non éditable, jamais
+                        // validé.
+                        enabled: !auth.isLoading && !_partnerRecognized,
+                        isPassword: true,
+                        textInputAction: TextInputAction.done,
+                        autofillHints: const [AutofillHints.password],
+                        validator: (value) => _partnerRecognized
+                            ? null
+                            : AuthInputValidators.password(value ?? ''),
+                        onFieldSubmitted: (_) => _submit(),
+                      ),
+                    ),
+                    if (_partnerRecognized)
+                      Padding(
+                        key: const ValueKey('partner-access-status'),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.workspace_premium_rounded,
+                              size: 18,
+                              color: AuthExperienceColors.gold,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              l10n.partnerAccessStatus,
+                              style: const TextStyle(
+                                color: AuthExperienceColors.gold,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
                               ),
                             ),
-                    ),
-                    AuthPrimaryButton(
-                      key: const ValueKey('login-submit'),
-                      label: l10n.signIn,
-                      onTap: auth.isLoading ? null : _submit,
-                      isLoading: auth.isLoading,
-                      icon: Icons.login_rounded,
-                    ),
+                          ],
+                        ),
+                      )
+                    else
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: auth.isLoading
+                              ? null
+                              : () => context.push(AppRoutes.forgotPassword),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AuthExperienceColors.gold,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                          child: Text(l10n.forgotPassword),
+                        ),
+                      ),
+                    if (_conflict case final conflict?)
+                      Padding(
+                        key: const ValueKey('login-role-conflict'),
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: AuthErrorBanner(
+                          message:
+                              '${roleConflictTitle(l10n, accountRole: conflict.accountRole, viaPhone: false)}\n'
+                              '${roleConflictGuidance(l10n, intent: conflict.intent)}',
+                          onDismiss: () => setState(() => _conflict = null),
+                        ),
+                      ),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
-              Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    l10n.noAccount,
-                    style: const TextStyle(
-                      color: AuthExperienceColors.textSecondary,
-                      fontSize: 13,
+              if (!widget.createIdentity && !widget.requireSuperAdmin)
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      l10n.noAccount,
+                      style: const TextStyle(
+                        color: AuthExperienceColors.textSecondary,
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: auth.isLoading
-                        ? null
-                        : () => context.push(AppRoutes.register),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AuthExperienceColors.gold,
+                    TextButton(
+                      key: const ValueKey('login-create-account'),
+                      // Une identité publique se crée sans rôle présupposé.
+                      onPressed: auth.isLoading
+                          ? null
+                          : () => context.push(switch (widget.authIntent) {
+                              AppRole.teacher => AppRoutes.teacherRegistration,
+                              AppRole.admin => AppRoutes.adminRegistration,
+                              _ => AppRoutes.emailRegistration,
+                            }),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AuthExperienceColors.gold,
+                      ),
+                      child: Text(
+                        l10n.createAccountLink,
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
                     ),
-                    child: Text(
-                      l10n.createAccountLink,
-                      style: const TextStyle(fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              if (widget.authIntent != null && !widget.requireSuperAdmin)
+                TextButton.icon(
+                  key: const ValueKey('login-use-phone'),
+                  onPressed: auth.isLoading
+                      ? null
+                      : () => context.push(
+                          AppRoutes.phoneRegistration(widget.authIntent!),
+                        ),
+                  icon: const Icon(Icons.phone_android_rounded),
+                  label: Text(l10n.schoolHeadContinuePhone),
+                ),
               TextButton.icon(
                 key: const ValueKey('login-change-profile'),
                 onPressed: auth.isLoading

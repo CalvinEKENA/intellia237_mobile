@@ -1,0 +1,108 @@
+{
+  "schema_version": "intellia.source.v2",
+  "content_id": "maths_td_ch03_fonctions_numeriques",
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale D",
+    "class_keys": [
+      "terminale-d"
+    ],
+    "subject": "Mathématiques",
+    "chapter_number": 3,
+    "chapter_title": "Fonctions numériques d'une variable réelle",
+    "lessons": [
+      "Fonction continue sur un intervalle",
+      "Fonction continue et strictement monotone",
+      "Représentations graphiques"
+    ]
+  },
+  "source_location": {
+    "provider": "Google Drive",
+    "folder": "/Google Drive/INTELLIA_CONTENT_SOURCE/MATHS TERMINALE D",
+    "image_range": "page_038.jpg → page_060.jpg",
+    "next_chapter_starts_at": "page_061.jpg"
+  },
+  "chapter_map": [
+    {
+      "lesson": 1,
+      "title": "Fonction continue sur un intervalle",
+      "images": [
+        "page_039.jpg",
+        "page_040.jpg",
+        "page_041.jpg",
+        "page_042.jpg"
+      ],
+      "verified_core": [
+        "Image d'un intervalle par une fonction continue.",
+        "Théorème des valeurs intermédiaires.",
+        "Unicité lorsqu'on ajoute la stricte monotonie.",
+        "Existence d'une racine avec des valeurs aux bornes de signes opposés.",
+        "Encadrement progressif d'une solution par subdivision.",
+        "Signe constant d'une fonction continue qui ne s'annule pas."
+      ]
+    },
+    {
+      "lesson": 2,
+      "title": "Fonction continue et strictement monotone",
+      "images": [
+        "page_043.jpg",
+        "page_044.jpg",
+        "page_045.jpg",
+        "page_046.jpg",
+        "page_047.jpg",
+        "page_048.jpg"
+      ],
+      "verified_core": [
+        "Fonction réciproque d'une fonction continue et strictement monotone.",
+        "Dérivée d'une fonction réciproque.",
+        "Symétrie par rapport à y=x.",
+        "Fonctions racines n-ièmes.",
+        "Limites trigonométriques remarquables.",
+        "Limites avec radicaux et expression conjuguée.",
+        "Inégalité des accroissements finis."
+      ]
+    },
+    {
+      "lesson": 3,
+      "title": "Représentations graphiques",
+      "images": [
+        "page_049.jpg",
+        "page_050.jpg",
+        "page_051.jpg",
+        "page_052.jpg",
+        "page_053.jpg",
+        "page_054.jpg",
+        "page_055.jpg",
+        "page_056.jpg",
+        "page_057.jpg",
+        "page_058.jpg",
+        "page_059.jpg",
+        "page_060.jpg"
+      ],
+      "verified_core": [
+        "Asymptotes verticales, horizontales et obliques.",
+        "Directions asymptotiques et branches paraboliques.",
+        "Étude de fonctions rationnelles, irrationnelles et trigonométriques.",
+        "Synthèse : domaine, limites, dérivée, variations, asymptotes et tracé."
+      ]
+    }
+  ],
+  "training_and_integration": {
+    "images": [
+      "page_059.jpg",
+      "page_060.jpg"
+    ],
+    "verified_scope": [
+      "Entraînement sur continuité, monotonie, limites et représentations graphiques.",
+      "Situations d'intégration mobilisant modélisation, approximation et étude de fonction."
+    ]
+  },
+  "source_quality": {
+    "overall": "good_for_core_lessons_partial_for_some_exercise_formulas",
+    "policy": "Seules les expressions lisibles et mathématiquement vérifiables sont promues au runtime. Les exercices runtime sont originaux et alignés sur les notions du chapitre.",
+    "uncertain_source_ranges": [
+      "Certaines formules et figures de page_049.jpg à page_060.jpg sont difficiles à lire intégralement.",
+      "Les valeurs illisibles ne sont jamais reconstituées par supposition."
+    ]
+  }
+}

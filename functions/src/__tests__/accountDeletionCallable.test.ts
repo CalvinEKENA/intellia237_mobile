@@ -1,36 +1,40 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ACCOUNT_DELETION_GRACE_MS,
+  ACCOUNT_DELETION_MAX_ATTEMPTS,
+  createCancelAccountDeletionHandler,
   createRequestAccountDeletionHandler,
-  type AccountDeletionRequestStore,
+  nextDeletionRetryDelay,
+  PROCESSABLE_STATUSES,
 } from "../services/accountDeletionCallable";
 
-describe("requestAccountDeletion", () => {
-  it("rejects unauthenticated callers", async () => {
-    const handler = createRequestAccountDeletionHandler(
-      new MemoryDeletionRequestStore(),
-    );
-
-    await expect(handler({ data: {} } as never)).rejects.toMatchObject({
-      code: "unauthenticated",
-    });
+describe("account deletion policy", () => {
+  it("rejects unauthenticated callers before touching any data", async () => {
+    const unusedFirestore = {} as never;
+    await expect(createRequestAccountDeletionHandler(unusedFirestore)({ data: {} } as never))
+      .rejects.toMatchObject({ code: "unauthenticated" });
+    await expect(createCancelAccountDeletionHandler(unusedFirestore)({ data: {} } as never))
+      .rejects.toMatchObject({ code: "unauthenticated" });
   });
 
-  it("records the authenticated account and returns a pending status", async () => {
-    const store = new MemoryDeletionRequestStore();
-    const handler = createRequestAccountDeletionHandler(store);
+  it("OWNER DECISION: legacy pending requests are never picked by the scheduler", () => {
+    // Anciennes demandes (status « pending », souvent sans dueAt) : visibles,
+    // remplaçables par une nouvelle demande explicite, jamais exécutées.
+    expect(PROCESSABLE_STATUSES).not.toContain("pending");
+    expect([...PROCESSABLE_STATUSES].sort()).toEqual(["failed", "processing", "scheduled"]);
+  });
 
-    await expect(
-      handler({ auth: { uid: "student-a" }, data: {} } as never),
-    ).resolves.toEqual({ status: "pending" });
-    expect(store.requestedUids).toEqual(["student-a"]);
+  it("keeps a seven-day grace period", () => {
+    expect(ACCOUNT_DELETION_GRACE_MS).toBe(7 * 24 * 60 * 60 * 1000);
+  });
+
+  it("backs off 1 h, 6 h, 24 h, 72 h, then asks for a human", () => {
+    const hour = 60 * 60 * 1000;
+    expect(nextDeletionRetryDelay(1)).toBe(hour);
+    expect(nextDeletionRetryDelay(2)).toBe(6 * hour);
+    expect(nextDeletionRetryDelay(3)).toBe(24 * hour);
+    expect(nextDeletionRetryDelay(4)).toBe(72 * hour);
+    expect(nextDeletionRetryDelay(ACCOUNT_DELETION_MAX_ATTEMPTS)).toBeNull();
   });
 });
-
-class MemoryDeletionRequestStore implements AccountDeletionRequestStore {
-  readonly requestedUids: string[] = [];
-
-  async request(uid: string): Promise<void> {
-    this.requestedUids.push(uid);
-  }
-}

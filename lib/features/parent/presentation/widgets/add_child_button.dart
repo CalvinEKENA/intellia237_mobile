@@ -3,9 +3,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/localization/localization_extensions.dart';
+import '../../../../l10n/generated/app_localizations.dart';
+import '../../../auth/presentation/widgets/student_access_code_reveal.dart';
+import '../../../family_access/application/family_access_providers.dart';
+import '../../../family_access/domain/family_access_models.dart';
 import '../../application/parent_preview.dart';
 import '../../application/parent_providers.dart';
 import '../../data/child_link_service.dart';
+
+/// Traduit un code d'erreur de liaison stable en message FR/EN. Le service ne
+/// renvoie qu'un code ; l'UI choisit la langue.
+String childLinkErrorMessage(AppLocalizations l10n, String code) =>
+    switch (code) {
+      'not-found' => l10n.childLinkErrorNotFound,
+      'invalid-argument' => l10n.childLinkErrorInvalid,
+      'permission-denied' => l10n.childLinkErrorPermission,
+      'unauthenticated' => l10n.childLinkErrorUnauthenticated,
+      'resource-exhausted' => l10n.childLinkErrorTooMany,
+      _ => l10n.childLinkErrorGeneric,
+    };
 
 /// Bouton « Ajouter un enfant » : ouvre une saisie de code de liaison, appelle
 /// le callable serveur, puis rafraîchit immédiatement le tableau de bord.
@@ -24,7 +40,7 @@ class AddChildButton extends ConsumerWidget {
     }
     final label = Text(context.l10n.addChildTitle);
     const icon = Icon(Icons.person_add_alt_1_outlined);
-    void open() => _showAddChildDialog(context, ref);
+    void open() => showAddChildDialog(context, ref);
 
     return expanded
         ? FilledButton.icon(
@@ -42,7 +58,8 @@ class AddChildButton extends ConsumerWidget {
   }
 }
 
-Future<void> _showAddChildDialog(BuildContext context, WidgetRef ref) {
+/// Saisie d'un code de liaison depuis l'espace parent.
+Future<void> showAddChildDialog(BuildContext context, WidgetRef ref) {
   return showDialog<void>(
     context: context,
     builder: (dialogContext) => _AddChildDialog(parentRef: ref),
@@ -62,13 +79,49 @@ class _AddChildDialog extends StatefulWidget {
 
 class _AddChildDialogState extends State<_AddChildDialog> {
   final _controller = TextEditingController();
+  final _nameController = TextEditingController();
   bool _submitting = false;
   String? _error;
+
+  /// L'enfant n'a ni téléphone ni compte : le parent ouvre son accès.
+  bool _withoutAccount = false;
+  CreatedChildAccess? _created;
 
   @override
   void dispose() {
     _controller.dispose();
+    _nameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _createAccess() async {
+    final name = _nameController.text.trim();
+    final l10n = context.l10n;
+    if (name.isEmpty) {
+      setState(() => _error = l10n.addChildNoAccountNameRequired);
+      return;
+    }
+    setState(() {
+      _submitting = true;
+      _error = null;
+    });
+    try {
+      final created = await widget.parentRef
+          .read(familyAccessRepositoryProvider)
+          .createChildStudentAccess(name);
+      widget.parentRef.invalidate(parentDashboardProvider);
+      if (!mounted) return;
+      setState(() {
+        _submitting = false;
+        _created = created;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _submitting = false;
+        _error = l10n.addChildNoAccountFailed;
+      });
+    }
   }
 
   Future<void> _submit() async {
@@ -104,7 +157,7 @@ class _AddChildDialogState extends State<_AddChildDialog> {
       if (!mounted) return;
       setState(() {
         _submitting = false;
-        _error = error.message;
+        _error = childLinkErrorMessage(l10n, error.code);
       });
     }
   }
@@ -112,7 +165,72 @@ class _AddChildDialogState extends State<_AddChildDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final created = _created;
+    if (created != null) {
+      return AlertDialog(
+        key: const ValueKey('parent-add-child-created'),
+        scrollable: true,
+        content: StudentAccessCodeReveal(
+          studentFirstName: created.firstName,
+          code: created.code,
+          continueLabel: l10n.studentAccessCodeDone,
+          onContinue: () => Navigator.of(context).pop(),
+        ),
+      );
+    }
+    if (_withoutAccount) {
+      return AlertDialog(
+        key: const ValueKey('parent-add-child-without-account'),
+        // Clavier ouvert sur un petit téléphone : le contenu défile au lieu de
+        // déborder.
+        scrollable: true,
+        title: Text(l10n.addChildNoAccountTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.addChildNoAccountBody),
+            const SizedBox(height: IntelliaSpacing.sm),
+            TextField(
+              key: const ValueKey('parent-add-child-first-name'),
+              controller: _nameController,
+              autofocus: true,
+              enabled: !_submitting,
+              textCapitalization: TextCapitalization.words,
+              onSubmitted: (_) => _submitting ? null : _createAccess(),
+              decoration: InputDecoration(
+                labelText: l10n.addChildNoAccountNameLabel,
+                errorText: _error,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: _submitting
+                ? null
+                : () => setState(() {
+                    _withoutAccount = false;
+                    _error = null;
+                  }),
+            child: Text(l10n.cancelLabel),
+          ),
+          FilledButton(
+            key: const ValueKey('parent-add-child-create-access'),
+            onPressed: _submitting ? null : _createAccess,
+            child: _submitting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(l10n.addChildNoAccountSubmit),
+          ),
+        ],
+      );
+    }
     return AlertDialog(
+      scrollable: true,
       title: Text(l10n.addChildTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -134,6 +252,18 @@ class _AddChildDialogState extends State<_AddChildDialog> {
           Text(
             l10n.addChildCodeHelp,
             style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: IntelliaSpacing.xs),
+          TextButton.icon(
+            key: const ValueKey('parent-add-child-no-account'),
+            onPressed: _submitting
+                ? null
+                : () => setState(() {
+                    _withoutAccount = true;
+                    _error = null;
+                  }),
+            icon: const Icon(Icons.person_add_alt_rounded, size: 18),
+            label: Text(l10n.addChildNoAccountAction),
           ),
         ],
       ),

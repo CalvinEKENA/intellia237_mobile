@@ -142,6 +142,9 @@ void main() {
         expect(find.byKey(ValueKey(tab.rootKey)), findsNothing);
       }
       expect(tester.takeException(), isNull);
+      // Les onglets ouverts pendant la rafale viennent d'être construits :
+      // leurs animations d'entrée (délais courts) s'achèvent.
+      await tester.pump(const Duration(seconds: 1));
     });
   }
 
@@ -199,7 +202,9 @@ void main() {
       of: learnRoot,
       matching: find.byType(CustomScrollView),
     );
-    await tester.drag(learnScrollView, const Offset(0, -320));
+    // Défilement modéré : le champ de recherche (sous un bandeau compact)
+    // reste à l'écran, donc trouvable après le changement d'onglet.
+    await tester.drag(learnScrollView, const Offset(0, -160));
     await tester.pump();
     final learnScrollable = find
         .descendant(of: learnRoot, matching: find.byType(Scrollable))
@@ -304,8 +309,8 @@ void main() {
     await _tapNav(tester, 'Quiz');
     expect(
       find.text(
-        'Entraîne-toi avec des corrections guidées ou évalue-toi '
-        'dans les conditions d’un examen blanc.',
+        'Entraîne-toi avec des corrections guidées, ou évalue-toi : '
+        'ton score et ton bilan à la fin.',
       ),
       findsOneWidget,
     );
@@ -313,7 +318,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Reprendre le dernier cours'), findsOneWidget);
     await _tapNav(tester, 'Compagnon');
-    expect(find.text('Explique ce concept'), findsOneWidget);
+    expect(find.text('Compagnon • Là pour t’aider'), findsOneWidget);
     await _tapNav(tester, 'Profil');
     expect(find.text('Mon profil'), findsOneWidget);
     await _tapNav(tester, 'Accueil');
@@ -344,8 +349,8 @@ void main() {
   ) async {
     await _pumpHome(tester, size: const Size(390, 844));
 
-    await tester.ensureVisible(find.text('Flow'));
-    await tester.tap(find.text('Flow'));
+    await tester.ensureVisible(find.text('Mon parcours'));
+    await tester.tap(find.text('Mon parcours'));
     await tester.pumpAndSettle();
     expect(find.text('Flow destination'), findsOneWidget);
     tester.state<NavigatorState>(find.byType(Navigator)).pop();
@@ -376,8 +381,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       find.text(
-        'Entraîne-toi avec des corrections guidées ou évalue-toi '
-        'dans les conditions d’un examen blanc.',
+        'Entraîne-toi avec des corrections guidées, ou évalue-toi : '
+        'ton score et ton bilan à la fin.',
       ),
       findsOneWidget,
     );
@@ -390,7 +395,7 @@ void main() {
     );
     await tester.tap(quickCompanion);
     await tester.pumpAndSettle();
-    expect(find.text('Explique ce concept'), findsOneWidget);
+    expect(find.text('Compagnon • Là pour t’aider'), findsOneWidget);
     await _tapNav(tester, 'Accueil');
 
     await _scrollHomeTo(tester, find.text('Équations du premier degré'));
@@ -404,8 +409,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       find.text(
-        'Entraîne-toi avec des corrections guidées ou évalue-toi '
-        'dans les conditions d’un examen blanc.',
+        'Entraîne-toi avec des corrections guidées, ou évalue-toi : '
+        'ton score et ton bilan à la fin.',
       ),
       findsOneWidget,
     );
@@ -643,9 +648,9 @@ const _tabCases = [
   _TabCase(
     'Quiz',
     'student-tab-quiz',
-    'Entraîne-toi avec des corrections guidées ou évalue-toi '
-        'dans les conditions d’un examen blanc.',
+    'Entraîne-toi avec des corrections guidées, ou évalue-toi : '
+        'ton score et ton bilan à la fin.',
   ),
-  _TabCase('Compagnon', 'student-tab-companion', 'Explique ce concept'),
+  _TabCase('Compagnon', 'student-tab-companion', 'Compagnon • Là pour t’aider'),
   _TabCase('Profil', 'student-tab-profile', 'Mon profil'),
 ];

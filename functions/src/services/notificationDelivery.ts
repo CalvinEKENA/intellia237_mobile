@@ -9,7 +9,30 @@ type NotificationDocument = {
   body?: unknown;
   route?: unknown;
   type?: unknown;
+  deliveryMode?: unknown;
 };
+
+export type NotificationDeliveryClass = "inbox_only" | "invalid" | "deliverable";
+
+/**
+ * Décide le sort d'un document de notification avant tout envoi push.
+ * - `deliveryMode: "inbox_only"` : notification volontairement réservée à la
+ *   boîte de réception (ex. langue du destinataire inconnue, texte composé par
+ *   le client) → jamais marquée invalide, jamais de push vide ;
+ * - destinataire/titre/corps manquants sinon → invalide ;
+ * - sinon → envoyable.
+ */
+export function classifyNotificationDelivery(
+  data: NotificationDocument,
+): NotificationDeliveryClass {
+  const userId = typeof data.userId === "string" ? data.userId.trim() : "";
+  if (data.deliveryMode === "inbox_only") {
+    return userId ? "inbox_only" : "invalid";
+  }
+  const title = typeof data.title === "string" ? data.title.trim() : "";
+  const body = typeof data.body === "string" ? data.body.trim() : "";
+  return userId && title && body ? "deliverable" : "invalid";
+}
 
 const invalidTokenCodes = new Set([
   "messaging/invalid-registration-token",
@@ -30,7 +53,16 @@ export async function deliverNotificationPushHandler(
   const userId = typeof data.userId === "string" ? data.userId.trim() : "";
   const title = typeof data.title === "string" ? data.title.trim() : "";
   const body = typeof data.body === "string" ? data.body.trim() : "";
-  if (!userId || !title || !body) {
+  const deliveryClass = classifyNotificationDelivery(data);
+  if (deliveryClass === "inbox_only") {
+    // Réservée à la boîte de réception : aucune tentative de push malformé.
+    await snapshot.ref.set(
+      { deliveryState: "inbox_only", deliveryUpdatedAt: new Date() },
+      { merge: true },
+    );
+    return;
+  }
+  if (deliveryClass === "invalid") {
     logger.error("Notification document is incomplete.", {
       notificationId: snapshot.id,
     });

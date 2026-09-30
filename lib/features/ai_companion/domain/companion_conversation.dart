@@ -16,7 +16,11 @@ class CompanionConversation {
     this.title = '',
     this.preview = '',
     this.companionId,
+    this.engine,
   });
+
+  /// Moteur de conversation actuel : réponses locales et déterministes.
+  static const deterministicEngine = 'deterministic_v1';
 
   final String id;
 
@@ -35,6 +39,12 @@ class CompanionConversation {
   /// Dernier compagnon ayant répondu dans ce fil.
   final String? companionId;
 
+  /// Moteur qui a produit ce fil ; `null` pour les anciens fils, écrits
+  /// avant le compagnon déterministe (jamais rejoués comme les siens).
+  final String? engine;
+
+  bool get isDeterministic => engine == deterministicEngine;
+
   CompanionConversation copyWith({
     DateTime? lastActivityAt,
     String? title,
@@ -48,6 +58,7 @@ class CompanionConversation {
     title: title ?? this.title,
     preview: preview ?? this.preview,
     companionId: companionId ?? this.companionId,
+    engine: engine,
   );
 
   Map<String, Object?> toJson() => {
@@ -58,6 +69,7 @@ class CompanionConversation {
     'title': title,
     'preview': preview,
     if (companionId != null) 'companionId': companionId,
+    'engine': ?engine,
   };
 
   static CompanionConversation? fromJson(Map<String, dynamic> json) {
@@ -76,6 +88,7 @@ class CompanionConversation {
       title: json['title'] as String? ?? '',
       preview: json['preview'] as String? ?? '',
       companionId: json['companionId'] as String?,
+      engine: json['engine'] as String?,
     );
   }
 

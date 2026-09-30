@@ -144,6 +144,9 @@ class MemoryStore implements MobileMoneyStore {
       availability: "not_configured",
       offer: null,
       recentRequests: [],
+      children: [],
+      beneficiary: null,
+      coveredStudentIds: [],
     };
   }
 

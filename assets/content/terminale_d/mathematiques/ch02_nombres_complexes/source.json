@@ -1,0 +1,113 @@
+{
+  "schema_version": "intellia.source.v1",
+  "content_id": "maths_td_ch02_nombres_complexes_algebrique",
+  "curriculum": {
+    "country": "Cameroon",
+    "level": "Terminale D",
+    "class_keys": [
+      "terminale-d"
+    ],
+    "subject": "Mathématiques",
+    "module": "Relations et opérations fondamentales dans l'ensemble des nombres complexes",
+    "chapter_number": 2,
+    "chapter_title": "Nombres complexes : approche algébrique"
+  },
+  "source_location": {
+    "provider": "Google Drive",
+    "folder": "/Google Drive/INTELLIA_CONTENT_SOURCE/MATHS TERMINALE D",
+    "image_range": "page_026.jpg → page_037.jpg",
+    "printed_page_range": "29 → 40"
+  },
+  "chapter_map": [
+    {
+      "lesson": 1,
+      "title": "Écriture algébrique et nombres complexes conjugués",
+      "images": [
+        "page_026.jpg",
+        "page_027.jpg",
+        "page_028.jpg",
+        "page_029.jpg"
+      ],
+      "printed_pages": [
+        29,
+        30,
+        31,
+        32
+      ],
+      "verified_core": [
+        "Le chapitre introduit un nombre i tel que i²=-1 et l'écriture algébrique z=x+iy avec x et y réels.",
+        "Re(z)=x et Im(z)=y.",
+        "Le conjugué de z=x+iy est z̄=x-iy.",
+        "Deux nombres complexes sont égaux si et seulement si leurs parties réelles et imaginaires sont égales.",
+        "Les opérations d'addition et de multiplication sont définies à partir de l'écriture algébrique.",
+        "Le manuel traite l'inverse et le quotient d'un nombre complexe non nul à l'aide du conjugué.",
+        "La situation-problème conduit à z²-2z+5=0, dont les solutions complexes sont 1+2i et 1-2i."
+      ],
+      "source_situation": "Impédance complexe d'un circuit en courant alternatif ; les nombres complexes permettent de résoudre une équation sans racine réelle."
+    },
+    {
+      "lesson": 2,
+      "title": "Module d'un nombre complexe",
+      "images": [
+        "page_030.jpg",
+        "page_031.jpg"
+      ],
+      "printed_pages": [
+        33,
+        34
+      ],
+      "verified_core": [
+        "Pour z=x+iy, le module est |z|=√(x²+y²).",
+        "|z|²=z z̄.",
+        "Le manuel relie le module à l'hypoténuse d'un triangle rectangle d'impédances.",
+        "Pour z=1+2i, le module vaut √5.",
+        "Le module est multiplicatif : |zz'|=|z||z'|.",
+        "Pour z' non nul, |z/z'|=|z|/|z'|.",
+        "Pour n entier naturel, |zⁿ|=|z|ⁿ."
+      ],
+      "source_situation": "Calcul du module de l'impédance 1+2i d'un circuit RLC."
+    },
+    {
+      "lesson": 3,
+      "title": "Équations du second degré dans C",
+      "images": [
+        "page_032.jpg",
+        "page_033.jpg"
+      ],
+      "printed_pages": [
+        35,
+        36
+      ],
+      "verified_core": [
+        "Le manuel définit les racines carrées d'un nombre complexe.",
+        "Pour résoudre az²+bz+c=0 dans C, on calcule Δ=b²-4ac et on choisit une racine carrée δ de Δ.",
+        "Si Δ≠0, les deux solutions sont (-b+δ)/(2a) et (-b-δ)/(2a).",
+        "Si Δ=0, l'équation possède une solution double -b/(2a).",
+        "Le manuel montre comment trouver les racines carrées d'un complexe à partir de son écriture algébrique."
+      ],
+      "source_situation": "Recherche d'une impédance complexe satisfaisant une équation ; certaines formules de la situation sont insuffisamment lisibles pour être reprises telles quelles."
+    }
+  ],
+  "training_and_integration": {
+    "training_images": [
+      "page_034.jpg",
+      "page_035.jpg",
+      "page_036.jpg"
+    ],
+    "integration_image": "page_037.jpg",
+    "verified_scope": [
+      "QCM et exercices sur écriture algébrique, conjugué, module et équations dans C.",
+      "Exercices de lieux géométriques faisant intervenir le module.",
+      "Activités d'intégration utilisant des coordonnées complexes dans le plan et un problème de positionnement de forages."
+    ],
+    "quality_notes": [
+      "Plusieurs expressions des pages 034 à 037 sont partiellement masquées ou déformées et ne sont pas suffisamment fiables pour être reprises comme réponses auto-corrigées.",
+      "Les activités d'intégration de la page 037 sont conservées comme provenance/thèmes, sans reconstruire les formules illisibles."
+    ]
+  },
+  "source_quality": {
+    "overall": "good_for_core_lessons_partial_for_late_exercises",
+    "method": "lecture des images + extraction assistée ; seules les données lisibles et mathématiquement vérifiables sont promues au runtime",
+    "do_not_infer_rule": "Une formule, un coefficient ou un exposant incertain n'est jamais réparé silencieusement."
+  }
+}

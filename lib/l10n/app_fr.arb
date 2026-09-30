@@ -10,14 +10,14 @@
   "adminAccountDecisionBody": "Cette décision modifie l’accès du compte. Son motif sera conservé dans l’historique d’administration.",
   "adminDecisionReason": "Motif de la décision",
   "adminCreateStudent": "Ajouter un élève",
-  "adminCreateStudentBody": "Crée son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.",
+  "adminCreateStudentBody": "Créez son compte dans l’établissement choisi. L’élève se connectera avec son numéro, puis complétera sa classe et ses préférences.",
   "adminStudentCreated": "Le compte élève est créé. Il peut se connecter par téléphone.",
-  "adminStudentContactExists": "Ce téléphone ou cet e-mail possède déjà un compte. Retrouve-le avec la recherche.",
+  "adminStudentContactExists": "Ce téléphone ou cet e-mail possède déjà un compte. Retrouvez-le avec la recherche.",
   "adminStudentFirstName": "Prénom",
   "adminStudentLastName": "Nom",
   "adminFieldRequired": "Ce champ est obligatoire.",
   "adminStudentEmailOptional": "E-mail (facultatif)",
-  "adminInvalidEmail": "Vérifie l’adresse e-mail.",
+  "adminInvalidEmail": "Vérifiez l’adresse e-mail.",
   "adminStatusSuspended": "Compte suspendu",
   "adminStatusDeleted": "Profil supprimé",
   "backToPreviousAct": "Revenir à l’acte précédent",
@@ -72,7 +72,7 @@
   "establishment": "Établissement",
   "establishmentHint": "Rechercher ou saisir un établissement",
   "establishmentUnverified": "Établissement sélectionné — vérification en attente",
-  "establishmentSecurityNote": "La sélection d’un établissement ne donne accès à aucune donnée privée. L’autorisation du serveur reste obligatoire.",
+  "establishmentSecurityNote": "Choisir ton école ne donne accès à aucune donnée privée. Ton accès est vérifié avant d’être ouvert.",
   "individualAccount": "Compte élève individuel",
   "parentLinkedAccount": "Compte rattaché au foyer familial",
   "parentLinkedHelp": "Le parent crée et protège les profils du foyer depuis son espace.",
@@ -92,6 +92,8 @@
   "passwordHint": "Votre mot de passe",
   "forgotPassword": "Mot de passe oublié ?",
   "signIn": "Se connecter",
+  "partnerAccessStatus": "Accès partenaire INTELLIA",
+  "partnerAccessCta": "Accéder à INTELLIA",
   "noAccount": "Pas encore de compte ?",
   "createAccountLink": "Créer un compte",
   "forgotEyebrow": "Accès au compte",
@@ -111,8 +113,7 @@
   "phonePrimary": "Téléphone camerounais",
   "phonePrimaryHint": "+237 6XX XX XX XX",
   "emailOptional": "E-mail (optionnel)",
-  "phoneIdentityTarget": "Identité cible : téléphone + code OTP",
-  "temporaryEmailNotice": "Dans cette version, un e-mail technique reste temporairement nécessaire pour créer le compte Firebase. Il ne constitue pas l’identité principale cible.",
+  "phoneIdentityTarget": "Ton accès vérifié",
   "temporaryEmailLabel": "E-mail technique (temporaire)",
   "otpChannelTitle": "Comment souhaitez-vous recevoir le code ?",
   "otpWhatsapp": "Recevoir le code par WhatsApp",
@@ -173,7 +174,7 @@
       }
     }
   },
-  "companionStatusReady": "Prêt à t’aider",
+  "companionStatusReady": "Là pour t’aider",
   "companionStatusThinking": "réfléchit…",
   "companionStatusQuota": "limite du jour atteinte",
   "companionStatusProfile": "profil à synchroniser",
@@ -217,14 +218,20 @@
   "phoneLinkSuccessBody": "Votre numéro est maintenant lié à ce même compte.",
   "phoneErrorInvalidNumber": "Saisissez un numéro mobile camerounais valide à 9 chiffres.",
   "phoneErrorInvalidCode": "Le code saisi est incorrect ou a expiré.",
-  "phoneErrorTooManyRequests": "Les demandes de code sont temporairement bloquées par Firebase. Le délai de déblocage n’est pas communiqué et peut dépasser une heure. Évite les demandes répétées. Si tu as déjà associé un e-mail à ton compte, utilise-le pour te connecter.",
+  "phoneErrorTooManyRequests": "Trop de demandes de code pour ce numéro. Attends un moment avant de réessayer : cela peut prendre plus d’une heure. Si ton compte a un e-mail, tu peux t’en servir pour te connecter.",
   "phoneErrorAppVerification": "Cette version de l’application n’a pas pu être vérifiée. Contacte l’assistance avec la référence ci-dessous.",
   "phoneErrorCaptcha": "La vérification de sécurité n’a pas abouti. Réessaie depuis l’application.",
   "phoneRequestPause": "Nouvelle demande dans {seconds} s",
-  "@phoneRequestPause": {"placeholders": {"seconds": {"type": "int"}}},
+  "@phoneRequestPause": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "phoneErrorQuota": "L’envoi de SMS est momentanément indisponible. Réessayez plus tard.",
   "phoneErrorNetwork": "La connexion est interrompue. Vérifiez Internet puis réessayez.",
-  "phoneErrorDisabled": "La connexion par téléphone doit être activée dans Firebase Authentication.",
+  "phoneErrorDisabled": "La connexion par téléphone n’est pas disponible pour le moment. Réessaie plus tard.",
   "phoneErrorCollision": "Ce numéro est déjà lié à un autre compte. Reconnectez-vous avec ce numéro ou contactez l’assistance.",
   "phoneErrorRecentLogin": "Reconnectez-vous avant d’ajouter ce numéro.",
   "phoneErrorProfileMissing": "Aucun profil INTELLIA237 n’est encore associé à ce numéro. Créez d’abord votre compte.",
@@ -267,10 +274,9 @@
   "lastNameHint": "Ex. Ndi",
   "seriesLabel": "Série",
   "meetCompanionTitle": "Rencontre ton compagnon",
-  "meetCompanionSubtitle": "Découvre Kira, puis Léo. Tu choisiras une fois que tu les auras vus.",
   "secureAccountTitle": "Sécurise ton compte",
   "secureAccountPhoneVerified": "Ton numéro a été vérifié. Relis tes choix avant de créer ton espace.",
-  "phoneVerifiedNoExtraCredential": "Votre numéro a été vérifié. Aucun e-mail ni mot de passe supplémentaire n’est nécessaire.",
+  "phoneVerifiedNoExtraCredential": "Votre identité a été vérifiée. Aucun identifiant supplémentaire n’est nécessaire.",
   "classToConfirm": "Classe à confirmer",
   "acceptTerms": "J’accepte les conditions d’utilisation.",
   "acceptPrivacy": "J’accepte la politique de confidentialité.",
@@ -282,9 +288,9 @@
   "parentDetailsTitle": "Coordonnées du parent",
   "parentDetailsSubtitle": "Quelques informations suffisent pour préparer le parcours de votre enfant.",
   "linkChildrenTitle": "Lier vos enfants",
-  "linkChildrenSubtitle": "Ajoutez un identifiant élève maintenant, ou plus tard.",
-  "childIdentifierLabel": "Code / Identifiant enfant",
-  "childIdentifierHint": "Ex. STU-94K2",
+  "linkChildrenSubtitle": "Votre enfant trouve ce code dans son profil, rubrique « Mon code parent ». Vous pouvez aussi le relier plus tard.",
+  "childIdentifierLabel": "Code parent de votre enfant",
+  "childIdentifierHint": "Ex. K7PM2QXA",
   "addLabel": "Ajouter",
   "noLinkedChild": "Aucun enfant lié pour le moment.",
   "finalReviewTitle": "Validation finale",
@@ -336,9 +342,31 @@
   "signOutTitle": "Se déconnecter",
   "signOutDescription": "Tes données synchronisées seront disponibles à ta prochaine connexion.",
   "deleteRequestQuestion": "Demander la suppression ?",
-  "deleteRequestBody": "La demande sera enregistrée pour vérification et traitement sécurisé. Cette action te déconnectera.",
+  "deleteRequestBody": "Le compte et ses données seront supprimés dans 7 jours. D’ici là, le compte reste utilisable et la demande peut être annulée depuis cet écran.",
   "sendRequestLabel": "Envoyer la demande",
   "deleteRequestError": "Impossible d’envoyer la demande maintenant. Réessaie plus tard.",
+  "deleteScheduledSubtitle": "Suppression prévue le {date}. Touchez pour annuler.",
+  "@deleteScheduledSubtitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteScheduledConfirmation": "Suppression programmée le {date}. Elle peut être annulée d’ici là.",
+  "@deleteScheduledConfirmation": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteInProgressSubtitle": "Suppression en cours de traitement.",
+  "cancelDeletionQuestion": "Annuler la suppression ?",
+  "cancelDeletionBody": "Le compte sera conservé et la demande abandonnée.",
+  "cancelDeletionAction": "Annuler la suppression",
+  "cancelDeletionDone": "La suppression est annulée.",
+  "cancelDeletionError": "Impossible d’annuler la demande maintenant. Réessayez plus tard.",
   "chooseReminderTime": "Choisir l’heure du rappel",
   "signOutQuestion": "Se déconnecter ?",
   "emailVerificationTitle": "Vérification de l’adresse e-mail",
@@ -358,8 +386,11 @@
   },
   "discoverIntellia": "Découvrir Intellia 237",
   "learnTitle": "Apprendre",
+  "learnEyebrow": "Explorer · comprendre · progresser",
+  "learnUnavailableTitle": "Tes matières arrivent",
+  "learnUnavailableBody": "Rien à afficher pour l’instant. Continue ton parcours, puis reviens ici.",
+  "learnUnavailableOfflineBody": "Vérifie ta connexion, puis actualise. Ton parcours reste disponible.",
   "learnSubtitle": "Tes matières, adaptées à ton niveau.",
-  "subjectsLoadError": "Impossible de charger les matières",
   "subjectsComingTitle": "Tes matières arrivent",
   "subjectsComingBody": "Les cours de ta classe sont en cours de préparation. Tu seras parmi les premiers à en profiter.",
   "noSubjectFound": "Aucune matière trouvée",
@@ -396,8 +427,6 @@
     }
   },
   "prepareOfflineLessons": "Prépare toutes les leçons pour une lecture hors connexion.",
-  "chapterReadyOffline": "Chapitre prêt pour une lecture hors connexion.",
-  "downloadFailed": "Le téléchargement n’a pas abouti. Vérifie la connexion et réessaie.",
   "nextLabelShort": "À suivre",
   "lessonUnavailable": "Leçon indisponible",
   "localProgressSaved": "Progression conservée sur cet appareil. Elle sera synchronisée automatiquement.",
@@ -475,8 +504,6 @@
       }
     }
   },
-  "saveChapterOffline": "Enregistrer ce chapitre pour la lecture hors connexion",
-  "reconnectToPrepareLessons": "Reconnecte-toi pour préparer toutes les leçons.",
   "prepareChapterLessons": "Prépare les {count} leçons de ce chapitre.",
   "@prepareChapterLessons": {
     "placeholders": {
@@ -485,7 +512,6 @@
       }
     }
   },
-  "prepareLabel": "Préparer",
   "backLabel": "Revenir en arrière",
   "backToChapter": "Retour au chapitre",
   "lastLessonCompleted": "Tu as terminé la dernière leçon de ce chapitre.",
@@ -503,7 +529,7 @@
   "authProfileSetupTitle": "Configuration du compte",
   "authCompleteProfileTitle": "Complète ton profil",
   "authSessionActiveTitle": "Ta session est toujours active",
-  "authChooseProfileBody": "Choisis le profil à créer. Ta session Firebase vérifiée sera réutilisée.",
+  "authChooseProfileBody": "Choisis le profil à créer. Ton numéro est déjà vérifié.",
   "authProfileSyncFailureBody": "Le profil n’a pas pu être synchronisé. Aucune déconnexion automatique n’a été effectuée.",
   "chooseRolePrompt": "Je suis…",
   "adminRole": "Administration",
@@ -542,7 +568,7 @@
   "leoDiscoveryPhraseThree": "Il célèbre chaque progrès avec toi.",
   "discoverLeo": "Découvrir Léo",
   "returnToKira": "Revenir vers Kira",
-  "discoverCompanionBeforeChoice": "Découvre {name} pour pouvoir le choisir",
+  "discoverCompanionBeforeChoice": "Découvre {name} avant de choisir",
   "@discoverCompanionBeforeChoice": {
     "placeholders": {
       "name": {
@@ -684,34 +710,38 @@
       }
     }
   },
-  "quizProfileIncompleteBody": "Ton profil scolaire doit être complété ou resynchronisé avant de choisir les quiz de ton niveau.",
-  "quizCatalogDeniedBody": "L’accès au catalogue n’a pas été autorisé pour ce profil. Tu peux continuer avec tes cours pendant la vérification.",
-  "quizCatalogUnavailableBody": "Le catalogue validé est momentanément inaccessible. Aucun contenu n’est inventé : poursuis avec le Flow ou tes cours.",
-  "quizCatalogInvalidBody": "Le catalogue reçu est incomplet. Il n’est pas affiché afin de ne pas te proposer un contenu incorrect.",
-  "quizCatalogNetworkBody": "La connexion au catalogue est interrompue. Tes cours et le Flow restent disponibles.",
-  "quizLoadErrorTitle": "Impossible de charger les quiz pour le moment.",
+  "quizProfileIncompleteBody": "Choisis ta classe dans ton profil pour voir les quiz de ton niveau.",
+  "quizCatalogDeniedBody": "Tes quiz ne sont pas encore ouverts pour ton profil. Tu peux continuer avec tes cours en attendant.",
+  "quizCatalogUnavailableBody": "Tes quiz sont momentanément inaccessibles. Continue ton parcours ou tes cours en attendant.",
+  "quizCatalogInvalidBody": "Certains quiz ne sont pas encore prêts. Tu peux continuer ton parcours et revenir t’entraîner dans quelques instants.",
+  "quizCatalogNetworkBody": "La connexion est interrompue. Tes cours et ton parcours restent disponibles.",
   "quizOfflineTitle": "Les quiz attendent le réseau",
-  "quizOfflineBody": "Aucun quiz n’est lancé sans connexion : le serveur protège la correction et valide l’envoi, sans conserver tes réponses hors ligne. Tu peux continuer avec le Flow ou une leçon téléchargée.",
-  "openOfflineFlow": "Ouvrir le Flow hors ligne",
+  "quizOfflineBody": "Un quiz a besoin d’internet : sa correction se fait en ligne et tes réponses ne sont pas gardées sur le téléphone. Tu peux continuer ton parcours ou une leçon téléchargée.",
+  "openOfflineFlow": "Ouvrir mon parcours hors ligne",
   "viewDownloadedLessons": "Voir mes leçons téléchargées",
   "allLabel": "Tous",
   "quizModeTraining": "Entraînement",
   "quizModeExam": "Évaluation / examen blanc",
   "quizModeUnspecified": "Mode non précisé",
-  "quizHubIntro": "Entraîne-toi avec des corrections guidées ou évalue-toi dans les conditions d’un examen blanc.",
+  "quizHubIntro": "Entraîne-toi avec des corrections guidées, ou évalue-toi : ton score et ton bilan à la fin.",
   "chooseRevisionMode": "Choisis ton mode de révision",
   "quizPausedOfflineTitle": "Quiz en pause hors connexion",
-  "quizPausedOfflineBody": "Les corrections et l’envoi sont vérifiés par le serveur. Pour protéger l’évaluation, aucune réponse ni aucun corrigé n’est conservé hors ligne.",
+  "quizPausedOfflineBody": "La correction se fait en ligne. Tes réponses et les corrigés ne sont pas gardés sur le téléphone.",
   "displayLabel": "Afficher",
   "filterQuizByModeA11y": "Filtrer les quiz par mode",
   "quizComingTitle": "Les quiz de ta classe arrivent",
-  "quizComingBody": "De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance le Flow depuis l’accueil.",
+  "quizComingBody": "De nouveaux quiz sont en préparation pour ton niveau. En attendant, révise une leçon ou lance ton parcours depuis l’accueil.",
   "quizTrainingAction": "S’entraîner",
   "quizTrainingDescription": "Une correction guidée t’aide à comprendre avant de continuer.",
   "quizExamAction": "S’évaluer",
   "quizExamDescription": "Les réponses sont corrigées à la fin. Ces quiz préparent aux épreuves, sans remplacer un examen officiel.",
   "studentSpace": "Espace élève",
   "quizTitle": "Quiz",
+  "quizEyebrow": "S’entraîner · se tester",
+  "quizUnavailableTitle": "Tes quiz arrivent",
+  "quizUnavailableBody": "Rien à t’entraîner pour l’instant. Continue ton parcours, puis reviens ici.",
+  "quizUnavailableOfflineBody": "Vérifie ta connexion, puis actualise. Ton parcours reste disponible.",
+  "quizUnavailableModesLabel": "Deux façons de t’entraîner t’attendent",
   "quizHistoryLoading": "Chargement des tentatives validées…",
   "quizHistoryUnavailable": "Historique indisponible pour le moment.",
   "quizNoValidatedAttempt": "Aucune tentative validée pour le moment.",
@@ -725,7 +755,7 @@
   },
   "myResults": "Mes résultats",
   "quizResultsLoadFailed": "Impossible de récupérer les résultats validés. Tes quiz restent accessibles.",
-  "quizFirstResultBody": "Aucun résultat inventé ici : ta première tentative apparaîtra après sa validation par le serveur.",
+  "quizFirstResultBody": "Ton premier résultat apparaîtra ici une fois ta tentative corrigée.",
   "quizMasteryUnavailable": "La maîtrise par thème n’est pas affichée : les tentatives actuelles n’enregistrent pas encore de compétences pédagogiques validées.",
   "dateUnavailable": "Date non disponible",
   "pointsEarned": "+{count} points",
@@ -749,9 +779,9 @@
   },
   "unavailableOfflineA11y": " Indisponible hors connexion.",
   "quizNeedsNetworkTitle": "Ce quiz a besoin du réseau",
-  "quizNeedsNetworkBody": "Le serveur protège la correction et valide l’envoi. Intellia237 ne met ni tes réponses ni les corrigés en cache. Reconnecte-toi pour commencer, ou poursuis une activité disponible hors ligne.",
+  "quizNeedsNetworkBody": "La correction se fait en ligne, et rien n’est gardé sur le téléphone. Reconnecte-toi pour commencer, ou continue une activité disponible sans internet.",
   "quizPlayOfflineTitle": "Quiz indisponible hors connexion",
-  "quizPlayOfflineBody": "Le contenu, la correction et l’envoi sont vérifiés par le serveur. Intellia237 ne conserve ni tes réponses ni les corrigés hors ligne. Reconnecte-toi, ou poursuis une activité déjà disponible sur cet appareil.",
+  "quizPlayOfflineBody": "Ce quiz a besoin d’internet pour être corrigé. Reconnecte-toi, ou continue une activité déjà disponible sur ce téléphone.",
   "quizQuestionsComingTitle": "Questions en préparation",
   "quizQuestionsComingBody": "Ce quiz est publié, mais ses questions ne sont pas encore disponibles.",
   "leaveQuizTitle": "Quitter ce quiz ?",
@@ -761,7 +791,7 @@
   "checkAnswerAction": "Vérifier",
   "finishLabel": "Terminer",
   "guidedCorrectionUnavailableTitle": "Correction indisponible",
-  "guidedCorrectionFailureBody": "{reason}\nTa réponse reste saisie sur cet écran et n’est pas mise en cache.",
+  "guidedCorrectionFailureBody": "{reason}\nTa réponse reste sur cet écran.",
   "@guidedCorrectionFailureBody": {
     "placeholders": {
       "reason": {
@@ -809,7 +839,7 @@
   "quizSubmissionDenied": "Tu ne peux pas soumettre ce quiz.",
   "quizSubmissionInvalid": "La tentative contient des réponses invalides.",
   "quizSubmissionUnauthenticated": "Connecte-toi pour valider le quiz.",
-  "quizSubmissionUnavailable": "Le serveur n’a pas pu valider cette tentative pour le moment.",
+  "quizSubmissionUnavailable": "Ta tentative n’a pas pu être corrigée pour le moment. Réessaie dans un instant.",
   "singleAnswerQcm": "QCM — Une seule bonne réponse",
   "selectedA11y": ", sélectionnée",
   "quizOptionA11y": "Réponse {letter} : {answer}{selected}",
@@ -872,39 +902,21 @@
       }
     }
   },
-  "continueWithFlow": "Continuer avec le Flow",
+  "continueWithFlow": "Continuer mon parcours",
   "homeLabel": "Accueil",
   "companionNavLabel": "Compagnon",
   "profileNavLabel": "Profil",
-  "homeLoadError": "Impossible de charger l’accueil",
-  "flowSyncSignedOut": "Connecte-toi pour faire valider tes points FLOW.",
+  "homeLoadError": "L’accueil n’a pas pu s’afficher",
+  "flowSyncSignedOut": "Connecte-toi pour faire valider tes points du parcours.",
   "flowSyncUnavailable": "Tes points n’ont pas pu être validés pour le moment. Ta réponse est conservée.",
   "flowSyncQueued": "Réponse enregistrée hors ligne. Les points seront validés à la prochaine synchronisation.",
-  "flowSyncNotEligible": "La validation des points FLOW est réservée aux profils élèves.",
-  "flowSyncContentNotValidated": "Cette activité FLOW n’est pas encore validée par le serveur.",
+  "flowSyncNotEligible": "La validation des points du parcours est réservée aux profils élèves.",
+  "flowSyncContentNotValidated": "Cette activité du parcours n’est pas encore prête.",
   "flowSyncDuplicate": "Cette validation a déjà été utilisée pour une autre activité.",
-  "flowSyncInvalidAnswer": "La réponse FLOW envoyée est invalide.",
-  "flowSyncUnknown": "Impossible de valider les points FLOW pour le moment.",
+  "flowSyncInvalidAnswer": "La réponse envoyée pour cette activité est invalide.",
+  "flowSyncUnknown": "Impossible de valider les points du parcours pour le moment.",
   "flowDailyCapReached": "Plafond quotidien atteint : reviens demain pour gagner de nouveaux points.",
-  "companionSpeak": "Parler",
   "companionSend": "Envoyer",
-  "companionMicRationale": "{name} a besoin du micro pour t’écouter. Rien n’est enregistré sans que tu envoies.",
-  "@companionMicRationale": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "companionMicDenied": "Le micro est refusé. Tu peux l’autoriser dans les réglages, ou écrire ta question.",
-  "companionMicUnavailable": "La dictée n’est pas disponible sur cet appareil. Tu peux écrire ta question.",
-  "companionListening": "Je t’écoute",
-  "companionDictationCancel": "Annuler",
-  "companionDictationStop": "Arrêter",
-  "companionDictationNearEnd": "Bientôt la fin",
-  "companionDictationFailed": "Je n’ai pas bien entendu. Tu peux réessayer ou écrire.",
-  "companionListen": "Écouter",
-  "companionPauseListening": "Pause",
   "companionHistoryTitle": "Tes conversations",
   "companionHistoryEmpty": "Tes conversations apparaîtront ici.",
   "companionNewConversation": "Nouvelle conversation",
@@ -917,7 +929,7 @@
     }
   },
   "authGatewayTitle": "Bienvenue sur INTELLIA237",
-  "authGatewaySubtitle": "Quel espace veux-tu ouvrir ?",
+  "authGatewaySubtitle": "Un espace éducatif sécurisé, pensé pour le Cameroun.",
   "todayEyebrow": "Aujourd’hui",
   "firstSessionEyebrow": "Pour commencer",
   "firstSessionTitle": "Choisis ta première activité",
@@ -926,9 +938,9 @@
   "exploreEyebrow": "Explorer",
   "chooseNextActivity": "Choisis ta prochaine activité",
   "homeLessonsComingTitle": "Tes cours arrivent",
-  "homeLessonsComingBody": "Les leçons de ta classe sont en cours de préparation. En attendant, découvre le Flow ou révise avec ton compagnon.",
-  "discoverFlow": "Découvrir le Flow",
-  "talkToCompanion": "Parler à mon compagnon",
+  "homeLessonsComingBody": "Les leçons de ta classe sont en cours de préparation. En attendant, découvre ton parcours ou révise avec ton compagnon.",
+  "discoverFlow": "Découvrir mon parcours",
+  "talkToCompanion": "Écrire à mon compagnon",
   "forYouEyebrow": "Pour toi",
   "adaptiveJourneyTitle": "Un parcours qui avance avec toi",
   "demoDataLabel": "Données de démonstration",
@@ -1231,7 +1243,7 @@
       }
     }
   },
-  "totalPendingValidation": "Total en attente de validation serveur",
+  "totalPendingValidation": "Total en attente de vérification",
   "totalVerifiedPoints": "{count} points vérifiés au total",
   "@totalVerifiedPoints": {
     "placeholders": {
@@ -1440,7 +1452,7 @@
   "loadingOffer": "Chargement de l’offre",
   "serviceUnavailable": "Service indisponible",
   "subscriptionTitle": "Abonnement",
-  "mobileMoneyParentDescription": "Paiement Mobile Money déclaré puis vérifié manuellement par votre établissement.",
+  "mobileMoneyParentDescription": "Paiement Mobile Money déclaré, puis vérifié manuellement par l’établissement de l’enfant concerné.",
   "myPaymentRequests": "Mes demandes",
   "accessDaysAfterApproval": "Accès pendant {days} jours après validation",
   "@accessDaysAfterApproval": {
@@ -1479,8 +1491,8 @@
   },
   "paymentRequestSubmitted": "Demande transmise. L’accès sera activé uniquement après vérification.",
   "noValidatedSchoolLinked": "Aucun établissement validé n’est encore lié à ce compte parent.",
-  "multipleSchoolsLinked": "Plusieurs établissements sont liés. Contactez l’assistance pour choisir celui qui facturera l’accès.",
-  "noActiveMobileMoneyOffer": "Votre établissement n’a pas encore publié d’offre Mobile Money active.",
+  "multipleSchoolsLinked": "Vos enfants sont inscrits dans plusieurs établissements : choisissez l’enfant pour qui vous payez.",
+  "noActiveMobileMoneyOffer": "L’établissement de cet enfant n’a pas encore publié d’offre Mobile Money active.",
   "offerUnavailable": "Offre indisponible",
   "referenceValue": "Référence {reference}",
   "@referenceValue": {
@@ -1783,8 +1795,8 @@
   "learningObjectiveLabel": "Objectif pédagogique",
   "estimatedDurationLabel": "Durée estimée",
   "aiGenerationTitle": "Génération IA",
-  "aiGenerationBackendOnly": "La génération IA n’est plus disponible côté client. Le flux backend-only passe désormais par Cloud Functions et le microservice LLM.",
-  "aiGenerationBackendInstructions": "Rédigez la leçon manuellement ici, puis utilisez le parcours backend sécurisé pour produire résumés et quiz.",
+  "aiGenerationBackendOnly": "La génération automatique ne se lance pas depuis cet écran.",
+  "aiGenerationBackendInstructions": "Rédigez la leçon ici. Pour partir de pages de cours photographiées, utilisez « Importer des pages » depuis le chapitre : des brouillons sont préparés, que vous relisez avant publication.",
   "courseSectionsCount": "Sections du cours ({count})",
   "@courseSectionsCount": {
     "placeholders": {
@@ -2061,10 +2073,10 @@
     }
   },
   "authorSignature": "Application conçue par Calvin EKENA · +237 699 98 90 99",
-  "schoolHeadShieldTooltip": "Espace direction d’établissement",
-  "schoolHeadSheetEyebrow": "ESPACE DIRECTION",
-  "schoolHeadSheetTitle": "Votre école,\nen entier.",
-  "schoolHeadSheetBody": "Connectez-vous pour administrer toute votre école : personnel, classes, contenus et suivi. Les comptes des élèves restent les leurs : vous ne pouvez ni en ajouter ni en supprimer.",
+  "schoolHeadShieldTooltip": "Accès établissement",
+  "schoolHeadSheetEyebrow": "ESPACE ÉTABLISSEMENT",
+  "schoolHeadSheetTitle": "Votre accès professionnel",
+  "schoolHeadSheetBody": "Choisissez votre espace. Seuls les accès accordés à votre compte peuvent être ouverts.",
   "schoolHeadContinueEmail": "Continuer par e-mail",
   "schoolHeadContinuePhone": "Continuer par téléphone",
   "schoolHeadPhoneNote": "Le téléphone fonctionne une fois votre numéro rattaché à votre compte, depuis vos paramètres.",
@@ -2151,7 +2163,9 @@
   "parentPreviewViewingParent": "Espace de {name}",
   "@parentPreviewViewingParent": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "parentPreviewOwnAccountNote": "Aperçu de votre propre espace Parent.",
@@ -2164,18 +2178,22 @@
   "parentPreviewPaymentsBlockedBody": "Vous consultez l’espace d’un autre parent : pour protéger ses données, aucune opération de paiement n’est possible ici.",
   "addChildTitle": "Ajouter un enfant",
   "addChildCodeLabel": "Code de liaison de l’enfant",
-  "addChildCodeHelp": "Demande à ton enfant son code, visible dans son espace Profil › « Mon code parent ».",
+  "addChildCodeHelp": "Demandez à votre enfant son code, visible dans son espace Profil › « Mon code parent ».",
   "addChildSubmit": "Lier l’enfant",
   "addChildSuccess": "{name} est maintenant lié à ton compte.",
   "@addChildSuccess": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
-  "addChildAlready": "{name} est déjà lié à ton compte.",
+  "addChildAlready": "{name} est déjà lié à votre compte.",
   "@addChildAlready": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "studentLinkCodeTitle": "Mon code parent",
@@ -2195,7 +2213,11 @@
   "deleteClassLabel": "Supprimer la classe",
   "deleteClassConfirm": "Supprimer « {name} » ? Cette classe est vide.",
   "@deleteClassConfirm": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "deleteClassBlocked": "Classe non vide : retirez d’abord les élèves.",
   "classCreatedMessage": "Classe créée.",
@@ -2204,5 +2226,1679 @@
   "archiveEstablishmentLabel": "Archiver l’école",
   "unarchiveEstablishmentLabel": "Réactiver l’école",
   "establishmentArchivedBadge": "Archivée",
-  "establishmentCityLabel": "Ville"
+  "establishmentCityLabel": "Ville",
+  "flowChoiceTrue": "Vrai",
+  "flowChoiceFalse": "Faux",
+  "flowHintPrefix": "Indice : {hint}",
+  "@flowHintPrefix": {
+    "placeholders": {
+      "hint": {
+        "type": "String"
+      }
+    }
+  },
+  "flowFeedbackCorrect": "Exact !",
+  "flowFeedbackIncorrect": "Pas encore.",
+  "flowExpectedOrder": "Ordre attendu : {order}",
+  "@flowExpectedOrder": {
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "flowSwipeToContinue": "Balaie vers le haut pour continuer",
+  "childLinkErrorNotFound": "Ce code enfant est introuvable. Vérifie-le avec ton enfant.",
+  "childLinkErrorInvalid": "Saisis le code de liaison de ton enfant.",
+  "childLinkErrorPermission": "Seul un compte parent peut rattacher un enfant.",
+  "childLinkErrorUnauthenticated": "Ta session a expiré. Reconnecte-toi puis réessaie.",
+  "childLinkErrorTooMany": "Trop de tentatives. Réessaie un peu plus tard.",
+  "childLinkErrorGeneric": "La liaison n’a pas abouti. Réessaie dans un instant.",
+  "studyReserveTitle": "Réserve d’étude",
+  "studyReserveRemaining": "{percent} % restants",
+  "@studyReserveRemaining": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "studyReserveRenews": "Renouvellement le {date}",
+  "@studyReserveRenews": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "studyReserveStatusHealthy": "Bonne réserve",
+  "studyReserveStatusWarning": "À surveiller",
+  "studyReserveStatusLow": "Réserve basse",
+  "studyReserveStatusCritical": "Presque épuisée",
+  "studyReserveStatusDepleted": "Réserve épuisée",
+  "studyReserveDepletedHelp": "Le tuteur IA se repose jusqu’au renouvellement. Les cours, quiz et lectures restent accessibles.",
+  "studyReserveUnavailable": "Réserve d’étude indisponible pour le moment.",
+  "studyReserveNotifTitle": "Réserve d’étude",
+  "studyReserveNotifInfo": "Il reste {percent} % de la réserve d’étude ce cycle.",
+  "@studyReserveNotifInfo": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "studyReserveNotifLow": "La réserve d’étude est à {percent} %. Pense à la ménager pour le tuteur.",
+  "@studyReserveNotifLow": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "studyReserveNotifCritical": "La réserve d’étude est presque épuisée ({percent} %).",
+  "@studyReserveNotifCritical": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "studyReserveNotifDepleted": "La réserve d’étude est épuisée ; elle se renouvelle au prochain cycle. Les cours et quiz restent accessibles.",
+  "studyReserveLoadError": "Impossible de charger la réserve d’étude pour le moment.",
+  "companionStudyReserveDepleted": "Ta réserve d’étude est épuisée pour ce cycle. {name} reprendra au renouvellement ; tes cours et quiz restent accessibles.",
+  "@companionStudyReserveDepleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parentEntryTitle": "Reliez votre enfant",
+  "parentEntrySubtitle": "Saisissez son code, puis connectez-vous avec votre propre numéro.",
+  "parentEntryHaveCode": "J’ai un code enfant",
+  "parentEntryCodeLabel": "Code de l’enfant",
+  "parentEntryCodeHint": "Ex. K7MP2QXA",
+  "parentEntryCodeHelp": "Votre enfant le trouve dans son profil, rubrique « Mon code parent ».",
+  "parentEntryCodeInvalid": "Un code enfant compte 8 lettres et chiffres. Vérifiez-le avec votre enfant.",
+  "parentEntryPaste": "Coller",
+  "parentEntryAlreadyParent": "Je suis déjà parent",
+  "parentEntryPrivacy": "Le code sert uniquement à relier votre enfant, une fois votre connexion établie.",
+  "phonePendingChildCode": "Code enfant prêt : il sera relié après votre connexion.",
+  "phoneLinkingChild": "Rattachement de votre enfant…",
+  "passNumberAlreadyUsed": "Numéro déjà associé",
+  "roleConflictStudentAccount": "Ce numéro est déjà associé à un compte élève.",
+  "roleConflictParentAccount": "Ce numéro est déjà associé à un compte parent.",
+  "roleConflictStaffAccount": "Ce numéro est déjà associé à un compte de l’établissement.",
+  "roleConflictCredentialsStudentAccount": "Ces identifiants ouvrent un compte élève.",
+  "roleConflictCredentialsParentAccount": "Ces identifiants ouvrent un compte parent.",
+  "roleConflictCredentialsStaffAccount": "Ces identifiants ouvrent un compte de l’établissement.",
+  "roleConflictUseParentCredentials": "Pour créer ou ouvrir un espace parent, utilisez les identifiants du parent.",
+  "roleConflictUseStudentCredentials": "Pour ouvrir l’espace élève, utilisez les identifiants de l’élève.",
+  "roleConflictChildCodeKept": "Le code enfant reste enregistré.",
+  "roleConflictUseAnotherNumber": "Utiliser un autre numéro",
+  "childLinkReportFailedTitle": "Le code enfant n’a pas pu être relié",
+  "childLinkBatchSuccess": "{count, plural, =1{1 enfant relié à votre compte.} other{{count} enfants reliés à votre compte.}}",
+  "@childLinkBatchSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentEntryCodePurpose": "Ce code permet de rattacher l’enfant.\nVotre numéro de téléphone sert à vous identifier comme parent.",
+  "passFamilyNumber": "Numéro de la famille",
+  "familyPhoneMigrationPrompt": "Ce numéro est actuellement utilisé pour l’accès d’un élève. Souhaitez-vous l’utiliser comme numéro du parent ? L’élève conservera son profil et utilisera désormais son code d’accès INTELLIA.",
+  "familyPhoneMigrationConfirm": "Utiliser ce numéro pour le parent",
+  "familyPhoneMigrationNothingChanged": "Le transfert n’a pas abouti. Rien n’a changé : réessayez.",
+  "familyPhoneMigrationVerifyAgain": "Pour votre sécurité, vérifiez à nouveau ce numéro avant de le transférer.",
+  "familyPhoneMigrationVerifyAgainAction": "Vérifier à nouveau le numéro",
+  "familyPhoneMigrationInProgress": "Un transfert est déjà en cours pour ce numéro. Patientez un instant puis réessayez.",
+  "familyPhoneMigrationVerifyAgainToFinish": "L’élève a déjà son code d’accès. Vérifiez à nouveau ce numéro pour terminer l’ouverture de votre espace parent.",
+  "familyPhoneMigrationRefused": "Ce numéro ne peut pas être transféré depuis ce compte. Utilisez un autre numéro ou contactez l’établissement.",
+  "familyPhoneMigrationUnavailable": "Le transfert du numéro n’est pas encore disponible. Réessayez plus tard ou utilisez un autre numéro.",
+  "familyPhoneMigratedTitle": "Ce numéro est désormais le vôtre",
+  "familyPhoneMigratedContinue": "J’ai noté le code, ouvrir mon espace parent",
+  "studentNoPhoneUseAccessCode": "Pas de téléphone ? Entre avec ton code d’accès INTELLIA",
+  "studentAccessCodePhase": "Ton code d’accès",
+  "studentAccessCodeTitle": "Entre avec ton code d’accès",
+  "studentAccessCodeSubtitle": "Saisis les 12 caractères que ton parent ou ton établissement t’a donnés. Pas besoin de téléphone.",
+  "studentAccessCodeLabel": "Code d’accès INTELLIA",
+  "studentAccessCodeSubmit": "Entrer dans mon espace",
+  "studentAccessCodePrivacy": "Garde ce code pour toi : il ouvre ton espace. Si tu l’as perdu, demande un nouveau code à ton parent ou à ton établissement.",
+  "studentAccessCodeUsePhone": "J’ai un téléphone : recevoir un SMS",
+  "studentAccessCodeInvalid": "Ce code ne fonctionne pas. Vérifie-le, ou demande un nouveau code à ton parent ou à ton établissement.",
+  "studentAccessCodeTooManyAttempts": "Trop d’essais. Attends quelques minutes avant de réessayer.",
+  "studentAccessCodeUnavailable": "Le service ne répond pas pour le moment. Réessaie dans un instant.",
+  "studentAccessCodeRevealTitle": "Code d’accès INTELLIA de {name}",
+  "@studentAccessCodeRevealTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeRevealTitleGeneric": "Code d’accès INTELLIA de l’élève",
+  "studentAccessCodeRevealBody": "Notez ce code et remettez-le à {name} : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.",
+  "@studentAccessCodeRevealBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeRevealBodyGeneric": "Notez ce code et remettez-le à l’élève : il ouvre son espace sans téléphone. Il ne sera plus affiché ; vous pourrez en générer un nouveau depuis sa fiche.",
+  "studentAccessCodeNotShownAgain": "Le code d’accès de l’élève a déjà été créé. Pour sa sécurité, il n’est jamais affiché à nouveau : générez-en un nouveau depuis sa fiche.",
+  "studentAccessCodeCopy": "Copier le code",
+  "studentAccessCodeCopied": "Code copié",
+  "studentAccessCodeSheetBody": "Ce code permet à votre enfant d’ouvrir son espace INTELLIA sans téléphone. Pour sa sécurité, il n’est jamais affiché à nouveau : générer un nouveau code remplace l’ancien, qui cesse aussitôt de fonctionner.",
+  "studentAccessCodeGenerate": "Afficher / générer un nouveau code d’accès",
+  "studentAccessCodeReplaceTitle": "Remplacer le code d’accès ?",
+  "studentAccessCodeReplaceBody": "L’ancien code de {name} cessera immédiatement de fonctionner.",
+  "@studentAccessCodeReplaceBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeReplaceConfirm": "Générer le nouveau code",
+  "studentAccessCodeDone": "J’ai noté le code",
+  "studentAccessCodeIssueFailed": "Le code n’a pas pu être généré. Réessayez.",
+  "studentAccessCodeActiveSince": "Code d’accès actif depuis le {date}",
+  "@studentAccessCodeActiveSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "studentAccessCodeActive": "Code d’accès actif",
+  "studentAccessCodeNone": "Aucun code d’accès pour l’instant",
+  "childAccessOwnPhone": "Connecté avec son propre accès INTELLIA",
+  "childAccessCodeOnly": "Se connecte avec son code d’accès INTELLIA",
+  "childAccessUnknown": "Accès de l’enfant non disponible pour le moment",
+  "childAccessNone": "Aucun accès personnel : générez son code d’accès",
+  "childActionViewProfile": "Voir le profil",
+  "childActionViewActivity": "Voir son activité",
+  "childActionAccessCode": "Code d’accès élève",
+  "childActionSubscription": "Abonnement",
+  "childSubscriptionActiveUntil": "Abonnement actif jusqu’au {date}",
+  "@childSubscriptionActiveUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "childSubscriptionPaidByAnotherGuardian": "Réglé par un autre responsable de l’enfant",
+  "childSubscriptionInactive": "Aucun abonnement actif pour cet enfant",
+  "childSchoolUnknown": "Établissement non renseigné",
+  "parentChildrenCount": "{count, plural, =1{1 enfant} other{{count} enfants}}",
+  "@parentChildrenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "parentModeProfileBanner": "MODE PARENT — PROFIL DE {name}",
+  "@parentModeProfileBanner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "parentModeProfileNote": "Vous consultez ce profil avec votre compte parent. Vous ne pouvez rien y modifier au nom de votre enfant.",
+  "childProfileTitle": "Profil de l’enfant",
+  "childProfileClass": "Classe",
+  "childProfileSchool": "Établissement",
+  "childProfileAccess": "Accès INTELLIA",
+  "childProfileSubscription": "Abonnement",
+  "parentSchoolsAnnouncements": "Annonces des écoles de vos enfants",
+  "mobileMoneyChooseChild": "Pour quel enfant payez-vous ?",
+  "mobileMoneyOfferOfSchool": "Offre de {school}",
+  "@mobileMoneyOfferOfSchool": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "mobileMoneyCoversChildren": "Ce paiement couvre : {names}",
+  "@mobileMoneyCoversChildren": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "childPendingFirstSignIn": "En attente de sa première connexion",
+  "addChildNoAccountAction": "Mon enfant n’a pas encore de compte INTELLIA",
+  "addChildNoAccountTitle": "Ouvrir l’accès de votre enfant",
+  "addChildNoAccountBody": "Votre enfant n’a pas besoin de téléphone. Vous recevrez son code d’accès INTELLIA ; il complétera lui-même son profil scolaire à sa première connexion.",
+  "addChildNoAccountNameLabel": "Prénom de l’enfant",
+  "addChildNoAccountNameRequired": "Indiquez le prénom de votre enfant.",
+  "addChildNoAccountSubmit": "Créer son code d’accès",
+  "addChildNoAccountFailed": "L’accès n’a pas pu être ouvert. Réessayez.",
+  "adminStudentAccessRecoveryTitle": "Récupérer l’accès de l’élève",
+  "adminStudentAccessRecoveryBody": "Un nouveau code d’accès INTELLIA remplace le précédent, qui cesse aussitôt de fonctionner. Remettez-le à l’élève ou à sa famille en main propre : il ne sera plus affiché.",
+  "adminStudentPhoneOptional": "Téléphone de l’élève (facultatif)",
+  "childActionLinkCode": "Code de liaison parent",
+  "guardianLinkCodeBody": "Ce code permet à un autre parent ou responsable de rattacher {name} à son propre compte. Il n’ouvre pas l’espace de l’élève : pour cela, utilisez le code d’accès élève.",
+  "@guardianLinkCodeBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "guardianLinkCodeRotate": "Remplacer ce code",
+  "guardianLinkCodeRotateBody": "L’ancien code de liaison cessera immédiatement de fonctionner. Les responsables déjà rattachés le restent.",
+  "guardianLinkCodeUnavailable": "Le code de liaison n’a pas pu être obtenu. Réessayez.",
+  "ilbWordOrderInstruction": "Remets les mots dans le bon ordre.",
+  "ilbStepOrderInstruction": "Remets les étapes dans le bon ordre.",
+  "ilbTimelineInstruction": "Remets ces événements dans l’ordre chronologique.",
+  "ilbProcessInstruction": "Remets les étapes de ce processus dans l’ordre.",
+  "ilbCheck": "Vérifier",
+  "ilbRestart": "Recommencer",
+  "ilbHint": "Un indice",
+  "ilbShowSolution": "Voir la solution",
+  "ilbContinueWith": "Continuer avec {name}",
+  "@ilbContinueWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ilbContinueMessage": "J’ai terminé l’exercice. On continue ?",
+  "ilbCorrect1": "Exact.",
+  "ilbCorrect2": "Très bien.",
+  "ilbCorrect3": "Oui, c’est ça.",
+  "ilbAlmost": "Presque.",
+  "ilbTryAgain": "Essaie encore.",
+  "ilbPositionHint": "Regarde la position {position}.",
+  "@ilbPositionHint": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbAttempt": "Essai {count}",
+  "@ilbAttempt": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbHintsUsed": "{count, plural, =0{Aucun indice} =1{1 indice} other{{count} indices}}",
+  "@ilbHintsUsed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbAnswerZoneEmpty": "Touche ou glisse les mots ici",
+  "ilbAnswerZoneA11y": "Ta réponse",
+  "ilbWordBankA11y": "Mots à placer",
+  "ilbPlaceWordA11y": "Placer « {word} »",
+  "@ilbPlaceWordA11y": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "ilbRemoveWordA11y": "Retirer « {word} », position {position}",
+  "@ilbRemoveWordA11y": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      },
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "ilbMoveUp": "Monter",
+  "ilbMoveDown": "Descendre",
+  "ilbStepA11y": "Étape {position} : {text}",
+  "@ilbStepA11y": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      },
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "ilbSolutionShown": "Voici la bonne réponse.",
+  "ilbKiraWords": "Essaie de remettre cette phrase dans le bon ordre.",
+  "ilbLeoWords": "À toi. Reconstruis cette phrase.",
+  "ilbKiraSteps": "Prends ton temps : remets les étapes dans l’ordre.",
+  "ilbLeoSteps": "Défi : remets les étapes dans l’ordre, sans aide si tu peux.",
+  "parcoursEmptyTitle": "Ton parcours se prépare",
+  "parcoursEmptyBody": "Aucune carte n’est encore publiée pour ta classe. Reviens après une synchronisation.",
+  "parcoursEmptyRefresh": "Actualiser",
+  "parcoursEmptyHome": "Revenir à l’accueil",
+  "parcoursVideoPending": "Cette vidéo n’est pas encore disponible.",
+  "authGatewayPhone": "Continuer avec mon numéro",
+  "authGatewayPhoneSemantics": "Continuer avec mon numéro de téléphone camerounais",
+  "authGatewayStudentCode": "J’ai un code élève",
+  "authGatewayStudentCodeSemantics": "J’ai un code élève : connexion sans téléphone ni e-mail",
+  "authGatewayOr": "ou",
+  "authGatewayStaff": "Personnel scolaire, enseignant ou direction ?",
+  "authGatewayTerms": "Conditions d’utilisation",
+  "authGatewayPrivacy": "Confidentialité",
+  "authAccountSuspended": "Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.",
+  "authGoogleContinue": "Continuer avec Google",
+  "authGoogleInProgress": "Connexion Google en cours",
+  "authGoogleQuestionEyebrow": "Compte Google",
+  "authGoogleQuestionTitle": "Vous utilisez déjà INTELLIA237 ?",
+  "authGoogleQuestionBody": "Ce compte Google n’ouvre encore aucun compte INTELLIA237. Si vous avez déjà un compte, par numéro de téléphone ou par e-mail, retrouvez-le : Google y sera ajouté, et votre espace comme vos données restent les mêmes.",
+  "authGoogleQuestionAccount": "Compte Google choisi : {email}",
+  "@authGoogleQuestionAccount": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "authGoogleQuestionYes": "Oui, retrouver mon compte",
+  "authGoogleQuestionNo": "Non, continuer",
+  "authGoogleQuestionNoHint": "Un nouvel accès INTELLIA237 est créé avec ce compte Google. Vous choisissez ensuite ce que vous souhaitez faire.",
+  "authGoogleQuestionOtherAccount": "Utiliser un autre compte Google",
+  "authGoogleStepExpired": "Cette étape a expiré. Recommencez avec « Continuer avec Google ».",
+  "authBackToGateway": "Revenir à l’accueil",
+  "authRecoveryEyebrow": "Retrouver mon compte",
+  "authRecoveryTitle": "Connectez-vous à votre compte existant",
+  "authRecoveryBody": "Prouvez que ce compte est le vôtre. Google y sera ensuite ajouté comme nouvelle façon de vous connecter.",
+  "authRecoveryEmailInUse": "Un compte INTELLIA237 utilise déjà l’adresse {email}. Connectez-vous à ce compte pour y ajouter Google.",
+  "@authRecoveryEmailInUse": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "authRecoveryByPhone": "Par téléphone",
+  "authRecoveryByEmail": "Par e-mail",
+  "authRecoveryPhoneLabel": "Numéro de téléphone",
+  "authRecoveryPhoneHint": "6XX XX XX XX",
+  "authRecoverySendCode": "Recevoir le code par SMS",
+  "authRecoveryCodeLabel": "Code reçu par SMS",
+  "authRecoveryCodeSentTo": "Code envoyé au {phone}.",
+  "@authRecoveryCodeSentTo": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "authRecoveryVerifyCode": "Vérifier le code",
+  "authRecoveryChangeNumber": "Modifier le numéro",
+  "authRecoveryResendIn": "Nouveau code possible dans {seconds} s",
+  "@authRecoveryResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "authRecoveryResend": "Renvoyer le code",
+  "authRecoveryEmailLabel": "Adresse e-mail",
+  "authRecoveryPasswordLabel": "Mot de passe",
+  "authRecoverySignIn": "Me connecter et ajouter Google",
+  "authRecoveryLinking": "Ajout de Google à votre compte…",
+  "authRecoveryNoAccountForPhone": "Aucun compte INTELLIA237 n’utilise ce numéro. Vérifiez-le, ou revenez en arrière et choisissez « Non, continuer ».",
+  "authRecoveryNoProfile": "Ce compte n’a pas encore d’espace INTELLIA237. Revenez en arrière et choisissez « Non, continuer ».",
+  "authRecoveryLinkedElsewhere": "Ce compte Google est déjà associé à un autre compte INTELLIA237.",
+  "authRecoveryLinkedElsewhereHelp": "Rien n’a été modifié ni fusionné. Pour utiliser ce compte Google, choisissez « Continuer avec Google » depuis l’accueil. En cas de doute, contactez votre établissement ou l’assistance INTELLIA237.",
+  "authRecoveryProviderTaken": "Votre compte INTELLIA237 est déjà associé à un autre compte Google.",
+  "authRecoveryProviderTakenHelp": "Rien n’a été modifié. Connectez-vous avec le compte Google déjà associé, ou avec votre numéro.",
+  "authRecoveryOpenWithoutGoogle": "Ouvrir mon espace sans Google",
+  "authRecoveryCancel": "Annuler et revenir à l’accueil",
+  "authRecoveryCleanupFailed": "La vérification de ce numéro n’a pas pu être annulée. Aucun espace n’a été créé ; réessayez plus tard ou contactez l’assistance INTELLIA237.",
+  "authWelcomeEyebrow": "Nouveau sur INTELLIA237",
+  "authWelcomeTitle": "Que souhaitez-vous faire ?",
+  "authWelcomeBody": "Votre identité est vérifiée. Choisissez comment commencer.",
+  "authWelcomeParent": "Suivre mon enfant",
+  "authWelcomeParentHint": "Créer mon espace famille, puis rattacher mon enfant avec son code.",
+  "authWelcomeStudent": "Créer mon espace élève",
+  "authWelcomeStudentHint": "Choisir ma classe et commencer à apprendre.",
+  "authWelcomeDiscover": "Découvrir INTELLIA237",
+  "authWelcomeDiscoverHint": "Voir comment fonctionne l’application, sans créer d’espace.",
+  "authWelcomeStaffNote": "Enseignant ou direction : votre accès est ouvert par votre établissement, puis validé.",
+  "authUseAnotherAccount": "Utiliser un autre compte",
+  "authStudentPhoneTitle": "Ce numéro ouvre l’espace élève de {name}.",
+  "@authStudentPhoneTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "authStudentPhoneTitleUnnamed": "Ce numéro ouvre un espace élève.",
+  "authStudentPhoneBody": "Sur un téléphone de famille, dites-nous qui se connecte.",
+  "authStudentPhoneContinue": "Continuer comme {name}",
+  "@authStudentPhoneContinue": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "authStudentPhoneContinueUnnamed": "C’est mon espace, continuer",
+  "authStudentPhoneParent": "Je suis son parent",
+  "authSpaceEyebrow": "Plusieurs espaces",
+  "authSpaceTitle": "Choisissez votre espace",
+  "authSpaceBody": "Votre compte donne accès à plusieurs espaces. Vous pourrez en changer à tout moment depuis votre profil, sans vous déconnecter.",
+  "authSpaceStudent": "Espace élève",
+  "authSpaceStudentHint": "Cours, exercices, Parcours et compagnons KIRA et LÉO.",
+  "authSpaceParent": "Espace parent",
+  "authSpaceParentHint": "Suivre le travail et les progrès de vos enfants.",
+  "authSpaceTeacher": "Espace enseignant",
+  "authSpaceTeacherHint": "Vos classes, vos contenus et le suivi de vos élèves.",
+  "authSpaceAdmin": "Espace direction",
+  "authSpaceAdminHint": "Administration et pilotage de l’établissement.",
+  "authSpaceCurrent": "Espace actuel",
+  "authSpaceSignOut": "Me déconnecter",
+  "authSwitchSpace": "Changer d’espace",
+  "authSwitchSpaceHint": "Passer à un autre espace de votre compte, sans vous déconnecter.",
+  "authErrorNetwork": "Connexion Internet instable. Vérifiez votre réseau, puis réessayez.",
+  "authErrorInvalidCode": "Ce code est incorrect ou a expiré. Vérifiez le SMS, ou demandez un nouveau code.",
+  "authErrorTooManyRequests": "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
+  "authErrorAccountExists": "Un compte INTELLIA237 utilise déjà cette adresse avec un autre mode de connexion. Connectez-vous à ce compte pour y ajouter Google.",
+  "authErrorCredentialInUse": "Ce compte Google est déjà associé à un autre compte INTELLIA237.",
+  "authErrorWrongPassword": "Adresse e-mail ou mot de passe incorrect.",
+  "authErrorUserDisabled": "Ce compte est suspendu. Contactez votre établissement ou l’assistance INTELLIA237.",
+  "authErrorProviderAlreadyLinked": "Ce compte est déjà associé à un autre compte Google.",
+  "authErrorGoogleNotConfigured": "Connexion Google bientôt disponible. Utilisez votre numéro de téléphone.",
+  "authErrorGoogleUnavailable": "Le sélecteur de comptes Google ne s’est pas ouvert. Vérifiez qu’un compte Google est présent sur l’appareil, puis réessayez.",
+  "authErrorInvalidPhone": "Ce numéro n’est pas un numéro mobile camerounais valide. Exemple : 6 99 12 34 56.",
+  "authErrorMissingFields": "Renseignez l’adresse e-mail et le mot de passe.",
+  "authErrorGeneric": "La connexion n’a pas abouti. Réessayez dans un instant.",
+  "discoveryBadge": "Découverte",
+  "discoveryExit": "Quitter",
+  "discoveryTitle": "Découvrez INTELLIA237",
+  "discoveryIntro": "Un aperçu de l’application, sans espace ni donnée scolaire. Rien de ce que vous voyez ici n’est enregistré.",
+  "discoveryFictionalNotice": "Exemples fictifs, à titre d’illustration : ils ne décrivent aucun élève réel.",
+  "discoveryTutorsTitle": "Des compagnons qui guident, sans donner la réponse",
+  "discoveryKiraRole": "Sciences et mathématiques",
+  "discoveryKiraSample": "Pour isoler x, quelle opération ferais-tu d’abord des deux côtés de l’égalité ?",
+  "discoveryLeoRole": "Méthode, langues et rédaction",
+  "discoveryLeoSample": "Commençons par ce que la solidarité évoque pour toi. Peux-tu citer deux exemples ?",
+  "discoveryParcoursTitle": "Parcours, leçons et quiz",
+  "discoveryParcoursBody": "Des leçons courtes, des exercices et des quiz alignés sur le programme camerounais, avec une correction expliquée.",
+  "discoveryParentTitle": "Le suivi des parents",
+  "discoveryParentBody": "Un parent rattache son enfant avec un code, puis suit son travail : régularité, matières travaillées, points à revoir.",
+  "discoveryParentExample": "Exemple fictif : « Élève A » a travaillé régulièrement cette semaine ; une notion de géométrie est à revoir.",
+  "discoveryCreateTitle": "Créer mon espace",
+  "discoveryCtaParent": "Je suis parent",
+  "discoveryCtaStudent": "Rejoindre mon école",
+  "discoveryCtaCode": "J’ai un code élève",
+  "registrationGuideNext": "Ensuite : {step}",
+  "registrationGuideLast": "Dernière étape",
+  "parentGuideIdentity": "Votre prénom et votre nom s’afficheront dans votre espace parent. Votre numéro est déjà vérifié : aucun mot de passe à créer.",
+  "parentGuideChildren": "Demandez à votre enfant son « code parent » (8 caractères) : il le trouve dans son profil, rubrique « Mon code parent ». Pas encore de code ? Continuez, vous le relierez plus tard.",
+  "parentGuideFinal": "Acceptez les conditions pour ouvrir votre espace. Vous y suivrez les progrès de votre enfant et pourrez en ajouter d’autres.",
+  "studentGuideIdentity": "Écris ton prénom et ton nom comme à l’école : ton professeur te reconnaîtra.",
+  "studentGuideClass": "Choisis ta classe : tes cours, tes quiz et ton parcours seront faits pour elle.",
+  "studentGuideCompanion": "Découvre Kira et Léo, puis choisis celui qui t’aidera à réviser.",
+  "studentGuideSecurity": "Ton numéro protège ton compte : personne d’autre ne pourra entrer à ta place.",
+  "teacherGuideIdentity": "Votre nom tel que vos élèves et votre établissement le connaissent.",
+  "teacherGuideTeaching": "Vos matières et vos classes : votre espace et vos contenus seront préparés pour elles.",
+  "teacherGuideFinal": "Acceptez les conditions : votre établissement validera ensuite votre compte.",
+  "@registrationGuideNext": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "flowExit": "Quitter",
+  "@flowExit": {
+    "description": "Bouton visible pour quitter le Parcours."
+  },
+  "parentGuideOpen": "Guide de votre espace",
+  "parentGuideReplay": "Revoir le guide",
+  "parentGuideProgress": "ÉTAPE {current} SUR {total}",
+  "parentGuideSkip": "Passer",
+  "parentGuideNext": "Suivant",
+  "parentGuideDone": "C’est compris",
+  "parentGuideWelcomeTitle": "Bienvenue dans votre espace parent",
+  "parentGuideWelcomeBody": "Vous y suivez la progression de vos enfants, les annonces de leur école et les paiements. Voici l’essentiel en six étapes.",
+  "parentGuideAddTitle": "Ajouter un enfant",
+  "parentGuideAddBody": "Onglet « Mes enfants », puis « Ajouter un enfant ». Deux cas : votre enfant a déjà un compte INTELLIA, ou pas encore.",
+  "parentGuideLinkTitle": "Il a déjà un compte : le code parent",
+  "parentGuideLinkBody": "Demandez à votre enfant son « code parent » (8 caractères). Il le trouve dans son Profil, rubrique « Mon code parent ». Saisissez-le, puis touchez « Lier l’enfant ».",
+  "parentGuideAccessTitle": "Pas encore de compte : le code d’accès",
+  "parentGuideAccessBody": "Choisissez « Mon enfant n’a pas encore de compte INTELLIA ». Vous obtenez son code d’accès : notez-le, il n’est affiché qu’une fois. Un nouveau code se crée depuis sa fiche, « Code d’accès élève ».",
+  "parentGuideSwitchTitle": "Votre enfant utilise ce téléphone",
+  "parentGuideSwitchBody": "Profil, puis « Se déconnecter ». Sur l’écran d’accueil, votre enfant touche « J’ai un code élève » et saisit son code d’accès. Pour revenir à votre espace : il se déconnecte, puis vous entrez avec votre numéro.",
+  "parentGuideAgainTitle": "Retrouver ce guide",
+  "parentGuideAgainBody": "Touchez la boussole en haut de votre espace, ou « Revoir le guide » dans Profil, quand vous le souhaitez.",
+  "@parentGuideProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ceLocalChaptersTitle": "Chapitres interactifs",
+  "ceLocalChaptersSubtitle": "Disponibles sans connexion : explications, exercices et jeux.",
+  "ceChapterNumber": "Chapitre {number}",
+  "ceModuleHeading": "Module {number} — {title}",
+  "@ceModuleHeading": {"placeholders": {"number": {"type": "int"}, "title": {"type": "String"}}},
+  "ceSequenceNumber": "Séquence {number}",
+  "@ceSequenceNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceUnitNumber": "Unit {number}",
+  "@ceUnitNumber": {"placeholders": {"number": {"type": "int"}}},
+  "ceSubjectEnglish": "Anglais",
+  "@ceChapterNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceLessonCount": "{count, plural, =0{Aucune leçon} =1{1 leçon} other{{count} leçons}}",
+  "@ceLessonCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceLessonLabel": "Leçon {number}",
+  "@ceLessonLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceLessonRecommendedAfter": "Conseillée après {score} % sur la leçon précédente",
+  "@ceLessonRecommendedAfter": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "ceMasteryPercent": "Maîtrise : {score} %",
+  "@ceMasteryPercent": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "ceJourneyTitle": "Ton chemin dans chaque leçon",
+  "ceJourneyUnderstand": "Je comprends",
+  "ceJourneySee": "Je vois",
+  "ceJourneyTry": "J'essaie",
+  "ceJourneySucceed": "Je réussis",
+  "ceJourneyFormal": "Je passe au formalisme",
+  "ceIntegrationTitle": "Défis d'intégration",
+  "ceSynthesis": "Synthèse",
+  "ceSelfEvaluation": "Auto-évaluation",
+  "ceOpenResponseHelp": "Écris ta réponse, courte ou développée. Tu pourras ensuite la comparer à une réponse modèle.",
+  "ceYourResponse": "Ta réponse",
+  "ceRevealModel": "J'ai terminé · Voir la réponse modèle",
+  "ceModelAnswer": "Réponse modèle",
+  "ceExpectedPoints": "Points clés attendus",
+  "ceSelfEvaluationHelp": "Compare les idées avec ta réponse. Ce choix indique ta confiance ; ce n'est pas une note ni une correction automatique.",
+  "ceNeedsReview": "Je dois revoir",
+  "cePartialConfidence": "Presque",
+  "ceSelfMastered": "J'ai compris",
+  "ceSelfEvaluationSaved": "Ton auto-évaluation est enregistrée pour guider tes révisions.",
+  "ceSelfSaveError": "Ton auto-évaluation n'a pas pu être enregistrée. Réessaie.",
+  "ceIntegrationBody": "Des situations complètes qui mêlent les notions du chapitre.",
+  "ceIntegrationTag": "Intégration",
+  "ceSituationTag": "Situation du manuel",
+  "ceUnavailableTitle": "Ce chapitre n'est pas encore prêt",
+  "ceUnavailableBody": "Il sera proposé dès qu'il aura été vérifié.",
+  "ceLoadError": "Ce chapitre n'a pas pu s'ouvrir. Reviens en arrière et réessaie.",
+  "ceStepUnderstand": "Comprendre",
+  "ceStepSee": "Voir",
+  "ceStepPractice": "S'entraîner",
+  "ceStepPlay": "Jouer",
+  "ceStepFormal": "Formalisme",
+  "ceNextStep": "Ensuite : {step}",
+  "@ceNextStep": {
+    "placeholders": {
+      "step": {
+        "type": "String"
+      }
+    }
+  },
+  "ceModeStandard": "Terminale",
+  "ceModeSimple": "Simple",
+  "ceModeUltra": "Comme si j'avais 12 ans",
+  "ceModeLock": "Garder ce niveau",
+  "ceModeUnlock": "Niveau gardé · libérer",
+  "ceIdeaProgress": "Idée {current} sur {total}",
+  "@ceIdeaProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ceNextIdea": "Idée suivante",
+  "cePreviousIdea": "Idée précédente",
+  "ceSeeStandardVersion": "Voir la version {mode}",
+  "@ceSeeStandardVersion": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "ceExplanationUnavailable": "Cette explication n'est pas encore disponible dans ce cours.",
+  "ceShownInsteadMode": "Voici la version « {mode} ».",
+  "@ceShownInsteadMode": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "ceMistakesTitle": "Pièges à éviter",
+  "cePrerequisitesTitle": "À savoir avant",
+  "ceSeeCaption": "Manipule : tout se met à jour sous tes yeux.",
+  "ceNoVisual": "Pas encore de schéma animé pour cette notion.",
+  "ceVisItems": "Objets",
+  "ceVisBoxSize": "Taille d'une boîte",
+  "ceVisLeftover": "{count, plural, =0{Rien ne reste dehors.} =1{1 objet reste dehors.} other{{count} objets restent dehors.}}",
+  "@ceVisLeftover": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceVisDividend": "Nombre a",
+  "ceVisDivisor": "Diviseur b",
+  "ceVisAllowedRemainders": "Restes permis : de 0 à {max}",
+  "@ceVisAllowedRemainders": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "ceVisModulus": "Modulo n",
+  "ceVisNumber": "Nombre",
+  "ceVisPrimeBadge": "Nombre premier : une seule brique, impossible à casser.",
+  "ceVisWidth": "Largeur",
+  "ceVisHeight": "Hauteur",
+  "ceVisRhythmA": "Rythme A",
+  "ceVisRhythmB": "Rythme B",
+  "ceVisTilesFit": "Les carreaux tombent juste.",
+  "ceVisTilesCut": "Il faudrait couper des carreaux.",
+  "ceClockLaps": "{value} = {laps} tours de {modulus} + {rest}",
+  "@ceClockLaps": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      },
+      "laps": {
+        "type": "int"
+      },
+      "modulus": {
+        "type": "int"
+      },
+      "rest": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGcd": "PGCD",
+  "ceLcm": "PPCM",
+  "ceDifficultyLevel": "Niveau {level}",
+  "@ceDifficultyLevel": {
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "ceQuestionProgress": "Question {current} sur {total}",
+  "@ceQuestionProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ceCheck": "Vérifier",
+  "ceCorrect": "Juste !",
+  "ceIncorrect": "Pas encore.",
+  "ceTryAgain": "Réessayer",
+  "ceNextQuestion": "Question suivante",
+  "ceHint": "Indice",
+  "ceSimpler": "Plus simple",
+  "ceWhyWrong": "Pourquoi c'est faux ?",
+  "ceTrue": "Vrai",
+  "ceFalse": "Faux",
+  "ceYes": "Oui",
+  "ceNo": "Non",
+  "ceYourAnswer": "Ta réponse",
+  "ceFactorizationHint": "Écris par exemple 2²×3×5",
+  "ceFieldRealPart": "Partie réelle",
+  "ceFieldImaginaryPart": "Partie imaginaire",
+  "ceFieldConjugate": "Conjugué",
+  "ceFieldModulus": "Module",
+  "ceFieldSolutions": "Solutions",
+  "ceComplexHint": "Forme a+bi, par exemple 3−2i",
+  "ceComplexSetHint": "Sépare les solutions par ; ou écris 1±2i",
+  "ceRadicalHint": "Valeur exacte, par exemple 5√2",
+  "ceDecimalHint": "Nombre décimal ou fraction, par exemple 0,25 ou 1/4",
+  "ceIntervalHint": "Par exemple [0;4] ou ]1;+∞[",
+  "ceShortTextHint": "Écris ta réponse",
+  "ceExpressionHint": "Par exemple y=x+1",
+  "ceExpressionSetHint": "Sépare tes réponses par ;",
+  "ceListHint": "Sépare les nombres par des virgules",
+  "ceSetPrompt": "Ajoute chaque solution, puis vérifie.",
+  "ceAddValue": "Ajouter",
+  "ceSelectAll": "Choisis toutes les bonnes réponses.",
+  "ceResiduesPrompt": "Touche les restes qui conviennent (modulo {modulus}).",
+  "@ceResiduesPrompt": {
+    "placeholders": {
+      "modulus": {
+        "type": "int"
+      }
+    }
+  },
+  "ceFieldQuotient": "Quotient q",
+  "ceFieldRemainder": "Reste r",
+  "ceFieldDivisor": "Diviseur b",
+  "ceFieldBinary": "Écriture en base 2",
+  "ceFieldDecimal": "Valeur en base 10",
+  "ceFieldDecomposition": "Décomposition",
+  "ceFieldLitres": "Litres",
+  "ceFieldBuckets": "Nombre de seaux",
+  "ceDiagnosisUnreadable": "Je n'arrive pas à lire ta réponse : vérifie l'écriture.",
+  "ceDiagnosisSomeFields": "Une partie est juste : regarde les cases en rouge.",
+  "ceDiagnosisMissing": "{count, plural, =1{Il te manque une solution.} other{Il te manque {count} solutions.}}",
+  "@ceDiagnosisMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceDiagnosisExtra": "{count, plural, =1{Une valeur est en trop.} other{{count} valeurs sont en trop.}}",
+  "@ceDiagnosisExtra": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceDiagnosisNotPrime": "Le produit est bon, mais un facteur n'est pas premier.",
+  "ceDiagnosisExponents": "Les facteurs sont bons : vérifie les exposants.",
+  "ceDiagnosisProduct": "Le produit ne redonne pas le nombre de départ.",
+  "ceDiagnosisDifferent": "Ce n'est pas la réponse attendue.",
+  "ceSourceCaution": "Point signalé dans le manuel",
+  "ceNoQuestions": "Pas encore d'exercice à ce niveau pour cette leçon.",
+  "ceLessonDone": "Tu as fait toutes les questions de ce niveau. Essaie un autre niveau ou joue !",
+  "ceSuggestSimpler": "Veux-tu l'explication « {mode} » ? La difficulté ne change pas.",
+  "@ceSuggestSimpler": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "ceSuggestHarder": "Trois réussites d'affilée ! Passer au niveau « {level} » ?",
+  "@ceSuggestHarder": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "ceAccept": "Oui, allons-y",
+  "ceDismiss": "Pas maintenant",
+  "ceNoGame": "Pas encore de jeu pour cette leçon.",
+  "ceGameComingSoon": "En préparation",
+  "ceGameChooseLevel": "Choisis ton niveau",
+  "ceGameRound": "Manche {current}/{total}",
+  "@ceGameRound": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameScore": "{points} pts",
+  "@ceGameScore": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameStreak": "Série ×{count}",
+  "@ceGameStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameTimeLeft": "{seconds} s",
+  "@ceGameTimeLeft": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameValidate": "Valider",
+  "ceGameGreat": "Bravo !",
+  "ceGameMissed": "Raté, la prochaine sera la bonne.",
+  "ceGameContinue": "Continuer",
+  "ceGameFinished": "Partie terminée",
+  "ceGameFinalScore": "Score : {points}",
+  "@ceGameFinalScore": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameWins": "{wins} manches réussies sur {rounds} · meilleure série : {streak}",
+  "@ceGameWins": {
+    "placeholders": {
+      "wins": {
+        "type": "int"
+      },
+      "rounds": {
+        "type": "int"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGameReplay": "Rejouer",
+  "ceGameNextLevel": "Niveau suivant",
+  "ceGroupingQuotientGoal": "{items} objets, des boîtes de {capacity}. Remplis le plus de boîtes possible.",
+  "@ceGroupingQuotientGoal": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingFullBoxesLabel": "Boîtes pleines",
+  "ceGroupingState": "{full} boîtes pleines · {left} dehors",
+  "@ceGroupingState": {
+    "placeholders": {
+      "full": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingTooMany": "Pas assez d'objets pour autant de boîtes.",
+  "ceGroupingCapacity": "Taille d'une boîte",
+  "ceGroupingCapacityGoal": "{items} objets donnent {full} boîtes pleines et {left} dehors. Quelle est la taille d'une boîte ?",
+  "@ceGroupingCapacityGoal": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "full": {
+        "type": "int"
+      },
+      "left": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingReportGoal": "Rapport : {items} objets, exactement {full} boîtes pleines. Est-ce possible ?",
+  "@ceGroupingReportGoal": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "full": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingPossibleWith": "Possible (boîtes de {capacity})",
+  "@ceGroupingPossibleWith": {
+    "placeholders": {
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "ceGroupingImpossible": "Impossible",
+  "ceBinaryTarget": "Allume les interrupteurs pour faire {value}.",
+  "@ceBinaryTarget": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "ceBinaryCurrent": "Valeur actuelle : {value}",
+  "@ceBinaryCurrent": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "ceBinaryReadGoal": "Lis le code de la valise et écris sa valeur en base 10.",
+  "ceClockGoalReduce": "Sur une horloge de {modulus} cases, où s'arrête {expression} ?",
+  "@ceClockGoalReduce": {
+    "placeholders": {
+      "expression": {
+        "type": "String"
+      },
+      "modulus": {
+        "type": "int"
+      }
+    }
+  },
+  "ceClockGoalOperation": "Où s'arrête {expression} modulo {modulus} ?",
+  "@ceClockGoalOperation": {
+    "placeholders": {
+      "expression": {
+        "type": "String"
+      },
+      "modulus": {
+        "type": "int"
+      }
+    }
+  },
+  "ceClockTap": "Touche la case d'arrivée.",
+  "ceForgePrimeGoal": "{number} est-il premier ? Essaie les marteaux.",
+  "@ceForgePrimeGoal": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceForgeSplitGoal": "Casse {number} en briques premières.",
+  "@ceForgeSplitGoal": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceForgeBounce": "{prime} rebondit : il ne divise pas ce bloc.",
+  "@ceForgeBounce": {
+    "placeholders": {
+      "prime": {
+        "type": "int"
+      }
+    }
+  },
+  "ceForgeDivisorsGoal": "Combien de diviseurs positifs a {number} ?",
+  "@ceForgeDivisorsGoal": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "ceForgeDivisorsLabel": "Nombre de diviseurs",
+  "ceForgeIsPrime": "{number} est premier.",
+  "@ceForgeIsPrime": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "cePrime": "Premier",
+  "ceComposite": "Composé",
+  "ceTilingGcdGoal": "Un sol de {width} × {height} : quel est le plus grand carreau carré sans découpe ?",
+  "@ceTilingGcdGoal": {
+    "placeholders": {
+      "width": {
+        "type": "int"
+      },
+      "height": {
+        "type": "int"
+      }
+    }
+  },
+  "ceTilingLcmGoal": "Des carreaux de {a} et de {b} : où leurs bords se rejoignent-ils à nouveau ?",
+  "@ceTilingLcmGoal": {
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "ceTilingChooseTool": "Quel outil faut-il ici ?",
+  "ceTilingFitsButSmaller": "Ça tombe juste, mais un carreau plus grand existe.",
+  "ceTilingDistance": "Distance",
+  "ceTilingTile": "Côté du carreau",
+  "ceCompanionButton": "Compagnon",
+  "ceCompanionTitle": "{name} t'aide",
+  "@ceCompanionTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceCompanionOffline": "Réponses tirées de ton cours, même sans connexion.",
+  "ceActionExplain": "Explique-moi",
+  "ceActionSimpler": "Plus simplement",
+  "ceActionUltra": "Comme si j'avais 12 ans",
+  "ceActionShow": "Montre-moi",
+  "ceActionHint": "Donne-moi un indice",
+  "ceActionTest": "Teste-moi",
+  "ceActionWhyWrong": "Pourquoi ma réponse est fausse ?",
+  "ceAskHint": "Pose ta question sur ce chapitre…",
+  "ceAskSend": "Envoyer",
+  "ceCompanionUnknown": "Je n'ai pas encore d'explication sur ce sujet dans ce chapitre.",
+  "ceCompanionClosest": "Notions proches :",
+  "ceCompanionNoMoreHints": "Tu as vu tous les indices de ce cours. Essaie « Plus simplement ».",
+  "ceCompanionNothingWrong": "Réponds d'abord à une question : je t'expliquerai ce qui cloche.",
+  "ceCompanionNoQuestion": "Tu as réussi toutes les questions de cette leçon !",
+  "ceCompanionNoConcept": "Ouvre une leçon pour que je t'aide.",
+  "ceCompanionTrap": "Piège à éviter",
+  "ceCompanionCorrection": "Correction",
+  "ceCompanionTryIt": "Essayer cette question",
+  "ceFormalTitle": "La formulation officielle",
+  "ceCourseSays": "Ce que dit le cours",
+  "ceSituationTitle": "La situation du manuel",
+  "ceFormalProgress": "Maîtrise {score} % · {correct} bonnes réponses sur {attempts}",
+  "@ceFormalProgress": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "correct": {
+        "type": "int"
+      },
+      "attempts": {
+        "type": "int"
+      }
+    }
+  },
+  "ceRemainderGoal": "Fais la division de {a} par {b} : règle q jusqu'à ce que le reste r tombe dans la zone permise.",
+  "@ceRemainderGoal": {
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "ceRemainderInZone": "Le reste est dans la zone : 0 ≤ r < |b|.",
+  "ceRemainderTooSmall": "Reste négatif : il faut changer q.",
+  "ceRemainderTooLarge": "Reste trop grand : une part entière de plus tient encore.",
+  "ceRemainderWhy": "Quelle condition doit vérifier le reste ?",
+  "ceMissionStep": "Étape {current} sur {total}",
+  "@ceMissionStep": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ceMissionCriticalThinking": "Bien vu : savoir dire quand les données ne suffisent pas, c'est aussi des mathématiques.",
+  "ceActionExample": "Donne-moi un exemple",
+  "ceCompanionExample": "Exemple",
+  "ceCompanionNoExample": "Je n'ai pas encore d'exemple pour cette notion dans ton cours.",
+  "ceCompanionNameHello": "{name}, voici ce que dit ton cours.",
+  "@ceCompanionNameHello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceCompanionNameAfterErrors": "{name}, reprenons calmement : tu y es presque.",
+  "@ceCompanionNameAfterErrors": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceCompanionNameSuccess": "Bravo {name}, tu maîtrises très bien cette notion.",
+  "@ceCompanionNameSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceChapterPromise": "Même si l'exercice est difficile, tu peux demander une explication plus simple sans changer son niveau.",
+  "ceFeedKickerExplanation": "L'idée clé",
+  "ceFeedKickerUltraSimple": "Comme si j'avais 12 ans",
+  "ceFeedKickerFlash": "Question éclair",
+  "ceFeedKickerMcq": "Choisis la bonne réponse",
+  "ceFeedKickerTrueFalse": "Vrai ou faux",
+  "ceFeedKickerExercise": "Exercice",
+  "ceFeedKickerVisual": "Regarde",
+  "ceFeedKickerGame": "Jeu",
+  "ceFeedKickerMistake": "Piège fréquent",
+  "ceFeedKickerRevision": "À retenir",
+  "ceFeedKickerChallenge": "Défi",
+  "ceFeedKickerMastery": "Tu maîtrises ?",
+  "ceFeedKickerNew": "Nouveau chapitre",
+  "ceFeedKickerCompanion": "Une question ?",
+  "ceFeedDeepen": "Approfondir",
+  "ceFeedAskCompanion": "Demander au Compagnon",
+  "ceFeedCheck": "Vérifier",
+  "ceFeedCorrect": "Bonne réponse !",
+  "ceFeedWrong": "Pas encore. Regarde l'explication, puis réessaie plus tard.",
+  "ceFeedPlay": "Jouer",
+  "ceFeedOpenChapter": "Découvrir le chapitre",
+  "ceFeedNewBody": "Un nouveau chapitre vient d'arriver pour ta classe. Il commence par :",
+  "ceFeedCompanionBody": "Quelque chose n'est pas clair sur « {concept} » ? Le Compagnon t'explique à partir de ton cours, aussi simplement que tu veux.",
+  "@ceFeedCompanionBody": {
+    "placeholders": {
+      "concept": {
+        "type": "String"
+      }
+    }
+  },
+  "ceFeedMistakeLead": "Beaucoup d'élèves se trompent ici :",
+  "ceFeedNameAfterErrors": "{name}, ce n'est pas grave : une explication plus simple arrive dans ton fil.",
+  "@ceFeedNameAfterErrors": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceFeedNameSuccess": "Bravo {name}, c'était un vrai défi.",
+  "@ceFeedNameSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceNewContentAvailable": "Nouveaux contenus disponibles pour ta classe.",
+  "hapticsLabel": "Vibrations pédagogiques",
+  "hapticsDescription": "De petites vibrations accompagnent tes réussites.",
+  "hapticsOn": "Activées",
+  "hapticsReduced": "Réduites : seulement pour les vrais progrès",
+  "hapticsOff": "Désactivées",
+  "rewardExact": "Exact.",
+  "rewardWellSeen": "Bien vu.",
+  "rewardYes": "Oui.",
+  "rewardVeryClean": "Très propre.",
+  "rewardGotIt": "Tu l'as.",
+  "rewardNiceProgress": "Belle progression.",
+  "rewardStreak": "{count} de suite.",
+  "@rewardStreak": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rewardLevelUp": "Niveau supérieur débloqué.",
+  "rewardGotItThisTime": "Oui. Cette fois, tu l'as.",
+  "rewardFoundIt": "Voilà. Tu as trouvé.",
+  "rewardRealStep": "Très bien. Tu viens de franchir un vrai cap.",
+  "rewardChallengeMet": "Défi relevé.",
+  "rewardConceptMastered": "Notion maîtrisée : {concept}",
+  "@rewardConceptMastered": {
+    "placeholders": {
+      "concept": {
+        "type": "String"
+      }
+    }
+  },
+  "rewardConceptMasteredGeneric": "Notion maîtrisée.",
+  "rewardChapterDone": "Chapitre réussi : {chapter}",
+  "@rewardChapterDone": {
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      }
+    }
+  },
+  "rewardChapterDoneGeneric": "Chapitre réussi.",
+  "rewardWithName": "{name}, {message}",
+  "@rewardWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "authGatewayEmail": "Se connecter avec un e-mail",
+  "authStaffTeacher": "Enseignant",
+  "authStaffDirection": "Direction / Proviseur",
+  "authStaffAdministration": "Administration INTELLIA",
+  "authEmailCreateTitle": "Créer mon accès par e-mail",
+  "authEmailCreateBody": "Votre adresse vous permet de vous connecter. Vous choisirez votre espace ensuite.",
+  "authFamilyWho": "Qui utilise INTELLIA ?",
+  "authFamilyChooseBody": "Choisissez le profil de l’enfant. Son espace reste personnel.",
+  "authFamilyUnavailable": "Impossible d’ouvrir cet espace pour le moment. Réessayez ou reconnectez-vous.",
+  "authFamilyVerifyAgain": "Pour protéger l’espace de l’enfant, confirmez de nouveau votre numéro.",
+  "authFamilyVerifyAgainAction": "Confirmer mon numéro",
+  "authFamilyNoChildren": "Aucun profil enfant lié pour le moment.",
+  "authParentSpace": "Espace parent",
+  "authParentProofBody": "Pour protéger les informations de la famille, le parent doit se connecter à nouveau. L’espace élève sera fermé.",
+  "authParentProofContinue": "Se connecter comme parent",
+  "authFamilyRetry": "Réessayer",
+  "authStaffUseShield": "Pour votre espace professionnel, utilisez le bouclier Accès établissement.",
+  "ljSubjectsTitle": "Tes matières",
+  "ljSubjectsSubtitle": "Chaque matière, ses séquences et ta progression, même sans connexion.",
+  "ljSequenceCount": "{count, plural, =1{1 séquence} other{{count} séquences}}",
+  "@ljSequenceCount": {"placeholders": {"count": {"type": "int"}}},
+  "ljUnitCount": "{count, plural, =1{1 unit} other{{count} units}}",
+  "@ljUnitCount": {"placeholders": {"count": {"type": "int"}}},
+  "ljChapterCount": "{count, plural, =1{1 chapitre} other{{count} chapitres}}",
+  "@ljChapterCount": {"placeholders": {"count": {"type": "int"}}},
+  "ljConceptsMastered": "{mastered, plural, =0{Aucune notion maîtrisée sur {total}} =1{1 notion maîtrisée sur {total}} other{{mastered} notions maîtrisées sur {total}}}",
+  "@ljConceptsMastered": {"placeholders": {"mastered": {"type": "int"}, "total": {"type": "int"}}},
+  "ljProgressPercent": "{percent} %",
+  "@ljProgressPercent": {"placeholders": {"percent": {"type": "int"}}},
+  "ljResume": "Reprendre · {title}",
+  "@ljResume": {"placeholders": {"title": {"type": "String"}}},
+  "ljOpenSubject": "Ouvrir {subject}",
+  "@ljOpenSubject": {"placeholders": {"subject": {"type": "String"}}},
+  "ljStatusNotStarted": "À commencer",
+  "ljStatusInProgress": "En cours",
+  "ljStatusCompleted": "Terminé",
+  "ljStatusToReview": "À revoir",
+  "ljLastVisited": "Dernière visite",
+  "ljPracticeTitle": "S'entraîner",
+  "ljPracticeSubtitle": "Des exercices corrigés tout de suite, séquence par séquence.",
+  "ljPracticeExercises": "{count, plural, =1{1 exercice corrigé} other{{count} exercices corrigés}}",
+  "@ljPracticeExercises": {"placeholders": {"count": {"type": "int"}}},
+  "ljPracticeDone": "{done} sur {total} déjà faits",
+  "@ljPracticeDone": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "ljPracticeFocus": "À consolider : {concept}",
+  "@ljPracticeFocus": {"placeholders": {"concept": {"type": "String"}}},
+  "ljPracticeFirst": "Pour commencer : {concept}",
+  "@ljPracticeFirst": {"placeholders": {"concept": {"type": "String"}}},
+  "ljPracticeAllMastered": "Tout est maîtrisé : garde la main.",
+  "ljPracticeGo": "M'entraîner",
+  "ljFlowForYou": "Pour toi",
+  "ljFlowBySubject": "Par matière",
+  "ljFlowNoCards": "Pas encore de carte dans cette matière.",
+  "spEyebrow": "TON ÉTABLISSEMENT",
+  "spTitle": "Retrouve ton lycée ou ton collège",
+  "spTriggerHint": "Touche ici pour le chercher : nom, ville ou quartier.",
+  "spSearchHint": "Nom, ville ou quartier",
+  "spSearchLabel": "Chercher ton établissement",
+  "spClearSearch": "Effacer la recherche",
+  "spClose": "Fermer",
+  "spAllCities": "Toutes",
+  "spStartTyping": "Écris le nom de ton établissement, sa ville ou son quartier.",
+  "spCityList": "{count, plural, =1{1 établissement à {city}} other{{count} établissements à {city}}}",
+  "@spCityList": {"placeholders": {"count": {"type": "int"}, "city": {"type": "String"}}},
+  "spBestMatch": "Meilleur résultat",
+  "spPartner": "Partenaire INTELLIA",
+  "spBilingual": "Bilingue",
+  "spAnglophone": "Anglophone",
+  "spFrancophone": "Francophone",
+  "spTrilingual": "Trilingue",
+  "spTechnical": "Technique",
+  "spGeneralAndTechnical": "Général et technique",
+  "spCityUnknown": "Ville à préciser",
+  "spSelectedTitle": "Ton établissement",
+  "spChange": "Changer",
+  "spChangeSemantics": "Changer d'établissement",
+  "spSelectedNote": "C'est noté. Ton établissement confirmera ton inscription.",
+  "spPartnerNote": "Ton établissement utilise INTELLIA : il confirmera ton inscription.",
+  "spSuggestionNote": "Proposition envoyée. Nous vérifions cet établissement.",
+  "spNotFoundTitle": "Ton établissement n'apparaît pas ?",
+  "spNotFoundBody": "Vérifie l'orthographe, ou propose-le : nous l'ajouterons après vérification.",
+  "spSuggestAction": "Proposer mon établissement",
+  "spSuggestTitle": "Proposer mon établissement",
+  "spSuggestBody": "Nous vérifions chaque proposition avant de l'ajouter.",
+  "spSuggestName": "Nom de l'établissement",
+  "spSuggestCity": "Ville",
+  "spSuggestDistrict": "Quartier ou arrondissement (facultatif)",
+  "spSuggestSubmit": "Envoyer ma proposition",
+  "spSuggestNameRequired": "Écris le nom de ton établissement.",
+  "spSuggestCityRequired": "Écris la ville de ton établissement.",
+  "spResultSemantics": "{name}, {place}",
+  "@spResultSemantics": {"placeholders": {"name": {"type": "String"}, "place": {"type": "String"}}},
+  "spSearchAllCities": "Chercher dans toutes les villes",
+  "demoWelcomeEyebrow": "ACCÈS EXCLUSIF",
+  "demoWelcomeTitle": "Bienvenue dans INTELLIA237 !",
+  "demoWelcomeBody": "Calvin EKENA t'offre un accès exclusif à l'application. Toutes les classes sont ouvertes pour toi, de la 6e à la Terminale, sans oublier le sous-système anglophone.",
+  "demoWelcomeTip": "Notre conseil : commence par la Terminale D. C'est la classe la plus riche en cours pour le moment, et la meilleure façon de découvrir tout ce qu'INTELLIA237 sait faire.",
+  "demoWelcomeChangeLater": "Tu pourras changer de classe à tout moment, depuis ton accueil. Bonne exploration !",
+  "demoWelcomeStart": "Commencer par la Terminale D",
+  "demoWelcomeOther": "Choisir une autre classe",
+  "demoCardEyebrow": "ACCÈS EXCLUSIF",
+  "demoCardTitle": "Tu explores la classe : {classLabel}",
+  "@demoCardTitle": {"placeholders": {"classLabel": {"type": "String"}}},
+  "demoCardSubtitle": "Accès offert par Calvin EKENA. Toutes les classes sont ouvertes.",
+  "demoCardAction": "Changer de classe",
+  "demoPickerTitle": "Quelle classe veux-tu explorer ?",
+  "demoPickerSubtitle": "Tes cours, tes quiz et ton accueil suivront la classe choisie.",
+  "demoPickerRecommended": "Le plus de cours",
+  "demoPickerCurrent": "En cours",
+  "demoPickerFrancophone": "Sous-système francophone",
+  "demoPickerAnglophone": "Sous-système anglophone",
+  "demoClassChanged": "C'est parti : tu explores maintenant la classe {classLabel}.",
+  "@demoClassChanged": {"placeholders": {"classLabel": {"type": "String"}}},
+  "demoClassChangeFailed": "Impossible de changer de classe pour le moment. Réessaie dans un instant.",
+"learnHallTitle": "Tes matières",
+"learnHallSubtitle": "Choisis une matière pour voir ses modules et ses leçons.",
+"learnHallFoundIn": "Dans : {title}",
+"@learnHallFoundIn": {"placeholders": {"title": {"type": "String"}}},
+"learnHallResults": "{count, plural, =0{Aucune matière trouvée} =1{1 matière trouvée} other{{count} matières trouvées}}",
+"@learnHallResults": {"placeholders": {"count": {"type": "int"}}},
+"ceShowLessons": "Voir les leçons",
+"ceHideLessons": "Masquer les leçons",
+"ceSequenceOverview": "Vue d'ensemble et parcours",
+"ceLessonCompletedA11y": "terminée",
+  "quizLineKiraSessionStarted0": "On travaille {subject} ? Je t'ai préparé {count} questions sur « {title} ».",
+  "@quizLineKiraSessionStarted0": {"placeholders": {"subject": {"type": "String"}, "count": {"type": "int"}, "title": {"type": "String"}}},
+  "quizLineKiraSessionStarted1": "{count} questions sur « {title} ». On avance pas à pas, je suis là.",
+  "@quizLineKiraSessionStarted1": {"placeholders": {"subject": {"type": "String"}, "count": {"type": "int"}, "title": {"type": "String"}}},
+  "quizLineKiraSessionStarted2": "On commence {subject} ? {count} questions sur « {title} », à ton rythme.",
+  "@quizLineKiraSessionStarted2": {"placeholders": {"subject": {"type": "String"}, "count": {"type": "int"}, "title": {"type": "String"}}},
+  "quizLineKiraQuestionPresented0": "Question {current} sur {total}. Lis bien l'énoncé.",
+  "@quizLineKiraQuestionPresented0": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineKiraQuestionPresented1": "Question {current}. Repère d'abord ce qu'on te demande.",
+  "@quizLineKiraQuestionPresented1": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineKiraQuestionPresented2": "Voici la question {current} sur {total}.",
+  "@quizLineKiraQuestionPresented2": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineKiraCorrect0": "Exact. Tu maîtrises cette idée.",
+  "quizLineKiraCorrect1": "Bien vu, c'est juste.",
+  "quizLineKiraCorrect2": "C'est ça. On continue.",
+  "quizLineKiraIncorrect0": "Pas encore. Regarde ce point avec moi.",
+  "quizLineKiraIncorrect1": "Presque. Lis l'explication, elle t'aidera.",
+  "quizLineKiraIncorrect2": "Pas cette fois. Regardons pourquoi.",
+  "quizLineKiraStreak0": "{count} bonnes réponses d'affilée. Beau travail.",
+  "@quizLineKiraStreak0": {"placeholders": {"count": {"type": "int"}}},
+  "quizLineKiraStreak1": "Déjà {count} de suite. Ta méthode paie.",
+  "@quizLineKiraStreak1": {"placeholders": {"count": {"type": "int"}}},
+  "quizLineKiraStreak2": "{count} d'affilée : continue comme ça.",
+  "@quizLineKiraStreak2": {"placeholders": {"count": {"type": "int"}}},
+  "quizLineKiraHintRequested0": "Je te donne un indice.",
+  "quizLineKiraHintRequested1": "Voici un indice pour t'aider.",
+  "quizLineKiraHintRequested2": "Un indice, sans te donner la réponse.",
+  "quizLineKiraHalfway0": "Tu es à mi-parcours. Continue ainsi.",
+  "quizLineKiraHalfway1": "La moitié est faite. Garde ta concentration.",
+  "quizLineKiraHalfway2": "Mi-parcours : on garde le même soin.",
+  "quizLineKiraLastQuestion0": "Dernière question. Prends ton temps.",
+  "quizLineKiraLastQuestion1": "Plus qu'une question.",
+  "quizLineKiraLastQuestion2": "Voici la dernière. Relis bien avant de valider.",
+  "quizLineKiraSessionCompleted0": "C'est terminé : {score} sur {total}. Regardons ce que tu as réussi.",
+  "@quizLineKiraSessionCompleted0": {"placeholders": {"score": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineKiraSessionCompleted1": "Fin de la séance : {score} sur {total}. Voici ton bilan.",
+  "@quizLineKiraSessionCompleted1": {"placeholders": {"score": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineKiraSessionCompleted2": "Tu as terminé avec {score} sur {total}. Voyons la suite.",
+  "@quizLineKiraSessionCompleted2": {"placeholders": {"score": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineKiraMasteryImproved0": "Tu progresses sur « {concept} ».",
+  "@quizLineKiraMasteryImproved0": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineKiraMasteryImproved1": "« {concept} » est mieux maîtrisé qu'au début.",
+  "@quizLineKiraMasteryImproved1": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineKiraMasteryImproved2": "Belle avancée sur « {concept} ».",
+  "@quizLineKiraMasteryImproved2": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineKiraNeedsReview0": "Revois « {concept} », puis réessaie.",
+  "@quizLineKiraNeedsReview0": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineKiraNeedsReview1": "« {concept} » mérite encore un peu de travail.",
+  "@quizLineKiraNeedsReview1": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineKiraNeedsReview2": "Je te conseille de revoir « {concept} ».",
+  "@quizLineKiraNeedsReview2": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineLeoSessionStarted0": "{subject}, c'est parti : {count} questions sur « {title} ».",
+  "@quizLineLeoSessionStarted0": {"placeholders": {"subject": {"type": "String"}, "count": {"type": "int"}, "title": {"type": "String"}}},
+  "quizLineLeoSessionStarted1": "{count} questions, un objectif : « {title} ». On y va ?",
+  "@quizLineLeoSessionStarted1": {"placeholders": {"subject": {"type": "String"}, "count": {"type": "int"}, "title": {"type": "String"}}},
+  "quizLineLeoSessionStarted2": "Allez, {count} questions de {subject}. Concentre-toi, je te suis.",
+  "@quizLineLeoSessionStarted2": {"placeholders": {"subject": {"type": "String"}, "count": {"type": "int"}, "title": {"type": "String"}}},
+  "quizLineLeoQuestionPresented0": "Question {current} sur {total}.",
+  "@quizLineLeoQuestionPresented0": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineLeoQuestionPresented1": "Suivante : {current} sur {total}.",
+  "@quizLineLeoQuestionPresented1": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineLeoQuestionPresented2": "Question {current}. À toi.",
+  "@quizLineLeoQuestionPresented2": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineLeoCorrect0": "Bien vu !",
+  "quizLineLeoCorrect1": "Exact.",
+  "quizLineLeoCorrect2": "Juste. On enchaîne.",
+  "quizLineLeoIncorrect0": "Pas encore. Regarde ce point.",
+  "quizLineLeoIncorrect1": "Raté cette fois, voici l'explication.",
+  "quizLineLeoIncorrect2": "Pas tout à fait. Lis ça, puis on repart.",
+  "quizLineLeoStreak0": "{count} d'affilée !",
+  "@quizLineLeoStreak0": {"placeholders": {"count": {"type": "int"}}},
+  "quizLineLeoStreak1": "Série de {count}. Garde le rythme.",
+  "@quizLineLeoStreak1": {"placeholders": {"count": {"type": "int"}}},
+  "quizLineLeoStreak2": "{count} de suite, impressionnant.",
+  "@quizLineLeoStreak2": {"placeholders": {"count": {"type": "int"}}},
+  "quizLineLeoHintRequested0": "Un indice, tiens.",
+  "quizLineLeoHintRequested1": "Voilà un coup de pouce.",
+  "quizLineLeoHintRequested2": "Voilà un indice.",
+  "quizLineLeoHalfway0": "Moitié faite !",
+  "quizLineLeoHalfway1": "Mi-parcours. Garde le cap.",
+  "quizLineLeoHalfway2": "La moitié, déjà.",
+  "quizLineLeoLastQuestion0": "Dernière question !",
+  "quizLineLeoLastQuestion1": "Plus qu'une.",
+  "quizLineLeoLastQuestion2": "Dernière ligne droite.",
+  "quizLineLeoSessionCompleted0": "Terminé : {score} sur {total} !",
+  "@quizLineLeoSessionCompleted0": {"placeholders": {"score": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineLeoSessionCompleted1": "{score} sur {total}. Voici ton bilan.",
+  "@quizLineLeoSessionCompleted1": {"placeholders": {"score": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineLeoSessionCompleted2": "Séance bouclée : {score} sur {total}.",
+  "@quizLineLeoSessionCompleted2": {"placeholders": {"score": {"type": "int"}, "total": {"type": "int"}}},
+  "quizLineLeoMasteryImproved0": "« {concept} » : en progrès !",
+  "@quizLineLeoMasteryImproved0": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineLeoMasteryImproved1": "Tu montes sur « {concept} ».",
+  "@quizLineLeoMasteryImproved1": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineLeoMasteryImproved2": "Progrès net sur « {concept} ».",
+  "@quizLineLeoMasteryImproved2": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineLeoNeedsReview0": "À revoir : « {concept} ».",
+  "@quizLineLeoNeedsReview0": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineLeoNeedsReview1": "Repasse sur « {concept} ».",
+  "@quizLineLeoNeedsReview1": {"placeholders": {"concept": {"type": "String"}}},
+  "quizLineLeoNeedsReview2": "« {concept} » : encore un effort.",
+  "@quizLineLeoNeedsReview2": {"placeholders": {"concept": {"type": "String"}}},
+  "quizPackSectionTitle": "Quiz de tes cours",
+  "quizPackSectionSubtitle": "Des questions de tes séquences, corrigées sur ton téléphone, même sans connexion.",
+  "quizPackQuestionCount": "{count, plural, =1{1 question disponible} other{{count} questions disponibles}}",
+  "@quizPackQuestionCount": {"placeholders": {"count": {"type": "int"}}},
+  "quizPackCompanionWith": "{name} t'accompagne",
+  "@quizPackCompanionWith": {"placeholders": {"name": {"type": "String"}}},
+  "quizPackTraining": "S'entraîner",
+  "quizPackEvaluation": "Évaluation",
+  "quizPackMixed": "Révision mixte",
+  "quizPackMixedBody": "Des questions de toutes tes séquences de cette matière.",
+  "quizPackSequencesTitle": "Par séquence",
+  "quizPackStart": "Commencer",
+  "quizPackModeTrainingBody": "Correction et explication après chaque réponse. Indices si tu en as besoin.",
+  "quizPackModeEvaluationBody": "Pas de correction avant la fin. Ton score et ton bilan à la fin.",
+  "quizPackDistribution": "Niveaux : {easy} × 1 · {medium} × 2 · {hard} × 3",
+  "@quizPackDistribution": {"placeholders": {"easy": {"type": "int"}, "medium": {"type": "int"}, "hard": {"type": "int"}}},
+  "quizPackSessionLength": "{count, plural, =1{1 question} other{{count} questions}}",
+  "@quizPackSessionLength": {"placeholders": {"count": {"type": "int"}}},
+  "quizPackQuestionProgress": "Question {current} sur {total}",
+  "@quizPackQuestionProgress": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}},
+  "quizPackValidate": "Valider",
+  "quizPackNext": "Question suivante",
+  "quizPackSeeResult": "Voir mon bilan",
+  "quizPackHint": "Un indice",
+  "quizPackHintLabel": "Indice {number}",
+  "@quizPackHintLabel": {"placeholders": {"number": {"type": "int"}}},
+  "quizPackCorrect": "Bonne réponse",
+  "quizPackIncorrect": "Pas encore",
+  "quizPackAnswerSaved": "Réponse enregistrée. La correction viendra à la fin.",
+  "quizPackResultTitle": "Ton bilan",
+  "quizPackScore": "{score} sur {total}",
+  "@quizPackScore": {"placeholders": {"score": {"type": "int"}, "total": {"type": "int"}}},
+  "quizPackMastered": "Réussies",
+  "quizPackToReview": "À revoir",
+  "quizPackConceptScore": "{title} · {correct}/{total}",
+  "@quizPackConceptScore": {"placeholders": {"title": {"type": "String"}, "correct": {"type": "int"}, "total": {"type": "int"}}},
+  "quizPackReview": "Revoir mes réponses",
+  "quizPackRetry": "Recommencer",
+  "quizPackContinue": "Continuer mon parcours",
+  "quizPackReviewTitle": "Tes réponses",
+  "quizPackUnscoredNote": "Les questions à réponse rédigée restent dans tes leçons : elles ne comptent pas dans ce score.",
+  "quizPackRecentTitle": "Tes dernières séances",
+  "quizPackRecentRow": "{title} · {mode} · {score}/{total}",
+  "@quizPackRecentRow": {"placeholders": {"title": {"type": "String"}, "mode": {"type": "String"}, "score": {"type": "int"}, "total": {"type": "int"}}},
+  "quizPackNoLesson": "Aucune question disponible pour ce quiz pour l'instant.",
+  "quizPackPublishedTitle": "Quiz publiés par tes professeurs",
+  "quizPackCompanionA11y": "{name} dit : {line}",
+  "@quizPackCompanionA11y": {"placeholders": {"name": {"type": "String"}, "line": {"type": "String"}}},
+  "companionTopBarSubtitle": "Compagnon d’étude • {level}",
+  "@companionTopBarSubtitle": {"placeholders": {"level": {}}},
+  "companionHeaderStatus": "Compagnon • {status}",
+  "@companionHeaderStatus": {"placeholders": {"status": {}}},
+  "companionStatusWriting": "{name} écrit…",
+  "@companionStatusWriting": {"placeholders": {"name": {}}},
+  "companionLocalUnavailable": "{name} n’a pas pu se préparer. Relance l’application.",
+  "@companionLocalUnavailable": {"placeholders": {"name": {}}},
+  "companionActionKeepLearning": "Continuer à apprendre",
+  "companionActionTakeQuiz": "Faire un quiz",
+  "companionActionSeeSubjects": "Voir mes matières",
+  "companionActionSeeAllQuizzes": "Voir tous les quiz",
+  "companionActionSubjectQuiz": "Quiz {subject}",
+  "@companionActionSubjectQuiz": {"placeholders": {"subject": {}}},
+  "companionActionLearnSubject": "Apprendre : {subject}",
+  "@companionActionLearnSubject": {"placeholders": {"subject": {}}},
+  "companionActionOpenCourse": "Ouvrir le cours",
+  "companionActionTopicQuiz": "Faire le quiz",
+  "companionActionReviewSubject": "Réviser : {subject}",
+  "@companionActionReviewSubject": {"placeholders": {"subject": {}}},
+  "companionActionDiagnostic": "Quiz diagnostic",
+  "companionActionProgress": "Voir ma progression",
+  "companionActionGo": "C’est parti",
+  "companionActionRetryQuiz": "Refaire ce quiz",
+  "companionActionTrainTopic": "M’entraîner sur ce thème",
+  "companionActionContinueCourse": "Continuer le cours",
+  "companionActionResume": "Reprendre",
+  "companionActionResumeLesson": "Reprendre la leçon",
+  "companionActionPractice": "M’entraîner",
+  "pvTitle": "Mon avancée",
+  "pvChapterMap": "Ma carte du parcours",
+  "pvChapterScope": "Les anneaux comptent les notions au seuil du pack. Une lecture seule ne certifie pas un acquis.",
+  "pvNoAvailablePack": "Aucun chapitre disponible pour ta classe sur cet appareil.",
+  "pvStrengthen": "À renforcer",
+  "pvNextStep": "Ma prochaine étape",
+  "pvQuizActivity": "Mes 14 derniers jours de Quiz",
+  "pvQuizHistoryScope": "Séances Quiz terminées conservées sur cet appareil (30 au maximum). Un zéro ne décrit pas tout ton travail.",
+  "pvQuizCurve": "Mes résultats, Quiz par Quiz",
+  "pvQuizCurveScope": "Un même Quiz et un même mode. Les questions peuvent varier : cette courbe représente tes scores, pas une mesure de maîtrise.",
+  "pvNoQuizHistory": "Termine un Quiz pour retrouver ici ton premier résultat.",
+  "pvCurveNeedsTwo": "Un premier résultat est enregistré. La courbe apparaîtra avec une deuxième séance de ce Quiz dans ce mode.",
+  "pvGoalActiveDays": "{days} jours actifs enregistrés cette semaine · objectif {target}",
+  "@pvGoalActiveDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "pvQuizDay": "{date} : {sessions} séances Quiz enregistrées",
+  "@pvQuizDay": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "sessions": {
+        "type": "int"
+      }
+    }
+  },
+  "profilePhotoTitle": "Photo de profil",
+  "profilePhotoGallery": "Choisir depuis la galerie",
+  "profilePhotoCamera": "Prendre une photo",
+  "profilePhotoRemove": "Supprimer la photo",
+  "profilePhotoUpdated": "Photo de profil mise à jour",
+  "profilePhotoError": "La photo n’a pas pu être enregistrée. Vérifie la connexion et réessaie.",
+  "profilePhotoRemoveError": "La photo n’a pas pu être supprimée. Réessaie quand la connexion est disponible.",
+  "gmBoard": "Plateau {board}/{total} · difficulté {level}",
+  "gmInstruction": "Choisis une carte dans la première liste, puis sa relation dans la seconde. Reconstruis toutes les associations.",
+  "gmLeft": "Cartes à relier",
+  "gmRight": "Relations proposées",
+  "gmCorrectLink": "Association juste.",
+  "gmWrongLink": "Cette association ne convient pas. Retenir :",
+  "gmAccuracy": "{correct}/{total} relations au premier essai · {errors} erreurs",
+  "gmAssisted": "Plateau terminé avec aide : entraînement, sans nouvelle preuve de maîtrise.",
+  "gmRecorded": "Résultat enregistré dans ta progression.",
+  "gmAlreadyRecorded": "Ce plateau a déjà été validé. Rejouer reste un entraînement.",
+  "gmSaveError": "La progression n’a pas pu être enregistrée. Réessaie.",
+  "gmReplay": "Rejouer",
+  "@gmBoard": {
+    "placeholders": {
+      "board": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "@gmAccuracy": {
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "errors": {
+        "type": "int"
+      }
+    }
+  }
 }

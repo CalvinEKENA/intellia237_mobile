@@ -13,6 +13,7 @@ import {
   type StaffAccountReviewCallableInput,
   staffAccountReviewCallableInputSchema,
 } from "../utils/validation";
+import { hasUserRole, isSuperAdminUser } from "../auth/userRoles";
 
 type ReviewableStaffRole = "teacher" | "admin";
 type ReviewerRole = "admin" | "superAdmin" | "super_admin";
@@ -162,12 +163,14 @@ export function authorizeStaffReview({
   approved?: boolean;
   requestedEstablishmentId?: string;
 }): AuthorizedStaffReview {
-  const reviewerRole = normalizedString(reviewerData?.role);
-  if (
-    reviewerRole !== "admin" &&
-    reviewerRole !== "superAdmin" &&
-    reviewerRole !== "super_admin"
-  ) {
+  // Super-administration d'abord (rôle principal seul), puis direction
+  // d'école, y compris comme espace additif d'un compte à plusieurs espaces.
+  const reviewerRole: ReviewerRole | null = isSuperAdminUser(reviewerData)
+    ? "superAdmin"
+    : hasUserRole(reviewerData, "admin")
+    ? "admin"
+    : null;
+  if (reviewerRole === null) {
     throw new AppError("permission-denied", "Only an administrator can review staff accounts.");
   }
   const reviewerStatus = normalizedString(reviewerData?.accountStatus);

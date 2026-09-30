@@ -34,6 +34,14 @@ class FirebasePhoneAuthRepository
     required void Function(String verificationId) onAutoRetrievalTimeout,
   }) async {
     final attempt = ++_attempt;
+    if (kIsWeb) {
+      await _startWebVerification(
+        phoneNumber: phoneNumber,
+        attempt: attempt,
+        onCodeSent: onCodeSent,
+      );
+      return;
+    }
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -66,6 +74,30 @@ class FirebasePhoneAuthRepository
           );
         },
         codeAutoRetrievalTimeout: onAutoRetrievalTimeout,
+      );
+    } on FirebaseAuthException catch (error) {
+      throw PhoneAuthFailure(_normalizeCode(error.code, error.message));
+    }
+  }
+
+  /// Web (application web, 23/09/2026) : `verifyPhoneNumber` n'existe que
+  /// sur téléphone. Le navigateur envoie le SMS par `signInWithPhoneNumber`,
+  /// après une vérification anti-robot invisible gérée par Firebase ; seul
+  /// l'identifiant de vérification est gardé. La suite est la même que sur
+  /// téléphone : [confirmCode] construit l'identifiant avec le code reçu,
+  /// puis connecte ou rattache le compte (le navigateur sait faire les deux).
+  Future<void> _startWebVerification({
+    required String phoneNumber,
+    required int attempt,
+    required void Function(PhoneCodeDispatch dispatch) onCodeSent,
+  }) async {
+    try {
+      // Sans conteneur, Firebase pose une vérification invisible, puis la
+      // retire : l'élève ne voit une épreuve que si le trafic est suspect.
+      final confirmation = await _auth.signInWithPhoneNumber(phoneNumber);
+      if (attempt != _attempt) return;
+      onCodeSent(
+        PhoneCodeDispatch(verificationId: confirmation.verificationId),
       );
     } on FirebaseAuthException catch (error) {
       throw PhoneAuthFailure(_normalizeCode(error.code, error.message));

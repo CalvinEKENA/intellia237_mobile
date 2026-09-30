@@ -59,6 +59,10 @@ describe("general administration account lifecycle", () => {
     expect(() => accountManagementInput.parse({action: "createStudent",
       requestId: "0a2b3000-0000-4000-8000-000000000001", firstName: "A", lastName: "B",
       phoneNumber: "invalid", establishmentId: "school-a"})).toThrow();
+    // Un élève sans téléphone est un cas nominal : il entrera par code d'accès.
+    expect(() => accountManagementInput.parse({action: "createStudent",
+      requestId: "0a2b3000-0000-4000-8000-000000000001", firstName: "A", lastName: "B",
+      establishmentId: "school-a"})).not.toThrow();
   });
   it("rejects still-valid tokens for disabled accounts but allows registration without a profile", () => {
     for (const status of ["suspended", "deleted"]) {

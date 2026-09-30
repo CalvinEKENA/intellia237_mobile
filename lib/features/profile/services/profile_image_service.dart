@@ -1,4 +1,5 @@
-import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,8 +24,11 @@ class ProfileImageService {
     }
   }
 
-  /// Ouvre le Photo Picker système (galerie)
-  Future<File?> pickFromGallery() async {
+  /// Ouvre le Photo Picker système (galerie).
+  ///
+  /// Octets plutôt que fichier : un navigateur n'a pas de système de
+  /// fichiers (application web, 23/09/2026) ; le téléphone s'en accommode.
+  Future<Uint8List?> pickFromGallery() async {
     final XFile? file = await _picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
@@ -32,11 +36,11 @@ class ProfileImageService {
       maxHeight: 800,
     );
     if (file == null) return null;
-    return File(file.path);
+    return file.readAsBytes();
   }
 
   /// Ouvre la caméra
-  Future<File?> pickFromCamera() async {
+  Future<Uint8List?> pickFromCamera() async {
     final XFile? file = await _picker.pickImage(
       source: ImageSource.camera,
       imageQuality: 85,
@@ -44,19 +48,19 @@ class ProfileImageService {
       maxHeight: 800,
     );
     if (file == null) return null;
-    return File(file.path);
+    return file.readAsBytes();
   }
 
   /// Upload vers Firebase Storage + mise à jour Firestore
-  Future<String?> uploadProfileImage(File imageFile) async {
+  Future<String?> uploadProfileImage(Uint8List imageBytes) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) throw StateError('Utilisateur non connecté');
 
     // Référence Storage : avatars/{uid}/profile.jpg
     final ref = _storage.ref().child('avatars/$uid/profile.jpg');
 
-    final uploadTask = await ref.putFile(
-      imageFile,
+    final uploadTask = await ref.putData(
+      imageBytes,
       SettableMetadata(contentType: 'image/jpeg'),
     );
 

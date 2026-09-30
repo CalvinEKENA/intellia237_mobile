@@ -1,0 +1,550 @@
+{
+  "counts": {
+    "mcq": 26,
+    "true_false": 4,
+    "short_text": 4,
+    "ordering": 4
+  },
+  "total": 38,
+  "records": [
+    {
+      "id": "m-quiz-pythagore",
+      "scope": "Flow debug only",
+      "explanation": "3² + 4² = 9 + 16 = 25, et √25 = 5 cm.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Un triangle a pour côtés 3 cm et 4 cm autour de l’angle droit. Quelle est l’hypoténuse ?",
+      "choices": [
+        "5 cm",
+        "6 cm",
+        "7 cm",
+        "12 cm"
+      ],
+      "answer": "5 cm"
+    },
+    {
+      "id": "svt-quiz-photo",
+      "scope": "Flow debug only",
+      "explanation": "La plante absorbe le CO₂ et rejette du dioxygène (O₂), indispensable à la respiration.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Quel gaz la photosynthèse libère-t-elle ?",
+      "choices": [
+        "Le dioxygène (O₂)",
+        "Le dioxyde de carbone",
+        "L’azote",
+        "L’hydrogène"
+      ],
+      "answer": "Le dioxygène (O₂)"
+    },
+    {
+      "id": "en-quiz",
+      "scope": "Flow debug only",
+      "explanation": "« Could you… please? » est la forme la plus courtoise pour demander un service.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Which sentence is the most polite?",
+      "choices": [
+        "Could you open the window, please?",
+        "Open the window.",
+        "Window, now!",
+        "You, window."
+      ],
+      "answer": "Could you open the window, please?"
+    },
+    {
+      "id": "math-equation-1",
+      "scope": "Flow debug only",
+      "explanation": "3x = 15, donc x = 15 ÷ 3 = 5.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Si 3x + 5 = 20, combien vaut x ?",
+      "choices": [
+        "3",
+        "5",
+        "8",
+        "15"
+      ],
+      "answer": "5"
+    },
+    {
+      "id": "math-fraction-1",
+      "scope": "Flow debug only",
+      "explanation": "3 ÷ 4 = 0,75.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Quelle fraction est égale à 0,75 ?",
+      "choices": [
+        "1/4",
+        "2/3",
+        "3/4",
+        "4/5"
+      ],
+      "answer": "3/4"
+    },
+    {
+      "id": "math-percent-1",
+      "scope": "Flow debug only",
+      "explanation": "20 % = 0,2 ; 15 000 × 0,2 = 3 000 FCFA.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Quel est 20 % de 15 000 FCFA ?",
+      "choices": [
+        "1 500",
+        "2 000",
+        "3 000",
+        "5 000"
+      ],
+      "answer": "3 000"
+    },
+    {
+      "id": "pc-ohm-1",
+      "scope": "Flow debug only",
+      "explanation": "La résistance électrique R se mesure en ohms (Ω).",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Dans la loi d’Ohm U = R × I, quelle est l’unité de R ?",
+      "choices": [
+        "Volt",
+        "Ampère",
+        "Ohm",
+        "Watt"
+      ],
+      "answer": "Ohm"
+    },
+    {
+      "id": "pc-energy-1",
+      "scope": "Flow debug only",
+      "explanation": "Une lampe émet de la lumière et dissipe aussi de la chaleur.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Une lampe transforme surtout l’énergie électrique en…",
+      "choices": [
+        "lumière et chaleur",
+        "masse",
+        "pression",
+        "magnétisme seul"
+      ],
+      "answer": "lumière et chaleur"
+    },
+    {
+      "id": "pc-density-1",
+      "scope": "Flow debug only",
+      "explanation": "ρ = m/V : masse divisée par volume.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "La masse volumique est le rapport entre…",
+      "choices": [
+        "masse et volume",
+        "force et temps",
+        "distance et vitesse",
+        "énergie et puissance"
+      ],
+      "answer": "masse et volume"
+    },
+    {
+      "id": "svt-cell-1",
+      "scope": "Flow debug only",
+      "explanation": "Chez les cellules eucaryotes, l’essentiel de l’ADN est dans le noyau.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Quel organite contient principalement l’ADN ?",
+      "choices": [
+        "Le noyau",
+        "La membrane",
+        "Le cytoplasme",
+        "La vacuole"
+      ],
+      "answer": "Le noyau"
+    },
+    {
+      "id": "svt-blood-1",
+      "scope": "Flow debug only",
+      "explanation": "L’hémoglobine des globules rouges fixe et transporte le dioxygène.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Quelles cellules transportent principalement le dioxygène ?",
+      "choices": [
+        "Globules rouges",
+        "Plaquettes",
+        "Neurones",
+        "Globules blancs"
+      ],
+      "answer": "Globules rouges"
+    },
+    {
+      "id": "svt-ecosystem-1",
+      "scope": "Flow debug only",
+      "explanation": "Elle produit sa matière organique grâce à la photosynthèse.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Dans une chaîne alimentaire, une plante verte est…",
+      "choices": [
+        "un producteur",
+        "un consommateur",
+        "un prédateur",
+        "un décomposeur"
+      ],
+      "answer": "un producteur"
+    },
+    {
+      "id": "fr-grammar-1",
+      "scope": "Flow debug only",
+      "explanation": "Le groupe nominal « Les élèves » accomplit l’action.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Dans « Les élèves révisent », quel est le sujet ?",
+      "choices": [
+        "Les élèves",
+        "révisent",
+        "élèves révisent",
+        "Les"
+      ],
+      "answer": "Les élèves"
+    },
+    {
+      "id": "fr-figure-1",
+      "scope": "Flow debug only",
+      "explanation": "Le mot-outil « comme » signale une comparaison.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "« Il court comme le vent » est…",
+      "choices": [
+        "une comparaison",
+        "une métaphore",
+        "une litote",
+        "une personnification"
+      ],
+      "answer": "une comparaison"
+    },
+    {
+      "id": "fr-agreement-1",
+      "scope": "Flow debug only",
+      "explanation": "Avec « être », le participe passé s’accorde avec le sujet féminin pluriel.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Quelle phrase est correctement accordée ?",
+      "choices": [
+        "Elles sont arrivées",
+        "Elles sont arrivé",
+        "Elles est arrivées",
+        "Elle sont arrivée"
+      ],
+      "answer": "Elles sont arrivées"
+    },
+    {
+      "id": "en-tense-1",
+      "scope": "Flow debug only",
+      "explanation": "In the present simple, “she” takes the verb ending -s.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Choose the correct sentence.",
+      "choices": [
+        "She goes to school.",
+        "She go to school.",
+        "She going school.",
+        "She gone to school every day."
+      ],
+      "answer": "She goes to school."
+    },
+    {
+      "id": "en-vocab-1",
+      "scope": "Flow debug only",
+      "explanation": "“Easy” means “facile”, the opposite of “difficult”.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "What is the opposite of “difficult”?",
+      "choices": [
+        "Easy",
+        "Heavy",
+        "Slow",
+        "Late"
+      ],
+      "answer": "Easy"
+    },
+    {
+      "id": "en-past-1",
+      "scope": "Flow debug only",
+      "explanation": "“Yesterday” calls for the simple past: played.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Complete: Yesterday, we ___ football.",
+      "choices": [
+        "played",
+        "play",
+        "plays",
+        "playing"
+      ],
+      "answer": "played"
+    },
+    {
+      "id": "hg-cameroon-1",
+      "scope": "Flow debug only",
+      "explanation": "La République du Cameroun devient indépendante le 1er janvier 1960.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "En quelle année le Cameroun a-t-il accédé à l’indépendance ?",
+      "choices": [
+        "1960",
+        "1958",
+        "1965",
+        "1972"
+      ],
+      "answer": "1960"
+    },
+    {
+      "id": "hg-capital-1",
+      "scope": "Flow debug only",
+      "explanation": "Yaoundé est la capitale politique ; Douala est la capitale économique.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Quelle est la capitale politique du Cameroun ?",
+      "choices": [
+        "Yaoundé",
+        "Douala",
+        "Garoua",
+        "Bafoussam"
+      ],
+      "answer": "Yaoundé"
+    },
+    {
+      "id": "hg-climate-1",
+      "scope": "Flow debug only",
+      "explanation": "Le pluviomètre mesure la quantité de pluie tombée.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Quel instrument mesure les précipitations ?",
+      "choices": [
+        "Le pluviomètre",
+        "Le thermomètre",
+        "La girouette",
+        "Le baromètre"
+      ],
+      "answer": "Le pluviomètre"
+    },
+    {
+      "id": "philo-truth-1",
+      "scope": "Flow debug only",
+      "explanation": "Une opinion doit être examinée et justifiée pour prétendre à la vérité.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Une opinion est-elle nécessairement une vérité ?",
+      "choices": [
+        "Non",
+        "Oui, toujours",
+        "Seulement si elle est populaire",
+        "Seulement si elle est ancienne"
+      ],
+      "answer": "Non"
+    },
+    {
+      "id": "philo-freedom-1",
+      "scope": "Flow debug only",
+      "explanation": "La liberté se pense avec la responsabilité et celle des autres.",
+      "points": 25,
+      "type": "mcq",
+      "prompt": "Être libre signifie-t-il simplement faire tout ce que l’on veut ?",
+      "choices": [
+        "Non, la liberté implique aussi responsabilité et règles",
+        "Oui, sans aucune limite",
+        "Oui, si personne ne regarde",
+        "Non, car personne n’est libre"
+      ],
+      "answer": "Non, la liberté implique aussi responsabilité et règles"
+    },
+    {
+      "id": "tf-math-square",
+      "scope": "Flow debug only",
+      "explanation": "Multiplier deux nombres de même signe donne un résultat positif ; 0² vaut 0.",
+      "points": 18,
+      "type": "true_false",
+      "prompt": "Le carré d’un nombre négatif est toujours positif ou nul.",
+      "answer": true
+    },
+    {
+      "id": "tf-pc-series-current",
+      "scope": "Flow debug only",
+      "explanation": "Le courant ne rencontre qu’un seul chemin : la même intensité traverse chaque dipôle.",
+      "points": 18,
+      "type": "true_false",
+      "prompt": "Dans un circuit en série, l’intensité du courant est la même en tout point.",
+      "answer": true
+    },
+    {
+      "id": "tf-svt-genes",
+      "scope": "Flow debug only",
+      "explanation": "Un chromosome est constitué d’ADN et porte de nombreux gènes.",
+      "points": 18,
+      "type": "true_false",
+      "prompt": "Les gènes sont portés par les chromosomes.",
+      "answer": true
+    },
+    {
+      "id": "tf-hg-capital",
+      "scope": "Flow debug only",
+      "explanation": "Yaoundé est la capitale politique ; Douala est la capitale économique.",
+      "points": 18,
+      "type": "true_false",
+      "prompt": "Douala est la capitale politique du Cameroun.",
+      "answer": false
+    },
+    {
+      "id": "fill-math-equation",
+      "scope": "Flow debug only",
+      "explanation": "42 ÷ 7 = 6, donc x = 6.",
+      "points": 22,
+      "type": "short_text",
+      "prompt": "Complète : si 7x = 42, alors x = ___.",
+      "accepted_answers": [
+        "6",
+        "six"
+      ],
+      "hints": [
+        "Divise les deux membres par 7."
+      ]
+    },
+    {
+      "id": "fill-fr-author",
+      "scope": "Flow debug only",
+      "explanation": "Mongo Beti est l’un des grands romanciers camerounais du XXᵉ siècle.",
+      "points": 22,
+      "type": "short_text",
+      "prompt": "Complète : l’auteur camerounais de « Mission terminée » est ___.",
+      "accepted_answers": [
+        "Mongo Beti",
+        "Beti"
+      ],
+      "hints": [
+        "Son nom apparaît dans une autre carte du parcours."
+      ]
+    },
+    {
+      "id": "fill-en-past-go",
+      "scope": "Flow debug only",
+      "explanation": "The simple past of “go” is “went”.",
+      "points": 22,
+      "type": "short_text",
+      "prompt": "Complete: Yesterday, Amina ___ to school. (go)",
+      "accepted_answers": [
+        "went"
+      ],
+      "hints": [
+        "“Go” is an irregular verb."
+      ]
+    },
+    {
+      "id": "fill-svt-photosynthesis",
+      "scope": "Flow debug only",
+      "explanation": "La plante absorbe le dioxyde de carbone et libère du dioxygène.",
+      "points": 22,
+      "type": "short_text",
+      "prompt": "Complète : pendant la photosynthèse, la plante absorbe le dioxyde de ___.",
+      "accepted_answers": [
+        "carbone",
+        "carbone co2",
+        "CO2"
+      ],
+      "hints": [
+        "Sa formule est CO₂."
+      ]
+    },
+    {
+      "id": "order-math-equation",
+      "scope": "Flow debug only",
+      "explanation": "On isole progressivement x, puis on remplace x dans l’équation pour vérifier.",
+      "points": 25,
+      "type": "ordering",
+      "prompt": "Remets les étapes de résolution de 3x + 5 = 20 dans l’ordre.",
+      "answer": [
+        "Soustraire 5 aux deux membres",
+        "Obtenir 3x = 15",
+        "Diviser les deux membres par 3",
+        "Vérifier que x = 5"
+      ]
+    },
+    {
+      "id": "order-science-method",
+      "scope": "Flow debug only",
+      "explanation": "Une expérience teste l’hypothèse issue de l’observation ; les résultats permettent ensuite de conclure.",
+      "points": 25,
+      "type": "ordering",
+      "prompt": "Remets la démarche scientifique dans son ordre logique.",
+      "answer": [
+        "Observer un phénomène",
+        "Formuler une hypothèse",
+        "Réaliser une expérience",
+        "Interpréter et conclure"
+      ]
+    },
+    {
+      "id": "order-fr-narrative",
+      "scope": "Flow debug only",
+      "explanation": "Ce schéma narratif aide à comprendre comment une histoire se transforme.",
+      "points": 25,
+      "type": "ordering",
+      "prompt": "Remets les grandes étapes d’un récit dans l’ordre.",
+      "answer": [
+        "Situation initiale",
+        "Élément perturbateur",
+        "Péripéties",
+        "Dénouement",
+        "Situation finale"
+      ]
+    },
+    {
+      "id": "order-hg-cameroon",
+      "scope": "Flow debug only",
+      "explanation": "Ces trois dates structurent la formation institutionnelle du Cameroun contemporain.",
+      "points": 25,
+      "type": "ordering",
+      "prompt": "Classe ces repères de l’histoire du Cameroun du plus ancien au plus récent.",
+      "answer": [
+        "Indépendance du Cameroun oriental — 1960",
+        "Réunification — 1961",
+        "État unitaire — 1972"
+      ]
+    },
+    {
+      "id": "quiz_01/q_01",
+      "scope": "Campus demo repository",
+      "type": "mcq",
+      "prompt": "Quel est l’ensemble de définition de la fonction f définie par f(x) = ln(2x - 6) ?",
+      "choices": [
+        "]3, +∞[",
+        "[3, +∞[",
+        "]-∞, 3[",
+        "ℝ*"
+      ],
+      "answer": "]3, +∞[",
+      "explanation": "La condition d’existence impose 2x - 6 > 0, soit x > 3."
+    },
+    {
+      "id": "quiz_01/q_02",
+      "scope": "Campus demo repository",
+      "type": "mcq",
+      "prompt": "Pour tout réel a > 0 et b > 0, quelle relation est exacte ?",
+      "choices": [
+        "ln(a + b) = ln(a) × ln(b)",
+        "ln(a × b) = ln(a) + ln(b)",
+        "ln(a / b) = ln(a) / ln(b)",
+        "ln(a - b) = ln(a) - ln(b)"
+      ],
+      "answer": "ln(a × b) = ln(a) + ln(b)",
+      "explanation": "Le logarithme transforme le produit en somme : ln(ab) = ln(a) + ln(b)."
+    },
+    {
+      "id": "quiz_01/q_03",
+      "scope": "Campus demo repository",
+      "type": "mcq",
+      "prompt": "Quelle est la limite de (ln x) / x lorsque x tend vers +∞ ?",
+      "choices": [
+        "+∞",
+        "1",
+        "0",
+        "-∞"
+      ],
+      "answer": "0",
+      "explanation": "Par croissance comparée en terminale, lim (ln x)/x = 0 en +∞."
+    }
+  ]
+}

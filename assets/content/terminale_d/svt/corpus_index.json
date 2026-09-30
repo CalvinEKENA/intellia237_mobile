@@ -1,0 +1,175 @@
+{
+  "source": {
+    "drive_folder": "SCIENCES DE LA VIE ET DE LA TERRE TERMINALE D",
+    "drive_folder_id": "1Mj9BLjDYGqZZw7fO18HYGBawx8qLkEf6",
+    "local_reference_path": "C:\\Users\\MITSON INFORMATIQUE\\Desktop\\COURS\\course_images\\SCIENCES DE LA VIE ET DE LA TERRE TERMINALE D",
+    "book_title": "SVTEEHB — Sciences de la Vie et de la Terre, Éducation à l’Environnement, Hygiène et Biotechnologie",
+    "level": "Terminale D",
+    "source_images": 244,
+    "image_range": [
+      "page_001.jpg",
+      "page_244.jpg"
+    ],
+    "rename_map_present": true,
+    "gaps_detected_in_rename_map": [],
+    "notes": [
+      "Le fichier intellia_rename_map.csv contient une suite continue page_001.jpg à page_244.jpg.",
+      "Les numéros page_XXX sont des numéros d’images, distincts des numéros de pages imprimés du manuel."
+    ]
+  },
+  "table_of_contents": {
+    "module_1": {
+      "title": "Le Monde vivant",
+      "sequences": [
+        {
+          "id": "sequence_1",
+          "title": "Les échanges cellulaires",
+          "printed_start_page": 3,
+          "exercise_start_page": 15
+        },
+        {
+          "id": "sequence_2",
+          "title": "Quelques aspects du métabolisme énergétique chez l’Homme",
+          "printed_start_page": 23,
+          "exercise_start_page": 37
+        },
+        {
+          "id": "sequence_3",
+          "title": "Mécanismes fondamentaux de la reproduction sexuée chez les mammifères et chez les spermaphytes",
+          "printed_start_page": 43,
+          "exercise_start_page": 63
+        },
+        {
+          "id": "sequence_4",
+          "title": "Brassage génétique au cours de la reproduction sexuée et unicité génétique des individus",
+          "printed_start_page": 70,
+          "exercise_start_page": 97
+        },
+        {
+          "id": "sequence_5",
+          "title": "La prévision en génétique humaine",
+          "printed_start_page": 105,
+          "exercise_start_page": 122
+        },
+        {
+          "id": "sequence_6",
+          "title": "Les activités réflexes",
+          "printed_start_page": 130,
+          "exercise_start_page": 152
+        },
+        {
+          "id": "sequence_7",
+          "title": "Le fonctionnement des neurones",
+          "printed_start_page": 163,
+          "exercise_start_page": 195
+        },
+        {
+          "id": "sequence_8",
+          "title": "Activités cérébrales et motricité volontaire",
+          "printed_start_page": 208,
+          "exercise_start_page": 230
+        }
+      ]
+    },
+    "module_2": {
+      "title": "Éducation à la Santé",
+      "sequences": [
+        {
+          "id": "sequence_9",
+          "title": "Les mécanismes de l’immunité",
+          "printed_start_page": 238,
+          "exercise_start_page": null
+        },
+        {
+          "id": "sequence_10",
+          "title": "Les dysfonctionnements du système immunitaire",
+          "printed_start_page": 257,
+          "exercise_start_page": 266
+        },
+        {
+          "id": "sequence_11",
+          "title": "La santé reproductive",
+          "printed_start_page": 274,
+          "exercise_start_page": 303
+        },
+        {
+          "id": "sequence_12",
+          "title": "La santé nutritionnelle",
+          "printed_start_page": 314,
+          "exercise_start_page": 337
+        },
+        {
+          "id": "sequence_13",
+          "title": "Le secourisme",
+          "printed_start_page": 353,
+          "exercise_start_page": 359
+        }
+      ]
+    },
+    "module_3": {
+      "title": "Éducation à l’Environnement et au Développement durable",
+      "sequences": [
+        {
+          "id": "sequence_14",
+          "title": "Les mouvements de la lithosphère et leurs conséquences sur l’Environnement",
+          "printed_start_page": 364,
+          "exercise_start_page": 385
+        },
+        {
+          "id": "sequence_15",
+          "title": "L’évolution de l’Homme",
+          "printed_start_page": 390,
+          "exercise_start_page": 408
+        }
+      ]
+    },
+    "module_4": {
+      "title": "La biotechnologie",
+      "sequences": [
+        {
+          "id": "sequence_16",
+          "title": "Transformation et conservation des fruits de saison",
+          "printed_start_page": 417,
+          "exercise_start_page": 423
+        },
+        {
+          "id": "sequence_17",
+          "title": "L’entomophagie",
+          "printed_start_page": 427,
+          "exercise_start_page": 436
+        },
+        {
+          "id": "sequence_18",
+          "title": "Les énergies renouvelables",
+          "printed_start_page": 442,
+          "exercise_start_page": 448
+        },
+        {
+          "id": "sequence_19",
+          "title": "Valorisation des déchets de l’Environnement de l’Homme",
+          "printed_start_page": 452,
+          "exercise_start_page": 460
+        }
+      ]
+    },
+    "back_matter": {
+      "bibliography_page": 464,
+      "glossary_page": 465
+    }
+  },
+  "first_unit": {
+    "module": "Module 1 — Le Monde vivant",
+    "category_of_action": "Limitation des conséquences liées aux échanges d’eau, de substances dissoutes et de particules entre la cellule et le milieu ambiant",
+    "sequence": "Séquence 1 — Les échanges cellulaires",
+    "printed_core_pages": [
+      3,
+      14
+    ],
+    "exercise_starts_at_printed_page": 15,
+    "source_image_span_core": [
+      "page_006.jpg",
+      "page_017.jpg"
+    ],
+    "status": "core source extracted; exercise pages to be extracted separately"
+  }
+}

@@ -8,13 +8,30 @@ import '../../domain/app_role.dart';
 import '../../domain/firebase_error_mapper.dart';
 import '../../domain/repositories/auth_repository.dart';
 
-class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
+class AuthRepositoryImpl
+    implements AuthRepository, AuthSessionResolver, EmailIdentityCreator {
   AuthRepositoryImpl({FirebaseAuth? auth, FirebaseFirestore? firestore})
     : _auth = auth ?? FirebaseAuth.instance,
       _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+
+  @override
+  Future<void> createEmailIdentity({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      await _sendVerificationBestEffort(credential.user);
+    } on FirebaseAuthException catch (error) {
+      throw _mapFirebaseAuthError(error);
+    }
+  }
 
   static const _usersCollection = 'users';
 
@@ -139,6 +156,9 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
 
     final uid = currentUser.uid;
     final email = currentUser.email ?? '';
+    final providers = [
+      for (final info in currentUser.providerData) info.providerId,
+    ];
     try {
       final user = await _fetchUserData(uid);
       final kind = user.legacyProfile
@@ -151,6 +171,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
         firebaseUid: uid,
         firebaseEmail: email,
         user: user,
+        signInProviders: providers,
       );
     } on AuthError catch (error) {
       if (error.code == 'user-disabled') {
@@ -166,6 +187,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
           firebaseUid: uid,
           firebaseEmail: email,
           errorCode: error.code,
+          signInProviders: providers,
         );
       }
       if (error.code == 'user-role-invalid') {
@@ -231,6 +253,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
         code: 'user-role-invalid',
       );
     }
+    final parsedRoles = parseStoredAppRoles(data['roles'], roleString);
     var profileCompleted = data['profileCompleted'] as bool? ?? false;
     if (role == AppRole.student) {
       final studentProfile = await _firestore
@@ -247,6 +270,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
       uid: uid,
       email: (data['email'] as String? ?? '').trim(),
       role: role,
+      roles: parsedRoles,
       firstName: (data['firstName'] as String? ?? '').trim(),
       lastName: (data['lastName'] as String? ?? '').trim(),
       profileCompleted: profileCompleted,
@@ -256,6 +280,7 @@ class AuthRepositoryImpl implements AuthRepository, AuthSessionResolver {
         final String id when id.isNotEmpty => id,
         _ => null,
       },
+      accountStatus: data['accountStatus'] as String?,
     );
   }
 

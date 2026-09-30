@@ -114,7 +114,10 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
     };
   }
 
-  Future<bool> submit() async {
+  /// [beforeOpening] s'exécute une fois le compte créé, juste avant que la
+  /// session ne soit adoptée — et que le routeur n'ouvre l'espace : l'écran y
+  /// montre le sceau complet. Son échec n'empêche jamais l'ouverture.
+  Future<bool> submit({Future<void> Function()? beforeOpening}) async {
     final validationError =
         _validateIdentity() ?? _validateTeachingData() ?? _validateFinal();
     if (validationError != null) {
@@ -138,6 +141,19 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
         ),
       );
 
+      state = state.copyWith(
+        clearError: true,
+        awaitsValidation: result.awaitsValidation,
+        accountCreated: true,
+      );
+      if (beforeOpening != null) {
+        try {
+          await beforeOpening();
+        } catch (_) {
+          // L'ouverture de l'espace ne dépend pas de sa mise en scène.
+        }
+      }
+
       ref
           .read(authControllerProvider.notifier)
           .setAuthenticatedUser(
@@ -146,12 +162,7 @@ class TeacherRegistrationController extends Notifier<TeacherRegistrationState> {
             email: result.email,
             firstName: result.firstName,
           );
-
-      state = state.copyWith(
-        isSubmitting: false,
-        clearError: true,
-        awaitsValidation: result.awaitsValidation,
-      );
+      state = state.copyWith(isSubmitting: false);
       await IntelliaTelemetry.registrationCompleted(role: 'teacher');
       return true;
     } on RoleRegistrationException catch (error) {

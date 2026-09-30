@@ -1,22 +1,29 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
 import '../application/flow_controller.dart';
+import '../application/flow_page_merge.dart';
+import '../application/flow_view_prefs.dart';
+import '../../content_engine/application/content_providers.dart';
+import '../../content_engine/application/learning_feed_providers.dart';
 import '../domain/flow_card.dart';
+import '../data/flow_feed_repository.dart';
 import '../data/flow_points_gateway.dart';
 import 'widgets/flow_card_view.dart';
 import 'widgets/flow_celebration_overlay.dart';
 import 'widgets/flow_hud.dart';
 import 'widgets/flow_empty_view.dart';
+import 'widgets/flow_swipe_affordance.dart';
+import 'widgets/flow_view_switcher.dart';
+import 'parcours_overview.dart';
 
 /// L'expérience Flow : un feed vertical plein écran de cartes-leçons.
 ///
@@ -28,9 +35,18 @@ class FlowScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final catalog = ref.watch(flowCatalogProvider);
+    final catalog = ref.watch(flowComposedCatalogProvider);
+    // Mise à jour des packs de la classe en arrière-plan : un pack publié
+    // rejoint le fil sans redémarrage, sans jamais retarder l'affichage.
+    ref.watch(contentSyncControllerProvider);
 
     return catalog.when(
+      // Une recomposition en arrière-plan — nouvelle révision du catalogue,
+      // retour du réseau — ne renvoie jamais un fil déjà affiché à l'écran de
+      // chargement et ne le remplace pas par une erreur : l'élève garde ses
+      // cartes et le pager sa position.
+      skipLoadingOnReload: true,
+      skipError: true,
       loading: () => const _FlowLoading(),
       // Une panne de lecture n'est pas différente d'un fil vide du point de
       // vue de l'élève : dans les deux cas il n'y a rien à parcourir, et le
@@ -38,25 +54,73 @@ class FlowScreen extends ConsumerWidget {
       error: (_, _) => const FlowEmptyView(),
       data: (data) => data.cards.isEmpty
           ? const FlowEmptyView()
-          : _FlowPager(cards: data.cards),
+          : _FlowPager(catalog: data),
     );
   }
 }
 
+/// Chargement : la forme d'une carte s'affiche tout de suite (étiquette,
+/// titre, lignes de texte) plutôt qu'un écran vide avec une roue.
 class _FlowLoading extends StatelessWidget {
   const _FlowLoading();
 
   @override
-  Widget build(BuildContext context) => const Scaffold(
-    backgroundColor: IntelliaColors.backgroundPrimary,
-    body: Center(child: CircularProgressIndicator()),
-  );
+  Widget build(BuildContext context) {
+    Widget bar(double width, double height) => Container(
+      width: width,
+      height: height,
+      margin: const EdgeInsets.only(bottom: IntelliaSpacing.sm),
+      decoration: BoxDecoration(
+        color: IntelliaColors.textPrimary.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
+      ),
+    );
+    return Scaffold(
+      key: kFlowLoadingKey,
+      backgroundColor: IntelliaColors.backgroundPrimary,
+      body: SafeArea(
+        child: Semantics(
+          label: context.l10n.stateLoadingTitle,
+          child: ExcludeSemantics(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                IntelliaSpacing.lg,
+                72,
+                IntelliaSpacing.lg,
+                IntelliaSpacing.lg,
+              ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final w = constraints.maxWidth;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      bar(110, 28),
+                      const SizedBox(height: IntelliaSpacing.md),
+                      bar(w * 0.85, 30),
+                      bar(w * 0.6, 30),
+                      const SizedBox(height: IntelliaSpacing.lg),
+                      for (final f in const [1.0, 0.95, 0.9, 0.7])
+                        bar(w * f, 14),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _FlowPager extends ConsumerStatefulWidget {
-  const _FlowPager({required this.cards});
+/// Repère du chargement du Parcours (tests de stabilité d'entrée).
+const kFlowLoadingKey = ValueKey('flow-loading');
 
-  final List<FlowCard> cards;
+class _FlowPager extends ConsumerStatefulWidget {
+  const _FlowPager({required this.catalog});
+
+  final FlowCatalog catalog;
 
   @override
   ConsumerState<_FlowPager> createState() => _FlowScreenState();
@@ -66,17 +130,56 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
   /// Annonces déjà présentées, pour qu'une reconstruction ne les rejoue pas.
   final _consumedNotices = <String>{};
 
-  final _pageController = PageController();
-  late final List<FlowCard> _cards;
+  PageController _pageController = PageController();
+
+  /// « Pour toi » (le mélange) ou « Par matière » : un filtre d'affichage
+  /// sur les mêmes cartes, jamais une seconde progression.
+  FlowViewMode _mode = FlowViewMode.forYou;
+  String? _subject;
+
+  /// L'élève a déjà choisi pendant la séance : la préférence mémorisée ne
+  /// vient plus le contredire.
+  bool _viewTouched = false;
+
+  /// Cartes affichées selon le mode : toutes, ou celles d'une matière.
+  List<FlowCard> _visible = const [];
+
+  /// Hauteur mesurée des commandes superposées (HUD, sélecteur, matières).
+  double? _chromeHeight;
+
+  /// Cartes affichées : la première fenêtre, puis les pages chargées à la
+  /// demande. La liste ne fait que grandir, jamais sous la carte courante.
+  late List<FlowCard> _cards;
+  String? _nextCursor;
+  bool _loadingMore = false;
+  int _loadFailures = 0;
 
   int _index = 0;
   FlowAward? _celebration;
   Timer? _dwell;
 
+  /// Invite de balayage visible : au démarrage (carte 0) et après une réponse
+  /// révélée. Elle se retire seule après quelques secondes.
+  ///
+  /// Au démarrage, elle n'apparaît qu'une fois la première carte posée à
+  /// l'écran : l'invite s'anime sur un contenu stable, jamais pendant son
+  /// installation.
+  bool _showAffordance = false;
+  Timer? _affordanceTimer;
+
+  void _flashAffordance() {
+    _affordanceTimer?.cancel();
+    if (!_showAffordance) setState(() => _showAffordance = true);
+    _affordanceTimer = Timer(const Duration(seconds: 4), () {
+      if (mounted) setState(() => _showAffordance = false);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    final catalog = widget.cards;
+    final catalog = widget.catalog.cards;
+    _nextCursor = widget.catalog.nextCursor;
     final completed = ref.read(flowControllerProvider).completedCardIds;
     // Les cartes non terminées passent devant : une reprise ne rejoue donc pas
     // immédiatement les mêmes exercices. L'ordre éditorial reste stable dans
@@ -85,24 +188,168 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
       ...catalog.where((card) => !completed.contains(card.id)),
       ...catalog.where((card) => completed.contains(card.id)),
     ];
+    _refreshVisible();
+    unawaited(
+      ref.read(flowViewPrefsProvider.future).then((prefs) {
+        if (!mounted || _viewTouched) return;
+        if (prefs.mode == FlowViewMode.bySubject) {
+          _applyView(prefs.mode, prefs.subject, remember: false);
+        }
+      }, onError: (Object _) {}),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _handleSettled(0);
+      if (!mounted) return;
+      _handleSettled(0);
+      if (_index == 0) setState(() => _showAffordance = true);
     });
+  }
+
+  /// Cartes de pack auxquelles l'élève a répondu pendant la séance.
+  final _answeredPackCards = <String>{};
+
+  /// Un nouveau pack (ou une nouvelle version) recompose le catalogue : les
+  /// cartes inédites s'ajoutent juste après la carte regardée, sans que le
+  /// fil ne recule ni ne se réordonne sous les doigts de l'élève.
+  @override
+  void didUpdateWidget(_FlowPager old) {
+    super.didUpdateWidget(old);
+    if (identical(old.catalog, widget.catalog)) return;
+    final known = {for (final card in _cards) card.id};
+    final fresh = [
+      for (final card in widget.catalog.cards)
+        if (!known.contains(card.id)) card,
+    ];
+    if (fresh.isEmpty) return;
+    final at = (_cardsIndexOfCurrent() + 1).clamp(0, _cards.length);
+    setState(() {
+      _cards = [
+        ..._cards.take(at),
+        // Le nouveau d'abord, juste après la carte regardée, puis en
+        // alternance avec la suite déjà prévue.
+        ...interleaveFlowSources(
+          published: fresh,
+          packs: _cards.skip(at).toList(),
+          idOf: (card) => card.id,
+        ),
+      ];
+      _refreshVisible();
+    });
+  }
+
+  /// Recalcule les cartes affichées après un changement du fil ou du filtre.
+  void _refreshVisible() {
+    final subject = _subject;
+    _visible = _mode == FlowViewMode.forYou || subject == null
+        ? _cards
+        : [
+            for (final card in _cards)
+              if (flowCardSubjectKey(card) == subject) card,
+          ];
+    if (_index >= _visible.length) _index = 0;
+  }
+
+  /// Position, dans le fil complet, de la carte regardée.
+  int _cardsIndexOfCurrent() {
+    if (_visible.isEmpty) return -1;
+    final id = _visible[_index].id;
+    return _cards.indexWhere((card) => card.id == id);
+  }
+
+  /// Change de mode ou de matière : le fil filtré repart de sa première
+  /// carte, sans toucher à la maîtrise ni à l'historique.
+  void _applyView(FlowViewMode mode, String? subject, {bool remember = true}) {
+    final subjects = flowSubjects(_cards);
+    final resolved = mode == FlowViewMode.forYou
+        ? subject
+        : subjects.any((s) => s.key == subject)
+        ? subject
+        : subjects.firstOrNull?.key;
+    final old = _pageController;
+    setState(() {
+      _mode = mode;
+      _subject = resolved;
+      _index = 0;
+      _showAffordance = false;
+      _pageController = PageController();
+      _refreshVisible();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => old.dispose());
+    if (remember) {
+      _viewTouched = true;
+      unawaited(
+        ref
+            .read(flowViewPrefsProvider.notifier)
+            .save(FlowViewPrefs(mode: mode, subject: resolved)),
+      );
+    }
+    if (_visible.isNotEmpty) _handleSettled(0);
   }
 
   @override
   void dispose() {
     _dwell?.cancel();
+    _affordanceTimer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
 
+  /// Demande la page suivante quand l'élève approche de la fin : une seule
+  /// demande à la fois, et plus aucune après [kFlowMaxLoadFailures] échecs.
+  void _maybeLoadMore(int index) {
+    final cursor = _nextCursor;
+    if (cursor == null ||
+        _loadingMore ||
+        _loadFailures >= kFlowMaxLoadFailures ||
+        index < _visible.length - kFlowPrefetchThreshold) {
+      return;
+    }
+    _loadingMore = true;
+    unawaited(
+      ref
+          .read(flowNextPageLoaderProvider)(widget.catalog, cursor)
+          .then((page) {
+            if (!mounted) return;
+            final completed = ref.read(flowControllerProvider).completedCardIds;
+            setState(() {
+              // Le neuf passe devant le déjà terminé, mais jamais avant la
+              // carte que l'élève regarde ; le déjà terminé reste disponible
+              // en fin de fil.
+              _cards = mergeFlowNextPage(
+                current: _cards,
+                incoming: page.cards,
+                idOf: (card) => card.id,
+                completed: completed,
+                currentIndex: _cardsIndexOfCurrent().clamp(0, _cards.length),
+              );
+              _refreshVisible();
+              _nextCursor = page.nextCursor;
+              _loadFailures = 0;
+            });
+          })
+          .catchError((Object _) {
+            _loadFailures++;
+          })
+          .whenComplete(() => _loadingMore = false),
+    );
+  }
+
   void _handleSettled(int i) {
+    _maybeLoadMore(i);
     HapticFeedback.selectionClick();
-    final card = _cards[i];
+    final card = _visible[i];
     final notifier = ref.read(flowControllerProvider.notifier);
     notifier.markSeen(card);
     _dwell?.cancel();
+
+    // Carte de pack : l'historique local (vue, réponse, passée) nourrit la
+    // révision espacée. Aucun point serveur : la maîtrise suit le même
+    // moteur que « S'entraîner ».
+    if (card is FlowLearningCard) {
+      unawaited(
+        ref.read(learningCardHistoryProvider.notifier).shown(card.learning.id),
+      );
+      return;
+    }
 
     // Le mini-quiz attend une réponse explicite.
     if (card is FlowExerciseCard) return;
@@ -179,37 +426,125 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
     }
   }
 
+  /// Marge des cartes sous la zone sûre : la hauteur des commandes, avec
+  /// un souffle, jamais moins que la marge historique du HUD.
+  double _chromeInset(BuildContext context) {
+    final measured = _chromeHeight;
+    if (measured == null) return 72;
+    final below = measured - MediaQuery.paddingOf(context).top;
+    return below + IntelliaSpacing.sm > 72 ? below + IntelliaSpacing.sm : 72;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final swipeTutor = ref.watch(flowSwipeTutorProvider);
     return Scaffold(
       backgroundColor: IntelliaColors.backgroundPrimary,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          PageView.builder(
-            controller: _pageController,
-            scrollDirection: Axis.vertical,
-            itemCount: _cards.length,
-            onPageChanged: (i) {
-              setState(() => _index = i);
-              _handleSettled(i);
-            },
-            itemBuilder: (context, i) => FlowCardView(
-              card: _cards[i],
-              onAward: (award) {
-                _handleAward(award);
+          FlowChromeInset(
+            top: _chromeInset(context),
+            child: _visible.isEmpty
+                ? Center(
+                    key: const ValueKey('flow-subject-empty'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(IntelliaSpacing.xl),
+                      child: Text(
+                        context.l10n.ljFlowNoCards,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
+                  )
+                : PageView.builder(
+                    key: ValueKey('flow-pager-${_mode.name}-$_subject'),
+                    controller: _pageController,
+                    scrollDirection: Axis.vertical,
+                    itemCount: _visible.length,
+                    onPageChanged: (i) {
+                      // Une question notée de pack quittée sans réponse compte comme
+                      // passée : elle reviendra plus tard, pas tout de suite.
+                      final left = _visible[_index];
+                      if (left is FlowLearningCard &&
+                          left.learning.question?.autoScorable == true &&
+                          !_answeredPackCards.contains(left.id)) {
+                        unawaited(
+                          ref
+                              .read(learningCardHistoryProvider.notifier)
+                              .skipped(left.learning.id),
+                        );
+                      }
+                      // Chaque changement de page est un balayage démontré : l'invite
+                      // se réduira après plusieurs gestes.
+                      ref.read(flowSwipeTutorProvider.notifier).recordSwipe();
+                      setState(() {
+                        _index = i;
+                        _showAffordance = false;
+                      });
+                      _affordanceTimer?.cancel();
+                      _handleSettled(i);
+                    },
+                    itemBuilder: (context, i) => FlowCardView(
+                      card: _visible[i],
+                      onAward: (award) {
+                        final card = _visible[i];
+                        if (card is FlowLearningCard) {
+                          _answeredPackCards.add(card.id);
+                        }
+                        _handleAward(award);
+                        // Après une réponse révélée, on rappelle discrètement le geste.
+                        if (card is FlowExerciseCard ||
+                            card is FlowLearningCard) {
+                          _flashAffordance();
+                        }
+                      },
+                    ),
+                  ),
+          ),
+
+          // HUD supérieur (niveau, points, série, fermeture), puis « Pour
+          // toi | Par matière ». Sa hauteur réelle fixe la marge des cartes :
+          // aucune commande ne recouvre jamais leur contenu.
+          Align(
+            alignment: Alignment.topCenter,
+            child: _MeasuredHeight(
+              onHeight: (height) {
+                if (height != _chromeHeight) {
+                  setState(() => _chromeHeight = height);
+                }
               },
+              child: ColoredBox(
+                color: IntelliaColors.backgroundPrimary.withValues(alpha: 0.94),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FlowHud(
+                      onClose: _close,
+                      onOverview: () => showParcoursOverview(context),
+                    ),
+                    FlowViewSwitcher(
+                      mode: _mode,
+                      subjects: flowSubjects(_cards),
+                      selected: _subject,
+                      onMode: (mode) => _applyView(mode, _subject),
+                      onSubject: (subject) =>
+                          _applyView(FlowViewMode.bySubject, subject),
+                    ),
+                    const SizedBox(height: IntelliaSpacing.xs),
+                  ],
+                ),
+              ),
             ),
           ),
 
-          // HUD supérieur (niveau, points, série, fermeture).
-          Align(
-            alignment: Alignment.topCenter,
-            child: FlowHud(onClose: _close),
-          ),
-
-          // Indice de glissement (premier écran uniquement).
-          if (_index == 0) const _ScrollHint(),
+          // Invite de balayage : au démarrage et après chaque réponse révélée.
+          // Elle attend de savoir si l'élève connaît déjà le geste, pour ne
+          // pas changer de forme sous ses yeux.
+          if (_showAffordance &&
+              swipeTutor.loaded &&
+              _index < _visible.length - 1)
+            FlowSwipeAffordance(prominent: swipeTutor.prominent),
 
           // Célébration discrète d'une récompense.
           if (_celebration != null)
@@ -228,44 +563,35 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
   }
 }
 
-class _ScrollHint extends StatelessWidget {
-  const _ScrollHint();
+/// Rapporte la hauteur de son enfant après chaque mise en page.
+class _MeasuredHeight extends SingleChildRenderObjectWidget {
+  const _MeasuredHeight({required this.onHeight, super.child});
+
+  final ValueChanged<double> onHeight;
 
   @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: MediaQuery.of(context).padding.bottom + IntelliaSpacing.lg,
-      child: IgnorePointer(
-        child:
-            Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.keyboard_arrow_up_rounded,
-                      color: IntelliaColors.textTertiary,
-                      size: 26,
-                    ),
-                    Text(
-                      'Glisse vers le haut',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: IntelliaColors.textTertiary,
-                      ),
-                    ),
-                  ],
-                )
-                .animate(onPlay: (c) => c.repeat(reverse: true))
-                .moveY(
-                  begin: 6,
-                  end: -6,
-                  duration: 1100.ms,
-                  curve: Curves.easeInOut,
-                )
-                .fadeIn(duration: 500.ms),
-      ),
-    );
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderMeasuredHeight(onHeight);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderMeasuredHeight renderObject,
+  ) => renderObject.onHeight = onHeight;
+}
+
+class _RenderMeasuredHeight extends RenderProxyBox {
+  _RenderMeasuredHeight(this.onHeight);
+
+  ValueChanged<double> onHeight;
+  double? _reported;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    final height = size.height;
+    if (height == _reported) return;
+    _reported = height;
+    WidgetsBinding.instance.addPostFrameCallback((_) => onHeight(height));
   }
 }

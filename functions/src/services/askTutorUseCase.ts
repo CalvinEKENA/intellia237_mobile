@@ -1,19 +1,59 @@
 import type { DocumentData, Firestore } from "firebase-admin/firestore";
+import { logger } from "firebase-functions";
 
 import { db } from "../config/firebase";
 import { getEnv } from "../config/env";
-import { generateText, logAiQuotaRejection } from "../llm/llmClient";
-import { ASK_TUTOR_SYSTEM_PROMPT, buildAskTutorUserPrompt } from "../llm/prompts";
+import { generateText, logAiQuotaRejection, type LlmTokenUsage } from "../llm/llmClient";
+import { buildAskTutorUserPrompt } from "../llm/prompts";
+import {
+  MAX_ACADEMIC_CONTEXT_CHARS,
+  MAX_TOTAL_INPUT_CHARS,
+  MAX_TUTOR_OUTPUT_TOKENS,
+  boundTutorHistory,
+  type TutorHistoryItem,
+} from "../llm/tutorBudget";
+import {
+  buildTutorSystemPrompt,
+  resolveTutorLanguage,
+  type TutorLanguage,
+} from "../llm/tutorPersonas";
+import {
+  buildActivityInstructions,
+  extractInteractiveBlock,
+  negotiateActivityTypes,
+  renderActivityOutcome,
+  type InteractiveBlock,
+} from "../llm/interactiveBlocks";
+import {
+  ASK_TUTOR_CALLABLE_TIMEOUT_SECONDS,
+  TUTOR_IN_PROGRESS_POLL_MS,
+  TUTOR_IN_PROGRESS_WAIT_MS,
+  TUTOR_PROVIDER_TIMEOUT_MS,
+} from "../config/timeouts";
 import { AppError } from "../utils/errors";
 import type { AskTutorCallableInput } from "../utils/validation";
 import {
   FirestoreTutorQuotaStore,
   type TutorQuotaSnapshot,
   type TutorQuotaStore,
+  type TutorUndeliveredSettlement,
 } from "./tutorDailyQuota";
+import {
+  BilledProviderFailure,
+  StudyReserveConsumption,
+  billableFromUsage,
+  type ProviderUsage,
+} from "./studyReserveConsumption";
+import {
+  FirestoreTutorRequestLedger,
+  TUTOR_REQUEST_IN_PROGRESS_REASON,
+  tutorRequestPayloadHash,
+  type TutorRequestLedger,
+} from "./tutorRequestLedger";
+import { hasUserRole } from "../auth/userRoles";
 
 const MAX_CONTEXT_LESSONS = 3;
-const MAX_CONTEXT_CHARACTERS = 5_000;
+const MAX_CONTEXT_CHARACTERS = MAX_ACADEMIC_CONTEXT_CHARS;
 
 export interface TutorAcademicScope {
   classLevel: string;
@@ -23,6 +63,8 @@ export interface TutorAcademicScope {
 export interface AuthorizedTutorContext {
   scope: TutorAcademicScope;
   text: string;
+  /** Langue d'enseignement décidée depuis le profil ; français par défaut. */
+  language?: TutorLanguage;
 }
 
 export interface TutorContextStore {
@@ -37,6 +79,10 @@ type TutorTextGenerator = (params: {
   correlationId: string;
   system: string;
   prompt: string;
+  maxOutputTokens?: number;
+  timeoutMs?: number;
+  onUsage?: (usage: LlmTokenUsage | undefined) => void;
+  onFinishReason?: (finishReason: string | undefined) => void;
 }) => Promise<string>;
 
 /**
@@ -114,6 +160,7 @@ export class FirestoreTutorContextStore implements TutorContextStore {
     return {
       scope,
       text: renderTutorContext(authorizedLessons),
+      language: resolveTutorLanguage(profileSnapshot.data()),
     };
   }
 }
@@ -124,37 +171,130 @@ export class AskTutorUseCase {
     private readonly textGenerator: TutorTextGenerator = generateText,
     private readonly quotaStore: TutorQuotaStore = new FirestoreTutorQuotaStore(),
     private readonly dailyQuestionLimit: number = getEnv().TUTOR_DAILY_QUESTION_LIMIT,
+    // Couche de consommation unique de la Réserve d'étude (réserve/commit/release
+    // + comptabilisation de l'usage réel + seuils). Centralisée ici.
+    private readonly studyReserve: StudyReserveConsumption = new StudyReserveConsumption(),
+    // Registre d'idempotence : une relance avec le même requestId ne rejoue
+    // ni Gemini, ni le quota, ni la Réserve d'étude.
+    private readonly requestLedger: TutorRequestLedger = new FirestoreTutorRequestLedger(),
+    private readonly sleep: (ms: number) => Promise<void> = (ms) =>
+      new Promise((resolve) => setTimeout(resolve, ms)),
   ) {}
 
   async execute(params: {
     userId: string;
     traceId: string;
     input: AskTutorCallableInput;
-  }): Promise<{ text: string } & TutorQuotaSnapshot> {
-    const { tutor, history, userMessage } = params.input;
+  }): Promise<TutorAnswer> {
+    const requestId = params.input.requestId;
+    if (requestId === undefined) {
+      // Anciennes versions : pas d'identifiant, donc pas d'idempotence.
+      return this.generate({ ...params, requestKey: params.traceId, quotaAlreadyCharged: false });
+    }
+
+    let billedFailure = false;
+    const claim = await this.requestLedger.claim({
+      userId: params.userId,
+      requestId,
+      payloadHash: tutorRequestPayloadHash(params.input),
+      // Le bail couvre toute la vie de la callable : passé ce délai, une
+      // exécution tuée ne bloque plus la relance.
+      leaseMs: ASK_TUTOR_CALLABLE_TIMEOUT_SECONDS * 1_000,
+    });
+    if (claim.kind === "completed") return claim.response;
+    if (claim.kind === "in_progress") {
+      return this.awaitRunningRequest(params.userId, requestId);
+    }
+
+    try {
+      const response = await this.generate({
+        ...params,
+        requestKey: requestId,
+        quotaAlreadyCharged: claim.quotaAlreadyCharged,
+        onBilledFailure: () => {
+          billedFailure = true;
+        },
+      });
+      await this.requestLedger
+        .complete({ userId: params.userId, requestId, response })
+        .catch(() => undefined);
+      return response;
+    } catch (error) {
+      await this.requestLedger
+        .fail({
+          userId: params.userId,
+          requestId,
+          quotaCharged: claim.quotaAlreadyCharged || billedFailure,
+        })
+        .catch(() => undefined);
+      throw error;
+    }
+  }
+
+  /** Une relance attend la première exécution, sans rien relancer. */
+  private async awaitRunningRequest(
+    userId: string,
+    requestId: string,
+  ): Promise<TutorAnswer> {
+    const deadline = Date.now() + TUTOR_IN_PROGRESS_WAIT_MS;
+    while (Date.now() < deadline) {
+      await this.sleep(TUTOR_IN_PROGRESS_POLL_MS);
+      const record = await this.requestLedger.read({ userId, requestId });
+      if (record?.state === "completed" && record.response) return record.response;
+      if (record === null || record.state === "failed") break;
+    }
+    throw new AppError(
+      "unavailable",
+      "The answer to this question is still being prepared.",
+      { reason: TUTOR_REQUEST_IN_PROGRESS_REASON },
+    );
+  }
+
+  private async generate(params: {
+    userId: string;
+    traceId: string;
+    input: AskTutorCallableInput;
+    requestKey: string;
+    quotaAlreadyCharged: boolean;
+    onBilledFailure?: () => void;
+  }): Promise<TutorAnswer> {
+    const { tutorId, history, userMessage } = params.input;
     const authorizedContext = await this.contextStore.loadAuthorizedContext({
       userId: params.userId,
       requestedClassLevel: params.input.classLevel,
     });
-    const historyText = history.map((item) => `${item.role}: ${item.text}`).join("\n");
-
-    const systemPrompt = ASK_TUTOR_SYSTEM_PROMPT
-      .replace("{TUTOR_NAME}", tutor.name)
-      .replace("{TUTOR_SPECIALTY}", tutor.specialty)
-      .replace("{TUTOR_PERSONALITY}", tutor.personality)
-      .replace("{TUTOR_MOTTO}", tutor.motto);
-    const userPrompt = buildAskTutorUserPrompt(
-      authorizedContext.scope.classLevel,
-      authorizedContext.text,
-      historyText,
+    const language = authorizedContext.language ?? "fr";
+    // Le serveur choisit seul la persona et ses règles : le téléphone ne
+    // transmet qu'un identifiant déjà validé (kira | leo).
+    // Activités : seulement les types que ce téléphone sait rendre ET que le
+    // serveur sait valider. Un ancien client n'en déclare aucun.
+    const activityTypes = negotiateActivityTypes(params.input.activities);
+    const systemPrompt = buildTutorSystemPrompt(tutorId, language, {
+      activityInstructions: buildActivityInstructions(activityTypes, language),
+    });
+    const userPrompt = assembleBoundedUserPrompt({
+      systemPrompt,
+      classLevel: authorizedContext.scope.classLevel,
+      contextText: authorizedContext.text,
+      history,
       userMessage,
-    );
+      language,
+      activityOutcome: params.input.activityOutcome
+        ? renderActivityOutcome(params.input.activityOutcome, language)
+        : undefined,
+    });
+    // Journée de la réservation : la question lui appartient jusqu'au bout,
+    // même si la réponse arrive après minuit (Africa/Douala).
+    let quotaDayKey: string | undefined;
     try {
-      await this.quotaStore.reserve({
-        userId: params.userId,
-        traceId: params.traceId,
-        limit: this.dailyQuestionLimit,
-      });
+      if (!params.quotaAlreadyCharged) {
+        const reservation = await this.quotaStore.reserve({
+          userId: params.userId,
+          traceId: params.requestKey,
+          limit: this.dailyQuestionLimit,
+        });
+        quotaDayKey = reservation.dayKey;
+      }
     } catch (error) {
       if (error instanceof AppError && error.code === "resource-exhausted") {
         logAiQuotaRejection({
@@ -164,29 +304,283 @@ export class AskTutorUseCase {
       }
       throw error;
     }
+    // Issue d'une question sans réponse complète livrée : réglée une seule
+    // fois (quota rendu dans la limite du plafond, jamais débité de la Réserve
+    // d'étude en deçà), puis journalisée comme coût fournisseur.
+    let undelivered: UndeliveredSettlement | undefined;
+    const settle = async (
+      reason: UndeliveredReason,
+      finishReason: string | undefined,
+      usage: ProviderUsage | undefined,
+    ): Promise<UndeliveredSettlement> => {
+      undelivered ??= await this.settleUndelivered({
+        userId: params.userId,
+        requestKey: params.requestKey,
+        traceId: params.traceId,
+        dayKey: quotaDayKey,
+        reason,
+        finishReason,
+        usage,
+      });
+      return undelivered;
+    };
     try {
-      const responseText = await this.textGenerator({
-        operation: "askTutor",
-        correlationId: params.traceId,
-        system: systemPrompt,
-        prompt: userPrompt,
-      });
-      const quota = await this.quotaStore.consume({
+      // La Réserve d'étude encadre l'appel modèle : réservation (concurrence),
+      // exécution, puis comptabilisation de l'usage RÉEL du fournisseur, une
+      // seule fois (idempotent sur traceId). Réserve vide → rejet ; contenu
+      // statique jamais affecté (ce chemin ne concerne que le tuteur).
+      const { result } = await this.studyReserve.run<TutorDelivery>(
+        {
+          studentId: params.userId,
+          requestId: params.requestKey,
+          provider: "vertex-ai",
+          model: getEnv().GEMINI_MODEL,
+        },
+        async () => {
+          let captured: LlmTokenUsage | undefined;
+          let finishReason: string | undefined;
+          try {
+            const raw = await this.textGenerator({
+              operation: "askTutor",
+              correlationId: params.traceId,
+              system: systemPrompt,
+              prompt: userPrompt,
+              maxOutputTokens: MAX_TUTOR_OUTPUT_TOKENS,
+              timeoutMs: tutorProviderTimeoutMs(),
+              onUsage: (usage) => {
+                captured = usage;
+              },
+              onFinishReason: (reason) => {
+                finishReason = reason;
+              },
+            });
+            const usage = billableFromUsage(captured ?? {});
+            // Le bloc éventuel est validé ici ; invalide, il est retiré et
+            // seule la réponse texte est servie.
+            const { text, block } = extractInteractiveBlock(raw, {
+              allowed: activityTypes,
+              language,
+            });
+            if (text.trim().length === 0 && block === null) {
+              // Rien à livrer (texte vide, ou seulement une activité invalide).
+              const settlement = await settle("empty_answer", finishReason, usage);
+              throw new BilledProviderFailure(usage, undeliveredAnswerError(), {
+                charge: settlement.debited,
+              });
+            }
+            if (finishReason === MAX_TOKENS_FINISH_REASON) {
+              // Réponse coupée au plafond : livrée avec une mention, mais pas
+              // comptée comme une question réussie.
+              const settlement = await settle("truncated_answer", finishReason, usage);
+              return {
+                result: {
+                  text: withTruncationNotice(text, language),
+                  block,
+                  quota: settlement.snapshot ?? await this.peekQuota({
+                    userId: params.userId,
+                    traceId: params.requestKey,
+                    limit: this.dailyQuestionLimit,
+                    dayKey: quotaDayKey,
+                  }),
+                },
+                usage,
+                charge: settlement.debited,
+              };
+            }
+            return { result: { text, block }, usage };
+          } catch (error) {
+            if (error instanceof BilledProviderFailure) throw error;
+            if (captured !== undefined) {
+              // Le fournisseur a répondu (et facturé) mais rien d'exploitable.
+              const usage = billableFromUsage(captured);
+              const settlement = await settle("unusable_answer", finishReason, usage);
+              throw new BilledProviderFailure(usage, error, { charge: settlement.debited });
+            }
+            if (error instanceof AppError && error.code === "deadline-exceeded") {
+              // Annuler la requête HTTP n'annule pas un calcul peut-être
+              // facturé ; l'élève, lui, n'a rien reçu.
+              await settle("provider_timeout", finishReason, undefined);
+            }
+            throw error;
+          }
+        },
+      );
+      // Idempotent : une clé déjà consommée n'est pas recomptée.
+      const quota = result.quota ?? await this.quotaStore.consume({
         userId: params.userId,
-        traceId: params.traceId,
+        traceId: params.requestKey,
         limit: this.dailyQuestionLimit,
+        dayKey: quotaDayKey,
       });
-      return { text: responseText, ...quota };
+      return { text: result.text, ...quota, ...(result.block ? { block: result.block } : {}) };
     } catch (error) {
-      // Never log the prompt, user message or history. A failed generation does
-      // not consume the student's daily allowance.
-      await this.quotaStore.release({
-        userId: params.userId,
-        traceId: params.traceId,
-      }).catch(() => undefined);
+      // Never log the prompt, user message or history. A generation that did
+      // not reach the provider, or whose answer never reached the learner,
+      // gives the question back (within the daily cap of undelivered answers).
+      if (undelivered?.debited) {
+        params.onBilledFailure?.();
+      } else if (undelivered === undefined && !params.quotaAlreadyCharged) {
+        await this.quotaStore.release({
+          userId: params.userId,
+          traceId: params.requestKey,
+          dayKey: quotaDayKey,
+        }).catch(() => undefined);
+      }
       throw error;
     }
   }
+
+  /**
+   * Règle la réservation d'une question sans réponse complète livrée, puis
+   * journalise le coût fournisseur (sans aucun contenu).
+   */
+  private async settleUndelivered(params: {
+    userId: string;
+    requestKey: string;
+    traceId: string;
+    dayKey?: string;
+    reason: UndeliveredReason;
+    finishReason: string | undefined;
+    usage: ProviderUsage | undefined;
+  }): Promise<UndeliveredSettlement> {
+    const quotaParams = {
+      userId: params.userId,
+      traceId: params.requestKey,
+      limit: this.dailyQuestionLimit,
+      dayKey: params.dayKey,
+    };
+    let settlement: UndeliveredSettlement;
+    try {
+      if (this.quotaStore.settleUndelivered) {
+        settlement = await this.quotaStore.settleUndelivered(quotaParams);
+      } else {
+        await this.quotaStore.release(quotaParams);
+        settlement = { debited: false };
+      }
+    } catch {
+      await this.quotaStore.release(quotaParams).catch(() => undefined);
+      settlement = { debited: false };
+    }
+    logger.warn("Tutor answer not delivered as a complete answer.", {
+      correlationId: params.traceId,
+      reason: params.reason,
+      finishReason: params.finishReason ?? null,
+      inputUnits: params.usage?.inputUnits ?? null,
+      outputUnits: params.usage?.outputUnits ?? null,
+      billableUnits: params.usage?.billableUnits ?? null,
+      learnerCharged: settlement.debited,
+    });
+    return settlement;
+  }
+
+  /** Instantané sans effet : la réservation est déjà rendue ou réglée. */
+  private async peekQuota(params: {
+    userId: string;
+    traceId: string;
+    limit: number;
+    dayKey?: string;
+  }): Promise<TutorQuotaSnapshot> {
+    try {
+      return await this.quotaStore.consume(params);
+    } catch {
+      return { limit: params.limit, remaining: params.limit, resetsAt: "" };
+    }
+  }
+}
+
+/** Règlement d'une issue non livrée ; l'instantané est absent en repli. */
+type UndeliveredSettlement = Pick<TutorUndeliveredSettlement, "debited"> & {
+  snapshot?: TutorQuotaSnapshot;
+};
+
+type UndeliveredReason =
+  | "empty_answer"
+  | "truncated_answer"
+  | "unusable_answer"
+  | "provider_timeout";
+
+type TutorDelivery = {
+  text: string;
+  block: InteractiveBlock | null;
+  /** Présent quand le quota a déjà été réglé (réponse coupée). */
+  quota?: TutorQuotaSnapshot;
+};
+
+/** Motif de fin Vertex AI d'une réponse coupée au plafond de sortie. */
+export const MAX_TOKENS_FINISH_REASON = "MAX_TOKENS";
+
+export const TUTOR_ANSWER_UNDELIVERED_REASON = "tutor_answer_undelivered";
+
+const TRUNCATION_NOTICE: Readonly<Record<TutorLanguage, string>> = {
+  fr: "(Ma réponse a été coupée : écris « la suite » pour que je continue.)",
+  en: "(My answer was cut short: type “continue” and I will go on.)",
+};
+
+export function withTruncationNotice(text: string, language: TutorLanguage): string {
+  const body = text.trim();
+  const notice = TRUNCATION_NOTICE[language];
+  return body.length > 0 ? `${body}\n\n${notice}` : notice;
+}
+
+function undeliveredAnswerError(): AppError {
+  return new AppError(
+    "unavailable",
+    "The companion could not complete this answer.",
+    { reason: TUTOR_ANSWER_UNDELIVERED_REASON },
+  );
+}
+
+/** Réponse du tuteur : texte, quota, et au plus un bloc interactif validé. */
+export type TutorAnswer = { text: string } & TutorQuotaSnapshot & {
+  block?: InteractiveBlock | Record<string, unknown>;
+};
+
+function tutorProviderTimeoutMs(): number {
+  return Math.min(getEnv().LLM_SERVICE_TIMEOUT_MS, TUTOR_PROVIDER_TIMEOUT_MS);
+}
+
+/**
+ * Prompt utilisateur borné : fenêtre d'historique, puis contrôle du total
+ * (système compris). Si le total dépasse encore le plafond, l'historique est
+ * réduit, puis le contexte ; la question de l'élève n'est jamais coupée.
+ */
+export function assembleBoundedUserPrompt(params: {
+  systemPrompt: string;
+  classLevel: string;
+  contextText: string;
+  history: readonly TutorHistoryItem[];
+  userMessage: string;
+  language: TutorLanguage;
+  activityOutcome?: string;
+}): string {
+  let window = boundTutorHistory(params.history);
+  let contextText = params.contextText.slice(0, MAX_ACADEMIC_CONTEXT_CHARS);
+  const render = () => buildAskTutorUserPrompt({
+    classLevel: params.classLevel,
+    contextText,
+    historyText: window
+      .map((item) => `${historyLabel(item.role, params.language)} : ${item.text}`)
+      .join("\n"),
+    userMessage: params.userMessage,
+    language: params.language,
+    activityOutcome: params.activityOutcome,
+  });
+  let prompt = render();
+  while (params.systemPrompt.length + prompt.length > MAX_TOTAL_INPUT_CHARS && window.length > 0) {
+    window = window.slice(1);
+    prompt = render();
+  }
+  if (params.systemPrompt.length + prompt.length > MAX_TOTAL_INPUT_CHARS) {
+    const excess = params.systemPrompt.length + prompt.length - MAX_TOTAL_INPUT_CHARS;
+    contextText = contextText.slice(0, Math.max(0, contextText.length - excess - 1));
+    prompt = render();
+  }
+  return prompt;
+}
+
+function historyLabel(role: TutorHistoryItem["role"], language: TutorLanguage): string {
+  if (language === "en") return role === "user" ? "Learner" : "Companion";
+  return role === "user" ? "Élève" : "Compagnon";
 }
 
 export function resolveTutorAcademicScope({
@@ -198,7 +592,7 @@ export function resolveTutorAcademicScope({
   userData: DocumentData | undefined;
   profileData: DocumentData | undefined;
 }): TutorAcademicScope {
-  if (normalizedString(userData?.role) !== "student") {
+  if (!hasUserRole(userData, "student")) {
     throw new AppError("permission-denied", "The tutor course context is reserved for students.");
   }
   const userClass = normalizedString(userData?.classLevel);

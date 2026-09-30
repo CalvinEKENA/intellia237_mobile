@@ -7,13 +7,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../app/theme/design_tokens.dart';
 import '../../../core/localization/localization_extensions.dart';
-import '../../../core/network/network_status.dart';
 import '../../../core/widgets/intellia_async_states.dart';
 import '../../../core/widgets/intellia_pressable.dart';
 import '../../../core/widgets/intellia_state_view.dart';
 import '../../../core/widgets/tab_presentation.dart';
 import '../application/learn_providers.dart';
-import '../application/offline_learning_controller.dart';
 import '../domain/learn_chapter.dart';
 import '../domain/learn_lesson.dart';
 import '../domain/learn_route_requests.dart';
@@ -214,17 +212,10 @@ class _ChapterBody extends StatelessWidget {
           ),
         ),
 
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              IntelliaSpacing.lg,
-              0,
-              IntelliaSpacing.lg,
-              IntelliaSpacing.md,
-            ),
-            child: _OfflineChapterAction(chapter: chapter),
-          ),
-        ),
+        // Registre (QA appareil, 23/09/2026) : le cadre « Préparer la lecture
+        // / Chapitre préparé » est retiré. Il n'enregistrait que la liste des
+        // leçons, pas leur contenu : hors connexion, rien ne s'ouvrait, et
+        // l'élève ne comprenait pas à quoi il servait.
 
         // ── Leçons ──────────────────────────────────────────────────
         if (lessons.isEmpty)
@@ -268,215 +259,6 @@ class _ChapterBody extends StatelessWidget {
   }
 }
 
-class _OfflineChapterAction extends ConsumerStatefulWidget {
-  const _OfflineChapterAction({required this.chapter});
-
-  final LearnChapter chapter;
-
-  @override
-  ConsumerState<_OfflineChapterAction> createState() =>
-      _OfflineChapterActionState();
-}
-
-class _OfflineChapterActionState extends ConsumerState<_OfflineChapterAction> {
-  bool _busy = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final key = (
-      subjectId: widget.chapter.subjectId,
-      chapterId: widget.chapter.id,
-    );
-    final pack = ref.watch(offlineChapterPackProvider(key)).valueOrNull;
-    final saved = pack != null;
-    final offline = ref.watch(isOfflineProvider);
-    final canSave = widget.chapter.lessons.isNotEmpty && !_busy;
-
-    return Semantics(
-      container: true,
-      label: 'Préparation du chapitre — connexion requise pour les médias',
-      child: ChapterOfflineActionCard(
-        saved: saved,
-        busy: _busy,
-        title: saved ? 'Chapitre préparé' : 'Préparer la lecture',
-        subtitle: saved
-            ? '${pack.lessonIds.length} leçons repérées. La vidéo et les autres médias nécessitent une connexion ; aucun fichier vidéo n’a été téléchargé.'
-            : offline
-            ? context.l10n.reconnectToPrepareLessons
-            : 'Préparer la liste des leçons. Les contenus et médias restent chargés en ligne.',
-        actionLabel: context.l10n.prepareLabel,
-        actionEnabled: canSave && !offline,
-        onAction: _save,
-        onRemove: _remove,
-      ),
-    );
-  }
-
-  Future<void> _save() async {
-    setState(() => _busy = true);
-    try {
-      await ref
-          .read(offlineLearningActionsProvider)
-          .saveChapter(widget.chapter);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.chapterReadyOffline),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.downloadFailed),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _remove() async {
-    setState(() => _busy = true);
-    try {
-      await ref
-          .read(offlineLearningActionsProvider)
-          .removeChapter(
-            subjectId: widget.chapter.subjectId,
-            chapterId: widget.chapter.id,
-          );
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-}
-
-/// Responsive editorial card used by the chapter offline action.
-///
-/// The action deliberately lives below the title row. This leaves the text
-/// block all available horizontal space at narrow widths and under large text
-/// scaling, while keeping the download action visually attached to the card.
-@visibleForTesting
-class ChapterOfflineActionCard extends StatelessWidget {
-  const ChapterOfflineActionCard({
-    required this.saved,
-    required this.busy,
-    required this.title,
-    required this.subtitle,
-    required this.actionLabel,
-    required this.actionEnabled,
-    required this.onAction,
-    required this.onRemove,
-    super.key,
-  });
-
-  final bool saved;
-  final bool busy;
-  final String title;
-  final String subtitle;
-  final String actionLabel;
-  final bool actionEnabled;
-  final VoidCallback onAction;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = TabSurface.of(context);
-    return AnimatedContainer(
-      key: const ValueKey('offline-chapter-card'),
-      duration: const Duration(milliseconds: 220),
-      padding: const EdgeInsets.all(IntelliaSpacing.md),
-      decoration: BoxDecoration(
-        color: saved ? s.success.withValues(alpha: 0.10) : s.surface,
-        borderRadius: BorderRadius.circular(IntelliaRadii.medium),
-        border: Border.all(
-          color: saved ? s.success.withValues(alpha: 0.35) : s.border,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 180),
-                child: busy
-                    ? SizedBox(
-                        key: const ValueKey('offline-chapter-busy'),
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.4,
-                          color: s.accent,
-                        ),
-                      )
-                    : Icon(
-                        saved
-                            ? Icons.offline_pin_rounded
-                            : Icons.download_for_offline_outlined,
-                        key: ValueKey('offline-chapter-icon-$saved'),
-                        color: saved ? s.success : s.accent,
-                      ),
-              ),
-              const SizedBox(width: IntelliaSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      title,
-                      key: const ValueKey('offline-chapter-title'),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: s.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      key: const ValueKey('offline-chapter-subtitle'),
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 1.35,
-                        color: s.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: IntelliaSpacing.sm),
-          Align(
-            alignment: Alignment.centerRight,
-            child: saved
-                ? IconButton(
-                    key: const ValueKey('offline-chapter-remove'),
-                    tooltip: 'Retirer de cet appareil',
-                    onPressed: busy ? null : onRemove,
-                    icon: const Icon(Icons.delete_outline_rounded),
-                  )
-                : FilledButton.tonal(
-                    key: const ValueKey('offline-chapter-action'),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, 44),
-                    ),
-                    onPressed: actionEnabled ? onAction : null,
-                    child: Text(actionLabel),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Barre de retour minimale pour les états sans en-tête immersif.
 class _ChapterBackBar extends StatelessWidget {
   const _ChapterBackBar({required this.title});
 

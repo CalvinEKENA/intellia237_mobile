@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../auth/domain/app_role.dart';
+import '../../auth/domain/cameroon_phone_number.dart';
 
 class EditableProfile {
   const EditableProfile({
@@ -107,12 +108,15 @@ class ProfileRepository {
   };
 }
 
+/// Numéro mobile camerounais au format E.164, par le normaliseur unique de
+/// l'authentification ; un numéro invalide est rendu nettoyé, pour que la
+/// validation l'explique.
 String normalizeCameroonPhone(String value) {
-  var digits = value.replaceAll(RegExp(r'[^0-9+]'), '');
-  if (digits.startsWith('00237')) digits = '+237${digits.substring(5)}';
-  if (digits.startsWith('237') && !digits.startsWith('+')) digits = '+$digits';
-  if (RegExp(r'^6\d{8}$').hasMatch(digits)) digits = '+237$digits';
-  return digits;
+  try {
+    return CameroonPhoneNumber.normalize(value);
+  } on PhoneNumberFormatException {
+    return value.replaceAll(RegExp(r'[^0-9+]'), '');
+  }
 }
 
 String? validateProfileFields({

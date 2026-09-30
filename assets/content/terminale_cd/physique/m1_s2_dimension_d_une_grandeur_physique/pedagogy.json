@@ -1,0 +1,244 @@
+{
+  "schema_version": "intellia.pedagogy.v3",
+  "content_id": "physique_terminale_cd_m1_s2_dimension_grandeur_physique",
+  "difficulty_axis": {
+    "1": {
+      "label": "Facile",
+      "focus": "définitions, dimensions de base et reconnaissance"
+    },
+    "2": {
+      "label": "Intermédiaire",
+      "focus": "calculs dimensionnels et contrôle d’homogénéité"
+    },
+    "3": {
+      "label": "Défi Bac",
+      "focus": "raisonnement, dérivation et synthèse"
+    }
+  },
+  "explanation_axis": {
+    "standard": {
+      "label": "Terminale",
+      "style": "formalisme scientifique du niveau"
+    },
+    "simple": {
+      "label": "Simple",
+      "style": "étapes courtes et vocabulaire direct"
+    },
+    "ultra_simple": {
+      "label": "Comme si j'avais 12 ans",
+      "style": "intuition → exemple → formule"
+    }
+  },
+  "concepts": [
+    {
+      "id": "dimension_vs_unit",
+      "lesson": 1,
+      "title": "Dimension et unité",
+      "aliases": [
+        "dimension",
+        "unité",
+        "nature physique",
+        "grandeur physique"
+      ],
+      "explanations": {
+        "standard": "La dimension d'une grandeur physique caractérise sa nature physique, alors que l'unité est une convention de mesure. Une même dimension peut donc être exprimée avec plusieurs unités.",
+        "simple": "La dimension dit de quel type de grandeur il s'agit ; l'unité dit comment on la mesure.",
+        "ultra_simple": "Dimension = la nature. Unité = la façon de mesurer. Une longueur reste une longueur en mètre, mile ou autre unité."
+      },
+      "common_mistakes": [
+        "confondre le symbole de dimension avec le symbole d'unité",
+        "croire qu'un changement d'unité change la dimension"
+      ]
+    },
+    {
+      "id": "base_dimensions",
+      "lesson": 1,
+      "title": "Les sept dimensions fondamentales du SI",
+      "aliases": [
+        "grandeurs fondamentales",
+        "grandeurs de base",
+        "L M T I theta N J",
+        "SI"
+      ],
+      "explanations": {
+        "standard": "Les sept grandeurs de base sont associées aux dimensions L (longueur), M (masse), T (temps), I (courant électrique), Θ (température thermodynamique), N (quantité de matière) et J (intensité lumineuse).",
+        "simple": "Chaque grandeur de base possède une lettre de dimension : L, M, T, I, Θ, N ou J.",
+        "ultra_simple": "Pense à sept briques de base. Les autres dimensions se construisent avec elles."
+      },
+      "common_mistakes": [
+        "écrire s comme dimension du temps au lieu de T",
+        "confondre I, symbole de dimension du courant, avec une unité"
+      ]
+    },
+    {
+      "id": "derived_quantities",
+      "lesson": 2,
+      "title": "Grandeurs dérivées",
+      "aliases": [
+        "grandeur dérivée",
+        "accélération",
+        "vitesse",
+        "force"
+      ],
+      "explanations": {
+        "standard": "Toute grandeur physique différente des grandeurs fondamentales est une grandeur dérivée lorsqu'elle peut être exprimée en fonction des grandeurs de base au moyen d'une relation physique.",
+        "simple": "Une grandeur dérivée se construit à partir des grandeurs de base.",
+        "ultra_simple": "Vitesse, accélération ou force sont des recettes faites avec longueur, masse, temps, etc."
+      },
+      "common_mistakes": [
+        "traiter une grandeur dérivée comme une nouvelle dimension fondamentale",
+        "confondre grandeur dérivée et unité dérivée"
+      ]
+    },
+    {
+      "id": "dimensional_equation",
+      "lesson": 2,
+      "title": "Équation aux dimensions",
+      "aliases": [
+        "équation aux dimensions",
+        "exposants dimensionnels",
+        "produit dimensionnel",
+        "dim Q"
+      ],
+      "explanations": {
+        "standard": "Une équation aux dimensions relie la dimension d'une grandeur Q aux dimensions de base. Elle s'écrit en général dim Q = L^a M^b T^c I^d Θ^e N^f J^g, où les puissances sont les exposants dimensionnels.",
+        "simple": "On écrit une dimension comme un produit de puissances de L, M, T, I, Θ, N et J.",
+        "ultra_simple": "Chaque lettre dit combien de fois une grandeur de base intervient : par exemple la vitesse utilise L et T^-1."
+      },
+      "common_mistakes": [
+        "mettre des unités comme m ou s dans une équation aux dimensions",
+        "oublier les exposants négatifs"
+      ]
+    },
+    {
+      "id": "derived_units",
+      "lesson": 3,
+      "title": "Unités dérivées",
+      "aliases": [
+        "unité dérivée",
+        "newton",
+        "joule",
+        "watt",
+        "pascal",
+        "hertz"
+      ],
+      "explanations": {
+        "standard": "Les unités des grandeurs dérivées s'expriment algébriquement à partir des unités de base. Certaines reçoivent un nom spécial, par exemple newton, joule, watt, pascal ou hertz.",
+        "simple": "Une unité dérivée est fabriquée avec les unités de base ; elle peut avoir un nom spécial.",
+        "ultra_simple": "kg, m et s peuvent se combiner pour former des unités comme le newton."
+      },
+      "common_mistakes": [
+        "prendre le nom spécial d'une unité pour une dimension",
+        "confondre le watt, unité de puissance, avec une dimension"
+      ]
+    },
+    {
+      "id": "dimensionless_quantities",
+      "lesson": 3,
+      "title": "Grandeurs sans dimension",
+      "aliases": [
+        "sans dimension",
+        "angle",
+        "radian",
+        "rapport",
+        "cos sin tan exp ln"
+      ],
+      "explanations": {
+        "standard": "Un nombre, un angle exprimé en radians et le rapport de deux grandeurs de même dimension sont sans dimension. Les arguments des fonctions cos, sin, tan, exp ou ln sont également sans dimension.",
+        "simple": "Si deux grandeurs de même dimension se divisent, leurs dimensions s'annulent.",
+        "ultra_simple": "Longueur ÷ longueur donne un nombre pur. C'est pourquoi un angle en radians est sans dimension."
+      },
+      "common_mistakes": [
+        "croire qu'un angle en radians possède la dimension L",
+        "mettre une grandeur dimensionnée directement dans un logarithme ou une fonction trigonométrique"
+      ]
+    },
+    {
+      "id": "dimensional_analysis",
+      "lesson": 4,
+      "title": "Analyse dimensionnelle",
+      "aliases": [
+        "analyse dimensionnelle",
+        "retrouver une unité",
+        "déduction dimensionnelle"
+      ],
+      "explanations": {
+        "standard": "L'analyse dimensionnelle exploite les dimensions des grandeurs d'un problème pour retrouver des unités, construire ou contrôler des relations et tirer des déductions sur la forme d'une expression.",
+        "simple": "On remplace les grandeurs par leurs dimensions et on compare.",
+        "ultra_simple": "C'est un contrôle de cohérence : on regarde si les 'types physiques' s'accordent."
+      },
+      "common_mistakes": [
+        "confondre analyse dimensionnelle et calcul numérique",
+        "considérer qu'une relation homogène est automatiquement correcte"
+      ]
+    },
+    {
+      "id": "dimensional_homogeneity",
+      "lesson": 4,
+      "title": "Homogénéité dimensionnelle",
+      "aliases": [
+        "homogénéité",
+        "équation homogène",
+        "somme",
+        "égalité"
+      ],
+      "explanations": {
+        "standard": "Une expression est homogène si les termes additionnés ou soustraits ont la même dimension et si les deux membres d'une égalité ont la même dimension. Une relation non homogène est fausse ; l'homogénéité seule ne prouve pas qu'une relation est juste.",
+        "simple": "On n'additionne que des choses de même dimension, et une égalité doit avoir la même dimension des deux côtés.",
+        "ultra_simple": "On ne peut pas additionner des secondes et des mètres. Les deux côtés d'une formule doivent parler du même 'type' de grandeur."
+      },
+      "common_mistakes": [
+        "additionner des termes de dimensions différentes",
+        "prendre l'homogénéité comme preuve suffisante d'une formule"
+      ]
+    },
+    {
+      "id": "dimensional_problem_solving",
+      "lesson": 5,
+      "title": "Résoudre avec l'analyse dimensionnelle",
+      "aliases": [
+        "pendule",
+        "gravitation",
+        "mouvement circulaire",
+        "constante de Planck",
+        "constante de Boltzmann"
+      ],
+      "explanations": {
+        "standard": "Pour résoudre un problème dimensionnel, on écrit les dimensions connues, on remplace les grandeurs dans la relation, on combine les puissances puis on compare la dimension obtenue à celle recherchée.",
+        "simple": "Écris les dimensions, remplace, simplifie les exposants, puis vérifie le résultat.",
+        "ultra_simple": "1) remplace par L, M, T… 2) simplifie 3) compare avec ce que tu cherches."
+      },
+      "common_mistakes": [
+        "oublier de mettre au carré toute une dimension lorsqu'une grandeur est au carré",
+        "perdre le signe d'un exposant lors d'une division"
+      ]
+    },
+    {
+      "id": "sequence_integration",
+      "lesson": 0,
+      "title": "Synthèse — lire, construire et contrôler une dimension",
+      "aliases": [
+        "synthèse",
+        "intégration",
+        "dimension",
+        "homogénéité",
+        "unité dérivée"
+      ],
+      "explanations": {
+        "standard": "Une démarche complète relie la nature de la grandeur, son équation aux dimensions, son unité dérivée et le contrôle d'homogénéité de la relation physique utilisée.",
+        "simple": "Dimension → unité → formule homogène : les trois vérifications doivent rester cohérentes.",
+        "ultra_simple": "Comprends le type de grandeur, construis son unité, puis vérifie la formule."
+      },
+      "common_mistakes": [
+        "confondre unité et dimension pendant une vérification",
+        "valider une formule uniquement parce qu'elle est homogène"
+      ]
+    }
+  ],
+  "adaptive_rules": [
+    "Après deux erreurs sur une notion, proposer Simple.",
+    "Après une erreur supplémentaire, proposer Comme si j'avais 12 ans.",
+    "Après trois réponses correctes consécutives, proposer une difficulté supérieure.",
+    "La difficulté de l'exercice reste indépendante du niveau d'explication."
+  ]
+}

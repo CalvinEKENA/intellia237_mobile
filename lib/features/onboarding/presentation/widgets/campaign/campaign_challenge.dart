@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../../../domain/onboarding_journey_state.dart';
 import '../../../domain/onboarding_micro_challenge.dart';
+import 'campaign_design.dart';
 
 const _ink = Color(0xFF25233E);
 const _violet = Color(0xFF5444D8);
@@ -201,7 +202,7 @@ class _CampaignChallengeState extends State<CampaignChallenge> {
                           ),
                         ),
                       ),
-                      if (!numeric) ...[
+                      if (!numeric && !CampaignRoom.isShort(context)) ...[
                         const SizedBox(height: 16),
                         _ProgressConstruction(
                           reduceMotion: widget.reduceMotion,

@@ -18,15 +18,21 @@ class ChildLinkResult {
   final bool alreadyLinked;
 }
 
-/// Erreur de liaison portant un code stable et un message prêt à afficher.
+/// Erreur de liaison portant un **code machine stable**. Le message affiché à
+/// l'utilisateur est résolu côté client selon la langue (FR/EN) — jamais figé
+/// en une seule langue dans le service ni renvoyé par le serveur.
 class ChildLinkException implements Exception {
-  const ChildLinkException(this.code, this.message);
+  const ChildLinkException(this.code, [this.debugMessage]);
 
+  /// Code stable : `not-found`, `invalid-argument`, `permission-denied`,
+  /// `unauthenticated`, `resource-exhausted`, ou autre (générique).
   final String code;
-  final String message;
+
+  /// Détail non localisé, pour les logs uniquement — jamais affiché tel quel.
+  final String? debugMessage;
 
   @override
-  String toString() => 'ChildLinkException($code): $message';
+  String toString() => 'ChildLinkException($code)';
 }
 
 /// Appelle les callables de liaison parent↔enfant, autoritaires côté serveur.
@@ -56,18 +62,10 @@ class ChildLinkService {
         alreadyLinked: data['alreadyLinked'] == true,
       );
     } on FirebaseFunctionsException catch (error) {
-      throw ChildLinkException(error.code, _messageFor(error.code));
+      // On propage le CODE stable ; la traduction se fait dans l'UI.
+      throw ChildLinkException(error.code, error.message);
     }
   }
-
-  String _messageFor(String code) => switch (code) {
-    'not-found' =>
-      'Ce code enfant est introuvable. Vérifie-le avec ton enfant.',
-    'invalid-argument' => 'Saisis le code de liaison de ton enfant.',
-    'permission-denied' => 'Seul un compte parent peut rattacher un enfant.',
-    'unauthenticated' => 'Ta session a expiré. Reconnecte-toi puis réessaie.',
-    _ => 'La liaison n’a pas abouti. Réessaie dans un instant.',
-  };
 }
 
 final childLinkServiceProvider = Provider<ChildLinkService>(

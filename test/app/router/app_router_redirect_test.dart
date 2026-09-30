@@ -10,26 +10,51 @@ void main() {
       expect(_redirect(location: AppRoutes.bootstrap), AppRoutes.onboarding);
     });
 
-    test('2. completed onboarding opens registration', () {
+    // Refonte Auth V2 : premier lancement comme retour, la même porte neutre
+    // — l'identité d'abord, jamais un écran de rôles.
+    test('2. completed onboarding opens the neutral gateway', () {
       expect(
         _redirect(location: AppRoutes.onboarding, hasSeenOnboarding: true),
-        AppRoutes.register,
+        AppRoutes.authGateway,
       );
     });
 
-    test('3. skipped onboarding opens registration', () {
+    test('3. skipped onboarding opens the neutral gateway', () {
       expect(
         _redirect(location: AppRoutes.bootstrap, hasSeenOnboarding: true),
-        AppRoutes.register,
+        AppRoutes.authGateway,
       );
     });
 
-    test('4. onboarding seen without prior authentication opens register', () {
-      expect(
-        _redirect(location: AppRoutes.bootstrap, hasSeenOnboarding: true),
-        AppRoutes.register,
-      );
+    test('4. a first launch never shows role selection', () {
+      for (final location in [AppRoutes.bootstrap, AppRoutes.onboarding]) {
+        final destination = _redirect(
+          location: location,
+          hasSeenOnboarding: true,
+        );
+        expect(destination, AppRoutes.authGateway);
+        expect(destination, isNot(AppRoutes.register));
+        expect(destination, isNot(AppRoutes.parentEntry));
+      }
     });
+
+    test(
+      '4b. legacy role-first and child-code-first links lead to the gateway',
+      () {
+        for (final hasAuthenticatedBefore in [false, true]) {
+          for (final legacy in [AppRoutes.register, AppRoutes.parentEntry]) {
+            expect(
+              _redirect(
+                location: legacy,
+                hasSeenOnboarding: true,
+                hasAuthenticatedBefore: hasAuthenticatedBefore,
+              ),
+              AppRoutes.authGateway,
+            );
+          }
+        }
+      },
+    );
 
     test('15. a first authentication flow never redirects to login', () {
       for (final location in [AppRoutes.bootstrap, AppRoutes.onboarding]) {
@@ -85,7 +110,8 @@ void main() {
       expect(_returningRedirect(AppRoutes.login), isNull);
       expect(_returningRedirect(AppRoutes.phoneAuth), isNull);
       expect(_returningRedirect(AppRoutes.emailLogin), isNull);
-      expect(_returningRedirect(AppRoutes.register), isNull);
+      expect(_returningRedirect(AppRoutes.studentAccessCode), isNull);
+      expect(_returningRedirect(AppRoutes.register), AppRoutes.authGateway);
     });
 
     test('keeps student Flow and protects it from other roles', () {
@@ -202,10 +228,10 @@ void main() {
       );
     });
 
-    test('10. login can explicitly navigate to register', () {
+    test('10. login can explicitly navigate to staff registration', () {
       expect(
         _redirect(
-          location: AppRoutes.register,
+          location: AppRoutes.teacherRegistration,
           hasSeenOnboarding: true,
           hasAuthenticatedBefore: true,
         ),
@@ -213,12 +239,18 @@ void main() {
       );
     });
 
-    test('11. student registration is not interrupted', () {
-      expect(_registrationRedirect(AppRoutes.studentRegistration), isNull);
+    test('11. student registration requires identity first', () {
+      expect(
+        _registrationRedirect(AppRoutes.studentRegistration),
+        AppRoutes.authGateway,
+      );
     });
 
-    test('12. parent registration is not interrupted', () {
-      expect(_registrationRedirect(AppRoutes.parentRegistration), isNull);
+    test('12. parent registration requires identity first', () {
+      expect(
+        _registrationRedirect(AppRoutes.parentRegistration),
+        AppRoutes.authGateway,
+      );
     });
 
     test('13. restart location during staff registration remains stable', () {
@@ -230,7 +262,17 @@ void main() {
       for (final location in AppRoutes.preAuthRoutes) {
         if (location == AppRoutes.bootstrap ||
             location == AppRoutes.onboarding ||
-            location == AppRoutes.tutorSelection) {
+            location == AppRoutes.tutorSelection ||
+            // Retirés (refonte Auth V2) ou réservés à une identité prouvée :
+            // ils mènent à la porte neutre sans session.
+            location == AppRoutes.register ||
+            location == AppRoutes.parentEntry ||
+            location == AppRoutes.accountWelcome ||
+            location == AppRoutes.googleDiscovery ||
+            location == AppRoutes.roleChooser ||
+            location == AppRoutes.studentRegistration ||
+            location == AppRoutes.parentRegistration ||
+            location == AppRoutes.familySelection) {
           continue;
         }
         expect(
@@ -250,7 +292,7 @@ void main() {
     const superAdmin = AuthState.authenticated(
       role: AppRole.admin,
       userId: 'super-admin-uid',
-      email: 'calvinekena4@gmail.com',
+      email: 'admin@example.com',
       isSuperAdmin: true,
     );
 

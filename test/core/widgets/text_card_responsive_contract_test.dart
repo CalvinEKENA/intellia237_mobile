@@ -47,14 +47,49 @@ const _coveredPublicCardTypes = {
   'ResumeCourseCard',
   'StreakMotivationCard',
   'WeeklyGoalCard',
-  'ChapterOfflineActionCard',
   'StudentProfileTutorCard',
+  // Dedicated FR/EN 320/360/412/480 px, text x2: profile_premium_test.dart.
+  'IntelliaProfileIdentityCard',
   // Dedicated FR/EN matrix: test/features/mastery/mastery_widget_test.dart.
   'MasterySubjectCard',
   'CampusKpiCard',
   // Dedicated test (needs a ProviderScope for the link-code provider):
   // test/features/student_home/student_link_code_card_test.dart.
   'StudentLinkCodeCard',
+  // Dedicated test (provider-backed; the rendered gauge is covered at 360 px /
+  // textScale 1.5): test/features/study_reserve/study_reserve_gauge_test.dart.
+  'StudyReserveCard',
+  // Dedicated FR/EN test at 360 px / textScale 1.5 (provider-backed reserve,
+  // pending first sign-in): test/features/parent/parent_child_card_test.dart.
+  'ParentChildCard',
+  // Dedicated FR/EN test at 360 px up to textScale 2.0, word tiles and
+  // stacked steps: test/features/interactive_learning/ordering_exercise_view_test.dart.
+  'InteractiveExerciseCard',
+  // Dedicated FR/EN test at 360 px / textScale 1.5 (chapitres interactifs) :
+  // test/features/content_engine/content_cards_responsive_test.dart.
+  'ContentCard',
+  'GameCard',
+  'CompanionReplyCard',
+  // Dedicated test at 320/360/412 px × textScale 1.0/1.3/1.5, light and
+  // dark, grid and rail (Hall d'Apprendre) :
+  // test/features/learn/subject_hall_test.dart.
+  'SubjectHallCard',
+  // Dedicated test at 320/360/412 px × textScale 1.0/1.3, light and dark,
+  // plus 360 px / textScale 1.5 (Learning UI) :
+  // test/features/content_engine/learning_ui_test.dart.
+  'SequenceCard',
+  'LessonCard',
+  'SynthesisCard',
+  // Dedicated test at 320/360/412 px × textScale 1.0/1.3/1.5, light and
+  // dark (quiz des cours) : test/features/quiz/pack_quiz_ui_test.dart.
+  'PackQuizSubjectCard',
+  // Dedicated test at 320/360/412 px × textScale 1.0/1.3/1.5, light and
+  // dark, keyboard open (choix d'établissement) :
+  // test/features/student_registration/school_picker_test.dart.
+  'SchoolResultCard',
+  // Dedicated test at 320/412 px × textScale 1.0/1.3 and 360 px × 1.5
+  // (accès démo) : test/features/demo_access/demo_access_test.dart.
+  'DemoAccessCard',
 };
 
 const _longQuestion = QuizQuestion(
@@ -138,6 +173,7 @@ void main() {
         question: _longQuestion,
         selectedIndex: 0,
         onSelected: _ignoreInt,
+        attemptKey: 'contrat-mobile',
       ),
     ),
     (

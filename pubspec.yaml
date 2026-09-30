@@ -1,7 +1,7 @@
 name: intellia237
 description: "Application e-learning Intellia 237."
 publish_to: "none"
-version: 3.2.1+27
+version: 3.2.1+39
 
 environment:
   sdk: ">=3.8.0 <4.0.0"
@@ -17,6 +17,9 @@ dependencies:
   go_router: ^17.1.0
   google_fonts: ^6.2.1
   shared_preferences: ^2.5.4
+  # Content Engine : intégrité des packs distants et cache persistant.
+  crypto: ^3.0.7
+  path_provider: ^2.1.5
 
   # Firebase
   firebase_core: ^4.14.0
@@ -26,11 +29,6 @@ dependencies:
   firebase_storage: ^13.1.0
   firebase_app_check: ^0.4.7
   firebase_messaging: ^16.1.1
-
-  # Dictée et lecture à voix haute : tout se fait sur l'appareil. Aucun audio
-  # n'est téléversé, ni pour transcrire, ni pour lire une réponse.
-  speech_to_text: ^7.0.0
-  flutter_tts: ^4.2.0
 
   image_picker: ^1.1.2
   image_picker_android: ^0.8.13+14
@@ -53,6 +51,7 @@ dependencies:
   url_launcher: ^6.3.1
 
   intl: any
+  google_sign_in: ^7.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -72,19 +71,37 @@ flutter:
           weight: 900
     - family: CampaignBody
       fonts:
-        - asset: assets/fonts/Manrope-400.ttf
+        - asset: assets/fonts/Manrope-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Manrope-600.ttf
+        - asset: assets/fonts/Manrope-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Manrope-700.ttf
+        - asset: assets/fonts/Manrope-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Manrope-800.ttf
+        - asset: assets/fonts/Manrope-ExtraBold.ttf
           weight: 800
 
   assets:
     - assets/fonts/
     - assets/branding/
+    - assets/branding/google/
+    # Matière du lancement INTELLIA AWAKENS (clip dérivé, 357 Ko) : voir
+    # docs/BRANDING_LANCEMENT.md et tool/branding/derive_awaken_clip.sh.
+    - assets/branding/cinematic/
     - assets/companions/
+    - assets/companions/dialogue/
+    # Packs pédagogiques locaux (Content Engine) : un dossier par chapitre.
+    # Un test vérifie que chaque pack présent ici est bien déclaré.
+    - assets/content/terminale_d/mathematiques/ch01_arithmetique/
+    - assets/content/terminale_d/mathematiques/ch02_nombres_complexes/
+    - assets/content/terminale_d/mathematiques/ch03_fonctions_numeriques/
+    - assets/content/terminale/anglais/m1_u1_applying_for_a_passport/
+    - assets/content/terminale/anglais/m1_u2_discussing_recreational_activities/
+    - assets/content/terminale_cd/physique/m1_s1_erreurs_et_incertitudes/
+    - assets/content/terminale_cd/physique/m1_s2_dimension_d_une_grandeur_physique/
+    - assets/content/terminale_d/svt/m1_s1_les_echanges_cellulaires/
+    # Catalogue de référence des établissements (généré par
+    # tool/establishments/import_master_catalog.dart).
+    - assets/data/establishments/
 
 # Icône de lancement uniquement. Les plateformes non mobiles restent hors de
 # ce mécanisme : leurs ressources déjà versionnées, dont le favicon web, ne
@@ -100,27 +117,34 @@ flutter_launcher_icons:
     generate: false
   image_path: assets/branding/icone.png
   min_sdk_android: 21
-  # Le visuel validé est posé sur une carte quasi blanche : le fond adaptatif
-  # reprend exactement sa teinte dominante pour ne créer aucune bordure.
-  adaptive_icon_background: "#FEFEFE"
-  # Variante technique dérivée, jamais un redessin : le logo est détouré de sa
-  # carte puis remis à l'échelle pour tenir entièrement dans la zone qu'Android
-  # garantit visible sous tous les masques. Sans elle, « INTELLIA 237 » est
-  # rogné par le masque circulaire.
+  # Icône adaptative : deux dérivées techniques, jamais un redessin
+  # (tool/branding/derive_launcher_assets.py). icone.png est exactement
+  # logo.png posé sur un dégradé mint → pervenche :
+  # - le fond reprend ce dégradé, posé sur les 72 dp visibles ;
+  # - le premier plan est le wordmark de logo.png, réduit pour tenir dans le
+  #   cercle de 66 dp qu'Android garantit sous tous les masques. Sans lui,
+  #   « INTELLIA237 », qui occupe 90 % de la largeur, serait rogné.
+  adaptive_icon_background: assets/branding/icone_adaptive_background.png
   adaptive_icon_foreground: assets/branding/icone_adaptive_foreground.png
   adaptive_icon_foreground_inset: 0
   remove_alpha_ios: true
-  # iOS interdit l'alpha : tout aplatissement se fait sur le fond du visuel.
-  background_color_ios: "#FEFEFE"
+  # icone.png est opaque (RVB) : aucun aplatissement n'a lieu ; la couleur
+  # de secours reprend le médian du dégradé.
+  background_color_ios: "#B0DCEB"
 
-# Splash natif — couche A. Couleur de fond identique au premier frame du
-# Le splash natif ne montre plus rien : il tient seulement le papier de
-# l'onboarding pendant que le moteur démarre. Le nom s'écrit ensuite côté
-# Flutter, lettre après lettre. Toute image ici réintroduirait le logo.
+# Splash natif : une couleur unie, rien d'autre. C'est exactement la
+# surface de la première image Flutter (BrandLaunchPalette.surface), où le
+# logo se révèle ensuite. Sur Android 12+, le système montre l'icône de
+# l'application au centre : icône → surface claire → wordmark.
+# L'application reste en thème clair : même couleur en mode sombre.
 flutter_native_splash:
-  color: "#F4EFE5"
+  color: "#F2F9FC"
+  color_dark: "#F2F9FC"
   android: true
   ios: true
-  web: true
+  # Le web a sa propre page de chargement (web/index.html) : le générateur
+  # n'y injecte pas un second écran.
+  web: false
   android_12:
-    color: "#F4EFE5"
+    color: "#F2F9FC"
+    color_dark: "#F2F9FC"

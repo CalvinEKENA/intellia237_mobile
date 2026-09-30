@@ -1,0 +1,199 @@
+{
+  "schema_version": "intellia.pedagogy.v1",
+  "content_id": "maths_td_ch01_arithmetique",
+  "design_principle": "Une notion difficile reste mathématiquement exacte, mais l'élève peut demander une explication plus intuitive sans réduire le niveau de l'exercice.",
+  "difficulty_axis": {
+    "1": {
+      "label": "Facile",
+      "focus": "reconnaître, calculer directement, appliquer une seule règle"
+    },
+    "2": {
+      "label": "Intermédiaire",
+      "focus": "choisir la bonne méthode, combiner deux idées, justifier"
+    },
+    "3": {
+      "label": "Difficile / Défi Bac",
+      "focus": "raisonner, transférer, traiter une situation à plusieurs étapes"
+    }
+  },
+  "explanation_axis": {
+    "standard": {
+      "label": "Terminale",
+      "style": "notation complète, vocabulaire du programme, justification formelle"
+    },
+    "simple": {
+      "label": "Simple",
+      "style": "phrases courtes, une étape à la fois, exemple immédiatement après la règle"
+    },
+    "ultra_simple": {
+      "label": "Comme si j'avais 12 ans",
+      "style": "intuition concrète, analogie, représentation visuelle, puis pont progressif vers la formule"
+    }
+  },
+  "concepts": [
+    {
+      "id": "euclidean_division_N",
+      "lesson": 1,
+      "title": "Division euclidienne dans N",
+      "prerequisites": [
+        "multiplication",
+        "inégalités simples"
+      ],
+      "explanations": {
+        "standard": "Pour a∈N et b∈N*, il existe un unique couple (q,r)∈N² tel que a=bq+r et 0≤r<b.",
+        "simple": "On cherche combien de fois b tient entièrement dans a. Ce nombre est q. Ce qui reste est r, et r doit être plus petit que b.",
+        "ultra_simple": "Imagine a bonbons et des boîtes de b places. q est le nombre de boîtes complètement remplies. r est le nombre de bonbons qui restent. S'il restait b bonbons ou plus, on pourrait encore remplir une boîte : c'est pourquoi r<b."
+      },
+      "visual_model": "Boîtes qui se remplissent ; le reste reste hors des boîtes.",
+      "common_mistakes": [
+        "accepter r≥b",
+        "confondre quotient et reste",
+        "oublier que b≠0"
+      ]
+    },
+    {
+      "id": "binary_decimal",
+      "lesson": 2,
+      "title": "Écritures décimale et binaire",
+      "prerequisites": [
+        "puissances",
+        "division euclidienne"
+      ],
+      "explanations": {
+        "standard": "En base b, un entier s'écrit comme une somme de chiffres multipliés par des puissances de b. En base 2, les chiffres sont 0 et 1.",
+        "simple": "En base 10, les colonnes valent 1,10,100… En base 2, elles valent 1,2,4,8,16…",
+        "ultra_simple": "Imagine une rangée d'interrupteurs. Chaque interrupteur vaut 1,2,4,8,16… Un 1 signifie « allumé », un 0 « éteint ». On additionne seulement les valeurs des interrupteurs allumés."
+      },
+      "visual_model": "Interrupteurs pondérés 1–2–4–8–16–32–64.",
+      "common_mistakes": [
+        "lire 101 comme cent-un",
+        "utiliser des chiffres autres que 0 ou 1 en base 2",
+        "oublier que la colonne de droite vaut 2^0=1"
+      ]
+    },
+    {
+      "id": "euclidean_division_Z",
+      "lesson": 3,
+      "title": "Division euclidienne et divisibilité dans Z",
+      "prerequisites": [
+        "division euclidienne dans N",
+        "valeur absolue"
+      ],
+      "explanations": {
+        "standard": "Pour a,b∈Z avec b≠0, il existe un unique (q,r)∈Z² tel que a=bq+r et 0≤r<|b|.",
+        "simple": "Même avec des nombres négatifs, le reste est choisi positif ou nul et plus petit que |b|.",
+        "ultra_simple": "Le reste est toujours placé dans une petite zone allant de 0 jusqu'à juste avant |b|. On ajuste q jusqu'à ce que le reste tombe dans cette zone."
+      },
+      "visual_model": "Une bande de restes autorisés de 0 à |b|−1.",
+      "common_mistakes": [
+        "prendre un reste négatif",
+        "écrire r<b lorsque b est négatif",
+        "confondre « b divise a » et « a divise b »"
+      ]
+    },
+    {
+      "id": "congruence",
+      "lesson": 4,
+      "title": "Congruence modulo n",
+      "prerequisites": [
+        "division euclidienne dans Z",
+        "multiples"
+      ],
+      "explanations": {
+        "standard": "a≡b (mod n) signifie que n divise a−b. C'est équivalent au fait que a et b ont le même reste dans la division par n.",
+        "simple": "Deux nombres sont congrus modulo n s'ils tombent sur le même reste quand on les divise par n.",
+        "ultra_simple": "Pense à une horloge. Après avoir fait un tour complet, tu reviens au même endroit. Modulo n, deux nombres sont au même endroit s'ils diffèrent d'un nombre entier de tours de n."
+      },
+      "visual_model": "Horloge circulaire modulo n.",
+      "common_mistakes": [
+        "confondre a≡b (mod n) avec a=b",
+        "oublier les conditions sur le modulo",
+        "réduire un facteur sans justification"
+      ]
+    },
+    {
+      "id": "prime_numbers",
+      "lesson": 5,
+      "title": "Nombres premiers",
+      "prerequisites": [
+        "diviseurs",
+        "racine carrée"
+      ],
+      "explanations": {
+        "standard": "Un entier naturel p est premier s'il possède exactement deux diviseurs positifs : 1 et p. Pour tester un entier composé, il suffit de rechercher un diviseur premier jusqu'à √n.",
+        "simple": "Un nombre premier ne peut pas être fabriqué par multiplication de deux entiers positifs autres que 1 et lui-même.",
+        "ultra_simple": "Les nombres premiers sont les « briques LEGO » des entiers : on peut casser les autres nombres en produits de ces briques, mais une brique première ne se casse plus en facteurs entiers plus petits (sauf 1×elle-même)."
+      },
+      "visual_model": "Décomposition d'un bloc en briques premières.",
+      "common_mistakes": [
+        "considérer 1 comme premier",
+        "tester tous les diviseurs jusqu'à n",
+        "oublier les exposants dans la factorisation"
+      ]
+    },
+    {
+      "id": "gcd_lcm",
+      "lesson": 6,
+      "title": "PGCD et PPCM",
+      "prerequisites": [
+        "diviseurs",
+        "multiples",
+        "division euclidienne"
+      ],
+      "explanations": {
+        "standard": "Le PGCD(a,b) est le plus grand diviseur commun positif. Le PPCM(a,b) est le plus petit multiple commun strictement positif. Pour a,b≠0 : PGCD(a,b)×PPCM(a,b)=|ab|.",
+        "simple": "Le PGCD répond à « quelle est la plus grande taille qui découpe exactement les deux ? ». Le PPCM répond à « quel est le premier moment où les deux rythmes retombent ensemble ? ».",
+        "ultra_simple": "Pour le PGCD, imagine deux longueurs de ruban que tu veux couper avec la plus grande règle possible sans reste. Pour le PPCM, imagine deux lampes qui clignotent à des rythmes différents : le PPCM est le premier instant où elles clignotent ensemble."
+      },
+      "visual_model": "Carrelage pour PGCD ; deux rythmes synchronisés pour PPCM.",
+      "common_mistakes": [
+        "intervertir PGCD et PPCM",
+        "oublier la valeur absolue dans le produit",
+        "arrêter l'algorithme d'Euclide avant le dernier reste non nul"
+      ]
+    },
+    {
+      "id": "chapter_integration",
+      "lesson": 0,
+      "title": "Intégration — arithmétique",
+      "aliases": [
+        "synthèse",
+        "mission Awa",
+        "activité d'intégration",
+        "problème"
+      ],
+      "prerequisites": [
+        "euclidean_division_N",
+        "congruence",
+        "prime_numbers",
+        "gcd_lcm"
+      ],
+      "explanations": {
+        "standard": "Une situation d'intégration mobilise ensemble division euclidienne, congruences, nombres premiers, PGCD et PPCM pour modéliser un problème concret et justifier chaque conclusion.",
+        "simple": "Repère d'abord ce que demande la situation : un partage exact, un reste, une décomposition ou une mesure commune. Choisis ensuite l'outil du chapitre qui y répond.",
+        "ultra_simple": "Imagine une caisse à outils : la division pour partager, le modulo pour les restes, les briques premières pour décomposer, le PGCD et le PPCM pour mesurer ou synchroniser. Pour chaque morceau de la mission, tu prends le bon outil."
+      },
+      "visual_model": "Carte de mission reliant chaque étape à l'outil du chapitre.",
+      "common_mistakes": [
+        "annoncer une valeur unique quand les données en admettent plusieurs",
+        "conclure sans vérifier que les données suffisent"
+      ]
+    }
+  ],
+  "learning_path": [
+    "euclidean_division_N",
+    "binary_decimal",
+    "euclidean_division_Z",
+    "congruence",
+    "prime_numbers",
+    "gcd_lcm",
+    "chapter_integration"
+  ],
+  "adaptive_rules": [
+    "Deux erreurs sur un même concept déclenchent l'explication 'simple'.",
+    "Une nouvelle erreur après l'explication simple propose 'Comme si j'avais 12 ans'.",
+    "Trois réussites consécutives proposent le niveau de difficulté supérieur.",
+    "Le niveau d'explication ne change jamais automatiquement le niveau de difficulté de l'exercice.",
+    "L'élève peut verrouiller son niveau d'explication préféré."
+  ]
+}

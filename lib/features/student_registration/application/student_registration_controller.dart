@@ -87,8 +87,12 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
       establishment: EstablishmentAffiliation(
         name: establishment.officialName,
         candidateId: establishment.id,
-        city: establishment.city,
-        region: establishment.region,
+        city: establishment.city.isEmpty ? null : establishment.city,
+        region: establishment.region.isEmpty ? null : establishment.region,
+        district: establishment.district,
+        source: establishment.isPartner
+            ? EstablishmentAffiliationSource.partner
+            : EstablishmentAffiliationSource.catalogue,
         status: EstablishmentAffiliationStatus.pendingVerification,
       ),
       clearError: true,
@@ -98,9 +102,15 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
   void suggestEstablishment(EstablishmentSuggestion suggestion) {
     state = state.copyWith(
       establishment: EstablishmentAffiliation(
-        name: suggestion.name,
-        city: suggestion.city,
-        region: suggestion.region,
+        name: suggestion.name.trim(),
+        city: suggestion.city.trim(),
+        region: suggestion.region.trim().isEmpty
+            ? null
+            : suggestion.region.trim(),
+        district: suggestion.district?.trim().isEmpty ?? true
+            ? null
+            : suggestion.district!.trim(),
+        source: EstablishmentAffiliationSource.suggestion,
         status: EstablishmentAffiliationStatus.pendingVerification,
       ),
       clearError: true,
@@ -274,8 +284,12 @@ class StudentRegistrationController extends Notifier<StudentRegistrationState> {
   }
 
   String? _validateAcademicInfo() {
+    // Un compte géré par l'établissement suppose un établissement partenaire :
+    // un établissement du seul catalogue de référence n'en gère aucun.
     if (state.accountLinkage == LearnerAccountLinkage.establishmentManaged &&
-        (state.establishment?.candidateId?.isEmpty ?? true)) {
+        (state.establishment?.source !=
+                EstablishmentAffiliationSource.partner ||
+            (state.establishment?.candidateId?.isEmpty ?? true))) {
       return 'Choisissez votre établissement dans la liste.';
     }
     final schoolClass = state.schoolClass;

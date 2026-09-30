@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ : aucune donnée de l'application n'est sauvegardée dans le cloud
+  ni transférée vers un autre appareil. L'appareil contient des données de
+  mineurs (historique des échanges avec le compagnon, identité en cache, fil
+  Parcours, préférences) et l'état de connexion Firebase ; tout ce qui compte
+  est reconstruit depuis le serveur après une nouvelle connexion.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </device-transfer>
+</data-extraction-rules>

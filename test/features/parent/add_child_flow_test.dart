@@ -49,7 +49,7 @@ class _FakeChildLinkService extends ChildLinkService {
   @override
   Future<ChildLinkResult> linkChildByCode(String code) async {
     if (code == 'BADCODE1') {
-      throw const ChildLinkException('not-found', 'Ce code est introuvable.');
+      throw const ChildLinkException('not-found');
     }
     world.children.add(
       const ParentChildProfile(
@@ -156,7 +156,12 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(find.text('Ce code est introuvable.'), findsOneWidget);
+    // Message localisé depuis le CODE stable 'not-found' (jamais figé côté
+    // service).
+    expect(
+      find.text('Ce code enfant est introuvable. Vérifie-le avec ton enfant.'),
+      findsOneWidget,
+    );
     expect(world.children, isEmpty);
   });
 }

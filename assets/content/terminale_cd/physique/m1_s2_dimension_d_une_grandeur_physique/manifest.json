@@ -1,0 +1,57 @@
+{
+  "schema_version": "intellia.pack-manifest.v3",
+  "id": "physique_terminale_cd_m1_s2_dimension_grandeur_physique",
+  "title": "Physique Terminales C-D — Module 1 Séquence 2 : Dimension d'une grandeur physique",
+  "class_keys": [
+    "terminale-c-d"
+  ],
+  "subject": "physique",
+  "module": 1,
+  "sequence": 2,
+  "version": 1,
+  "authoring_status": "validated",
+  "publication_status": "draft",
+  "minimum_engine_version": 2,
+  "source_images": 4,
+  "files": {
+    "source": "source.json",
+    "pedagogy": "pedagogy.json",
+    "runtime": "runtime.json",
+    "validation": "validation_report.json"
+  },
+  "stats": {
+    "lessons": 5,
+    "concepts": 10,
+    "questions": 40,
+    "auto_scored_questions": 35,
+    "non_auto_scored_questions": 5,
+    "game_blueprints": 5,
+    "learning_card_seeds": 14,
+    "difficulty_levels": 3,
+    "explanation_levels": 3
+  },
+  "capabilities": [
+    "deterministic_qcm_shuffle_v1",
+    "stable_option_ids_v1",
+    "deterministic_companion_v1",
+    "learning_cards_v1",
+    "self_evaluation_v1",
+    "integration_concepts_v1",
+    "remote_delivery_v1",
+    "offline_first_v1",
+    "physics_dimensional_analysis_v1",
+    "matching_game_v1"
+  ],
+  "remote_delivery": {
+    "eligible": true,
+    "preferred_storage": "firebase_storage",
+    "catalog_status": "do_not_publish_until_engine_validation",
+    "cache_policy": "latest_valid_with_rollback"
+  },
+  "sha256": {
+    "pedagogy.json": "10258bd54dfe8b8293881576adb78773c4c56388c53fdac9496345b9efedb121",
+    "source.json": "7c3b97b451f3172efffcbf3092ec2ed522ea6dbe795f5974ad0e2028ce468706",
+    "validation_report.json": "a166022ba530623834163a5eec6ebbfad590d0acff7183bbb6eddaf295076ba4",
+    "runtime.json": "a8ece046ea45d3a172c2d329ba210b793f8d8326d4edc9be5340b40699b0c2f4"
+  }
+}

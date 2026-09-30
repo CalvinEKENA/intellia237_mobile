@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/localization_extensions.dart';
 import '../application/parent_providers.dart';
+import '../../study_reserve/presentation/study_reserve_card.dart';
 import 'widgets/parent_learning_overview.dart';
 import '../../mastery/presentation/mastery_style.dart';
 import '../../../core/widgets/intellia_async_states.dart';
@@ -43,6 +44,9 @@ class ChildOverviewScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
                 children: [
                   ParentLearningOverview(child: child, detailed: true),
+                  const SizedBox(height: 16),
+                  // Réserve d'étude propre à cet enfant (vue détaillée).
+                  StudyReserveCard(studentId: childId),
                 ],
               ),
             ),

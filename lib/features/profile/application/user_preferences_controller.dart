@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import '../../../core/notifications/learning_reminder_service.dart';
 import '../../../core/notifications/notification_push_service.dart';
 import '../../auth/application/auth_controller.dart';
+import '../../rewards/domain/haptic_pattern.dart';
 
 class UserPreferences {
   const UserPreferences({
@@ -17,6 +18,7 @@ class UserPreferences {
     this.reminderHour = 18,
     this.reminderMinute = 30,
     this.diagnostics = false,
+    this.haptics = HapticMode.on,
   });
 
   final double textScale;
@@ -27,6 +29,9 @@ class UserPreferences {
   final int reminderMinute;
   final bool diagnostics;
 
+  /// « Vibrations pédagogiques » : activées, réduites ou désactivées.
+  final HapticMode haptics;
+
   UserPreferences copyWith({
     double? textScale,
     bool? reduceMotion,
@@ -35,6 +40,7 @@ class UserPreferences {
     int? reminderHour,
     int? reminderMinute,
     bool? diagnostics,
+    HapticMode? haptics,
   }) => UserPreferences(
     textScale: textScale ?? this.textScale,
     reduceMotion: reduceMotion ?? this.reduceMotion,
@@ -43,6 +49,7 @@ class UserPreferences {
     reminderHour: reminderHour ?? this.reminderHour,
     reminderMinute: reminderMinute ?? this.reminderMinute,
     diagnostics: diagnostics ?? this.diagnostics,
+    haptics: haptics ?? this.haptics,
   );
 }
 
@@ -60,6 +67,7 @@ class UserPreferencesController extends Notifier<UserPreferences> {
   static const _reminderHourKey = 'preferences_reminder_hour';
   static const _reminderMinuteKey = 'preferences_reminder_minute';
   static const diagnosticsKey = 'preferences_diagnostics_consent';
+  static const _hapticsKey = 'preferences_haptics';
 
   @override
   UserPreferences build() {
@@ -78,7 +86,15 @@ class UserPreferencesController extends Notifier<UserPreferences> {
       reminderHour: prefs.getInt(_reminderHourKey) ?? 18,
       reminderMinute: prefs.getInt(_reminderMinuteKey) ?? 30,
       diagnostics: prefs.getBool(diagnosticsKey) ?? false,
+      haptics: HapticMode.fromKey(prefs.getString(_hapticsKey)),
     );
+  }
+
+  Future<void> setHaptics(HapticMode value) async {
+    _dirty = true;
+    state = state.copyWith(haptics: value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_hapticsKey, value.name);
   }
 
   Future<void> setTextScale(double value) async {

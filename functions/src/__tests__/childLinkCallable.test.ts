@@ -13,6 +13,8 @@ import {
 
 class MemoryChildLinkStore implements ChildLinkStore {
   roles = new Map<string, string>();
+  /** Profils complets (espaces additifs), prioritaires sur [roles]. */
+  users = new Map<string, Record<string, unknown>>();
   codes = new Map<string, string>(); // code -> studentId
   students = new Map<string, StudentSummary>();
   links: { parentId: string; studentId: string }[] = [];
@@ -20,8 +22,9 @@ class MemoryChildLinkStore implements ChildLinkStore {
   failures = new Map<string, number>();
   private _codeSeq = 0;
 
-  async readRole(uid: string) {
-    return this.roles.get(uid);
+  async readUser(uid: string) {
+    const role = this.roles.get(uid);
+    return this.users.get(uid) ?? (role === undefined ? undefined : { role });
   }
 
   async isRateLimited(parentId: string) {
@@ -103,6 +106,33 @@ describe("linkChildByCode", () => {
         auth: { uid: "student-1" },
         data: { code: "ABCDEFGH" },
       } as never),
+    ).rejects.toMatchObject({ code: "permission-denied" });
+  });
+
+  it("lets a teacher who is also a parent (roles[]) link a child", async () => {
+    const store = seededStore();
+    store.users.set("teacher-parent", { role: "teacher", roles: ["teacher", "parent"] });
+    const handler = createLinkChildByCodeHandler(store);
+    await expect(
+      handler({ auth: { uid: "teacher-parent" }, data: { code: "ABCD-EFGH" } } as never),
+    ).resolves.toMatchObject({ studentId: "student-1" });
+  });
+
+  it("refuses a teacher without the parent space", async () => {
+    const store = seededStore();
+    store.users.set("teacher-only", { role: "teacher", roles: ["teacher"] });
+    const handler = createLinkChildByCodeHandler(store);
+    await expect(
+      handler({ auth: { uid: "teacher-only" }, data: { code: "ABCD-EFGH" } } as never),
+    ).rejects.toMatchObject({ code: "permission-denied" });
+  });
+
+  it("never lets roles[] turn a student into a parent", async () => {
+    const store = seededStore();
+    store.users.set("student-x", { role: "student", roles: ["student", "parent"] });
+    const handler = createLinkChildByCodeHandler(store);
+    await expect(
+      handler({ auth: { uid: "student-x" }, data: { code: "ABCD-EFGH" } } as never),
     ).rejects.toMatchObject({ code: "permission-denied" });
   });
 
@@ -277,6 +307,62 @@ describe("rotateStudentLinkCode", () => {
     await expect(
       handler({ auth: { uid: "parent-1" }, data: {} } as never),
     ).rejects.toMatchObject({ code: "permission-denied" });
+  });
+});
+
+describe("link codes through trusted guardians", () => {
+  const guardians = {
+    accounts: new Map([
+      ["student-1", { role: "student", accountStatus: "active", establishmentId: "school-a" }],
+      ["parent-1", { role: "parent", accountStatus: "active", establishmentId: "" }],
+      ["parent-2", { role: "parent", accountStatus: "active", establishmentId: "" }],
+      ["head-a", { role: "admin", accountStatus: "active", establishmentId: "school-a" }],
+      ["head-b", { role: "admin", accountStatus: "active", establishmentId: "school-b" }],
+      ["root", { role: "superAdmin", accountStatus: "active", establishmentId: "" }],
+    ]),
+    async readAccount(uid: string) {
+      return this.accounts.get(uid) ?? null;
+    },
+    async isLinkedParent(parentId: string, studentId: string) {
+      return parentId === "parent-1" && studentId === "student-1";
+    },
+  };
+
+  it.each(["parent-1", "head-a", "root"])(
+    "%s obtains the child's link code to share with a second parent",
+    async (uid) => {
+      const store = seededStore();
+      const handler = createEnsureStudentLinkCodeHandler(store, guardians);
+      await expect(
+        handler({ auth: { uid }, data: { studentId: "student-1" } } as never),
+      ).resolves.toEqual({ code: "ABCDEFGH" });
+    },
+  );
+
+  it.each(["parent-2", "head-b"])(
+    "%s, not a trusted guardian of this child, is refused",
+    async (uid) => {
+      const store = seededStore();
+      for (const handler of [
+        createEnsureStudentLinkCodeHandler(store, guardians),
+        createRotateStudentLinkCodeHandler(store, guardians),
+      ]) {
+        await expect(
+          handler({ auth: { uid }, data: { studentId: "student-1" } } as never),
+        ).rejects.toMatchObject({ code: "permission-denied" });
+      }
+      expect(store.studentCodes.get("student-1")).toBe("ABCDEFGH");
+    },
+  );
+
+  it("a linked parent can rotate a leaked link code", async () => {
+    const store = seededStore();
+    const rotated = await createRotateStudentLinkCodeHandler(store, guardians)({
+      auth: { uid: "parent-1" },
+      data: { studentId: "student-1" },
+    } as never);
+    expect(rotated.code).not.toBe("ABCDEFGH");
+    expect(store.codes.has("ABCDEFGH")).toBe(false);
   });
 });
 
