@@ -3,7 +3,7 @@
   "pack_id": "svt_terminale_d_m1_s1_les_echanges_cellulaires",
   "status": "PASS_SOURCE_DERIVATION_AND_STRUCTURE",
   "question_count": 46,
-  "game_count": 0,
+  "game_count": 1,
   "automated_checks": [
     {
       "check": "unique_question_ids",
@@ -39,6 +39,11 @@
       "check": "complete_concept_explanations",
       "passed": true,
       "details": "Trois niveaux pour les 14 concepts."
+    },
+    {
+      "check": "matching game authored, automated runtime validation required",
+      "passed": true,
+      "details": "Three boards, stable pair IDs, declared concepts and source anchors; dedicated parser, engine and UI regressions in test/features/content_engine/matching_game_test.dart."
     }
   ],
   "source_quality_flags": [
@@ -111,5 +116,6 @@
     "manual_answer_count": 8,
     "excluded_details": "Calculs utilisant O ambigu, lettres de clichés peu lisibles, seuil exact de 50 %, correspondance mitochondrie et prescriptions médicales."
   },
-  "verification_note": "Les vérifications Flutter et d’intégration sont consignées dans docs/content_engine/SVT_POST_RELEASE_39.md ; ce rapport ne prétend pas être un corrigé éditeur."
+  "verification_note": "Les vérifications Flutter et d’intégration sont consignées dans docs/content_engine/SVT_POST_RELEASE_39.md ; ce rapport ne prétend pas être un corrigé éditeur.",
+  "playable_game_count": 1
 }

@@ -69,11 +69,6 @@
       "details": ""
     },
     {
-      "check": "all games draft",
-      "passed": true,
-      "details": ""
-    },
-    {
       "check": "acceleration v2 over r",
       "passed": true,
       "details": ""
@@ -107,6 +102,11 @@
       "check": "source boundary next module",
       "passed": true,
       "details": ""
+    },
+    {
+      "check": "matching game authored, automated runtime validation required",
+      "passed": true,
+      "details": "Three boards, stable pair IDs, declared concepts and source anchors; dedicated parser, engine and UI regressions in test/features/content_engine/matching_game_test.dart."
     }
   ],
   "question_count": 40,
@@ -159,5 +159,7 @@
     "uncertain_source": "never silently repair",
     "partially_legible_formula": "do not infer missing exponent or constant",
     "remote_activation": "schema + checksum + class audience + engine compatibility must pass before activation"
-  }
+  },
+  "game_count": 5,
+  "playable_game_count": 1
 }

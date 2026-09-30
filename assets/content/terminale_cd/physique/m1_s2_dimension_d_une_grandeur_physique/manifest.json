@@ -39,7 +39,8 @@
     "integration_concepts_v1",
     "remote_delivery_v1",
     "offline_first_v1",
-    "physics_dimensional_analysis_v1"
+    "physics_dimensional_analysis_v1",
+    "matching_game_v1"
   ],
   "remote_delivery": {
     "eligible": true,
@@ -50,7 +51,7 @@
   "sha256": {
     "pedagogy.json": "10258bd54dfe8b8293881576adb78773c4c56388c53fdac9496345b9efedb121",
     "source.json": "7c3b97b451f3172efffcbf3092ec2ed522ea6dbe795f5974ad0e2028ce468706",
-    "validation_report.json": "840a588ea2af843c5163c3dfc005b24d08ebfda4be423bbb6f559dba6f1b6fdf",
-    "runtime.json": "5d44fd03179b9f10319485a7be194d260a5a0ddecda2cbc6a71382dc94f6b1c7"
+    "validation_report.json": "aa12adcbe5561ad199fea0a504c129f70be22f6641a3df704b5cfd447d95a53c",
+    "runtime.json": "36e80a59a412db3aa4a58bd827997c14246765b75f1dec068d1ea9bf0ce828ba"
   }
 }

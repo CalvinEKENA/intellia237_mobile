@@ -285,8 +285,15 @@ void main() {
           ]),
           reason: id,
         );
-        expect(types, isNot(contains(LearningCardType.game)));
-        expect(chapter.games.every((g) => !g.playable), isTrue);
+        if (id == _u1) {
+          expect(types, contains(LearningCardType.game));
+          expect(chapter.games.where((g) => g.playable).map((g) => g.id), [
+            'document_dash',
+          ]);
+        } else {
+          expect(types, isNot(contains(LearningCardType.game)));
+          expect(chapter.games.every((g) => !g.playable), isTrue);
+        }
         expect(cards.map((c) => c.id).toSet(), hasLength(cards.length));
       }
       // Notions de toutes les leçons, dont les verbes à particule.

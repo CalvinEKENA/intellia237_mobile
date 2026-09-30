@@ -15,7 +15,12 @@ abstract interface class LearnerContentStore {
 }
 
 /// Stockage sur l'appareil, propre à chaque élève.
-class LocalLearnerContentStore implements LearnerContentStore {
+abstract interface class VerifiedLearnerContentStore
+    implements LearnerContentStore {
+  Future<void> saveVerified(String learnerId, LearnerContentSnapshot snapshot);
+}
+
+class LocalLearnerContentStore implements VerifiedLearnerContentStore {
   const LocalLearnerContentStore();
 
   static String keyFor(String learnerId) => 'content_engine_v1_$learnerId';
@@ -37,11 +42,23 @@ class LocalLearnerContentStore implements LearnerContentStore {
   @override
   Future<void> save(String learnerId, LearnerContentSnapshot snapshot) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(keyFor(learnerId), jsonEncode(snapshot.toJson()));
+      await saveVerified(learnerId, snapshot);
     } catch (_) {
       // Le stockage local est un confort : l'expérience continue en mémoire.
     }
+  }
+
+  @override
+  Future<void> saveVerified(
+    String learnerId,
+    LearnerContentSnapshot snapshot,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = await prefs.setString(
+      keyFor(learnerId),
+      jsonEncode(snapshot.toJson()),
+    );
+    if (!saved) throw StateError('content-evidence-save-failed');
   }
 }
 

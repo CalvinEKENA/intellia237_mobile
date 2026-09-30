@@ -1717,14 +1717,6 @@
   },
   "games": [
     {
-      "id": "document_dash",
-      "title": "Document Dash",
-      "status": "draft",
-      "concept_id": "personal_information_vocabulary",
-      "description": "Match key vocabulary to its source-backed definition.",
-      "reason_draft": "No generic language matching game engine is implemented yet."
-    },
-    {
       "id": "form_detective",
       "title": "Form Detective",
       "status": "draft",
@@ -1755,6 +1747,113 @@
       "concept_id": "application_writing",
       "description": "Review a fictional form for completeness and internal consistency.",
       "reason_draft": "No branching form-review engine is implemented yet."
+    },
+    {
+      "id": "document_dash",
+      "title": "Document Dash",
+      "status": "ready",
+      "engine": "matching",
+      "concept_id": "personal_information_vocabulary",
+      "mechanic": "Reconstituer toutes les relations du plateau par deux taps ; paires réussies verrouillées.",
+      "scoring": "0 correct, +0 série ; exactitude au premier essai et erreurs affichées ; preuve de maîtrise sans erreur ni aide.",
+      "rounds": [
+        {
+          "id": "dd_vocabulary",
+          "difficulty": 1,
+          "concept_id": "personal_information_vocabulary",
+          "prompt": "Match each word to its meaning in this unit.",
+          "hint": "Compare the complete meaning, rather than a shared word.",
+          "pairs": [
+            {
+              "id": "dd_vocabulary_p1",
+              "left": "Biometric",
+              "right": "Using measurements of human features to identify people",
+              "explanation": "Biometric identification uses measured human features.",
+              "source_anchor": "source.json#source_sections[0]; runtime.json#l1_q01-l1_q05"
+            },
+            {
+              "id": "dd_vocabulary_p2",
+              "left": "Expired",
+              "right": "No longer valid",
+              "explanation": "An expired document is no longer valid.",
+              "source_anchor": "source.json#source_sections[0]; runtime.json#l1_q01-l1_q05"
+            },
+            {
+              "id": "dd_vocabulary_p3",
+              "left": "Appointment",
+              "right": "A formal arrangement to meet",
+              "explanation": "An appointment is an arranged meeting.",
+              "source_anchor": "source.json#source_sections[0]; runtime.json#l1_q01-l1_q05"
+            }
+          ]
+        },
+        {
+          "id": "dd_travel",
+          "difficulty": 2,
+          "concept_id": "personal_information_vocabulary",
+          "prompt": "Rebuild the three vocabulary relations.",
+          "hint": "Distinguish a document, an expression about presence and a way to identify someone.",
+          "pairs": [
+            {
+              "id": "dd_travel_p1",
+              "left": "In person",
+              "right": "Physically present",
+              "explanation": "In person means being physically present.",
+              "source_anchor": "source.json#source_sections[0]; runtime.json#l1_q01-l1_q05"
+            },
+            {
+              "id": "dd_travel_p2",
+              "left": "Passport",
+              "right": "An official travel document identifying its holder as a citizen",
+              "explanation": "This is the passport definition used by the unit.",
+              "source_anchor": "source.json#source_sections[0]; runtime.json#l1_q01-l1_q05"
+            },
+            {
+              "id": "dd_travel_p3",
+              "left": "Biometric",
+              "right": "Identification using measured human features",
+              "explanation": "The measurement of human features distinguishes biometric identification.",
+              "source_anchor": "source.json#source_sections[0]; runtime.json#l1_q01-l1_q05"
+            }
+          ]
+        },
+        {
+          "id": "dd_sample_form",
+          "difficulty": 3,
+          "concept_id": "formal_form_navigation",
+          "prompt": "Use the sample form in the lesson: match each context to the field or document mentioned. These are sample-form checks.",
+          "hint": "Separate personal-details fields from supporting-document checks.",
+          "pairs": [
+            {
+              "id": "dd_sample_form_p1",
+              "left": "About yourself",
+              "right": "Forename(s)",
+              "explanation": "The sample form puts forename(s) in its personal-details section.",
+              "source_anchor": "source.json#source_sections[1]; runtime.json#l2_q03-l2_q06"
+            },
+            {
+              "id": "dd_sample_form_p2",
+              "left": "All persons: supporting-document check",
+              "right": "Birth certificate",
+              "explanation": "The sample form asks all persons about an enclosed birth certificate.",
+              "source_anchor": "source.json#source_sections[1]; runtime.json#l2_q03-l2_q06"
+            },
+            {
+              "id": "dd_sample_form_p3",
+              "left": "Divorced person: specific document check",
+              "right": "Decree of divorce",
+              "explanation": "The sample form asks the divorced person about a decree of divorce. This relation describes the sample, not a universal application rule.",
+              "source_anchor": "source.json#source_sections[1]; runtime.json#l2_q03-l2_q06"
+            }
+          ]
+        }
+      ],
+      "authoring_origin": "relations_derived_from_validated_pack_source",
+      "difficulty": {
+        "1": "Identifier",
+        "2": "Distinguer",
+        "3": "Relier dans un contexte"
+      }
     }
   ],
   "learning_card_seeds": [

@@ -1853,14 +1853,6 @@
       "reason_draft": "Aucun moteur d'assemblage d'exposants dimensionnels n'est encore implémenté."
     },
     {
-      "id": "unit_lab",
-      "title": "Laboratoire des unités dérivées",
-      "status": "draft",
-      "concept_id": "derived_units",
-      "description": "Relier dimensions, unités de base et noms spéciaux comme newton, joule ou pascal.",
-      "reason_draft": "Aucun moteur générique de laboratoire d'unités n'est encore implémenté."
-    },
-    {
       "id": "homogeneity_detector",
       "title": "Détecteur d'homogénéité",
       "status": "draft",
@@ -1875,6 +1867,120 @@
       "concept_id": "sequence_integration",
       "description": "Enchaîner dimension, unité et homogénéité pour résoudre un mini-problème scientifique.",
       "reason_draft": "Aucun moteur de mission dimensionnelle dédié n'est encore implémenté."
+    },
+    {
+      "id": "unit_lab",
+      "title": "Laboratoire des unités",
+      "status": "ready",
+      "engine": "matching",
+      "concept_id": "derived_units",
+      "mechanic": "Reconstituer toutes les relations du plateau par deux taps ; paires réussies verrouillées.",
+      "scoring": "0 correct, +0 série ; exactitude au premier essai et erreurs affichées ; preuve de maîtrise sans erreur ni aide.",
+      "rounds": [
+        {
+          "id": "ul_motion",
+          "difficulty": 1,
+          "concept_id": "derived_quantities",
+          "prompt": "Relie chaque grandeur à son unité SI.",
+          "hint": "Compte les puissances du temps à partir de la définition de la grandeur.",
+          "pairs": [
+            {
+              "id": "ul_motion_p1",
+              "left": "Vitesse",
+              "right": "m·s⁻¹",
+              "explanation": "Une vitesse est une longueur divisée par une durée.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            },
+            {
+              "id": "ul_motion_p2",
+              "left": "Accélération",
+              "right": "m·s⁻²",
+              "explanation": "Une accélération est une variation de vitesse divisée par une durée.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            },
+            {
+              "id": "ul_motion_p3",
+              "left": "Force",
+              "right": "newton (N)",
+              "explanation": "Le tableau nomme newton l’unité de force.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            }
+          ]
+        },
+        {
+          "id": "ul_named_units",
+          "difficulty": 2,
+          "concept_id": "derived_units",
+          "prompt": "Reconstitue les relations entre grandeurs et unités à nom spécial.",
+          "hint": "Relie la grandeur à sa définition physique avant de choisir le nom.",
+          "pairs": [
+            {
+              "id": "ul_named_units_p1",
+              "left": "Fréquence",
+              "right": "hertz (Hz)",
+              "explanation": "Une fréquence compte des occurrences par unité de temps.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            },
+            {
+              "id": "ul_named_units_p2",
+              "left": "Travail ou énergie",
+              "right": "joule (J)",
+              "explanation": "Le travail et l’énergie ont la même unité : le joule.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            },
+            {
+              "id": "ul_named_units_p3",
+              "left": "Puissance",
+              "right": "watt (W)",
+              "explanation": "Une puissance est une énergie par durée.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            },
+            {
+              "id": "ul_named_units_p4",
+              "left": "Pression",
+              "right": "pascal (Pa)",
+              "explanation": "Une pression est une force par surface.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            }
+          ]
+        },
+        {
+          "id": "ul_dimensions",
+          "difficulty": 3,
+          "concept_id": "dimensional_equation",
+          "prompt": "Relie chaque grandeur à son équation aux dimensions.",
+          "hint": "Remplace les grandeurs par M, L et T, puis simplifie les puissances.",
+          "pairs": [
+            {
+              "id": "ul_dimensions_p1",
+              "left": "Fréquence",
+              "right": "T⁻¹",
+              "explanation": "La dimension d’une fréquence est l’inverse d’une durée.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            },
+            {
+              "id": "ul_dimensions_p2",
+              "left": "Travail ou énergie",
+              "right": "M L² T⁻²",
+              "explanation": "La dimension du travail est celle d’une force multipliée par une longueur.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            },
+            {
+              "id": "ul_dimensions_p3",
+              "left": "Masse volumique",
+              "right": "M L⁻³",
+              "explanation": "La masse volumique est une masse divisée par un volume.",
+              "source_anchor": "source.json#source_sections[2]; page_011.jpg"
+            }
+          ]
+        }
+      ],
+      "authoring_origin": "relations_derived_from_validated_pack_source",
+      "difficulty": {
+        "1": "Identifier",
+        "2": "Distinguer",
+        "3": "Relier dans un contexte"
+      }
     }
   ],
   "learning_card_seeds": [

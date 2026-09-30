@@ -25,7 +25,7 @@
     "questions": 46,
     "auto_scored_questions": 38,
     "non_auto_scored_questions": 8,
-    "game_blueprints": 0,
+    "game_blueprints": 1,
     "difficulty_levels": 3,
     "explanation_levels": 3
   },
@@ -35,12 +35,13 @@
     "deterministic_companion_v1",
     "self_evaluation_v1",
     "integration_concepts_v1",
-    "offline_first_v1"
+    "offline_first_v1",
+    "matching_game_v1"
   ],
   "sha256": {
     "pedagogy.json": "8602a2592d032b07d9ce3e89c040de7b9bc4750a26395510b4c6846417baedaa",
-    "runtime.json": "76a84b7b914472bbc9a1f13c0885bd6ef4c4326d9555c0ee68e0df36f64db8a7",
+    "runtime.json": "45ae426c3407098bf3744c424d197a650f1456b2d398ffd448c5fc2db5684db2",
     "source.json": "eba3b57b59219efb7e8bdef6c16bbabdc89a05d11ccd00fa35e7ab88c1ef8c5b",
-    "validation_report.json": "dda1da19fd9de95cf7a0575df68f9bd9ebd35eab3dd14f7f7d1779c03d883787"
+    "validation_report.json": "6ae2bd486158cc0446966e4f6b4f85a46d913239c0c9f913acc257c0decffb97"
   }
 }

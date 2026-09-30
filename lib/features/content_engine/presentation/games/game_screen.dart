@@ -17,6 +17,7 @@ import '../content_style.dart';
 import '../../domain/question.dart';
 import '../../engine/mission_planner.dart';
 import 'game_rounds.dart';
+import 'matching_game_screen.dart';
 
 /// Un jeu du pack, joué par son moteur générique.
 class ContentGameScreen extends ConsumerWidget {
@@ -49,6 +50,13 @@ class ContentGameScreen extends ConsumerWidget {
           final game = chapter.games.where((g) => g.id == gameId).firstOrNull;
           if (game == null || !game.playable || !chapter.isPlayable) {
             return _Unavailable();
+          }
+          if (game.engine == GameEngineKind.matching) {
+            return MatchingGameShell(
+              chapter: chapter,
+              game: game,
+              seed: seed ?? 0,
+            );
           }
           return GameShell(chapter: chapter, game: game, seed: seed);
         },

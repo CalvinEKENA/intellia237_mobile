@@ -331,11 +331,14 @@ void main() {
     },
   );
 
-  test('cinq jeux draft sans moteur restent non jouables', () async {
+  test('un laboratoire jouable et quatre jeux draft protégés', () async {
     final chapter = await pack();
     expect(chapter.games, hasLength(5));
     expect(chapter.games.map((game) => game.id).toSet(), hasLength(5));
-    for (final game in chapter.games) {
+    expect(chapter.games.where((g) => g.playable).map((g) => g.id), [
+      'unit_lab',
+    ]);
+    for (final game in chapter.games.where((g) => g.id != 'unit_lab')) {
       expect(game.status, GameStatus.draft);
       expect(game.engine, isNull);
       expect(game.playable, isFalse);
@@ -344,7 +347,7 @@ void main() {
       const LearningCardFactory()
           .build(chapter)
           .where((c) => c.type == LearningCardType.game),
-      isEmpty,
+      hasLength(1),
     );
   });
 

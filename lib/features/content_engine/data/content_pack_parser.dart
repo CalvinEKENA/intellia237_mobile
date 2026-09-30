@@ -4,6 +4,7 @@ import '../domain/companion_action.dart';
 import '../domain/content_issue.dart';
 import '../domain/curriculum.dart';
 import '../domain/game_blueprint.dart';
+import '../domain/matching_game.dart';
 import '../domain/mastery.dart';
 import '../domain/math_text.dart';
 import '../domain/pack_catalog.dart';
@@ -1237,6 +1238,9 @@ class ContentPackParser {
           ? _integrationEngine(conceptId, integrationQuestions)
           : GameEngineKind.forVisual(concept.visualKind);
       final declaredStatus = GameStatus.fromKey(_string(map['status']));
+      final matching = engine == GameEngineKind.matching
+          ? _matchingRounds(map['rounds'], concepts, levels, issue, id)
+          : const <MatchingRound>[];
       if (engine == null && declaredStatus == GameStatus.ready) {
         issue(
           ContentIssueSeverity.warning,
@@ -1270,13 +1274,109 @@ class ContentPackParser {
             maxLevel: maxLevel,
           ),
           engine: engine,
-          status: engine == null
+          matchingRounds: matching,
+          status:
+              engine == null ||
+                  (engine == GameEngineKind.matching && matching.isEmpty)
               ? GameStatus.draft
               : declaredStatus ?? GameStatus.ready,
         ),
       );
     }
     return games;
+  }
+
+  List<MatchingRound> _matchingRounds(
+    Object? raw,
+    Map<String, Concept> concepts,
+    Map<int, String> levels,
+    _IssueSink issue,
+    String gameId,
+  ) {
+    final rounds = <MatchingRound>[];
+    final ids = <String>{};
+    var valid = raw is List && raw.isNotEmpty;
+    for (final item in raw is List ? raw : const []) {
+      final map = _map(item);
+      final id = _string(map?['id']);
+      final difficulty = map?['difficulty'];
+      final concept = _string(map?['concept_id']);
+      final prompt = _string(map?['prompt']);
+      final pairs = <MatchingPair>[];
+      final pairIds = <String>{};
+      final lefts = <String>{};
+      final rights = <String>{};
+      var boardValid =
+          id != null &&
+          ids.add(id) &&
+          difficulty is int &&
+          difficulty >= 1 &&
+          difficulty <= 3 &&
+          levels.containsKey(difficulty) &&
+          concept != null &&
+          concepts.containsKey(concept) &&
+          prompt != null;
+      final rawPairs = map?['pairs'];
+      boardValid =
+          boardValid &&
+          rawPairs is List &&
+          rawPairs.length >= 2 &&
+          rawPairs.length <= 8;
+      for (final item in rawPairs is List ? rawPairs : const []) {
+        final pair = _map(item);
+        final pid = _string(pair?['id']);
+        final left = _string(pair?['left']);
+        final right = _string(pair?['right']);
+        final why = _string(pair?['explanation']);
+        final source = _string(pair?['source_anchor']);
+        if (pid == null ||
+            left == null ||
+            right == null ||
+            why == null ||
+            source == null ||
+            !pairIds.add(pid) ||
+            !lefts.add(normalizeExpression(left)) ||
+            !rights.add(normalizeExpression(right))) {
+          boardValid = false;
+          continue;
+        }
+        pairs.add(
+          MatchingPair(
+            id: pid,
+            left: left,
+            right: right,
+            explanation: why,
+            sourceAnchor: source,
+          ),
+        );
+      }
+      if (!boardValid) {
+        valid = false;
+        continue;
+      }
+      rounds.add(
+        MatchingRound(
+          id: id!,
+          difficulty: difficulty as int,
+          conceptId: concept!,
+          prompt: prompt!,
+          pairs: List.unmodifiable(pairs),
+          hint: _string(map?['hint']),
+        ),
+      );
+    }
+    if (!valid ||
+        levels.keys.any((l) => !rounds.any((r) => r.difficulty == l))) {
+      issue(
+        ContentIssueSeverity.warning,
+        'matching_game_invalid',
+        'Le jeu « $gameId » reste en préparation : vérifier identifiants, '
+            'relations univoques, niveaux, notions et sources de chaque plateau.',
+        'runtime.games[$gameId]',
+      );
+      return const [];
+    }
+    return List.unmodifiable(rounds);
   }
 
   /// Un jeu qui vise le chapitre entier (convention `…integration…`) et

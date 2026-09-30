@@ -54,11 +54,6 @@
       "details": ""
     },
     {
-      "check": "all games draft",
-      "passed": true,
-      "details": ""
-    },
-    {
       "check": "listening gap protected",
       "passed": true,
       "details": ""
@@ -72,6 +67,11 @@
       "check": "offline ready",
       "passed": true,
       "details": ""
+    },
+    {
+      "check": "matching game authored, automated runtime validation required",
+      "passed": true,
+      "details": "Three boards, stable pair IDs, declared concepts and source anchors; dedicated parser, engine and UI regressions in test/features/content_engine/matching_game_test.dart."
     }
   ],
   "question_count": 40,
@@ -130,5 +130,7 @@
     "uncertain_source": "never silently repair",
     "missing_listening_source": "never invent answer key",
     "remote_activation": "schema + checksum + class audience + engine compatibility must pass before activation"
-  }
+  },
+  "game_count": 5,
+  "playable_game_count": 1
 }

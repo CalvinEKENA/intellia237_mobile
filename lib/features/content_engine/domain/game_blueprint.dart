@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'visual_kind.dart';
+import 'matching_game.dart';
 
 /// Moteurs de jeu génériques. Un blueprint du pack est rattaché à l'un
 /// d'eux ; les jeux eux-mêmes ne connaissent aucun chapitre.
@@ -25,7 +26,10 @@ enum GameEngineKind {
 
   /// Mission d'intégration : plusieurs étapes tirées des activités validées
   /// du chapitre (questions hors leçon).
-  integrationMission('integration_mission');
+  integrationMission('integration_mission'),
+
+  /// Rebuild a board of source-authored one-to-one relations by tapping.
+  matching('matching');
 
   const GameEngineKind(this.key);
   final String key;
@@ -142,6 +146,7 @@ class GameBlueprint {
     required this.scoring,
     this.engine,
     this.status = GameStatus.ready,
+    this.matchingRounds = const [],
   });
 
   final String id;
@@ -161,7 +166,11 @@ class GameBlueprint {
   /// État déclaré par le pack, ou déduit : `ready` s'il est jouable, sinon
   /// `draft`. Un jeu qui n'est pas `ready` n'est jamais montré à un élève.
   final GameStatus status;
+  final List<MatchingRound> matchingRounds;
 
   bool get playable =>
-      status == GameStatus.ready && engine != null && levels.isNotEmpty;
+      status == GameStatus.ready &&
+      engine != null &&
+      levels.isNotEmpty &&
+      (engine != GameEngineKind.matching || matchingRounds.isNotEmpty);
 }

@@ -9,6 +9,8 @@ import '../data/content_pack_repository.dart';
 import '../data/firebase_content_gateway.dart';
 import '../data/learner_content_store.dart';
 import '../domain/chapter.dart';
+import '../domain/game_blueprint.dart';
+import '../engine/matching_game_engine.dart';
 import '../domain/mastery.dart';
 import '../domain/pedagogy.dart';
 import '../domain/question.dart';
@@ -119,6 +121,7 @@ final learnerContentControllerProvider =
     );
 
 class LearnerContentController extends AsyncNotifier<LearnerContentSnapshot> {
+  Future<void> _gameWrites = Future.value();
   String get _learnerId => ref.read(authControllerProvider).userId ?? 'guest';
 
   LearnerContentStore get _store => ref.read(learnerContentStoreProvider);
@@ -209,5 +212,67 @@ class LearnerContentController extends AsyncNotifier<LearnerContentSnapshot> {
       evaluation: evaluation,
     );
     await _commit(_current.withConcept(next));
+  }
+
+  /// Game evidence joins the same concept state as practice and Quiz. A board
+  /// earns at most one successful evidence ID, even after replay/restart.
+  /// Assisted boards are practice only; errors give one ordinary negative
+  /// attempt on completion, rather than one penalty per exploratory tap.
+  Future<bool> recordMatchingBoard({
+    required Chapter chapter,
+    required GameBlueprint game,
+    required MatchingGameEngine board,
+  }) {
+    final learnerId = _learnerId;
+    final task = _gameWrites.then((_) async {
+      if (state.valueOrNull == null) await future;
+      if (learnerId != _learnerId ||
+          !chapter.isPlayable ||
+          !game.playable ||
+          game.engine != GameEngineKind.matching ||
+          !chapter.games.contains(game) ||
+          !game.matchingRounds.contains(board.round) ||
+          !board.complete ||
+          board.helped) {
+        return false;
+      }
+      final round = board.round;
+      final concept = chapter.concepts[round.conceptId];
+      if (concept == null) return false;
+      final id = 'game:${chapter.contentId}:${game.id}:${round.id}';
+      final previous = _current.conceptState(concept.id);
+      if (previous.answeredQuestionIds.contains(id)) return false;
+      final evidence = Question(
+        id: id,
+        lessonNumber: concept.lessonNumber ?? 0,
+        difficulty: round.difficulty,
+        type: QuestionType.trueFalse,
+        rawType: 'game_matching_board',
+        prompt: round.prompt,
+        answer: const BooleanAnswer(true),
+        conceptId: concept.id,
+      );
+      final outcome =
+          AdaptiveEngine(
+            chapter.mastery,
+            maxDifficulty: chapter.maxDifficulty,
+          ).record(
+            state: previous,
+            question: evidence,
+            correct: board.independentSuccess,
+            preference: _current.preference,
+          );
+      final next = _current.withConcept(outcome.state);
+      final store = _store;
+      if (store is VerifiedLearnerContentStore) {
+        await store.saveVerified(learnerId, next);
+      } else {
+        await store.save(learnerId, next);
+      }
+      if (learnerId == _learnerId) state = AsyncData(next);
+      return true;
+    });
+    _gameWrites = task.then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    return task;
   }
 }

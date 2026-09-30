@@ -3001,7 +3001,115 @@
       ]
     }
   ],
-  "games": [],
+  "games": [
+    {
+      "id": "membrane_links",
+      "title": "Liens membranaires",
+      "status": "ready",
+      "engine": "matching",
+      "concept_id": "cellule_vegetale",
+      "mechanic": "Reconstituer toutes les relations du plateau par deux taps ; paires réussies verrouillées.",
+      "scoring": "0 correct, +0 série ; exactitude au premier essai et erreurs affichées ; preuve de maîtrise sans erreur ni aide.",
+      "rounds": [
+        {
+          "id": "ml_cell_states",
+          "difficulty": 1,
+          "concept_id": "cellule_vegetale",
+          "prompt": "Relie chaque état de la cellule végétale à son observation.",
+          "hint": "Observe le volume de la vacuole et la position de la membrane.",
+          "pairs": [
+            {
+              "id": "ml_cell_states_p1",
+              "left": "Turgescence",
+              "right": "Vacuole volumineuse ; contenu appliqué contre la paroi",
+              "explanation": "L’entrée d’eau gonfle la vacuole ; la paroi limite le gonflement.",
+              "source_anchor": "page_007.jpg; runtime.json#svt_s1_q42"
+            },
+            {
+              "id": "ml_cell_states_p2",
+              "left": "Plasmolyse",
+              "right": "Vacuole réduite ; membrane décollée de la paroi",
+              "explanation": "La perte d’eau rétracte le contenu cellulaire ; la paroi demeure.",
+              "source_anchor": "page_007.jpg; runtime.json#svt_s1_q03"
+            },
+            {
+              "id": "ml_cell_states_p3",
+              "left": "Déplasmolyse",
+              "right": "Réabsorption d’eau après une plasmolyse",
+              "explanation": "L’eau entre à nouveau et la cellule retrouve son état antérieur.",
+              "source_anchor": "page_007.jpg; runtime.json#svt_s1_q04"
+            }
+          ]
+        },
+        {
+          "id": "ml_transport",
+          "difficulty": 2,
+          "concept_id": "transport_actif",
+          "prompt": "Reconstitue les trois mécanismes décrits par le cours.",
+          "hint": "Distingue le sens du gradient, la protéine et la source d’énergie.",
+          "pairs": [
+            {
+              "id": "ml_transport_p1",
+              "left": "Diffusion libre",
+              "right": "Selon le gradient, directement à travers la bicouche",
+              "explanation": "Ce transport passif suit le gradient et ne requiert pas de pompe à ATP.",
+              "source_anchor": "page_010.jpg; runtime.json#svt_s1_q24"
+            },
+            {
+              "id": "ml_transport_p2",
+              "left": "Diffusion facilitée",
+              "right": "Selon le gradient, avec une protéine membranaire",
+              "explanation": "La présence d’une protéine ne suffit pas à rendre le transport actif.",
+              "source_anchor": "page_010.jpg; runtime.json#svt_s1_q23"
+            },
+            {
+              "id": "ml_transport_p3",
+              "left": "Transport actif primaire",
+              "right": "Contre le gradient, avec hydrolyse de l’ATP",
+              "explanation": "L’hydrolyse de l’ATP fournit de l’énergie à la pompe décrite dans le cours.",
+              "source_anchor": "page_011.jpg; runtime.json#svt_s1_q22;svt_s1_q27"
+            }
+          ]
+        },
+        {
+          "id": "ml_vesicles",
+          "difficulty": 3,
+          "concept_id": "sequence_integration",
+          "prompt": "Relie chaque échange par vésicule à l’événement représenté.",
+          "hint": "Repère le sens de l’échange et la nature du contenu.",
+          "pairs": [
+            {
+              "id": "ml_vesicles_p1",
+              "left": "Phagocytose",
+              "right": "Entrée d’une particule solide dans une vésicule",
+              "explanation": "La phagocytose est une forme d’endocytose de particules solides.",
+              "source_anchor": "page_012.jpg; runtime.json#svt_s1_q28"
+            },
+            {
+              "id": "ml_vesicles_p2",
+              "left": "Pinocytose",
+              "right": "Entrée de gouttelettes liquides dans une petite vésicule",
+              "explanation": "La pinocytose concerne l’entrée de liquide par vésicule.",
+              "source_anchor": "page_012.jpg; runtime.json#svt_s1_q29"
+            },
+            {
+              "id": "ml_vesicles_p3",
+              "left": "Exocytose",
+              "right": "Libération du contenu d’une vésicule à l’extérieur",
+              "explanation": "L’exocytose dirige le contenu vésiculaire vers l’extérieur de la cellule.",
+              "source_anchor": "page_012.jpg; runtime.json#svt_s1_q30"
+            }
+          ]
+        }
+      ],
+      "authoring_origin": "relations_derived_from_validated_pack_source",
+      "difficulty": {
+        "1": "Identifier",
+        "2": "Distinguer",
+        "3": "Relier dans un contexte"
+      }
+    }
+  ],
   "companion": {
     "runtime_llm_required": false,
     "quick_actions": [

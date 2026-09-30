@@ -79,6 +79,9 @@ class GameRound extends StatelessWidget {
       steps: missionSteps.length,
       onResolved: onResolved,
     ),
+    GameEngineKind.matching => throw StateError(
+      'Matching uses its data board shell, not a generated numeric round.',
+    ),
   };
 }
 
