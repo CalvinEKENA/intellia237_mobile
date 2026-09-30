@@ -3222,5 +3222,84 @@
   "companionActionContinueCourse": "Continue the lesson",
   "companionActionResume": "Resume",
   "companionActionResumeLesson": "Back to the lesson",
-  "companionActionPractice": "Practise"
+  "companionActionPractice": "Practise",
+  "pvTitle": "My learning map",
+  "pvChapterMap": "My chapter journey",
+  "pvChapterScope": "Rings count concepts at the pack's mastery threshold. Reading alone does not certify learning.",
+  "pvNoAvailablePack": "No chapter for your class is available on this device.",
+  "pvStrengthen": "What to strengthen",
+  "pvNextStep": "My next step",
+  "pvQuizActivity": "My last 14 days of quizzes",
+  "pvQuizHistoryScope": "Completed quiz sessions kept on this device (up to 30). A zero does not describe all your study.",
+  "pvQuizCurve": "My results, quiz by quiz",
+  "pvQuizCurveScope": "The same quiz and mode. Questions may vary: this chart shows scores, not a measure of mastery.",
+  "pvNoQuizHistory": "Complete a quiz to see your first result here.",
+  "pvCurveNeedsTwo": "Your first result is recorded. A curve will appear after a second session of this quiz in this mode.",
+  "pvGoalActiveDays": "{days} recorded active days this week · target {target}",
+  "@pvGoalActiveDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "pvQuizDay": "{date}: {sessions} recorded quiz sessions",
+  "@pvQuizDay": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "sessions": {
+        "type": "int"
+      }
+    }
+  },
+  "profilePhotoTitle": "Profile photo",
+  "profilePhotoGallery": "Choose from gallery",
+  "profilePhotoCamera": "Take a photo",
+  "profilePhotoRemove": "Remove photo",
+  "profilePhotoUpdated": "Profile photo updated",
+  "profilePhotoError": "Your photo could not be saved. Check your connection and try again.",
+  "profilePhotoRemoveError": "Your photo could not be removed. Try again when your connection is available.",
+  "gmBoard": "Board {board}/{total} · difficulty {level}",
+  "gmInstruction": "Choose a card in the first list, then its relation in the second. Rebuild every match.",
+  "gmLeft": "Cards to connect",
+  "gmRight": "Proposed relations",
+  "gmCorrectLink": "Correct match.",
+  "gmWrongLink": "This match does not fit. Remember:",
+  "gmAccuracy": "{correct}/{total} first-pass matches · {errors} errors",
+  "gmAssisted": "Board completed with help: practice, without new mastery evidence.",
+  "gmRecorded": "Result saved to your learning progress.",
+  "gmAlreadyRecorded": "This board was already validated. Replay remains practice.",
+  "gmSaveError": "Your progress could not be saved. Try again.",
+  "gmReplay": "Play again",
+  "@gmBoard": {
+    "placeholders": {
+      "board": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "@gmAccuracy": {
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "errors": {
+        "type": "int"
+      }
+    }
+  }
 }

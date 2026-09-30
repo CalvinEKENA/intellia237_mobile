@@ -7384,4 +7384,122 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get companionActionPractice => 'Practise';
+
+  @override
+  String get pvTitle => 'My learning map';
+
+  @override
+  String get pvChapterMap => 'My chapter journey';
+
+  @override
+  String get pvChapterScope =>
+      'Rings count concepts at the pack\'s mastery threshold. Reading alone does not certify learning.';
+
+  @override
+  String get pvNoAvailablePack =>
+      'No chapter for your class is available on this device.';
+
+  @override
+  String get pvStrengthen => 'What to strengthen';
+
+  @override
+  String get pvNextStep => 'My next step';
+
+  @override
+  String get pvQuizActivity => 'My last 14 days of quizzes';
+
+  @override
+  String get pvQuizHistoryScope =>
+      'Completed quiz sessions kept on this device (up to 30). A zero does not describe all your study.';
+
+  @override
+  String get pvQuizCurve => 'My results, quiz by quiz';
+
+  @override
+  String get pvQuizCurveScope =>
+      'The same quiz and mode. Questions may vary: this chart shows scores, not a measure of mastery.';
+
+  @override
+  String get pvNoQuizHistory =>
+      'Complete a quiz to see your first result here.';
+
+  @override
+  String get pvCurveNeedsTwo =>
+      'Your first result is recorded. A curve will appear after a second session of this quiz in this mode.';
+
+  @override
+  String pvGoalActiveDays(int days, int target) {
+    return '$days recorded active days this week · target $target';
+  }
+
+  @override
+  String pvQuizDay(String date, int sessions) {
+    return '$date: $sessions recorded quiz sessions';
+  }
+
+  @override
+  String get profilePhotoTitle => 'Profile photo';
+
+  @override
+  String get profilePhotoGallery => 'Choose from gallery';
+
+  @override
+  String get profilePhotoCamera => 'Take a photo';
+
+  @override
+  String get profilePhotoRemove => 'Remove photo';
+
+  @override
+  String get profilePhotoUpdated => 'Profile photo updated';
+
+  @override
+  String get profilePhotoError =>
+      'Your photo could not be saved. Check your connection and try again.';
+
+  @override
+  String get profilePhotoRemoveError =>
+      'Your photo could not be removed. Try again when your connection is available.';
+
+  @override
+  String gmBoard(int board, int total, int level) {
+    return 'Board $board/$total · difficulty $level';
+  }
+
+  @override
+  String get gmInstruction =>
+      'Choose a card in the first list, then its relation in the second. Rebuild every match.';
+
+  @override
+  String get gmLeft => 'Cards to connect';
+
+  @override
+  String get gmRight => 'Proposed relations';
+
+  @override
+  String get gmCorrectLink => 'Correct match.';
+
+  @override
+  String get gmWrongLink => 'This match does not fit. Remember:';
+
+  @override
+  String gmAccuracy(int correct, int total, int errors) {
+    return '$correct/$total first-pass matches · $errors errors';
+  }
+
+  @override
+  String get gmAssisted =>
+      'Board completed with help: practice, without new mastery evidence.';
+
+  @override
+  String get gmRecorded => 'Result saved to your learning progress.';
+
+  @override
+  String get gmAlreadyRecorded =>
+      'This board was already validated. Replay remains practice.';
+
+  @override
+  String get gmSaveError => 'Your progress could not be saved. Try again.';
+
+  @override
+  String get gmReplay => 'Play again';
 }

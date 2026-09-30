@@ -7425,4 +7425,123 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get companionActionPractice => 'M’entraîner';
+
+  @override
+  String get pvTitle => 'Mon avancée';
+
+  @override
+  String get pvChapterMap => 'Ma carte du parcours';
+
+  @override
+  String get pvChapterScope =>
+      'Les anneaux comptent les notions au seuil du pack. Une lecture seule ne certifie pas un acquis.';
+
+  @override
+  String get pvNoAvailablePack =>
+      'Aucun chapitre disponible pour ta classe sur cet appareil.';
+
+  @override
+  String get pvStrengthen => 'À renforcer';
+
+  @override
+  String get pvNextStep => 'Ma prochaine étape';
+
+  @override
+  String get pvQuizActivity => 'Mes 14 derniers jours de Quiz';
+
+  @override
+  String get pvQuizHistoryScope =>
+      'Séances Quiz terminées conservées sur cet appareil (30 au maximum). Un zéro ne décrit pas tout ton travail.';
+
+  @override
+  String get pvQuizCurve => 'Mes résultats, Quiz par Quiz';
+
+  @override
+  String get pvQuizCurveScope =>
+      'Un même Quiz et un même mode. Les questions peuvent varier : cette courbe représente tes scores, pas une mesure de maîtrise.';
+
+  @override
+  String get pvNoQuizHistory =>
+      'Termine un Quiz pour retrouver ici ton premier résultat.';
+
+  @override
+  String get pvCurveNeedsTwo =>
+      'Un premier résultat est enregistré. La courbe apparaîtra avec une deuxième séance de ce Quiz dans ce mode.';
+
+  @override
+  String pvGoalActiveDays(int days, int target) {
+    return '$days jours actifs enregistrés cette semaine · objectif $target';
+  }
+
+  @override
+  String pvQuizDay(String date, int sessions) {
+    return '$date : $sessions séances Quiz enregistrées';
+  }
+
+  @override
+  String get profilePhotoTitle => 'Photo de profil';
+
+  @override
+  String get profilePhotoGallery => 'Choisir depuis la galerie';
+
+  @override
+  String get profilePhotoCamera => 'Prendre une photo';
+
+  @override
+  String get profilePhotoRemove => 'Supprimer la photo';
+
+  @override
+  String get profilePhotoUpdated => 'Photo de profil mise à jour';
+
+  @override
+  String get profilePhotoError =>
+      'La photo n’a pas pu être enregistrée. Vérifie la connexion et réessaie.';
+
+  @override
+  String get profilePhotoRemoveError =>
+      'La photo n’a pas pu être supprimée. Réessaie quand la connexion est disponible.';
+
+  @override
+  String gmBoard(int board, int total, int level) {
+    return 'Plateau $board/$total · difficulté $level';
+  }
+
+  @override
+  String get gmInstruction =>
+      'Choisis une carte dans la première liste, puis sa relation dans la seconde. Reconstruis toutes les associations.';
+
+  @override
+  String get gmLeft => 'Cartes à relier';
+
+  @override
+  String get gmRight => 'Relations proposées';
+
+  @override
+  String get gmCorrectLink => 'Association juste.';
+
+  @override
+  String get gmWrongLink => 'Cette association ne convient pas. Retenir :';
+
+  @override
+  String gmAccuracy(int correct, int total, int errors) {
+    return '$correct/$total relations au premier essai · $errors erreurs';
+  }
+
+  @override
+  String get gmAssisted =>
+      'Plateau terminé avec aide : entraînement, sans nouvelle preuve de maîtrise.';
+
+  @override
+  String get gmRecorded => 'Résultat enregistré dans ta progression.';
+
+  @override
+  String get gmAlreadyRecorded =>
+      'Ce plateau a déjà été validé. Rejouer reste un entraînement.';
+
+  @override
+  String get gmSaveError =>
+      'La progression n’a pas pu être enregistrée. Réessaie.';
+
+  @override
+  String get gmReplay => 'Rejouer';
 }

@@ -3821,5 +3821,84 @@
   "companionActionContinueCourse": "Continuer le cours",
   "companionActionResume": "Reprendre",
   "companionActionResumeLesson": "Reprendre la leçon",
-  "companionActionPractice": "M’entraîner"
+  "companionActionPractice": "M’entraîner",
+  "pvTitle": "Mon avancée",
+  "pvChapterMap": "Ma carte du parcours",
+  "pvChapterScope": "Les anneaux comptent les notions au seuil du pack. Une lecture seule ne certifie pas un acquis.",
+  "pvNoAvailablePack": "Aucun chapitre disponible pour ta classe sur cet appareil.",
+  "pvStrengthen": "À renforcer",
+  "pvNextStep": "Ma prochaine étape",
+  "pvQuizActivity": "Mes 14 derniers jours de Quiz",
+  "pvQuizHistoryScope": "Séances Quiz terminées conservées sur cet appareil (30 au maximum). Un zéro ne décrit pas tout ton travail.",
+  "pvQuizCurve": "Mes résultats, Quiz par Quiz",
+  "pvQuizCurveScope": "Un même Quiz et un même mode. Les questions peuvent varier : cette courbe représente tes scores, pas une mesure de maîtrise.",
+  "pvNoQuizHistory": "Termine un Quiz pour retrouver ici ton premier résultat.",
+  "pvCurveNeedsTwo": "Un premier résultat est enregistré. La courbe apparaîtra avec une deuxième séance de ce Quiz dans ce mode.",
+  "pvGoalActiveDays": "{days} jours actifs enregistrés cette semaine · objectif {target}",
+  "@pvGoalActiveDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "pvQuizDay": "{date} : {sessions} séances Quiz enregistrées",
+  "@pvQuizDay": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "sessions": {
+        "type": "int"
+      }
+    }
+  },
+  "profilePhotoTitle": "Photo de profil",
+  "profilePhotoGallery": "Choisir depuis la galerie",
+  "profilePhotoCamera": "Prendre une photo",
+  "profilePhotoRemove": "Supprimer la photo",
+  "profilePhotoUpdated": "Photo de profil mise à jour",
+  "profilePhotoError": "La photo n’a pas pu être enregistrée. Vérifie la connexion et réessaie.",
+  "profilePhotoRemoveError": "La photo n’a pas pu être supprimée. Réessaie quand la connexion est disponible.",
+  "gmBoard": "Plateau {board}/{total} · difficulté {level}",
+  "gmInstruction": "Choisis une carte dans la première liste, puis sa relation dans la seconde. Reconstruis toutes les associations.",
+  "gmLeft": "Cartes à relier",
+  "gmRight": "Relations proposées",
+  "gmCorrectLink": "Association juste.",
+  "gmWrongLink": "Cette association ne convient pas. Retenir :",
+  "gmAccuracy": "{correct}/{total} relations au premier essai · {errors} erreurs",
+  "gmAssisted": "Plateau terminé avec aide : entraînement, sans nouvelle preuve de maîtrise.",
+  "gmRecorded": "Résultat enregistré dans ta progression.",
+  "gmAlreadyRecorded": "Ce plateau a déjà été validé. Rejouer reste un entraînement.",
+  "gmSaveError": "La progression n’a pas pu être enregistrée. Réessaie.",
+  "gmReplay": "Rejouer",
+  "@gmBoard": {
+    "placeholders": {
+      "board": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "@gmAccuracy": {
+    "placeholders": {
+      "correct": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "errors": {
+        "type": "int"
+      }
+    }
+  }
 }

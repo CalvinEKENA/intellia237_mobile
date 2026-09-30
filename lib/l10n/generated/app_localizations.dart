@@ -12429,6 +12429,204 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'M’entraîner'**
   String get companionActionPractice;
+
+  /// No description provided for @pvTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon avancée'**
+  String get pvTitle;
+
+  /// No description provided for @pvChapterMap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma carte du parcours'**
+  String get pvChapterMap;
+
+  /// No description provided for @pvChapterScope.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les anneaux comptent les notions au seuil du pack. Une lecture seule ne certifie pas un acquis.'**
+  String get pvChapterScope;
+
+  /// No description provided for @pvNoAvailablePack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun chapitre disponible pour ta classe sur cet appareil.'**
+  String get pvNoAvailablePack;
+
+  /// No description provided for @pvStrengthen.
+  ///
+  /// In fr, this message translates to:
+  /// **'À renforcer'**
+  String get pvStrengthen;
+
+  /// No description provided for @pvNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma prochaine étape'**
+  String get pvNextStep;
+
+  /// No description provided for @pvQuizActivity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes 14 derniers jours de Quiz'**
+  String get pvQuizActivity;
+
+  /// No description provided for @pvQuizHistoryScope.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séances Quiz terminées conservées sur cet appareil (30 au maximum). Un zéro ne décrit pas tout ton travail.'**
+  String get pvQuizHistoryScope;
+
+  /// No description provided for @pvQuizCurve.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes résultats, Quiz par Quiz'**
+  String get pvQuizCurve;
+
+  /// No description provided for @pvQuizCurveScope.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un même Quiz et un même mode. Les questions peuvent varier : cette courbe représente tes scores, pas une mesure de maîtrise.'**
+  String get pvQuizCurveScope;
+
+  /// No description provided for @pvNoQuizHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Termine un Quiz pour retrouver ici ton premier résultat.'**
+  String get pvNoQuizHistory;
+
+  /// No description provided for @pvCurveNeedsTwo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un premier résultat est enregistré. La courbe apparaîtra avec une deuxième séance de ce Quiz dans ce mode.'**
+  String get pvCurveNeedsTwo;
+
+  /// No description provided for @pvGoalActiveDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days} jours actifs enregistrés cette semaine · objectif {target}'**
+  String pvGoalActiveDays(int days, int target);
+
+  /// No description provided for @pvQuizDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'{date} : {sessions} séances Quiz enregistrées'**
+  String pvQuizDay(String date, int sessions);
+
+  /// No description provided for @profilePhotoTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de profil'**
+  String get profilePhotoTitle;
+
+  /// No description provided for @profilePhotoGallery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir depuis la galerie'**
+  String get profilePhotoGallery;
+
+  /// No description provided for @profilePhotoCamera.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prendre une photo'**
+  String get profilePhotoCamera;
+
+  /// No description provided for @profilePhotoRemove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la photo'**
+  String get profilePhotoRemove;
+
+  /// No description provided for @profilePhotoUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photo de profil mise à jour'**
+  String get profilePhotoUpdated;
+
+  /// No description provided for @profilePhotoError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La photo n’a pas pu être enregistrée. Vérifie la connexion et réessaie.'**
+  String get profilePhotoError;
+
+  /// No description provided for @profilePhotoRemoveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La photo n’a pas pu être supprimée. Réessaie quand la connexion est disponible.'**
+  String get profilePhotoRemoveError;
+
+  /// No description provided for @gmBoard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plateau {board}/{total} · difficulté {level}'**
+  String gmBoard(int board, int total, int level);
+
+  /// No description provided for @gmInstruction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis une carte dans la première liste, puis sa relation dans la seconde. Reconstruis toutes les associations.'**
+  String get gmInstruction;
+
+  /// No description provided for @gmLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cartes à relier'**
+  String get gmLeft;
+
+  /// No description provided for @gmRight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relations proposées'**
+  String get gmRight;
+
+  /// No description provided for @gmCorrectLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Association juste.'**
+  String get gmCorrectLink;
+
+  /// No description provided for @gmWrongLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette association ne convient pas. Retenir :'**
+  String get gmWrongLink;
+
+  /// No description provided for @gmAccuracy.
+  ///
+  /// In fr, this message translates to:
+  /// **'{correct}/{total} relations au premier essai · {errors} erreurs'**
+  String gmAccuracy(int correct, int total, int errors);
+
+  /// No description provided for @gmAssisted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plateau terminé avec aide : entraînement, sans nouvelle preuve de maîtrise.'**
+  String get gmAssisted;
+
+  /// No description provided for @gmRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résultat enregistré dans ta progression.'**
+  String get gmRecorded;
+
+  /// No description provided for @gmAlreadyRecorded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce plateau a déjà été validé. Rejouer reste un entraînement.'**
+  String get gmAlreadyRecorded;
+
+  /// No description provided for @gmSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'La progression n’a pas pu être enregistrée. Réessaie.'**
+  String get gmSaveError;
+
+  /// No description provided for @gmReplay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rejouer'**
+  String get gmReplay;
 }
 
 class _AppLocalizationsDelegate
