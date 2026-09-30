@@ -115,7 +115,7 @@ void main() {
     }
     final manifest = File(
       'android/app/src/main/AndroidManifest.xml',
-    ).readAsStringSync();
+    ).readAsStringSync().replaceAll('\r\n', '\n');
     expect(
       manifest,
       contains(

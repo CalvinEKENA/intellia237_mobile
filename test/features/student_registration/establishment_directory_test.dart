@@ -45,7 +45,7 @@ void main() {
       final output = runImport();
       for (final entry in output.files.entries) {
         expect(
-          File(entry.key).readAsStringSync(),
+          File(entry.key).readAsStringSync().replaceAll('\r\n', '\n'),
           entry.value,
           reason: '${entry.key} : relancer import_master_catalog.dart',
         );
