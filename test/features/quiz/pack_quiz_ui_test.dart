@@ -388,6 +388,26 @@ void main() {
   });
 
   group('séance avec Kira (entraînement)', () {
+    testWidgets(
+      'erreur avec feedback de choix : réponse et explication visibles',
+      (tester) async {
+        final container = await _pump(tester);
+        final plan = _plan(container, _physics2, PackQuizMode.training);
+        await _open(tester, _physics2, PackQuizMode.training);
+        await _tap(tester, _key('pack-quiz-begin'));
+        final first = plan.items.first.question;
+        expect(first.choiceFeedback, isNotEmpty);
+        await _answer(tester, first, right: false);
+        await _tap(tester, _key('pack-quiz-validate'));
+        await _reveal(tester, _key('pack-quiz-expected-answer'));
+        expect(_key('pack-quiz-expected-answer'), findsOneWidget);
+        expect(_key('pack-quiz-explanation'), findsOneWidget);
+        expect(
+          tester.widget<Text>(_key('pack-quiz-explanation')).data,
+          first.explanation,
+        );
+      },
+    );
     testWidgets('accueil, question, bonne réponse, indice du pack, bilan, '
         'maîtrise et historique', (tester) async {
       final container = await _pump(tester);
@@ -520,6 +540,8 @@ void main() {
           findsOneWidget,
         );
         expect(_key('pack-quiz-hint'), findsNothing);
+        expect(_key('pack-quiz-expected-answer'), findsNothing);
+        expect(_key('pack-quiz-explanation'), findsNothing);
         await _answer(tester, item.question, right: index.isEven);
         await _tap(tester, _key('pack-quiz-validate'));
         // Rien n'est révélé pendant l'évaluation.
@@ -530,6 +552,7 @@ void main() {
       for (var i = 0; i < plan.length; i++) {
         await _reveal(tester, _key('pack-quiz-review-$i'));
         expect(_key('pack-quiz-review-$i'), findsOneWidget);
+        expect(_key('pack-quiz-review-answer-$i'), findsOneWidget);
       }
       expect(tester.takeException(), isNull);
     });

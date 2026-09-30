@@ -17,6 +17,7 @@ import '../../content_engine/presentation/content_style.dart';
 import '../../content_engine/presentation/content_subject_screen.dart';
 import '../../content_engine/presentation/subject_identity.dart';
 import '../../content_engine/presentation/widgets/answer_input.dart';
+import '../../content_engine/presentation/widgets/answer_summary.dart';
 import '../../content_engine/presentation/widgets/practice_panel.dart'
     show diagnosisText;
 import '../../rewards/application/reward_providers.dart';
@@ -714,8 +715,19 @@ class _Feedback extends StatelessWidget {
                   ),
                 ),
               ],
-              if (explanation != null &&
-                  (answer.correct || !answer.hasChoiceFeedback)) ...[
+              if (!answer.correct) ...[
+                const SizedBox(height: 6),
+                Text(
+                  l10n.expectedAnswer(answerSummary(context, question.answer)),
+                  key: const ValueKey('pack-quiz-expected-answer'),
+                  style: ContentText.body(
+                    color: palette.textPrimary,
+                    size: 14.5,
+                    weight: FontWeight.w700,
+                  ),
+                ),
+              ],
+              if (explanation != null) ...[
                 const SizedBox(height: 6),
                 Text(
                   explanation,
@@ -1071,6 +1083,12 @@ class _AnswerReview extends StatelessWidget {
               size: 14.5,
               weight: FontWeight.w600,
             ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l10n.expectedAnswer(answerSummary(context, question.answer)),
+            key: ValueKey('pack-quiz-review-answer-$index'),
+            style: ContentText.body(color: palette.textPrimary, size: 14),
           ),
           if (question.explanation case final explanation?) ...[
             const SizedBox(height: 4),

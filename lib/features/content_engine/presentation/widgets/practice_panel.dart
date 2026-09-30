@@ -19,6 +19,7 @@ import '../../engine/answer_checker.dart';
 import '../../engine/companion_engine.dart';
 import '../content_style.dart';
 import 'answer_input.dart';
+import 'answer_summary.dart';
 import 'open_response_panel.dart';
 
 /// Texte humain d'un diagnostic de correction.
@@ -529,10 +530,24 @@ class _Feedback extends StatelessWidget {
                     style: ContentText.body(size: 14.5),
                   ),
                 ],
-                if (grade.correct && question.explanation != null) ...[
+                if (!grade.correct) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    l10n.expectedAnswer(
+                      answerSummary(context, question.answer),
+                    ),
+                    key: const ValueKey('practice-expected-answer'),
+                    style: ContentText.body(
+                      size: 14.5,
+                      weight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+                if (question.explanation != null) ...[
                   const SizedBox(height: 6),
                   Text(
                     question.explanation!,
+                    key: const ValueKey('practice-explanation'),
                     style: ContentText.body(size: 14.5),
                   ),
                 ],

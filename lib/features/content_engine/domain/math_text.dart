@@ -175,10 +175,10 @@ const _superscripts = {
 };
 
 /// Forme comparable d'une expression courte : sans espaces ni signe de
-/// multiplication, exposants et racines unifiés, en minuscules.
+/// multiplication, exposants et racines unifiés. Casse des variables conservée.
 String normalizeExpression(String text) {
   var plain = plainMath(text)
-      .toLowerCase()
+      // Les variables physiques/maths sont sensibles à la casse : T ≠ t.
       .replaceAll('⁻¹', '^-1')
       .replaceAll('⁻', '^-')
       .replaceAll('sqrt', '√')

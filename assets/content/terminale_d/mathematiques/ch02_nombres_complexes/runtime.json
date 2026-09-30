@@ -106,6 +106,31 @@
         2,
         "2i",
         -2
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": 7,
+          "feedback": "7 est la partie réelle."
+        },
+        {
+          "id": "b",
+          "label": 2,
+          "feedback": "La partie imaginaire est le coefficient réel de i : 2."
+        },
+        {
+          "id": "c",
+          "label": "2i",
+          "feedback": "2i est le terme imaginaire ; Im(z) est son coefficient 2."
+        },
+        {
+          "id": "d",
+          "label": -2,
+          "feedback": "Le terme est +2i : le coefficient a un signe positif."
+        }
+      ],
+      "correct_option_ids": [
+        "b"
       ]
     },
     {
@@ -581,6 +606,31 @@
         "un cercle de centre (1,−1) et de rayon 2",
         "un cercle de centre (−1,1) et de rayon 2",
         "un point"
+      ],
+      "option_metadata": [
+        {
+          "id": "a",
+          "label": "une droite",
+          "feedback": "Une égalité de distance à un centre avec rayon positif décrit un cercle, pas une droite."
+        },
+        {
+          "id": "b",
+          "label": "un cercle de centre (1,−1) et de rayon 2",
+          "feedback": "z₀ = 1 − i a pour coordonnées (1, −1) et la distance fixée vaut 2."
+        },
+        {
+          "id": "c",
+          "label": "un cercle de centre (−1,1) et de rayon 2",
+          "feedback": "Le centre est (1, −1) : ne change pas les signes des coordonnées de z₀."
+        },
+        {
+          "id": "d",
+          "label": "un point",
+          "feedback": "Le rayon vaut 2, donc le lieu contient tous les points à cette distance, pas un seul point."
+        }
+      ],
+      "correct_option_ids": [
+        "b"
       ]
     },
     {

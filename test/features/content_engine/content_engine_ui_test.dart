@@ -256,9 +256,17 @@ void main() {
       await _settle(tester);
       expect(find.text('Pas encore.'), findsOneWidget);
       expect(find.textContaining('Une partie est juste'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('practice-explanation')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('practice-expected-answer')),
+        findsOneWidget,
+      );
 
       await _tap(tester, find.byKey(const ValueKey('practice-why-wrong')));
-      expect(find.text('6×7=42 et 47−42=5.'), findsOneWidget);
+      expect(find.text('6×7=42 et 47−42=5.'), findsNWidgets(2));
 
       await _tap(tester, find.byKey(const ValueKey('practice-retry')));
       await tester.enterText(find.byKey(const ValueKey('answer-field-q')), '7');

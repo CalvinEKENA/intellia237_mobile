@@ -195,7 +195,7 @@ class AnswerChecker {
       // mesure) ; une fraction ou un arrondi ne sont pas acceptés ici.
       final given =
           parseInteger(text) ??
-          switch (_zeroDecimals.firstMatch(text.trim())) {
+          switch (_zeroDecimals.firstMatch(_plain(text))) {
             final match? => parseInteger(match.group(1)!),
             null => null,
           };
@@ -456,11 +456,11 @@ String normalizeText(String text) =>
     _plain(text).replaceAll(RegExp(r'[₀-₉]+$'), '').toLowerCase();
 
 /// « 17, 17 ; 23 » ou « 512+256+128 » → liste d'entiers ; `null` si un
-/// morceau est illisible.
+/// morceau est illisible. Un moins est toujours le signe de l'entier suivant.
 List<int>? parseIntegerList(String text) {
   final normalized = text.replaceAll(RegExp(r'[−–—]'), '-');
   final parts = normalized
-      .split(RegExp(r'[,;+×x*/\s]+|(?<=\d)\s*-\s*(?=\d)'))
+      .split(RegExp(r'[,;+×x*\s]+'))
       .where((part) => part.trim().isNotEmpty)
       .toList();
   if (parts.isEmpty) return null;

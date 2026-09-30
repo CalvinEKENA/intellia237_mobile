@@ -646,7 +646,7 @@
       "concept_id": "derived_quantities",
       "difficulty": 2,
       "type": "mcq",
-      "prompt": "Quelle unité fondamentale correspond à une accélération de dimension L T^-2 ?",
+      "prompt": "Quelle unité SI, exprimée à partir des unités de base, correspond à une accélération de dimension L T^-2 ?",
       "answer": "m·s^-2",
       "explanation": "Une accélération s'exprime en mètre par seconde carrée.",
       "hints": [
@@ -1570,7 +1570,7 @@
       "hints": [
         {
           "level": 1,
-          "content": "Isole g = P/m et remplace N par kg·m·s^-2."
+          "content": "Isole g dans P = m·g, puis divise l’unité de force par l’unité de masse."
         }
       ],
       "auto_score": true,

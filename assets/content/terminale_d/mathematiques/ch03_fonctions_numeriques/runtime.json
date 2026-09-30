@@ -306,7 +306,7 @@
       "hints": [
         {
           "level": 1,
-          "content": "Poursuis les subdivisions autour de 0,68."
+          "content": "À chaque étape, garde le demi-intervalle dont les bornes donnent des signes opposés, puis vérifie la précision demandée."
         }
       ],
       "auto_score": true,
