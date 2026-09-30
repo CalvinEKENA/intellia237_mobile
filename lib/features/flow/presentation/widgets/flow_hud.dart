@@ -12,9 +12,10 @@ import '../../application/flow_controller.dart';
 /// Discrète et toujours présente — l'élève garde le fil de sa progression
 /// sans jamais revenir à une liste.
 class FlowHud extends ConsumerWidget {
-  const FlowHud({required this.onClose, super.key});
+  const FlowHud({required this.onClose, this.onOverview, super.key});
 
   final VoidCallback onClose;
+  final VoidCallback? onOverview;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,7 +34,20 @@ class FlowHud extends ConsumerWidget {
           children: [
             Row(
               children: [
-                _ExitButton(onTap: onClose),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.sizeOf(context).width * 0.5,
+                  ),
+                  child: _ExitButton(onTap: onClose),
+                ),
+                if (onOverview != null)
+                  IconButton(
+                    key: const ValueKey('flow-open-overview'),
+                    onPressed: onOverview,
+                    tooltip: context.l10n.pvTitle,
+                    icon: const Icon(Icons.timeline_rounded),
+                    color: IntelliaColors.brandIndigo,
+                  ),
                 const SizedBox(width: IntelliaSpacing.xs),
                 Expanded(
                   child: SingleChildScrollView(
@@ -116,7 +130,9 @@ class FlowHud extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(99),
                     child: TweenAnimationBuilder<double>(
                       tween: Tween(begin: 0, end: p.levelProgress),
-                      duration: IntelliaMotion.slow,
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : IntelliaMotion.slow,
                       curve: Curves.easeOutCubic,
                       builder: (context, value, _) => LinearProgressIndicator(
                         value: value,
@@ -220,12 +236,14 @@ class _ExitButton extends StatelessWidget {
                 color: Colors.white,
               ),
               const SizedBox(width: 6),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
+              Flexible(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ],

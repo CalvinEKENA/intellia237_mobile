@@ -23,6 +23,7 @@ import 'widgets/flow_hud.dart';
 import 'widgets/flow_empty_view.dart';
 import 'widgets/flow_swipe_affordance.dart';
 import 'widgets/flow_view_switcher.dart';
+import 'parcours_overview.dart';
 
 /// L'expérience Flow : un feed vertical plein écran de cartes-leçons.
 ///
@@ -518,7 +519,10 @@ class _FlowScreenState extends ConsumerState<_FlowPager> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    FlowHud(onClose: _close),
+                    FlowHud(
+                      onClose: _close,
+                      onOverview: () => showParcoursOverview(context),
+                    ),
                     FlowViewSwitcher(
                       mode: _mode,
                       subjects: flowSubjects(_cards),

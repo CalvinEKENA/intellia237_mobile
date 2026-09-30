@@ -6,6 +6,7 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../app/theme/design_tokens.dart';
 import '../../../../core/localization/localization_extensions.dart';
 import '../../application/flow_controller.dart';
+import '../parcours_overview.dart';
 
 /// Ce que voit l'élève quand le fil n'a rien à lui proposer.
 ///
@@ -26,54 +27,62 @@ class FlowEmptyView extends ConsumerWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(IntelliaSpacing.xl),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.bolt_rounded,
-                size: 44,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(height: IntelliaSpacing.md),
-              Text(
-                l10n.parcoursEmptyTitle,
-                key: const ValueKey('flow-empty-title'),
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.bolt_rounded,
+                  size: 44,
+                  color: theme.colorScheme.primary,
                 ),
-              ),
-              const SizedBox(height: IntelliaSpacing.sm),
-              Text(
-                l10n.parcoursEmptyBody,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                const SizedBox(height: IntelliaSpacing.md),
+                Text(
+                  l10n.parcoursEmptyTitle,
+                  key: const ValueKey('flow-empty-title'),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              const SizedBox(height: IntelliaSpacing.xl),
-              // Une carte publiée à l'instant ne doit pas attendre une
-              // relance de l'application.
-              FilledButton.tonalIcon(
-                key: const ValueKey('flow-empty-refresh'),
-                onPressed: () => ref.invalidate(flowCatalogProvider),
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(l10n.parcoursEmptyRefresh),
-              ),
-              const SizedBox(height: IntelliaSpacing.sm),
-              FilledButton(
-                key: const ValueKey('flow-empty-exit'),
-                onPressed: () {
-                  if (context.canPop()) {
-                    context.pop();
-                  } else {
-                    context.go(AppRoutes.studentHome);
-                  }
-                },
-                child: Text(l10n.parcoursEmptyHome),
-              ),
-            ],
+                const SizedBox(height: IntelliaSpacing.sm),
+                Text(
+                  l10n.parcoursEmptyBody,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: IntelliaSpacing.xl),
+                TextButton.icon(
+                  key: const ValueKey('flow-empty-overview'),
+                  onPressed: () => showParcoursOverview(context),
+                  icon: const Icon(Icons.timeline_rounded),
+                  label: Text(l10n.pvTitle),
+                ),
+                // Une carte publiée à l'instant ne doit pas attendre une
+                // relance de l'application.
+                FilledButton.tonalIcon(
+                  key: const ValueKey('flow-empty-refresh'),
+                  onPressed: () => ref.invalidate(flowCatalogProvider),
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: Text(l10n.parcoursEmptyRefresh),
+                ),
+                const SizedBox(height: IntelliaSpacing.sm),
+                FilledButton(
+                  key: const ValueKey('flow-empty-exit'),
+                  onPressed: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.go(AppRoutes.studentHome);
+                    }
+                  },
+                  child: Text(l10n.parcoursEmptyHome),
+                ),
+              ],
+            ),
           ),
         ),
       ),
