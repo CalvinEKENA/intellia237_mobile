@@ -174,3 +174,11 @@ aucun polling, aucun job en attente.
 Les tests existants `test/features/rewards/reward_stage_test.dart` couvrent le
 repli procédural, le passage des gestes et Reduce Motion. Ils ne prouvent ni
 la performance d'un futur clip ni son rendu sur appareil réel.
+
+## Vérification finale du compte — 30 septembre 2026
+
+Nouvel appel read-only de balance : 2,75 crédits, plan free ; Genjutsu 1 gratuit
+(480p, ≤30 s), Viral 1 gratuit (480p/720p). L’essai est toujours pending et
+`unlim_available=false`. Aucun job ni activation d’essai : coût de cette mission
+0 crédit ; aucune génération vidéo intégrée. Les deux compteurs gratuits sont
+intacts. L’image/Splash/Auth existants ne sont pas réutilisés.
