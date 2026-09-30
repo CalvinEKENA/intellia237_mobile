@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -61,6 +61,9 @@ import 'widgets/student_home_header.dart';
 import 'widgets/student_home_skeleton.dart';
 import 'widgets/subjects_carousel.dart';
 import '../../study_reserve/presentation/study_reserve_card.dart';
+import '../../profile/presentation/widgets/profile_identity_card.dart';
+import '../../profile/presentation/widgets/profile_surfaces.dart';
+import '../../profile/presentation/widgets/profile_weekly_goal.dart';
 
 /// Compteur de taps de navigation : outil de diagnostic de terrain.
 ///
@@ -936,64 +939,83 @@ class StudentProfileTab extends ConsumerWidget {
     final showBuildIdentity = kDebugMode;
 
     final sections = <Widget>[
-      const StudentLearningIdentity(),
-      const SizedBox(height: 12),
-      _TutorSection(classLevel: academicAsync.valueOrNull?.classLevel),
-      const SizedBox(height: 16),
-      // Réserve d'étude de l'élève (product-safe) : gouverne le tuteur IA.
-      const StudyReserveCard(),
+      const IntelliaProfileIdentityCard(),
       const SizedBox(height: 24),
-      const StudentMasterySummary(),
-      const SizedBox(height: 28),
-      const StudentSubjectMastery(),
+      IntelliaProfileSection(
+        title: context.l10n.myProgress,
+        children: const [
+          Padding(padding: EdgeInsets.all(18), child: StudentMasterySummary()),
+          ProfileWeeklyGoal(),
+        ],
+      ),
       const SizedBox(height: 24),
+      IntelliaProfileSection(
+        title: context.l10n.learningCompanion,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: _TutorSection(
+              classLevel: academicAsync.valueOrNull?.classLevel,
+            ),
+          ),
+          const Padding(padding: EdgeInsets.all(16), child: StudyReserveCard()),
+        ],
+      ),
+      const SizedBox(height: 24),
+      IntelliaProfileSection(
+        title: context.l10n.academicJourney,
+        children: const [
+          Padding(padding: EdgeInsets.all(18), child: StudentSubjectMastery()),
+        ],
+      ),
+      const SizedBox(height: 20),
       const StudentLearningContinuity(),
       const SizedBox(height: 16),
       const OfficialRecordNotice(),
       const SizedBox(height: 20),
       const StudentLinkCodeCard(),
       const SizedBox(height: 20),
-      ListTile(
-        onTap: () => context.push(AppRoutes.settings),
-        leading: const Icon(Icons.settings_outlined),
-        title: Text(context.l10n.settingsTitle),
-        subtitle: Text(context.l10n.settingsDescription),
-        trailing: const Icon(Icons.chevron_right_rounded),
+      IntelliaProfileSection(
+        title: context.l10n.settingsTitle,
+        children: [
+          IntelliaProfileTile(
+            onTap: () => context.push(AppRoutes.settings),
+            leading: const Icon(Icons.tune_rounded),
+            title: Text(context.l10n.settingsTitle),
+            subtitle: Text(context.l10n.settingsDescription),
+          ),
+          IntelliaProfileTile(
+            destructive: true,
+            leading: const Icon(Icons.logout_rounded),
+            title: Text(context.l10n.signOutTitle),
+            onTap: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                animationStyle: profileDialogAnimation(context, ref),
+                builder: (dialogContext) => CupertinoAlertDialog(
+                  title: Text(context.l10n.signOutQuestion),
+                  content: Text(context.l10n.signOutDescription),
+                  actions: [
+                    CupertinoDialogAction(
+                      onPressed: () => Navigator.pop(dialogContext, false),
+                      child: Text(context.l10n.cancelLabel),
+                    ),
+                    CupertinoDialogAction(
+                      isDestructiveAction: true,
+                      onPressed: () => Navigator.pop(dialogContext, true),
+                      child: Text(context.l10n.signOutTitle),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                await ref.read(authControllerProvider.notifier).signOut();
+              }
+            },
+          ),
+        ],
       ),
       const SizedBox(height: IntelliaSpacing.xl),
-      OutlinedButton.icon(
-        onPressed: () async {
-          final confirmed = await showDialog<bool>(
-            context: context,
-            builder: (dialogContext) => AlertDialog(
-              title: Text(context.l10n.signOutQuestion),
-              content: Text(context.l10n.signOutDescription),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogContext, false),
-                  child: Text(context.l10n.cancelLabel),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.pop(dialogContext, true),
-                  child: Text(context.l10n.signOutTitle),
-                ),
-              ],
-            ),
-          );
-          if (confirmed == true) {
-            await ref.read(authControllerProvider.notifier).signOut();
-          }
-        },
-        icon: const Icon(Icons.logout_rounded, color: Colors.red),
-        label: Text(
-          context.l10n.signOutTitle,
-          style: const TextStyle(color: Colors.red),
-        ),
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Colors.red),
-          padding: const EdgeInsets.symmetric(vertical: IntelliaSpacing.md),
-        ),
-      ),
       if (showBuildIdentity) ...[
         const SizedBox(height: IntelliaSpacing.md),
         _BuildIdentityLabel(identity: ref.watch(buildIdentityProvider)),
@@ -1001,14 +1023,14 @@ class StudentProfileTab extends ConsumerWidget {
     ];
 
     return Material(
-      color: MasteryStyle.paper,
+      color: IntelliaColors.backgroundPremium,
       child: _ResponsiveBody(
         child: CustomScrollView(
           slivers: [
             PinnedHeaderSliver(
               key: const ValueKey('profile-sticky-header'),
               child: Material(
-                color: MasteryStyle.paper,
+                color: IntelliaColors.backgroundPremium,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
@@ -1038,7 +1060,12 @@ class StudentProfileTab extends ConsumerWidget {
                 IntelliaSpacing.lg,
                 132,
               ),
-              sliver: SliverList.list(children: sections),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: sections,
+                ),
+              ),
             ),
           ],
         ),
@@ -1123,7 +1150,7 @@ class _TutorSection extends ConsumerWidget {
     TutorPersona? current,
     String? classLevel,
   ) {
-    HapticFeedback.lightImpact();
+    profileSelectionHaptic(ref);
     final filterLevel = SchoolClassX.tutorLevelFromClassLabel(classLevel);
     final params = <String, String>{};
     if (filterLevel != null) params['filterLevel'] = filterLevel;

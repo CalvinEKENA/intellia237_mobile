@@ -48,6 +48,8 @@ const _coveredPublicCardTypes = {
   'StreakMotivationCard',
   'WeeklyGoalCard',
   'StudentProfileTutorCard',
+  // Dedicated FR/EN 320/360/412/480 px, text x2: profile_premium_test.dart.
+  'IntelliaProfileIdentityCard',
   // Dedicated FR/EN matrix: test/features/mastery/mastery_widget_test.dart.
   'MasterySubjectCard',
   'CampusKpiCard',

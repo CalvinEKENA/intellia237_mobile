@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'profile_surfaces.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/localization/localization_extensions.dart';
@@ -21,7 +23,8 @@ class AccountDeletionTile extends ConsumerWidget {
         : deletion.isInProgress
         ? l10n.deleteInProgressSubtitle
         : l10n.deleteAccountDescription;
-    return ListTile(
+    return IntelliaProfileTile(
+      destructive: true,
       leading: const Icon(Icons.delete_outline_rounded),
       title: Text(l10n.deleteAccountTitle),
       subtitle: Text(subtitle),
@@ -42,15 +45,16 @@ class AccountDeletionTile extends ConsumerWidget {
   Future<void> _request(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      animationStyle: profileDialogAnimation(context, ref),
+      builder: (dialogContext) => CupertinoAlertDialog(
         title: Text(context.l10n.deleteRequestQuestion),
         content: Text(context.l10n.deleteRequestBody),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(context.l10n.cancelLabel),
           ),
-          FilledButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(context.l10n.sendRequestLabel),
           ),
@@ -82,15 +86,16 @@ class AccountDeletionTile extends ConsumerWidget {
   Future<void> _cancel(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      animationStyle: profileDialogAnimation(context, ref),
+      builder: (dialogContext) => CupertinoAlertDialog(
         title: Text(context.l10n.cancelDeletionQuestion),
         content: Text(context.l10n.cancelDeletionBody),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(context.l10n.cancelLabel),
           ),
-          FilledButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(context.l10n.cancelDeletionAction),
           ),

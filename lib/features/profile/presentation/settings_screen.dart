@@ -1,4 +1,5 @@
 import '../../auth/domain/app_role.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +14,8 @@ import '../../rewards/domain/haptic_pattern.dart';
 import '../application/user_preferences_controller.dart';
 import '../../legal/presentation/legal_links.dart';
 import '../../auth/application/auth_controller.dart';
-import '../../auth/presentation/widgets/role_switch_action.dart';
+import '../../auth/presentation/widgets/living_pass.dart' show passRoleLabel;
+import 'widgets/profile_surfaces.dart';
 import 'widgets/account_deletion_tile.dart';
 import '../data/email_verification_service.dart';
 
@@ -43,68 +45,71 @@ class SettingsScreen extends ConsumerWidget {
     return TabSurface(
       palette: palette,
       child: Scaffold(
-        backgroundColor: IntelliaColors.backgroundPrimary,
-        appBar: AppBar(title: Text(l10n.settingsTitle)),
+        backgroundColor: IntelliaColors.backgroundPremium,
+        appBar: AppBar(
+          backgroundColor: IntelliaColors.backgroundPremium,
+          scrolledUnderElevation: 0,
+          title: Text(l10n.settingsTitle),
+        ),
         body: ListView(
           padding: const EdgeInsets.all(IntelliaSpacing.lg),
           children: [
-            _Section(
+            Text(l10n.settingsDescription, style: IntelliaTypography.body()),
+            const SizedBox(height: IntelliaSpacing.md),
+            IntelliaProfileSection(
               title: l10n.readingComfortSection,
               children: [
-                ListTile(
+                IntelliaProfileTile(
                   leading: const Icon(Icons.text_fields_rounded),
                   title: Text(l10n.textSizeLabel),
-                  subtitle: Slider(
+                  stackTrailing: true,
+                  subtitle: CupertinoSlider(
                     value: preferences.textScale,
                     min: 0.9,
                     max: 1.5,
                     divisions: 6,
-                    label: '${(preferences.textScale * 100).round()} %',
                     onChanged: controller.setTextScale,
                   ),
                   trailing: Text('${(preferences.textScale * 100).round()} %'),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.animation_rounded),
-                  title: Text(l10n.reduceMotionLabel),
-                  subtitle: Text(l10n.reduceMotionDescription),
+                IntelliaProfileSwitch(
+                  icon: Icons.animation_rounded,
+                  title: l10n.reduceMotionLabel,
+                  subtitle: l10n.reduceMotionDescription,
                   value: preferences.reduceMotion,
                   onChanged: controller.setReduceMotion,
                 ),
                 // Vibrations pédagogiques : trois choix lisibles en entier,
                 // même en grand texte (pas de segments qui se tronquent).
-                ListTile(
+                IntelliaProfileTile(
                   leading: const Icon(Icons.vibration_rounded),
                   title: Text(l10n.hapticsLabel),
                   subtitle: Text(l10n.hapticsDescription),
                 ),
-                RadioGroup<HapticMode>(
-                  groupValue: preferences.haptics,
-                  onChanged: (mode) {
-                    if (mode != null) controller.setHaptics(mode);
-                  },
-                  child: Column(
-                    children: [
-                      for (final (mode, label) in [
-                        (HapticMode.on, l10n.hapticsOn),
-                        (HapticMode.reduced, l10n.hapticsReduced),
-                        (HapticMode.off, l10n.hapticsOff),
-                      ])
-                        RadioListTile<HapticMode>(
-                          key: ValueKey('haptics-${mode.name}'),
-                          value: mode,
-                          title: Text(label),
-                        ),
-                    ],
+                for (final (mode, label) in [
+                  (HapticMode.on, l10n.hapticsOn),
+                  (HapticMode.reduced, l10n.hapticsReduced),
+                  (HapticMode.off, l10n.hapticsOff),
+                ])
+                  IntelliaProfileTile(
+                    key: ValueKey('haptics-${mode.name}'),
+                    title: Text(label),
+                    selected: preferences.haptics == mode,
+                    trailing: Icon(
+                      preferences.haptics == mode
+                          ? Icons.check_circle_rounded
+                          : Icons.circle_outlined,
+                      color: IntelliaColors.brandIndigo,
+                    ),
+                    onTap: () => controller.setHaptics(mode),
                   ),
-                ),
               ],
             ),
             const SizedBox(height: IntelliaSpacing.md),
-            _Section(
+            IntelliaProfileSection(
               title: l10n.dataRemindersSection,
               children: [
-                ListTile(
+                IntelliaProfileTile(
                   leading: const Icon(Icons.flag_rounded),
                   title: Text(l10n.weeklyGoalTitle),
                   subtitle: Text(switch (ref
@@ -120,22 +125,22 @@ class SettingsScreen extends ConsumerWidget {
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => showPersonalGoalSheet(context, ref),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.data_saver_on_rounded),
-                  title: Text(l10n.dataSaverLabel),
-                  subtitle: Text(l10n.dataSaverDescription),
+                IntelliaProfileSwitch(
+                  icon: Icons.data_saver_on_rounded,
+                  title: l10n.dataSaverLabel,
+                  subtitle: l10n.dataSaverDescription,
                   value: preferences.dataSaver,
                   onChanged: controller.setDataSaver,
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.notifications_none_rounded),
-                  title: Text(l10n.learningRemindersLabel),
-                  subtitle: Text(l10n.learningRemindersDescription),
+                IntelliaProfileSwitch(
+                  icon: Icons.notifications_none_rounded,
+                  title: l10n.learningRemindersLabel,
+                  subtitle: l10n.learningRemindersDescription,
                   value: preferences.notifications,
                   onChanged: controller.setNotifications,
                 ),
                 if (preferences.notifications)
-                  ListTile(
+                  IntelliaProfileTile(
                     leading: const Icon(Icons.schedule_rounded),
                     title: Text(l10n.reminderTimeLabel),
                     subtitle: Text(
@@ -148,20 +153,20 @@ class SettingsScreen extends ConsumerWidget {
                     onTap: () =>
                         _chooseReminderTime(context, controller, preferences),
                   ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.monitor_heart_outlined),
-                  title: Text(l10n.anonymousDiagnosticsLabel),
-                  subtitle: Text(l10n.anonymousDiagnosticsDescription),
+                IntelliaProfileSwitch(
+                  icon: Icons.monitor_heart_outlined,
+                  title: l10n.anonymousDiagnosticsLabel,
+                  subtitle: l10n.anonymousDiagnosticsDescription,
                   value: preferences.diagnostics,
                   onChanged: controller.setDiagnostics,
                 ),
               ],
             ),
             const SizedBox(height: IntelliaSpacing.md),
-            _Section(
+            IntelliaProfileSection(
               title: l10n.privacySection,
               children: [
-                ListTile(
+                IntelliaProfileTile(
                   leading: const Icon(Icons.privacy_tip_outlined),
                   title: Text(l10n.personalDataTitle),
                   subtitle: Text(l10n.personalDataDescription),
@@ -171,14 +176,14 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: IntelliaSpacing.md),
-            _Section(
-              title: l10n.accountSection,
+            IntelliaProfileSection(
+              title: '${l10n.accountSection} · ${l10n.stepSecurity}',
               children: [
                 if ((auth.email ?? '').trim().isNotEmpty)
                   _EmailVerificationTile(
                     status: ref.watch(emailVerificationStatusProvider),
                   ),
-                ListTile(
+                IntelliaProfileTile(
                   leading: const Icon(Icons.phone_android_rounded),
                   title: Text(l10n.addPhoneTitle),
                   subtitle: Text(l10n.addPhoneDescription),
@@ -186,7 +191,7 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => context.push('${AppRoutes.phoneAuth}?mode=link'),
                 ),
                 if (auth.role == AppRole.student)
-                  ListTile(
+                  IntelliaProfileTile(
                     key: const ValueKey('settings-parent-space'),
                     leading: const Icon(Icons.family_restroom_rounded),
                     title: Text(l10n.authParentSpace),
@@ -194,15 +199,26 @@ class SettingsScreen extends ConsumerWidget {
                     trailing: const Icon(Icons.lock_outline_rounded),
                     onTap: () => context.push(AppRoutes.parentAccess),
                   ),
-                const RoleSwitchAction(),
-                ListTile(
+                if (auth.isMultiRole)
+                  IntelliaProfileTile(
+                    key: const ValueKey('role-switch-action'),
+                    leading: const Icon(Icons.swap_horiz_rounded),
+                    title: Text(l10n.authSwitchSpace),
+                    subtitle: Text(
+                      '${l10n.authSpaceCurrent} : ${passRoleLabel(context, auth.role)}\n'
+                      '${l10n.authSwitchSpaceHint}',
+                    ),
+                    onTap: () => context.push(AppRoutes.roleChooser),
+                  ),
+                IntelliaProfileTile(
                   leading: const Icon(Icons.manage_accounts_outlined),
                   title: Text(l10n.editProfileTitle),
                   subtitle: Text(l10n.editProfileDescription),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: () => context.push(AppRoutes.editProfile),
                 ),
-                ListTile(
+                IntelliaProfileTile(
+                  destructive: true,
                   leading: const Icon(Icons.logout_rounded),
                   title: Text(l10n.signOutTitle),
                   subtitle: Text(l10n.signOutDescription),
@@ -243,15 +259,17 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      animationStyle: profileDialogAnimation(context, ref),
+      builder: (dialogContext) => CupertinoAlertDialog(
         title: Text(context.l10n.signOutQuestion),
         content: Text(context.l10n.signOutDescription),
         actions: [
-          TextButton(
+          CupertinoDialogAction(
             onPressed: () => Navigator.pop(dialogContext, false),
             child: Text(context.l10n.cancelLabel),
           ),
-          FilledButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(context.l10n.signOutTitle),
           ),
@@ -272,12 +290,12 @@ class _EmailVerificationTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return status.when(
-      loading: () => ListTile(
+      loading: () => IntelliaProfileTile(
         leading: const Icon(Icons.mark_email_unread_outlined),
         title: Text(context.l10n.emailVerificationTitle),
         subtitle: const LinearProgressIndicator(),
       ),
-      error: (_, _) => ListTile(
+      error: (_, _) => IntelliaProfileTile(
         leading: const Icon(Icons.mark_email_unread_outlined),
         title: Text(context.l10n.emailVerificationTitle),
         subtitle: Text(context.l10n.statusUnavailable),
@@ -287,7 +305,7 @@ class _EmailVerificationTile extends ConsumerWidget {
           icon: const Icon(Icons.refresh_rounded),
         ),
       ),
-      data: (value) => ListTile(
+      data: (value) => IntelliaProfileTile(
         leading: Icon(
           value.isVerified
               ? Icons.verified_rounded
@@ -304,6 +322,7 @@ class _EmailVerificationTile extends ConsumerWidget {
               ? value.email
               : context.l10n.emailRecoveryDescription,
         ),
+        stackTrailing: true,
         trailing: value.isVerified
             ? null
             : TextButton(
@@ -333,46 +352,5 @@ class _EmailVerificationTile extends ConsumerWidget {
         ),
       );
     }
-  }
-}
-
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.children});
-
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = TabSurface.of(context);
-    return Material(
-      color: palette.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(IntelliaRadii.large),
-        side: BorderSide(color: palette.border),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              IntelliaSpacing.md,
-              IntelliaSpacing.md,
-              IntelliaSpacing.md,
-              IntelliaSpacing.xs,
-            ),
-            child: Text(
-              title,
-              style: TextStyle(
-                color: palette.textPrimary,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          ...children,
-        ],
-      ),
-    );
   }
 }

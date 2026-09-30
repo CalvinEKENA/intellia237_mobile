@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -49,8 +50,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final l10n = context.l10n;
     final profileAsync = ref.watch(editableProfileProvider);
     return Scaffold(
-      backgroundColor: IntelliaColors.backgroundPrimary,
-      appBar: AppBar(title: Text(l10n.editProfileTitle)),
+      backgroundColor: IntelliaColors.backgroundPremium,
+      appBar: AppBar(
+        toolbarHeight:
+            56 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.8),
+        title: Text(l10n.editProfileTitle, maxLines: 2),
+        backgroundColor: IntelliaColors.backgroundPremium,
+        scrolledUnderElevation: 0,
+      ),
       body: profileAsync.when(
         loading: () => const IntelliaStateView(kind: IntelliaStateKind.loading),
         error: (error, stackTrace) => IntelliaStateView(
@@ -74,66 +81,94 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: IntelliaSpacing.xl),
-                TextFormField(
-                  controller: _firstName,
-                  textCapitalization: TextCapitalization.words,
-                  autofillHints: const [AutofillHints.givenName],
-                  decoration: InputDecoration(
-                    labelText: l10n.firstNameLabel,
-                    prefixIcon: const Icon(Icons.person_outline_rounded),
-                  ),
-                  validator: (value) => _nameError(value, l10n.firstNameLabel),
-                ),
-                const SizedBox(height: IntelliaSpacing.md),
-                TextFormField(
-                  controller: _lastName,
-                  textCapitalization: TextCapitalization.words,
-                  autofillHints: const [AutofillHints.familyName],
-                  decoration: InputDecoration(
-                    labelText: l10n.lastNameLabel,
-                    prefixIcon: const Icon(Icons.badge_outlined),
-                  ),
-                  validator: (value) => _nameError(value, l10n.lastNameLabel),
-                ),
-                const SizedBox(height: IntelliaSpacing.md),
-                TextFormField(
-                  initialValue: profile.email,
-                  enabled: false,
-                  decoration: InputDecoration(
-                    labelText: l10n.emailLabel,
-                    prefixIcon: const Icon(Icons.mail_outline_rounded),
-                    helperText: l10n.loginEmailImmutable,
-                  ),
-                ),
-                const SizedBox(height: IntelliaSpacing.md),
-                TextFormField(
-                  controller: _phone,
-                  keyboardType: TextInputType.phone,
-                  autofillHints: const [AutofillHints.telephoneNumber],
-                  decoration: InputDecoration(
-                    labelText: l10n.phoneOptionalLabel,
-                    hintText: '6 99 00 00 00',
-                    prefixIcon: const Icon(Icons.phone_outlined),
-                  ),
-                  validator: (value) {
-                    final phone = normalizeCameroonPhone(value ?? '');
-                    if (phone.isEmpty ||
-                        RegExp(r'^\+2376\d{8}$').hasMatch(phone)) {
-                      return null;
-                    }
-                    return l10n.invalidCameroonPhone;
-                  },
+                CupertinoFormSection.insetGrouped(
+                  margin: EdgeInsets.zero,
+                  backgroundColor: Colors.transparent,
+                  children: [
+                    _ProfileFormField(
+                      label: l10n.firstNameLabel,
+                      child: CupertinoTextFormFieldRow(
+                        key: const ValueKey('profile-first-name'),
+                        controller: _firstName,
+                        textCapitalization: TextCapitalization.words,
+                        autofillHints: const [AutofillHints.givenName],
+                        textInputAction: TextInputAction.next,
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                        validator: (value) =>
+                            _nameError(value, l10n.firstNameLabel),
+                      ),
+                    ),
+                    _ProfileFormField(
+                      label: l10n.lastNameLabel,
+                      child: CupertinoTextFormFieldRow(
+                        key: const ValueKey('profile-last-name'),
+                        controller: _lastName,
+                        textCapitalization: TextCapitalization.words,
+                        autofillHints: const [AutofillHints.familyName],
+                        textInputAction: TextInputAction.next,
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                        validator: (value) =>
+                            _nameError(value, l10n.lastNameLabel),
+                      ),
+                    ),
+                    _ProfileFormField(
+                      label: l10n.emailLabel,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SelectableText(profile.email),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.loginEmailImmutable,
+                              style: IntelliaTypography.caption().copyWith(
+                                color: IntelliaColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    _ProfileFormField(
+                      label: l10n.phoneOptionalLabel,
+                      child: CupertinoTextFormFieldRow(
+                        key: const ValueKey('profile-phone'),
+                        controller: _phone,
+                        keyboardType: TextInputType.phone,
+                        autofillHints: const [AutofillHints.telephoneNumber],
+                        textInputAction: TextInputAction.done,
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                        validator: (value) {
+                          final phone = normalizeCameroonPhone(value ?? '');
+                          if (phone.isEmpty ||
+                              RegExp(r'^\+2376\d{8}$').hasMatch(phone)) {
+                            return null;
+                          }
+                          return l10n.invalidCameroonPhone;
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: IntelliaSpacing.xl),
-                FilledButton.icon(
+                CupertinoButton.filled(
+                  key: const ValueKey('profile-save'),
                   onPressed: _saving ? null : _save,
-                  icon: _saving
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.save_outlined),
-                  label: Text(_saving ? l10n.savingLabel : l10n.saveLabel),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_saving) ...[
+                        const CupertinoActivityIndicator(color: Colors.white),
+                        const SizedBox(width: 10),
+                      ],
+                      Flexible(
+                        child: Text(
+                          _saving ? l10n.savingLabel : l10n.saveLabel,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: IntelliaSpacing.md),
                 Text(
@@ -207,4 +242,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       if (mounted) setState(() => _saving = false);
     }
   }
+}
+
+/// Labels stay above fields rather than competing for horizontal space.
+class _ProfileFormField extends StatelessWidget {
+  const _ProfileFormField({required this.label, required this.child});
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: label,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: IntelliaColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        child,
+      ],
+    ),
+  );
 }

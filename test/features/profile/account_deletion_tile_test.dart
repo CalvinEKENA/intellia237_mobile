@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intellia237/features/profile/presentation/widgets/profile_surfaces.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellia237/features/profile/data/account_deletion_service.dart';
@@ -32,6 +35,7 @@ Future<_FakeDeletionService> _pump(
   tester.view.physicalSize = const Size(360, 780);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
+  SharedPreferences.setMockInitialValues({});
   final service = _FakeDeletionService();
   await tester.pumpWidget(
     ProviderScope(
@@ -58,7 +62,7 @@ void main() {
     final service = await _pump(tester, AccountDeletionState.none);
     expect(find.text('Suppression du compte'), findsOneWidget);
 
-    await tester.tap(find.byType(ListTile));
+    await tester.tap(find.byType(IntelliaProfileTile));
     await tester.pumpAndSettle();
     expect(find.textContaining('dans 7 jours'), findsOneWidget);
     await tester.tap(find.text('Envoyer la demande'));
@@ -76,7 +80,7 @@ void main() {
     );
     expect(find.textContaining('Suppression prévue le'), findsOneWidget);
 
-    await tester.tap(find.byType(ListTile));
+    await tester.tap(find.byType(IntelliaProfileTile));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Annuler la suppression'));
     await tester.pumpAndSettle();
@@ -91,9 +95,9 @@ void main() {
       const AccountDeletionState(status: 'processing'),
     );
     expect(find.text('Suppression en cours de traitement.'), findsOneWidget);
-    await tester.tap(find.byType(ListTile));
+    await tester.tap(find.byType(IntelliaProfileTile));
     await tester.pumpAndSettle();
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(CupertinoAlertDialog), findsNothing);
     expect(service.requests + service.cancellations, 0);
   });
 
